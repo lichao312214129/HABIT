@@ -97,7 +97,7 @@ Parameter registry and validation
 
 .. code-block:: python
 
-   from habit.core.schemas.registry import ParamSchemaRegistry
+   from habit.schemas.registry import ParamSchemaRegistry
 
    ParamSchemaRegistry.register("preprocessing", "my_step", MyStepParams)
    model = ParamSchemaRegistry.get("preprocessing", "my_step")

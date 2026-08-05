@@ -42,7 +42,7 @@ def _habit_packages() -> Set[str]:
 def test_machine_learning_statistics_is_distributable() -> None:
     """The evaluation dependency must be included in non-editable installs."""
     packages = _habit_packages()
-    assert "habit.core.machine_learning.statistics" in packages
+    assert "habit.compat.engines.machine_learning.statistics" in packages
 
 
 def test_distribution_excludes_repository_tests() -> None:

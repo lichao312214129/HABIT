@@ -24,6 +24,7 @@ service or someone else's pipeline.
 
 from __future__ import annotations
 
+from habit.recipes.auxiliary import dice, dicom_info, merge_tables
 from habit.recipes.comparison import compare_models, pairwise_delong_test
 from habit.recipes.features import extract_habitat_features, traditional_radiomics
 from habit.recipes.habitat import (
@@ -44,6 +45,12 @@ from habit.recipes.modeling import (
 from habit.recipes.preprocess import preprocess_images
 from habit.recipes.sort_dicom import sort_dicom
 from habit.recipes.result import StudyResult
+from habit.recipes.study import (
+    Study,
+    direct_pooling_habitat,
+    one_step_habitat,
+    two_step_habitat,
+)
 from habit.recipes.test_retest import test_retest_analysis
 from habit.recipes.yaml_runner import run_from_yaml
 
@@ -51,14 +58,20 @@ __all__ = [
     "CVResult",
     "ModelResult",
     "PredictionResult",
+    "Study",
     "StudyResult",
     "apply_habitat_model",
     "compare_models",
     "cross_validate",
+    "dice",
+    "dicom_info",
     "direct_pooling",
+    "direct_pooling_habitat",
     "extract_habitat_features",
     "icc_analysis",
+    "merge_tables",
     "one_step",
+    "one_step_habitat",
     "pairwise_delong_test",
     "predict_model",
     "preprocess_images",
@@ -68,4 +81,5 @@ __all__ = [
     "traditional_radiomics",
     "train_model",
     "two_step",
+    "two_step_habitat",
 ]

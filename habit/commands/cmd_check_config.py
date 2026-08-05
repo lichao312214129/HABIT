@@ -37,35 +37,34 @@ from habit.common import (
 # workflow alias -> lazy loader for the typed config class
 _WORKFLOW_LOADERS: Dict[str, Callable[[], Type]] = {
     "preprocess": lambda: __import__(
-        "habit.core.schemas.workflows.preprocessing", fromlist=["PreprocessingConfig"]
+        "habit.schemas.workflows.preprocessing", fromlist=["PreprocessingConfig"]
     ).PreprocessingConfig,
     "habitat": lambda: __import__(
-        "habit.core.schemas.workflows.habitat", fromlist=["HabitatAnalysisConfig"]
+        "habit.schemas.workflows.habitat", fromlist=["HabitatAnalysisConfig"]
     ).HabitatAnalysisConfig,
     "extract": lambda: __import__(
-        "habit.core.schemas.workflows.habitat", fromlist=["FeatureExtractionConfig"]
+        "habit.schemas.workflows.habitat", fromlist=["FeatureExtractionConfig"]
     ).FeatureExtractionConfig,
     "radiomics": lambda: __import__(
-        "habit.core.schemas.workflows.habitat", fromlist=["RadiomicsConfig"]
+        "habit.schemas.workflows.habitat", fromlist=["RadiomicsConfig"]
     ).RadiomicsConfig,
     "model": lambda: __import__(
-        "habit.core.schemas.workflows.ml", fromlist=["MLConfig"]
+        "habit.schemas.workflows.ml", fromlist=["MLConfig"]
     ).MLConfig,
     "cv": lambda: __import__(
-        "habit.core.schemas.workflows.ml", fromlist=["MLConfig"]
+        "habit.schemas.workflows.ml", fromlist=["MLConfig"]
     ).MLConfig,
     "compare": lambda: __import__(
-        "habit.core.schemas.workflows.ml", fromlist=["ModelComparisonConfig"]
+        "habit.schemas.workflows.ml", fromlist=["ModelComparisonConfig"]
     ).ModelComparisonConfig,
     "icc": lambda: __import__(
-        "habit.core.machine_learning.feature_selectors.icc.config",
-        fromlist=["ICCConfig"],
+        "habit.schemas.workflows.icc", fromlist=["ICCConfig"]
     ).ICCConfig,
     "retest": lambda: __import__(
-        "habit.core.schemas.workflows.ml", fromlist=["TestRetestConfig"]
+        "habit.schemas.workflows.ml", fromlist=["TestRetestConfig"]
     ).TestRetestConfig,
     "sort-dicom": lambda: __import__(
-        "habit.core.schemas.workflows.dicom_sort", fromlist=["DicomSortConfig"]
+        "habit.schemas.workflows.dicom_sort", fromlist=["DicomSortConfig"]
     ).DicomSortConfig,
 }
 
@@ -243,7 +242,7 @@ def _report_model_params(config: object) -> None:
         return
 
     # Imported lazily: model modules pull in heavy optional dependencies.
-    from habit.core.machine_learning.models.factory import ModelFactory
+    from habit.api.plugins import create_ml_model
     from habit.utils.estimator_utils import collect_param_reports
 
     click.echo("\n模型参数检查 / Model parameter check:")
@@ -251,7 +250,7 @@ def _report_model_params(config: object) -> None:
         params = dict(getattr(block, "params", None) or {})
         try:
             with collect_param_reports() as reports:
-                ModelFactory.create(model_name, {"params": params})
+                create_ml_model(model_name, params)
         except Exception as exc:  # noqa: BLE001
             echo_error(f"  {model_name}: 无法构建 / cannot build: {exc}")
             continue

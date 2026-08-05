@@ -15,7 +15,7 @@
 """ComponentRegistry: one name-to-implementation registry per plugin domain.
 
 This builds on the established v0.1 registry base
-(:class:`~habit.core.common.registry.ClassRegistry`) and adds the two things
+(:class:`~habit.registry.base.ClassRegistry`) and adds the two things
 the v1.0 plugin model needs: a declared ``domain`` (convention:
 ``domain == snake_case(ProtocolName)``, singular, so anyone implementing a
 protocol already knows its domain) and parameter validation against the
@@ -34,7 +34,7 @@ from typing import Any, ClassVar, Optional, Tuple, Type, TypeVar
 from pydantic import BaseModel
 
 from habit.exceptions import ComponentNotFoundError, ConfigurationError
-from habit.core.common.registry import ClassRegistry
+from habit.registry.base import ClassRegistry
 
 __all__ = ["ComponentRegistry"]
 

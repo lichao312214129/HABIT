@@ -41,7 +41,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from habit.core.preprocessing.config_schemas import PreprocessingConfig  # noqa: E402
+from habit.schemas.workflows.preprocessing import PreprocessingConfig  # noqa: E402
 from habit.utils.io_utils import get_image_and_mask_paths  # noqa: E402
 
 

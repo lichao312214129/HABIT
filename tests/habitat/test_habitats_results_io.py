@@ -24,7 +24,7 @@ import pandas as pd
 import pytest
 
 from types import SimpleNamespace
-from habit.core.habitat_analysis.services.result_publisher import (
+from habit.compat.engines.habitat_analysis.services.result_publisher import (
     HabitatResultPublisher,
     canonical_csv_column_order,
 )
@@ -61,7 +61,7 @@ class TestHabitatsResultsIo:
     """Round-trip and discovery helpers for habitats results files."""
 
     def test_default_config_format_is_parquet(self) -> None:
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
         assert (
             HabitatAnalysisConfig.model_fields["habitats_results_format"].default
@@ -136,7 +136,7 @@ class TestHabitatsResultsIo:
         tmp_path: Path,
     ) -> None:
         """Legacy CSV files with ``Habitats`` must remain non-interactive."""
-        from habit.core.habitat_analysis.habitat_features.feature_utils import (
+        from habit.compat.engines.habitat_extraction.habitat_features.feature_utils import (
             FeatureUtils,
         )
 

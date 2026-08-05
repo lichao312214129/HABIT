@@ -409,7 +409,7 @@ class HabitClassifier(EstimatorPersistenceMixin, ClassifierMixin, BaseEstimator)
 
     def _validated_config(self) -> Any:
         """Coerce the configured public MLConfig lazily to avoid eager imports."""
-        from habit.core.machine_learning.config_schemas import MLConfig
+        from habit.schemas.workflows.ml import MLConfig
 
         if isinstance(self.config, MLConfig):
             config = self.config
@@ -461,7 +461,9 @@ class HabitClassifier(EstimatorPersistenceMixin, ClassifierMixin, BaseEstimator)
         feature_names: List[str],
     ) -> Any:
         """Delegate pipeline construction to HABIT's registered model infrastructure."""
-        from habit.core.machine_learning.pipeline_builder import PipelineBuilder
+        from habit.compat.estimator_bridge import get_ml_pipeline_builder_class
+
+        PipelineBuilder = get_ml_pipeline_builder_class()
 
         return PipelineBuilder(config=config).build(
             model_name=model_name,
@@ -547,7 +549,7 @@ class HabitatClusterer(EstimatorPersistenceMixin, TransformerMixin, BaseEstimato
 
     def _validated_config(self) -> Any:
         """Coerce habitat configuration only when image processing is requested."""
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
         if isinstance(self.config, HabitatAnalysisConfig):
             return self.config
@@ -560,7 +562,9 @@ class HabitatClusterer(EstimatorPersistenceMixin, TransformerMixin, BaseEstimato
     @staticmethod
     def _create_analysis(config: Any) -> Any:
         """Delegate service assembly to HABIT's existing configurator."""
-        from habit.core.habitat_analysis.configurator import HabitatConfigurator
+        from habit.compat.estimator_bridge import get_habitat_configurator_class
+
+        HabitatConfigurator = get_habitat_configurator_class()
 
         return HabitatConfigurator(config=config).create_habitat_analysis()
 

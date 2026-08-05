@@ -239,8 +239,8 @@ from pathlib import Path
 import logging
 
 from habit.utils.log_utils import setup_logger
-from habit.core.habitat_analysis.configurator import HabitatConfigurator
-from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+from habit.compat.engines.habitat_analysis.configurator import HabitatConfigurator
+from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
 output_path = Path("./results/habitat")
 config = HabitatAnalysisConfig.from_file("config/habitat/config_habitat_two_step.yaml")

@@ -42,14 +42,14 @@ class TestPreprocessingAPI:
 
     def test_batch_processor_accepts_config_without_yaml_reload(self) -> None:
         """Validated config objects must not trigger a second YAML load."""
-        from habit.core.preprocessing.config_schemas import PreprocessingConfig
-        from habit.core.preprocessing.image_processor_pipeline import BatchProcessor
+        from habit.compat.engines.preprocessing.config_schemas import PreprocessingConfig
+        from habit.compat.engines.preprocessing.image_processor_pipeline import BatchProcessor
 
         cfg_path = _require_config("config/preprocessing/config_preprocessing_demo.yaml")
         config = PreprocessingConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.preprocessing.image_processor_pipeline.load_config"
+            "habit.compat.engines.preprocessing.image_processor_pipeline.load_config"
         ) as mock_load:
             processor = BatchProcessor(config=config)
             mock_load.assert_not_called()
@@ -61,14 +61,14 @@ class TestPreprocessingAPI:
         cwd_repo_root: None,
     ) -> None:
         """Domain runner should delegate to BatchProcessor.run()."""
-        from habit.core.preprocessing.config_schemas import PreprocessingConfig
-        from habit.core.preprocessing.run import run_preprocess_from_config
+        from habit.compat.engines.preprocessing.config_schemas import PreprocessingConfig
+        from habit.compat.engines.preprocessing.run import run_preprocess_from_config
 
         cfg_path = _require_config("config/preprocessing/config_preprocessing_demo.yaml")
         config = PreprocessingConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.preprocessing.image_processor_pipeline.BatchProcessor"
+            "habit.compat.engines.preprocessing.image_processor_pipeline.BatchProcessor"
         ) as mock_cls:
             mock_processor = MagicMock()
             mock_cls.return_value = mock_processor
@@ -81,7 +81,7 @@ class TestDicomSortAPI:
 
     def test_dicom_sort_config_from_file(self, cwd_repo_root: None) -> None:
         """DicomSortConfig.from_file resolves paths relative to the YAML."""
-        from habit.core.dicom_sort import DicomSortConfig
+        from habit.schemas.workflows.dicom_sort import DicomSortConfig
 
         cfg_path = _require_config("config/dicom_sort/config_sort_dicom.yaml")
         config = DicomSortConfig.from_file(str(cfg_path))
@@ -94,8 +94,8 @@ class TestHabitatAPI:
 
     def test_apply_habitat_cli_overrides(self, cwd_repo_root: None) -> None:
         """CLI-style flags should mutate the loaded config in place."""
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-        from habit.core.habitat_analysis.run import apply_habitat_cli_overrides
+        from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.compat.engines.habitat_analysis.run import apply_habitat_cli_overrides
 
         cfg_path = _require_config("config/habitat/config_habitat_two_step.yaml")
         config = HabitatAnalysisConfig.from_file(str(cfg_path))
@@ -113,8 +113,8 @@ class TestHabitatAPI:
 
     def test_predict_mode_requires_pipeline_path(self, cwd_repo_root: None) -> None:
         """Predict without pipeline_path must fail before heavy work starts."""
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-        from habit.core.habitat_analysis.run import run_habitat_analysis_from_config
+        from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.compat.engines.habitat_analysis.run import run_habitat_analysis_from_config
 
         cfg_path = _require_config("config/habitat/config_habitat_two_step.yaml")
         config = HabitatAnalysisConfig.from_file(str(cfg_path))
@@ -126,7 +126,7 @@ class TestHabitatAPI:
 
     def test_habitat_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
         """Demo habitat YAML should load through the public schema."""
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
         cfg_path = _require_config("config/habitat/config_habitat_two_step.yaml")
         config = HabitatAnalysisConfig.from_file(str(cfg_path))
@@ -141,15 +141,15 @@ class TestFeatureExtractionAPI:
         cwd_repo_root: None,
     ) -> None:
         """Domain runner should call HabitatMapAnalyzer.run()."""
-        from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
-        from habit.core.habitat_analysis.run import run_feature_extraction_from_config
+        from habit.compat.engines.habitat_analysis.config_schemas import FeatureExtractionConfig
+        from habit.compat.engines.habitat_analysis.run import run_feature_extraction_from_config
 
         cfg_path = _require_config(
             "config/feature_extraction/config_extract_features_demo.yaml"
         )
         config = FeatureExtractionConfig.from_file(str(cfg_path))
 
-        with patch("habit.core.habitat_analysis.run.HabitatConfigurator") as mock_cfg_cls:
+        with patch("habit.compat.engines.habitat_analysis.run.HabitatConfigurator") as mock_cfg_cls:
             mock_extractor = MagicMock()
             mock_cfg_cls.return_value.create_feature_extractor.return_value = (
                 mock_extractor
@@ -173,7 +173,7 @@ class TestFeatureExtractionAPI:
         config = habit.FeatureExtractionConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.habitat_analysis.run.run_feature_extraction_from_config"
+            "habit.compat.engines.habitat_analysis.run.run_feature_extraction_from_config"
         ) as mock_run:
             habit.run_feature_extraction(config)
             mock_run.assert_called_once_with(
@@ -188,7 +188,7 @@ class TestRadiomicsAndAnalysisAPI:
 
     def test_radiomics_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
         """Radiomics schema loads through the public config module."""
-        from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
+        from habit.compat.engines.habitat_analysis.config_schemas import RadiomicsConfig
 
         cfg_path = _require_config(
             "config/radiomics/config_traditional_radiomics.yaml"
@@ -206,7 +206,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = habit.RadiomicsConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.habitat_analysis.run.run_radiomics_from_config"
+            "habit.compat.engines.habitat_analysis.run.run_radiomics_from_config"
         ) as mock_run:
             habit.run_radiomics(config)
             mock_run.assert_called_once_with(config, logger=None)
@@ -224,7 +224,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = habit.ModelComparisonConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.machine_learning.run.run_model_comparison_from_config"
+            "habit.compat.engines.machine_learning.run.run_model_comparison_from_config"
         ) as mock_run:
             habit.run_model_comparison(config)
             mock_run.assert_called_once_with(
@@ -249,7 +249,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = habit.ICCConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.core.machine_learning.feature_selectors.icc.icc.run_icc_analysis_from_config"
+            "habit.compat.engines.machine_learning.feature_selectors.icc.icc.run_icc_analysis_from_config"
         ) as mock_run:
             habit.run_icc_analysis(config)
             mock_run.assert_called_once_with(config)
@@ -263,8 +263,8 @@ class TestMachineLearningAPI:
         cwd_repo_root: None,
     ) -> None:
         """Same-mode override should return the original config instance."""
-        from habit.core.machine_learning.config_schemas import MLConfig
-        from habit.core.machine_learning.run import apply_ml_mode_override
+        from habit.compat.engines.machine_learning.config_schemas import MLConfig
+        from habit.compat.engines.machine_learning.run import apply_ml_mode_override
 
         cfg_path = _require_config(
             "config/machine_learning/config_machine_learning_radiomics.yaml"
@@ -279,15 +279,15 @@ class TestMachineLearningAPI:
         cwd_repo_root: None,
     ) -> None:
         """Holdout workflow.run() is the single ML dispatch entry."""
-        from habit.core.machine_learning.config_schemas import MLConfig
-        from habit.core.machine_learning.run import run_ml_from_config
+        from habit.compat.engines.machine_learning.config_schemas import MLConfig
+        from habit.compat.engines.machine_learning.run import run_ml_from_config
 
         cfg_path = _require_config(
             "config/machine_learning/config_machine_learning_radiomics.yaml"
         )
         config = MLConfig.from_file(str(cfg_path))
 
-        with patch("habit.core.machine_learning.run.MLConfigurator") as mock_cfg_cls:
+        with patch("habit.compat.engines.machine_learning.run.MLConfigurator") as mock_cfg_cls:
             mock_workflow = MagicMock()
             mock_cfg_cls.return_value.create_ml_workflow.return_value = mock_workflow
             run_ml_from_config(config)
@@ -295,7 +295,7 @@ class TestMachineLearningAPI:
 
     def test_run_kfold_requires_train_mode(self) -> None:
         """K-fold runner rejects non-train configs without touching data."""
-        from habit.core.machine_learning.run import run_kfold_from_config
+        from habit.compat.engines.machine_learning.run import run_kfold_from_config
 
         config = MagicMock()
         config.run_mode = "predict"
@@ -308,7 +308,7 @@ class TestMachineLearningAPI:
         cwd_repo_root: None,
     ) -> None:
         """Model comparison schema loads the demo YAML."""
-        from habit.core.machine_learning.config_schemas import ModelComparisonConfig
+        from habit.compat.engines.machine_learning.config_schemas import ModelComparisonConfig
 
         cfg_path = _require_config(
             "config/model_comparison/config_model_comparison_demo.yaml"

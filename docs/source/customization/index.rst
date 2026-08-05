@@ -78,8 +78,8 @@ Custom preprocessors
 
 .. code-block:: python
 
-   from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
-   from habit.core.preprocessing.base_preprocessor import BasePreprocessor
+   from habit.compat.engines.preprocessing.preprocessor_factory import PreprocessorFactory
+   from habit.compat.engines.preprocessing.base_preprocessor import BasePreprocessor
 
    @PreprocessorFactory.register("my_preprocessor")
    class MyPreprocessor(BasePreprocessor):
@@ -120,8 +120,8 @@ Custom preprocessors
 
    import numpy as np
    from scipy.ndimage import gaussian_filter
-   from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
-   from habit.core.preprocessing.base_preprocessor import BasePreprocessor
+   from habit.compat.engines.preprocessing.preprocessor_factory import PreprocessorFactory
+   from habit.compat.engines.preprocessing.base_preprocessor import BasePreprocessor
 
    @PreprocessorFactory.register("gaussian_filter")
    class GaussianFilterPreprocessor(BasePreprocessor):
@@ -146,8 +146,8 @@ Custom feature extractors
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
+   from habit.compat.engines.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
+   from habit.compat.engines.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
 
    @FeatureExtractorRegistry.register('my_feature_extractor')
    class MyFeatureExtractor(BaseClusteringExtractor):
@@ -182,8 +182,8 @@ Custom feature extractors
 .. code-block:: python
 
    import numpy as np
-   from habit.core.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
-   from habit.core.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
+   from habit.compat.engines.habitat_analysis.clustering_features.base_extractor import BaseClusteringExtractor
+   from habit.compat.engines.habitat_analysis.clustering_features.base_extractor import FeatureExtractorRegistry
 
    @FeatureExtractorRegistry.register('local_contrast')
    class LocalContrastExtractor(BaseClusteringExtractor):
@@ -215,8 +215,8 @@ Custom clustering algorithms
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
+   from habit.compat.engines.habitat_analysis.clustering.base_clustering import BaseClustering
+   from habit.compat.engines.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
 
    @ClusteringAlgorithmFactory.register("my_clustering")
    class MyClusteringAlgorithm(BaseClustering):
@@ -256,8 +256,8 @@ Custom clustering algorithms
 
    import numpy as np
    from sklearn.cluster import SpectralClustering
-   from habit.core.habitat_analysis.clustering.base_clustering import BaseClustering
-   from habit.core.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
+   from habit.compat.engines.habitat_analysis.clustering.base_clustering import BaseClustering
+   from habit.compat.engines.habitat_analysis.clustering.base_clustering import ClusteringAlgorithmFactory
 
    @ClusteringAlgorithmFactory.register("spectral")
    class SpectralClusteringAlgorithm(BaseClustering):
@@ -283,8 +283,8 @@ Custom models
 
 .. code-block:: python
 
-   from habit.core.machine_learning.models.base import BaseModel
-   from habit.core.machine_learning.models.factory import ModelFactory
+   from habit.compat.engines.machine_learning.models.base import BaseModel
+   from habit.compat.engines.machine_learning.models.factory import ModelFactory
 
    @ModelFactory.register("my_model")
    class MyModel(BaseModel):
@@ -331,8 +331,8 @@ Custom models
 
    import numpy as np
    from sklearn.neural_network import MLPClassifier
-   from habit.core.machine_learning.models.base import BaseModel
-   from habit.core.machine_learning.models.factory import ModelFactory
+   from habit.compat.engines.machine_learning.models.base import BaseModel
+   from habit.compat.engines.machine_learning.models.factory import ModelFactory
 
    @ModelFactory.register("neural_network")
    class NeuralNetworkModel(BaseModel):
@@ -370,7 +370,7 @@ Custom feature selectors
 .. code-block:: python
 
    from typing import List
-   from habit.core.machine_learning.feature_selectors.selector_registry import (
+   from habit.compat.engines.machine_learning.feature_selectors.selector_registry import (
        SelectorRegistry,
        SelectorContext,
    )
@@ -410,7 +410,7 @@ Custom feature selectors
    import numpy as np
    from typing import List
    from sklearn.feature_selection import mutual_info_classif
-   from habit.core.machine_learning.feature_selectors.selector_registry import (
+   from habit.compat.engines.machine_learning.feature_selectors.selector_registry import (
        SelectorRegistry,
        SelectorContext,
    )

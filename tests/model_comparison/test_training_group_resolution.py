@@ -21,7 +21,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from habit.core.machine_learning.workflows.comparison_workflow import ModelComparison
+from habit.compat.engines.machine_learning.workflows.comparison_workflow import ModelComparison
 
 
 def _build_comparison(split_groups: Dict[str, Any]) -> ModelComparison:

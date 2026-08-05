@@ -19,16 +19,16 @@ These tests enforce the two cross-domain conventions that keep HABIT easy to
 learn:
 
 1. Every registry subclasses the shared
-   :class:`~habit.core.common.registry._BaseRegistry` and therefore exposes the
+   :class:`~habit.registry.base._BaseRegistry` and therefore exposes the
    uniform ``register`` / ``get`` / ``available`` / ``register_params_model`` /
    ``get_params_model`` surface. Class-based factories additionally subclass
-   :class:`~habit.core.common.registry.ClassRegistry` (adding ``create``), while
+   :class:`~habit.registry.base.ClassRegistry` (adding ``create``), while
    callable registries subclass
-   :class:`~habit.core.common.registry.CallableRegistry` (adding ``get_entry`` /
+   :class:`~habit.registry.base.CallableRegistry` (adding ``get_entry`` /
    ``entries``).
 2. Every top-level orchestrator exposes its declared terminal method(s)
    (``run`` or ``fit`` + ``predict``) as listed in
-   :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`.
+   :data:`~habit.compat.orchestrator.ORCHESTRATOR_CONTRACT`.
 
 Registries / orchestrators that depend on optional third-party packages
 (``ants``, ``radiomics``, ...) are skipped when those packages are absent, so
@@ -42,12 +42,12 @@ from typing import Tuple
 
 import pytest
 
-from habit.core.common.registry import (
+from habit.registry.base import (
     CallableRegistry,
     ClassRegistry,
     _BaseRegistry,
 )
-from habit.core.common.orchestrator import (
+from habit.compat.orchestrator import (
     ORCHESTRATOR_CONTRACT,
     check_orchestrator_class,
 )
@@ -60,24 +60,24 @@ from habit.core.common.orchestrator import (
 #: {registry_id: (import_path, attribute_name)}
 CLASS_REGISTRIES = {
     "preprocessor": (
-        "habit.core.preprocessing.preprocessor_factory",
+        "habit.compat.engines.preprocessing.preprocessor_factory",
         "PreprocessorFactory",
     ),
-    "model": ("habit.core.machine_learning.models.factory", "ModelFactory"),
+    "model": ("habit.compat.engines.machine_learning.models.factory", "ModelFactory"),
     "clustering": (
-        "habit.core.habitat_analysis.clustering.base_clustering",
+        "habit.compat.engines.habitat_analysis.clustering.base_clustering",
         "ClusteringAlgorithmFactory",
     ),
     "feature_extractor": (
-        "habit.core.habitat_analysis.clustering_features.base_extractor",
+        "habit.compat.engines.habitat_analysis.clustering_features.base_extractor",
         "FeatureExtractorRegistry",
     ),
     "feature_preprocessing": (
-        "habit.core.habitat_analysis.feature_preprocessing.base_preprocessing",
+        "habit.compat.engines.habitat_analysis.feature_preprocessing.base_preprocessing",
         "PreprocessingMethodFactory",
     ),
     "habitat_feature": (
-        "habit.core.habitat_analysis.feature_registry",
+        "habit.compat.engines.habitat_extraction.feature_registry",
         "HabitatFeatureFactory",
     ),
 }
@@ -86,11 +86,11 @@ CLASS_REGISTRIES = {
 #: {registry_id: (import_path, attribute_name)}
 CALLABLE_REGISTRIES = {
     "feature_selector": (
-        "habit.core.machine_learning.feature_selectors.selector_registry",
+        "habit.compat.engines.machine_learning.feature_selectors.selector_registry",
         "SelectorRegistry",
     ),
     "metric": (
-        "habit.core.machine_learning.evaluation.metrics",
+        "habit.compat.engines.machine_learning.evaluation.metrics",
         "MetricRegistry",
     ),
 }
@@ -189,7 +189,7 @@ def test_habitat_feature_factory_creates_registered_handler() -> None:
     """Habitat feature handlers use the same named factory lookup as preprocessors."""
     from typing import Any, Dict
 
-    from habit.core.habitat_analysis.feature_registry import (
+    from habit.compat.engines.habitat_extraction.feature_registry import (
         BaseHabitatFeature,
         BatchExportContext,
         HabitatFeatureFactory,
@@ -255,11 +255,12 @@ from pathlib import Path
 
 _HABIT_PACKAGE_ROOT = Path(__file__).resolve().parents[1] / "habit"
 
-#: Foundations any layer may import: version, the v0.1 common base, the
-#: canonical exception module, and shared utils.
+#: Foundations any layer may import: version, shared schemas/registry bases,
+#: the canonical exception module, and shared utils.
 _FOUNDATION_PREFIXES = (
     "habit._version",
-    "habit.core.common",
+    "habit.registry",
+    "habit.schemas",
     "habit.exceptions",
     "habit.api.image",  # reused by habit.contracts per architecture mapping
     "habit.utils",
@@ -279,9 +280,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     "habit.contracts": (
         "habit.adapters",
@@ -293,9 +294,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     "habit.adapters": (
         "habit.domain",
@@ -306,9 +307,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     "habit.execution": (
         "habit.adapters",
@@ -319,9 +320,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
         "habit.api.habitat",
         "habit.api.clinical",
     ),
@@ -334,9 +335,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.compat",
         # The v0.1 engines are an upper layer for the domain: every algorithm
         # the domain used to borrow from them now lives in habit.kernels.
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     "habit.registry": (
         "habit.adapters",
@@ -361,9 +362,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     # L4 recipes may assemble anything below them (contracts, adapters,
     # execution, domain, spec, kernels) but must not reach the interface
@@ -374,9 +375,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
     "habit.compat": (
         "habit.cli",
@@ -393,9 +394,9 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.cli",
         "habit.commands",
         "habit.compat",
-        "habit.core.habitat_analysis",
-        "habit.core.machine_learning",
-        "habit.core.preprocessing",
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
     ),
 }
 
@@ -417,9 +418,9 @@ _ENGINE_FREE_PACKAGES = (
 
 #: v0.1 engine prefixes that the lower layers must not reach into at all.
 _ENGINE_PREFIXES = (
-    "habit.core.habitat_analysis",
-    "habit.core.machine_learning",
-    "habit.core.preprocessing",
+    "habit.compat.engines.habitat_analysis",
+    "habit.compat.engines.machine_learning",
+    "habit.compat.engines.preprocessing",
 )
 
 #: L0-L3 packages that must stay free of configuration concepts.
@@ -587,7 +588,7 @@ def test_layer_never_reaches_into_the_v0_engines(package: str) -> None:
 
     This is the debt gate for the algorithm migration: the shared numerics now
     live in ``habit.kernels``, so a domain component reaching back into
-    ``habit.core.habitat_analysis`` means an algorithm was left behind and the
+    ``habit.compat.engines.habitat_analysis`` means an algorithm was left behind and the
     two implementations can drift apart again.
     """
     files = _iter_layer_python_files(package)
@@ -622,7 +623,7 @@ def test_contracts_import_stays_lightweight() -> None:
     Imaging IO must stay lazy so that the contracts layer is usable in
     notebook and service contexts without loading native libraries. (The
     ``yaml`` module is already loaded by the plain ``import habit`` baseline
-    through the v0.1 ``habit.core.common`` config chain, so it is asserted
+    through the plain ``import habit`` baseline, so it is asserted
     at the AST level instead of the module level.)
     """
     import subprocess

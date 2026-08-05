@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Public preprocessing API (thin facade over ``habit.core.preprocessing``)."""
+"""Public preprocessing API."""
 
 from __future__ import annotations
 
@@ -23,14 +23,14 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.core.preprocessing.config_schemas import PreprocessingConfig
+    from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
 __all__ = ["PreprocessingConfig", "run_preprocess"]
 
 
 def __getattr__(name: str) -> Any:
     if name == "PreprocessingConfig":
-        from habit.core.preprocessing.config_schemas import PreprocessingConfig
+        from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
         return PreprocessingConfig
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
@@ -45,14 +45,14 @@ def run_preprocess(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.preprocessing.config_schemas.PreprocessingConfig`.
+            :class:`~habit.schemas.workflows.preprocessing.PreprocessingConfig`.
         logger: Optional logger; core runner creates one when omitted.
 
     Returns:
         A result with the workflow output directory in ``artifacts``.
     """
-    from habit.core.preprocessing.config_schemas import PreprocessingConfig
-    from habit.core.preprocessing.run import run_preprocess_from_config
+    from habit.compat.legacy_core import run_preprocess_from_config
+    from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
     validated_config = coerce_config(config, PreprocessingConfig)
     run_preprocess_from_config(validated_config, logger=logger)

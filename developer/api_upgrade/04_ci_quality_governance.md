@@ -88,7 +88,7 @@ CI 检查：版本三处一致脚本 `developer/api_upgrade/scripts/check_versio
 - Public API: `habit.run_preprocess`, ...
 
 ### Deprecated
-- `habit.core.preprocessing.run.run_preprocess_from_config` → use `habit.run_preprocess`
+- `habit.compat.engines.preprocessing.run.run_preprocess_from_config` → use `habit.run_preprocess`
 ```
 
 与 `docs/source/changelog.rst` 交叉链接，避免双份维护：rst 可 `.. include::` 或仅链接 GitHub CHANGELOG。

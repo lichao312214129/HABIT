@@ -21,7 +21,7 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
-from habit.core.habitat_analysis.habitat_features.msi_features import (
+from habit.compat.engines.habitat_extraction.habitat_features.msi_features import (
     MSIFeatureExtractor,
 )
 

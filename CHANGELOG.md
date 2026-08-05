@@ -73,7 +73,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **BREAKING — internal module moves** (deep imports only; the public API is
   unaffected): the supervoxel radiomics numerics moved out of the v0.1 engine
   into the kernel layer.
-  ``habit.core.habitat_analysis.clustering_features.supervoxel_cext`` →
+  ``habit.compat.engines.habitat_analysis.clustering_features.supervoxel_cext`` →
   ``habit.kernels.radiomics.cext``; ``...clustering_features.torchradiomics``
   → ``habit.kernels.radiomics.torchradiomics``;
   ``...clustering_features.batched_supervoxel_radiomics`` →
@@ -112,10 +112,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Habitat label maps written by the v1 writer use a single integer type
   (``int32``) instead of v0.1's per-code-path mix of ``uint16`` and
   ``int32``; label values are unchanged.
+- **BREAKING — v0.1 pickle pipelines removed**: legacy
+  ``habitat_pipeline.pkl`` raw pickles and ``*_final_pipeline.pkl`` ML
+  artefacts are no longer loaded or remapped. Predict/train must use v1
+  ``habitat_model.habitatmodel`` (habitat) or ``.habitpipeline`` (ML).
+  Attempts to load v0.1 pickles fail with a migration message pointing at
+  ``apply_habitat_model`` / re-train. The ``pickle_compat`` module and
+  ``habitat_pipeline.pkl`` output shim are removed; train writes
+  ``habitat_model.habitatmodel`` and ``run_manifest.json`` only. Slow golden
+  baseline ``tests/golden/baseline/`` regenerated for v1 artefact layout.
 
 ### Notes
 
-- Internal modules under ``habit.core.*`` remain implementation details. Prefer
-  the top-level ``habit`` imports for new integrations.
-- Deep paths such as ``habit.core.preprocessing.run.run_preprocess_from_config``
-  continue to work unchanged.
+- v0.1 YAML/CLI engines now live under ``habit.compat.engines.*``; the
+  ``habit.core`` package has been removed. Prefer the top-level ``habit``
+  imports and ``habit.recipes`` for new integrations.
+- Deep paths such as ``habit.compat.engines.preprocessing.run.run_preprocess_from_config``
+  continue to work for YAML-driven workflows via ``habit.compat.legacy_core``.

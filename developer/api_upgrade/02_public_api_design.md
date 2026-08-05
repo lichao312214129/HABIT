@@ -4,7 +4,7 @@
 
 1. **CLI 与 API 同源**：所有 `habit xxx` 命令最终调用 `run_*_from_config` 或等价 runner；公开 API 不引入第二套执行路径。
 2. **Lazy import**：顶层 `import habit` 不得 eager 加载 `radiomics` / `torch` / `shap`；沿用 `habit.utils.lazy_exports.lazy_getattr`。
-3. **稳定 vs 内部**：仅 `habit` 与 `habit.api.*` 子模块中 `__all__` 列出的符号承诺 semver；`habit.core.*` 内部路径允许在 minor 版本调整。
+3. **稳定 vs 内部**：仅 `habit` 与 `habit.api.*` 子模块中 `__all__` 列出的符号承诺 semver；v0.1 引擎在 `habit.compat.engines.*`，不作为第三方集成依赖。
 4. **三种路径同等文档化**：Pipeline（config runner）、Component（算法类）、Config（Pydantic 构造）均在 `docs/source/api/` 有示例。
 
 ## 2. 目标包结构
@@ -20,7 +20,7 @@ habit/
     analysis.py        # ICC, test-retest, compare
     components.py      # 可选：MSI, ITH 等小组件（B 档）
   exceptions.py        # B 档：HabitError 层次
-  core/                # 内部实现（doc 标注为 private）
+  compat/engines/      # v0.1 YAML 引擎（private；habit.core 已删除）
   utils/               # 部分 utils 公开（log, progress）
 ```
 
@@ -39,15 +39,15 @@ __all__: list[str]        # 仅列稳定符号
 
 | 公开名 | 实际实现 | CLI 命令 |
 |--------|----------|----------|
-| `run_preprocess` | `habit.core.preprocessing.run.run_preprocess_from_config` | `habit preprocess` |
-| `run_dicom_sort` | `habit.core.dicom_sort.run.run_dicom_sort` | （prepare 流程） |
-| `run_habitat_analysis` | `habit.core.habitat_analysis.run.run_habitat_analysis_from_config` | `habit get-habitat` |
-| `run_feature_extraction` | `habit.core.habitat_analysis.run.run_feature_extraction_from_config` | `habit extract-features` |
-| `run_radiomics` | `habit.core.habitat_analysis.run.run_radiomics_from_config` | `habit radiomics` |
-| `run_ml` | `habit.core.machine_learning.run.run_ml_from_config` | `habit ml` |
-| `run_kfold` | `habit.core.machine_learning.run.run_kfold_from_config` | `habit cv` |
-| `run_model_comparison` | `habit.core.machine_learning.run.run_model_comparison_from_config` | `habit compare` |
-| `run_icc_analysis` | `habit.core.machine_learning.feature_selectors.icc.icc.run_icc_analysis_from_config` | `habit icc` |
+| `run_preprocess` | `habit.compat.engines.preprocessing.run.run_preprocess_from_config` | `habit preprocess` |
+| `run_dicom_sort` | `habit.compat.dicom_sort_runner.run_dicom_sort` | （prepare 流程） |
+| `run_habitat_analysis` | `habit.compat.engines.habitat_analysis.run.run_habitat_analysis_from_config` | `habit get-habitat` |
+| `run_feature_extraction` | `habit.compat.engines.habitat_analysis.run.run_feature_extraction_from_config` | `habit extract-features` |
+| `run_radiomics` | `habit.compat.engines.habitat_analysis.run.run_radiomics_from_config` | `habit radiomics` |
+| `run_ml` | `habit.compat.engines.machine_learning.run.run_ml_from_config` | `habit ml` |
+| `run_kfold` | `habit.compat.engines.machine_learning.run.run_kfold_from_config` | `habit cv` |
+| `run_model_comparison` | `habit.compat.engines.machine_learning.run.run_model_comparison_from_config` | `habit compare` |
+| `run_icc_analysis` | `habit.compat.icc_runner.run_icc_analysis_from_config` | `habit icc` |
 
 **命名说明**：公开名去掉 `_from_config` 后缀，缩短嵌入代码；内部函数名可保留别名 deprecated 一版。
 
@@ -55,9 +55,9 @@ __all__: list[str]        # 仅列稳定符号
 
 | 公开名 | 模块 |
 |--------|------|
-| `PreprocessingConfig` | `habit.core.preprocessing.config_schemas` |
-| `DicomSortConfig` | `habit.core.dicom_sort` |
-| `HabitatAnalysisConfig` | `habit.core.habitat_analysis.config_schemas` |
+| `PreprocessingConfig` | `habit.schemas.workflows.preprocessing` |
+| `DicomSortConfig` | `habit.schemas.workflows.dicom_sort` |
+| `HabitatAnalysisConfig` | `habit.compat.engines.habitat_analysis.config_schemas` |
 | `FeatureExtractionConfig` | 同上 |
 | `MLConfig` | `habit.core.machine_learning.config_schemas` |
 | `ModelComparisonConfig` | 同上 |

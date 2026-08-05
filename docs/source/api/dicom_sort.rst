@@ -1,6 +1,6 @@
 .. This page was retired with the v1.0 API documentation rewrite.
 
-``habit.core.dicom_sort`` (moved)
+``habit.compat.dicom_sort`` (v0.1 engine, retired page)
 ==================================
 
 This v0.1-oriented page is no longer maintained.

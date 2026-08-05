@@ -51,7 +51,7 @@ Data configuration parameters
 ICC analysis configuration (``habit icc``)
 ------------------------------------------
 
-Corresponds to ``habit.core.machine_learning.feature_selectors.icc.config.ICCConfig``. Example: ``config/auxiliary/config_icc_demo.yaml``.
+Corresponds to ``habit.schemas.workflows.icc.ICCConfig``. Example: ``config/auxiliary/config_icc_demo.yaml``.
 
 **input** (required)
 
@@ -143,7 +143,7 @@ HABIT provides configuration validation to ensure parameter correctness.
 
 .. code-block:: python
 
-   from habit.core.schemas.workflows.habitat import FeatureExtractionConfig
+   from habit.schemas.workflows.habitat import FeatureExtractionConfig
 
    # Workflow commands validate YAML via Pydantic models, e.g.:
    cfg = FeatureExtractionConfig.model_validate(yaml_dict)

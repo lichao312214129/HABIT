@@ -20,7 +20,7 @@ import pytest
 from pydantic import BaseModel, Field
 
 from habit.api.exceptions import ComponentNotFoundError, ConfigurationError
-from habit.core.common.registry import ClassRegistry, _BaseRegistry
+from habit.registry.base import ClassRegistry, _BaseRegistry
 from habit.registry.core import ComponentRegistry
 
 

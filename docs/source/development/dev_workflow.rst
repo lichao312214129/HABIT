@@ -124,8 +124,8 @@ structure of ``cmd_preprocess.py``):
    from habit.commands.common import (
        echo_success, exit_with_error, load_config_or_exit,
    )
-   from habit.core.my_subsystem.config_schemas import MyConfig
-   from habit.core.my_subsystem.run import run_my_task_from_config
+   from habit.compat.engines.my_subsystem.config_schemas import MyConfig
+   from habit.compat.engines.my_subsystem.run import run_my_task_from_config
 
    def run_my_task(config_path: str) -> None:
        """Run my task from a config file."""
@@ -137,8 +137,8 @@ structure of ``cmd_preprocess.py``):
        echo_success("My task completed successfully!")
 
 **3. Put the core logic** in a ``run_*_from_config`` function under
-``habit/core/.../run.py``. Keep the command layer thin and the core layer
-focused; Python API users can then call the core function directly.
+``habit/compat/engines/.../run.py``. Keep the command layer thin and the engine
+layer focused; Python API users should call ``habit.recipes`` or domain APIs.
 
 **4. Add a CLI test** in ``tests/.../test_cli_my_task.py`` using ``CliRunner``.
 
@@ -148,7 +148,7 @@ Scenario 2: Add a configuration-step schema
 If a new algorithm has configurable ``params``, define and register a
 parameter schema to obtain **type validation** and **GUI form generation**.
 
-**1. Define the parameter model** under ``habit/core/schemas/steps/``:
+**1. Define the parameter model** under ``habit/schemas/steps/``:
 
 .. code-block:: python
 
@@ -188,12 +188,12 @@ not duplicate business logic**:
      WEB["React UI (habit-gui/web)"] -->|HTTP| API["FastAPI (habit-gui/api)"]
      API -->|subprocess| CLI["habit CLI (habit &lt;cmd&gt; --config)"]
      API -->|bridge worker| BR["habit-gui/bridge"]
-     BR -->|import| SCH["habit.core.schemas (reflect)"]
+     BR -->|import| SCH["habit.schemas (reflect)"]
 
 - **Execution channel**: The GUI generates YAML configuration and invokes the
   ``habit`` CLI in a **subprocess**, producing the same behavior as the CLI.
 - **Schema channel**: ``habit-gui/bridge`` reflects parameter models from
-  ``habit.core.schemas`` and sends field descriptors to the frontend for
+  ``habit.schemas`` and sends field descriptors to the frontend for
   dynamic form rendering. **Form fields therefore remain aligned with the
   CLI YAML schema.**
 

@@ -200,44 +200,44 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
     """Return the ``from_file`` callable for schema validation of ``spec``."""
     loaders: dict[str, Tuple[str, str]] = {
         "preprocess": (
-            "habit.core.preprocessing.config_schemas",
+            "habit.compat.engines.preprocessing.config_schemas",
             "PreprocessingConfig",
         ),
         "sort-dicom": (
-            "habit.core.dicom_sort",
+            "habit.schemas.workflows.dicom_sort",
             "DicomSortConfig",
         ),
         "get-habitat": (
-            "habit.core.habitat_analysis.config_schemas",
+            "habit.compat.engines.habitat_analysis.config_schemas",
             "HabitatAnalysisConfig",
         ),
         "model": (
-            "habit.core.machine_learning.config_schemas",
+            "habit.compat.engines.machine_learning.config_schemas",
             "MLConfig",
         ),
         "cv": (
-            "habit.core.machine_learning.config_schemas",
+            "habit.compat.engines.machine_learning.config_schemas",
             "MLConfig",
         ),
         "compare": (
-            "habit.core.machine_learning.config_schemas",
+            "habit.compat.engines.machine_learning.config_schemas",
             "ModelComparisonConfig",
         ),
         "icc": (
-            "habit.core.machine_learning.feature_selectors.icc.config",
+            "habit.compat.engines.machine_learning.feature_selectors.icc.config",
             "ICCConfig",
         ),
         "retest": (
-            "habit.core.machine_learning.config_schemas",
+            "habit.compat.engines.machine_learning.config_schemas",
             "TestRetestConfig",
         ),
         "radiomics": (
-            "habit.core.habitat_analysis.config_schemas",
+            "habit.compat.engines.habitat_analysis.config_schemas",
             "RadiomicsConfig",
         ),
     }
     if spec.command == "extract":
-        from habit.core.habitat_analysis.feature_extraction_loader import (
+        from habit.compat.feature_extraction_loader import (
             load_feature_extraction_config_from_file,
         )
 

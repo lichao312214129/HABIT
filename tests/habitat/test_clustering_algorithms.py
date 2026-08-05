@@ -26,7 +26,7 @@ import numpy as np
 import pytest
 from sklearn.datasets import make_blobs
 
-from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
+from habit.compat.engines.habitat_analysis.clustering.cluster_validation_methods import (
     get_all_clustering_algorithms,
     get_default_methods,
     get_method_description,
@@ -34,13 +34,13 @@ from habit.core.habitat_analysis.clustering.cluster_validation_methods import (
     get_validation_methods,
     is_valid_method_for_algorithm,
 )
-from habit.core.habitat_analysis.clustering.cluster_search_parallel import (
+from habit.compat.engines.habitat_analysis.clustering.cluster_search_parallel import (
     resolve_cluster_search_workers,
 )
-from habit.core.habitat_analysis.clustering.gmm_clustering import GMMClustering
-from habit.core.habitat_analysis.clustering.kmeans_clustering import KMeansClustering
-from habit.core.habitat_analysis.clustering.slic_clustering import SLICClustering
-from habit.core.habitat_analysis.config_schemas import HabitatClusteringConfig, OneStepSettings
+from habit.compat.engines.habitat_analysis.clustering.gmm_clustering import GMMClustering
+from habit.compat.engines.habitat_analysis.clustering.kmeans_clustering import KMeansClustering
+from habit.compat.engines.habitat_analysis.clustering.slic_clustering import SLICClustering
+from habit.compat.engines.habitat_analysis.config_schemas import HabitatClusteringConfig, OneStepSettings
 
 
 @pytest.fixture

@@ -167,7 +167,7 @@ def test_voxel_radiomics_accepts_real_pyradiomics_cropped_maps(
     """Real PyRadiomics ROI crops must yield one feature row per mask voxel."""
     sitk = pytest.importorskip("SimpleITK")
     pytest.importorskip("radiomics")
-    from habit.core.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
+    from habit.compat.engines.habitat_analysis.clustering_features.voxel_radiomics_extractor import (
         VoxelRadiomicsExtractor,
     )
 

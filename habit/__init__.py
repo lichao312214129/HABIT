@@ -26,8 +26,8 @@ Example::
     config = PreprocessingConfig.from_file("config/preprocessing/config_preprocessing_demo.yaml")
     run_preprocess(config)
 
-Internal implementation modules under ``habit.core`` are not part of the public
-API contract.
+Internal implementation lives under ``habit.compat.engines`` and is not part of the
+public API contract.
 """
 
 from __future__ import annotations

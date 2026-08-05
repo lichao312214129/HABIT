@@ -24,8 +24,8 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
-    from habit.core.machine_learning.config_schemas import TestRetestConfig
+    from habit.schemas.workflows.icc import ICCConfig
+    from habit.schemas.workflows.ml import TestRetestConfig
 
 __all__ = [
     "ICCConfig",
@@ -37,11 +37,11 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     if name == "ICCConfig":
-        from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
+        from habit.schemas.workflows.icc import ICCConfig
 
         return ICCConfig
     if name == "TestRetestConfig":
-        from habit.core.machine_learning.config_schemas import TestRetestConfig
+        from habit.schemas.workflows.ml import TestRetestConfig
 
         return TestRetestConfig
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
@@ -60,10 +60,8 @@ def run_icc_analysis(
     Returns:
         A result with the ICC output directory in ``artifacts``.
     """
-    from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
-    from habit.core.machine_learning.feature_selectors.icc.icc import (
-        run_icc_analysis_from_config,
-    )
+    from habit.compat.legacy_core import run_icc_analysis_from_config
+    from habit.schemas.workflows.icc import ICCConfig
 
     validated_config = coerce_config(config, ICCConfig)
     run_icc_analysis_from_config(validated_config)
@@ -102,14 +100,14 @@ def run_test_retest_analysis(
         Label mapping in ``data`` and the remapped-image directory in
         ``artifacts``.
     """
-    from habit.core.machine_learning.config_schemas import TestRetestConfig
-    from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
-        batch_process_files,
-        find_habitat_mapping,
+    from habit.compat.legacy_core import (
+        batch_process_test_retest_files,
+        find_habitat_test_retest_mapping,
     )
+    from habit.schemas.workflows.ml import TestRetestConfig
 
     validated_config = coerce_config(config, TestRetestConfig)
-    habitat_mapping: Dict[int, int] = find_habitat_mapping(
+    habitat_mapping: Dict[int, int] = find_habitat_test_retest_mapping(
         validated_config.test_habitat_table,
         validated_config.retest_habitat_table,
         validated_config.features,
@@ -117,7 +115,7 @@ def run_test_retest_analysis(
     )
     if logger is not None:
         logger.info("Computed test-retest habitat mapping: %s", habitat_mapping)
-    batch_process_files(
+    batch_process_test_retest_files(
         validated_config.input_dir,
         habitat_mapping,
         validated_config.out_dir,

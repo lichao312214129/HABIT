@@ -19,7 +19,7 @@ from typing import List, Optional, Sequence, Tuple
 
 import pandas as pd
 
-from habit.core.machine_learning.visualization.km_survival import KMSurvivalPlotter
+from habit.viz.km_survival_plotter import KMSurvivalPlotter
 from habit.utils.font_config import PUBLICATION_FONT
 
 

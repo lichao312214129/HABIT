@@ -130,6 +130,7 @@ def test_public_recipe_surface() -> None:
         "test_retest_analysis",
         "sort_dicom",
         "run_from_yaml",
+        "Study",
         "StudyResult",
         "train_model",
         "cross_validate",
@@ -137,4 +138,10 @@ def test_public_recipe_surface() -> None:
         "ModelResult",
         "CVResult",
         "PredictionResult",
+        "two_step_habitat",
+        "one_step_habitat",
+        "direct_pooling_habitat",
+        "dice",
+        "dicom_info",
+        "merge_tables",
     }

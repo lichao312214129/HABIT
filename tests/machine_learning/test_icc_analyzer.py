@@ -34,18 +34,18 @@ import pytest
 from click.testing import CliRunner
 
 from habit.cli import cli
-from habit.core.machine_learning.feature_selectors.icc.config import ICCConfig
-from habit.core.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
-from habit.core.machine_learning.feature_selectors.icc.icc_analyzer import (
+from habit.compat.engines.machine_learning.feature_selectors.icc.config import ICCConfig
+from habit.compat.engines.machine_learning.feature_selectors.icc.icc import run_icc_analysis_from_config
+from habit.compat.engines.machine_learning.feature_selectors.icc.icc_analyzer import (
     ICCMetric,
     ICCType,
     analyze_features,
     prepare_long_format,
 )
-from habit.core.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
+from habit.compat.engines.machine_learning.feature_selectors.icc.habitat_test_retest_mapper import (
     find_habitat_mapping,
 )
-from habit.core.machine_learning.feature_selectors.icc_selector import icc_selector
+from habit.compat.engines.machine_learning.feature_selectors.icc_selector import icc_selector
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEMO_ML = PROJECT_ROOT / "demo_data" / "ml_data"

@@ -23,9 +23,9 @@ from unittest.mock import MagicMock
 import numpy as np
 import pandas as pd
 
-from habit.core.machine_learning.contracts.plan import WorkflowPlan
-from habit.core.machine_learning.contracts.results import InferenceResult
-from habit.core.machine_learning.reporting.plot_composer import PlotComposer
+from habit.compat.engines.machine_learning.contracts.plan import WorkflowPlan
+from habit.compat.engines.machine_learning.contracts.results import InferenceResult
+from habit.compat.engines.machine_learning.reporting.plot_composer import PlotComposer
 
 
 def _make_inference_result(

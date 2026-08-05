@@ -31,7 +31,7 @@ from habit.commands.common import (
     exit_with_error,
     load_config_or_exit,
 )
-from habit.core.machine_learning.config_schemas import ModelComparisonConfig
+from habit.schemas import ModelComparisonConfig
 from habit.recipes.comparison import compare_models
 from habit.utils.log_utils import setup_logger
 

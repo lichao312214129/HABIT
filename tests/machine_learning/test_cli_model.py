@@ -67,8 +67,8 @@ class TestModelCLI:
 
     def test_omitted_mode_keeps_yaml_predict(self) -> None:
         """Without --mode, YAML run_mode=predict must not be forced to train."""
-        from habit.core.machine_learning.config_schemas import MLConfig
-        from habit.core.machine_learning.run import apply_ml_mode_override
+        from habit.compat.engines.machine_learning.config_schemas import MLConfig
+        from habit.compat.engines.machine_learning.run import apply_ml_mode_override
 
         config_path = (
             CONFIG_ROOT / "machine_learning" / "config_machine_learning_predict.yaml"

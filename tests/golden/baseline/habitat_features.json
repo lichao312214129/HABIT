@@ -1,5 +1,6 @@
 {
   "artefacts": [
+    "habit_run_manifest.json",
     "habitat_1_radiomics.csv",
     "habitat_2_radiomics.csv",
     "habitat_3_radiomics.csv",
@@ -18,7 +19,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "ed5d71b95207de9f4bbaf6f43bdbc56e62112d1b",
+    "git_commit": "39dcab03fb82a07e237aaadb06f41311cc786814",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -31,6 +32,48 @@
     }
   },
   "fingerprints": {
+    "habit_run_manifest.json": {
+      "kind": "json",
+      "literal": {
+        "dependency_versions.PyRadiomics": "3.0.1",
+        "dependency_versions.SimpleITK": "2.2.1",
+        "dependency_versions.numpy": "1.26.1",
+        "dependency_versions.pandas": "2.2.3",
+        "dependency_versions.scikit-learn": "1.6.1",
+        "dependency_versions.torch": "2.4.0+cu121",
+        "git_commit": "39dcab03fb82a07e237aaadb06f41311cc786814",
+        "habit_version": "1.0.0",
+        "metadata.plugins": [],
+        "resolved_config.config_file": null,
+        "resolved_config.config_version": null,
+        "resolved_config.debug": false,
+        "resolved_config.feature_types": [
+          "traditional",
+          "non_radiomics",
+          "whole_habitat",
+          "each_habitat",
+          "msi",
+          "ith_score"
+        ],
+        "resolved_config.habitat_pattern": "*_habitats.nrrd",
+        "resolved_config.habitats_map_folder": "F:\\work\\habit_project\\demo_data\\results\\_golden\\habitat_two_step",
+        "resolved_config.n_habitats": null,
+        "resolved_config.params_file_of_habitat": null,
+        "resolved_config.params_file_of_non_habitat": null,
+        "resolved_config.raw_img_folder": "F:\\work\\habit_project\\demo_data\\preprocessed\\processed_images",
+        "runtime.platform": "Windows-10-10.0.19045-SP0",
+        "runtime.python": "3.10.16",
+        "workflow": "feature_extraction"
+      },
+      "numeric": {
+        "resolved_config.n_processes": [
+          2.0
+        ],
+        "schema_version": [
+          1.0
+        ]
+      }
+    },
     "habitat_1_radiomics.csv": {
       "categorical": {
         "Unnamed: 0": [

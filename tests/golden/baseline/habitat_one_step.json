@@ -1,20 +1,12 @@
 {
   "artefacts": [
-    ".habitat_checkpoint/manifest.json",
-    ".habitat_checkpoint/subjects/subj001.pkl",
-    ".habitat_checkpoint/subjects/subj002.pkl",
-    "habitat_pipeline.pkl",
+    ".habitat_checkpoint/40ea9609e4e02deeae3f8362fd099e8f2ce1efe1fa0672c0da89d18ec5534b79.pkl",
+    ".habitat_checkpoint/ad793cc54ddba14ddd75616aaaebf6674ff01b4019aa242c40c0b7042b00d675.pkl",
+    "habitat_features.csv",
     "habitats.parquet",
+    "run_manifest.json",
     "subj001_habitats.nrrd",
-    "subj002_habitats.nrrd",
-    "visualizations/one_step_clustering/subj001_habitat_clustering_2D.png",
-    "visualizations/one_step_clustering/subj001_habitat_clustering_3D.png",
-    "visualizations/one_step_clustering/subj001_habitat_clustering_3D_interactive.html",
-    "visualizations/one_step_clustering/subj002_habitat_clustering_2D.png",
-    "visualizations/one_step_clustering/subj002_habitat_clustering_3D.png",
-    "visualizations/one_step_clustering/subj002_habitat_clustering_3D_interactive.html",
-    "visualizations/optimal_clusters/subj001_cluster_validation.png",
-    "visualizations/optimal_clusters/subj002_cluster_validation.png"
+    "subj002_habitats.nrrd"
   ],
   "case": "habitat_one_step",
   "command": "get-habitat",
@@ -23,7 +15,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "ed5d71b95207de9f4bbaf6f43bdbc56e62112d1b",
+    "git_commit": "39dcab03fb82a07e237aaadb06f41311cc786814",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -36,21 +28,31 @@
     }
   },
   "fingerprints": {
-    ".habitat_checkpoint/manifest.json": {
+    ".habitat_checkpoint/40ea9609e4e02deeae3f8362fd099e8f2ce1efe1fa0672c0da89d18ec5534b79.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/subjects/subj001.pkl": {
+    ".habitat_checkpoint/ad793cc54ddba14ddd75616aaaebf6674ff01b4019aa242c40c0b7042b00d675.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/subjects/subj002.pkl": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "habitat_pipeline.pkl": {
-      "kind": "presence",
-      "non_empty": true
+    "habitat_features.csv": {
+      "categorical": {
+        "subject": [
+          "subj001",
+          "subj002"
+        ]
+      },
+      "columns": [
+        "subject"
+      ],
+      "kind": "table",
+      "numeric_columns": [],
+      "shape": [
+        2,
+        1
+      ],
+      "values": {}
     },
     "habitats.parquet": {
       "categorical": {
@@ -70,28 +72,22 @@
         "supervoxel",
         "habitats",
         "count",
-        "raw-delay2",
-        "raw-delay3",
-        "raw-delay5",
-        "raw-delay2-original",
-        "raw-delay3-original",
-        "raw-delay5-original"
+        "delay2",
+        "delay3",
+        "delay5"
       ],
       "kind": "table",
       "numeric_columns": [
         "supervoxel",
         "habitats",
         "count",
-        "raw-delay2",
-        "raw-delay3",
-        "raw-delay5",
-        "raw-delay2-original",
-        "raw-delay3-original",
-        "raw-delay5-original"
+        "delay2",
+        "delay3",
+        "delay5"
       ],
       "shape": [
         8,
-        10
+        7
       ],
       "values": {
         "count": [
@@ -104,6 +100,36 @@
           184.0,
           604.0
         ],
+        "delay2": [
+          0.2944539072514529,
+          0.7348747332771157,
+          0.8454353079677795,
+          0.24675610720499658,
+          0.646821855053232,
+          0.19702633447039192,
+          0.889783990601,
+          0.3949579808105801
+        ],
+        "delay3": [
+          0.149785399797014,
+          0.37486429833153345,
+          0.8229996199612657,
+          0.4488376708983655,
+          0.6513987967480511,
+          0.15685241533295755,
+          0.8939636595809037,
+          0.4882427399337541
+        ],
+        "delay5": [
+          0.1978167231892147,
+          0.3566251365681475,
+          0.8509334948256292,
+          0.5339876655877539,
+          0.6142785168183201,
+          0.15543872889335747,
+          0.9280248628344377,
+          0.3391976518137058
+        ],
         "habitats": [
           1.0,
           2.0,
@@ -114,66 +140,6 @@
           3.0,
           4.0
         ],
-        "raw-delay2": [
-          0.2944539072514529,
-          0.7348747332771157,
-          0.8454353079677795,
-          0.24675610720499655,
-          0.646821855053232,
-          0.19702633447039192,
-          0.889783990601,
-          0.3949579808105801
-        ],
-        "raw-delay2-original": [
-          2.027710437774658,
-          2.582094430923462,
-          2.740049123764038,
-          1.9558061361312866,
-          2.355241060256958,
-          1.508763074874878,
-          2.8958089351654053,
-          1.8876293897628784
-        ],
-        "raw-delay3": [
-          0.149785399797014,
-          0.37486429833153334,
-          0.8229996199612656,
-          0.44883767089836546,
-          0.6513987967480511,
-          0.15685241533295752,
-          0.893963659580904,
-          0.4882427399337541
-        ],
-        "raw-delay3-original": [
-          2.022184371948242,
-          2.2948760986328125,
-          2.886366844177246,
-          2.382441997528076,
-          2.0803041458129883,
-          1.623124599456787,
-          2.375173807144165,
-          1.9299991130828857
-        ],
-        "raw-delay5": [
-          0.1978167231892147,
-          0.3566251365681475,
-          0.8509334948256294,
-          0.5339876655877538,
-          0.61427851681832,
-          0.15543872889335747,
-          0.9280248628344375,
-          0.33919765181370576
-        ],
-        "raw-delay5-original": [
-          1.8062975406646729,
-          2.040264844894409,
-          2.817636251449585,
-          2.2937817573547363,
-          2.125312328338623,
-          1.5723363161087036,
-          2.5720181465148926,
-          1.7970013618469238
-        ],
         "supervoxel": [
           1.0,
           2.0,
@@ -183,6 +149,189 @@
           2.0,
           3.0,
           4.0
+        ]
+      }
+    },
+    "run_manifest.json": {
+      "kind": "json",
+      "literal": {
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "480027a345dabd8c371e880fdf97cd6a30720e4011407a9687220f9aaaebc89e",
+        "provenance.inputs[0].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
+        "provenance.inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[0].inputs[0].inputs[0].spec_fingerprint": "f7f671c70445a471e78b2f0b3e6fdebdd9383117b515bdda47ee31e253198fd4",
+        "provenance.inputs[0].inputs[0].produced_by": "pipeline.voxel_units",
+        "provenance.inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[0].produced_by": "habitat_assigner.nearest_centroid",
+        "provenance.inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[0].spec_fingerprint": "258cbe70dafa74fbac2164bf682188876a960555479254d80b66f9b1882caca9",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].spec_fingerprint": "480027a345dabd8c371e880fdf97cd6a30720e4011407a9687220f9aaaebc89e",
+        "provenance.inputs[1].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
+        "provenance.inputs[1].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[1].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[1].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[1].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[1].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[1].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[1].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[1].inputs[0].inputs[0].spec_fingerprint": "f7f671c70445a471e78b2f0b3e6fdebdd9383117b515bdda47ee31e253198fd4",
+        "provenance.inputs[1].inputs[0].produced_by": "pipeline.voxel_units",
+        "provenance.inputs[1].inputs[0].random_seed": null,
+        "provenance.inputs[1].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[1].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[1].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[1].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[1].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[1].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[1].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[1].produced_by": "habitat_assigner.nearest_centroid",
+        "provenance.inputs[1].software.SimpleITK": "2.2.1",
+        "provenance.inputs[1].software.habit": "1.0.0",
+        "provenance.inputs[1].software.numpy": "1.26.1",
+        "provenance.inputs[1].software.pandas": "2.2.3",
+        "provenance.inputs[1].software.pyradiomics": "3.0.1",
+        "provenance.inputs[1].software.scikit-learn": "1.6.1",
+        "provenance.inputs[1].software.scipy": "1.15.3",
+        "provenance.inputs[1].spec_fingerprint": "32fb66bcbec861faa427b848f1abeed0a74658d14241c9492677637480b93876",
+        "provenance.produced_by": "recipes.habitat.one_step",
+        "provenance.software.SimpleITK": "2.2.1",
+        "provenance.software.habit": "1.0.0",
+        "provenance.software.numpy": "1.26.1",
+        "provenance.software.pandas": "2.2.3",
+        "provenance.software.pyradiomics": "3.0.1",
+        "provenance.software.scikit-learn": "1.6.1",
+        "provenance.software.scipy": "1.15.3",
+        "provenance.spec_fingerprint": "128a148c1011834f7957a10642bf172e6b7651f59fad3296945debc9bf870040",
+        "spec_payload.cohort_feature_preprocessors": [],
+        "spec_payload.habitat_assigner.name": "nearest_centroid",
+        "spec_payload.habitat_assigner.version": "1.0",
+        "spec_payload.habitat_features": [],
+        "spec_payload.habitat_model_fitter.name": "kmeans",
+        "spec_payload.habitat_model_fitter.params.n_habitats": null,
+        "spec_payload.habitat_model_fitter.params.validation": "elbow",
+        "spec_payload.habitat_model_fitter.version": "1.0",
+        "spec_payload.name": "habitat_one_step",
+        "spec_payload.supervoxel_feature_extractor": null,
+        "spec_payload.supervoxel_feature_preprocessors": [],
+        "spec_payload.supervoxelizer": null,
+        "spec_payload.version": "1.0",
+        "spec_payload.voxel_feature_extractor.name": "raw",
+        "spec_payload.voxel_feature_extractor.params.modalities": [
+          "delay2",
+          "delay3",
+          "delay5"
+        ],
+        "spec_payload.voxel_feature_extractor.version": "1.0",
+        "spec_payload.voxel_feature_preprocessors[0].name": "winsorize",
+        "spec_payload.voxel_feature_preprocessors[0].params.across_features": false,
+        "spec_payload.voxel_feature_preprocessors[0].params.bin_strategy": null,
+        "spec_payload.voxel_feature_preprocessors[0].params.corr_method": null,
+        "spec_payload.voxel_feature_preprocessors[0].params.corr_threshold": null,
+        "spec_payload.voxel_feature_preprocessors[0].params.n_bins": null,
+        "spec_payload.voxel_feature_preprocessors[0].params.variance_threshold": null,
+        "spec_payload.voxel_feature_preprocessors[0].version": "1.0",
+        "spec_payload.voxel_feature_preprocessors[1].name": "minmax",
+        "spec_payload.voxel_feature_preprocessors[1].params.across_features": false,
+        "spec_payload.voxel_feature_preprocessors[1].params.bin_strategy": null,
+        "spec_payload.voxel_feature_preprocessors[1].params.corr_method": null,
+        "spec_payload.voxel_feature_preprocessors[1].params.corr_threshold": null,
+        "spec_payload.voxel_feature_preprocessors[1].params.n_bins": null,
+        "spec_payload.voxel_feature_preprocessors[1].params.variance_threshold": null,
+        "spec_payload.voxel_feature_preprocessors[1].params.winsor_limits": null,
+        "spec_payload.voxel_feature_preprocessors[1].version": "1.0",
+        "subject_outcomes.subj001": "success",
+        "subject_outcomes.subj002": "success"
+      },
+      "numeric": {
+        "provenance.inputs[0].random_seed": [
+          42.0
+        ],
+        "provenance.inputs[1].random_seed": [
+          42.0
+        ],
+        "provenance.random_seed": [
+          42.0
+        ],
+        "spec_payload.habitat_model_fitter.params.max_habitats": [
+          10.0
+        ],
+        "spec_payload.habitat_model_fitter.params.max_iter": [
+          300.0
+        ],
+        "spec_payload.habitat_model_fitter.params.min_habitats": [
+          2.0
+        ],
+        "spec_payload.habitat_model_fitter.params.n_init": [
+          10.0
+        ],
+        "spec_payload.random_seed": [
+          42.0
+        ],
+        "spec_payload.voxel_feature_preprocessors[0].params.winsor_limits": [
+          0.05,
+          0.05
         ]
       }
     },
@@ -261,38 +410,6 @@
         1.0,
         1.0
       ]
-    },
-    "visualizations/one_step_clustering/subj001_habitat_clustering_2D.png": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/one_step_clustering/subj001_habitat_clustering_3D.png": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/one_step_clustering/subj001_habitat_clustering_3D_interactive.html": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/one_step_clustering/subj002_habitat_clustering_2D.png": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/one_step_clustering/subj002_habitat_clustering_3D.png": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/one_step_clustering/subj002_habitat_clustering_3D_interactive.html": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/optimal_clusters/subj001_cluster_validation.png": {
-      "kind": "presence",
-      "non_empty": true
-    },
-    "visualizations/optimal_clusters/subj002_cluster_validation.png": {
-      "kind": "presence",
-      "non_empty": true
     }
   }
 }

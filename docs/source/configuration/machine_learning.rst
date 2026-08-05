@@ -243,7 +243,7 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
   - **Type**: string
   - **Default**: ``before_model``
   - **Allowed values**: ``before_feature_selection``, ``before_normalization``, ``after_normalization``, ``before_model``
-  - **Description**: order relative to feature selection / normalization / modeling (see ``habit.core.machine_learning`` workflow).
+  - **Description**: order relative to feature selection / normalization / modeling (see ``habit.compat.engines.machine_learning`` workflow).
 
 - ``ratio``: resampling ratio; must be **> 0**
 

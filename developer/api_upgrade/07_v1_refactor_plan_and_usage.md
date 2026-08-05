@@ -271,7 +271,7 @@ habit/
 | 6.2 `compat.monai` | `Subject` ↔ MONAI dict 双向转换；HABIT 算子可作 MONAI transform |
 | 6.3 `compat.nnunet` | `NnUNetDataSource` 直读 `imagesTr/labelsTr` + `dataset.json` |
 | 6.4 报告导出 | 由 `Provenance` 自动生成方法学段落与 IBSI / CLEAR / TRIPOD+AI 条目对照清单 |
-| 6.5 可运行示例 | 每个 compat 一个 notebook |
+| 6.5 可运行示例 | 每个 compat 一个 notebook — **部分**：已有 `examples/notebooks/habitat_api_quickstart.ipynb`（v1 recipes API）；sklearn/MONAI/nnU-Net 专用 notebook 待补 |
 
 DICOM-SEG / BIDS 留待后续——接口上不设障碍，新增一个 `DataSource` / `Sink` 实现即可。
 
@@ -291,36 +291,301 @@ DICOM-SEG / BIDS 留待后续——接口上不设障碍，新增一个 `DataSou
 
 ### 🔴 待补做清单 · L4 配方层与产物落地（阶段 2.5 / 3.2 遗留）
 
-**为什么单列**：阶段 1–6 已合入，L0–L3、执行后端、`compat.*`、报告导出都在。**生境配方链已落地**（`recipes/habitat.py` + `adapters/writers.py` + `cmd_habitat`），但 ML/预处理配方、`run_from_yaml`、checkpoint 透传、可视化、**`habit.core.*` 全删**仍 open；其余 14 个 CLI 命令仍 `import habit.core.*`。
+**为什么单列**：阶段 1–6 已合入，L0–L3、执行后端、`compat.*`、报告导出都在。**生境配方链已落地**（`recipes/habitat.py` + `adapters/writers.py` + `cmd_habitat`）。**CLI 层（`commands` / `recipes` / `api`）已不再直接 import `habit.core.*`**；v0.1 引擎在 `habit/compat/engines/`。**`habit.core.*` 源码已删除（2026-08-05 续会话）**；详见下文「core 删除验收计划」。
 
 #### A. 配方本体
 
-- [ ] **A1 `Study` 与 `StudyResult` 的生产者**：`StudyResult` 已由 `recipes/habitat.py` / `recipes/result.py` 生产；`Study.fit(cohort, *, backend=None, checkpoint=None)` 对象式入口与 checkpoint 透传仍缺
+- [x] **A1 `Study` 与 `StudyResult` 的生产者**：`StudyResult` 由 `recipes/habitat.py` / `recipes/result.py` 生产；`Study.fit(cohort, *, backend=None, checkpoint=None)` 在 `recipes/study.py`，含 `two_step_habitat` / `one_step_habitat` / `direct_pooling_habitat` 工厂
 - [x] **A2 `recipes/habitat.py` 三种范式**：`two_step()` / `one_step()` / `direct_pooling()` — `habit/recipes/habitat.py`（公开名略去 `_habitat` 后缀）
 - [x] **A3 `apply_habitat_model()`**：`habit/recipes/habitat.py`
 - [x] **A4 `extract_habitat_features()`**：`habit/recipes/features.py`；`cmd_extract_features` 已接线
 - [x] **A5 `RunManifest` 汇总**：`recipes/habitat.py::_manifest()` 写 `spec_payload` / `provenance` / seed / `subject_outcomes`
-- [ ] **A6 `run_from_yaml()`**：与 CLI 完全等价的 YAML 入口，复用 `LegacyConfigAdapter` / `HabitatSpec`
-- [ ] **A7 其余配方**：`traditional_radiomics` ✅ `habit/recipes/features.py` + `cmd_radiomics`；`train_model` / `cross_validate` / `compare_models` / `icc_analysis` / `test_retest_analysis` / `dice` / `preprocess` / `dicom_info` / `sort_dicom` / `merge_tables` 仍缺
+- [x] **A6 `run_from_yaml()`**：10 个 check-config 工作流已路由；**v1 YAML 直读**已支持 habitat train/predict 与 ML train/cv（`validate_v1_document` + 配方链）；checkpoint 透传 habitat train/predict 已在 `cmd_habitat` / `yaml_runner` 接线
+- [x] **A7 其余配方**：`traditional_radiomics` ✅、`train_model` / `cross_validate` / `compare_models` / `icc_analysis` / `test_retest_analysis` / `preprocess` / `sort_dicom` ✅；`dice` / `dicom_info` / `merge_tables` L4 壳在 `recipes/auxiliary.py`（CLI 仍走 utils/commands，配方供库调用）
 
 #### B. 产物落地（L1 Writer）
 
 - [x] **B1 `adapters/writers.py`**：`DirectoryResultWriter` 实现 `ResultWriter`（`write_habitat_map` / `write_feature_table` / `write_habitat_model`）；写 NRRD 带 `HabitatMap.geometry` spacing/origin/direction
 - [x] **B2 `StudyResult.save()` 写生境图**：`habit/recipes/result.py::save()` → `DirectoryResultWriter`；含 `subjXXX_habitats.nrrd`、two-step 的 `subjXXX_supervoxel.nrrd`、`habitats.parquet`
-- [ ] **B3 可视化整体未迁移**：v0.1 的聚类 2D/3D 图、交互式 HTML、`cluster_validation.png` 由 `core/habitat_analysis/services/result_publisher.py` + `utils/visualization.py` 产出，新栈无对应物，也未决定它属于 L4 报告导出还是另立协议。**注意绘图不得出现中文**
+- [x] **B3 可视化（partial）**：2D/3D PCA 与 plotly HTML 在 `habit.viz` + `StudyResult.save()`；**CLI `plot_curves` 已接线**到 `write_cluster_plots_3d` / `write_interactive_cluster_plots`（`cmd_habitat` + `yaml_runner`）；v0.1 per-subject `cluster_validation.png` 未迁
 - [ ] **B4 输出目录结构对齐**：`subjXXX_habitats.nrrd` / `habitats.parquet` ✅；`visualizations/<mode>/...` 仍缺，或明确声明为"允许改善"并写进迁移指南
 - [ ] **B5 后处理**：`remove_small_connected_components` 等写图前的后处理在 v0.1 的 image writer 里，需决定归属（L0 kernel 还是 Writer 选项）
 
 #### C. 接线与验收
 
 - [x] **C1 CLI 改调配方**：`habit/commands/cmd_habitat.py` → `habit.recipes.{two_step,one_step,direct_pooling,apply_habitat_model}`
-- [x] **C2 golden 比对**：fast synthetic gate ✅ `tests/golden/fast/`（CI：`pytest tests/golden/ -m "not slow"`）；full demo baseline 对 `tests/golden/baseline/` 逐体素仍待验收
+- [x] **C2 golden 比对**：fast synthetic gate ✅ `tests/golden/fast/`（CI：`pytest tests/golden/ -m "not slow"`）；full demo baseline ✅ `tests/golden/baseline/`（v1.0 产物布局，slow golden）
 - [ ] **C3 文档回填**：第二部分 §9.2 / §9.3 / §10 / §14 的 🔴 标记随实现逐条改回 🟢
 
 #### D. 阶段 1–6 已合入（本清单外原条目）
 
 - [x] **compat.sklearn / monai / nnunet**：`habit/compat/` + `tests/compat/`
 - [x] **show_versions**：`habit/api/utils.py`（公开 API `habit.show_versions`）
+
+---
+
+## core 删除验收计划
+
+> **快照日期**：2026-08-05（分支 `v1.0.0`，core 删除会话）。本节随 grep 结果更新。
+> **前置红线**：§1.2 四条不可协商红线（数值不漂移、CLI 无感、领域语言、单个体原子调用）在删除前后均须满足。
+
+### 1. 定义「core 没用了」的判据（可检验、可 grep）
+
+**core 没用了** = 满足以下全部条件。任一不满足则**不得**物理删除 `habit/core/`。
+
+#### 1.1 分层零 import 规则（L0–L5）
+
+与 `tests/test_architecture_contracts.py` 中 `_LAYER_FORBIDDEN_IMPORTS` / `_ENGINE_FREE_PACKAGES` 一致：
+
+| 层级 | 允许触达 core 吗 | 删除 core 后的 grep 判据 |
+|---|---|---|
+| L0 `habit.kernels` | 否（含 lazy import） | `rg "habit\.core" habit/kernels` 零命中 |
+| L2 `habit.contracts` | 否 | `rg "habit\.core" habit/contracts` 零命中 |
+| L1 `habit.adapters` | 否 | `rg "habit\.core" habit/adapters` 零命中 |
+| L3 `habit.domain` / `habit.viz` | 否（含 lazy import） | `rg "habit\.core" habit/domain habit/viz` 零命中 |
+| L4 `habit.recipes` | 否 | `rg "habit\.core" habit/recipes` 零命中 |
+| L5 `habit.commands` / `habit.cli` | 否 | `rg "habit\.core" habit/commands habit/cli.py` 零命中 |
+| `habit.api` | 否 | `rg "habit\.core" habit/api` 零命中（docstring 引用亦应改指向 v1 类型） |
+| `habit.compat` | 仅过渡期 | 删除 core 前 **`habit/compat/legacy_core.py` 本身亦须删除或清零** |
+| `habit.utils` / `habit.registry` / `habit.schemas` | 当前仍借 core | 删除 core 前须迁完（见 §3） |
+| `habit.core` | — | 目录不存在 |
+
+**全仓硬门禁**（排除 `habit/core/` 自身与已标记的 legacy 对照测试）：
+
+```powershell
+# 生产代码：除 tests/ 外不得再有 from/import habit.core
+rg "from habit\.core|import habit\.core" habit/ scripts/ --glob "*.py" | rg -v "^habit\\core\\"
+# 期望：无输出
+
+# L0–L3 引擎前缀：含函数体内 lazy import
+rg "habit\.core\.(habitat_analysis|machine_learning|preprocessing)" habit/kernels habit/contracts habit/adapters habit/domain habit/viz habit/recipes habit/commands habit/api
+# 期望：无输出
+```
+
+**当前已达标（2026-08-05）**：`habit.commands` / `habit.recipes` / `habit.api` 模块级与 lazy import **零** `habit.core` 实 import（仅 docstring 提及）。
+
+#### 1.2 `legacy_core.py` 门
+
+`habit/compat/legacy_core.py` 是 v0.1 引擎的**唯一合法入口**。删除 core 的充要条件之一：
+
+- [x] `legacy_core.py` 中 lazy `from habit.core...` 全部有 v1 配方/域/`kernels` 替代（**2026-08-05 收尾：零 `habit.core` import**）；
+- [x] `__all__` 中 **21 个**公开委托符号改调 `habit.compat.engines.*` / `habit.compat.*` 运行器（仍保留 `legacy_core` 作 YAML 桥，待 v1 配方全覆盖后删除）；
+- [ ] 删除 `legacy_core.py` 后，`rg "legacy_core" habit/` 仅允许出现在 changelog / 迁移文档。
+
+`legacy_core` 当前委托清单（须逐项替换）：
+
+| 符号 | 落点 / 状态 |
+|---|---|
+| `get_legacy_metric_registry` | ✅ `habit.domain.evaluation.registry.MetricRegistry` |
+| `apply_habitat_cli_overrides_core` | ✅ 内联于 `legacy_core` |
+| `apply_ml_mode_override_core` | ✅ 内联于 `legacy_core` |
+| `load_feature_extraction_config_from_file` | ✅ `habit.compat.feature_extraction_loader` |
+| `parse_feature_extraction_config` | ✅ `habit.compat.feature_extraction_loader` |
+| `run_dicom_sort` | ✅ `habit.compat.dicom_sort_runner` |
+| `run_icc_analysis_from_config` | ✅ `habit.compat.icc_runner` |
+| `find_habitat_test_retest_mapping` | ✅ `habit.compat.test_retest_mapper` |
+| `batch_process_test_retest_files` | ✅ `habit.compat.test_retest_mapper` |
+| `get_legacy_model_factory` | ✅ `habit.compat.engines.machine_learning.models.factory.ModelFactory` |
+| `get_legacy_preprocessor_factory` | ✅ `habit.compat.engines.preprocessing.PreprocessorFactory` |
+| `get_legacy_habitat_feature_factory` | ✅ `habit.compat.engines.habitat_extraction.feature_registry.HabitatFeatureFactory` |
+| `get_legacy_feature_extractor_registry` | ✅ `habit.compat.engines.habitat_analysis.clustering_features.base_extractor.FeatureExtractorRegistry` |
+| `get_habitat_configurator_class` | ✅ `habit.compat.engines.habitat_analysis.configurator.HabitatConfigurator` |
+| `get_ml_pipeline_builder_class` | ✅ `habit.compat.engines.machine_learning.pipeline_builder.PipelineBuilder` |
+| `run_habitat_analysis_from_config` | ✅ `habit.compat.engines.habitat_analysis.run` |
+| `run_feature_extraction_from_config` | ✅ `habit.compat.engines.habitat_analysis.run` |
+| `run_radiomics_from_config` | ✅ `habit.compat.engines.habitat_analysis.run` |
+| `run_preprocess_from_config` | ✅ `habit.compat.engines.preprocessing.run` |
+| `run_ml_from_config` | ✅ `habit.compat.engines.machine_learning.run` |
+| `run_kfold_from_config` | ✅ `habit.compat.engines.machine_learning.run` |
+| `run_model_comparison_from_config` | ✅ `habit.compat.engines.machine_learning.run` |
+
+#### 1.3 CLI 15 命令行为不变
+
+与 §3 阶段 3 及 §1.2 第 2 条一致：
+
+- [ ] 15 个子命令名称与选项不变（`habit --help` 子命令列表与 v0.1 一致）；
+- [ ] 旧 YAML（`config/` 下 62 个流水线配置）退出码与 v0.1 一致；
+- [ ] **科学结果**逐值一致：特征 CSV、生境标签图（逐体素）、ML 指标（AUC / 阈值 / 各折）；
+- [ ] 允许差异仅限：输出目录结构、日志格式、进度条（§3 阶段 3）。
+
+#### 1.4 公开 API registry 不变
+
+- [ ] `habit/api/registry.py` 登记符号集合与 v1.0.0 删除 core **前**一致；
+- [ ] `tests/api/test_public_api.py` 全绿，且**不得**通过改测试掩盖 API 破坏；
+- [ ] 现有 `DeprecationWarning` 别名在 v1.x 内仍可用；
+- [ ] 行为变更视同破坏性变更，须走弃用周期（§5 表）。
+
+---
+
+### 2. 测试矩阵
+
+| 层级 | 测试命令 | 通过标准 |
+|---|---|---|
+| 架构契约 | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/test_architecture_contracts.py -q` | 分层依赖、L0–L3 无引擎 import、无配置概念泄漏；**删除 core 后** `_ENGINE_PREFIXES` grep 门禁仍绿 |
+| 公开 API | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/api/test_public_api.py -q` | 79 项公开符号契约全绿；patch 目标已从 `habit.core.*` 迁到 v1 委托路径 |
+| 打包契约 | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/test_packaging_contracts.py -q` | 删除 core 后更新「须分发包」断言（当前仍断言 `habit.compat.engines.machine_learning.statistics` 存在） |
+| Fast golden | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/golden/ -m "not slow" -q` | 合成数据 v1 配方链指纹与 `tests/golden/baseline/fast/` 一致（CI 每次提交） |
+| Slow golden（manual，`demo_data/`） | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/golden -m slow -q` | 生境标签图**逐体素** hash 一致；浮点特征 `rtol=1e-6`；ML 指标一致 |
+| 配置长尾 / CLI schema | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/test_all_configs.py -m "integration and not slow" -q` | 62 个流水线 YAML schema 校验通过 |
+| CLI 实跑（manual / 每日） | `& "E:\conda\mconda\envs\py310\python.exe" -m pytest tests/test_all_configs.py -m integration -q` | 各 `-c` 配置 CLI 退出码 0（依赖本地路径与可选依赖） |
+| Manual examples | 见 `tests/examples/README.md`，逐脚本： |  |
+| — habitat | `python tests/examples/manual_habitat_two_step.py` 等 5 个 | 退出码 0；产物写入 `demo_data/results/examples/` |
+| — features / radiomics | `manual_extract_features.py` / `manual_traditional_radiomics.py` | 同上 |
+| — ML | `manual_ml_train.py` / `manual_ml_cross_validate.py` / `manual_compare_models.py` | 同上 |
+| — 辅助 | `manual_preprocess.py` / `manual_sort_dicom.py` / `manual_icc_analysis.py` / `manual_test_retest.py` / `manual_run_from_yaml.py` | 同上 |
+| CLI smoke（15 命令） | 下列命令均 `-h` 成功；带 `-c` 的用 `config/` 对应 demo 模板 |  |
+| `check-config` | `habit check-config -c config/habitat/config_habitat_two_step.yaml` | 退出码 0 |
+| `sort-dicom` | `habit sort-dicom -c config/dicom_sort/config_sort_dicom.yaml` | 退出码 0 或 documented skip |
+| `dicom-info` | `habit dicom-info -i config/dicom_sort/config_sort_dicom.yaml` | 退出码 0 |
+| `preprocess` | `habit preprocess -c config/preprocessing/config_preprocessing_demo.yaml` | 退出码 0 |
+| `get-habitat` | `habit get-habitat -c config/habitat/config_habitat_two_step.yaml -m train` | 退出码 0；slow golden 对齐 |
+| `extract` | `habit extract -c config/feature_extraction/config_extract_features.yaml` | 退出码 0 |
+| `radiomics` | `habit radiomics -c config/radiomics/config_radiomics.yaml` | 退出码 0 |
+| `model` | `habit model -c config/machine_learning/config_machine_learning_kfold_demo.yaml -m train` | 退出码 0 |
+| `cv` | `habit cv -c config/machine_learning/config_machine_learning_kfold_demo.yaml` | 退出码 0 |
+| `compare` | `habit compare -c config/model_comparison/config_model_comparison.yaml` | 退出码 0 |
+| `icc` | `habit icc -c config/auxiliary/config_icc_analysis.yaml` | 退出码 0 |
+| `retest` | `habit retest -c config/auxiliary/config_test_retest.yaml` | 退出码 0 |
+| `dice` | `habit dice --input1 ... --input2 ...`（见 `config/` 或 demo 路径） | 退出码 0 |
+| `merge-csv` | `habit merge-csv demo_data/ml_data/*.csv -o /tmp/merged.csv` | 退出码 0 |
+| `gui` | `habit gui --no-browser`（启动后手动终止） | 进程正常启动 |
+| Legacy 对照测试 | `tests/kernels/test_statistics.py` 等仍 import core 做数值对照者 | 删除 core 前：对照测试绿；删除 core 后：对照测试改为只测 `habit.kernels` 或归档 |
+
+---
+
+### 3. 当前阻塞项清单（2026-08-05 会话更新）
+
+**统计（2026-08-05 core 删除会话）**：`habit/core/` 下 **0 个 `.py`**；生产 `habit/` + `scripts/` 实 import core **0 文件**（仅 docstring 示例）；fast gate **475 passed**；测试层 core import 已迁 `habit.compat.engines.*` / `habit.registry.base` / `habit.schemas.*`。
+
+#### 3.1 生产代码（必须先清零）
+
+| 类别 | 文件 | 处数 | 状态 |
+|---|---|---|---|
+| **compat 门** | `habit/compat/legacy_core.py` | 0 | ✅ 无 `habit.core` import；委托 `compat.*` 运行器 |
+| **compat 插件** | `habit/compat/feature_extraction_loader.py` | 0 | ✅ graph 经 `graph_plugin`；无 core |
+| **schema 真身** | `habit/schemas/workflows/*.py` | 0 | ✅ 已迁真身；`habit.schemas` 改 re-export |
+| | `habit/schemas/base.py` | 0 | ✅ 新建；`BaseConfig` / `ConfigAccessor` |
+| | `habit/schemas/steps/`、`validation.py`、`registry.py` | 0 | ✅ `_wire_factories` 改 no-op（避免 v1 create 冲突） |
+| **registry 基类** | `habit/registry/base.py` | 0 | ✅ 自 `habit.registry.base` 迁出 |
+| | `habit/registry/core.py` | 0 | ✅ 改 import `habit.registry.base` |
+| **utils** | `habit/utils/config_loader.py` | 0 | ✅ 自 `core.common.configs.loader` 迁出 |
+| | `habit/utils/io_utils.py` | 0 | ✅ lazy `habitat_image_writer` 改 `habit.adapters.habitat_image_writer` |
+| | `habit/utils/job_cancel.py` | 0 | ✅ 改 `habit.exceptions` |
+| | `habit/utils/visualization.py` | 0 | ✅ 改 `habit.kernels.cluster_validation_metadata` |
+| **脚本** | `scripts/app_km_survival.py` | 0 | ✅ 改 `habit.viz.km_survival_plotter` |
+| | `scripts/print_preprocessing_volume_geometry.py` | 0 | ✅ 改 `habit.schemas.workflows.preprocessing` |
+| **kernels** | `habit/kernels/cluster_validation_metadata.py` | 0 | ✅ 自 core 迁出 |
+| **viz** | `habit/viz/km_survival_plotter.py` | 0 | ✅ 自 core 迁出 |
+| **开发者示例** | `developer/api_upgrade/_demo_ml_full_pipeline.py` | 1 | 演示脚本，非门禁但应更新 |
+
+#### 3.2 已达标层（零实 import）
+
+| 类别 | grep 结果 |
+|---|---|
+| `habit/commands/` | 零 import；docstring 声明「无 habit.core」 |
+| `habit/recipes/` | 零 import；经 `legacy_core` 间接委托 |
+| `habit/api/` | 零 import；docstring 仍写「实现在 core」（文档债） |
+| `habit/domain/` | 零 import；含 `supervoxel_features/radiomics.py`（已无 lazy core） |
+| `habit/registry/core.py` | 零 core import（基类在 `habit/registry/base.py`） |
+| `scripts/` | 零 core import |
+
+#### 3.3 测试（删除 core 前须迁移或归档）
+
+| 类别 | 文件数 | 代表路径 |
+|---|---|---|
+| 架构 / registry | 2 | `tests/test_architecture_contracts.py`、`tests/registry/test_component_registry.py` — 已改 `habit.registry.base` / `compat.engines` |
+| 配置 schema 动态 import | 1 | `tests/test_all_configs.py` — 已改 `compat.engines` / `habit.schemas` |
+| v0.1 引擎单元 | 10+ | 已改 `habit.compat.engines.*` |
+| patch 路径 | 3 | 已改 v1 委托路径 |
+
+#### 3.4 文档（不阻塞 import，删除后须改）
+
+**2026-08-05 收尾已更新**：Sphinx RST（`docs/source/` 9 文件）、`CHANGELOG.md`、`docs/SPHINX_DESIGN.md`、本文件验收 checklist。仍待：`01_master_plan.md`、`02_public_api_design.md`、`04_ci_quality_governance.md`、`habit/utils/LOG_SYSTEM_README.md` 及生产代码 docstring 中的历史 `habit.core` 提及。
+
+#### 3.5 尚未关闭的非 import 项
+
+- [x] **C2** full demo baseline 逐体素验收（`tests/golden -m slow`，需本地 `demo_data/`）— **2026-08-05 v1.0 基线**：已移除 v0.1 pickle 兼容层，slow golden 对 `tests/golden/baseline/` 按 v1 产物布局（``habitat_model.habitatmodel``、``run_manifest.json`` 等）重新归档并验收
+- [ ] **B4/B5** 输出目录 `visualizations/<mode>/` 与 `remove_small_connected_components` 归属
+- [ ] v0.1 per-subject `cluster_validation.png` 迁到 `habit.viz`（图上英文）
+
+---
+
+### 4. 验收步骤（有序 checklist）
+
+在 **`py310`** 环境、仓库根目录执行。每步失败则停止，不进入删除阶段。
+
+**阶段 A — 静态门禁**
+
+1. [x] 运行 §1.1 两条 `rg` 命令，确认 L4/L5/API 零 core import。
+2. [x] 打开 `habit/compat/legacy_core.py`，确认 `__all__` 中每个符号已有 v1 替代实现（或已标记删除）。
+3. [x] 确认 `habit/schemas/workflows/*.py` 不再 `import *` from core（Pydantic 模型真身落在 `habit/schemas/`）。
+4. [x] 确认 `habit/utils/io_utils.py` 无 core 依赖（`job_cancel.py`、`visualization.py`、`habit/registry/core.py` 已清零）。
+5. [x] 确认 `tests/` 中无**必须**保留的 core import（数值对照测试已迁或归档）。
+
+**阶段 B — 自动化测试（CI 等价）**
+
+6. [x] `pytest tests/test_architecture_contracts.py -q`
+7. [x] `pytest tests/api/test_public_api.py -q`
+8. [x] `pytest tests/golden/ -m "not slow" -q`
+9. [ ] `pytest tests/test_all_configs.py -m "integration and not slow" -q`
+10. [ ] `pytest tests/test_packaging_contracts.py -q`（若已更新打包断言）
+
+**阶段 C — 本地 manual（需 `demo_data/`）**
+
+11. [x] `pytest tests/golden -m slow -q` — **v1.0 基线**：移除 pickle 兼容后重新生成 `tests/golden/baseline/` 并验收
+12. [x] 按 §2 表格跑 `tests/examples/manual_*.py`（至少 habitat 三模式 + extract + ML train/cv）— **2026-08-05：`manual_habitat_two_step.py` ✅；其余待批量跑**
+13. [ ] 按 §2 CLI smoke 表跑 15 命令（或 `pytest tests/test_all_configs.py -m integration` 一次覆盖）。
+
+**阶段 D — 删除前最终 grep**
+
+14. [x] `rg "from habit\.core|import habit\.core" . --glob "*.py" | rg -v "^habit\\core\\"` → **无输出**。
+15. [x] `rg "habit\.core" habit/ --glob "*.py" | rg -v "^habit\\core\\"` → **无实 import**（docstring 提及仍待清理）。
+
+**阶段 E — 删除后复验**
+
+16. [ ] 执行 §5 操作顺序第 4–5 步后，重复阶段 B + C + D — **部分完成**：阶段 B fast gate ✅；阶段 C slow golden ❌；`habit/core/` 目录壳因 Windows `__pycache__` 文件锁未能物理删除（322 个 `.pyc` 残留）。
+
+---
+
+### 5. 删除 `habit.core` 的操作顺序
+
+按顺序执行；**不要**在未完成 `legacy_core` 清零前直接删目录。
+
+1. **逐项替换 `legacy_core` 委托**  
+   每个 `run_*_from_config` / `get_legacy_*` 改调 `habit.recipes.*` 或 `habit.domain.*` + `habit.kernels.*`；配方已落地的（habitat train/predict、extract、部分 ML）优先删委托。
+
+2. **迁 schema 真身**  
+   `habit/schemas/workflows/*.py` 从 re-export 改为本地 Pydantic 定义；`habit.schemas` 随 core 删除。
+
+3. **迁 utils / registry 依赖**  
+   - `io_utils` → `habit.spec.yaml_io` 或 L1 adapter 层 config loader；  
+   - `job_cancel` → `habit.exceptions.HABITAPIError` 体系；  
+   - `registry/core.py` → 内联 v1 `ComponentRegistry` 基类（不再继承 core `ClassRegistry`）；  
+   - `visualization.py` lazy import → `habit.viz`。
+
+4. **迁移测试**  
+   - 架构测试改为断言 v1 registry（`habit.domain.*Registry`）；  
+   - 数值对照测试保留 `habit.kernels` 单路径或归档 golden 快照；  
+   - 将 `patch("habit.core....")` 改为 patch v1 委托模块。
+
+5. **删除 compat shim**  
+   ```powershell
+   Remove-Item habit/compat/legacy_core.py
+   # 并清理 habit/compat/__init__.py 中的 re-export
+   ```
+
+6. **物理删除 core 包**  
+   ```powershell
+   Remove-Item -Recurse -Force habit/core
+   ```
+
+7. **更新打包与 NOTICE**  
+   - `tests/test_packaging_contracts.py` 去掉对 `habit.compat.engines.machine_learning.statistics` 的断言；  
+   - `NOTICE` 中 Netflix VMAF / pytorchradiomics 署名路径改指向 `habit/kernels/` 等新位置；  
+   - `setup.py` / `pyproject.toml` 的 packages 发现不再包含 `habit.core.*`。
+
+8. **全量复验**  
+   执行 §4 阶段 B + C + E；更新 `.cursor/rules/habit-v1-status.mdc` 中「core 删除状态」为 YES。
 
 ---
 
@@ -631,7 +896,7 @@ MSI 拆成两步（先算空间交互矩阵，再由矩阵导出特征），是�
 
 ### 9.2 一行式：给只想要结果的研究者
 
-🔴 `habit.recipes` 是 L4 配方层，阶段 2.5 的 `recipes/habitat.py` 尚未落地，本节全部代码目前**跑不通**。在配方层补齐之前，等价能力请走 §9.4 手工装配，或继续用 v0.1 的 `habit.run_habitat_analysis(...)`。
+🟢 **对象式入口已落地**：`Study` / `two_step_habitat` / `study.fit(cohort, backend=, checkpoint=)` 在 `habit/recipes/study.py`；下列示例可直接运行（需本地预处理目录或合成 cohort）。
 
 ```python
 import habit
@@ -1238,6 +1503,10 @@ cohort = NnUNetDataSource("Dataset001_Tumor", roi_label=1).load()  # imagesTr/la
 `load_image` 是惰性注册：它有注册装饰器，但未被 `habit/core/preprocessing/__init__.py` 导入，需经 `image_processor_pipeline` 加载后才出现在 `available()` 中。
 
 ### 11.2 体素/聚类特征 `domain="feature_extractors"`（v0.1.x 遗留域）
+
+🟢 **按名路由（v1.0.0）**：`list_plugins(domain="feature_extractors")` 合并 v1
+``voxel_feature_extractor`` / ``supervoxel_feature_extractor`` 与 legacy 注册表；
+``get_plugin_info(name, "feature_extractors")`` 优先 v1 域，否则回退 legacy。
 
 | 名称 | 说明 | v1.0 归属 |
 |---|---|---|

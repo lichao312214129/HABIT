@@ -36,8 +36,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from habit.core.machine_learning.feature_selectors.lasso_selector import lasso_selector
-from habit.core.machine_learning.feature_selectors.selector_registry import (
+from habit.compat.engines.machine_learning.feature_selectors.lasso_selector import lasso_selector
+from habit.compat.engines.machine_learning.feature_selectors.selector_registry import (
     SelectorRegistry,
     run_selector,
 )

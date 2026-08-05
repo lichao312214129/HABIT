@@ -20,7 +20,7 @@ import logging
 
 import pytest
 
-from habit.core.habitat_analysis.clustering_features.method_binding_validation import (
+from habit.compat.engines.habitat_analysis.clustering_features.method_binding_validation import (
     validate_feature_method_binding,
 )
 
@@ -45,7 +45,7 @@ def test_minimal_voxel_radiomics_passes() -> None:
 
 def test_minimal_voxel_radiomics_uses_ct_defaults() -> None:
     """Omitting all optional params yields CT R3B12 kernel_radius and bundled preset."""
-    from habit.core.habitat_analysis.services.feature_service import resolve_voxel_step_params
+    from habit.compat.engines.habitat_analysis.services.feature_service import resolve_voxel_step_params
 
     resolved = resolve_voxel_step_params({}, {}, method="voxel_radiomics")
     assert resolved["kernel_radius"] == 3

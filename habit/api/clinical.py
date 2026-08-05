@@ -37,8 +37,8 @@ from habit.exceptions import HABITAPIError, NotFittedError
 from habit.utils.deprecation import HabitDeprecationWarning, build_deprecation_message
 
 if TYPE_CHECKING:
-    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-    from habit.core.preprocessing.config_schemas import PreprocessingConfig
+    from habit.schemas.workflows.habitat import HabitatAnalysisConfig
+    from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
 __all__ = [
     "ClinicalCohort",
@@ -217,7 +217,7 @@ class ClinicalPreprocessor(BaseEstimator):
     ) -> "ClinicalPreprocessor":
         """Validate the preprocessing specification and selected input cohort."""
         del y
-        from habit.core.preprocessing.config_schemas import PreprocessingConfig
+        from habit.schemas.workflows.preprocessing import PreprocessingConfig
 
         config = coerce_config(self.config, PreprocessingConfig)
         cohort = _cohort_from_input(X, default_data_dir=config.data_dir)
@@ -326,7 +326,7 @@ class HabitatSegmenter(TransformerMixin, BaseEstimator):
         workflow_result = run_habitat_analysis(config, logger=self.logger)
         pipeline_path = workflow_result.artifacts.get(
             "pipeline",
-            Path(config.out_dir) / "habitat_pipeline.pkl",
+            Path(config.out_dir) / "habitat_model.habitatmodel",
         )
         self.config_ = config
         self.training_cohort_ = cohort
@@ -382,7 +382,7 @@ class HabitatSegmenter(TransformerMixin, BaseEstimator):
         When a cohort (or path) is supplied, ``data_dir`` may be omitted from the
         constructor config and is taken from that cohort instead.
         """
-        from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+        from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
         config_input: Union["HabitatAnalysisConfig", Mapping[str, Any]] = self.config
         if isinstance(config_input, Mapping):

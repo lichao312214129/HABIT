@@ -50,7 +50,11 @@ from habit.viz.style import (
     register_style,
     use_style,
 )
-from habit.viz.habitat_clustering import plot_habitat_clustering_pca_2d
+from habit.viz.habitat_clustering import (
+    plot_habitat_clustering_pca_2d,
+    plot_habitat_clustering_pca_3d,
+    plot_habitat_clustering_pca_3d_interactive,
+)
 from habit.viz.survival import (
     plot_brier_curve,
     plot_cox_forest,
@@ -82,4 +86,6 @@ __all__ = [
     "plot_coefficient_forest",
     # habitat clustering
     "plot_habitat_clustering_pca_2d",
+    "plot_habitat_clustering_pca_3d",
+    "plot_habitat_clustering_pca_3d_interactive",
 ]

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Public DICOM sort API (thin facade over ``habit.core.dicom_sort``)."""
+"""Public DICOM sort API."""
 
 from __future__ import annotations
 
@@ -23,14 +23,14 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.core.dicom_sort.config_schema import DicomSortConfig
+    from habit.schemas.workflows.dicom_sort import DicomSortConfig
 
 __all__ = ["DicomSortConfig", "run_dicom_sort"]
 
 
 def __getattr__(name: str) -> Any:
     if name == "DicomSortConfig":
-        from habit.core.dicom_sort.config_schema import DicomSortConfig
+        from habit.schemas.workflows.dicom_sort import DicomSortConfig
 
         return DicomSortConfig
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
@@ -45,14 +45,14 @@ def run_dicom_sort(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.dicom_sort.config_schema.DicomSortConfig`.
+            :class:`~habit.schemas.workflows.dicom_sort.DicomSortConfig`.
         logger: Optional logger; core runner creates one when omitted.
 
     Returns:
         A result with the dcm2niix destination in ``artifacts``.
     """
-    from habit.core.dicom_sort.config_schema import DicomSortConfig
-    from habit.core.dicom_sort.run import run_dicom_sort as _run_dicom_sort
+    from habit.compat.legacy_core import run_dicom_sort as _run_dicom_sort
+    from habit.schemas.workflows.dicom_sort import DicomSortConfig
 
     validated_config = coerce_config(config, DicomSortConfig)
     _run_dicom_sort(validated_config, logger=logger)

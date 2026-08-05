@@ -21,7 +21,7 @@ import sys
 
 import pytest
 
-from habit.core.preprocessing.dcm2niix_runner import Dcm2niixRunner
+from habit.compat.engines.preprocessing.dcm2niix_runner import Dcm2niixRunner
 from habit.utils.subprocess_utils import decode_subprocess_bytes, run_capture_text
 
 

@@ -25,11 +25,9 @@ Coverage:
 - train (directory layout and manifest layout) dispatches to the recipe,
   writes the v0.1 artefact layout, and records per-subject results in the
   v1 checkpoint store at the v0.1 location;
-- the fitted model is saved both as ``habitat_model.habitatmodel`` and
-  under the v0.1 name ``habitat_pipeline.pkl`` (a zip archive, not a raw
-  pickle), and predict on that archive reproduces the training labels;
-- predict on a legacy raw-pickle pipeline still routes to the v0.1 engine
-  (stage-5 debt, guarded here so it cannot silently disappear);
+- the fitted model is saved as ``habitat_model.habitatmodel``, and predict on
+  that archive reproduces the training labels;
+- predict on a legacy raw-pickle pipeline is rejected with a v1 migration message;
 - a resumed train run skips checkpointed subjects entirely, proven by
   corrupting the input images between runs.
 """
@@ -263,11 +261,6 @@ def test_train_two_step_dispatches_to_recipe_and_writes_v0_layout(
     assert (out_dir / "habitat_model.habitatmodel").is_file()
     assert (out_dir / "run_manifest.json").is_file()
 
-    # The v0.1-named pipeline artefact is a v1 archive (zip), not a pickle.
-    shim = out_dir / "habitat_pipeline.pkl"
-    assert shim.is_file()
-    assert shim.read_bytes()[:4] == b"PK\x03\x04"
-
     # Stage-5 checkpoint strategy: the v1 store sits at the v0.1 location
     # with one entry per subject per cached stage (units + labels), in the
     # v1 digest format -- never the v0.1 manifest/subjects layout.
@@ -324,11 +317,11 @@ def test_train_other_modes_dispatch_to_their_recipe(
     for subject_id in _SUBJECT_IDS:
         assert (out_dir / f"{subject_id}_habitats.nrrd").is_file()
     assert (out_dir / "habitats.parquet").is_file()
-    # one_step fits per-subject models: no cohort pipeline artefact (decision 5).
+    # one_step fits per-subject models: no cohort model artefact (decision 5).
     if mode == "one_step":
-        assert not (out_dir / "habitat_pipeline.pkl").exists()
+        assert not (out_dir / "habitat_model.habitatmodel").exists()
     else:
-        assert (out_dir / "habitat_pipeline.pkl").is_file()
+        assert (out_dir / "habitat_model.habitatmodel").is_file()
 
 
 @pytest.mark.cli
@@ -348,7 +341,7 @@ def test_predict_with_v1_archive_relabels_training_data_identically(
             data_root,
             predict_out,
             run_mode="predict",
-            pipeline_path=train_out / "habitat_pipeline.pkl",
+            pipeline_path=train_out / "habitat_model.habitatmodel",
         ),
         name="config_predict.yaml",
     )
@@ -362,17 +355,15 @@ def test_predict_with_v1_archive_relabels_training_data_identically(
 
 
 @pytest.mark.cli
-def test_predict_with_legacy_pickle_routes_to_v0_engine(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_predict_with_legacy_pickle_rejects_v0_artefact(
+    tmp_path: Path,
 ) -> None:
-    """A raw-pickle pipeline still delegates to the v0.1 engine (stage-5 debt)."""
+    """A raw-pickle pipeline is rejected with a v1 migration message."""
     data_root = _write_dataset(tmp_path)
     legacy_pkl = tmp_path / "habitat_pipeline.pkl"
     with legacy_pkl.open("wb") as handle:
         pickle.dump({"legacy": "pipeline"}, handle)
     out_dir = tmp_path / "out_legacy_predict"
-    # Stub predict configs (no feature_construction) must still work here;
-    # the v0.1 schema requires clustering_mode even for stubs.
     config_path = _write_config(
         tmp_path,
         f"""run_mode: predict
@@ -384,19 +375,14 @@ habitat_segmentation:
 """,
     )
 
-    calls: List[Dict[str, Any]] = []
-
-    def _spy(config: Any, **kwargs: Any) -> None:
-        calls.append({"config": config, **kwargs})
-
-    monkeypatch.setattr(
-        "habit.core.habitat_analysis.run.run_habitat_analysis_from_config", _spy
-    )
-
-    run_habitat(str(config_path), debug_mode=False, mode=None, pipeline_path=None, exit_on_error=False)
-
-    assert len(calls) == 1
-    assert calls[0]["config"].run_mode == "predict"
+    with pytest.raises(ValueError, match="Legacy v0.1 pickle"):
+        run_habitat(
+            str(config_path),
+            debug_mode=False,
+            mode=None,
+            pipeline_path=None,
+            exit_on_error=False,
+        )
 
 
 @pytest.mark.cli

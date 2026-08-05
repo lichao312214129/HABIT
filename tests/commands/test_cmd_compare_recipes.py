@@ -25,7 +25,7 @@ import pytest
 
 import habit.commands.cmd_compare as cmd_compare
 from habit.commands.cmd_compare import run_compare
-from habit.core.machine_learning.config_schemas import ModelComparisonConfig
+from habit.compat.engines.machine_learning.config_schemas import ModelComparisonConfig
 from habit.recipes.comparison import compare_models, pairwise_delong_test
 
 

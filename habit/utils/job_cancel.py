@@ -28,7 +28,7 @@ import threading
 from pathlib import Path
 from typing import Any, Iterator, Optional, TypeVar
 
-from habit.core.common.exceptions import HabitError
+from habit.exceptions import HabitError
 
 T = TypeVar("T")
 

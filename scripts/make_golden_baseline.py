@@ -13,22 +13,18 @@
 # limitations under the License.
 #
 """
-Freeze the v0.1.x behaviour of HABIT as a golden baseline (refactor phase 0).
+Freeze the v1.0 behaviour of HABIT as a golden baseline.
 
 Why this exists
 ---------------
-The v1.0 refactor replaces the internals of habitat analysis. Without a
-baseline captured BEFORE the switch, any post-refactor difference is
-indistinguishable from a bug. This script runs the shipped CLI over
-``demo_data/`` and records two things that the v1.0 implementation must
-reproduce:
+The v1.0 release pins reproducible CLI outputs over ``demo_data/``. This script
+runs the shipped CLI and records two things every release must reproduce:
 
-1. THE ARTEFACT CONTRACT -- the exact set of files a run produces. v0.1 emits
-   habitat label maps, supervoxel label maps, a habitats table, a fitted
-   pipeline and a tree of visualisations; a v1.0 pipeline that computes the
-   same numbers but stops writing the ``.nrrd`` maps or the cluster plots is a
-   regression for every existing user, so the file list is part of the
-   baseline rather than an afterthought.
+1. THE ARTEFACT CONTRACT -- the exact set of files a run produces. v1 emits
+   habitat label maps, supervoxel label maps, a habitats table, a
+   ``habitat_model.habitatmodel`` archive, ``run_manifest.json``, and habitat
+   clustering visualisations; a pipeline that computes the same numbers but
+   stops writing the ``.nrrd`` maps or the cluster plots is a regression.
 
 2. THE NUMBERS -- label maps voxel-by-voxel (sha256 over the raw buffer plus
    geometry), and tables column-by-column with their values, compared later
@@ -112,8 +108,8 @@ OPAQUE_SUFFIXES: Tuple[str, ...] = (
     ".habitatmodel",
 )
 
-#: Never compared: timestamps or interpreter caches.
-EXCLUDED_SUFFIXES: Tuple[str, ...] = (".log", ".pyc")
+#: Never compared: timestamps, interpreter caches, or in-flight checkpoint writes.
+EXCLUDED_SUFFIXES: Tuple[str, ...] = (".log", ".pyc", ".tmp")
 
 #: Directory names whose contents are recorded by path only.
 PRESENCE_ONLY_DIRS: Tuple[str, ...] = (".habitat_checkpoint", "__pycache__")
@@ -204,7 +200,7 @@ GOLDEN_CASES: Tuple[GoldenCase, ...] = (
             "pins the train/predict label agreement v1 must reproduce"
         ),
         depends_on="habitat_two_step",
-        overrides=(("pipeline_path", "{dependency_out_dir}/habitat_pipeline.pkl"),),
+        overrides=(("pipeline_path", "{dependency_out_dir}/habitat_model.habitatmodel"),),
     ),
     GoldenCase(
         name="habitat_features",
@@ -347,6 +343,30 @@ ORDER_INSENSITIVE_JSON_LEAVES: Tuple[str, ...] = (
     "failed_subjects",
 )
 
+#: JSON leaves that record wall-clock time, ephemeral ids, or absolute paths.
+#: They are reproducible in structure but not in value across runs or scratch
+#: directories, so they are omitted from golden fingerprints and comparisons.
+VOLATILE_JSON_LEAF_NAMES: Tuple[str, ...] = (
+    "started_at",
+    "finished_at",
+    "created_at",
+    "run_id",
+    "config_hash",
+)
+VOLATILE_JSON_LEAF_PATHS: Tuple[str, ...] = (
+    "resolved_config.out_dir",
+)
+
+
+def _is_volatile_json_leaf(leaf_path: str) -> bool:
+    """Return whether a flattened JSON leaf should be ignored in golden diffs."""
+    if leaf_path in VOLATILE_JSON_LEAF_PATHS:
+        return True
+    if leaf_path.endswith(".resolved_config.out_dir"):
+        return True
+    last_segment = leaf_path.rsplit(".", 1)[-1]
+    return last_segment in VOLATILE_JSON_LEAF_NAMES
+
 
 def _json_leaf_agrees(leaf: str, expected: Any, actual: Any) -> bool:
     """
@@ -430,6 +450,8 @@ def _fingerprint_json_file(path: Path) -> Dict[str, Any]:
     numeric: Dict[str, List[Optional[float]]] = {}
     literal: Dict[str, Any] = {}
     for leaf_path, value in _flatten_json(document).items():
+        if _is_volatile_json_leaf(leaf_path):
+            continue
         if isinstance(value, list):
             if value and all(_is_number(item) for item in value):
                 # NaN is not valid JSON; store it as null and let the
@@ -486,6 +508,8 @@ def fingerprint_output_dir(out_dir: Path) -> Dict[str, Any]:
     artefacts: Dict[str, Any] = {}
     files = sorted(p for p in out_dir.rglob("*") if p.is_file())
     for file_path in files:
+        if file_path.suffix.lower() == ".tmp":
+            continue
         if _has_suffix(file_path, EXCLUDED_SUFFIXES):
             continue
         key = _relative_posix(file_path, out_dir)
@@ -759,6 +783,8 @@ def compare_records(baseline: Dict[str, Any], current: Dict[str, Any]) -> List[s
             # Reported leaf by leaf: "content changed" on a run manifest is
             # unactionable, and the difference is usually one field.
             for leaf in sorted(set(expected_literal) | set(actual_literal)):
+                if _is_volatile_json_leaf(leaf):
+                    continue
                 if not _json_leaf_agrees(
                     leaf, expected_literal.get(leaf), actual_literal.get(leaf)
                 ):

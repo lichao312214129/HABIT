@@ -46,20 +46,17 @@ Repository root
      ROOT["habit/"]
      ROOT --> CLI["cli.py — Click command group"]
      ROOT --> CMD["commands/ — cmd_*.py (active CLI impl)"]
-     ROOT --> CORE["core/ — business logic"]
+     ROOT --> REC["recipes/ — L4 assembly (v1 API)"]
+     ROOT --> ENG["compat/engines/ — v0.1 YAML engines"]
+     ROOT --> SCH["schemas/ — workflow & step schemas"]
      ROOT --> UTILS["utils/ — shared utilities"]
 
-     CORE --> COM["common/ — configs, configurators, contracts"]
-     CORE --> SCH["schemas/ — workflow & step schemas, registry, reflect"]
-     CORE --> PRE["preprocessing/"]
-     CORE --> HAB["habitat_analysis/"]
-     CORE --> MLC["machine_learning/"]
-     CORE --> DCM["dicom_sort/"]
+     ENG --> PRE["preprocessing/"]
+     ENG --> HAB["habitat_analysis/"]
+     ENG --> MLC["machine_learning/"]
 
-     COM --> CFG["configs/"]
-     COM --> CON["configurators/"]
-     COM --> REG["registry.py"]
-     COM --> ORC["orchestrator.py"]
+     REC --> DOM["domain/ + adapters/"]
+     SCH --> REG["registry.py — ParamSchemaRegistry"]
 
 Top-level package responsibilities
 ------------
@@ -75,30 +72,27 @@ Top-level package responsibilities
        bodies only perform lazy imports and forwarding.
    * - ``habit/commands/``
      - **Active command implementation layer**: each ``cmd_*.py`` loads
-       configuration, calls the core, and reports results. Shared helpers are
-       in ``common.py``.
-   * - ``habit/core/common/``
-     - Cross-domain infrastructure: YAML loading and path resolution
-       (``configs/``), the Configurator base classes (``configurators/``), the
-       shared registry base (``registry.py`` →
-       :class:`~habit.core.common.registry.ClassRegistry`), and the
-       orchestrator contract table (``orchestrator.py`` →
-       :data:`~habit.core.common.orchestrator.ORCHESTRATOR_CONTRACT`).
-   * - ``habit/core/schemas/``
+       configuration, calls ``habit.recipes`` / ``habit.api``, and reports
+       results. Shared helpers are in ``common.py``.
+   * - ``habit/schemas/``
      - Pydantic configuration models for workflows, step parameters, parameter
-       registration, validation, and GUI reflection.
-   * - ``habit/core/preprocessing/``
+       registration, validation, and GUI reflection (v1.0 canonical location).
+   * - ``habit/registry/``
+     - Shared registry base (:class:`~habit.registry.base.ClassRegistry`) used
+       by plugin factories across engines.
+   * - ``habit/compat/engines/preprocessing/``
      - Batch image preprocessing: ``BatchProcessor``,
-       ``BasePreprocessor``, ``PreprocessorFactory``, and step implementations.
-   * - ``habit/core/habitat_analysis/``
+       ``BasePreprocessor``, ``PreprocessorFactory``, and step implementations
+       (v0.1 engine, retained for YAML/CLI parity).
+   * - ``habit/compat/engines/habitat_analysis/``
      - Habitat segmentation, clustering features, post-segmentation feature
        extraction, and traditional radiomics (see :doc:`subsystems`).
-   * - ``habit/core/machine_learning/``
+   * - ``habit/compat/engines/machine_learning/``
      - Tabular machine learning: data assembly, feature selection, modeling,
        evaluation, reporting, visualization, and statistical tests.
-   * - ``habit/core/dicom_sort/``
-     - Standalone DICOM sorting based on dcm2niix; it does not use
-       ``BatchProcessor``.
+   * - ``habit/compat/dicom_sort_runner.py``
+     - Standalone DICOM sorting based on dcm2niix; invoked from
+       ``habit.recipes.sort_dicom``.
    * - ``habit/utils/``
      - Shared utilities used across subsystems (see below).
 
@@ -143,19 +137,18 @@ run the contract tests when adding a factory or orchestrator:
 .. mermaid::
 
    flowchart LR
-     REG["common/registry.py<br/>ClassRegistry"] --> PF["PreprocessorFactory"]
+     REG["habit/registry/base.py<br/>ClassRegistry"] --> PF["PreprocessorFactory"]
      REG --> MF["ModelFactory"]
      REG --> CF["ClusteringAlgorithmFactory"]
      REG --> EF["FeatureExtractorRegistry"]
      REG --> PP["PreprocessingMethodFactory"]
      REG --> HF["HabitatFeatureFactory"]
 
-     ORC["common/orchestrator.py<br/>ORCHESTRATOR_CONTRACT"] --> BP["BatchProcessor"]
-     ORC --> HA["HabitatAnalysis"]
-     ORC --> HW["HoldoutWorkflow / ..."]
+     ORC["recipes/habitat.py<br/>two_step / one_step / direct_pooling"] --> HA["HabitatAnalysis engine"]
+     ORC --> HW["recipes/ml.py — train / cv / compare"]
 
      TST["tests/test_architecture_contracts.py"] -.-> REG
-     TST -.-> ORC
+     TST -.-> REC
 
 Where to start when changing X
 ------------------
@@ -169,28 +162,27 @@ Where to start when changing X
    * - Add or modify a CLI command
      - ``habit/cli.py`` + ``habit/commands/cmd_*.py``
    * - Add a preprocessing step
-     - ``habit/core/preprocessing/`` + ``PreprocessorFactory``
+     - ``habit/compat/engines/preprocessing/`` + ``PreprocessorFactory``
    * - Add a clustering algorithm
-     - ``habit/core/habitat_analysis/clustering/base_clustering.py``
+     - ``habit/compat/engines/habitat_analysis/clustering/base_clustering.py``
    * - Add a clustering feature extractor
-     - ``habit/core/habitat_analysis/clustering_features/base_extractor.py``
+     - ``habit/compat/engines/habitat_analysis/clustering_features/base_extractor.py``
    * - Add a machine-learning model
-     - ``habit/core/machine_learning/models/factory.py``
+     - ``habit/compat/engines/machine_learning/models/factory.py``
    * - Add a feature-selection method
-     - ``habit/core/machine_learning/feature_selectors/selector_registry.py``
+     - ``habit/compat/engines/machine_learning/feature_selectors/selector_registry.py``
    * - Change configuration fields or validation rules
-     - ``habit/core/schemas/workflows/`` and ``schemas/steps/``
+     - ``habit/schemas/workflows/`` and ``schemas/steps/``
    * - Change the three habitat pipeline strategies
-     - ``habit/core/habitat_analysis/habitat_analysis.py``\ （``_PIPELINE_RECIPES``）+ ``pipelines/steps/``
+     - ``habit/recipes/habitat.py`` (v1 recipes) + ``compat/engines/habitat_analysis/pipelines/steps/``
    * - Change the ML training or prediction flow
-     - ``habit/core/machine_learning/workflows/`` and ``runners/``
+     - ``habit/compat/engines/machine_learning/workflows/`` and ``runners/``
    * - Add a class-based factory
-     - Subclass ``ClassRegistry`` from ``habit/core/common/registry.py``;
+     - Subclass ``ClassRegistry`` from ``habit/registry/base.py``;
        follow an existing factory in the same domain.
    * - Add a top-level orchestrator for a new CLI pipeline
-     - Implement the class and update ``ORCHESTRATOR_CONTRACT`` in
-       ``common/orchestrator.py``. ``tests/test_architecture_contracts.py``
-       reads this table automatically to validate terminal methods.
+     - Implement the recipe in ``habit/recipes/`` and wire the CLI command.
+       ``tests/test_architecture_contracts.py`` validates layer dependencies.
 
 .. seealso::
 

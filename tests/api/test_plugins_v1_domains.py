@@ -16,9 +16,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 from habit.api.exceptions import HABITAPIError
+from habit.utils.deprecation import HabitDeprecationWarning
 from habit.api.plugins import (
     get_param_schema,
     get_plugin_info,
@@ -26,6 +29,17 @@ from habit.api.plugins import (
     load_plugins,
 )
 
+#: Built-in habitat feature names exposed through the legacy plural domain.
+_HABITAT_FEATURES_LEGACY = frozenset(
+    {
+        "each_habitat",
+        "ith_score",
+        "msi",
+        "non_radiomics",
+        "traditional",
+        "whole_habitat",
+    }
+)
 #: domain -> built-in implementation names expected after a bare import.
 _V1_BUILTINS = {
     "voxel_feature_extractor": {
@@ -134,9 +148,38 @@ def test_get_plugin_info_and_param_schema_on_v1_domains() -> None:
 @pytest.mark.unit
 def test_preprocessor_alias_resolves_to_the_v0_1_registry() -> None:
     """Image preprocessing has no v1 domain yet: the alias stays with v0.1."""
-    plural = {info.name for info in list_plugins("preprocessors")}
+    with pytest.warns(HabitDeprecationWarning, match="preprocessors"):
+        plural = {info.name for info in list_plugins("preprocessors")}
     singular = {info.name for info in list_plugins("preprocessor")}
     assert plural == singular
+
+
+@pytest.mark.unit
+def test_habitat_features_legacy_alias_lists_core_only() -> None:
+    """Legacy habitat_features omits v1-only plugins such as volume."""
+    with pytest.warns(HabitDeprecationWarning, match="habitat_features"):
+        legacy = {info.name for info in list_plugins("habitat_features")}
+    v1 = {info.name for info in list_plugins("habitat_feature_extractor")}
+    assert _HABITAT_FEATURES_LEGACY <= legacy
+    assert "volume" not in legacy
+    assert "volume" in v1
+
+
+@pytest.mark.unit
+def test_habitat_features_legacy_alias_delegates_per_name() -> None:
+    """Shared built-in names resolve to v1; legacy-only names stay on core."""
+    with pytest.warns(HabitDeprecationWarning, match="habitat_features"):
+        builtins = [
+            info
+            for info in list_plugins("habitat_features")
+            if info.name in _HABITAT_FEATURES_LEGACY
+        ]
+    for info in builtins:
+        assert info.implementation.startswith(
+            ("habit.domain.", "habit.compat.engines.")
+        ), info
+    msi = get_plugin_info("msi", "habitat_features")
+    assert msi.implementation.startswith("habit.domain.")
 
 
 @pytest.mark.unit
@@ -150,7 +193,7 @@ def test_table_ml_singular_domains_resolve_to_v1_registries() -> None:
     for domain in ("models", "metrics"):
         for info in list_plugins(domain):
             assert info.implementation.startswith(
-                ("habit.domain.", "habit.core.")
+                ("habit.domain.", "habit.compat.engines.")
             ), info
 
 
@@ -166,3 +209,39 @@ def test_load_plugins_scans_old_and_new_groups() -> None:
     """Plugin discovery covers the v0.1 plural and v1.0 singular groups."""
     report = load_plugins()
     assert not report.failures
+
+
+@pytest.mark.unit
+def test_load_plugins_logs_nonfatal_failures(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Broken entry points are recorded and logged without aborting discovery."""
+    from habit.api import plugins
+
+    class BrokenEntryPoint:
+        """Minimal entry point whose load() always raises."""
+
+        name = "broken"
+        value = "broken_plugin:register"
+
+        @staticmethod
+        def load() -> None:
+            raise RuntimeError("boom")
+
+    logged: list[tuple[Any, ...]] = []
+
+    def _capture_warning(msg: str, *args: Any) -> None:
+        logged.append((msg, args))
+
+    monkeypatch.setattr(plugins, "_ENTRY_POINT_GROUPS", {"models": "habit.models"})
+    monkeypatch.setattr(
+        plugins,
+        "_entry_points_for",
+        lambda group: (BrokenEntryPoint(),),
+    )
+    monkeypatch.setattr(plugins.logger, "warning", _capture_warning)
+    plugins._LOADED_ENTRY_POINTS.clear()
+
+    report = load_plugins()
+
+    assert report.failures == {"models:broken": "RuntimeError: boom"}
+    assert logged
+    assert logged[0][0].startswith("Failed to load HABIT plugin entry point")

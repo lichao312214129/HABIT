@@ -170,7 +170,7 @@ def test_habitat_segmenter_preserves_train_predict_lifecycle() -> None:
     assert predict_config.data_dir == "external_input"
     assert predict_config.out_dir == "prediction_output"
     assert predict_config.pipeline_path == str(
-        Path("training_output") / "habitat_pipeline.pkl"
+        Path("training_output") / "habitat_model.habitatmodel"
     )
     pd.testing.assert_frame_equal(prediction.table, prediction_table)
 

@@ -26,7 +26,7 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.core.habitat_analysis.config_schemas import (
+    from habit.schemas.workflows.habitat import (
         FeatureExtractionConfig,
         HabitatAnalysisConfig,
         RadiomicsConfig,
@@ -51,9 +51,9 @@ def __getattr__(name: str) -> Any:
         "FeatureExtractionConfig",
         "RadiomicsConfig",
     }:
-        from habit.core.habitat_analysis import config_schemas
+        from habit.schemas.workflows import habitat as habitat_schemas
 
-        return getattr(config_schemas, name)
+        return getattr(habitat_schemas, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -78,13 +78,11 @@ def apply_habitat_cli_overrides(
     Returns:
         The validated config instance with the requested overrides.
     """
-    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-    from habit.core.habitat_analysis.run import (
-        apply_habitat_cli_overrides as _apply_habitat_cli_overrides,
-    )
+    from habit.compat.legacy_core import apply_habitat_cli_overrides_core
+    from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
     validated_config = coerce_config(config, HabitatAnalysisConfig)
-    return _apply_habitat_cli_overrides(
+    return apply_habitat_cli_overrides_core(
         validated_config,
         mode=mode,
         pipeline_path=pipeline_path,
@@ -102,18 +100,18 @@ def run_habitat_analysis(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.habitat_analysis.config_schemas.HabitatAnalysisConfig`.
+            :class:`~habit.schemas.workflows.habitat.HabitatAnalysisConfig`.
         logger: Optional logger passed to the core runner.
 
     Returns:
         Result table in ``data`` and declared output artifacts.
     """
-    from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
-    from habit.core.habitat_analysis.run import run_habitat_analysis_from_config
+    from habit.compat.legacy_core import run_habitat_analysis_from_config
+    from habit.schemas.workflows.habitat import HabitatAnalysisConfig
 
     validated_config = coerce_config(config, HabitatAnalysisConfig)
     results = run_habitat_analysis_from_config(validated_config, logger=logger)
-    pipeline_path = Path(validated_config.out_dir) / "habitat_pipeline.pkl"
+    pipeline_path = Path(validated_config.out_dir) / "habitat_model.habitatmodel"
     artifacts = {"pipeline": pipeline_path} if pipeline_path.is_file() else {}
     manifest = create_run_manifest(
         "habitat_analysis",
@@ -152,9 +150,7 @@ def load_feature_extraction_config(
     Returns:
         Tuple containing the validated shared config and plugin config mapping.
     """
-    from habit.core.habitat_analysis.feature_extraction_loader import (
-        load_feature_extraction_config_from_file,
-    )
+    from habit.compat.legacy_core import load_feature_extraction_config_from_file
 
     return cast(
         Tuple["FeatureExtractionConfig", Dict[str, Any]],
@@ -178,9 +174,7 @@ def build_feature_extraction_config(
     Returns:
         Tuple containing the validated shared config and plugin config mapping.
     """
-    from habit.core.habitat_analysis.feature_extraction_loader import (
-        parse_feature_extraction_config,
-    )
+    from habit.compat.legacy_core import parse_feature_extraction_config
 
     if isinstance(config, Mapping):
         return cast(
@@ -203,7 +197,7 @@ def run_feature_extraction(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.habitat_analysis.config_schemas.FeatureExtractionConfig`.
+            :class:`~habit.schemas.workflows.habitat.FeatureExtractionConfig`.
         logger: Optional logger passed to the core runner.
         plugin_configs: Optional settings returned by
             :func:`load_feature_extraction_config` or
@@ -212,7 +206,8 @@ def run_feature_extraction(
     Returns:
         A result with the feature output directory in ``artifacts``.
     """
-    from habit.core.habitat_analysis.run import run_feature_extraction_from_config
+    from habit.compat.legacy_core import run_feature_extraction_from_config
+    from habit.schemas.workflows.habitat import FeatureExtractionConfig
 
     if isinstance(config, Mapping):
         validated_config, inferred_plugin_configs = build_feature_extraction_config(
@@ -224,8 +219,6 @@ def run_feature_extraction(
             else inferred_plugin_configs
         )
     else:
-        from habit.core.habitat_analysis.config_schemas import FeatureExtractionConfig
-
         validated_config = coerce_config(config, FeatureExtractionConfig)
         resolved_plugin_configs = (
             dict(plugin_configs) if plugin_configs is not None else None
@@ -261,14 +254,14 @@ def run_radiomics(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.habitat_analysis.config_schemas.RadiomicsConfig`.
+            :class:`~habit.schemas.workflows.habitat.RadiomicsConfig`.
         logger: Optional logger passed to the core runner.
 
     Returns:
         A result with the radiomics output directory in ``artifacts``.
     """
-    from habit.core.habitat_analysis.config_schemas import RadiomicsConfig
-    from habit.core.habitat_analysis.run import run_radiomics_from_config
+    from habit.compat.legacy_core import run_radiomics_from_config
+    from habit.schemas.workflows.habitat import RadiomicsConfig
 
     validated_config = coerce_config(config, RadiomicsConfig)
     run_radiomics_from_config(validated_config, logger=logger)

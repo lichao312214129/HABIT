@@ -24,7 +24,7 @@ import numpy as np
 from typing import Dict, Any, Optional, List
 import yaml
 import logging
-from habit.core.common.configs.loader import load_config, save_config, validate_config
+from habit.utils.config_loader import load_config, save_config, validate_config
 
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
@@ -249,7 +249,7 @@ def save_habitat_image(
     Save habitat image.
 
     Deprecated wrapper kept for backward compatibility. Prefer
-    :func:`habit.core.habitat_analysis.services.habitat_image_writer.save_habitat_from_supervoxel_mapping`.
+    :func:`habit.adapters.habitat_image_writer.save_habitat_from_supervoxel_mapping`.
 
     Args:
         subject (str): Subject name
@@ -260,7 +260,7 @@ def save_habitat_image(
     Returns:
         str: Path to the saved file
     """
-    from habit.core.habitat_analysis.services.habitat_image_writer import (
+    from habit.adapters.habitat_image_writer import (
         save_habitat_from_supervoxel_mapping,
     )
 
@@ -268,7 +268,7 @@ def save_habitat_image(
         subject=subject,
         habitats_df=habitats_df,
         supervoxel_path=supervoxel_path,
-        out_dir=out_folder,
+        destination=out_folder,
         postprocess_settings=postprocess_settings,
     )
 

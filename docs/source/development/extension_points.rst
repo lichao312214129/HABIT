@@ -42,8 +42,8 @@ with ``@PreprocessorFactory.register``.
 
    import numpy as np
    from scipy.ndimage import gaussian_filter
-   from habit.core.preprocessing.preprocessor_factory import PreprocessorFactory
-   from habit.core.preprocessing.base_preprocessor import BasePreprocessor
+   from habit.compat.engines.preprocessing.preprocessor_factory import PreprocessorFactory
+   from habit.compat.engines.preprocessing.base_preprocessor import BasePreprocessor
 
    @PreprocessorFactory.register("my_gaussian_filter")
    class MyGaussianFilter(BasePreprocessor):
@@ -66,7 +66,7 @@ Define and register the parameter model in
 .. code-block:: python
 
    from pydantic import BaseModel, Field
-   from habit.core.schemas.registry import ParamSchemaRegistry
+   from habit.schemas.registry import ParamSchemaRegistry
 
    class MyGaussianFilterParams(BaseModel):
        sigma: float = Field(default=1.0, description="Gaussian kernel standard deviation.")
@@ -98,7 +98,7 @@ The selector receives a ``SelectorContext`` containing ``X``, ``y``, and
 .. code-block:: python
 
    from typing import List
-   from habit.core.machine_learning.feature_selectors.selector_registry import (
+   from habit.compat.engines.machine_learning.feature_selectors.selector_registry import (
        SelectorRegistry, 
        SelectorContext
    )
@@ -122,7 +122,7 @@ The selector receives a ``SelectorContext`` containing ``X``, ``y``, and
 .. code-block:: python
 
    from pydantic import BaseModel, Field
-   from habit.core.schemas.registry import ParamSchemaRegistry
+   from habit.schemas.registry import ParamSchemaRegistry
 
    class MyVarianceParams(BaseModel):
        threshold: float = Field(default=0.0, description="Variance threshold.")
@@ -152,8 +152,8 @@ Subclass ``BaseModel`` and implement ``fit``, ``predict``, and ``predict_proba``
 .. code-block:: python
 
    from sklearn.neural_network import MLPClassifier
-   from habit.core.machine_learning.models.base import BaseModel
-   from habit.core.machine_learning.models.factory import ModelFactory
+   from habit.compat.engines.machine_learning.models.base import BaseModel
+   from habit.compat.engines.machine_learning.models.factory import ModelFactory
 
    @ModelFactory.register("my_mlp")
    class MyMLPModel(BaseModel):
@@ -184,7 +184,7 @@ Subclass ``BaseModel`` and implement ``fit``, ``predict``, and ``predict_proba``
 
    from typing import Tuple
    from pydantic import BaseModel, Field
-   from habit.core.schemas.registry import ParamSchemaRegistry
+   from habit.schemas.registry import ParamSchemaRegistry
 
    class MyMLPParams(BaseModel):
        hidden_layer_sizes: Tuple[int, ...] = Field(default=(100,))
@@ -205,11 +205,11 @@ defaults:
 
 .. code-block:: python
 
-   from habit.core.habitat_analysis.clustering_features.base_extractor import (
+   from habit.compat.engines.habitat_analysis.clustering_features.base_extractor import (
        BaseClusteringExtractor,
        FeatureExtractorRegistry,
    )
-   from habit.core.habitat_analysis.clustering_features.method_param_spec import (
+   from habit.compat.engines.habitat_analysis.clustering_features.method_param_spec import (
        MethodParamSpec,
    )
 

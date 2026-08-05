@@ -634,9 +634,11 @@ class HabitatModel:
             archive = zipfile.ZipFile(source, "r")
         except zipfile.BadZipFile as exc:
             raise CompatibilityError(
-                f"{source} is not a {_FORMAT_NAME} file. Legacy "
-                "habitat_pipeline.pkl files must be loaded through the "
-                "backward-compatibility path instead."
+                f"{source} is not a {_FORMAT_NAME} file. HABIT v1.0 expects "
+                "a self-describing .habitatmodel archive produced by train; "
+                "legacy v0.1 habitat_pipeline.pkl files are not supported. "
+                "Re-train and use apply_habitat_model or point pipeline_path "
+                "at habitat_model.habitatmodel."
             ) from exc
         with archive:
             try:

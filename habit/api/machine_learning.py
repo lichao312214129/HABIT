@@ -24,11 +24,7 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.core.machine_learning.config_schemas import (
-        MLConfig,
-        ModelComparisonConfig,
-        TestRetestConfig,
-    )
+    from habit.schemas.workflows.ml import MLConfig, ModelComparisonConfig, TestRetestConfig
 
 __all__ = [
     "MLConfig",
@@ -43,9 +39,9 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     if name in {"MLConfig", "ModelComparisonConfig", "TestRetestConfig"}:
-        from habit.core.machine_learning import config_schemas
+        from habit.schemas.workflows import ml as ml_schemas
 
-        return getattr(config_schemas, name)
+        return getattr(ml_schemas, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -63,12 +59,10 @@ def apply_ml_mode_override(
     Returns:
         Validated ML configuration with the requested mode.
     """
-    from habit.core.machine_learning.config_schemas import MLConfig
-    from habit.core.machine_learning.run import (
-        apply_ml_mode_override as _apply_ml_mode_override,
-    )
+    from habit.compat.legacy_core import apply_ml_mode_override_core
+    from habit.schemas.workflows.ml import MLConfig
 
-    return _apply_ml_mode_override(coerce_config(config, MLConfig), mode)
+    return apply_ml_mode_override_core(coerce_config(config, MLConfig), mode)
 
 
 def run_ml(
@@ -81,7 +75,7 @@ def run_ml(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.machine_learning.config_schemas.MLConfig`.
+            :class:`~habit.schemas.workflows.ml.MLConfig`.
         logger: Optional logger passed to the core runner.
         output_dir: Optional output directory override.
 
@@ -89,8 +83,8 @@ def run_ml(
         Structured workflow output in ``data`` and its output directory in
         ``artifacts``.
     """
-    from habit.core.machine_learning.config_schemas import MLConfig
-    from habit.core.machine_learning.run import run_ml_from_config
+    from habit.compat.legacy_core import run_ml_from_config
+    from habit.schemas.workflows.ml import MLConfig
 
     validated_config = coerce_config(config, MLConfig)
     resolved_output_dir = output_dir or validated_config.output
@@ -130,7 +124,7 @@ def run_kfold(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.machine_learning.config_schemas.MLConfig`
+            :class:`~habit.schemas.workflows.ml.MLConfig`
             (``run_mode`` must be ``train``).
         logger: Optional logger passed to the core runner.
         output_dir: Optional output directory override.
@@ -139,8 +133,8 @@ def run_kfold(
         Structured K-fold result in ``data`` and its output directory in
         ``artifacts``.
     """
-    from habit.core.machine_learning.config_schemas import MLConfig
-    from habit.core.machine_learning.run import run_kfold_from_config
+    from habit.compat.legacy_core import run_kfold_from_config
+    from habit.schemas.workflows.ml import MLConfig
 
     validated_config = coerce_config(config, MLConfig)
     resolved_output_dir = output_dir or validated_config.output
@@ -178,7 +172,7 @@ def run_model_comparison(
 
     Args:
         config: Validated config or dictionary accepted by
-            :class:`~habit.core.machine_learning.config_schemas.ModelComparisonConfig`.
+            :class:`~habit.schemas.workflows.ml.ModelComparisonConfig`.
         logger: Optional logger passed to the core runner.
         output_dir: Optional output directory override.
 
@@ -186,8 +180,8 @@ def run_model_comparison(
         Model-comparison metrics in ``data`` and the output directory in
         ``artifacts``.
     """
-    from habit.core.machine_learning.config_schemas import ModelComparisonConfig
-    from habit.core.machine_learning.run import run_model_comparison_from_config
+    from habit.compat.legacy_core import run_model_comparison_from_config
+    from habit.schemas.workflows.ml import ModelComparisonConfig
 
     validated_config = coerce_config(config, ModelComparisonConfig)
     resolved_output_dir = output_dir or validated_config.output_dir

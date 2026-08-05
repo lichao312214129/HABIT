@@ -147,7 +147,7 @@ def test_run_preprocess_delegates_to_core_runner() -> None:
 
     import habit
 
-    with patch("habit.core.preprocessing.run.run_preprocess_from_config") as mock_run:
+    with patch("habit.compat.preprocess_runner.run_preprocess_from_config") as mock_run:
         logger = MagicMock()
         result = habit.run_preprocess(
             {"data_dir": "input", "out_dir": "output"},
@@ -168,7 +168,7 @@ def test_public_runner_rejects_invalid_dictionary_before_core_execution() -> Non
 
     import habit
 
-    with patch("habit.core.preprocessing.run.run_preprocess_from_config") as mock_run:
+    with patch("habit.compat.preprocess_runner.run_preprocess_from_config") as mock_run:
         with pytest.raises(habit.ConfigurationError):
             habit.run_preprocess({"data_dir": "input"})
 
@@ -186,7 +186,7 @@ def test_load_feature_extraction_config_delegates_to_plugin_aware_loader() -> No
     expected_config = MagicMock()
     expected_plugins = {"graph": MagicMock()}
     with patch(
-        "habit.core.habitat_analysis.feature_extraction_loader."
+        "habit.compat.feature_extraction_loader."
         "load_feature_extraction_config_from_file",
         return_value=(expected_config, expected_plugins),
     ) as mock_load:
@@ -208,7 +208,7 @@ def test_run_feature_extraction_passes_plugin_configs() -> None:
 
     plugins = {"graph": MagicMock()}
     with patch(
-        "habit.core.habitat_analysis.run.run_feature_extraction_from_config"
+        "habit.compat.feature_extraction_runner.run_feature_extraction_from_config"
     ) as mock_run:
         habit.run_feature_extraction(
             {
@@ -250,13 +250,11 @@ def test_run_test_retest_analysis_maps_and_processes_images() -> None:
 
     with (
         patch(
-            "habit.core.machine_learning.feature_selectors.icc."
-            "habitat_test_retest_mapper.find_habitat_mapping",
+            "habit.compat.test_retest_mapper.find_habitat_mapping",
             return_value=expected_mapping,
         ) as mock_find,
         patch(
-            "habit.core.machine_learning.feature_selectors.icc."
-            "habitat_test_retest_mapper.batch_process_files"
+            "habit.compat.test_retest_mapper.batch_process_files"
         ) as mock_batch,
     ):
         result = habit.run_test_retest_analysis(config, logger=logger)

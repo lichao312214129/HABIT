@@ -36,13 +36,9 @@ and v0.1-format payloads in the same directory are never read -- a logged
 warning covers both situations.
 
 Predict compatibility: models fitted by this command are saved as v1
-``.habitatmodel`` archives, additionally under the v0.1 file name
-``habitat_pipeline.pkl`` so existing predict configs keep working
-unchanged (the file NAME is the interface; the payload is a versioned,
-self-describing archive either way). Legacy v0.1 pipelines -- raw
-pickles that carry no v1 spec -- still route to the v0.1 engine, because
-only that engine can apply them; that delegation is a deliberate, logged
-debt item, removed once stage-5 migrates legacy artefacts.
+``.habitatmodel`` archives only. Legacy v0.1 raw-pickle pipelines are
+rejected with a migration message pointing at ``habitat_model.habitatmodel``
+and :func:`habit.recipes.apply_habitat_model`.
 """
 
 from __future__ import annotations
@@ -61,7 +57,7 @@ from habit.api.habitat import apply_habitat_cli_overrides
 from habit.commands.common import echo_error, echo_success, load_config_or_exit
 from habit.contracts.habitat import HabitatModel
 from habit.contracts.subject import Cohort, Subject
-from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+from habit.schemas import HabitatAnalysisConfig
 from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
 from habit.execution.process_pool import ProcessPoolBackend
@@ -85,13 +81,18 @@ _RECIPE_BY_MODE: Mapping[str, Callable[..., StudyResult]] = {
 _TRAIN_CHECKPOINT_DIRNAME = ".habitat_checkpoint"
 _PREDICT_CHECKPOINT_DIRNAME = ".habitat_predict_checkpoint"
 
-#: v0.1 file name under which the fitted v1 model is additionally saved,
-#: so existing ``pipeline_path`` predict configs resolve unchanged.
-_LEGACY_PIPELINE_NAME = "habitat_pipeline.pkl"
+#: v1 fitted model file name written under ``out_dir`` after train.
+_V1_MODEL_NAME = "habitat_model.habitatmodel"
 
-#: Zip local-file magic: v1 ``.habitatmodel`` artefacts are zip archives
-#: while v0.1 pipelines are raw pickles, so four bytes decide the route.
+#: Zip local-file magic: v1 ``.habitatmodel`` artefacts are zip archives.
 _ZIP_MAGIC = b"PK\x03\x04"
+
+_LEGACY_PICKLE_MESSAGE = (
+    "Legacy v0.1 pickle pipelines are not supported in HABIT v1.0. "
+    f"Train a model to produce {_V1_MODEL_NAME!r}, then run predict with "
+    "pipeline_path pointing at that archive or call "
+    "habit.recipes.apply_habitat_model in Python."
+)
 
 
 def run_habitat(
@@ -108,8 +109,8 @@ def run_habitat(
     The command layer only parses and assembles: translation produces the
     spec/policy, ``_load_cohort`` builds the cohort, and the recipe named
     by ``clustering_mode`` computes the study. Persistence goes through
-    ``StudyResult.save`` (v0.1 layout) plus the ``habitat_pipeline.pkl``
-    compatibility name for the fitted model.
+    ``StudyResult.save`` (v1 layout) plus ``habitat_model.habitatmodel``
+    for the fitted model.
 
     Args:
         config_file: Path to configuration YAML file.
@@ -223,13 +224,9 @@ def _run_train(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
             "artefact was written."
         )
         return
-    shim_path = Path(config.out_dir) / _LEGACY_PIPELINE_NAME
-    result.habitat_model.save(shim_path)
     logger.info(
-        "Saved the fitted model to %s and to the v0.1-compatible name %s "
-        "(same self-describing archive; predict detects the format by content).",
-        Path(config.out_dir) / "habitat_model.habitatmodel",
-        shim_path,
+        "Saved the fitted model to %s",
+        Path(config.out_dir) / _V1_MODEL_NAME,
     )
 
 
@@ -237,8 +234,9 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
     """
     Apply a fitted habitat model, routing by the artefact's format.
 
-    v1 archives go through :func:`habit.recipes.apply_habitat_model`;
-    v0.1 raw pickles keep the v0.1 engine (see ``_run_legacy_predict``).
+    v1 ``.habitatmodel`` archives go through
+    :func:`habit.recipes.apply_habitat_model`. Legacy v0.1 raw pickles are
+    rejected with a migration message.
 
     Args:
         config: Validated v0.1 habitat configuration.
@@ -253,25 +251,19 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
     if not pipeline_file.is_file():
         raise FileNotFoundError(f"Pipeline file not found: {pipeline_file}")
     if not _is_v1_model_archive(pipeline_file):
-        _run_legacy_predict(config, logger)
-        return
+        raise ValueError(
+            f"{_LEGACY_PICKLE_MESSAGE} Got: {pipeline_file}"
+        )
 
+    model = HabitatModel.load(pipeline_file)
     document = _translate_document(config)
     spec_payload = document.get("spec")
     if spec_payload is None:
-        # Shipped predict templates are stubs without feature_construction:
-        # they rely on the artefact carrying the whole pipeline, which only
-        # the v0.1 raw pickles do. A v1 archive next to a stub config is a
-        # mismatch the v0.1 engine cannot resolve either, so fail loudly.
-        raise ValueError(
-            "This predict config carries no feature_construction block, so "
-            "no v1 spec can be derived for applying the v1 model archive. "
-            "Point pipeline_path at a v0.1 habitat_pipeline.pkl (routed to "
-            "the v0.1 engine) or use a full predict config."
-        )
+        # Stub predict YAMLs (pipeline_path only) carry the definition inside
+        # the v1 model archive rather than duplicating feature_construction.
+        spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
     backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
-    model = HabitatModel.load(pipeline_file)
     cohort = _load_cohort(config, spec, logger)
     checkpoint = _checkpoint_store_for(config, predict=True)
     _log_checkpoint_strategy(config, checkpoint.root, logger)
@@ -284,34 +276,6 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
     )
     result = apply_habitat_model(cohort, spec, model, backend=backend, checkpoint=checkpoint)
     _save_result(result, config)
-
-
-def _run_legacy_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
-    """
-    Route a v0.1 raw-pickle pipeline through the public API (deliberate debt).
-
-    Gap (v1 cannot cover this path): ``HabitatModel.load`` and
-    :func:`habit.recipes.apply_habitat_model` only accept the self-describing
-    v1 zip archive. Legacy ``habitat_pipeline.pkl`` files are opaque v0.1
-    sklearn-style pipelines with no embedded :class:`~habit.spec.specs.HabitatSpec`,
-    so they cannot be translated into v1 components without a dedicated
-    migration shim (stage 5). Until that shim exists, predict on raw pickles
-    must keep using the v0.1 engine; the CLI reaches it through
-    :func:`habit.api.habitat.run_habitat_analysis` rather than importing
-    ``habit.core`` directly.
-
-    Args:
-        config: Validated v0.1 habitat configuration.
-        logger: Run logger.
-    """
-    logger.info(
-        "Pipeline artefact %s is a v0.1 raw pickle; delegating predict to "
-        "the v0.1 engine via habit.api.habitat (stage-5 debt).",
-        config.pipeline_path,
-    )
-    from habit.api.habitat import run_habitat_analysis
-
-    run_habitat_analysis(config, logger=logger)
 
 
 def _translate_document(config: HabitatAnalysisConfig) -> Dict[str, Any]:
@@ -662,6 +626,8 @@ def _save_result(result: StudyResult, config: HabitatAnalysisConfig) -> None:
         write_maps=config.save_images,
         write_units_table=config.save_results_csv,
         write_cluster_plots=config.save_images,
+        write_cluster_plots_3d=config.plot_curves,
+        write_interactive_cluster_plots=config.plot_curves,
     )
 
 

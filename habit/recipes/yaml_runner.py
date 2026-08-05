@@ -58,7 +58,7 @@ from habit.recipes.preprocess import preprocess_images
 from habit.recipes.result import StudyResult
 from habit.recipes.sort_dicom import sort_dicom
 from habit.recipes.test_retest import test_retest_analysis
-from habit.spec.legacy import LegacyConfigAdapter, _guess_workflow_from_path, detect_yaml_version
+from habit.spec.legacy import LegacyConfigAdapter, _guess_workflow_from_path, detect_yaml_version, validate_v1_document
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec, MLSpec
 
@@ -88,6 +88,13 @@ _RECIPE_BY_MODE: Mapping[str, Callable[..., StudyResult]] = {
 _TRAIN_CHECKPOINT_DIRNAME = ".habitat_checkpoint"
 _PREDICT_CHECKPOINT_DIRNAME = ".habitat_predict_checkpoint"
 _ZIP_MAGIC = b"PK\x03\x04"
+_V1_MODEL_NAME = "habitat_model.habitatmodel"
+_LEGACY_PICKLE_MESSAGE = (
+    "Legacy v0.1 pickle pipelines are not supported in HABIT v1.0. "
+    f"Train a model to produce {_V1_MODEL_NAME!r}, then run predict with "
+    "pipeline_path pointing at that archive or call "
+    "habit.recipes.apply_habitat_model in Python."
+)
 
 
 def run_from_yaml(
@@ -152,10 +159,7 @@ def run_from_yaml(
             f"Configuration file {path} must contain a YAML mapping at the top level."
         )
     if detect_yaml_version(payload) == "v1":
-        raise HABITAPIError(
-            f"{path} is already a v1 document; call recipes directly with "
-            "HabitatSpec/MLSpec instead of run_from_yaml."
-        )
+        return _run_v1_yaml(path, payload, workflow=alias, save=save, logger=logger)
 
     if alias == "habitat":
         return _run_habitat_yaml(path, save=save, logger=logger)
@@ -183,6 +187,270 @@ def run_from_yaml(
     )
 
 
+def _run_v1_yaml(
+    path: Path,
+    document: Mapping[str, Any],
+    *,
+    workflow: str,
+    save: bool,
+    logger: Optional[logging.Logger],
+) -> Any:
+    """
+    Dispatch a native v1 document through the same recipes as translated v0 YAML.
+
+    Args:
+        path: Resolved config path (for error messages and relative data paths).
+        document: Parsed v1 YAML mapping.
+        workflow: Workflow alias passed by the caller or inferred from the path.
+        save: Whether to persist outputs for habitat / ML workflows.
+        logger: Optional logger forwarded to delegated paths.
+
+    Returns:
+        The in-memory recipe result, optionally written when ``save=True``.
+    """
+    alias = str(document.get("workflow", workflow)).strip().lower()
+    validate_v1_document(document, workflow=workflow if workflow else None)
+
+    if alias == "habitat":
+        return _run_v1_habitat_yaml(path, document, save=save, logger=logger)
+    if alias in ("model", "cv"):
+        return _run_v1_ml_yaml(path, document, workflow=alias, save=save, logger=logger)
+    raise NotImplementedError(
+        f"run_from_yaml v1 direct read routes habitat and ML workflows only; "
+        f"got {alias!r}. Translate other workflows with migrate-config or call "
+        "the matching recipe/API helper."
+    )
+
+
+def _run_v1_habitat_yaml(
+    path: Path,
+    document: Mapping[str, Any],
+    *,
+    save: bool,
+    logger: Optional[logging.Logger],
+) -> StudyResult:
+    """Run a habitat v1 document without round-tripping through v0 schemas."""
+    config = _habitat_config_from_v1_document(document)
+    mode = str(document.get("mode", "train")).strip().lower()
+    if mode == "predict":
+        pipeline_file = Path(config.pipeline_path) if config.pipeline_path else None
+        if pipeline_file is None or not pipeline_file.is_file():
+            raise ValueError(
+                "A predict-mode habitat v1 document needs a readable 'pipeline' path."
+            )
+        if not _is_v1_model_archive(pipeline_file):
+            raise HABITAPIError(
+                "Legacy v0.1 pickle pipelines are not supported by v1 direct read; "
+                "keep the source file as v0 YAML or point 'pipeline' at a v1 "
+                ".habitatmodel archive."
+            )
+        result = _habitat_predict_v1(document, config, logger=logger)
+    else:
+        result = _habitat_train_v1(document, config, logger=logger)
+
+    if save:
+        _save_habitat_result(result, config)
+    return result
+
+
+def _habitat_train_v1(
+    document: Mapping[str, Any],
+    config: Any,
+    *,
+    logger: Optional[logging.Logger],
+) -> StudyResult:
+    """Fit through the v1 recipe named by the v1 document spec."""
+    spec_payload = document.get("spec")
+    if spec_payload is None:
+        raise ValueError(
+            "A train-mode habitat v1 document must carry a non-empty 'spec' section."
+        )
+    spec = HabitatSpec.from_dict(spec_payload)
+    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    cohort = _load_habitat_cohort(config, spec, logger=logger)
+    checkpoint = _checkpoint_store_for(config, predict=False)
+    mode = _clustering_mode_from_spec(spec)
+    recipe = _RECIPE_BY_MODE.get(mode)
+    if recipe is None:
+        raise ValueError(
+            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_RECIPE_BY_MODE)}."
+        )
+    return recipe(cohort, spec, backend=backend, checkpoint=checkpoint)
+
+
+def _habitat_predict_v1(
+    document: Mapping[str, Any],
+    config: Any,
+    *,
+    logger: Optional[logging.Logger],
+) -> StudyResult:
+    """Apply a fitted v1 habitat model archive described by a v1 document."""
+    model = HabitatModel.load(Path(config.pipeline_path))
+    spec_payload = document.get("spec")
+    if spec_payload is None:
+        spec_payload = model.spec_payload
+    spec = HabitatSpec.from_dict(spec_payload)
+    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    cohort = _load_habitat_cohort(config, spec, logger=logger)
+    checkpoint = _checkpoint_store_for(config, predict=True)
+    return apply_habitat_model(
+        cohort, spec, model, backend=backend, checkpoint=checkpoint
+    )
+
+
+def _run_v1_ml_yaml(
+    path: Path,
+    document: Mapping[str, Any],
+    *,
+    workflow: str,
+    save: bool,
+    logger: Optional[logging.Logger],
+) -> Union[ModelResult, CVResult, Any]:
+    """Run an ML v1 document through the v1 recipes."""
+    mode = str(document.get("mode", "train")).strip().lower()
+    if mode == "predict":
+        from habit.api.machine_learning import MLConfig, run_ml
+
+        config = MLConfig.model_validate(_ml_v0_payload_from_v1(document, path))
+        return run_ml(config, logger=logger)
+
+    spec = _ml_spec_from_document(document)
+    table = _load_feature_table_from_v1(document, path, logger=logger)
+
+    if workflow == "cv":
+        legacy = document.get("legacy") or {}
+        n_splits = int(legacy.get("n_splits", 5))
+        seed = spec.random_seed
+        result: Union[ModelResult, CVResult] = cross_validate(
+            table,
+            spec,
+            n_splits=n_splits,
+            seed=seed,
+        )
+        if save:
+            config = _ml_config_shim_from_v1(document, path)
+            _save_cv_result(result, config, logger=logger)
+        return result
+
+    result = train_model(table, spec, seed=spec.random_seed)
+    if save:
+        config = _ml_config_shim_from_v1(document, path)
+        _save_model_result(result, table, config, logger=logger)
+    return result
+
+
+def _habitat_config_from_v1_document(document: Mapping[str, Any]) -> Any:
+    """Build a v0-shaped habitat config shim from a v1 document."""
+    output = dict(document.get("output") or {})
+    policy = RunPolicy.from_dict(document.get("policy") or {})
+    data = dict(document.get("data") or {})
+    legacy = dict(document.get("legacy") or {})
+
+    class _V1HabitatConfig:
+        """Minimal attribute bag shared by habitat YAML helpers."""
+
+        pass
+
+    config = _V1HabitatConfig()
+    config.data_dir = data.get("source")
+    config.out_dir = output.get("out_dir", ".")
+    config.plot_curves = output.get("plot_curves", True)
+    config.save_images = output.get("save_images", True)
+    config.save_results_csv = output.get("save_results_csv", True)
+    config.habitats_results_format = output.get("habitats_results_format", "parquet")
+    config.pipeline_path = document.get("pipeline")
+    config.checkpoint_dir = policy.checkpoint_dir
+    config.resume = policy.resume
+    config.retry_failed_subjects = policy.retry_failed_subjects
+    config.force_rerun_subjects = policy.force_rerun_subjects
+    config.clear_checkpoint_on_success = policy.clear_checkpoint_on_success
+    config.strict_checkpoint_hash = policy.strict_checkpoint_hash
+    config.run_mode = document.get("mode", "train")
+
+    spec_payload = document.get("spec")
+    clustering_mode = legacy.get("habitat_segmentation", {}).get("clustering_mode")
+    if clustering_mode is None and isinstance(spec_payload, Mapping):
+        name = str(spec_payload.get("name", ""))
+        if name.startswith("habitat_"):
+            clustering_mode = name[len("habitat_") :]
+    if clustering_mode is None:
+        clustering_mode = "two_step"
+
+    class _Segmentation:
+        clustering_mode: str
+
+    segmentation = _Segmentation()
+    segmentation.clustering_mode = str(clustering_mode)
+    config.habitat_segmentation = segmentation
+    config.model_dump = lambda: dict(document)  # type: ignore[method-assign]
+    return config
+
+
+def _ml_v0_payload_from_v1(document: Mapping[str, Any], path: Path) -> Dict[str, Any]:
+    """Reconstruct a v0 MLConfig-shaped mapping from a v1 document."""
+    data = dict(document.get("data") or {})
+    output = dict(document.get("output") or {})
+    legacy = dict(document.get("legacy") or {})
+    payload: Dict[str, Any] = {
+        "run_mode": document.get("mode", "train"),
+        "input": data.get("input") or [],
+        "output": output.get("out_dir", "."),
+        "random_state": (document.get("spec") or {}).get("random_seed", 0),
+    }
+    payload.update(legacy)
+    spec = document.get("spec") or {}
+    if spec.get("classifier"):
+        payload["models"] = {
+            spec["classifier"]["name"]: {"params": spec["classifier"].get("params") or {}}
+        }
+    payload["feature_selection_methods"] = [
+        {"method": entry["name"], "params": entry.get("params") or {}}
+        for entry in (spec.get("feature_selectors") or [])
+    ]
+    return payload
+
+
+def _ml_config_shim_from_v1(document: Mapping[str, Any], path: Path) -> Any:
+    """Build a minimal config shim for ML artefact writers."""
+    output = dict(document.get("output") or {})
+    legacy = dict(document.get("legacy") or {})
+
+    class _V1MLConfig:
+        pass
+
+    config = _V1MLConfig()
+    config.output = output.get("out_dir", ".")
+    config.is_save_model = bool(output.get("is_save_model", legacy.get("is_save_model", False)))
+    config.random_state = (document.get("spec") or {}).get("random_seed", 0)
+    return config
+
+
+def _load_feature_table_from_v1(
+    document: Mapping[str, Any],
+    path: Path,
+    *,
+    logger: Optional[logging.Logger],
+) -> FeatureTable:
+    """Assemble a feature table from a v1 ML document's ``data.input`` list."""
+    from habit.api.machine_learning import MLConfig
+
+    config = MLConfig.model_validate(_ml_v0_payload_from_v1(document, path))
+    return _load_feature_table(config, logger=logger)
+
+
+def _clustering_mode_from_spec(spec: HabitatSpec) -> str:
+    """Infer the L4 recipe key from a translated habitat spec name."""
+    prefix = "habitat_"
+    if spec.name.startswith(prefix):
+        mode = spec.name[len(prefix) :]
+        if mode in _RECIPE_BY_MODE:
+            return mode
+    raise ValueError(
+        f"Cannot infer clustering_mode from HabitatSpec name {spec.name!r}; "
+        f"expected one of {sorted(_RECIPE_BY_MODE)}."
+    )
+
+
 def _run_habitat_yaml(
     path: Path,
     *,
@@ -190,7 +458,7 @@ def _run_habitat_yaml(
     logger: Optional[logging.Logger],
 ) -> Any:
     """Translate and run a habitat workflow YAML."""
-    from habit.api.habitat import HabitatAnalysisConfig, run_habitat_analysis
+    from habit.api.habitat import HabitatAnalysisConfig
 
     config = HabitatAnalysisConfig.from_file(str(path))
     run_mode = str(config.run_mode)
@@ -201,7 +469,9 @@ def _run_habitat_yaml(
                 "pipeline_path is required for predict mode (set it in the YAML)."
             )
         if not _is_v1_model_archive(pipeline_file):
-            return run_habitat_analysis(config, logger=logger)
+            raise ValueError(
+                f"{_LEGACY_PICKLE_MESSAGE} Got: {pipeline_file}"
+            )
         result = _habitat_predict(config, logger=logger)
     else:
         result = _habitat_train(config, logger=logger)
@@ -245,17 +515,15 @@ def _habitat_predict(
 ) -> StudyResult:
     """Apply a fitted v1 habitat model archive."""
     document = _translate_habitat_document(config)
+    model = HabitatModel.load(Path(config.pipeline_path))
     spec_payload = document.get("spec")
     if spec_payload is None:
-        raise ValueError(
-            "This predict config carries no feature_construction block, so "
-            "no v1 spec can be derived for applying the v1 model archive."
-        )
+        # Stub predict YAMLs rely on the embedded spec inside the model archive.
+        spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
     backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, predict=True)
-    model = HabitatModel.load(Path(config.pipeline_path))
     return apply_habitat_model(
         cohort, spec, model, backend=backend, checkpoint=checkpoint
     )
@@ -740,6 +1008,9 @@ def _save_habitat_result(result: StudyResult, config: Any) -> None:
         table_format=config.habitats_results_format,
         write_maps=config.save_images,
         write_units_table=config.save_results_csv,
+        write_cluster_plots=config.save_images,
+        write_cluster_plots_3d=config.plot_curves,
+        write_interactive_cluster_plots=config.plot_curves,
     )
 
 

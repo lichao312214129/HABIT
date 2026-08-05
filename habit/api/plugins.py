@@ -33,6 +33,7 @@ logger = logging.getLogger("habit.api.plugins")
 __all__ = [
     "PluginInfo",
     "PluginLoadReport",
+    "create_ml_model",
     "list_plugins",
     "get_plugin_info",
     "get_param_schema",
@@ -70,9 +71,49 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     "metric": "habit.metric",
 }
 #: v0.1 plural plugin domains that alias the v1.0 singular L3 registries.
+#: Per-name resolution prefers the v1 registry when the name exists there,
+#: otherwise falls back to the v0.1 core factory (see ``_registry_for_plugin_name``).
 _LEGACY_DOMAIN_ALIASES: Mapping[str, str] = {
     "models": "classifier",
     "metrics": "metric",
+    "preprocessors": "preprocessor",
+    "habitat_features": "habitat_feature_extractor",
+}
+#: v1.0 domains consulted before the legacy factory when resolving the
+#: one-to-many ``feature_extractors`` domain (see §11.2 in 07 doc).
+_FEATURE_EXTRACTOR_V1_DOMAINS: Tuple[str, ...] = (
+    "voxel_feature_extractor",
+    "supervoxel_feature_extractor",
+)
+#: v1.0 L3 domains resolved through a lazy import table (keeps ``plugins.py``
+#: free of a long ``if domain == ...`` chain for the registry-backed domains).
+_V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
+    "classifier": ("habit.domain.classification", "ClassifierRegistry"),
+    "metric": ("habit.domain.evaluation", "MetricRegistry"),
+    "table_preprocessor": (
+        "habit.domain.table_preprocessing",
+        "TablePreprocessorRegistry",
+    ),
+    "feature_selector": ("habit.domain.feature_selection", "FeatureSelectorRegistry"),
+    "voxel_feature_extractor": (
+        "habit.domain.voxel_features",
+        "VoxelFeatureExtractorRegistry",
+    ),
+    "supervoxelizer": ("habit.domain.supervoxel", "SupervoxelizerRegistry"),
+    "supervoxel_feature_extractor": (
+        "habit.domain.supervoxel_features",
+        "SupervoxelFeatureExtractorRegistry",
+    ),
+    "feature_preprocessing_method": (
+        "habit.domain.feature_preprocessing",
+        "FeaturePreprocessingMethodRegistry",
+    ),
+    "habitat_model_fitter": ("habit.domain.habitat_model", "HabitatModelFitterRegistry"),
+    "habitat_assigner": ("habit.domain.assignment", "HabitatAssignerRegistry"),
+    "habitat_feature_extractor": (
+        "habit.domain.habitat_features",
+        "HabitatFeatureExtractorRegistry",
+    ),
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
 
@@ -116,24 +157,62 @@ def _warn_legacy_plugin_domain(domain: str) -> None:
     )
 
 
+def _import_registry(module_path: str, attr_name: str) -> Type[Any]:
+    """Import one L3 registry class without eager domain package side effects."""
+    from importlib import import_module
+
+    module = import_module(module_path)
+    return cast(Type[Any], getattr(module, attr_name))
+
+
 def _legacy_registry_for_domain(domain: str) -> Type[Any]:
-    """Resolve a v0.1 plural ML plugin domain to its legacy core registry."""
+    """Resolve a v0.1 plural plugin domain to its legacy registry gate."""
+    from habit.compat import plugin_registries
+
     if domain == "models":
-        from habit.core.machine_learning.models.factory import ModelFactory
-
-        return cast(Type[Any], ModelFactory)
+        return cast(Type[Any], plugin_registries.get_legacy_model_factory())
     if domain == "metrics":
-        from habit.core.machine_learning.evaluation.metrics import MetricRegistry
-
-        return cast(Type[Any], MetricRegistry)
+        return cast(Type[Any], plugin_registries.get_legacy_metric_registry())
+    if domain == "preprocessors":
+        return cast(Type[Any], plugin_registries.get_legacy_preprocessor_factory())
+    if domain == "habitat_features":
+        return cast(Type[Any], plugin_registries.get_legacy_habitat_feature_factory())
+    if domain == "feature_extractors":
+        return cast(Type[Any], plugin_registries.get_legacy_feature_extractor_registry())
     raise HABITAPIError(
         f"Domain '{domain}' is not a legacy alias. Available legacy aliases: "
         f"{sorted(_LEGACY_DOMAIN_ALIASES)}."
     )
 
 
+def _feature_extractor_names() -> Tuple[str, ...]:
+    """Return the merged name list for the legacy ``feature_extractors`` domain."""
+    names: set[str] = set()
+    for v1_domain in _FEATURE_EXTRACTOR_V1_DOMAINS:
+        names.update(_registry_for_domain(v1_domain).available())
+    names.update(_legacy_registry_for_domain("feature_extractors").available())
+    return tuple(sorted(names))
+
+
+def _registry_for_feature_extractor(name: str) -> Type[Any]:
+    """
+    Resolve one ``feature_extractors`` plugin name across v1 and legacy registries.
+
+    v1 names win when present in ``voxel_feature_extractor`` or
+    ``supervoxel_feature_extractor``; everything else falls back to the v0.1
+    ``FeatureExtractorRegistry`` (``kinetic``, ``local_entropy``, ...).
+    """
+    for v1_domain in _FEATURE_EXTRACTOR_V1_DOMAINS:
+        registry = _registry_for_domain(v1_domain)
+        if name in registry.available():
+            return registry
+    return _legacy_registry_for_domain("feature_extractors")
+
+
 def _registry_for_plugin_name(domain: str, name: str) -> Type[Any]:
     """Pick the registry backing one plugin name, honoring legacy aliases."""
+    if domain == "feature_extractors":
+        return _registry_for_feature_extractor(name)
     if domain not in _LEGACY_DOMAIN_ALIASES:
         return _registry_for_domain(domain)
     v1_registry = _registry_for_domain(_LEGACY_DOMAIN_ALIASES[domain])
@@ -149,72 +228,19 @@ def _registry_for_domain(domain: str) -> Type[Any]:
             f"Legacy plugin domain '{domain}' must be resolved per plugin name. "
             f"Use domain='{_LEGACY_DOMAIN_ALIASES[domain]}' instead."
         )
-    if domain == "preprocessors" or domain == "preprocessor":
-        from habit.core.preprocessing import PreprocessorFactory
+    if domain in _V1_DOMAIN_REGISTRIES:
+        module_path, attr_name = _V1_DOMAIN_REGISTRIES[domain]
+        return _import_registry(module_path, attr_name)
+    if domain == "preprocessor":
+        from habit.compat.plugin_registries import get_legacy_preprocessor_factory
 
-        return cast(Type[Any], PreprocessorFactory)
+        return cast(Type[Any], get_legacy_preprocessor_factory())
     if domain == "feature_extractors":
-        from habit.core.habitat_analysis.clustering_features.base_extractor import (
-            FeatureExtractorRegistry,
+        raise HABITAPIError(
+            "The legacy 'feature_extractors' domain is one-to-many: resolve "
+            "plugins per name via get_plugin_info(name, domain='feature_extractors') "
+            "or list_plugins(domain='feature_extractors')."
         )
-
-        return cast(Type[Any], FeatureExtractorRegistry)
-    if domain == "habitat_features":
-        from habit.core.habitat_analysis.feature_registry import (
-            HabitatFeatureFactory,
-            bootstrap_optional_features,
-        )
-
-        bootstrap_optional_features()
-        return cast(Type[Any], HabitatFeatureFactory)
-    if domain == "classifier":
-        from habit.domain.classification import ClassifierRegistry
-
-        return cast(Type[Any], ClassifierRegistry)
-    if domain == "metric":
-        from habit.domain.evaluation import MetricRegistry
-
-        return cast(Type[Any], MetricRegistry)
-    if domain == "table_preprocessor":
-        from habit.domain.table_preprocessing import TablePreprocessorRegistry
-
-        return cast(Type[Any], TablePreprocessorRegistry)
-    if domain == "feature_selector":
-        from habit.domain.feature_selection import FeatureSelectorRegistry
-
-        return cast(Type[Any], FeatureSelectorRegistry)
-    if domain == "voxel_feature_extractor":
-        from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
-
-        return cast(Type[Any], VoxelFeatureExtractorRegistry)
-    if domain == "supervoxelizer":
-        from habit.domain.supervoxel import SupervoxelizerRegistry
-
-        return cast(Type[Any], SupervoxelizerRegistry)
-    if domain == "supervoxel_feature_extractor":
-        from habit.domain.supervoxel_features import (
-            SupervoxelFeatureExtractorRegistry,
-        )
-
-        return cast(Type[Any], SupervoxelFeatureExtractorRegistry)
-    if domain == "feature_preprocessing_method":
-        from habit.domain.feature_preprocessing import (
-            FeaturePreprocessingMethodRegistry,
-        )
-
-        return cast(Type[Any], FeaturePreprocessingMethodRegistry)
-    if domain == "habitat_model_fitter":
-        from habit.domain.habitat_model import HabitatModelFitterRegistry
-
-        return cast(Type[Any], HabitatModelFitterRegistry)
-    if domain == "habitat_assigner":
-        from habit.domain.assignment import HabitatAssignerRegistry
-
-        return cast(Type[Any], HabitatAssignerRegistry)
-    if domain == "habitat_feature_extractor":
-        from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
-
-        return cast(Type[Any], HabitatFeatureExtractorRegistry)
     if domain == "radiomics_backends":
         raise HABITAPIError(
             "Radiomics backends are not yet registry-backed. Use "
@@ -257,7 +283,9 @@ def list_plugins(domain: Optional[str] = None) -> Tuple[PluginInfo, ...]:
     )
     infos: list[PluginInfo] = []
     for current_domain in domains:
-        if current_domain in _LEGACY_DOMAIN_ALIASES:
+        if current_domain == "feature_extractors":
+            names = _feature_extractor_names()
+        elif current_domain in _LEGACY_DOMAIN_ALIASES:
             _warn_legacy_plugin_domain(current_domain)
             names = sorted(_legacy_registry_for_domain(current_domain).available())
         else:
@@ -304,6 +332,25 @@ def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
             f"schema: {_schema_name(schema)}."
         )
     return cast(Type[BaseModel], schema)
+
+
+def create_ml_model(model_name: str, params: Mapping[str, Any] | None = None) -> Any:
+    """
+    Build one ML model instance for config validation (``habit check-config``).
+
+    Resolves the v1 ``classifier`` registry first, then falls back to the v0.1
+    ``ModelFactory`` through the legacy alias routing in
+    :func:`_registry_for_plugin_name`.
+
+    Args:
+        model_name: Registered model or classifier name from the YAML.
+        params: Flat hyperparameter mapping from the config ``params`` block.
+
+    Returns:
+        A constructed model wrapper without running training.
+    """
+    registry = _registry_for_plugin_name("models", model_name)
+    return registry.create(model_name, {"params": dict(params or {})})
 
 
 def _entry_points_for(group: str) -> Tuple[metadata.EntryPoint, ...]:

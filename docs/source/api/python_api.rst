@@ -291,7 +291,8 @@ Not yet on the v1 stack
 -----------------------
 
 Machine-learning train / cross-validation (``run_ml``, ``run_kfold``,
-``run_model_comparison``) still route through ``habit.core.*``. Use the CLI
+``run_model_comparison``) still route through ``habit.compat.engines.machine_learning``.
+Use the CLI
 (``habit model``, ``habit cv``, ``habit compare``) or the compat layer
 (:doc:`compat`) until those workflows move to ``habit.recipes`` /
 :class:`~habit.domain.TablePipeline`. Tabular building blocks are documented
@@ -310,9 +311,9 @@ Feature extraction (compat-only)
 
 ``habit.recipes.extract_habitat_features`` and
 ``habit.recipes.traditional_radiomics`` are thin wrappers around the v0.1
-engine (``habit.core`` via ``habit.api.habitat``). They exist so
+engine (``habit.compat.engines`` via ``habit.api.habitat``). They exist so
 ``habit extract`` and ``habit radiomics`` can route through L4 recipes without
-new direct ``habit.core`` imports in the command layer. They are **not** the
+new direct ``habit.compat.engines`` imports in the command layer. They are **not** the
 recommended v1 Python path: no domain-native cohort assembly, no
 ``SubjectPipeline`` / ``TablePipeline``, and no ``StudyResult`` contract.
 Use the CLI for those workflows today, or wait for domain migration. Full API

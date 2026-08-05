@@ -177,6 +177,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     ),
     # L4 recipes: the named study designs plus the objects they return.
     "recipes": (
+        "Study",
         "StudyResult",
         "ModelResult",
         "CVResult",
@@ -184,6 +185,9 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "two_step",
         "one_step",
         "direct_pooling",
+        "two_step_habitat",
+        "one_step_habitat",
+        "direct_pooling_habitat",
         "apply_habitat_model",
         "extract_habitat_features",
         "traditional_radiomics",
@@ -196,6 +200,10 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "run_from_yaml",
         "icc_analysis",
         "test_retest_analysis",
+        "sort_dicom",
+        "dice",
+        "dicom_info",
+        "merge_tables",
     ),
     "spec": (
         "Spec",
@@ -294,6 +302,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     "plot_bland_altman",
     "plot_coefficient_forest",
     "plot_habitat_clustering_pca_2d",
+    "plot_habitat_clustering_pca_3d",
+    "plot_habitat_clustering_pca_3d_interactive",
     ),
 }
 

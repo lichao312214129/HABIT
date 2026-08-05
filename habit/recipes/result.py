@@ -195,6 +195,8 @@ class StudyResult:
         write_maps: bool = True,
         write_units_table: bool = True,
         write_cluster_plots: bool = False,
+        write_cluster_plots_3d: bool = False,
+        write_interactive_cluster_plots: bool = False,
     ) -> Path:
         """
         Write the artefacts of this study to a directory.
@@ -233,6 +235,9 @@ class StudyResult:
             write_units_table: Write the ``habitats`` units table.
             write_cluster_plots: Write the population-level 2D PCA clustering
                 scatter when cohort-level units and a habitat model exist.
+            write_cluster_plots_3d: Also write a static 3D PCA scatter PNG.
+            write_interactive_cluster_plots: Also write a rotatable plotly HTML
+                file when plotly is installed.
 
         Returns:
             The directory written to.
@@ -262,37 +267,72 @@ class StudyResult:
             if write_maps and design == "two_step":
                 for unit in self.units:
                     writer.write_supervoxel_map(unit)
-        if write_cluster_plots:
-            self._write_habitat_clustering_plot(out_dir)
+        if write_cluster_plots or write_cluster_plots_3d or write_interactive_cluster_plots:
+            self._write_habitat_clustering_plots(
+                out_dir,
+                write_2d=write_cluster_plots,
+                write_3d=write_cluster_plots_3d,
+                write_interactive=write_interactive_cluster_plots,
+            )
         return writer.root
 
-    def _write_habitat_clustering_plot(self, out_dir: Union[str, Path]) -> None:
+    def _write_habitat_clustering_plots(
+        self,
+        out_dir: Union[str, Path],
+        *,
+        write_2d: bool,
+        write_3d: bool,
+        write_interactive: bool,
+    ) -> None:
         """
-        Persist the population-level 2D PCA habitat scatter when defined.
+        Persist habitat clustering visualisations when defined for this result.
 
-        The figure is rendered through ``habit.viz`` (pure) and saved here at
-        L4 because persistence belongs to the recipe layer, not the viz
-        package.
+        Args:
+            out_dir: Destination directory root.
+            write_2d: Write ``habitat_clustering_2D.png``.
+            write_3d: Write ``habitat_clustering_3D.png``.
+            write_interactive: Write ``habitat_clustering_3D_interactive.html``.
         """
         payload = self._population_clustering_arrays()
         if payload is None or self.habitat_model is None:
             return
 
         features, labels, centroids = payload
-        from habit.viz import plot_habitat_clustering_pca_2d, use_style
-
         destination = Path(out_dir) / "visualizations" / "habitat_clustering"
         destination.mkdir(parents=True, exist_ok=True)
-        output_path = destination / "habitat_clustering_2D.png"
 
-        with use_style("radiology"):
-            fig = plot_habitat_clustering_pca_2d(
-                features,
-                labels,
-                centers=centroids,
-                n_clusters=self.habitat_model.n_habitats,
-            )
-        fig.savefig(output_path, dpi=600, bbox_inches="tight")
+        from habit.viz import (
+            plot_habitat_clustering_pca_2d,
+            plot_habitat_clustering_pca_3d,
+            plot_habitat_clustering_pca_3d_interactive,
+            use_style,
+        )
+
         import matplotlib.pyplot as plt
 
-        plt.close(fig)
+        kwargs = dict(
+            features=features,
+            labels=labels,
+            centers=centroids,
+            n_clusters=self.habitat_model.n_habitats,
+        )
+        with use_style("radiology"):
+            if write_2d:
+                fig = plot_habitat_clustering_pca_2d(**kwargs)
+                fig.savefig(destination / "habitat_clustering_2D.png", dpi=600, bbox_inches="tight")
+                plt.close(fig)
+            if write_3d:
+                fig = plot_habitat_clustering_pca_3d(**kwargs)
+                fig.savefig(destination / "habitat_clustering_3D.png", dpi=600, bbox_inches="tight")
+                plt.close(fig)
+        if write_interactive:
+            try:
+                interactive = plot_habitat_clustering_pca_3d_interactive(**kwargs)
+                interactive.write_html(destination / "habitat_clustering_3D_interactive.html")
+            except Exception:
+                # Interactive export is optional; static PNGs remain the contract.
+                pass
+
+    def _write_habitat_clustering_plot(self, out_dir: Union[str, Path]) -> None:
+        """Backward-compatible wrapper that writes the 2D PCA scatter only."""
+        self._write_habitat_clustering_plots(out_dir, write_2d=True, write_3d=False, write_interactive=False)

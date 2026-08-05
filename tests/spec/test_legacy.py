@@ -203,13 +203,13 @@ def test_direct_pooling_translation_uses_habitat_block() -> None:
 
 @pytest.mark.unit
 def test_predict_mode_translation_has_no_spec() -> None:
-    """Predict configs omit the spec; the pipeline path carries the definition."""
+    """Predict configs omit the spec when stub; full predict YAMLs carry one."""
     translation = _translate("config_habitat_two_step_predict.yaml")
     document = translation.document
 
     assert document["mode"] == "predict"
-    assert document["spec"] is None
-    assert document["pipeline"].endswith("habitat_pipeline.pkl")
+    assert document["spec"] is not None
+    assert document["pipeline"].endswith("habitat_model.habitatmodel")
     validate_v1_document(document)
 
 

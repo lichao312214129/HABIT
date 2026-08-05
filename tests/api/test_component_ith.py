@@ -22,7 +22,7 @@ import numpy as np
 import pytest
 import SimpleITK as sitk
 
-from habit.core.habitat_analysis.habitat_features.ith_features import (
+from habit.compat.engines.habitat_extraction.habitat_features.ith_features import (
     ITHFeatureExtractor,
 )
 

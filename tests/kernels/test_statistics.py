@@ -67,13 +67,13 @@ def test_delong_auc_matches_sklearn() -> None:
 @pytest.mark.unit
 def test_delong_auc_matches_v0_1_implementation() -> None:
     """Kernel and v0.1 agree on AUC, variance, p-value and CI."""
-    from habit.core.machine_learning.statistics.delong_test import (
+    from habit.compat.engines.machine_learning.statistics.delong_test import (
         delong_roc_ci as v01_ci,
     )
-    from habit.core.machine_learning.statistics.delong_test import (
+    from habit.compat.engines.machine_learning.statistics.delong_test import (
         delong_roc_test as v01_test,
     )
-    from habit.core.machine_learning.statistics.delong_test import (
+    from habit.compat.engines.machine_learning.statistics.delong_test import (
         delong_roc_variance as v01_variance,
     )
 
@@ -121,7 +121,7 @@ def test_delong_ci_brackets_auc_and_clips_at_one() -> None:
 @pytest.mark.unit
 def test_hosmer_lemeshow_matches_v0_1_implementation() -> None:
     """The kernel reproduces the v0.1 qcut-based statistic and p-value."""
-    from habit.core.machine_learning.statistics.hosmer_lemeshow_test import (
+    from habit.compat.engines.machine_learning.statistics.hosmer_lemeshow_test import (
         hosmer_lemeshow_test as v01_hl,
     )
 
@@ -163,7 +163,7 @@ def test_hosmer_lemeshow_input_validation() -> None:
 @pytest.mark.unit
 def test_spiegelhalter_matches_v0_1_implementation() -> None:
     """The kernel reproduces the v0.1 z statistic and p-value."""
-    from habit.core.machine_learning.statistics.spiegelhalter_z_test import (
+    from habit.compat.engines.machine_learning.statistics.spiegelhalter_z_test import (
         spiegelhalter_z_test as v01_spiegelhalter,
     )
 

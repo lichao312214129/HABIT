@@ -242,17 +242,17 @@ def test_dicom_habitat_and_ml_runners_delegate_to_core() -> None:
             "habit.api.machine_learning.coerce_config",
             return_value=config,
         ),
-        patch("habit.core.dicom_sort.run.run_dicom_sort") as dicom_run,
+        patch("habit.compat.dicom_sort_runner.run_dicom_sort") as dicom_run,
         patch(
-            "habit.core.habitat_analysis.run.run_habitat_analysis_from_config",
+            "habit.compat.habitat_runner.run_habitat_analysis_from_config",
             return_value=pd.DataFrame(),
         ) as habitat_run,
         patch(
-            "habit.core.machine_learning.run.run_ml_from_config",
+            "habit.compat.ml_runner.run_ml_from_config",
             return_value=MagicMock(metrics={}),
         ) as ml_run,
         patch(
-            "habit.core.machine_learning.run.run_kfold_from_config",
+            "habit.compat.ml_runner.run_kfold_from_config",
             return_value=MagicMock(),
         ) as kfold_run,
         patch("habit.api.dicom_sort.create_run_manifest"),

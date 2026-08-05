@@ -210,12 +210,12 @@ API Reference
 Habitat Analysis Module
 =======================
 
-.. automodule:: habit.core.habitat_analysis
+.. automodule:: habit.compat.engines.habitat_analysis
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: habit.core.habitat_analysis.habitat_analysis.HabitatAnalysis
+.. autoclass:: habit.compat.engines.habitat_analysis.habitat_analysis.HabitatAnalysis
    :members:
    :undoc-members:
    :show-inheritance:
@@ -225,7 +225,7 @@ Services (collaborators)
 
 V1 removed the ``strategies/`` subpackage; document runtime collaborators:
 
-.. automodule:: habit.core.habitat_analysis.services
+.. automodule:: habit.compat.engines.habitat_analysis.services
    :members:
 ```
 
@@ -430,7 +430,7 @@ def run_habitat(
 ### 2. 使用交叉引用
 
 ```rst
-参考 :class:`~habit.core.habitat_analysis.HabitatAnalysis` 类。
+参考 :class:`~habit.compat.engines.habitat_analysis.habitat_analysis.HabitatAnalysis` 类。
 
 更多信息见 :ref:`habitat_analysis_guide`。
 ```
@@ -442,8 +442,8 @@ def run_habitat(
    :linenos:
    :emphasize-lines: 3,5
 
-   from habit.core.habitat_analysis.configurator import HabitatConfigurator
-   from habit.core.habitat_analysis.config_schemas import HabitatAnalysisConfig
+   from habit.compat.engines.habitat_analysis.configurator import HabitatConfigurator
+   from habit.compat.engines.habitat_analysis.config_schemas import HabitatAnalysisConfig
 
    config = HabitatAnalysisConfig.from_file('config.yaml')
    analysis = HabitatConfigurator(config=config).create_habitat_analysis()
