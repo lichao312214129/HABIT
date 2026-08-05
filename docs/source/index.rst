@@ -27,6 +27,7 @@ Learning path
 
    tutorial/installation
    tutorial/quickstart
+   tutorial/quickstart_python
 
 .. toctree::
    :maxdepth: 1
