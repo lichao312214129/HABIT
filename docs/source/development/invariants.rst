@@ -38,10 +38,12 @@ Configuration rules
 
 * Root configuration models use ``extra='forbid'`` where strict validation is
   required. New fields must be declared in the schema.
-* ``habit/core/schemas/`` is the source of truth for schema definitions.
+* ``habit/schemas/`` is the source of truth for schema definitions.
   Compatibility modules may re-export schemas but must not define duplicates.
 * A component with configurable ``params`` must define and register a Pydantic
   parameter model.
+* v1 spec objects (``habit/spec/``) are immutable and fingerprinted; a fitted
+  model must always be traceable to the exact spec that produced it.
 
 Registry contracts
 ------------------
@@ -71,7 +73,11 @@ Engineering conventions
 * Put reusable cross-subsystem utilities in ``habit/utils/``.
 * Text generated inside plots must be English.
 * Import heavy optional dependencies lazily inside command or factory methods.
-* Keep business logic in ``core/*/run.py`` and command layers thin.
+* Keep business logic out of the command layer: commands are L5 wiring that
+  delegate to ``habit/recipes/``; v0.1 engine logic lives in
+  ``compat/engines/*/run.py``.
+* Respect the layer direction: L0 kernels stay pure (no I/O, state, or
+  logging) and no layer imports from a layer above it.
 * Annotate function inputs and outputs explicitly, and write code comments in
   English.
 

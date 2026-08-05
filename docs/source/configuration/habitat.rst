@@ -131,7 +131,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     - When extracting per modality (``raw``, ``voxel_radiomics``, ``supervoxel_radiomics``, etc.), **even for a single modality** wrap with an outer combiner such as ``concat(...)``; inner expressions are per-modality sub-expressions; the outer layer merges results across modalities.
     - Comma-separated tokens inside parentheses are **parameter name placeholders** or **image modality names** (matching ``images/<subject>/<modality>/`` subdirectories), **not** Python keyword arguments; actual paths and numeric values go in a sibling ``params`` dict.
     - **Binding rule**: a parameter binds to function ``F`` only when its name appears inside ``F(...)`` parentheses (modality names excepted). Keys in ``params`` that are not listed in any function's parentheses trigger a deprecation warning.
-    - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/core/habitat_analysis/clustering_features/``).
+    - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/compat/engines/habitat_analysis/clustering_features/``).
     - **Bundled ``params_file``**: for ``voxel_radiomics`` / ``supervoxel_radiomics``, ``params_file`` is optional. When omitted, HABIT uses bundled presets shipped in ``habit/resources/radiomics/`` (CT R3B12 voxel preset; full-set supervoxel preset). The resolved absolute path is logged at runtime.
     - Recommended minimal form: ``concat(voxel_radiomics(T2))`` with ``params: {}`` — uses bundled CT R3B12 ``params_file``, ``kernel_radius: 3``, ``voxel_batch: 1000``, ``use_torch_radiomics: auto``. List a name in parentheses only when overriding (e.g. ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` for MRI).
 
@@ -511,8 +511,8 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
   ``changes_columns=True``; ``two_step`` forbids them at subject level (see note above).
 - **Adding a method**:
 
-  1. See ``habit/core/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
-  2. Register the method name in ``habit/core/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`../development/extension_points`
+  1. See ``habit/compat/engines/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
+  2. Register the method name in ``habit/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`../development/extension_points`
   3. If column-dropping, update ``DROPPING_PREPROCESSING_METHODS``
   4. Ensure module import so registration decorator runs
 

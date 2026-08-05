@@ -40,23 +40,33 @@ Repository root
 ``habit/`` package structure
 ----------------------------
 
+The v1.0 package follows the six-layer architecture (see
+:doc:`architecture`): L0 kernels → L1 adapters → L2 contracts → L3 domain →
+L4 recipes → L5 cli/gui.
+
 .. mermaid::
 
    flowchart TD
      ROOT["habit/"]
-     ROOT --> CLI["cli.py — Click command group"]
-     ROOT --> CMD["commands/ — cmd_*.py (active CLI impl)"]
-     ROOT --> REC["recipes/ — L4 assembly (v1 API)"]
-     ROOT --> ENG["compat/engines/ — v0.1 YAML engines"]
-     ROOT --> SCH["schemas/ — workflow & step schemas"]
+     ROOT --> L5["L5 — cli.py + commands/"]
+     ROOT --> L4["L4 — recipes/"]
+     ROOT --> L3["L3 — domain/"]
+     ROOT --> L2["L2 — contracts/"]
+     ROOT --> L1["L1 — adapters/"]
+     ROOT --> L0["L0 — kernels/"]
+     ROOT --> SPEC["spec/ — HabitatSpec / MLSpec / LegacyConfigAdapter"]
+     ROOT --> EXEC["execution/ — backends & checkpoints"]
+     ROOT --> ENG["compat/ — v0.1 engines & bridges"]
+     ROOT --> SCH["schemas/ — v0.1 YAML schemas"]
+     ROOT --> API["api/ — v0.1 configuration-object facade"]
      ROOT --> UTILS["utils/ — shared utilities"]
 
-     ENG --> PRE["preprocessing/"]
-     ENG --> HAB["habitat_analysis/"]
-     ENG --> MLC["machine_learning/"]
+     ENG --> PRE["engines/preprocessing/"]
+     ENG --> HAB["engines/habitat_analysis/"]
+     ENG --> MLC["engines/machine_learning/"]
 
-     REC --> DOM["domain/ + adapters/"]
-     SCH --> REG["registry.py — ParamSchemaRegistry"]
+     L5 --> L4
+     L4 --> L3 --> L2 --> L1 --> L0
 
 Top-level package responsibilities
 ----------------------------------
@@ -67,13 +77,38 @@ Top-level package responsibilities
 
    * - Package
      - Responsibility
-   * - ``habit/cli.py``
-     - Click root command group; subcommands are declared here and command
-       bodies only perform lazy imports and forwarding.
-   * - ``habit/commands/``
-     - **Active command implementation layer**: each ``cmd_*.py`` loads
-       configuration, calls ``habit.recipes`` / ``habit.api``, and reports
-       results. Shared helpers are in ``common.py``.
+   * - ``habit/kernels/``
+     - **L0**: pure numeric kernels (clustering, validation metrics, feature
+       math). No I/O, no state, no logging.
+   * - ``habit/adapters/``
+     - **L1**: data sources and sinks (``DirectoryDataSource``, file
+       discovery); the only layer that touches the filesystem for reads.
+   * - ``habit/contracts/``
+     - **L2**: the typed data model — ``Subject``, ``Cohort``,
+       ``FeatureTable``, ``HabitatModel``, ``RunManifest``, outcome types.
+   * - ``habit/domain/``
+     - **L3**: domain protocols and component registries;
+       ``SubjectPipeline`` and ``TablePipeline`` live here.
+   * - ``habit/recipes/``
+     - **L4**: the standard study designs — ``two_step`` / ``one_step`` /
+       ``direct_pooling``, ``train_model`` / ``cross_validate`` /
+       ``predict_model``, ``run_from_yaml``, ``apply_habitat_model``.
+   * - ``habit/cli.py`` + ``habit/commands/``
+     - **L5**: Click command group and command implementations. Commands
+       validate YAML, translate via ``LegacyConfigAdapter`` when needed, and
+       delegate to L4 recipes. Shared helpers are in ``commands/common.py``.
+   * - ``habit/spec/``
+     - Spec objects (``HabitatSpec``, ``MLSpec``, ``RunPolicy``) and
+       ``LegacyConfigAdapter`` for v0.1 → v1 translation.
+   * - ``habit/execution/``
+     - Execution backends (serial / multiprocessing) and checkpoint stores.
+   * - ``habit/datasets/``
+     - Synthetic cohorts and feature tables for examples and tests.
+   * - ``habit/plugins/``
+     - Plugin discovery and ``list_plugins`` introspection.
+   * - ``habit/api/``
+     - v0.1 configuration-object facade (``run_ml``, ``run_kfold``,
+       ``run_preprocess``, ...), kept for YAML parity.
    * - ``habit/schemas/``
      - Pydantic configuration models for workflows, step parameters, parameter
        registration, validation, and GUI reflection (v1.0 canonical location).
@@ -144,11 +179,11 @@ run the contract tests when adding a factory or orchestrator:
      REG --> PP["PreprocessingMethodFactory"]
      REG --> HF["HabitatFeatureFactory"]
 
-     ORC["recipes/habitat.py<br/>two_step / one_step / direct_pooling"] --> HA["HabitatAnalysis engine"]
-     ORC --> HW["recipes/ml.py — train / cv / compare"]
+     ORC["recipes/habitat.py<br/>two_step / one_step / direct_pooling"] --> DOM["habit/domain/<br/>component registries"]
+     ORC2["recipes/modeling.py<br/>train_model / cross_validate / predict_model"] --> TP["TablePipeline"]
 
      TST["tests/test_architecture_contracts.py"] -.-> REG
-     TST -.-> REC
+     TST -.-> ORC
 
 Where to start when changing X
 ------------------------------
@@ -176,7 +211,9 @@ Where to start when changing X
    * - Change the three habitat pipeline strategies
      - ``habit/recipes/habitat.py`` (v1 recipes) + ``compat/engines/habitat_analysis/pipelines/steps/``
    * - Change the ML training or prediction flow
-     - ``habit/compat/engines/machine_learning/workflows/`` and ``runners/``
+     - v1: ``habit/recipes/modeling.py`` + ``habit/domain/`` components;
+       v0.1 engine: ``compat/engines/machine_learning/workflows/`` and
+       ``runners/``
    * - Add a class-based factory
      - Subclass ``ClassRegistry`` from ``habit/registry/base.py``;
        follow an existing factory in the same domain.

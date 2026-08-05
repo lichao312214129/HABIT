@@ -61,7 +61,7 @@ with ``@PreprocessorFactory.register``.
 **2. Define and register the parameter schema**
 
 Define and register the parameter model in
-``habit/core/schemas/steps/preprocessing.py`` (or in your plugin module).
+``habit/schemas/steps/preprocessing.py`` (or in your plugin module).
 
 .. code-block:: python
 

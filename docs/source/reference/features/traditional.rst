@@ -19,7 +19,7 @@ Implementation
 
 - Parameter file: ``params_file_of_non_habitat`` (optional; bundled ``roi`` preset
   → ``habit/resources/radiomics/parameter.yaml`` when omitted)
-- Code: ``habit/core/habitat_analysis/habitat_features/builtin_plugins.py``
+- Code: ``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
   (``TraditionalRadiomicsPlugin``) → ``habitat_radiomics.py``
 
 Output columns

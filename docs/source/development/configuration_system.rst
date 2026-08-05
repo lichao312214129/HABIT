@@ -1,9 +1,21 @@
 Configuration System
 ====================
 
-Configuration is the center of HABIT. It explains how a YAML file or Python
-dictionary becomes an executable workflow. This page covers loading, path
-resolution, schema layers, parameter registries, and domain configurators.
+Configuration is the center of HABIT's **v0.1 YAML contract** — the parsing
+layer the CLI and GUI still speak. This page explains how a YAML file or
+Python dictionary becomes a validated configuration object and, ultimately,
+an executable workflow. It covers loading, path resolution, schema layers,
+parameter registries, and domain configurators.
+
+.. note::
+
+   v1.0 adds a second, code-first configuration layer on top of this one:
+   :doc:`../api/spec` documents the immutable spec objects
+   (``HabitatSpec`` / ``MLSpec``) that the v1 recipes take. The CLI bridges
+   the two worlds by validating v0.1 YAML against the schemas described here
+   and translating it with ``LegacyConfigAdapter``; v1 YAML documents are
+   read directly into specs. Everything below describes the v0.1 layer,
+   which remains fully supported.
 
 Overview
 --------
@@ -22,16 +34,17 @@ Overview
 
 The system has three responsibilities:
 
-* **Loading** in ``habit/core/common/configs`` reads files, resolves paths, and
-  creates Pydantic models.
-* **Schemas** in ``habit/core/schemas`` define structure, constraints,
+* **Loading** in ``habit/utils/config_loader.py`` reads files, resolves
+  paths, and creates Pydantic models.
+* **Schemas** in ``habit/schemas/`` define structure, constraints,
   parameter registration, and reflection metadata.
-* **Configurators** assemble validated objects into executable workflows.
+* **Configurators** (under ``habit/compat/engines/``) assemble validated
+  objects into executable workflows.
 
 Loading and path resolution
 ---------------------------
 
-Important symbols under ``habit/core/common/configs/`` include:
+Important symbols in ``habit/utils/config_loader.py`` include:
 
 .. list-table::
    :header-rows: 1
@@ -69,7 +82,7 @@ validation path as ``from_file``:
 Schema layers
 -------------
 
-``habit/core/schemas/`` separates configuration into three layers:
+``habit/schemas/`` separates configuration into three layers:
 
 .. list-table::
    :header-rows: 1
@@ -112,7 +125,8 @@ The same metadata can drive GUI forms, keeping CLI YAML and GUI fields aligned.
 Domain configurators
 --------------------
 
-After validation, each subsystem configurator assembles the runtime object:
+After validation, each v0.1 subsystem configurator assembles the runtime
+object. Configurators live with their engines under ``habit/compat/engines/``:
 
 .. list-table::
    :header-rows: 1
@@ -122,14 +136,19 @@ After validation, each subsystem configurator assembles the runtime object:
      - Location
      - Runtime object
    * - ``PreprocessingConfigurator``
-     - ``preprocessing/configurator.py``
+     - ``compat/engines/preprocessing/configurator.py``
      - ``BatchProcessor``
    * - ``HabitatConfigurator``
-     - ``habitat_analysis/configurator.py``
+     - ``compat/engines/habitat_analysis/configurator.py``
      - ``HabitatAnalysis``, ``HabitatMapAnalyzer``, or radiomics services
    * - ``MLConfigurator``
-     - ``machine_learning/configurator.py``
+     - ``compat/engines/machine_learning/configurator.py``
      - ``HoldoutWorkflow``, ``KFoldWorkflow``, or ``ModelComparison``
+
+On the v1 path this assembly role is played by the recipes themselves: a
+recipe resolves ``Spec("name", params)`` component references through the
+``habit/domain/`` registries and wires them into a ``SubjectPipeline`` or
+``TablePipeline`` directly — no separate configurator object is involved.
 
 Summary
 -------

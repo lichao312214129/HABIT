@@ -7,8 +7,10 @@ This page follows one command from invocation to generated artifacts:
 
    habit cv -c config/machine_learning/config_machine_learning_kfold_demo.yaml
 
-The command loads an ML configuration, runs K-fold cross-validation, and
-generates models, metrics, and plots.
+The command loads a v0.1 ML configuration, translates it to the v1 document
+model, runs K-fold cross-validation through the v1 recipe, and writes models,
+metrics, and plots. It is a concrete tour of the :doc:`architecture` layers:
+L5 CLI → v0.1 schema → translation → L4 recipe → L3 pipeline → typed result.
 
 Seven stages
 ------------
@@ -18,9 +20,9 @@ Seven stages
    flowchart TD
      S1["1. CLI entry<br/>habit/cli.py"] --> S2["2. Command layer<br/>commands/cmd_ml.py"]
      S2 --> S3["3. Load and validate<br/>MLConfig.from_file()"]
-     S3 --> S4["4. Core API<br/>run_kfold_from_config()"]
-     S4 --> S5["5. Assemble<br/>MLConfigurator"]
-     S5 --> S6["6. Execute<br/>KFoldWorkflow -> KFoldRunner"]
+     S3 --> S4["4. Translate<br/>LegacyConfigAdapter"]
+     S4 --> S5["5. Assemble<br/>MLSpec + FeatureTable"]
+     S5 --> S6["6. Execute<br/>recipes.cross_validate -> TablePipeline"]
      S6 --> S7["7. Report<br/>models, metrics, plots"]
 
 Stage 1: CLI entry
@@ -44,8 +46,8 @@ Stage 2: command layer
 ----------------------
 
 The command layer loads configuration, creates output directories, configures
-logging, delegates to the core API, and converts failures into clean CLI
-errors. It contains no domain algorithm.
+logging, delegates to the recipe, and converts failures into clean CLI
+errors. It contains no domain algorithm — this is the L5 wiring rule.
 
 Stage 3: loading and validation
 -------------------------------
@@ -53,59 +55,65 @@ Stage 3: loading and validation
 ``load_config_or_exit(MLConfig, path)`` reads the file, resolves paths relative
 to the configuration file, and validates it with Pydantic. Invalid fields and
 types fail before computation starts. Step parameters are checked through
-``ParamSchemaRegistry``.
+``ParamSchemaRegistry``. The result is the v0.1 configuration object — the
+YAML parsing contract the CLI honours.
 
-Stage 4: core API
------------------
+Stage 4: translation
+--------------------
 
-``run_kfold_from_config()`` is the boundary shared by CLI and Python callers:
-
-.. code-block:: python
-
-   def run_kfold_from_config(config, *, logger=None, output_dir=None):
-       if config.run_mode != "train":
-           raise ValueError("K-fold cross-validation requires run_mode='train'.")
-       configurator = MLConfigurator(config=config, logger=logger,
-                                     output_dir=output_dir)
-       workflow = configurator.create_kfold_workflow()
-       return workflow.run()
-
-The important sequence is **Configurator assembly followed by Orchestrator
-execution**.
+``LegacyConfigAdapter().translate(config.model_dump(), "cv")`` converts the
+validated v0.1 configuration into the v1 document model (``spec`` / ``data``
+/ ``legacy`` sections) and reports any lossy or renamed fields as warnings.
+This is the single bridge between the two configuration worlds; the same
+adapter powers :func:`habit.recipes.run_from_yaml` and
+``habit migrate-config``.
 
 Stage 5: assembly
 -----------------
 
-``MLConfigurator`` translates the validated configuration into a
-``KFoldWorkflow`` and resolves models, selectors, evaluators, and reporting
-services through registries. The configurator assembles objects but does not
-run the workflow.
+The command builds the two recipe inputs from the translated document:
+
+* an immutable :class:`~habit.spec.MLSpec` — classifier, preprocessors,
+  feature selectors, and metrics as ``Spec("name", params)`` references;
+* a :class:`~habit.contracts.FeatureTable` — the CSV data loaded into the
+  typed table contract with its outcome column.
 
 Stage 6: execution
 ------------------
 
-``KFoldWorkflow`` orchestrates the run, while ``KFoldRunner`` performs each
-fold:
+:func:`habit.recipes.cross_validate` runs the study. For each fold it builds
+a fresh :class:`~habit.domain.TablePipeline` from the spec — table
+preprocessors → feature selectors → classifier — fits it on the training
+folds only, and evaluates on the held-out fold:
 
 .. mermaid::
 
    flowchart TD
-     WF["KFoldWorkflow"] --> PLAN["WorkflowPlan<br/>frozen config"]
-     PLAN --> RUN["KFoldRunner"]
-     RUN --> DM["DataManager<br/>load and split"]
-     DM --> PB["PipelineBuilder<br/>selector -> scaler -> model"]
-     PB --> FIT["fit on train fold<br/>evaluate validation fold"]
-     FIT --> RES["KFoldRunResult"]
+     CV["recipes.cross_validate"] --> SPEC["MLSpec<br/>(immutable, fingerprinted)"]
+     CV --> TBL["FeatureTable"]
+     SPEC --> REG["habit.domain registries<br/>resolve Spec('name', params)"]
+     TBL --> FOLD["K-fold split<br/>seeded, stratified"]
+     REG --> PIPE["TablePipeline per fold<br/>preprocess -> select -> classify"]
+     FOLD --> PIPE
+     PIPE --> FIT["fit on train folds<br/>evaluate held-out fold"]
+     FIT --> RES["CVResult<br/>per-fold + aggregated metrics"]
 
-The complete sklearn Pipeline is fitted only on training folds, preventing
-data leakage.
+The complete pipeline is fitted only on training folds, preventing data
+leakage — the same guarantee the v0.1 ``KFoldWorkflow``/``KFoldRunner`` pair
+enforced, now carried by the fitted ``TablePipeline`` itself.
 
 Stage 7: artifacts
 ------------------
 
-The structured result is passed to reporting and visualization. Models,
+The structured ``CVResult`` is passed to reporting and visualization. Models,
 metrics, and plots are written to the configured output directory. Plot text
 is English by project convention.
 
-The same lifecycle applies to preprocessing, habitat segmentation, and model
-training; only the schema, configurator, workflow, and runner change.
+The same lifecycle shape applies to the other pipeline commands — validate,
+translate if v0.1, call a recipe, write artifacts. Two variations worth
+knowing: ``habit model`` / ``habit cv`` **predict** mode routes by artifact
+format (a v1 ``.habitpipeline`` goes to :func:`~habit.recipes.predict_model`;
+an opaque v0.1 ``*_final_pipeline.pkl`` stays on the v0.1 engine, the only
+loader that understands it), and ``habit extract`` / ``habit radiomics`` /
+``habit compare`` call L4 recipes that wrap the v0.1 engines because those
+workflows have no domain-native equivalent yet.
