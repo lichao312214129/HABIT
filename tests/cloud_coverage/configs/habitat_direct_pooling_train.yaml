@@ -1,0 +1,56 @@
+# Cloud coverage: direct-pooling habitat train, kmeans (v0 layout).
+# Adapted from config/habitat/config_habitat_direct_pooling.yaml.
+run_mode: train
+pipeline_path:
+data_dir: @DATA_ROOT@
+out_dir: @OUT_DIR@
+
+feature_construction:
+  voxel_level:
+    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    params: {}
+  preprocessing_for_subject_level:
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+habitat_segmentation:
+  clustering_mode: direct_pooling
+  habitat:
+    algorithm: kmeans
+    min_clusters: 2
+    max_clusters: 5
+    habitat_cluster_selection_method:
+      - elbow
+    fixed_n_clusters: 3
+    max_iter: 100
+    n_init: 5
+
+processes: 1
+cap_processes_to_gpu_pool: false
+individual_subject_timeout_sec: 300
+oom_backoff: false
+resume: false
+strict_checkpoint_hash: false
+checkpoint_dir: null
+force_rerun_subjects: []
+retry_failed_subjects: false
+individual_subject_auto_retry_rounds: 1
+individual_subject_parallel_mode: persistent
+persistent_worker_max_consecutive_failures: 1
+persistent_worker_recycle_after_tasks: 0
+clear_checkpoint_on_success: false
+plot_curves: false
+save_results_csv: true
+save_images: true
+random_state: 42
+debug: false

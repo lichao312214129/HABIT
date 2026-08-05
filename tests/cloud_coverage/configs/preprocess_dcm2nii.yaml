@@ -1,0 +1,21 @@
+# Cloud coverage: dcm2nii conversion variant -- only executed when a
+# dcm2niix binary is available (skipped otherwise, see test_preprocessing.py).
+# Adapted from config/preprocessing/config_preprocessing_dcm2nii_demo.yaml.
+data_dir: @DATA_ROOT@
+out_dir: @OUT_DIR@
+auto_select_first_file: true
+
+preprocessing:
+  dcm2nii:
+    images: [delay2, delay3, delay5]
+    dcm2niix_path: dcm2niix
+    compress: true
+    generate_json: false
+    anonymize: false
+
+save_options:
+  save_intermediate: false
+  intermediate_steps: []
+
+processes: 1
+random_state: 42

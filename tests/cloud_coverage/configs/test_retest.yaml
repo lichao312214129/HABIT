@@ -1,0 +1,17 @@
+# Cloud coverage: test-retest habitat label mapping (v0 layout).
+# Adapted from config/auxiliary/config_test_retest.yaml. Like the reference
+# demo, test and retest use the same habitats table -> identity mapping
+# smoke test. @HABITAT_TABLE@ / @HABITAT_MAP_DIR@ point at a two-step train
+# run produced earlier in the session.
+out_dir: @OUT_DIR@
+
+test_habitat_table: @HABITAT_TABLE@
+retest_habitat_table: @HABITAT_TABLE@
+
+features: null
+similarity_method: pearson
+
+input_dir: @HABITAT_MAP_DIR@
+
+processes: 1
+debug: false
