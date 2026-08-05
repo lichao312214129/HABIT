@@ -1,3 +1,5 @@
+:orphan:
+
 .. This page was retired with the v1.0 API documentation rewrite.
 
 machine_learning module (moved)

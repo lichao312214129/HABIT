@@ -178,6 +178,20 @@ def train_model(
         HABITAPIError: If the table declares no outcome, the split arguments
             are contradictory, an id list is empty or names rows the table
             does not have, or the two id lists overlap.
+
+    Examples:
+        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> import habit.recipes as recipes
+        >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
+        >>> spec = MLSpec(
+        ...     name="demo",
+        ...     table_preprocessors=(Spec("zscore"),),
+        ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
+        ...     metrics=(Spec("accuracy"), Spec("auc")),
+        ... )
+        >>> result = recipes.train_model(table, spec, test_size=0.25, seed=42)
+        >>> sorted(result.test_metrics)
+        ['accuracy', 'auc']
     """
     _require_outcome(table, owner="train_model")
     effective = _effective_spec(spec, seed)
@@ -263,6 +277,21 @@ def predict_model(pipeline: TablePipeline, table: FeatureTable) -> PredictionRes
     Raises:
         HABITAPIError: If the pipeline is not fitted or the table lacks a
             feature column seen at fit time.
+
+    Examples:
+        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> import habit.recipes as recipes
+        >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
+        >>> spec = MLSpec(
+        ...     name="demo",
+        ...     table_preprocessors=(Spec("zscore"),),
+        ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
+        ...     metrics=(Spec("accuracy"),),
+        ... )
+        >>> fitted = recipes.train_model(table, spec, seed=42)
+        >>> prediction = recipes.predict_model(fitted.pipeline, table)
+        >>> len(prediction.predictions) == len(table.frame)
+        True
     """
     started_at = _now()
     predictions = pipeline.predict(table)
@@ -309,6 +338,22 @@ def cross_validate(
     Raises:
         HABITAPIError: If the table declares no outcome, or ``n_splits``
             is below 2, or a stratum is smaller than ``n_splits``.
+
+    Examples:
+        >>> from habit import MLSpec, Spec, make_synthetic_feature_table
+        >>> import habit.recipes as recipes
+        >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
+        >>> spec = MLSpec(
+        ...     name="demo",
+        ...     table_preprocessors=(Spec("zscore"),),
+        ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
+        ...     metrics=(Spec("accuracy"), Spec("auc")),
+        ... )
+        >>> result = recipes.cross_validate(table, spec, n_splits=3, seed=42)
+        >>> result.n_splits
+        3
+        >>> sorted(result.mean_metrics)
+        ['accuracy', 'auc']
     """
     _require_outcome(table, owner="cross_validate")
     if n_splits < 2:

@@ -50,6 +50,7 @@ source_suffix = ".rst"
 # Extensions; myst_parser is intentionally not used.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.graphviz",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
@@ -110,14 +111,29 @@ html_title = "HABIT Documentation"
 html_short_title = "HABIT"
 
 # Automatic API documentation options.
+# NOTE: ``undoc-members`` is deliberately off. Besides hiding members that
+# still need docstrings (which keeps the reference honest), autodoc documents
+# dataclass fields twice when it is combined with ``members`` (once from the
+# annotation scan and once from the class-docstring Attributes section),
+# producing "duplicate object description" warnings on every contract page.
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
     "special-members": "__init__",
-    "undoc-members": True,
     "ignore-module-all": True,
-    "exclude-members": "__weakref__,__dict__,__pydantic_extra__,__pydantic_fields_set__,__pydantic_private__",
+    "exclude-members": "__weakref__,__dict__,__pydantic_extra__,__pydantic_fields_set__,__pydantic_private__,model_config,model_fields",
 }
+
+# Autosummary: generate one stub page per public symbol (scikit-learn style
+# API reference). Stubs land in api/generated/ and are gitignored.
+autosummary_generate = True
+autosummary_imported_members = False
+autosummary_filename_map = {}
+
+# Render classes under their short name (``Subject`` not
+# ``habit.contracts.subject.Subject``) in page titles; the canonical dotted
+# path stays visible in the autodoc directive itself.
+add_module_names = False
 
 # Mock missing modules so autodoc can complete.
 import sys

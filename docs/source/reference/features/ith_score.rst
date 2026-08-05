@@ -52,7 +52,7 @@ HABIT applies the ITHscore topology step to an existing habitat map (``*_habitat
 Implementation
 --------------
 
-``habit/core/habitat_analysis/habitat_features/ith_features.py``
+``habit/compat/engines/habitat_extraction/habitat_features/ith_features.py``
 
 References
 ----------

@@ -12,12 +12,14 @@ Learning path
 
 1. :doc:`tutorial/installation` — **Install**
 2. :doc:`tutorial/quickstart` — Run the demo
-3. :doc:`gui/index` — Web GUI (under development; CLI recommended)
-4. :doc:`how_to/index` — Step-by-step with your data
-5. :doc:`api/python_api` — **Python API (v1.0)** usage guide
-6. :doc:`configuration/index` — YAML reference
-7. :doc:`reference/features/index` — Feature definitions (papers)
-8. Issues → :doc:`troubleshooting/faq`
+3. :doc:`examples/index` — **Runnable v1.0 API examples** (synthetic data, real output)
+4. :doc:`gui/index` — Web GUI (under development; CLI recommended)
+5. :doc:`how_to/index` — Step-by-step with your data
+6. :doc:`api/python_api` — **Python API (v1.0)** usage guide
+7. :doc:`api/index` — **API Reference** (every public symbol)
+8. :doc:`configuration/index` — YAML reference
+9. :doc:`reference/features/index` — Feature definitions (papers)
+10. Issues → :doc:`troubleshooting/faq`
 
 .. toctree::
    :maxdepth: 2
@@ -25,6 +27,7 @@ Learning path
 
    tutorial/installation
    tutorial/quickstart
+   tutorial/quickstart_python
 
 .. toctree::
    :maxdepth: 1
@@ -37,6 +40,12 @@ Learning path
    :caption: How-to guides
 
    how_to/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Examples
+
+   examples/index
 
 .. toctree::
    :maxdepth: 2

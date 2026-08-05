@@ -8,9 +8,10 @@ Everything below is implemented on the ``v1.0.0`` branch.
 
    ``import habit; print(habit.__version__)`` → ``1.0.0``
 
-   Prefer ``from habit.contracts import ...`` and ``from habit.domain import ...``
-   for the data model and operators. Top-level ``habit.Cohort`` is a *legacy*
-   clinical directory wrapper and is **not** the contracts cohort used here.
+   Since v1.0.0 the top-level ``habit.Cohort`` **is** the imaging cohort
+   (``habit.contracts.subject.Cohort``). The v0.1 clinical directory wrapper
+   was renamed :class:`habit.ClinicalCohort`. You can equally import the data
+   model from its canonical home: ``from habit.contracts import Cohort``.
 
 Architecture in one diagram
 ---------------------------
@@ -160,14 +161,30 @@ The upstream ``HabitatSpec`` must match the stages used during fitting.
    reloaded = HabitatModel.load(out / "habitat_model.habitatmodel")
    predicted = recipes.apply_habitat_model(held_out, spec, reloaded)
 
-Run a legacy YAML from Python
+Run a YAML config from Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _common-workflows-yaml:
 
-There is no ``recipes.run_from_yaml``. Translate v0.1 YAML with
-:class:`~habit.spec.legacy.LegacyConfigAdapter`, then call a recipe (full
-details in :doc:`spec`):
+:func:`habit.recipes.run_from_yaml` is the programmatic twin of the CLI: it
+reads a YAML file, detects its version, and dispatches to the same recipes
+the command line uses. **v0.1** documents are translated through
+:class:`~habit.spec.legacy.LegacyConfigAdapter`; **v1** documents are read
+directly (habitat train/predict and ML train/cv workflows):
+
+.. code-block:: python
+
+   import habit.recipes as recipes
+
+   result = recipes.run_from_yaml(
+       "config/habitat/config_habitat_two_step.yaml",
+       workflow="habitat",   # optional; guessed from the path when omitted
+       save=True,            # write outputs like the CLI would (default False)
+   )
+
+To translate a v0.1 document by hand — for example to swap the data source or
+run on an in-memory cohort — use ``LegacyConfigAdapter`` and call a recipe
+directly (full details in :doc:`spec`):
 
 .. code-block:: python
 
@@ -287,27 +304,46 @@ Where to go next
    * - Custom ``ComponentRegistry``
      - :doc:`registry`
 
-Not yet on the v1 stack
------------------------
+Tabular machine learning
+------------------------
 
-Machine-learning train / cross-validation (``run_ml``, ``run_kfold``,
-``run_model_comparison``) still route through ``habit.compat.engines.machine_learning``.
-Use the CLI
-(``habit model``, ``habit cv``, ``habit compare``) or the compat layer
-(:doc:`compat`) until those workflows move to ``habit.recipes`` /
-:class:`~habit.domain.TablePipeline`. Tabular building blocks are documented
-in :doc:`domain_table`.
+The ML recipes are v1-native: :func:`~habit.recipes.train_model`,
+:func:`~habit.recipes.cross_validate`, and
+:func:`~habit.recipes.predict_model` take a :class:`~habit.contracts.FeatureTable`
+plus an :class:`~habit.spec.specs.MLSpec` and run a
+:class:`~habit.domain.TablePipeline` — fitted preprocessing and selection
+state travels inside the saved pipeline, so prediction never refits on new
+data. Tabular building blocks are documented in :doc:`domain_table`.
 
-``habit.recipes`` has no ``run_from_yaml``: reading configuration files is the
-CLI's job, not the library's. To run a v0.1 YAML from Python, translate it
-first with ``LegacyConfigAdapter`` and then call a recipe (see
-:ref:`common-workflows-yaml` above).
+.. code-block:: python
+
+   from habit import MLSpec, Spec, make_synthetic_feature_table
+   import habit.recipes as recipes
+
+   table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
+   spec = MLSpec(
+       name="demo",
+       table_preprocessors=(Spec("zscore"),),
+       feature_selectors=(Spec("variance", {"threshold": 0.01}),),
+       classifier=Spec("LogisticRegression", {"max_iter": 500}),
+       metrics=(Spec("accuracy"), Spec("auc")),
+   )
+   result = recipes.train_model(table, spec, test_size=0.3, seed=42)
+   print(result.train_metrics)   # in-sample readout
+   print(result.test_metrics)    # held-out rows
+
+The older configuration-object entry points (``run_ml``, ``run_kfold``,
+``run_model_comparison`` from ``habit.api.machine_learning``) remain
+available for YAML-parity workflows; the CLI commands ``habit model`` /
+``habit cv`` / ``habit compare`` use them.
 
 CLI users keep ``habit get-habitat -c ...``; that path translates YAML through
-``LegacyConfigAdapter`` / ``HabitatSpec`` into the same domain core.
+``LegacyConfigAdapter`` / ``HabitatSpec`` into the same domain core, and
+:func:`~habit.recipes.run_from_yaml` exposes the identical path to Python
+callers (see :ref:`the YAML section <common-workflows-yaml>` above).
 
-Feature extraction (compat-only)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Feature extraction (config-driven)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``habit.recipes.extract_habitat_features`` and
 ``habit.recipes.traditional_radiomics`` are thin wrappers around the v0.1
@@ -316,5 +352,6 @@ engine (``habit.compat.engines`` via ``habit.api.habitat``). They exist so
 new direct ``habit.compat.engines`` imports in the command layer. They are **not** the
 recommended v1 Python path: no domain-native cohort assembly, no
 ``SubjectPipeline`` / ``TablePipeline``, and no ``StudyResult`` contract.
-Use the CLI for those workflows today, or wait for domain migration. Full API
-docs are deferred until that migration lands.
+For habitat features in library code, prefer
+:class:`~habit.domain.SubjectPipeline` ``.extract_features(...)`` with the
+``habitat_feature_extractor`` registry (:doc:`domain_habitat`).

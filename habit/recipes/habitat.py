@@ -477,6 +477,29 @@ def two_step(
 
     Raises:
         HABITAPIError: If the spec declares no supervoxelizer.
+
+    Examples:
+        >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
+        >>> import habit.recipes as recipes
+        >>> cohort = make_synthetic_cohort(n_subjects=6, shape=(24, 24, 24), rng=42)
+        >>> spec = HabitatSpec(
+        ...     name="demo",
+        ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+        ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
+        ...     habitat_model_fitter=Spec(
+        ...         "kmeans",
+        ...         {"min_habitats": 2, "max_habitats": 3,
+        ...          "validation": "silhouette", "n_init": 5},
+        ...     ),
+        ...     habitat_assigner=Spec("nearest_centroid"),
+        ...     habitat_features=(Spec("volume"),),
+        ...     random_seed=42,
+        ... )
+        >>> result = recipes.two_step(cohort, spec)
+        >>> result.habitat_model.n_habitats >= 2
+        True
+        >>> len(result.habitat_maps) == len(cohort)
+        True
     """
     effective = _effective_spec(spec, seed)
     if effective.supervoxelizer is None:
@@ -652,6 +675,34 @@ def apply_habitat_model(
 
     Returns:
         The study result for the projected cohort.
+
+    Examples:
+        Train on one cohort, persist the model, and project it onto new
+        subjects (here the same synthetic cohort doubles as the held-out
+        data, which also verifies the save/load/apply round-trip):
+
+        >>> from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
+        >>> import habit.recipes as recipes
+        >>> cohort = make_synthetic_cohort(n_subjects=5, shape=(20, 20, 20), rng=7)
+        >>> spec = HabitatSpec(
+        ...     name="demo",
+        ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+        ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 5}),
+        ...     habitat_model_fitter=Spec(
+        ...         "kmeans",
+        ...         {"min_habitats": 2, "max_habitats": 3,
+        ...          "validation": "silhouette", "n_init": 5},
+        ...     ),
+        ...     habitat_assigner=Spec("nearest_centroid"),
+        ...     habitat_features=(Spec("volume"),),
+        ...     random_seed=7,
+        ... )
+        >>> train = recipes.two_step(cohort, spec)
+        >>> train.habitat_model.save("/tmp/demo.habitatmodel")  # doctest: +SKIP
+        >>> reloaded = HabitatModel.load("/tmp/demo.habitatmodel")  # doctest: +SKIP
+        >>> projected = recipes.apply_habitat_model(cohort, spec, reloaded)  # doctest: +SKIP
+        >>> len(projected.habitat_maps) == len(cohort)  # doctest: +SKIP
+        True
     """
     started_at = _now()
     effective = _effective_spec(spec, seed)

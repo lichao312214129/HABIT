@@ -105,11 +105,18 @@ def run_from_yaml(
     logger: Optional[logging.Logger] = None,
 ) -> Any:
     """
-    Load a v0.1 YAML config, translate it, and run the matching recipe.
+    Run a YAML configuration document through the matching recipe.
+
+    This is the programmatic twin of the CLI. The document version is
+    detected automatically: **v1** documents (``version: '1.0'``) are read
+    directly for the habitat train/predict and ML train/cv workflows, while
+    **v0.1** documents are first translated through
+    :class:`~habit.spec.legacy.LegacyConfigAdapter`.
 
     Args:
-        config_path: Path to the legacy YAML file. Relative paths inside the
-            file resolve against this file's directory (v0.1 semantics).
+        config_path: Path to the YAML file. In v0.1 documents, relative
+            paths inside the file resolve against the file's directory; v1
+            documents use paths as written (current working directory).
         workflow: Workflow alias (``habitat``, ``model``, ``cv``, ``compare``,
             ``preprocess``, ``icc``, ``retest``, ``extract``, ``radiomics``,
             ``sort-dicom``).
@@ -135,6 +142,27 @@ def run_from_yaml(
         NotImplementedError: When the workflow is not routed by ``run_from_yaml``.
         FileNotFoundError: When ``config_path`` does not exist.
         ValueError: When the translated document or on-disk inputs are invalid.
+
+    Examples:
+        Run the shipped v1 two-step demo exactly as the CLI would, writing
+        outputs under the document's ``output.out_dir``:
+
+        >>> import habit.recipes as recipes
+        >>> result = recipes.run_from_yaml(  # doctest: +SKIP
+        ...     "config/habitat/config_habitat_two_step_v1.yaml",
+        ...     workflow="habitat",  # optional when the path names the workflow
+        ...     save=True,
+        ... )
+        >>> result.habitat_model.n_habitats >= 2  # doctest: +SKIP
+        True
+
+        A v0.1 document runs through the same call; it is translated to a
+        v1 spec first:
+
+        >>> result = recipes.run_from_yaml(  # doctest: +SKIP
+        ...     "config/habitat/config_habitat_two_step.yaml",
+        ...     save=False,  # keep the StudyResult in memory
+        ... )
     """
     path = Path(config_path).resolve()
     if not path.is_file():

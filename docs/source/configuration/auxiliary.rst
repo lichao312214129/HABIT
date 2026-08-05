@@ -93,7 +93,7 @@ This section documents **Test-Retest reproducibility** configuration. Example: `
 Intermediate NRRD remapping outputs are written under ``out_dir``.
 
 Traditional radiomics CLI configuration (``habit radiomics``)
-------------------------------------------------------------
+-------------------------------------------------------------
 
 Moved to :doc:`radiomics`. Example:
 ``config/radiomics/config_traditional_radiomics.yaml``.

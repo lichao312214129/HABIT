@@ -37,7 +37,7 @@ Output columns
 Implementation
 ~~~~~~~~~~~~~~
 
-``habit/core/habitat_analysis/habitat_features/builtin_plugins.py``
+``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
 (``WholeHabitatPlugin``) → ``habitat_radiomics.py``
 
 each_habitat
@@ -92,5 +92,5 @@ Output columns
 Implementation
 ~~~~~~~~~~~~~~
 
-``habit/core/habitat_analysis/habitat_features/builtin_plugins.py``
+``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
 (``EachHabitatPlugin``) → ``habitat_radiomics.py``

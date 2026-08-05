@@ -1,16 +1,32 @@
 Subsystems
 ==========
 
-This page describes the two most complex subsystems: habitat analysis and
-machine learning. Preprocessing and DICOM sorting use simpler structures; see
-:doc:`repo_layout`.
+This page describes the internals of the two most complex subsystems:
+habitat analysis and machine learning. Preprocessing and DICOM sorting use
+simpler structures; see :doc:`repo_layout`.
+
+.. note::
+
+   **v1.0 framing.** User-facing orchestration moved to the v1 recipes
+   (:doc:`../api/index`): habitat studies run through
+   ``habit.recipes.two_step`` / ``one_step`` / ``direct_pooling`` over the
+   ``habit/domain/`` component registries, and tabular ML runs through
+   ``habit.recipes.train_model`` / ``cross_validate`` / ``predict_model``
+   over :class:`~habit.domain.TablePipeline`. What follows are the internals
+   of the **v0.1 engines** under ``habit/compat/engines/``, which remain the
+   execution core behind the configuration-object API
+   (``habit.api.machine_learning``) and the ``extract`` / ``radiomics`` /
+   ``compare`` workflows. Read this page when changing engine internals;
+   read :doc:`architecture` for the v1 layering.
 
 Habitat analysis
 ----------------
 
 Habitat analysis aggregates voxel-level image features into spatially
-coherent tumor subregions. ``HabitatAnalysis`` organizes the work as a
-pipeline of steps and services.
+coherent tumor subregions. In the v0.1 engine
+(``habit/compat/engines/habitat_analysis/``), ``HabitatAnalysis`` organizes
+the work as a pipeline of steps and services. The directories below are
+relative to that package.
 
 .. list-table::
    :header-rows: 1
@@ -61,8 +77,12 @@ After habitat maps are generated, ``habit extract`` uses
 Machine learning
 ----------------
 
-The machine-learning subsystem assembles feature tables, splits data, builds an
-sklearn pipeline, trains and evaluates models, and writes reports.
+The v0.1 machine-learning engine
+(``habit/compat/engines/machine_learning/``; modules below are relative to
+it) assembles feature tables, splits data, builds an sklearn pipeline,
+trains and evaluates models, and writes reports. The v1 recipes reuse the
+same ideas through ``habit/domain/`` components instead of this module
+tree.
 
 .. list-table::
    :header-rows: 1

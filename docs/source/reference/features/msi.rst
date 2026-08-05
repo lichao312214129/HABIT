@@ -73,7 +73,7 @@ Output columns
 Implementation
 --------------
 
-``habit/core/habitat_analysis/habitat_features/msi_features.py``
+``habit/compat/engines/habitat_extraction/habitat_features/msi_features.py``
 
 References
 ----------

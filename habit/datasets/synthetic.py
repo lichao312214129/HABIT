@@ -226,6 +226,17 @@ def make_synthetic_cohort(
     Returns:
         A :class:`~habit.contracts.subject.Cohort` with subjects ``subj001``,
         ``subj002``, ...
+
+    Examples:
+        >>> from habit import make_synthetic_cohort
+        >>> cohort = make_synthetic_cohort(n_subjects=3, rng=42)
+        >>> len(cohort)
+        3
+        >>> cohort.subject_ids
+        ('subj001', 'subj002', 'subj003')
+        >>> subject = cohort[0]
+        >>> sorted(subject.images), sorted(subject.masks)
+        (['T1', 'T2'], ['tumor'])
     """
     if n_subjects < 1:
         raise ValueError(f"n_subjects must be positive; got {n_subjects}.")
@@ -268,6 +279,16 @@ def make_synthetic_feature_table(
     Returns:
         A :class:`~habit.contracts.table.FeatureTable` with explicit outcome
         semantics.
+
+    Examples:
+        >>> from habit import make_synthetic_feature_table
+        >>> table = make_synthetic_feature_table(n_rows=10, n_features=4, rng=42)
+        >>> table.frame.shape
+        (10, 6)
+        >>> list(table.feature_columns)
+        ['signal', 'noise0', 'noise1', 'noise2']
+        >>> table.outcome.task
+        'binary'
     """
     if n_rows < 2:
         raise ValueError(f"n_rows must be at least 2; got {n_rows}.")

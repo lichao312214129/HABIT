@@ -27,7 +27,7 @@ Image preprocessing (``habit preprocess``)
      - `ANTsX/ANTs <https://github.com/ANTsX/ANTs>`_
    * - Resampling / N4 / majority filter
      - SimpleITK
-     - `User Guide <https://simpleitk.readthedocs.io/>`_ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`_ · `ResampleImageFilter <https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1ResampleImageFilter.html>`_
+     - `User Guide <https://simpleitk.readthedocs.io/>`__ · `Fundamental Concepts <https://simpleitk.readthedocs.io/en/master/FundamentalConcepts.html>`_ · `ResampleImageFilter <https://simpleitk.org/doxygen/latest/html/classitk_1_1simple_1_1ResampleImageFilter.html>`_
    * - DICOM to NIfTI
      - dcm2niix
      - `rordenlab/dcm2niix <https://github.com/rordenlab/dcm2niix>`_
@@ -80,7 +80,7 @@ Machine learning (``habit model`` / ``habit cv``)
      - Documentation
    * - Preprocessing, classifiers, pipelines, metrics
      - scikit-learn
-     - `User Guide <https://scikit-learn.org/stable/user_guide.html>`_ · `API Reference <https://scikit-learn.org/stable/modules/classes.html>`_
+     - `User Guide <https://scikit-learn.org/stable/user_guide.html>`__ · `API Reference <https://scikit-learn.org/stable/modules/classes.html>`_
    * - Class imbalance resampling (if enabled)
      - imbalanced-learn (optional)
      - `imbalanced-learn <https://imbalanced-learn.org/stable/>`_

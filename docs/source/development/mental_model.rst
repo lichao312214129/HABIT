@@ -50,6 +50,41 @@ Domain concepts
 Engineering roles
 -----------------
 
+The v1 stack (L0–L5, see :doc:`architecture`) has its own vocabulary:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 45 30
+
+   * - Role
+     - Responsibility
+     - Representative symbol
+   * - **Spec**
+     - Declares an analysis as immutable, fingerprinted data: which
+       components, with which parameters.
+     - ``HabitatSpec``, ``MLSpec``, ``Spec``
+   * - **Recipe**
+     - A standard study design: assembles domain components per the spec,
+       executes them, and returns a typed result.
+     - ``recipes.two_step``, ``recipes.train_model``
+   * - **Contract**
+     - The typed data model that travels between layers.
+     - ``Subject``, ``Cohort``, ``FeatureTable``, ``HabitatModel``
+   * - **Pipeline**
+     - The executable object a recipe assembles from domain components;
+       fitted state travels inside it.
+     - ``SubjectPipeline``, ``TablePipeline``
+   * - **DataSource / Sink**
+     - L1 adapters; the only place files are read.
+     - ``DirectoryDataSource``
+   * - **Component registry**
+     - Maps ``Spec("name", params)`` references to implementations.
+     - ``habit.domain`` registries, ``ComponentRegistry``
+
+The classic v0.1 roles below still describe the compat engines under
+``habit/compat/engines/`` (and the YAML parsing layer in
+``habit/schemas/``), which several CLI workflows continue to route through:
+
 .. list-table::
    :header-rows: 1
    :widths: 25 45 30
@@ -79,7 +114,8 @@ Engineering roles
 
    Remember the three most easily confused roles:
    **Configurator assembles, Orchestrator executes, and Registry resolves
-   names into objects.**
+   names into objects.** On the v1 path the recipe plays all three roles at
+   once, driven by a spec instead of a configurator.
 
 Workflow and Runner
 -------------------
@@ -96,7 +132,7 @@ This separation allows the two concerns to evolve and be tested independently.
 Configuration to execution
 --------------------------
 
-Every subsystem follows the same high-level chain:
+The v0.1 subsystems follow the same high-level chain:
 
 .. mermaid::
 
@@ -105,6 +141,16 @@ Every subsystem follows the same high-level chain:
      S --> C["Configurator<br/>assemble"]
      C --> O["Orchestrator<br/>execute"]
      R["Registry"] -.->|create by name| O
+
+The v1 chain replaces the middle two stages with a single recipe call:
+
+.. mermaid::
+
+   flowchart LR
+     SP["Spec<br/>(immutable)"] --> RE["Recipe<br/>assemble + execute"]
+     CT["Cohort / FeatureTable"] --> RE
+     RE --> RS["Typed result<br/>+ RunManifest"]
+     RG["Domain registry"] -.->|"resolve Spec('name')"| RE
 
 See :doc:`request_lifecycle` for a command-level walkthrough and
 :doc:`repo_layout` for the implementation locations.

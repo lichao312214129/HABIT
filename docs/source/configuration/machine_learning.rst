@@ -2,7 +2,7 @@ Machine Learning Configuration
 ==============================
 
 Machine learning configuration parameters
----------------------------------------
+-----------------------------------------
 
 This section documents **machine learning** configuration. CLI: ``habit model -c <yaml>`` (K-fold: ``habit cv``). Demo: ``config/machine_learning/config_machine_learning_radiomics.yaml``; prediction: ``config/machine_learning/config_machine_learning_predict.yaml``.
 

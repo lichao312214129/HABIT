@@ -42,6 +42,12 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
+          # The API reference uses autodoc/autosummary, so Sphinx must be able
+          # to import habit and its core dependencies at build time. This
+          # mirrors the CI test environment (requirements-ci.txt + the package
+          # itself without re-resolving dependencies).
+          pip install -r requirements-ci.txt
+          pip install --no-deps -e .
           pip install sphinx==7.4.7 sphinx-rtd-theme==2.0.0 "sphinxcontrib-mermaid>=0.9.2"
 
       - name: Build Sphinx documentation
