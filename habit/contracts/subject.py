@@ -516,6 +516,30 @@ def cohort_from_directory(
 
     Returns:
         A cohort with a defined, reproducible subject order.
+
+    Examples:
+        Given the conventional layout::
+
+            processed_images/
+              images/P001/T1/P001_T1.nrrd
+              images/P001/T2/P001_T2.nrrd
+              masks/P001/T1/P001_mask.nrrd
+              images/P002/...
+
+        load the cohort with:
+
+        >>> from habit import cohort_from_directory
+        >>> cohort = cohort_from_directory(  # doctest: +SKIP
+        ...     "processed_images",
+        ...     modalities=["T1", "T2"],
+        ...     roi="T1",  # masks/<subject>/T1/
+        ...     name="training",
+        ... )
+        >>> cohort.subject_ids  # doctest: +SKIP
+        ('P001', 'P002', ...)
+
+        For file-free exploration, :func:`~habit.datasets.make_synthetic_cohort`
+        builds an equivalent cohort in memory.
     """
     return Cohort.from_directory(
         root,

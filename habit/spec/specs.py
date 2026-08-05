@@ -279,6 +279,32 @@ class HabitatSpec:
             change the scientific result, so they live in the spec (and its
             fingerprint), not in the run policy.
         version: Specification schema version.
+
+    Examples:
+        A two-step design (supervoxels per subject, habitats across the
+        cohort) declared as data:
+
+        >>> from habit import HabitatSpec, Spec
+        >>> spec = HabitatSpec(
+        ...     name="habitat_two_step",
+        ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+        ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 50, "n_init": 10}),
+        ...     habitat_model_fitter=Spec(
+        ...         "kmeans",
+        ...         {"min_habitats": 2, "max_habitats": 10, "validation": "silhouette"},
+        ...     ),
+        ...     habitat_assigner=Spec("nearest_centroid"),
+        ...     habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
+        ...     random_seed=42,
+        ... )
+        >>> spec.fingerprint()  # doctest: +ELLIPSIS
+        '...'
+
+        The same document expressed as YAML (``version: '1.0'`` /
+        ``workflow: habitat``) loads with
+        :func:`~habit.spec.load_habitat_spec`; see
+        ``config/habitat/config_habitat_two_step_v1.yaml`` for a complete
+        annotated example.
     """
 
     name: str

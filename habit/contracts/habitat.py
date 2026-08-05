@@ -416,6 +416,20 @@ class HabitatModel:
         cohort_fingerprint: Non-identifiable description of the defining
             cohort.
         provenance: Software, dependency, and seed fingerprint.
+
+    Examples:
+        Models are produced by the habitat recipes and round-trip through a
+        self-describing ``.habitatmodel`` archive:
+
+        >>> from habit import HabitatModel
+        >>> model = HabitatModel.load("out/habitat_model.habitatmodel")  # doctest: +SKIP
+        >>> model.n_habitats, model.feature_names  # doctest: +SKIP
+        (3, ('T1', 'T2'))
+        >>> print(model.summary())  # doctest: +SKIP
+        >>> assigner = model.assigner()  # doctest: +SKIP
+
+        See :func:`habit.recipes.apply_habitat_model` for projecting a
+        reloaded model onto new subjects.
     """
 
     model_id: str
