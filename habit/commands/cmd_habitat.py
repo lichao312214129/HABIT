@@ -57,6 +57,12 @@ from habit.api.habitat import apply_habitat_cli_overrides
 from habit.commands.common import echo_error, echo_success, load_config_or_exit
 from habit.contracts.habitat import HabitatModel
 from habit.contracts.subject import Cohort, Subject
+from habit.exceptions import (
+    ComponentNotFoundError,
+    ConfigurationError,
+    DataFormatError,
+    HABITAPIError,
+)
 from habit.schemas import HabitatAnalysisConfig
 from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
@@ -92,6 +98,16 @@ _LEGACY_PICKLE_MESSAGE = (
     f"Train a model to produce {_V1_MODEL_NAME!r}, then run predict with "
     "pipeline_path pointing at that archive or call "
     "habit.recipes.apply_habitat_model in Python."
+)
+
+#: Exceptions that reflect user input or data-layout problems rather than
+#: internal defects. The CLI prints these without a Python traceback.
+_USER_FACING_ERRORS: Tuple[type, ...] = (
+    ValueError,
+    DataFormatError,
+    HABITAPIError,
+    ComponentNotFoundError,
+    ConfigurationError,
 )
 
 
@@ -169,9 +185,22 @@ def run_habitat(
             _run_train(config, logger)
         logger.info("Habitat analysis completed successfully")
         echo_success("Habitat analysis completed successfully!")
-    except Exception as exc:  # noqa: BLE001
-        logger.error("Error during habitat analysis: %s", exc, exc_info=True)
+    except _USER_FACING_ERRORS as exc:
+        logger.error("Error during habitat analysis: %s", exc)
         echo_error(f"Error: {exc}")
+        if exit_on_error:
+            sys.exit(1)
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.error(
+            "Unexpected error during habitat analysis: %s", exc, exc_info=True
+        )
+        echo_error(
+            "Error: An unexpected internal error occurred during habitat analysis.\n"
+            f"Details: {exc}\n"
+            "If this persists, please report a bug and attach habitat_analysis.log "
+            "from your output directory."
+        )
         if exit_on_error:
             sys.exit(1)
         raise

@@ -86,21 +86,12 @@ def test_cli_rejects_yaml_missing_data_dir(
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Product bug: get-habitat prints a Python traceback when data_dir points "
-        "to a nonexistent path instead of a clinician-friendly message only."
-    ),
-)
 def test_cli_rejects_nonexistent_data_dir_without_traceback(
     cli_runner: CliRunner,
     tmp_path: Path,
 ) -> None:
     """
     ``data_dir`` referencing a missing directory must fail without a traceback.
-
-    Marked xfail(strict=True) while cmd_habitat logs ``exc_info=True``.
     """
     missing = tmp_path / "does_not_exist"
     config_path = tmp_path / "bad_data_dir.yaml"
@@ -118,13 +109,6 @@ def test_cli_rejects_nonexistent_data_dir_without_traceback(
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Product bug: get-habitat prints a Python traceback when a configured "
-        "modality is absent from the data tree."
-    ),
-)
 def test_cli_rejects_missing_modality_without_traceback(
     cli_runner: CliRunner,
     synthetic_tree: Path,
@@ -147,7 +131,12 @@ def test_cli_rejects_missing_modality_without_traceback(
     result = cli_runner.invoke(cli, ["get-habitat", "-c", str(config_path)])
     assert_cli_user_error(
         result,
-        must_mention=("delay9", "No complete subjects"),
+        must_mention=(
+            "delay9",
+            "No complete subjects",
+            "Modalities present in the data tree",
+            MODALITIES[0],
+        ),
         forbid_traceback=True,
     )
 
@@ -179,13 +168,6 @@ def test_cli_rejects_unknown_supervoxel_algorithm_in_v0_config(
 
 
 @pytest.mark.unit
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Product bug: check-config accepts v1 specs with unknown registry "
-        "component names; validation should fail before running the pipeline."
-    ),
-)
 def test_cli_check_config_rejects_unknown_v1_supervoxelizer(
     cli_runner: CliRunner,
     synthetic_tree: Path,
@@ -194,7 +176,7 @@ def test_cli_check_config_rejects_unknown_v1_supervoxelizer(
     """
     ``check-config`` should reject ``supervoxelizer.name=\"does_not_exist\"``.
 
-    Currently ``validate_v1_document`` only checks structure, not registry names.
+    The error must name the unknown component and list registered alternatives.
     """
     config_path = tmp_path / "habitat" / "unknown_component.v1.yaml"
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -235,6 +217,6 @@ policy:
     result = cli_runner.invoke(cli, ["check-config", "-c", str(config_path)])
     assert_cli_user_error(
         result,
-        must_mention=("does_not_exist", "supervoxelizer"),
+        must_mention=("does_not_exist", "supervoxelizer", "Available", "kmeans"),
         forbid_traceback=True,
     )

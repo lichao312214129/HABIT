@@ -1727,11 +1727,12 @@ def validate_v1_document(
     """
     Validate the structure of a v1 document payload.
 
-    Structural checks only: section types, the ``version`` tag, and -- for
+    Structural checks: section types, the ``version`` tag, and -- for
     habitat -- that the ``spec``/``policy`` sections parse into
-    :class:`HabitatSpec` / :class:`RunPolicy`. Component availability is a
-    registry concern checked at run time, not here, so a document naming a
-    component from a later phase still validates.
+    :class:`HabitatSpec` / :class:`RunPolicy` and that every declared
+    habitat component name is registered. ML documents still validate
+    structure only; registry availability for ML components is checked
+    when the modelling recipe assembles its pipeline.
 
     Args:
         payload: Top-level YAML mapping detected as v1.
@@ -1740,6 +1741,7 @@ def validate_v1_document(
 
     Raises:
         HABITAPIError: On any structural violation.
+        ComponentNotFoundError: When a habitat spec names an unknown component.
     """
     if not isinstance(payload, Mapping):
         raise HABITAPIError(
@@ -1824,7 +1826,10 @@ def _validate_habitat_v1(payload: Mapping[str, Any], mode: Optional[str]) -> Non
         raise HABITAPIError(
             f"v1 section 'spec' must be a mapping; got {type(spec_payload).__name__}."
         )
-    HabitatSpec.from_dict(spec_payload)
+    spec = HabitatSpec.from_dict(spec_payload)
+    from habit.domain.assembly import validate_habitat_spec_registry
+
+    validate_habitat_spec_registry(spec)
 
 
 def _validate_ml_v1(payload: Mapping[str, Any], mode: Optional[str]) -> None:
