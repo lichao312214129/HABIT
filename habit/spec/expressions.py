@@ -139,7 +139,7 @@ def _tokenize(text: str) -> List[_Token]:
             continue
         raise HABITAPIError(
             f"Unexpected character {char!r} at position {index} in "
-            f"expression {text!r}. Quote modality names, e.g. raw(\"T1\")."
+            f'expression {text!r}. Quote modality names, e.g. raw("T1").'
         )
     return tokens
 
@@ -165,9 +165,7 @@ class _Cursor:
         """Consume and return the current token."""
         token = self.peek()
         if token is None:
-            raise HABITAPIError(
-                f"Unexpected end of expression {self._source!r}."
-            )
+            raise HABITAPIError(f"Unexpected end of expression {self._source!r}.")
         self._at += 1
         return token
 
@@ -193,7 +191,11 @@ def _coerce_number(text: str, position: int, source: str) -> Union[int, float]:
             f"Malformed number {text!r} at position {position} in "
             f"expression {source!r}."
         ) from None
-    return int(value) if value.is_integer() and "." not in text and "e" not in text.lower() else value
+    return (
+        int(value)
+        if value.is_integer() and "." not in text and "e" not in text.lower()
+        else value
+    )
 
 
 _IDENT_LITERALS: Dict[str, Any] = {
@@ -221,18 +223,21 @@ def _parse_literal(cursor: _Cursor) -> Any:
     if kind == "[":
         cursor.next()
         items: List[Any] = []
-        if cursor.peek() is not None and cursor.peek()[0] != "]":
+        token = cursor.peek()
+        if token is not None and token[0] != "]":
             items.append(_parse_literal(cursor))
-            while cursor.peek() is not None and cursor.peek()[0] == ",":
+            token = cursor.peek()
+            while token is not None and token[0] == ",":
                 cursor.next()
                 items.append(_parse_literal(cursor))
+                token = cursor.peek()
         cursor.expect("]")
         return items
     raise HABITAPIError(
         f"Expected a parameter value (quoted string, number, boolean or "
         f"list) at position {position} in expression {cursor._source!r}; "
         f"got {value!r}. Bare names are not values -- quote modality "
-        "names, e.g. raw(\"T1\")."
+        'names, e.g. raw("T1").'
     )
 
 
@@ -252,14 +257,16 @@ def _parse_node(cursor: _Cursor) -> Spec:
             f"Expected a component name at position {position} in "
             f"expression {cursor._source!r}; got {name!r}."
         )
-    if cursor.peek() is None or cursor.peek()[0] != "(":
+    token = cursor.peek()
+    if token is None or token[0] != "(":
         # Bare name, e.g. ``volume``: a leaf with no parameters.
         return Spec(name=str(name), params={})
     cursor.next()  # consume "("
 
     positional: List[Tuple[str, Any]] = []  # ("call", Spec) | ("string", str), in order
     kwargs: Dict[str, Any] = {}
-    if cursor.peek() is not None and cursor.peek()[0] != ")":
+    token = cursor.peek()
+    if token is not None and token[0] != ")":
         while True:
             token = cursor.peek()
             if token is None:
@@ -271,14 +278,16 @@ def _parse_node(cursor: _Cursor) -> Spec:
                 # Either a nested call or a ``key=value`` kwarg; a bare
                 # identifier in any other role is the classic v0 ambiguity
                 # and is rejected.
-                lookahead = cursor._tokens[cursor._at + 1] if cursor._at + 1 < len(cursor._tokens) else None
+                lookahead = (
+                    cursor._tokens[cursor._at + 1]
+                    if cursor._at + 1 < len(cursor._tokens)
+                    else None
+                )
                 if lookahead is not None and lookahead[0] == "=":
                     key = str(cursor.next()[1])
                     cursor.next()  # consume "="
                     if key in kwargs:
-                        raise HABITAPIError(
-                            f"{name!r}: duplicate parameter {key!r}."
-                        )
+                        raise HABITAPIError(f"{name!r}: duplicate parameter {key!r}.")
                     kwargs[key] = _parse_literal(cursor)
                 elif lookahead is not None and lookahead[0] == "(":
                     positional.append(("call", _parse_node(cursor)))
@@ -286,7 +295,7 @@ def _parse_node(cursor: _Cursor) -> Spec:
                     raise HABITAPIError(
                         f"Bare name {token[1]!r} at position {token[2]} in "
                         f"expression {cursor._source!r}. Modality names "
-                        f"must be quoted (raw(\"{token[1]}\")); parameter "
+                        f'must be quoted (raw("{token[1]}")); parameter '
                         "values use key=value."
                     )
             elif token[0] == "string":
@@ -298,7 +307,8 @@ def _parse_node(cursor: _Cursor) -> Spec:
                     f"key=value parameter at position {token[2]} in "
                     f"expression {cursor._source!r}; got {token[1]!r}."
                 )
-            if cursor.peek() is not None and cursor.peek()[0] == ",":
+            token = cursor.peek()
+            if token is not None and token[0] == ",":
                 cursor.next()
                 continue
             break
@@ -402,8 +412,9 @@ def parse_feature_expression(expression: str) -> Spec:
         raise HABITAPIError("Empty feature expression.")
     cursor = _Cursor(_tokenize(text), text)
     spec = _parse_node(cursor)
-    if cursor.peek() is not None:
-        kind, value, position = cursor.peek()
+    leftover = cursor.peek()
+    if leftover is not None:
+        kind, value, position = leftover
         raise HABITAPIError(
             f"Unexpected {value!r} at position {position} after the "
             f"complete expression {text!r}."

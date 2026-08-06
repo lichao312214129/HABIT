@@ -162,7 +162,9 @@ def _picklable(exc: BaseException) -> BaseException:
         # (``follow_imports = "skip"``); the cast keeps that boundary explicit.
         return cast(
             BaseException,
-            HABITAPIError(f"{type(exc).__name__} raised in worker (not picklable): {exc}"),
+            HABITAPIError(
+                f"{type(exc).__name__} raised in worker (not picklable): {exc}"
+            ),
         )
     return exc
 
@@ -272,9 +274,7 @@ def _persistent_worker(
         try:
             value = op(task.item)
         except MemoryError as exc:
-            result_queue.put(
-                (worker_index, task.task_id, _STATUS_OOM, _picklable(exc))
-            )
+            result_queue.put((worker_index, task.task_id, _STATUS_OOM, _picklable(exc)))
         except BaseException as exc:  # noqa: BLE001 - isolation is the point
             result_queue.put(
                 (worker_index, task.task_id, _STATUS_ERROR, _picklable(exc))
@@ -292,18 +292,14 @@ def _persistent_worker(
                         task.task_id,
                         _STATUS_ERROR,
                         HABITAPIError(
-                            f"Result of {type(op).__name__} is not picklable: "
-                            f"{exc}"
+                            f"Result of {type(op).__name__} is not picklable: " f"{exc}"
                         ),
                     )
                 )
             else:
                 result_queue.put((worker_index, task.task_id, _STATUS_OK, value))
                 successful_tasks += 1
-                if (
-                    recycle_after_tasks > 0
-                    and successful_tasks >= recycle_after_tasks
-                ):
+                if recycle_after_tasks > 0 and successful_tasks >= recycle_after_tasks:
                     return
 
 
@@ -929,20 +925,14 @@ class ProcessPoolBackend:
             self._session_result_queue = self._session_ctx.Queue()
 
         ctx = self._session_ctx if keep_alive else multiprocessing.get_context("spawn")
-        result_queue = (
-            self._session_result_queue if keep_alive else ctx.Queue()
-        )
+        result_queue = self._session_result_queue if keep_alive else ctx.Queue()
         assert ctx is not None and result_queue is not None
 
         task_by_id = {task.task_id: task for task in tasks}
         pending: List[_Task] = list(tasks)
-        slots: Dict[int, _PersistentSlot] = (
-            self._session_slots if keep_alive else {}
-        )
+        slots: Dict[int, _PersistentSlot] = self._session_slots if keep_alive else {}
         slot_count = max(1, min(self.workers, len(tasks))) if tasks else 0
-        next_worker_index = (
-            self._session_next_worker_index if keep_alive else 0
-        )
+        next_worker_index = self._session_next_worker_index if keep_alive else 0
         completed = 0
         total = len(tasks)
         pending_retirements = 0
@@ -1041,9 +1031,10 @@ class ProcessPoolBackend:
                     message = None
                 if message is not None:
                     worker_index, _task_id, kind, _payload = message
-                    slot = slots.get(worker_index)
-                    if slot is None:
+                    maybe_slot = slots.get(worker_index)
+                    if maybe_slot is None:
                         continue
+                    slot = maybe_slot
                     if kind == _MSG_STARTED:
                         slot.started = True
                         continue
@@ -1078,9 +1069,10 @@ class ProcessPoolBackend:
 
                 if message is not None:
                     worker_index, task_id, kind, payload = message
-                    slot = slots.get(worker_index)
-                    if slot is None:
+                    maybe_slot = slots.get(worker_index)
+                    if maybe_slot is None:
                         continue
+                    slot = maybe_slot
                     if kind == _MSG_STARTED:
                         slot.started = True
                         continue
@@ -1097,8 +1089,7 @@ class ProcessPoolBackend:
                     restart = _note_outcome(slot, kind)
                     if kind == _STATUS_OOM and self._policy.oom_backoff:
                         pending_retirements = min(
-                            pending_retirements
-                            + self._policy.oom_reduce_workers_by,
+                            pending_retirements + self._policy.oom_reduce_workers_by,
                             max(0, len(slots) - 1),
                         )
                     yield task_by_id[task_id], kind, payload
@@ -1186,4 +1177,3 @@ class ProcessPoolBackend:
                 for slot in list(slots.values()):
                     self._stop_persistent_slot(slot)
                 slots.clear()
-

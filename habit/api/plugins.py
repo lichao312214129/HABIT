@@ -295,8 +295,9 @@ def list_plugins(domain: Optional[str] = None) -> Tuple[PluginInfo, ...]:
     )
     infos: list[PluginInfo] = []
     for current_domain in domains:
+        names: list[str]
         if current_domain == "feature_extractors":
-            names = _feature_extractor_names()
+            names = list(_feature_extractor_names())
         elif current_domain in _LEGACY_DOMAIN_ALIASES:
             _warn_legacy_plugin_domain(current_domain)
             names = sorted(_legacy_registry_for_domain(current_domain).available())
