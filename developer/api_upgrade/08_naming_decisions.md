@@ -6,7 +6,7 @@
 
 ---
 
-## 1. 八个领域协议
+## 1. 九个领域协议
 
 | 定案名 | 说明 |
 |---|---|
@@ -18,6 +18,7 @@
 | `HabitatModelFitter` | **改**（原 `HabitatModelEstimator`）。`fit()` 返回新的 `HabitatModel` 而非 `self`，违反 sklearn 的 Estimator 契约；采 lifelines/statsmodels 的 `*Fitter`。`*Estimator` 这个名字保留给 `habit.compat.sklearn` 里真正返回 `self` 的适配器。 |
 | `HabitatAssigner` | **改**（原 `HabitatMapper`）。`map` 已被 `Cohort.map(op)` 与 `ExecutionBackend.map(op, items)`（`Pool.map` 含义）占用，第三种含义会冲突；`Mapper` 还易被读成 ORM mapper。动词用 `assign`。 |
 | `HabitatFeatureExtractor` | 保持。与 `VoxelFeatureExtractor` 平行。 |
+| `Combiner` | **新增**（见 1d）。多模态/多源特征块的列向组合，体素/超体素/生境三层共用。 |
 
 ### 1a. 为什么补第六个协议（推翻"恰好五个"）
 
@@ -84,6 +85,21 @@ v1 把它注册成普通方法 `impute`（`strategy: mean | median | zero`）。
 
 **一处刻意的数值分歧**：v0.1 用训练均值填 NaN，紧接着用**当前块**的列均值替换 Inf。在有状态链里这等于让测试集统计量参与了自己的变换。v1 统一取训练统计量。仅当数据真的含非有限值时两者才有差异（原始强度特征通常没有，radiomics 偶有）。
 
+### 1d. 为什么补第九个领域协议：Combiner 与特征树
+
+HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。这要求：不管是体素、超体素还是生境层，**单模态提取方式**与**多模态组合方式**都应是多样、可扩展、可替换的两件正交的事。v1.0 初版不满足：`concat` 只是体素域的一个普通提取器，超体素层只有 `mean_voxel_features` 与 `supervoxel_radiomics`，组合逻辑写死在个别组件里，第三方无法替换。
+
+**决策：组合逻辑从提取器里拆出，独立成协议 `Combiner`。** 签名 `__call__(blocks: Sequence[DataFrame], *, context: Mapping) -> DataFrame`——只吃列对齐的特征块、不认识 `Subject` / `Spec` / 文件系统，因此同一个组合器三层复用、纯 pandas 可测。这与 1c 把预处理拆成独立协议的理由同构：可插拔的粒度与提取器协议不重合时，就给可插拔物自己的域。
+
+配套定案：
+
+- **节点抽象**：每个提取阶段统一为递归 `Spec` 树。叶子三种形态——形态 0（几何，无模态，如 `volume`）、形态 1（单模态，`raw("t1")` / `mean("t1")`）、形态 2（原子多模态，一次调用必须同时看多个模态，如深度学习嵌入；罕见逃逸口，不鼓励）。组合器节点的 children 存在 `params["children"]`，**不给 `Spec` 加新字段**，指纹/序列化/校验零改动。树求值包装器（`VoxelFeatureTree` 等三个）实现各层既有协议，管线对叶子与树透明。
+- **单模态参数 `modality`**：与既有 `modalities`（仅 `raw` 的多模态堆叠）并列、互斥；超体素/生境层的同类提取器（`supervoxel_radiomics`、`each_habitat`、`traditional`）同样补 `modality` 单模态形态。来源标签参数 `as_`（尾下划线避开 Python 关键字，pydantic 惯例）覆盖列名来源；统计输入选择 `source: "working" | "original"`（预处理后 / 预处理前体素信号）。
+- **统计提取器 `mean` / `std` / `percentile`** 注册在 `supervoxel_feature_extractor` 域而**不是**组合器：它们是单模态形态 1 提取器，把同一超体素内某模态的体素信号聚成一个标量（行轴聚合、改变粒度），不满足"列向合并等粒度块"的组合器契约。管线通过 `bind_fields(working, original)` 钩子把体素场绑给它们，不改协议签名。命名沿用 pandas `groupby` 聚合词汇（`mean`/`std`/`percentile`），不造同义词；`q` 沿用 numpy/pandas 分位数参数名。
+- **内置组合器名**：`concat` / `kinetic` / `expression` 沿用 v0.1 词汇（与体素域遗留叶同名是刻意的——同一表达式在旧配置走遗留叶、在新树走组合器，语义一致）；新增 `weighted_concat` / `average` / `ratio` / `difference`（`ratio`/`difference` 恰两个子节点，取名自运算本身）。
+- **列命名规则**：单列节点列名 = 来源标签（`as_` > `modality` > 组件名，如 `raw("T1")` → `T1`）；多列节点 `{feature}-{source}`（如 `local_entropy-T2`）；`percentile` 家族前缀 `p{q}`（如 `p90-T2`）。`as_` **只允许单列输出节点**，多列节点带 `as_` 直接报错——允许部分列改名会让剩余列名不可预测，静默歧义比报错更糟。
+- **表达式 DSL 是树的严格投影**：`habit.spec.parse_feature_expression`，引号模态、显式 `key=value`、嵌套调用、children 中的引号串自动成为 `raw` 叶。v0.1 宽松语法只留在 legacy adapter：表达式**含引号**才路由到新解析器，旧配置逐字节一致、新配置得树；歧义输入（裸标识符等）硬报错不猜。YAML 双写法（结构化 mapping 与表达式字符串）指纹逐位一致，由 `coerce_spec` 路由。
+
 ### 1b. 调用约定：单一 `__call__`，**删除所有动词别名**
 
 - **删除** `extract = __call__` / `build = __call__` / `map = __call__` 这类类体别名。原因：类体别名绑定的是定义时刻的函数对象，子类覆写 `__call__` 后别名仍指向父类实现，造成**静默分叉**；且 `@runtime_checkable` 协议若要求两个名字，会抬高第三方实现门槛。MONAI/TorchIO/PyRadiomics/sklearn 都不用双公开名。
@@ -146,6 +162,7 @@ v1 把它注册成普通方法 `impute`（`strategy: mean | median | zero`）。
 | `habitat_model_fitter` | `HabitatModelFitter` | `habit.habitat_model_fitter` |
 | `habitat_assigner` | `HabitatAssigner` | `habit.habitat_assigner` |
 | `habitat_feature_extractor` | `HabitatFeatureExtractor` | `habit.habitat_feature_extractor` |
+| `combiner` | `Combiner` | `habit.combiner` |
 | `preprocessor` | 图像预处理 | `habit.preprocessor` |
 | `table_preprocessor` | 特征表预处理 | `habit.table_preprocessor` |
 | `classifier` | ML 模型 | `habit.classifier` |
@@ -171,7 +188,7 @@ v1 把它注册成普通方法 `impute`（`strategy: mean | median | zero`）。
 | `habit.contracts` | 保持（不改 `habit.data`） | 已在所有文档/原型中使用，且"数据契约"准确；顶层 re-export 让多数人无需记子模块。 |
 | `habit.kernels` | 保持（不改 `metrics`/`algorithms`） | 指纯数值计算（无 IO 无状态）。`habit.kernels.habitat_metrics` 作为复核公式的稳定路径；`habit.kernels.feature_transforms` 是两个预处理域共用的 fit/apply 内核（见 1c-iii）。改名收益低于 churn。 |
 | `habit.adapters` | 保持（不改 `habit.io`） | DataSource/ResultWriter 的落点；`compat.nnunet` 与之重复处应合并到 adapters。 |
-| `habit.domain` | 保持（不改 `habit.components`） | 八个领域协议 + 内置实现所在层。子包名与 domain 对应：`supervoxel/`（划分）与 `supervoxel_features/`（描述）分列，`feature_preprocessing/`（聚类输入预处理）与 `table_preprocessing/`（建模表预处理）分列，都和 `habitat_features/` 构词一致。 |
+| `habit.domain` | 保持（不改 `habit.components`） | 九个领域协议 + 内置实现所在层。子包名与 domain 对应：`supervoxel/`（划分）与 `supervoxel_features/`（描述）分列，`feature_preprocessing/`（聚类输入预处理）与 `table_preprocessing/`（建模表预处理）分列，`combiners/` 放列向组合器，都和 `habitat_features/` 构词一致。 |
 | `habit.execution` / `habit.registry` | 保持 | 直白准确。 |
 | `habit.spec` | 保持（不拆） | `Spec`/`RunPolicy`/YAML 同构/legacy 翻译集中于此；核心算法不 import YAML 即可满足"核心不知 YAML"——靠 import 约束而非拆包。 |
 | `habit.recipes` | 保持（不改 `habit.workflows`） | 一行式配方（`recipes.two_step_habitat()`）。CLI 的 `--workflow` 是另一概念，不冲突。 |

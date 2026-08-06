@@ -224,6 +224,10 @@ class SubjectPipeline:
             when no supervoxelizer is configured.
         """
         field = self.voxel_feature_extractor(subject)
+        # Keep the pre-preprocessing field: statistical supervoxel
+        # extractors with ``source="original"`` aggregate exactly this
+        # signal (the v0.1 ``-original`` column contract).
+        original_field = field
         if self.voxel_feature_preprocessor is not None:
             chain = self.voxel_feature_preprocessor
             field = field.with_feature_frame(
@@ -235,6 +239,12 @@ class SubjectPipeline:
             return voxel_units(field)
         units = self.supervoxelizer(field)
         if self.supervoxel_feature_extractor is not None:
+            # Statistical extractors (``mean`` / ``std`` / ``percentile``,
+            # standalone or inside a tree) recompute their statistic from
+            # the voxel fields instead of the attached means.
+            binder = getattr(self.supervoxel_feature_extractor, "bind_fields", None)
+            if callable(binder):
+                binder(working=field, original=original_field)
             units = self.supervoxel_feature_extractor(subject, units)
         if self.supervoxel_feature_preprocessor is not None:
             chain = self.supervoxel_feature_preprocessor
@@ -244,6 +254,46 @@ class SubjectPipeline:
                 spec_fingerprint=chain.spec.fingerprint(),
             )
         return units
+
+    def assign(
+        self, units: Supervoxelization
+    ) -> Tuple[HabitatMap, Supervoxelization]:
+        """
+        Assign habitats from clustering units already produced by :meth:`units`.
+
+        This is the train-path reuse hook: cohort-level fit recipes and
+        sklearn adapters compute Stage-1 units once, then call this instead
+        of :meth:`__call__` (which would re-extract voxel / supervoxel
+        features). Predict / apply paths keep calling :meth:`__call__` so
+        held-out subjects are still derived from images.
+
+        Args:
+            units: Precomputed clustering units for one subject (before
+                cohort-level preprocessing).
+
+        Returns:
+            ``(habitat_map, units_after_cohort_prep)``. The post-prep units
+            feed the v0.1 ``habitats.parquet`` unit table at the writer.
+
+        Raises:
+            HABITAPIError: If this is a fit-time pipeline (no assigner).
+        """
+        if self.habitat_assigner is None:
+            raise HABITAPIError(
+                "This SubjectPipeline was built without a habitat assigner, so "
+                "it can only produce clustering units (pipeline.units(subject)). "
+                "Fit a model on those units, then rebuild the pipeline with "
+                "model.assigner() to label subjects."
+            )
+        working = units
+        if self.cohort_feature_preprocessor is not None:
+            chain = self.cohort_feature_preprocessor
+            working = working.with_feature_frame(
+                chain.transform(working.feature_frame()),
+                produced_by="feature_preprocessing.cohort",
+                spec_fingerprint=chain.spec.fingerprint(),
+            )
+        return self.habitat_assigner(working), working
 
     def __call__(self, subject: Subject) -> HabitatMap:
         """
@@ -258,22 +308,34 @@ class SubjectPipeline:
         Raises:
             HABITAPIError: If this is a fit-time pipeline (no assigner).
         """
-        if self.habitat_assigner is None:
-            raise HABITAPIError(
-                "This SubjectPipeline was built without a habitat assigner, so "
-                "it can only produce clustering units (pipeline.units(subject)). "
-                "Fit a model on those units, then rebuild the pipeline with "
-                "model.assigner() to label subjects."
-            )
-        units = self.units(subject)
-        if self.cohort_feature_preprocessor is not None:
-            chain = self.cohort_feature_preprocessor
-            units = units.with_feature_frame(
-                chain.transform(units.feature_frame()),
-                produced_by="feature_preprocessing.cohort",
-                spec_fingerprint=chain.spec.fingerprint(),
-            )
-        return self.habitat_assigner(units)
+        habitat_map, _ = self.assign(self.units(subject))
+        return habitat_map
+
+    def label_and_describe(
+        self,
+        subject: Subject,
+        units: Supervoxelization,
+        extractors: Sequence[HabitatFeatureExtractor],
+    ) -> Tuple[HabitatMap, Optional[FeatureTable], Supervoxelization]:
+        """
+        Assign habitats from precomputed units, then extract habitat features.
+
+        Args:
+            subject: Subject providing images for habitat-level descriptors.
+            units: Clustering units from an earlier Stage-1 pass.
+            extractors: Habitat feature families; may be empty when only the
+                label map is needed.
+
+        Returns:
+            ``(habitat_map, feature_table_or_none, units_after_cohort_prep)``.
+        """
+        habitat_map, prepared = self.assign(units)
+        if not extractors:
+            return habitat_map, None, prepared
+        table = extractors[0](subject, habitat_map)
+        for extractor in extractors[1:]:
+            table = table.join(extractor(subject, habitat_map))
+        return habitat_map, table, prepared
 
     def extract_features(
         self,
@@ -285,6 +347,8 @@ class SubjectPipeline:
 
         Named ``extract_features`` (an action) rather than the bare noun
         ``features``, which would read as an attribute on a callable object.
+        Recomputes Stage-1 from ``subject`` (predict-path semantics). When
+        units are already in memory, call :meth:`label_and_describe` instead.
 
         Args:
             subject: The subject to process.
@@ -301,12 +365,11 @@ class SubjectPipeline:
                 "SubjectPipeline.extract_features requires at least one "
                 "habitat feature extractor."
             )
-        habitat_map = self(subject)
-        tables = [extractor(subject, habitat_map) for extractor in extractors]
-        combined = tables[0]
-        for table in tables[1:]:
-            combined = combined.join(table)
-        return combined
+        _, table, _ = self.label_and_describe(
+            subject, self.units(subject), extractors
+        )
+        assert table is not None
+        return table
 
 
 # ---------------------------------------------------------------------------

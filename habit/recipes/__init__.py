@@ -34,6 +34,10 @@ from habit.recipes.habitat import (
     two_step,
 )
 from habit.recipes.icc import icc_analysis
+from habit.recipes.precision import (
+    identify_precise_voxel_features,
+    voxel_radiomics_factory,
+)
 from habit.recipes.modeling import (
     CVResult,
     ModelResult,
@@ -73,6 +77,7 @@ __all__ = [
     "direct_pooling_habitat",
     "extract_habitat_features",
     "icc_analysis",
+    "identify_precise_voxel_features",
     "merge_tables",
     "one_step",
     "one_step_habitat",
@@ -88,4 +93,5 @@ __all__ = [
     "train_model",
     "two_step",
     "two_step_habitat",
+    "voxel_radiomics_factory",
 ]

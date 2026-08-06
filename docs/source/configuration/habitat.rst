@@ -63,6 +63,10 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
    cap_processes_to_gpu_pool: false
    individual_subject_timeout_sec: 900
    individual_subject_spawn_timeout_sec: 120
+   individual_subject_graceful_shutdown_sec: 15
+   on_subject_failure: continue
+   oom_backoff: true
+   oom_reduce_workers_by: 1
    resume: true
    strict_checkpoint_hash: false
    checkpoint_dir: null
@@ -134,6 +138,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/compat/engines/habitat_analysis/clustering_features/``).
     - **Bundled ``params_file``**: for ``voxel_radiomics`` / ``supervoxel_radiomics``, ``params_file`` is optional. When omitted, HABIT uses bundled presets shipped in ``habit/resources/radiomics/`` (CT R3B12 voxel preset; full-set supervoxel preset). The resolved absolute path is logged at runtime.
     - Recommended minimal form: ``concat(voxel_radiomics(T2))`` with ``params: {}`` — uses bundled CT R3B12 ``params_file``, ``kernel_radius: 3``, ``voxel_batch: 1000``, ``use_torch_radiomics: auto``. List a name in parentheses only when overriding (e.g. ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` for MRI).
+    - **Strict quoted form (v1 feature trees)**: when the expression contains **quoted** modality strings, it is parsed by the strict v1 parser (:func:`~habit.spec.parse_feature_expression`) into a feature Spec tree instead of the permissive v0.1 mini-language. Rules: modalities are quoted (``raw("T1")``), parameters are explicit ``key=value`` (``local_entropy("T2", kernel_size=5)``), combiner children are nested calls (a bare quoted string among children is an implicit ``raw`` leaf), and ``as_="label"`` renames a single-column node's output. Ambiguous input fails loudly instead of being guessed. Available combiners: ``concat``, ``weighted_concat`` (``weights=[...]``), ``average``, ``ratio`` / ``difference`` (two children), ``kinetic``, ``expression``. Example: ``concat(raw("delay2"), ratio(raw("delay2"), raw("delay3"), as_="d2_over_d3"))``.
 
 - ``params``: Voxel-level extractor parameter dictionary
 
@@ -204,7 +209,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
       - **CT voxel texture (R3B12)**: Literature recommends ``kernel_radius: 3`` and ``binWidth: 12`` HU
         (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
         Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
-        Reference: Petersen A, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
+        Reference: Prior O, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
 
       - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 
@@ -280,6 +285,12 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
       - **Parameters**: none
       - **Use case**: Aggregate voxel-level features (from ``voxel_level``) to supervoxel level
       - **Example**: ``mean_voxel_features()``
+
+**mean("<modality>") / std("<modality>") / percentile("<modality>", q=...)** (strict quoted form only):
+
+      - **Description**: Single-modality region statistics — aggregate one modality's voxel **image signal** (not the ``voxel_level`` features) per supervoxel: mean, standard deviation, or the ``q``-th percentile
+      - **Parameters**: ``q`` (int/float, percentile only); ``source: "working" | "original"`` selects the post- vs pre-preprocessing signal; ``as_="label"`` renames the output column
+      - **Use case**: Compose per-modality statistics with combiners, e.g. ``concat(mean("T1"), std("T1", as_="t1_spread"), percentile("T2", q=90))``
 
 **concat(supervoxel_radiomics(<modality>, params_file), ...)**:
 
@@ -889,7 +900,37 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These fields sit at the **top level** of the habitat YAML (same level as ``data_dir``). Both ``train`` and ``predict`` use ``processes``, checkpoint paths, and ``resume`` where applicable (predict checkpoints default to ``<out_dir>/.habitat_predict_checkpoint``). CLI: ``habit get-habitat --resume``.
+These fields sit at the **top level** of a **v0.1** habitat YAML (same level as
+``data_dir``). Both ``train`` and ``predict`` use ``processes``, checkpoint
+paths, and ``resume`` where applicable (predict checkpoints default to
+``<out_dir>/.habitat_predict_checkpoint``). CLI: ``habit get-habitat --resume``.
+
+**Dual track (v0.1 top-level vs v1 ``policy:``).** A native v1 document
+(``version: "1.0"``) puts the same knobs under a top-level ``policy:`` block
+using :class:`~habit.spec.RunPolicy` field names (``workers``,
+``subject_timeout_sec``, ``parallel_mode``, …). A v0.1 document keeps the
+``individual_*`` / ``processes`` names at the top level; the CLI and
+:func:`~habit.recipes.run_from_yaml` translate them into ``policy`` via
+:class:`~habit.spec.legacy.LegacyConfigAdapter` before building the backend.
+Full rename table and defaults: :doc:`../api/spec` (``RunPolicy`` YAML
+mapping) and :doc:`../api/execution`. Annotated v1 example:
+``config/habitat/config_habitat_two_step_v1.yaml``.
+
+**v1 backend selection (CLI / recipe reality).** After translation,
+``cmd_habitat`` / ``yaml_runner`` call
+:func:`~habit.execution.backend_from_policy` (v0.1 spawn-rule parity):
+
+* ``backend == "process"`` →
+  :class:`~habit.execution.ProcessPoolBackend`
+* **or** ``subject_timeout_sec`` / ``individual_subject_timeout_sec`` is
+  positive → ProcessPoolBackend even when ``workers == 1`` / ``processes: 1``
+* otherwise → :class:`~habit.execution.SerialBackend`
+
+On :class:`~habit.execution.SerialBackend`, timeout / OOM / ``parallel_mode``
+/ ``auto_retry_rounds`` knobs do not apply. Serial still honours
+``on_subject_failure``, ``resume``, ``retry_failed_subjects``,
+``force_rerun_subjects``, and ``clear_checkpoint_on_success``. To force
+true in-process serial, set the per-subject timeout to ``null``.
 
 .. list-table::
    :header-rows: 1
@@ -904,7 +945,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - int
      - ``2``
      - no
-     - Stage 1 max parallel workers; peak memory ≈ ``processes × per-subject memory``
+     - Stage 1 max parallel workers (→ ``RunPolicy.workers``); peak memory ≈ ``processes × per-subject memory``. With a positive timeout, ``processes: 1`` still uses ProcessPoolBackend
    * - ``cap_processes_to_gpu_pool``
      - bool
      - ``false``
@@ -914,32 +955,32 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - float / ``null``
      - ``900``
      - no
-     - Per-subject wall-clock cap (seconds); ``null`` disables
+     - Per-subject wall-clock cap (seconds); ``null`` disables. ProcessPoolBackend only
    * - ``individual_subject_graceful_shutdown_sec``
      - float
      - ``15``
      - no
-     - Seconds to wait after ``terminate()`` before ``kill()`` on timeout
+     - Seconds to wait after ``terminate()`` before ``kill()`` on timeout. ProcessPoolBackend only
    * - ``individual_subject_spawn_timeout_sec``
      - float / ``null``
      - ``120``
      - no
-     - Spawn-phase cap; ``null`` disables (avoids parent stuck on import)
+     - Spawn-phase cap; ``null`` disables (avoids parent stuck on import). ProcessPoolBackend only
    * - ``on_subject_failure``
      - str
      - ``continue``
      - no
-     - ``continue`` log failure and proceed; ``fail_fast`` abort on first failure
+     - ``continue`` log failure and proceed; ``fail_fast`` abort on first failure (Serial + ProcessPool)
    * - ``oom_backoff``
      - bool
      - ``true``
      - no
-     - After ``MemoryError``, reduce workers by ``oom_reduce_workers_by`` (not native crashes)
+     - After ``MemoryError``, reduce workers by ``oom_reduce_workers_by`` (not native crashes). ProcessPoolBackend only
    * - ``oom_reduce_workers_by``
      - int
      - ``1``
      - no
-     - Workers removed per OOM event
+     - Workers removed per OOM event. ProcessPoolBackend only
    * - ``resume``
      - bool
      - ``true``
@@ -949,7 +990,7 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - str / ``null``
      - ``null``
      - no
-     - Default ``<out_dir>/.habitat_checkpoint``
+     - Default ``<out_dir>/.habitat_checkpoint`` (resolved by CLI/recipe, not by ``from_policy``)
    * - ``force_rerun_subjects``
      - list[str]
      - ``[]``
@@ -959,32 +1000,37 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
      - bool
      - ``false``
      - no
-     - On **next** ``resume``, rerun all ``failed_subjects`` in manifest
+     - On **next** ``resume``, rerun all ``failed_subjects`` in the store
    * - ``individual_subject_auto_retry_rounds``
      - int
      - ``2``
      - no
-     - In-run Stage 1 auto-retry rounds; ``0`` disables
+     - In-run Stage 1 auto-retry rounds; ``0`` disables. ProcessPoolBackend only
    * - ``individual_subject_parallel_mode``
      - str
      - ``persistent``
      - no
-     - ``persistent`` long-lived workers; ``isolated`` spawn per subject
+     - ``persistent`` long-lived workers; ``isolated`` spawn per subject. ProcessPoolBackend only
    * - ``persistent_worker_max_consecutive_failures``
      - int
      - ``1``
      - no
-     - Under ``persistent``, restart slot after N consecutive failures
+     - → ``RunPolicy``; restart persistent worker after N consecutive fatal failures
    * - ``persistent_worker_recycle_after_tasks``
      - int
      - ``0``
      - no
-     - Under ``persistent``, recycle worker after N successes; ``0`` off
+     - → ``RunPolicy``; restart persistent worker after N successes (``0`` disables)
    * - ``clear_checkpoint_on_success``
      - bool
      - ``false``
      - no
      - Delete checkpoint dir after full train success
+   * - ``strict_checkpoint_hash``
+     - bool
+     - ``false``
+     - no
+     - ``true`` raises ``CompatibilityError`` on fingerprint / legacy-layout mismatch
 
 **processes** (habitat analysis top level): Parallel workers for per-subject steps
 
@@ -995,32 +1041,32 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 **cap_processes_to_gpu_pool** (habitat analysis top level): Cap Stage 1 workers to GPU pool size
 
 - **Type**: bool
-- **Default**: ``true``
+- **Default**: ``false`` (schema ``HabitatAnalysisConfig`` and ``RunPolicy.cap_workers_to_gpu_pool``)
 - **Description**: When ``use_torch_radiomics`` uses CUDA (``true`` or ``auto`` with CUDA detected):
 
-  - ``true`` (default): effective workers ``min(processes, len(torch_gpus))``, one GPU per slot (``gpu_slot_index``), less VRAM contention;
-  - ``false``: full ``processes``; workers share GPUs via ``gpu_slot_index % len(torch_gpus)``—good for "single GPU, many CPU" parallel non-GPU steps, but GPU radiomics may OOM on same card.
+  - ``true``: effective workers ``min(processes, len(torch_gpus))``, one GPU per slot (``gpu_slot_index``), less VRAM contention;
+  - ``false`` (default): full ``processes``; workers share GPUs via ``gpu_slot_index % len(torch_gpus)``—good for "single GPU, many CPU" parallel non-GPU steps, but GPU radiomics may OOM on same card.
 
 - **Not in config_hash**; may change on resume.
-- **No effect** on CPU-only (``use_torch_radiomics: false`` or no CUDA).
+- **No effect** on CPU-only (``use_torch_radiomics: false`` or no CUDA), or when the v1 path selects :class:`~habit.execution.SerialBackend`.
 
 **individual_subject_timeout_sec** (habitat analysis top level): Per-subject wall-clock cap in parallel Stage 1
 
 - **Type**: float / int (seconds) or ``null``
 - **Default**: ``900`` (15 minutes); omit in YAML to use default.
-- **Description**: On timeout, skip subject (record failure) and continue; ``null`` disables per-subject timeout. Child processes may still run in background until they exit.
+- **Description**: On timeout, skip subject (record failure) and continue; ``null`` disables per-subject timeout. Child processes may still run in background until they exit. **v1 path**: only applied when ``ProcessPoolBackend`` is selected (``processes > 1`` and translated ``backend: process``); ignored under ``SerialBackend``.
 
 **individual_subject_graceful_shutdown_sec** (habitat analysis top level): Grace period after timeout before kill
 
 - **Type**: float (seconds)
 - **Default**: ``15``
-- **Description**: After ``individual_subject_timeout_sec``, parent calls ``terminate()``, waits this many seconds, then ``kill()`` on isolated child.
+- **Description**: After ``individual_subject_timeout_sec``, parent calls ``terminate()``, waits this many seconds, then ``kill()`` on the child. ProcessPoolBackend only (ignored on SerialBackend).
 
 **individual_subject_spawn_timeout_sec** (habitat analysis top level): Spawn-phase wall-clock cap
 
 - **Type**: float / int (seconds) or ``null``
 - **Default**: ``120``
-- **Description**: Cap from dispatch to subject processing start; on timeout, mark subject failed and continue—avoids parent blocked forever on spawn/import. ``null`` = no spawn time limit.
+- **Description**: Cap from dispatch to subject processing start; on timeout, mark subject failed and continue—avoids parent blocked forever on spawn/import. ``null`` = no spawn time limit. ProcessPoolBackend only (ignored on SerialBackend).
 
 **on_subject_failure** (habitat analysis top level): Failure policy for parallel per-subject Stage 1
 
@@ -1031,32 +1077,39 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
   - ``continue``: record failed subjects; continue to Stage 2 if any succeeded
   - ``fail_fast``: abort entire run on first failure or timeout
 
+Python API twin: :class:`~habit.spec.RunPolicy` /
+:doc:`../api/execution`. Soft-failure patterns (geometry, batch
+``fail_fast``, ``Cohort.map`` aggregation): :doc:`../examples/fault_tolerance`.
+
 **oom_backoff** (habitat analysis top level): Reduce parallelism after memory errors
 
 - **Type**: bool
 - **Default**: ``true`` (built-in default); repo ``config/habitat/*.yaml`` examples often use ``false``—tune for your RAM
-- **Description**: When ``true``, isolated child ``MemoryError`` reduces worker count for pending subjects by ``oom_reduce_workers_by`` (minimum 1). **Does not handle** native crashes (e.g. Windows exit ``3221225477`` / ``0xC0000005``).
+- **Description**: When ``true``, isolated child ``MemoryError`` reduces worker count for pending subjects by ``oom_reduce_workers_by`` (minimum 1). **Does not handle** native crashes (e.g. Windows exit ``3221225477`` / ``0xC0000005``). ProcessPoolBackend only (ignored on SerialBackend).
 
 **oom_reduce_workers_by** (habitat analysis top level): Workers removed per OOM
 
 - **Type**: integer
 - **Default**: ``1``
-- **Description**: Only when ``oom_backoff: true``.
+- **Description**: Only when ``oom_backoff: true`` and ProcessPoolBackend is active.
 
 **resume** (habitat analysis top level): Stage 1 checkpoint resume
 
 - **Type**: bool
 - **Default**: ``true``
-- **Description**: When ``true``, reads ``manifest.json`` from ``checkpoint_dir`` (default ``<out_dir>/.habitat_checkpoint`` for train, ``<out_dir>/.habitat_predict_checkpoint`` for predict), skips ``completed_subjects``, loads per-subject pickles; subjects in ``failed_subjects`` are **not auto-retried on next** ``resume`` unless ``retry_failed_subjects: true`` or listed in ``force_rerun_subjects``. **Within the same** run, ``individual_subject_auto_retry_rounds`` retries Stage 1 failures by default. Applies to both ``train`` and ``predict``.
+- **Description**: When ``true``, reuse checkpointed subject successes. On the **v1** CLI/recipe path the store is :class:`~habit.execution.CheckpointStore` under ``checkpoint_dir`` (default ``<out_dir>/.habitat_checkpoint`` for train, ``<out_dir>/.habitat_predict_checkpoint`` for predict); cache keys embed the spec fingerprint. Subjects recorded as failed are **not auto-retried on next** ``resume`` unless ``retry_failed_subjects: true`` or listed in ``force_rerun_subjects``. **Within the same** ProcessPool run, ``individual_subject_auto_retry_rounds`` retries failures by default. Applies to both ``train`` and ``predict``.
 - **CLI**: ``habit get-habitat --resume`` equivalent to ``resume: true``.
-- **See also**: checkpoint / ``resume`` fields on this page.
-- **Parallel reliability plan**: ``docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`` at repo root (GPU worker slots, processes cap, Phase 2/3 roadmap).
+- **See also**: checkpoint / ``resume`` fields on this page; :doc:`../api/execution`.
 
-**strict_checkpoint_hash** (habitat analysis top level): Error on incompatible checkpoint hash
+**strict_checkpoint_hash** (habitat analysis top level): Checkpoint hash mismatch policy
 
 - **Type**: bool
 - **Default**: ``false``
-- **Description**: With ``resume: true``. When ``true``, ``manifest.json`` ``config_hash`` or ``run_mode`` mismatch raises ``CheckpointConfigHashError`` and preserves checkpoint; when ``false`` (default), logs warning and deletes checkpoint for fresh run. Legacy hash migration for Stage-2-only changes still allows resume.
+- **Description**:
+
+  - **v0.1 Stage-1 engine** (legacy): with ``resume: true``, ``true`` raises ``CheckpointConfigHashError`` on ``manifest.json`` ``config_hash`` / ``run_mode`` mismatch; ``false`` warns and discards the checkpoint for a fresh run. Legacy Stage-2-only hash migration may still resume.
+  - **v1 CLI / recipe path** (``cmd_habitat`` / ``yaml_runner``): a legacy v0.1 ``manifest.json`` / ``subjects/`` tree is auto-migrated on open (see below), then resume continues. ``strict_checkpoint_hash=True`` raises :class:`~habit.exceptions.CompatibilityError` when the on-disk ``run_fingerprint.json`` mismatches the current spec fingerprint, or when the legacy manifest is corrupt/unreadable. With ``strict=False``, fingerprint mismatches are warned and left unreachable (cache keys also embed the fingerprint).
+
 - **Not in config_hash**; may change on resume.
 
 **checkpoint_dir** (habitat analysis top level): Checkpoint root directory
@@ -1081,26 +1134,33 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 
 - **Type**: integer
 - **Default**: ``2``
-- **Description**: After first Stage 1 parallel pass, if ``failed_subjects`` remain, rerun up to this many rounds in the same process (failed only). ``0`` disables (legacy behavior). Unlike ``retry_failed_subjects`` (next **resume** only), this applies in the **current** ``get-habitat`` / ``fit()`` call. With ``on_subject_failure: fail_fast``, error only after all retry rounds exhausted.
+- **Description**: After first Stage 1 parallel pass, if failed subjects remain, rerun up to this many rounds in the same process (failed only). ``0`` disables. Unlike ``retry_failed_subjects`` (next **resume** only), this applies in the **current** ``get-habitat`` call when ProcessPoolBackend is active. With ``on_subject_failure: fail_fast``, error only after all retry rounds exhausted. **Ignored** under SerialBackend (``processes <= 1`` on the v1 path).
 
 **individual_subject_parallel_mode** (habitat analysis top level): Stage 1 parallel execution strategy
 
 - **Type**: string
 - **Default**: ``persistent``
 - **Allowed values**: ``isolated``, ``persistent``
-- **Description**: ``persistent`` (default): one long-lived child per worker slot, reused within the same run (including auto-retry rounds), amortizing import/spawn. ``isolated``: spawn per subject (stronger isolation; unpickleable pipeline or spawn debugging). Single GPU persistent is still serial—main benefit is startup cost. When ``processes=1`` and ``individual_subject_timeout_sec: null``, both modes run sequentially in main process without spawn. Used in both ``train`` and ``predict`` individual-level stages.
+- **Description**: ``persistent`` (default): one long-lived child per worker slot, reused within the same run (including auto-retry rounds), amortizing import/spawn. ``isolated``: spawn per subject (stronger isolation; unpickleable pipeline or spawn debugging). Single GPU persistent is still serial—main benefit is startup cost. Used in both ``train`` and ``predict`` individual-level stages when ProcessPoolBackend is selected.
+
+  .. important::
+
+     On the **v1** CLI/recipe path, a positive
+     ``individual_subject_timeout_sec`` selects ProcessPoolBackend even when
+     ``processes: 1`` (v0.1 spawn-rule parity). True in-process serial requires
+     ``individual_subject_timeout_sec: null``.
 
 **persistent_worker_max_consecutive_failures** (habitat analysis top level): Persistent worker restart threshold
 
 - **Type**: integer
 - **Default**: ``1``
-- **Description**: Only when ``individual_subject_parallel_mode: persistent``. After this many consecutive failures on a slot, parent terminates and restarts that worker.
+- **Description**: Maps to ``RunPolicy.persistent_worker_max_consecutive_failures``. Under ``parallel_mode: persistent``, restart a worker slot after this many consecutive fatal-class failures.
 
 **persistent_worker_recycle_after_tasks** (habitat analysis top level): Periodic persistent worker recycle
 
 - **Type**: integer
 - **Default**: ``0``
-- **Description**: ``persistent`` only. Worker exits after this many successful tasks and parent respawns—mitigates slow GPU memory leaks. ``0`` disables.
+- **Description**: Maps to ``RunPolicy.persistent_worker_recycle_after_tasks``. Under ``parallel_mode: persistent``, restart a worker after this many successful tasks (``0`` disables).
 
 **clear_checkpoint_on_success** (habitat analysis top level): Delete checkpoint after successful train
 
@@ -1110,19 +1170,46 @@ These fields sit at the **top level** of the habitat YAML (same level as ``data_
 
 **config_hash and resume compatibility**
 
-- **In hash** (Stage 1 per-subject; change clears checkpoint): ``data_dir``, ``feature_construction.voxel_level`` / ``preprocessing_for_subject_level`` / ``supervoxel_level``, ``habitat_segmentation.clustering_mode``, per-subject clustering block (``two_step`` → ``supervoxel``; ``one_step`` → ``supervoxel`` + ``habitat``).
-- **Not in hash** (may ``resume: true``): ``preprocessing_for_group_level``, group ``habitat.*`` for ``two_step``/``direct_pooling``, ``processes``, ``cap_processes_to_gpu_pool``, ``strict_checkpoint_hash``, ``individual_subject_timeout_sec``, ``individual_subject_graceful_shutdown_sec``, ``individual_subject_spawn_timeout_sec``, ``plot_curves``, ``save_results_csv``, ``habitats_results_format``, ``save_images``, ``verbose``, ``debug``, ``on_subject_failure``, ``oom_backoff``, ``oom_reduce_workers_by``, ``retry_failed_subjects``, ``individual_subject_auto_retry_rounds``, ``individual_subject_parallel_mode``, ``persistent_worker_max_consecutive_failures``, ``persistent_worker_recycle_after_tasks``, ``force_rerun_subjects``, ``out_dir``, etc.
-- ``manifest.json`` also stores ``individual_config_hash`` (same as ``config_hash``); legacy full-hash-only manifests migrate hash on Stage 2-only changes and keep pkls.
-- On ``resume: true`` startup, program compares hash. Individual hash mismatch without Stage 2 drift: default (``strict_checkpoint_hash: false``) warns and deletes checkpoint; ``true`` raises ``CheckpointConfigHashError``.
+- **v1 path**: :class:`~habit.execution.CheckpointStore` keys embed the
+  :class:`~habit.spec.HabitatSpec` fingerprint, and the store writes
+  ``run_fingerprint.json``. Changing scientific knobs yields new keys.
+  With ``strict_checkpoint_hash: true``, an incompatible fingerprint raises
+  :class:`~habit.exceptions.CompatibilityError`. A readable v0.1 layout is
+  migrated automatically (not refused). Scheduling-only knobs
+  (``processes``, timeouts, OOM, …) are outside the fingerprint.
+- **v0.1 Stage-1 engine** (legacy ``manifest.json`` layout):
+
+  - **In hash** (Stage 1 per-subject; change clears checkpoint): ``data_dir``,
+    ``feature_construction.voxel_level`` / ``preprocessing_for_subject_level`` /
+    ``supervoxel_level``, ``habitat_segmentation.clustering_mode``,
+    per-subject clustering block (``two_step`` → ``supervoxel``; ``one_step`` →
+    ``supervoxel`` + ``habitat``).
+  - **Not in hash** (may ``resume: true``): ``preprocessing_for_group_level``,
+    group ``habitat.*`` for ``two_step``/``direct_pooling``, ``processes``,
+    ``cap_processes_to_gpu_pool``, ``strict_checkpoint_hash``, timeout / OOM /
+    retry / parallel-mode knobs, ``persistent_worker_*``, ``force_rerun_subjects``,
+    ``out_dir``, plot/save switches, etc.
+  - ``manifest.json`` also stores ``individual_config_hash``; legacy
+    full-hash-only manifests migrate hash on Stage-2-only changes and keep pkls.
+  - On ``resume: true`` startup with hash mismatch: default
+    (``strict_checkpoint_hash: false``) warns and deletes checkpoint;
+    ``true`` raises ``CheckpointConfigHashError``.
 
 **Checkpoint directory layout**
 
-.. code-block:: text
+v0.1 Stage-1 layout (legacy). On the v1 CLI/recipe path these markers trigger
+an automatic migration (:func:`~habit.execution.migrate_v01_checkpoint_if_needed`)
+that writes v1 store entries, archives the tree under
+``.v01_legacy_archive/``, and logs what could / could not be scientifically
+reused::
 
    <checkpoint_dir>/
    ├── manifest.json      # completed_subjects, failed_subjects, config_hash, individual_config_hash, stage
    └── subjects/
        └── {subject_id}.pkl
+
+v1 :class:`~habit.execution.CheckpointStore` uses its own per-key files under
+the same ``checkpoint_dir`` root (see :doc:`../api/execution`).
 
 **Checkpoint boundaries by clustering_mode**
 

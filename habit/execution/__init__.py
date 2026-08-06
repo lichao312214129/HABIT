@@ -25,11 +25,22 @@ from __future__ import annotations
 
 from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
+from habit.execution.checkpoint_migrate import (
+    LegacyCheckpointMigrationReport,
+    is_v01_checkpoint_layout,
+    migrate_v01_checkpoint_if_needed,
+)
 from habit.execution.process_pool import ProcessPoolBackend, SubjectTimeoutError
+from habit.execution.selection import backend_from_policy, should_use_process_pool
 
 __all__ = [
     "SerialBackend",
     "ProcessPoolBackend",
     "SubjectTimeoutError",
     "CheckpointStore",
+    "LegacyCheckpointMigrationReport",
+    "is_v01_checkpoint_layout",
+    "migrate_v01_checkpoint_if_needed",
+    "backend_from_policy",
+    "should_use_process_pool",
 ]

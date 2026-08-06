@@ -123,7 +123,7 @@ processes: 1   # or 2 for very small ROIs
 ```
 
 Also check `kernel_radius` — CT R3B12 default is **3** (7×7×7 = 343 voxels per center voxel;
-Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118). Override only when needed
+Prior O, et al., *Radiol Artif Intell* 2024;6(2):e230118). Override only when needed
 (e.g. MRI `kernel_radius: 1`). Larger radii increase memory and runtime.
 
 For large ROIs or GPU-accelerated torch radiomics, reduce `voxel_batch` from the habit

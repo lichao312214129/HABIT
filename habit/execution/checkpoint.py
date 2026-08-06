@@ -23,17 +23,40 @@ split is what makes the v0.1 resume rule -- "failed checkpoint subjects are
 skipped unless ``retry_failed_subjects`` or listed in
 ``force_rerun_subjects``" -- implementable by any backend without leaking
 checkpoint policy into the algorithms.
+
+Optional ``run_fingerprint`` / ``strict`` bind the store to one analysis
+configuration (v0.1 ``strict_checkpoint_hash`` parity): a mismatch raises
+:class:`~habit.exceptions.CompatibilityError` when ``strict=True``.
+
+A v0.1 ``manifest.json`` / ``subjects/`` tree is auto-migrated on open
+(see :mod:`habit.execution.checkpoint_migrate`) so resume continues after a
+logged conversion; :class:`~habit.exceptions.CompatibilityError` is reserved
+for corrupt/unreadable legacy manifests or fingerprint mismatches under
+``strict=True``.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
+import logging
 import os
 import pickle
 from pathlib import Path
 from typing import Any, Optional, Tuple, Union
 
+from habit.exceptions import CompatibilityError
+from habit.execution.checkpoint_migrate import (
+    is_v01_checkpoint_layout,
+    migrate_v01_checkpoint_if_needed,
+)
+
 __all__ = ["CheckpointStore"]
+
+logger = logging.getLogger(__name__)
+
+#: On-disk marker written when a store is bound to a run fingerprint.
+_FINGERPRINT_FILENAME = "run_fingerprint.json"
 
 
 class CheckpointStore:
@@ -47,7 +70,16 @@ class CheckpointStore:
 
     Args:
         root: Directory holding the checkpoint files. Created on first
-            write.
+            write. A v0.1 ``manifest.json`` / ``subjects/`` tree here is
+            migrated automatically on open.
+        run_fingerprint: Optional analysis fingerprint bound to this store.
+            When set, a mismatch with an existing fingerprint file is
+            either raised (``strict=True``) or warned. Also scopes keys
+            written during v0.1 → v1 migration.
+        strict: When ``True``, incompatible fingerprints raise
+            :class:`~habit.exceptions.CompatibilityError` (v0.1
+            ``strict_checkpoint_hash``). Legacy layouts are migrated rather
+            than refused; only a corrupt v0.1 manifest raises.
     """
 
     #: Suffix of success entries.
@@ -55,8 +87,85 @@ class CheckpointStore:
     #: Suffix of failure records.
     _FAILURE_SUFFIX = ".failed"
 
-    def __init__(self, root: Union[str, Path]) -> None:
+    def __init__(
+        self,
+        root: Union[str, Path],
+        *,
+        run_fingerprint: Optional[str] = None,
+        strict: bool = False,
+        clustering_mode: Optional[str] = None,
+    ) -> None:
         self.root = Path(root)
+        self.run_fingerprint = (
+            str(run_fingerprint) if run_fingerprint is not None else None
+        )
+        self.strict = bool(strict)
+        # Migrate before fingerprint binding so strict mode never refuses a
+        # readable v0.1 tree — it migrates, then enforces the fingerprint.
+        if is_v01_checkpoint_layout(self.root):
+            migrate_v01_checkpoint_if_needed(
+                self.root,
+                run_fingerprint=self.run_fingerprint,
+                clustering_mode=clustering_mode,
+            )
+        if self.run_fingerprint is not None or self.strict:
+            self._bind_fingerprint(self.run_fingerprint, strict=self.strict)
+
+    def _fingerprint_path(self) -> Path:
+        """Return the path of the run-fingerprint marker file."""
+        return self.root / _FINGERPRINT_FILENAME
+
+    def _bind_fingerprint(
+        self, fingerprint: Optional[str], *, strict: bool
+    ) -> None:
+        """
+        Enforce or record the run fingerprint for this store.
+
+        Args:
+            fingerprint: Current analysis fingerprint, or ``None`` when only
+                strictness against a corrupt marker is requested.
+            strict: Raise on fingerprint incompatibility when ``True``.
+
+        Raises:
+            CompatibilityError: On strict fingerprint mismatch or a corrupt
+                fingerprint marker under ``strict=True``.
+        """
+        if fingerprint is None:
+            return
+
+        path = self._fingerprint_path()
+        if path.is_file():
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                stored = str(payload.get("fingerprint", ""))
+            except Exception:
+                stored = ""
+            if stored and stored != fingerprint:
+                message = (
+                    f"Checkpoint fingerprint mismatch under {self.root}: "
+                    f"stored={stored!r}, current={fingerprint!r}. "
+                    "Cannot resume with strict_checkpoint_hash=True."
+                )
+                if strict:
+                    raise CompatibilityError(message)
+                logger.warning(
+                    "%s Incompatible entries remain on disk but are "
+                    "unreachable via fingerprint-scoped cache keys.",
+                    message,
+                )
+                return
+            if not stored:
+                # Corrupt marker: rewrite when not strict; raise when strict.
+                if strict:
+                    raise CompatibilityError(
+                        f"Checkpoint fingerprint file {path} is corrupt; "
+                        "cannot resume with strict_checkpoint_hash=True."
+                    )
+        self.root.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps({"fingerprint": fingerprint}, sort_keys=True, indent=2),
+            encoding="utf-8",
+        )
 
     def _digest(self, key: str) -> str:
         """Return the filesystem-safe digest of an arbitrary cache key."""
@@ -205,9 +314,10 @@ class CheckpointStore:
     # ------------------------------------------------------------------
 
     def clear(self) -> None:
-        """Remove every success entry and failure record in the store."""
+        """Remove every success entry, failure record, and fingerprint marker."""
         if not self.root.is_dir():
             return
         for suffix in (self._SUCCESS_SUFFIX, self._FAILURE_SUFFIX):
             for path in self.root.glob(f"*{suffix}"):
                 path.unlink(missing_ok=True)
+        self._fingerprint_path().unlink(missing_ok=True)

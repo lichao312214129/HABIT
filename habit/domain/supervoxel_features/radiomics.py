@@ -29,7 +29,7 @@ file paths) is new, so previously published numbers stay reproducible.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -59,7 +59,9 @@ class SupervoxelRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`SupervoxelRadiomicsFeatures`."""
 
     model_config = ConfigDict(extra="forbid")
+    modality: Optional[str] = None
     modalities: Sequence[str] = ()
+    as_: Optional[str] = None
     params_file: Optional[str] = None
     params: Optional[Dict[str, Any]] = None
     supervoxel_batch: int = Field(default=64, gt=0)
@@ -82,9 +84,18 @@ class SupervoxelRadiomicsFeatures:
     ``concat(supervoxel_radiomics(m1), supervoxel_radiomics(m2))``. All
     modalities of a subject are used when none are named.
 
+    The single-modality form ``modality="T1"`` is the tree-friendly
+    alternative to ``modalities=["T1"]``; ``as_`` renames the column
+    suffix so the same modality can be extracted under two parameter
+    sets without a name clash.
+
     Args:
+        modality: Single modality name; mutually exclusive with
+            ``modalities``.
         modalities: Modality names to extract from; empty selects all the
             subject carries.
+        as_: Alias used as the column suffix instead of the modality name;
+            requires ``modality``.
         params_file: Path to a PyRadiomics parameter YAML, or ``None`` for
             PyRadiomics defaults.
         params: Inline PyRadiomics settings mapping, for API users holding
@@ -107,7 +118,9 @@ class SupervoxelRadiomicsFeatures:
 
     def __init__(
         self,
+        modality: Optional[str] = None,
         modalities: Sequence[str] = (),
+        as_: Optional[str] = None,
         params_file: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
         supervoxel_batch: int = 64,
@@ -119,6 +132,17 @@ class SupervoxelRadiomicsFeatures:
         torch_dtype: str = "float32",
         output_float32: bool = True,
     ) -> None:
+        if modality is not None and modalities:
+            raise HABITAPIError(
+                "supervoxel_radiomics: 'modality' and 'modalities' are "
+                "mutually exclusive; use 'modality' for the single-modality "
+                "form."
+            )
+        if as_ is not None and modality is None:
+            raise HABITAPIError(
+                "supervoxel_radiomics: 'as_' requires the single-modality "
+                "form; pass 'modality' as well."
+            )
         if params_file is not None and params is not None:
             raise HABITAPIError(
                 "supervoxel_radiomics: params_file and params are mutually "
@@ -129,7 +153,9 @@ class SupervoxelRadiomicsFeatures:
             raise HABITAPIError(
                 f"supervoxel_batch must be positive; got {supervoxel_batch}."
             )
-        self.modalities = tuple(modalities)
+        self.modality = modality
+        self.as_ = as_
+        self.modalities = (modality,) if modality is not None else tuple(modalities)
         self.params_file = params_file
         self.params = dict(params) if params is not None else None
         self.supervoxel_batch = int(supervoxel_batch)
@@ -162,22 +188,26 @@ class SupervoxelRadiomicsFeatures:
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(
-            name="supervoxel_radiomics",
-            params={
-                "modalities": list(self.modalities),
-                "params_file": self.params_file,
-                "params": self.params,
-                "supervoxel_batch": self.supervoxel_batch,
-                "supervoxel_union_bbox_crop": self.supervoxel_union_bbox_crop,
-                "supervoxel_pad_distance": self.supervoxel_pad_distance,
-                "use_supervoxel_cext": self.use_supervoxel_cext,
-                "use_torch_radiomics": self.use_torch_radiomics,
-                "torch_device": self.torch_device,
-                "torch_dtype": self.torch_dtype,
-                "output_float32": self.output_float32,
-            },
-        )
+        params: Dict[str, Any] = {
+            "modalities": list(self.modalities),
+            "params_file": self.params_file,
+            "params": self.params,
+            "supervoxel_batch": self.supervoxel_batch,
+            "supervoxel_union_bbox_crop": self.supervoxel_union_bbox_crop,
+            "supervoxel_pad_distance": self.supervoxel_pad_distance,
+            "use_supervoxel_cext": self.use_supervoxel_cext,
+            "use_torch_radiomics": self.use_torch_radiomics,
+            "torch_device": self.torch_device,
+            "torch_dtype": self.torch_dtype,
+            "output_float32": self.output_float32,
+        }
+        # Fold the single-modality spelling in only when used, so existing
+        # configurations keep their historical fingerprints.
+        if self.modality is not None:
+            params["modality"] = self.modality
+        if self.as_ is not None:
+            params["as_"] = self.as_
+        return Spec(name="supervoxel_radiomics", params=params)
 
     def _radiomics_settings(self, extractor_settings: Any) -> Dict[str, object]:
         """
@@ -206,6 +236,7 @@ class SupervoxelRadiomicsFeatures:
         partition: Supervoxelization,
         modality: str,
         labels: np.ndarray,
+        column_label: Optional[str] = None,
     ) -> pd.DataFrame:
         """
         Run one PyRadiomics pass over every supervoxel of one modality.
@@ -213,8 +244,10 @@ class SupervoxelRadiomicsFeatures:
         Args:
             subject: Subject supplying the intensity image.
             partition: Supervoxel partition defining the regions.
-            modality: Modality to extract from; also the column suffix.
+            modality: Modality to extract from.
             labels: Supervoxel ids to extract, ascending.
+            column_label: Column suffix for the output frame; defaults to
+                the modality name. The ``as_`` alias lands here.
 
         Returns:
             Feature frame indexed by supervoxel id.
@@ -245,16 +278,20 @@ class SupervoxelRadiomicsFeatures:
         extractor = build_pyradiomics_extractor(
             self._resolved_params_file(), self.params, owner="supervoxel_radiomics"
         )
+        from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
+
         backend, device = resolve_voxel_radiomics_backend(
             use_torch_radiomics=self.use_torch_radiomics,
             torch_device=self.torch_device,
             subject=partition.subject_id,
+            gpu_slot_index=read_worker_gpu_slot_index(),
         )
         extractor.settings.update({"geometryTolerance": 1e-3})
         if backend == "torch" and device is not None:
             extractor.settings["device"] = device
             extractor.settings["dtype"] = resolve_torch_dtype(self.torch_dtype)
         settings = self._radiomics_settings(extractor.settings)
+        suffix = column_label if column_label is not None else modality
 
         with injected_torch_radiomics(enabled=(backend == "torch")):
             if backend == "torch":
@@ -263,7 +300,7 @@ class SupervoxelRadiomicsFeatures:
                     supervoxel_sitk,
                     labels,
                     enabled_features=extractor.enabledFeatures,
-                    image_name=modality,
+                    image_name=suffix,
                     settings=settings,
                     device=str(device),
                     dtype_name=self.torch_dtype,
@@ -275,7 +312,7 @@ class SupervoxelRadiomicsFeatures:
                     supervoxel_sitk,
                     labels,
                     enabled_features=extractor.enabledFeatures,
-                    image_name=modality,
+                    image_name=suffix,
                     settings=settings,
                     batch_size=self.supervoxel_batch,
                 )
@@ -322,9 +359,16 @@ class SupervoxelRadiomicsFeatures:
             )
         labels = partition_labels(partition)
 
+        # The single-modality form may rename the column suffix via ``as_``;
+        # the modalities resolution itself is untouched.
+        column_labels: Tuple[Optional[str], ...] = (
+            (self.as_,) if self.as_ is not None else (None,) * len(modalities)
+        )
         frames = [
-            self._extract_one_modality(subject, partition, modality, labels)
-            for modality in modalities
+            self._extract_one_modality(
+                subject, partition, modality, labels, column_label=label
+            )
+            for modality, label in zip(modalities, column_labels)
         ]
         features = frames[0]
         for frame in frames[1:]:

@@ -110,6 +110,10 @@ def _parse_ranged_requirement(requirement: str) -> Tuple[str, str]:
     an upper bound is the opposite failure -- it lets a future major release
     silently break users. Both are rejected here.
 
+    A PEP 508 environment marker (``; python_version < '3.14'``) is stripped
+    before parsing: this contract polices the version range, and callers
+    de-duplicate marker-conditional entries against the running interpreter.
+
     Args:
         requirement: Requirement line from the project metadata.
 
@@ -118,7 +122,7 @@ def _parse_ranged_requirement(requirement: str) -> Tuple[str, str]:
     """
     match = re.fullmatch(
         r"(?P<name>[A-Za-z0-9_.-]+)(?:\[[A-Za-z0-9_,.-]+\])?(?P<specifier>[<>=!~,.0-9A-Za-z*]*)",
-        requirement.strip(),
+        requirement.split(";", 1)[0].strip(),
     )
     assert match is not None, f"Unparsable dependency: {requirement}"
     name = match.group("name")
@@ -210,7 +214,17 @@ def _project_dependency_ranges() -> Dict[str, str]:
     """
     result: Dict[str, str] = {}
     for dependency in _dependency_array("project", "dependencies"):
-        name, specifier = _parse_ranged_requirement(dependency)
+        requirement, _, marker = dependency.partition(";")
+        if marker.strip():
+            # A distribution may be declared twice with disjoint environment
+            # markers (pyarrow is split at Python 3.14). Only the entry
+            # matching THIS interpreter is relevant: the locks under test
+            # encode the Windows py310 bundle, which this interpreter runs.
+            from packaging.markers import Marker
+
+            if not Marker(marker.strip()).evaluate():
+                continue
+        name, specifier = _parse_ranged_requirement(requirement)
         assert name not in result, f"Duplicate project dependency: {name}"
         result[name] = specifier
     return result
@@ -301,17 +315,17 @@ def _setup_keyword(keyword_name: str) -> ast.AST:
 
 def test_python_310_contract_is_explicit_and_patch_pinned() -> None:
     """
-    PyPI metadata allows 3.10–3.12; the Windows installer still pins 3.10.20.
+    PyPI metadata allows 3.10–3.14; the Windows installer still pins 3.10.20.
 
     The portable ZIP is a reproducible product environment (exact patch). The
     library metadata is wider so third-party projects can ``pip install HABIT``
-    into existing 3.11/3.12 stacks (radiomics remains an optional extra).
+    into existing 3.11–3.14 stacks (radiomics remains an optional extra).
     """
     pyproject_text = PYPROJECT_FILE.read_text(encoding="utf-8")
     environment_text = ENVIRONMENT_FILE.read_text(encoding="utf-8")
 
-    assert 'requires-python = ">=3.10,<3.13"' in pyproject_text
-    assert 'python = ">=3.10,<3.13"' in pyproject_text
+    assert 'requires-python = ">=3.10,<3.15"' in pyproject_text
+    assert 'python = ">=3.10,<3.15"' in pyproject_text
     assert re.search(r"(?m)^\s*-\s*python=3\.10\.20\s*$", environment_text)
 
 

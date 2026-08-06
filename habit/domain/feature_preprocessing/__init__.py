@@ -14,7 +14,7 @@
 #
 """Feature preprocessing for clustering inputs (voxel and supervoxel).
 
-Two chains over one set of eight methods. The chains differ by whether their
+Two chains over one shared set of methods. The chains differ by whether their
 state crosses subject boundaries, not by what they process:
 
 * :class:`SubjectPreprocessingChain` -- stateless, per subject, usable at
@@ -46,6 +46,8 @@ from habit.domain.feature_preprocessing.methods import (
     BinningParams,
     CorrelationFilter,
     CorrelationFilterParams,
+    FeatureWhitelist,
+    FeatureWhitelistParams,
     Impute,
     ImputeParams,
     LogTransform,
@@ -72,6 +74,8 @@ __all__ = [
     "CorrelationFilter",
     "CorrelationFilterParams",
     "FeaturePreprocessingMethodRegistry",
+    "FeatureWhitelist",
+    "FeatureWhitelistParams",
     "Impute",
     "ImputeParams",
     "LogTransform",

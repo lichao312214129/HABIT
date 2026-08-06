@@ -7,8 +7,24 @@ Parallel execution with RunPolicy
 to process subjects in parallel — with a fixed ``random_seed`` the scientific
 result matches serial execution.
 
-YAML equivalent: add a top-level ``policy:`` block (``workers``, ``backend``,
-``parallel_mode``, …) — see ``config/habitat/config_habitat_two_step_wsl.yaml``.
+YAML: two tracks
+----------------
+
+* **v1 document** — top-level ``policy:`` block with ``RunPolicy`` field names
+  (``workers``, ``backend``, ``parallel_mode``, ``subject_timeout_sec``, …).
+  Annotated example: ``config/habitat/config_habitat_two_step_v1.yaml``.
+* **v0.1 document** — same knobs at the YAML **top level** as
+  ``processes``, ``individual_subject_timeout_sec``,
+  ``individual_subject_parallel_mode``, … The CLI /
+  :func:`~habit.recipes.run_from_yaml` translate them into ``policy`` via
+  :class:`~habit.spec.legacy.LegacyConfigAdapter`. Field rename table:
+  :doc:`../api/spec`. Full habitat reference:
+  :doc:`../configuration/habitat`.
+
+Either way, ProcessPoolBackend is selected only when
+``backend == "process"`` and ``workers > 1``; otherwise the run uses
+SerialBackend and timeout / OOM / ``parallel_mode`` / ``auto_retry_rounds``
+do not apply (see :doc:`../api/execution`).
 
 Script
 ------
@@ -16,20 +32,36 @@ Script
 .. literalinclude:: scripts/parallel_execution_demo.py
    :language: python
 
+The demo uses ``parallel_mode="persistent"`` (the library default). Set
+``"isolated"`` when you need a fresh child process per subject (stronger
+isolation, higher spawn cost).
+
 Output
 ------
 
 ::
 
    Serial: 6 maps, 3 habitats
-   RunPolicy: workers=2, backend='process', parallel_mode='isolated'
+   RunPolicy: workers=2, backend='process', parallel_mode='persistent'
    Parallel: 6 maps, 3 habitats
    Label mismatches serial vs parallel: 0 / 6
    Atomic predict on subj001: 3 labels
+
+Failure policy note
+-------------------
+
+``RunPolicy.on_subject_failure="continue"`` isolates errors inside the
+backend. Default :meth:`~habit.contracts.Cohort.map` still raises
+:class:`~habit.exceptions.ProcessingError`; recipes pass
+``raise_on_failure=False`` so a partial cohort can finish. Soft failure and
+geometry / plugin / batch switches are covered in :doc:`fault_tolerance`.
 
 What to read next
 -----------------
 
 * :doc:`two_step_habitat` — the serial baseline
+* :doc:`fault_tolerance` — continue vs Cohort.map, fail_fast, CompatibilityError
 * :doc:`run_from_yaml` — policy blocks in v1 YAML documents
-* :class:`~habit.spec.RunPolicy` — every scheduling field
+* :doc:`../api/spec` — RunPolicy fields + v0.1 ↔ v1 YAML mapping
+* :doc:`../api/execution` — SerialBackend / ProcessPoolBackend knobs
+* :doc:`../configuration/habitat` — Stage-1 parallel / checkpoint YAML reference

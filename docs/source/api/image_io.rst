@@ -24,10 +24,32 @@ geometry checks outside a ``Subject``.
 
    pair = align_image_mask(
        ImageMaskPair(image, mask),
-       policy=GeometryPolicy.RESAMPLE_MASK,  # STRICT | WARN | RESAMPLE_MASK
+       policy=GeometryPolicy.RESAMPLE_MASK,
    )
    aligned_image, aligned_mask = pair.image, pair.mask
    print(pair.geometry_report)
+
+GeometryPolicy modes
+--------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 78
+
+   * - Policy
+     - Behaviour on mismatch
+   * - ``STRICT``
+     - Raise :class:`~habit.exceptions.GeometryError` (default for this API
+       and for ``extract_features`` / ``extract_batch``)
+   * - ``WARN``
+     - Emit ``RuntimeWarning``; leave arrays/metadata unchanged;
+       ``geometry_report.compatible`` is ``False``, ``action="warn"``
+   * - ``RESAMPLE_MASK``
+     - Resample mask onto the image grid (nearest neighbour); report
+       ``compatible=True``, ``action="resample_mask"``
+   * - ``RESAMPLE_IMAGE``
+     - Resample image onto the mask grid (linear); report
+       ``compatible=True``, ``action="resample_image"``
 
 Exports: ``GeometryPolicy``, ``GeometryReport``, ``ImageVolume``,
 ``MaskVolume``, ``ImageMaskPair``, ``read_image``, ``read_mask``,
@@ -44,9 +66,17 @@ Low-level radiomics extraction
 
 Component API (not the YAML workflow)::
 
-   from habit import extract_features, extract_batch
+   from habit import extract_features, extract_batch, GeometryPolicy
 
-   result = extract_features(image, mask, params_file="params.yaml")
-   batch = extract_batch(cases, params_file="params.yaml")
+   result = extract_features(image, mask, params="params.yaml")
+   batch = extract_batch(
+       cases,
+       params="params.yaml",
+       geometry_policy=GeometryPolicy.STRICT,
+       fail_fast=True,   # default: raise on first pair failure
+   )
+
+``fail_fast=False`` keeps successful rows and records per-subject errors in
+``FeatureTableResult.failures`` (see :doc:`../examples/fault_tolerance`).
 
 Returns ``FeatureResult`` / ``FeatureTableResult``.

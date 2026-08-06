@@ -15,8 +15,18 @@ artefacts the CLI would (NRRD habitat maps, the feature table, the
 
 The v1 document's ``spec:`` section mirrors
 :class:`~habit.spec.HabitatSpec` field for field; what you write in YAML is
-exactly what exists in Python. A complete annotated v1 document ships at
-``config/habitat/config_habitat_two_step_v1.yaml``.
+exactly what exists in Python. Scheduling lives under a sibling ``policy:``
+block (:class:`~habit.spec.RunPolicy` field names). A complete annotated v1
+document ships at ``config/habitat/config_habitat_two_step_v1.yaml``.
+
+**Dual track with v0.1.** A v0.1 habitat YAML keeps parallel / checkpoint
+knobs at the **top level** (``processes``, ``individual_subject_*``, …).
+``run_from_yaml`` translates them into ``policy`` before selecting
+SerialBackend or ProcessPoolBackend. Rename table and defaults:
+:doc:`../api/spec`. When timeouts / OOM apply:
+:doc:`../api/execution`. Habitat field reference:
+:doc:`../configuration/habitat`. Parallel recipe example:
+:doc:`parallel_execution`.
 
 Script
 ------
@@ -59,6 +69,8 @@ with translation handled transparently.
 What to read next
 -----------------
 
-* :doc:`../api/spec` — the spec/YAML relationship and v0.1 → v1 migration
+* :doc:`../api/spec` — the spec/YAML relationship, ``RunPolicy`` mapping, v0.1 → v1 migration
+* :doc:`../api/execution` — backend selection and knobs
+* :doc:`parallel_execution` — policy blocks and ProcessPoolBackend
 * :doc:`../configuration/index` — the YAML field reference
 * :func:`~habit.recipes.run_from_yaml` — full parameter reference

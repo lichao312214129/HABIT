@@ -63,7 +63,7 @@ habit model --config configs/03_ct_ml.yaml --mode train
 
 - Use `binWidth: 25` in traditional whole-tumor PyRadiomics params (CT HU fixed range).
   For **habitat voxel texture** (`voxel_radiomics`), use minimal `params: {}` (bundled R3B12:
-  `kernel_radius: 3`, `binWidth: 12`; Petersen et al., *Radiol Artif Intell*
+  `kernel_radius: 3`, `binWidth: 12`; Prior O, et al., *Radiol Artif Intell*
   2024;6(2):e230118, doi:10.1148/ryai.230118).
 - Do NOT enable `normalize: true` in PyRadiomics — CT HU values already
   carry physical meaning.

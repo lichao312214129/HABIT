@@ -52,7 +52,7 @@ logger = get_module_logger(__name__)
 DEFAULT_VOXEL_BATCH = 1000
 
 # CT habitat voxel texture default (R3B12): 7×7×7 neighborhood at radius 3.
-# Petersen et al., Radiol Artif Intell 2024;6(2):e230118.
+# Prior O, et al., Radiol Artif Intell 2024;6(2):e230118.
 DEFAULT_KERNEL_RADIUS = 3
 
 

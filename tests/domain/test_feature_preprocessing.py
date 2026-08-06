@@ -37,6 +37,7 @@ from habit.compat.engines.habitat_analysis.feature_preprocessing.pipeline import
 from habit.domain.feature_preprocessing import (
     CohortPreprocessingChain,
     FeaturePreprocessingMethodRegistry,
+    FeatureWhitelist,
     Impute,
     SubjectPreprocessingChain,
     build_methods,
@@ -465,3 +466,50 @@ def test_method_specs_roundtrip_through_build_methods() -> None:
     block = _block(seed=21)
     pd.testing.assert_frame_equal(rebuilt(block), original(block))
     assert rebuilt.spec.fingerprint() == original.spec.fingerprint()
+
+
+@pytest.mark.unit
+def test_feature_whitelist_keeps_exactly_the_named_columns_in_order() -> None:
+    """The whitelist selects by name, not by position or data."""
+    block = pd.DataFrame(
+        {"a": [1.0, 2.0], "b": [3.0, 4.0], "c": [5.0, 6.0]}
+    )
+    method = FeatureWhitelist(["c", "a"])
+    state = method.fit(block)
+    out = method.transform(block, state)
+    assert list(out.columns) == ["c", "a"]
+    pd.testing.assert_series_equal(out["c"], block["c"])
+
+
+@pytest.mark.unit
+def test_feature_whitelist_rejects_an_empty_list() -> None:
+    """A whitelist that keeps nothing is a configuration mistake."""
+    with pytest.raises(HABITAPIError, match="must not be empty"):
+        FeatureWhitelist([])
+
+
+@pytest.mark.unit
+def test_feature_whitelist_rejects_a_missing_feature() -> None:
+    """A named feature absent from the matrix is an error, never a silent drop.
+
+    The whitelist exists to guarantee that a habitat run clusters exactly the
+    precise set; dropping a missing name would break that contract invisibly.
+    """
+    block = pd.DataFrame({"a": [1.0], "b": [2.0]})
+    method = FeatureWhitelist(["a", "ghost"])
+    with pytest.raises(HABITAPIError, match="ghost"):
+        method.fit(block)
+    with pytest.raises(HABITAPIError, match="ghost"):
+        method.transform(block, method.fit(pd.DataFrame({"a": [1.0], "ghost": [0.0]})))
+
+
+@pytest.mark.unit
+def test_feature_whitelist_builds_through_the_registry() -> None:
+    """The method is reachable from a spec/YAML payload like any other."""
+    methods = build_methods(
+        [{"name": "feature_whitelist", "params": {"features": ["b"]}}]
+    )
+    block = pd.DataFrame({"a": [1.0, 2.0], "b": [3.0, 4.0]})
+    out = SubjectPreprocessingChain(methods)(block)
+    assert list(out.columns) == ["b"]
+    assert methods[0].spec.to_dict()["params"]["features"] == ["b"]

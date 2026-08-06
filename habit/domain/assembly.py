@@ -44,6 +44,11 @@ from habit.domain.supervoxel import SupervoxelizerRegistry
 from habit.domain.supervoxel_features import SupervoxelFeatureExtractorRegistry
 from habit.domain.table_preprocessing import TablePreprocessorRegistry
 from habit.domain.table_protocols import Metric
+from habit.domain.trees import (
+    build_habitat_extractor,
+    build_supervoxel_extractor,
+    build_voxel_extractor,
+)
 from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
 from habit.exceptions import ComponentNotFoundError
 from habit.registry.core import ComponentRegistry
@@ -154,10 +159,7 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
         ComponentNotFoundError: If a spec names an unregistered component.
         ConfigurationError: If a component's parameters fail validation.
     """
-    voxel_extractor = VoxelFeatureExtractorRegistry.create(
-        spec.voxel_feature_extractor.name,
-        **spec.voxel_feature_extractor.params,
-    )
+    voxel_extractor = build_voxel_extractor(spec.voxel_feature_extractor)
     supervoxelizer = None
     if spec.supervoxelizer is not None:
         supervoxelizer = SupervoxelizerRegistry.create(
@@ -165,9 +167,8 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
         )
     supervoxel_extractor = None
     if spec.supervoxel_feature_extractor is not None:
-        supervoxel_extractor = SupervoxelFeatureExtractorRegistry.create(
-            spec.supervoxel_feature_extractor.name,
-            **spec.supervoxel_feature_extractor.params,
+        supervoxel_extractor = build_supervoxel_extractor(
+            spec.supervoxel_feature_extractor
         )
     voxel_chain = build_subject_chain(spec.voxel_feature_preprocessors)
     supervoxel_chain = build_subject_chain(spec.supervoxel_feature_preprocessors)
@@ -180,9 +181,7 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
         spec.habitat_model_fitter.name, **spec.habitat_model_fitter.params
     )
     extractors = tuple(
-        HabitatFeatureExtractorRegistry.create(
-            feature_spec.name, **feature_spec.params
-        )
+        build_habitat_extractor(feature_spec)
         for feature_spec in spec.habitat_features
     )
     if spec.random_seed is not None:
@@ -231,6 +230,37 @@ def _require_registered_name(spec_entry: Spec, registry: ComponentRegistry[Any])
         )
 
 
+def _require_registered_tree(spec_entry: Spec, registry: ComponentRegistry[Any]) -> None:
+    """
+    Verify one feature-tree node (and its descendants) is registered.
+
+    A node carrying ``children`` is a combiner node: its own name must be
+    registered in the combiner domain and every child is validated
+    recursively against the granularity's leaf registry (leaves) or the
+    combiner registry again (nested combiners).
+
+    Args:
+        spec_entry: Feature-tree node from a :class:`HabitatSpec`.
+        registry: Leaf-extractor registry of the node's granularity.
+
+    Raises:
+        ComponentNotFoundError: When any node name is unknown.
+    """
+    from habit.domain.combiners import CombinerRegistry
+
+    if "children" in spec_entry.params:
+        _require_registered_name(spec_entry, CombinerRegistry)
+        if not spec_entry.params["children"]:
+            raise ComponentNotFoundError(
+                f"Combiner {spec_entry.name!r} in domain {registry.domain!r} "
+                "requires a non-empty 'children' list."
+            )
+        for child in spec_entry.params["children"]:
+            _require_registered_tree(Spec.from_dict(child), registry)
+        return
+    _require_registered_name(spec_entry, registry)
+
+
 def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
     """
     Verify every component declared by a habitat spec is registered.
@@ -249,13 +279,13 @@ def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
         FeaturePreprocessingMethodRegistry,
     )
 
-    _require_registered_name(
+    _require_registered_tree(
         spec.voxel_feature_extractor, VoxelFeatureExtractorRegistry
     )
     if spec.supervoxelizer is not None:
         _require_registered_name(spec.supervoxelizer, SupervoxelizerRegistry)
     if spec.supervoxel_feature_extractor is not None:
-        _require_registered_name(
+        _require_registered_tree(
             spec.supervoxel_feature_extractor,
             SupervoxelFeatureExtractorRegistry,
         )
@@ -268,7 +298,7 @@ def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
     _require_registered_name(spec.habitat_model_fitter, HabitatModelFitterRegistry)
     _require_registered_name(spec.habitat_assigner, HabitatAssignerRegistry)
     for feature_spec in spec.habitat_features:
-        _require_registered_name(feature_spec, HabitatFeatureExtractorRegistry)
+        _require_registered_tree(feature_spec, HabitatFeatureExtractorRegistry)
 
 
 def build_table_pipeline(spec: MLSpec) -> TablePipeline:

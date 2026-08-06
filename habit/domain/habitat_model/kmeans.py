@@ -50,6 +50,11 @@ _VALIDATION_METHODS = (
 #: Criteria read off the inertia curve; they share one number per candidate.
 _INERTIA_METHODS = ("inertia", "elbow", "kneedle")
 
+#: Cap for sklearn ``silhouette_score(..., sample_size=...)``. Full pairwise
+#: silhouette materialises an ``n x n`` distance structure; direct-pooling
+#: voxel habitats routinely exceed this and would thrash a laptop.
+_SILHOUETTE_SAMPLE_CAP = 10_000
+
 
 class KMeansHabitatModelFitterParams(BaseModel):
     """Constructor parameters for :class:`KMeansHabitatModelFitter`."""
@@ -197,7 +202,22 @@ class KMeansHabitatModelFitter:
             if name in _INERTIA_METHODS:
                 scores[name] = float(model.inertia_)
             elif name == "silhouette":
-                scores[name] = float(silhouette_score(matrix, labels))
+                # Full pairwise silhouette is O(n^2) memory/time. Direct
+                # pooling habitats often have tens of thousands of voxel
+                # units; uncapped scoring freezes laptop hosts. Cap the
+                # sample while keeping the metric usable for k-selection.
+                n_rows = int(matrix.shape[0])
+                if n_rows > _SILHOUETTE_SAMPLE_CAP:
+                    scores[name] = float(
+                        silhouette_score(
+                            matrix,
+                            labels,
+                            sample_size=_SILHOUETTE_SAMPLE_CAP,
+                            random_state=self._seed,
+                        )
+                    )
+                else:
+                    scores[name] = float(silhouette_score(matrix, labels))
             elif name == "calinski_harabasz":
                 scores[name] = float(calinski_harabasz_score(matrix, labels))
             elif name == "davies_bouldin":

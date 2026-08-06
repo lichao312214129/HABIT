@@ -33,6 +33,22 @@ def cli_runner() -> CliRunner:
 
 
 @pytest.mark.unit
+def test_cli_missing_config_file_exits_without_traceback(
+    cli_runner: CliRunner,
+    tmp_path: Path,
+) -> None:
+    """A missing ``-c`` path must exit non-zero without a Python traceback."""
+    missing = tmp_path / "does_not_exist.yaml"
+    result = cli_runner.invoke(
+        cli,
+        ["check-config", "-c", str(missing), "-w", "habitat"],
+    )
+    assert result.exit_code != 0
+    assert "Traceback" not in (result.output or "")
+    assert "Traceback" not in (result.stderr or "")
+
+
+@pytest.mark.unit
 def test_cli_rejects_yaml_with_tab_indentation(
     cli_runner: CliRunner,
     tmp_path: Path,

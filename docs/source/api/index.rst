@@ -61,6 +61,19 @@ Habitat analysis
    habit.recipes.direct_pooling_habitat
    habit.recipes.apply_habitat_model
 
+Precision screen
+~~~~~~~~~~~~~~~~
+
+The precise-feature screen of Prior et al. (Radiol Artif Intell
+2024;6(2):e230118): which voxel features are repeatable and reproducible
+enough to define habitats. See :doc:`../examples/precise_features`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.recipes.identify_precise_voxel_features
+   habit.recipes.voxel_radiomics_factory
+
 Machine learning
 ~~~~~~~~~~~~~~~~
 
@@ -365,6 +378,31 @@ chains.
    habit.domain.VarianceFilterParams
    habit.domain.CorrelationFilter
    habit.domain.CorrelationFilterParams
+   habit.domain.FeatureWhitelist
+   habit.domain.FeatureWhitelistParams
+
+Precision screen
+~~~~~~~~~~~~~~~~
+
+Simulated-retest perturbations, the per-feature ICC analysis, and the
+resulting precise-feature artefact. See :doc:`../examples/precise_features`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.domain.ImagePerturbation
+   habit.domain.GaussianNoisePerturbation
+   habit.domain.GaussianNoisePerturbationParams
+   habit.domain.TranslationPerturbation
+   habit.domain.TranslationPerturbationParams
+   habit.domain.RotationPerturbation
+   habit.domain.RotationPerturbationParams
+   habit.domain.PerturbationChain
+   habit.domain.PreciseFeatureSet
+   habit.domain.precision_panel
+   habit.domain.aggregate_panels
+   habit.domain.identify_precise_features
+   habit.domain.habitat_stability
 
 Table protocols
 ~~~~~~~~~~~~~~~
@@ -519,6 +557,7 @@ Component registries
    habit.domain.HabitatAssignerRegistry
    habit.domain.HabitatFeatureExtractorRegistry
    habit.domain.FeaturePreprocessingMethodRegistry
+   habit.domain.ImagePerturbationRegistry
    habit.domain.TablePreprocessorRegistry
    habit.domain.FeatureSelectorRegistry
    habit.domain.ClassifierRegistry
@@ -645,6 +684,20 @@ Classification and agreement statistics
    habit.kernels.two_way_mean_squares
    habit.kernels.icc3_1
    habit.kernels.icc2_1
+
+Image perturbation and voxel reliability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated
+
+   habit.kernels.estimate_noise_sigma
+   habit.kernels.add_gaussian_noise
+   habit.kernels.translate_image
+   habit.kernels.rotate_image
+   habit.kernels.ICCEstimate
+   habit.kernels.icc3a_1
+   habit.kernels.icc3c_1
 
 .. _api-compat:
 

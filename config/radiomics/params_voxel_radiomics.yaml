@@ -18,8 +18,8 @@
 # CT voxel texture defaults (R3B12): binWidth 12 HU in this file; kernel_radius defaults to 3
 # via method_param_spec when params_file is omitted (7×7×7 neighborhood). More stable repeatability and
 # reproducibility than R1B25 for precise habitat radiomics on CT.
-# Ref: Petersen A, et al. Identification of Precise 3D CT Radiomics for Habitat Computation
-# by Machine Learning in Cancer. Radiol Artif Intell. 2024;6(2):e230118. doi:10.1148/ryai.230118
+# Ref: Prior O, et al. Identification of Precise 3D CT Radiomics Features for Habitat
+# Computation by Machine Learning in Cancer. Radiol Artif Intell. 2024;6(2):e230118. doi:10.1148/ryai.230118
 #
 # NOTE (habit voxel_radiomics): kernel_radius, voxel_batch, use_torch_radiomics, torch_gpus, etc.
 # are NOT PyRadiomics YAML settings here. Omit them from habitat YAML to use bundled defaults,

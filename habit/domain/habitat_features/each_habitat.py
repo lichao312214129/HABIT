@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
+from habit.exceptions import HABITAPIError
 from habit.domain.habitat_features._base import single_subject_table
 from habit.domain.habitat_features._radiomics import (
     build_pyradiomics_extractor,
@@ -50,6 +51,10 @@ class EachHabitatRadiomicsFeaturesParams(BaseModel):
     params: Optional[Dict[str, Any]] = None
     #: Modalities to extract from; ``None`` uses every subject image.
     modalities: Optional[Sequence[str]] = None
+    #: Single-modality form; mutually exclusive with ``modalities``.
+    modality: Optional[str] = None
+    #: Alias used as the ``_of_`` column suffix; requires ``modality``.
+    as_: Optional[str] = None
 
 
 @HabitatFeatureExtractorRegistry.register("each_habitat")
@@ -84,22 +89,44 @@ class EachHabitatRadiomicsFeatures:
         params_file: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
         modalities: Optional[Sequence[str]] = None,
+        modality: Optional[str] = None,
+        as_: Optional[str] = None,
     ) -> None:
+        if modality is not None and modalities is not None:
+            raise HABITAPIError(
+                "each_habitat: 'modality' and 'modalities' are mutually "
+                "exclusive; use 'modality' for the single-modality form."
+            )
+        if as_ is not None and modality is None:
+            raise HABITAPIError(
+                "each_habitat: 'as_' requires the single-modality form; "
+                "pass 'modality' as well."
+            )
         self._params_file = params_file
         self._params = dict(params) if params is not None else None
-        self._modalities = tuple(modalities) if modalities is not None else None
+        self._modalities = (
+            (modality,)
+            if modality is not None
+            else tuple(modalities) if modalities is not None else None
+        )
+        self._modality = modality
+        self._as = as_
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(
-            name="each_habitat",
-            params={
-                "params_file": self._params_file,
-                "params": self._params,
-                "modalities": self._modalities,
-            },
-        )
+        params: Dict[str, Any] = {
+            "params_file": self._params_file,
+            "params": self._params,
+            "modalities": self._modalities,
+        }
+        # Fold the single-modality spelling in only when used, so existing
+        # configurations keep their historical fingerprints.
+        if self._modality is not None:
+            params["modality"] = self._modality
+        if self._as is not None:
+            params["as_"] = self._as
+        return Spec(name="each_habitat", params=params)
 
     def __call__(self, subject: Subject, habitat_map: HabitatMap) -> FeatureTable:
         """
@@ -128,6 +155,9 @@ class EachHabitatRadiomicsFeatures:
         per_habitat: Dict[int, Dict[str, float]] = {}
         base_names: List[str] = []
         for modality in modalities:
+            # The ``as_`` alias only renames the column suffix; the image
+            # read and the mask handling are untouched.
+            suffix = self._as if self._as is not None else modality
             volume = subject.image(modality)
             image_sitk = sitk_image_from_contract(volume.load(), volume.geometry)
             mask_sitk = sitk_image_from_contract(labels, habitat_map.geometry)
@@ -138,7 +168,7 @@ class EachHabitatRadiomicsFeatures:
                 for key, value in execute_radiomics(
                     extractor, image_sitk, mask_sitk, label=habitat_id
                 ).items():
-                    base_name = f"{key}_of_{modality}"
+                    base_name = f"{key}_of_{suffix}"
                     if base_name not in base_names:
                         base_names.append(base_name)
                     habitat_features[base_name] = value

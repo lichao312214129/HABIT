@@ -62,17 +62,33 @@ class Geometry:
     direction: Tuple[float, ...]
     frame_of_reference: Optional[str] = None
 
-    def is_compatible_with(self, other: "Geometry", *, tolerance: float = 1e-5) -> bool:
+    def is_compatible_with(
+        self,
+        other: "Geometry",
+        *,
+        tolerance: float = 1e-5,
+        direction_tolerance: float = 1e-4,
+    ) -> bool:
         """
         Report whether two geometries describe the same voxel grid.
 
+        Spacing and origin use ``tolerance`` (default ``1e-5`` absolute).
+        Direction cosines use the looser ``direction_tolerance`` (default
+        ``1e-4`` absolute): DICOM / ITK round-trips routinely differ by
+        ~1e-5 in individual cosine entries without any meaningful grid
+        misalignment, while a true axis swap or oblique mismatch remains
+        far above ``1e-4``.
+
         Args:
             other: Geometry to compare against.
-            tolerance: Absolute tolerance for floating-point comparison of
-                spacing, origin, and direction.
+            tolerance: Absolute tolerance for spacing and origin.
+            direction_tolerance: Absolute tolerance for the flattened
+                direction cosine matrix. Kept separate from ``tolerance``
+                so spacing/origin stay strict while DICOM noise in
+                direction is tolerated.
 
         Returns:
-            ``True`` when the grids coincide within ``tolerance``.
+            ``True`` when the grids coincide within the stated tolerances.
         """
         if not isinstance(other, Geometry):
             return NotImplemented
@@ -81,10 +97,20 @@ class Geometry:
         if self.frame_of_reference and other.frame_of_reference:
             if self.frame_of_reference != other.frame_of_reference:
                 return False
+        # rtol=0 keeps the documented absolute tolerances honest: DICOM noise
+        # often lands on near-zero cosine entries where a non-zero rtol would
+        # not enlarge the acceptance window (and would on the ~1.0 diagonals).
         return (
-            bool(np.allclose(self.spacing, other.spacing, atol=tolerance))
-            and bool(np.allclose(self.origin, other.origin, atol=tolerance))
-            and bool(np.allclose(self.direction, other.direction, atol=tolerance))
+            bool(np.allclose(self.spacing, other.spacing, rtol=0.0, atol=tolerance))
+            and bool(np.allclose(self.origin, other.origin, rtol=0.0, atol=tolerance))
+            and bool(
+                np.allclose(
+                    self.direction,
+                    other.direction,
+                    rtol=0.0,
+                    atol=direction_tolerance,
+                )
+            )
         )
 
     @classmethod

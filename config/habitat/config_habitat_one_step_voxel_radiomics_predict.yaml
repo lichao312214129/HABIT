@@ -20,7 +20,7 @@
 # Purpose:
 #   One-step clustering (voxel to habitat per subject)
 #   Feature: voxel texture — voxel_radiomics(delay2)  (CT R3B12 defaults)
-#   CT defaults (R3B12): kernel_radius 3, params binWidth 12 — Petersen et al., Radiol Artif Intell 2024;6(2):e230118
+#   CT defaults (R3B12): kernel_radius 3, params binWidth 12 — Prior O, et al., Radiol Artif Intell 2024;6(2):e230118
 #   Demo data: demo_data/preprocessed/processed_images (keys: delay2/delay3/delay5; images/ + masks/ under data_dir root)
 #
 # Must-edit keys: wrapped in paired divider lines================================================================================ pairs (config/README_CONFIG.md)

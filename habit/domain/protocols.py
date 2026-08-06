@@ -12,15 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The eight domain protocols (L3).
+"""The domain protocols (L3).
 
-There are exactly EIGHT domain protocols, and each one is a term that already
-exists in habitat imaging research (voxel feature, feature preprocessing,
-supervoxel, supervoxel feature, habitat model, habitat map, habitat feature).
-A generic ``Operator.transform(x)`` would be more flexible and strictly less
-useful: a radiologist reading ``HabitatModelFitter.fit(units)`` understands it
-immediately, whereas a generic name teaches them nothing and gives an
-extension author no hint about which slot to implement.
+The core habitat pipeline rests on exactly EIGHT domain protocols, and each
+one is a term that already exists in habitat imaging research (voxel feature,
+feature preprocessing, supervoxel, supervoxel feature, habitat model, habitat
+map, habitat feature). A generic ``Operator.transform(x)`` would be more
+flexible and strictly less useful: a radiologist reading
+``HabitatModelFitter.fit(units)`` understands it immediately, whereas a
+generic name teaches them nothing and gives an extension author no hint about
+which slot to implement. A ninth protocol, ``ImagePerturbation``, serves the
+precision-analysis domain (simulated test-retest) and follows the same
+one-call-per-subject convention.
 
 ``SupervoxelFeatureExtractor`` was added after the initial five: growing a
 partition and describing its regions are two independent scientific choices
@@ -28,7 +31,10 @@ partition and describing its regions are two independent scientific choices
 supervoxel`` and ``feature_construction.supervoxel_level``), and fusing them
 into ``Supervoxelizer`` made per-supervoxel radiomics inexpressible -- that
 family needs the ORIGINAL IMAGES, which a ``VoxelFeatureField`` does not
-carry.
+carry. A tenth protocol, ``Combiner``, factors multi-modality composition
+out of the extractors: extractor leaves each describe ONE modality's signal,
+combiner nodes merge the sibling blocks, and the composition itself becomes
+an extensible plugin domain rather than a fixed set of extractor flags.
 
 The last two, ``SubjectFeaturePreprocessor`` and
 ``CohortFeaturePreprocessor``, split feature preprocessing along the axis that
@@ -53,8 +59,9 @@ divergence). Readability at the call site comes from the variable name
 
 from __future__ import annotations
 
-from typing import Optional, Protocol, Sequence, runtime_checkable
+from typing import Any, Mapping, Optional, Protocol, Sequence, runtime_checkable
 
+import numpy as np
 import pandas as pd
 
 from habit.contracts.habitat import (
@@ -76,6 +83,8 @@ __all__ = [
     "HabitatModelFitter",
     "HabitatAssigner",
     "HabitatFeatureExtractor",
+    "ImagePerturbation",
+    "Combiner",
     "Seedable",
 ]
 
@@ -392,6 +401,104 @@ class HabitatFeatureExtractor(Protocol):
         Returns:
             A single-row-per-subject feature table with explicit column
             roles.
+        """
+
+
+@runtime_checkable
+class Combiner(Protocol):
+    """
+    Merge the feature blocks produced by sibling nodes of a feature tree.
+
+    A combiner is the internal node of a feature composition tree: it never
+    touches images, subjects, or the filesystem -- only the column blocks its
+    child nodes already produced. This is what keeps the multi-modality
+    matrix open-ended: extractors answer "how do I describe ONE modality's
+    signal", combiners answer "how do I merge SIBLING descriptions", and new
+    combination strategies (weighting, ratios, kinetic slopes, formulas) plug
+    in through the ``habit.combiner`` entry point without changing any
+    extractor.
+
+    The same protocol serves every granularity: at voxel level the blocks are
+    the children ``VoxelFeatureField.feature_frame()`` matrices (rows are ROI
+    voxels in C order); at supervoxel level they are the children
+    ``Supervoxelization.feature_frame()`` matrices (rows are supervoxels); at
+    habitat level they are one-row-per-subject frames. Rows are always
+    aligned positionally across siblings, because the tree wrapper guarantees
+    every child describes the same units.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification, used for provenance."""
+
+    def __call__(
+        self,
+        blocks: Sequence[pd.DataFrame],
+        *,
+        context: Optional[Mapping[str, Any]] = None,
+    ) -> pd.DataFrame:
+        """
+        Combine sibling feature blocks into one block.
+
+        Args:
+            blocks: Child blocks in child order, one per sibling node. All
+                blocks share the same row count (enforced by the tree
+                wrapper).
+            context: Optional evaluation context supplied by the tree
+                wrapper. Recognised keys:
+
+                - ``"sources"``: source label of each child, in child order
+                  (a leaf's ``as_`` alias when set, else its ``modality``,
+                  else the node name). Combiners whose parameters are keyed
+                  by child (e.g. ``weights``) resolve them against these
+                  labels.
+                - ``"subject_id"``: id of the subject being processed, for
+                  combiners whose parameters are subject-keyed (``kinetic``
+                  acquisition times).
+
+        Returns:
+            The merged block, with the same row count as the inputs.
+        """
+
+
+@runtime_checkable
+class ImagePerturbation(Protocol):
+    """
+    Turn one subject into a perturbed copy of itself: a simulated re-acquisition.
+
+    Scientific role: voxel-wise features are only worth clustering if they
+    survive the small acquisition variations a scanner inevitably introduces
+    (noise, sub-voxel patient shifts, slight angulation). An image
+    perturbation replays those variations in silico so feature repeatability
+    can be measured BEFORE any habitat is computed (Prior et al., Radiol
+    Artif Intell 2024;6(2):e230118).
+
+    The contract is deliberately the narrowest possible: one subject in, one
+    perturbed subject out, same grid, same keys. Chaining several
+    perturbations composes a full simulated retest, and implementing this
+    protocol is all a new perturbation family (bias fields, motion ghosts,
+    resampling artefacts) has to do.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+
+    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+        """
+        Return a perturbed copy of ``subject``.
+
+        Args:
+            subject: Subject providing images (and masks, for geometric
+                perturbations).
+            rng: Random generator for the stochastic steps; supplied by the
+                caller so one seed drives an entire perturbation chain.
+                Deterministic perturbations accept and ignore it.
+
+        Returns:
+            A new subject on the SAME voxel grid with perturbed images (and
+            perturbed masks for geometric perturbations); the original is
+            left untouched.
         """
 
 

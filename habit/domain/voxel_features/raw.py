@@ -16,10 +16,10 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import VoxelFeatureField
@@ -27,6 +27,7 @@ from habit.contracts.subject import Subject
 from habit.domain.voxel_features._base import (
     aligned_image,
     build_voxel_field,
+    resolve_source_modalities,
     roi_voxels,
 )
 from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
@@ -39,8 +40,19 @@ class RawVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`RawVoxelFeatures`."""
 
     model_config = ConfigDict(extra="forbid")
-    modalities: List[str] = Field(min_length=1)
+    modality: Optional[str] = None
+    modalities: List[str] = Field(default_factory=list)
+    as_: Optional[str] = None
     roi: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _require_a_modality(self) -> "RawVoxelFeaturesParams":
+        """Require one of the singular/plural modality forms."""
+        if not self.modality and not self.modalities:
+            raise ValueError(
+                "RawVoxelFeatures requires 'modality' or 'modalities'."
+            )
+        return self
 
 
 @VoxelFeatureExtractorRegistry.register("raw")
@@ -54,24 +66,51 @@ class RawVoxelFeatures:
     computation.
 
     Args:
-        modalities: Modality keys to read from the subject, in feature order.
+        modality: Single modality key -- the explicit form used inside
+            feature trees (``raw("T1")``). Mutually exclusive with
+            ``modalities``.
+        modalities: Modality keys to read from the subject, in feature
+            order -- the historical convenience that stacks several
+            modalities into one node without a ``concat`` combiner.
+        as_: Optional output-column alias. Valid only with exactly one
+            resolved modality; the column is then named after the alias
+            instead of the modality.
         roi: Mask key defining the region of interest; ``None`` uses the
             subject's single mask.
     """
 
-    def __init__(self, modalities: Sequence[str], roi: Optional[str] = None) -> None:
-        if not modalities:
+    def __init__(
+        self,
+        modalities: Sequence[str] = (),
+        roi: Optional[str] = None,
+        modality: Optional[str] = None,
+        as_: Optional[str] = None,
+    ) -> None:
+        resolved, labels = resolve_source_modalities(
+            modality, modalities, as_, owner="raw"
+        )
+        if not resolved:
             raise HABITAPIError("RawVoxelFeatures requires at least one modality.")
-        self.modalities: Tuple[str, ...] = tuple(modalities)
+        self.modalities: Tuple[str, ...] = resolved
+        self.source_labels: Tuple[str, ...] = labels
+        self.modality = str(modality) if modality is not None else None
+        self.as_ = str(as_) if as_ is not None else None
         self.roi = roi
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification used for provenance."""
-        return Spec(
-            name="raw",
-            params={"modalities": list(self.modalities), "roi": self.roi},
-        )
+        params: Dict[str, Any] = {
+            "modalities": list(self.modalities),
+            "roi": self.roi,
+        }
+        # Fold the singular/alias forms in only when set so the historical
+        # ``modalities=[...]`` fingerprint stays byte-identical.
+        if self.modality is not None:
+            params["modality"] = self.modality
+        if self.as_ is not None:
+            params["as_"] = self.as_
+        return Spec(name="raw", params=params)
 
     def __call__(self, subject: Subject) -> VoxelFeatureField:
         """
@@ -81,7 +120,8 @@ class RawVoxelFeatures:
             subject: Subject providing the requested modalities and mask.
 
         Returns:
-            One row per ROI voxel, one column per modality.
+            One row per ROI voxel, one column per modality (named after the
+            source label: the ``as_`` alias when given, else the modality).
 
         Raises:
             KeyError: If a modality or the ROI is absent on the subject.
@@ -94,7 +134,7 @@ class RawVoxelFeatures:
         ]
         values = np.stack([array[inside] for array in arrays], axis=1)
         return build_voxel_field(
-            subject, mask, voxel_index, self.modalities, values, self.spec
+            subject, mask, voxel_index, self.source_labels, values, self.spec
         )
 
 

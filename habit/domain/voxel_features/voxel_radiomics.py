@@ -32,6 +32,7 @@ from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
 from habit.domain.voxel_features._base import (
     build_voxel_field,
+    resolve_source_modalities,
     resolve_voxel_modalities,
     roi_voxels,
 )
@@ -42,7 +43,7 @@ from habit.spec.specs import Spec
 __all__ = ["VoxelRadiomicsFeatures", "VoxelRadiomicsFeaturesParams"]
 
 #: v0.1 default: a 7x7x7 neighbourhood (radius 3), the CT habitat setting of
-#: Petersen et al., Radiol Artif Intell 2024;6(2):e230118.
+#: Prior O, et al., Radiol Artif Intell 2024;6(2):e230118.
 DEFAULT_KERNEL_RADIUS = 3
 
 #: v0.1 default voxel batch; balances memory against speed. PyRadiomics reads
@@ -54,7 +55,9 @@ class VoxelRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`VoxelRadiomicsFeatures`."""
 
     model_config = ConfigDict(extra="forbid")
+    modality: Optional[str] = None
     modalities: Sequence[str] = ()
+    as_: Optional[str] = None
     roi: Optional[str] = None
     params_file: Optional[str] = None
     params: Optional[Dict[str, Any]] = None
@@ -76,8 +79,12 @@ class VoxelRadiomicsFeatures:
     ``concat(voxel_radiomics(m1), voxel_radiomics(m2))``.
 
     Args:
+        modality: Single modality key -- the explicit form used inside
+            feature trees. Mutually exclusive with ``modalities``.
         modalities: Modality keys to extract from, in feature order; empty
             selects every image the subject carries.
+        as_: Optional output-column alias. Valid only with exactly one
+            resolved modality; the column suffix then uses the alias.
         roi: Mask key defining the region of interest; ``None`` uses the
             subject's single mask.
         params_file: Path to a PyRadiomics parameter YAML; ``None`` selects the
@@ -107,6 +114,8 @@ class VoxelRadiomicsFeatures:
         torch_device: str = "auto",
         torch_dtype: str = "float32",
         output_float32: bool = True,
+        modality: Optional[str] = None,
+        as_: Optional[str] = None,
     ) -> None:
         if params_file is not None and params is not None:
             raise HABITAPIError(
@@ -118,7 +127,13 @@ class VoxelRadiomicsFeatures:
             raise HABITAPIError(
                 f"kernel_radius must be positive; got {kernel_radius}."
             )
-        self.modalities = tuple(modalities)
+        resolved, labels = resolve_source_modalities(
+            modality, modalities, as_, owner="voxel_radiomics"
+        )
+        self.modalities = resolved
+        self.source_labels = labels
+        self.modality = str(modality) if modality is not None else None
+        self.as_ = str(as_) if as_ is not None else None
         self.roi = roi
         self.params_file = params_file
         self.params = dict(params) if params is not None else None
@@ -132,21 +147,25 @@ class VoxelRadiomicsFeatures:
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification used for provenance."""
-        return Spec(
-            name="voxel_radiomics",
-            params={
-                "modalities": list(self.modalities),
-                "roi": self.roi,
-                "params_file": self.params_file,
-                "params": self.params,
-                "kernel_radius": self.kernel_radius,
-                "voxel_batch": self.voxel_batch,
-                "use_torch_radiomics": self.use_torch_radiomics,
-                "torch_device": self.torch_device,
-                "torch_dtype": self.torch_dtype,
-                "output_float32": self.output_float32,
-            },
-        )
+        spec_params: Dict[str, Any] = {
+            "modalities": list(self.modalities),
+            "roi": self.roi,
+            "params_file": self.params_file,
+            "params": self.params,
+            "kernel_radius": self.kernel_radius,
+            "voxel_batch": self.voxel_batch,
+            "use_torch_radiomics": self.use_torch_radiomics,
+            "torch_device": self.torch_device,
+            "torch_dtype": self.torch_dtype,
+            "output_float32": self.output_float32,
+        }
+        # Fold the singular/alias forms in only when set so the historical
+        # ``modalities=[...]`` fingerprint stays byte-identical.
+        if self.modality is not None:
+            spec_params["modality"] = self.modality
+        if self.as_ is not None:
+            spec_params["as_"] = self.as_
+        return Spec(name="voxel_radiomics", params=spec_params)
 
     def _resolved_params_file(self) -> Optional[str]:
         """
@@ -166,14 +185,17 @@ class VoxelRadiomicsFeatures:
         subject: Subject,
         modality: str,
         mask_sitk: Any,
+        column_label: Optional[str] = None,
     ) -> Any:
         """
         Run one voxel-based PyRadiomics pass over the ROI of one modality.
 
         Args:
             subject: Subject supplying the intensity image.
-            modality: Modality to extract from; also the column suffix.
+            modality: Modality to extract from.
             mask_sitk: ROI mask as a SimpleITK image.
+            column_label: Output column suffix; defaults to the modality
+                name. The ``as_`` alias lands here.
 
         Returns:
             A voxel-by-feature frame for this modality, ROI rows in C order.
@@ -186,6 +208,7 @@ class VoxelRadiomicsFeatures:
         from habit.utils.radiomics_params_utils import (
             configure_voxel_glcm_on_extractor,
         )
+        from habit.utils.parallel_gpu_utils import read_worker_gpu_slot_index
         from habit.utils.torch_radiomics_utils import (
             injected_torch_radiomics,
             resolve_torch_dtype,
@@ -206,6 +229,9 @@ class VoxelRadiomicsFeatures:
             use_torch_radiomics=self.use_torch_radiomics,
             torch_device=self.torch_device,
             subject=subject.subject_id,
+            # Process-pool workers export HABIT_GPU_SLOT_INDEX; honour it so
+            # multi-GPU pools do not all pile onto cuda:0.
+            gpu_slot_index=read_worker_gpu_slot_index(),
         )
         extractor.settings.update(
             {
@@ -228,7 +254,7 @@ class VoxelRadiomicsFeatures:
         return voxel_feature_frame(
             result,
             mask_sitk,
-            image_name=modality,
+            image_name=column_label if column_label is not None else modality,
             mask_label=mask_label,
             output_float32=self.output_float32,
         )
@@ -252,18 +278,26 @@ class VoxelRadiomicsFeatures:
         modalities = resolve_voxel_modalities(
             subject, self.modalities, owner="voxel_radiomics"
         )
+        # ``resolve_voxel_modalities`` may expand an empty request to every
+        # subject image; labels track that expansion one-to-one.
+        labels = (
+            self.source_labels
+            if len(self.source_labels) == len(modalities)
+            else modalities
+        )
         mask, _, voxel_index = roi_voxels(subject, self.roi)
         mask_array = np.asarray(mask.data)
 
         names: List[str] = []
         columns: List[np.ndarray] = []
-        for modality in modalities:
+        for modality, label in zip(modalities, labels):
             # A fresh mask image per modality: PyRadiomics rewrites the mask
             # metadata to match the image it is paired with.
             frame = self._extract_one_modality(
                 subject,
                 modality,
                 sitk_image_from_contract(mask_array, mask.geometry),
+                column_label=label,
             )
             if frame.shape[0] != voxel_index.shape[0]:
                 raise HABITAPIError(

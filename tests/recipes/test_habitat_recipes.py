@@ -197,4 +197,6 @@ def test_public_recipe_surface() -> None:
         "dice",
         "dicom_info",
         "merge_tables",
+        "identify_precise_voxel_features",
+        "voxel_radiomics_factory",
     }

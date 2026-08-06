@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Union
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -32,7 +32,12 @@ from habit.domain.voxel_features.registry import VoxelFeatureExtractorRegistry
 from habit.exceptions import HABITAPIError
 from habit.spec.specs import Spec
 
-__all__ = ["KineticVoxelFeatures", "KineticVoxelFeaturesParams"]
+__all__ = [
+    "KineticVoxelFeatures",
+    "KineticVoxelFeaturesParams",
+    "resolve_phase_times",
+    "kinetic_slopes",
+]
 
 #: v0.1 phase modality keys, in acquisition order.
 DEFAULT_PHASES: Sequence[str] = ("pre_contrast", "LAP", "PVP", "delay_3min")
@@ -51,6 +56,126 @@ PRE_CONTRAST_LEAD_SECONDS = 25.0
 
 #: Guard against a zero time difference, as in v0.1.
 _EPSILON = 1e-6
+
+
+def resolve_phase_times(
+    timestamps: Union[str, Mapping[str, Mapping[str, str]]],
+    phases: Sequence[str],
+    time_format: str,
+    subject_id: str,
+    cache: Optional[Dict[str, Any]] = None,
+    *,
+    owner: str = "kinetic",
+) -> Dict[str, Any]:
+    """
+    Resolve one subject's acquisition times as parsed timestamps.
+
+    Shared by the kinetic voxel extractor and the kinetic combiner so both
+    forms honour the same timestamp conventions (table path or inline
+    mapping, derived unenhanced phase, v0.1 error wording).
+
+    Args:
+        timestamps: Acquisition times per subject, either a mapping
+            ``{subject_id: {phase: "HH-MM-SS"}}`` or a path to the v0.1
+            timestamp table.
+        phases: Phase keys in acquisition order: unenhanced, arterial,
+            portal-venous, delayed.
+        time_format: ``strptime`` format of the timestamp values.
+        subject_id: Subject to look up.
+        cache: Optional dict the caller keeps across subjects so a
+            file-backed table is loaded only once.
+        owner: Component name used in error messages.
+
+    Returns:
+        Phase name -> parsed timestamp, including the derived unenhanced
+        phase.
+
+    Raises:
+        HABITAPIError: If the subject or a contrast phase is missing from
+            the timestamp table.
+    """
+    import pandas as pd
+
+    unenhanced, arterial, portal, delayed = (str(phase) for phase in phases)
+    if isinstance(timestamps, str):
+        if cache is None:
+            cache = {}
+        if "table" not in cache:
+            from habit.utils.io_utils import load_timestamp
+
+            cache["table"] = load_timestamp(timestamps)
+        table = cache["table"]
+        if subject_id not in table.index:
+            raise HABITAPIError(
+                f"{owner}: no acquisition times for subject {subject_id!r} "
+                f"in {timestamps!r}."
+            )
+        row = table.loc[subject_id].to_dict()
+    else:
+        if subject_id not in timestamps:
+            raise HABITAPIError(
+                f"{owner}: no acquisition times for subject {subject_id!r}."
+            )
+        row = dict(timestamps[subject_id])
+
+    missing = [phase for phase in (arterial, portal, delayed) if phase not in row]
+    if missing:
+        raise HABITAPIError(
+            f"{owner}: subject {subject_id!r} is missing acquisition times "
+            f"for {missing}."
+        )
+    times = {
+        phase: pd.to_datetime(str(row[phase]), format=time_format)
+        for phase in (arterial, portal, delayed)
+    }
+    # v0.1 convention: the unenhanced scan is not timestamped, so it is
+    # placed a fixed lead time before the arterial phase.
+    times[unenhanced] = times[arterial] - pd.Timedelta(
+        seconds=PRE_CONTRAST_LEAD_SECONDS
+    )
+    return times
+
+
+def kinetic_slopes(
+    intensity: Mapping[str, np.ndarray],
+    times: Mapping[str, Any],
+    phases: Sequence[str],
+) -> Dict[str, np.ndarray]:
+    """
+    Compute the three kinetic slope columns from phase intensities/times.
+
+    Shared by the kinetic voxel extractor and the kinetic combiner so both
+    forms produce bit-identical numbers from the same inputs.
+
+    Args:
+        intensity: Phase key -> per-unit intensity vector.
+        times: Phase key -> parsed timestamp (from
+            :func:`resolve_phase_times`).
+        phases: Phase keys in acquisition order: unenhanced, arterial,
+            portal-venous, delayed.
+
+    Returns:
+        Column name -> slope vector, in :data:`FEATURE_NAMES` order.
+    """
+    unenhanced, arterial, portal, delayed = (str(phase) for phase in phases)
+
+    delta_wash_in = (times[arterial] - times[unenhanced]).total_seconds()
+    delta_early = (times[portal] - times[arterial]).total_seconds()
+    delta_late = (times[delayed] - times[portal]).total_seconds()
+
+    enhancement = np.asarray(intensity[arterial]) - np.asarray(intensity[unenhanced])
+    # v0.1 treats a drop after contrast as no enhancement rather than as
+    # negative wash-in.
+    enhancement = np.clip(enhancement, 0.0, None)
+
+    columns = [
+        enhancement / (delta_wash_in + _EPSILON),
+        (np.asarray(intensity[portal]) - np.asarray(intensity[arterial]))
+        / (delta_early + _EPSILON),
+        (np.asarray(intensity[delayed]) - np.asarray(intensity[portal]))
+        / (delta_late + _EPSILON),
+    ]
+    return dict(zip(FEATURE_NAMES, columns))
 
 
 class KineticVoxelFeaturesParams(BaseModel):
@@ -122,7 +247,7 @@ class KineticVoxelFeatures:
         self.time_format = str(time_format)
         self.modalities = tuple(modalities)
         self.expression = expression
-        self._time_table: Optional[Any] = None
+        self._time_cache: Dict[str, Any] = {}
 
     @property
     def spec(self) -> Spec:
@@ -161,46 +286,14 @@ class KineticVoxelFeatures:
             HABITAPIError: If the subject or a contrast phase is missing from
                 the timestamp table.
         """
-        import pandas as pd
-
-        if isinstance(self.timestamps, str):
-            if self._time_table is None:
-                from habit.utils.io_utils import load_timestamp
-
-                self._time_table = load_timestamp(self.timestamps)
-            table = self._time_table
-            if subject_id not in table.index:
-                raise HABITAPIError(
-                    f"kinetic: no acquisition times for subject {subject_id!r} "
-                    f"in {self.timestamps!r}."
-                )
-            row = table.loc[subject_id].to_dict()
-        else:
-            if subject_id not in self.timestamps:
-                raise HABITAPIError(
-                    f"kinetic: no acquisition times for subject {subject_id!r}."
-                )
-            row = dict(self.timestamps[subject_id])
-
-        unenhanced, arterial, portal, delayed = self.phases
-        missing = [
-            phase for phase in (arterial, portal, delayed) if phase not in row
-        ]
-        if missing:
-            raise HABITAPIError(
-                f"kinetic: subject {subject_id!r} is missing acquisition times "
-                f"for {missing}."
-            )
-        times = {
-            phase: pd.to_datetime(str(row[phase]), format=self.time_format)
-            for phase in (arterial, portal, delayed)
-        }
-        # v0.1 convention: the unenhanced scan is not timestamped, so it is
-        # placed a fixed lead time before the arterial phase.
-        times[unenhanced] = times[arterial] - pd.Timedelta(
-            seconds=PRE_CONTRAST_LEAD_SECONDS
+        return resolve_phase_times(
+            self.timestamps,
+            self.phases,
+            self.time_format,
+            subject_id,
+            self._time_cache,
+            owner="kinetic",
         )
-        return times
 
     def __call__(self, subject: Subject) -> VoxelFeatureField:
         """
@@ -216,7 +309,6 @@ class KineticVoxelFeatures:
             GeometryError: If a phase and the mask are on different grids.
             HABITAPIError: If a phase image or an acquisition time is absent.
         """
-        unenhanced, arterial, portal, delayed = self.phases
         missing = [name for name in self.phases if name not in subject.images]
         if missing:
             raise HABITAPIError(
@@ -230,22 +322,9 @@ class KineticVoxelFeatures:
             for phase in self.phases
         }
         times = self._phase_times(subject.subject_id)
+        slopes = kinetic_slopes(intensity, times, self.phases)
 
-        delta_wash_in = (times[arterial] - times[unenhanced]).total_seconds()
-        delta_early = (times[portal] - times[arterial]).total_seconds()
-        delta_late = (times[delayed] - times[portal]).total_seconds()
-
-        enhancement = intensity[arterial] - intensity[unenhanced]
-        # v0.1 treats a drop after contrast as no enhancement rather than as
-        # negative wash-in.
-        enhancement = np.clip(enhancement, 0.0, None)
-
-        columns: List[np.ndarray] = [
-            enhancement / (delta_wash_in + _EPSILON),
-            (intensity[portal] - intensity[arterial]) / (delta_early + _EPSILON),
-            (intensity[delayed] - intensity[portal]) / (delta_late + _EPSILON),
-        ]
-        values = np.stack(columns, axis=1)
+        values = np.stack([slopes[name] for name in FEATURE_NAMES], axis=1)
         return build_voxel_field(
             subject, mask, voxel_index, FEATURE_NAMES, values, self.spec
         )

@@ -451,7 +451,12 @@ def _iter_layer_python_files(package: str) -> list[Path]:
     package_dir = _HABIT_PACKAGE_ROOT / package.removeprefix("habit.").replace(".", "/")
     if not package_dir.is_dir():
         return []
-    return sorted(package_dir.rglob("*.py"))
+    # Local scratch scripts (mytest*.py) are not part of the package surface.
+    return sorted(
+        path
+        for path in package_dir.rglob("*.py")
+        if not path.name.startswith("mytest")
+    )
 
 
 def _module_level_imports(path: Path) -> list[str]:

@@ -154,10 +154,10 @@ def test_two_step_translation_full_document() -> None:
     assert document["output"]["out_dir"].endswith("habitat_two_step")
     assert document["output"]["save_results_csv"] is True
 
-    # Worker-lifecycle knobs without a RunPolicy field survive verbatim.
-    assert translation.unmapped["persistent_worker_max_consecutive_failures"] == 1
-    assert translation.unmapped["persistent_worker_recycle_after_tasks"] == 0
-    assert translation.warnings  # preservation was reported, not silent
+    # Worker-lifecycle knobs map onto RunPolicy (v0.1 parity).
+    assert policy["persistent_worker_max_consecutive_failures"] == 1
+    assert policy["persistent_worker_recycle_after_tasks"] == 0
+    assert "persistent_worker_max_consecutive_failures" not in translation.unmapped
 
     validate_v1_document(document)
 

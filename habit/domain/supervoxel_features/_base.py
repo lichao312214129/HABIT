@@ -17,12 +17,14 @@
 The mean aggregation lives here rather than inside any one supervoxelizer:
 every partition needs a default summary, and having a single implementation
 is what guarantees ``mean_voxel_features`` and the built-in supervoxelizers
-produce byte-identical numbers.
+produce byte-identical numbers. The generalised statistic aggregation sits
+next to it so the ``mean`` / ``std`` / ``percentile`` extractors share the
+same grouping contract (row order, background handling, index dtype).
 """
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -34,6 +36,7 @@ from habit.spec.specs import Spec
 __all__ = [
     "SUPERVOXEL_INDEX_NAME",
     "aggregate_voxel_means",
+    "aggregate_voxel_statistic",
     "partition_labels",
     "voxel_counts",
     "with_features",
@@ -42,6 +45,71 @@ __all__ = [
 #: Index name of every per-supervoxel feature frame. Downstream cohort steps
 #: join partitions on it, so it is part of the contract rather than cosmetic.
 SUPERVOXEL_INDEX_NAME = "supervoxel"
+
+
+def aggregate_voxel_statistic(
+    field: VoxelFeatureField,
+    label_array: np.ndarray,
+    statistic: str = "mean",
+    q: float = 90.0,
+    columns: Optional[Sequence[str]] = None,
+) -> pd.DataFrame:
+    """
+    Aggregate each voxel feature within each supervoxel by one statistic.
+
+    The generalisation of :func:`aggregate_voxel_means`: same grouping
+    contract (empty labels skipped, ascending id order, pinned index dtype),
+    with the reduction chosen by ``statistic``.
+
+    Args:
+        field: Per-voxel features for one subject.
+        label_array: Supervoxel id per voxel over the full grid; ``0``
+            denotes voxels outside the ROI.
+        statistic: ``"mean"``, ``"std"`` (sample standard deviation,
+            ``ddof=1``), or ``"percentile"``.
+        q: Percentile in ``(0, 100)`` used when ``statistic="percentile"``;
+            pandas' linear interpolation applies.
+        columns: Subset of feature columns to aggregate; ``None`` aggregates
+            every column.
+
+    Returns:
+        One row per non-empty supervoxel, indexed by supervoxel id.
+
+    Raises:
+        HABITAPIError: On an unknown statistic or a missing column.
+    """
+    voxel_labels = np.asarray(label_array)[tuple(field.voxel_index.T)]
+    frame = pd.DataFrame(field.values, columns=list(field.feature_names))
+    if columns is not None:
+        missing = [column for column in columns if column not in frame.columns]
+        if missing:
+            raise HABITAPIError(
+                f"aggregate_voxel_statistic: columns {missing} are not in "
+                f"the voxel field {list(field.feature_names)}."
+            )
+        frame = frame[list(columns)]
+    frame[SUPERVOXEL_INDEX_NAME] = voxel_labels
+    # Background rows can appear when a partition leaves ROI voxels
+    # unassigned; they are not a supervoxel and must not become a row.
+    frame = frame[frame[SUPERVOXEL_INDEX_NAME] > 0]
+    grouped = frame.groupby(SUPERVOXEL_INDEX_NAME, sort=True)
+    if statistic == "mean":
+        features = grouped.mean()
+    elif statistic == "std":
+        features = grouped.std()
+    elif statistic == "percentile":
+        features = grouped.quantile(q / 100.0)
+    else:
+        raise HABITAPIError(
+            f"aggregate_voxel_statistic: unknown statistic {statistic!r}; "
+            "expected 'mean', 'std' or 'percentile'."
+        )
+    # Pin the index dtype: it is inherited from the label array, which is
+    # int32 here and int64 elsewhere, and a frame produced by one path must
+    # compare equal to the same frame produced by another.
+    features.index = features.index.astype(np.int64, copy=False)
+    features.index.name = SUPERVOXEL_INDEX_NAME
+    return features
 
 
 def aggregate_voxel_means(
@@ -64,19 +132,7 @@ def aggregate_voxel_means(
         One row per non-empty supervoxel, indexed by supervoxel id, with one
         column per voxel feature.
     """
-    voxel_labels = np.asarray(label_array)[tuple(field.voxel_index.T)]
-    frame = pd.DataFrame(field.values, columns=list(field.feature_names))
-    frame[SUPERVOXEL_INDEX_NAME] = voxel_labels
-    # Background rows can appear when a partition leaves ROI voxels
-    # unassigned; they are not a supervoxel and must not become a row.
-    frame = frame[frame[SUPERVOXEL_INDEX_NAME] > 0]
-    features = frame.groupby(SUPERVOXEL_INDEX_NAME, sort=True).mean()
-    # Pin the index dtype: it is inherited from the label array, which is
-    # int32 here and int64 elsewhere, and a frame produced by one path must
-    # compare equal to the same frame produced by another.
-    features.index = features.index.astype(np.int64, copy=False)
-    features.index.name = SUPERVOXEL_INDEX_NAME
-    return features
+    return aggregate_voxel_statistic(field, label_array, statistic="mean")
 
 
 def partition_labels(partition: Supervoxelization) -> np.ndarray:

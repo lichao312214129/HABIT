@@ -41,7 +41,10 @@ Follow :doc:`../tutorial/installation` (Path B + Install PyRadiomics). Short ver
 
      pip install "habitat-analysis[radiomics]"
 
-- Or: ``conda install -c conda-forge pyradiomics``
+- On **macOS / Linux**, ``conda install -c conda-forge pyradiomics`` is fine
+  when Conda can reach conda-forge (or a working mirror). On **Windows** do
+  not treat Conda as the primary path: mirror / ``repodata`` timeouts and
+  unsatisfiable solves are common; use the Release wheel above instead.
 - habitat-analysis ≥ 1.0.2 extras allow ``pyradiomics>=3.0.1,<3.2`` and
   support Python 3.10–3.14 with numpy 1.26 or 2.x.
 
@@ -59,6 +62,33 @@ Runtime
 1. ``habit <subcommand> --help``
 2. Check ``processing.log`` in the output folder.
 3. ``habit get-habitat ... --debug`` for habitat jobs.
+4. Validate YAML first: ``habit check-config -c <yaml> -w <workflow>``
+   (exit code 1, no traceback on user errors — see :doc:`../reference/cli`).
+
+**Subject failed but others finished**
+
+Habitat YAML ``on_subject_failure: continue`` (default) isolates per-subject
+errors; recipes / CLI proceed with successful subjects and record exclusions
+on the run manifest. In the Python API, default ``cohort.map`` still raises
+``ProcessingError``; pass ``raise_on_failure=False`` (or call ``backend.map``)
+for soft failure — see :doc:`../examples/fault_tolerance` and
+:doc:`../api/execution`.
+
+**Timeout / OOM / parallel_mode seem ignored**
+
+On the v1 CLI / ``run_from_yaml`` path those knobs apply when
+``ProcessPoolBackend`` is selected (``backend: process`` **or** a positive
+per-subject timeout, including ``processes: 1``). True in-process serial
+requires ``individual_subject_timeout_sec: null``. See :doc:`../api/execution`
+and the mapping table in :doc:`../api/spec`.
+
+**strict_checkpoint_hash raises on mismatch**
+
+With ``strict_checkpoint_hash: true``, an incompatible ``run_fingerprint.json``
+raises :class:`~habit.exceptions.CompatibilityError`. A readable v0.1
+``manifest.json`` / ``subjects/`` checkpoint is auto-migrated then resumed;
+only a corrupt/unreadable legacy manifest raises. Details:
+:doc:`../configuration/habitat`.
 
 **YAML changes ignored**
 

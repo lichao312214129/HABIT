@@ -51,6 +51,7 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 import yaml
 
 from habit.exceptions import HABITAPIError
+from habit.spec.expressions import parse_feature_expression
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec, MLSpec
 from habit.spec.yaml_io import _read_yaml, _write_yaml
@@ -118,6 +119,12 @@ _HABITAT_POLICY_KEY_MAP: Mapping[str, str] = {
     "force_rerun_subjects": "force_rerun_subjects",
     "clear_checkpoint_on_success": "clear_checkpoint_on_success",
     "strict_checkpoint_hash": "strict_checkpoint_hash",
+    "persistent_worker_max_consecutive_failures": (
+        "persistent_worker_max_consecutive_failures"
+    ),
+    "persistent_worker_recycle_after_tasks": (
+        "persistent_worker_recycle_after_tasks"
+    ),
 }
 
 #: v0 habitat output-switch keys moved under the document ``output`` section.
@@ -142,10 +149,6 @@ _HABITAT_CONSUMED_TOP_KEYS: frozenset = frozenset(
         "feature_construction",
         "habitat_segmentation",
         "random_state",
-        # Worker-lifecycle knobs consumed by the policy translator's
-        # legacy-preservation path, so the top-level sweep skips them.
-        "persistent_worker_max_consecutive_failures",
-        "persistent_worker_recycle_after_tasks",
     }
     | set(_HABITAT_POLICY_KEY_MAP)
     | set(_HABITAT_OUTPUT_KEYS)
@@ -604,6 +607,18 @@ class LegacyConfigAdapter:
                 "habitat train config."
             )
 
+        if '"' in expression or "'" in expression:
+            # The v1 strict spelling (quoted modality names, key=value
+            # params, nested children) parses into the canonical Spec
+            # tree. The block's params mapping merges into the ROOT node,
+            # with inline kwargs winning; unquoted expressions keep the
+            # legacy translation below byte-identically.
+            tree = parse_feature_expression(expression)
+            return {
+                "name": tree.name,
+                "params": {**v0_params, **dict(tree.params)},
+            }
+
         outer, steps = _parse_method_expression(
             expression, frozenset(v0_params)
         )
@@ -759,6 +774,25 @@ class LegacyConfigAdapter:
         # ``supervoxel_file_keyword`` locates a previously written label map:
         # a data-source concern in v1, never an algorithm parameter.
         v0_params.pop("supervoxel_file_keyword", None)
+
+        if '"' in expression or "'" in expression:
+            # The v1 strict spelling (quoted modality names, key=value
+            # params, nested children) parses into the canonical Spec
+            # tree; unquoted expressions keep the legacy translation
+            # below byte-identically.
+            if clustering_mode != "two_step":
+                warnings.append(
+                    f"clustering_mode '{clustering_mode}' ignores "
+                    f"feature_construction.supervoxel_level.method "
+                    f"('{expression}'): there is no supervoxel stage to "
+                    "describe. This matches v0.1 behaviour."
+                )
+                return None
+            tree = parse_feature_expression(expression)
+            return {
+                "name": tree.name,
+                "params": {**v0_params, **dict(tree.params)},
+            }
 
         outer, steps = _parse_method_expression(
             expression, frozenset(supervoxel_level.get("params") or {})
@@ -1001,10 +1035,10 @@ class LegacyConfigAdapter:
         """
         Translate v0 habitat execution keys into a ``RunPolicy`` payload.
 
-        Keys are renamed onto the v1 surface; ``workers > 1`` implies the
-        ``process`` backend because v0 had no backend concept beyond the
-        process count. Worker-lifecycle knobs with no RunPolicy field are
-        preserved under ``legacy``.
+        Keys are renamed onto the v1 surface. ``workers > 1`` **or** a
+        positive ``subject_timeout_sec`` selects the ``process`` backend,
+        matching v0.1 ``_should_use_spawn_workers`` (timeout isolation needs
+        a child even when ``workers == 1``).
 
         Args:
             payload: Full v0 payload.
@@ -1020,17 +1054,16 @@ class LegacyConfigAdapter:
             if v0_key in payload:
                 policy[v1_key] = payload[v0_key]
         workers = policy.get("workers", 1)
-        policy["backend"] = "process" if isinstance(workers, int) and workers > 1 else "serial"
-        for key in (
-            "persistent_worker_max_consecutive_failures",
-            "persistent_worker_recycle_after_tasks",
-        ):
-            if key in payload:
-                unmapped[key] = payload[key]
-                warnings.append(
-                    f"Execution key '{key}' has no RunPolicy field; preserved "
-                    "under 'legacy'."
-                )
+        # Prefer an explicit timeout from the payload; when the key is absent
+        # the typed RunPolicy default (900s) still applies after from_dict, so
+        # treat "absent" like the v0.1 schema default of 900.
+        if "subject_timeout_sec" in policy:
+            timeout = policy["subject_timeout_sec"]
+        else:
+            timeout = 900.0
+        timeout_armed = timeout is not None and float(timeout) > 0
+        workers_parallel = isinstance(workers, int) and workers > 1
+        policy["backend"] = "process" if (workers_parallel or timeout_armed) else "serial"
         return policy
 
     def _translate_habitat_output(

@@ -67,6 +67,28 @@ def test_pipeline_labels_unseen_subject() -> None:
 
 
 @pytest.mark.unit
+def test_pipeline_assign_reuses_precomputed_units() -> None:
+    """``assign`` / ``label_and_describe`` match ``__call__`` without re-units."""
+    pipeline = _fitted_pipeline()
+    subject = make_subject("new", seed=17)
+    units = pipeline.units(subject)
+    from_call = pipeline(subject)
+    from_units, prepared = pipeline.assign(units)
+    map_described, table, prepared2 = pipeline.label_and_describe(
+        subject, units, [HabitatVolumeFeatures()]
+    )
+    np.testing.assert_array_equal(
+        np.asarray(from_call.label_array), np.asarray(from_units.label_array)
+    )
+    np.testing.assert_array_equal(
+        np.asarray(from_units.label_array), np.asarray(map_described.label_array)
+    )
+    assert prepared.subject_id == prepared2.subject_id == subject.subject_id
+    assert table is not None
+    assert subject.subject_id in set(table.frame["subject"].astype(str))
+
+
+@pytest.mark.unit
 def test_pipeline_is_deterministic_for_fixed_seed() -> None:
     """A fitted pipeline assigns identical labels on repeated calls."""
     pipeline = _fitted_pipeline()

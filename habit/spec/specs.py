@@ -30,7 +30,7 @@ from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, cast
 
 from habit.exceptions import HABITAPIError
 
-__all__ = ["Spec", "HabitatSpec", "MLSpec"]
+__all__ = ["Spec", "HabitatSpec", "MLSpec", "coerce_spec"]
 
 #: Registry domains recognised inside a HabitatSpec, in canonical order.
 #: Field names deliberately match the plugin domains verbatim (see
@@ -241,6 +241,39 @@ class Spec:
         )
 
 
+def coerce_spec(entry: Any) -> Optional[Spec]:
+    """
+    Coerce one component payload into a Spec.
+
+    Accepts the structured mapping form (``name``/``params``) and the
+    compact string form (a strict feature-tree expression such as
+    ``'concat(raw("T1"), raw("T2"))'``), so YAML documents may spell a
+    feature component either way.
+
+    Args:
+        entry: The payload, or ``None``.
+
+    Returns:
+        The coerced Spec, or ``None`` for an unset component.
+
+    Raises:
+        HABITAPIError: On a payload of any other type.
+    """
+    if entry is None:
+        return None
+    if isinstance(entry, str):
+        # Lazy import: expressions.py itself depends on this module's Spec.
+        from habit.spec.expressions import parse_feature_expression
+
+        return parse_feature_expression(entry)
+    if isinstance(entry, Mapping):
+        return Spec.from_dict(entry)
+    raise HABITAPIError(
+        f"A component spec must be a mapping or an expression string; "
+        f"got {type(entry).__name__}: {entry!r}."
+    )
+
+
 @dataclass(frozen=True)
 class HabitatSpec:
     """
@@ -445,14 +478,15 @@ class HabitatSpec:
         """
         components: Dict[str, Optional[Spec]] = {}
         for domain in _COMPONENT_DOMAINS:
-            raw = payload.get(domain)
-            components[domain] = Spec.from_dict(raw) if raw is not None else None
+            components[domain] = coerce_spec(payload.get(domain))
         features = tuple(
-            Spec.from_dict(item) for item in payload.get("habitat_features", ())
+            cast(Spec, coerce_spec(item))
+            for item in payload.get("habitat_features", ())
         )
         chains = {
             chain_key: tuple(
-                Spec.from_dict(item) for item in payload.get(chain_key, ())
+                cast(Spec, coerce_spec(item))
+                for item in payload.get(chain_key, ())
             )
             for chain_key, _ in _PREPROCESSING_CHAINS
         }

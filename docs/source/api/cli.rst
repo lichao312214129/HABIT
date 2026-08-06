@@ -9,4 +9,8 @@ This v0.1-oriented page is no longer maintained.
 
 See :doc:`python_api` and :doc:`index` for the v1.0 Python API.
 
-See :doc:`../reference/cli` for the v1.0 CLI reference.
+See :doc:`../reference/cli` for the v1.0 CLI reference (including exit codes
+and ``check-config`` error behaviour).
+
+Fault-tolerance patterns for the Python API:
+:doc:`../examples/fault_tolerance`.

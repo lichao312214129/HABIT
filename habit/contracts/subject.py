@@ -37,6 +37,7 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -53,7 +54,7 @@ from habit.contracts.image import ImageRef, ImageVolume, MaskVolume
 if TYPE_CHECKING:
     # Lazy, typing-only: the directory adapter lives in L1 and the execution
     # backend protocol is only needed for annotations.
-    from habit.contracts.ops import ExecutionBackend
+    from habit.contracts.ops import ExecutionBackend, SubjectResult
     from habit.execution.checkpoint import CheckpointStore
 
 __all__ = [
@@ -374,12 +375,33 @@ class Cohort(Sequence[Subject]):
             metadata=self.metadata,
         )
 
+    @overload
+    def map(
+        self,
+        op: Callable[["Subject"], Any],
+        *,
+        backend: Optional["ExecutionBackend"] = None,
+        checkpoint: Optional["CheckpointStore"] = None,
+        raise_on_failure: Literal[True] = True,
+    ) -> Sequence[Any]: ...
+
+    @overload
+    def map(
+        self,
+        op: Callable[["Subject"], Any],
+        *,
+        backend: Optional["ExecutionBackend"] = None,
+        checkpoint: Optional["CheckpointStore"] = None,
+        raise_on_failure: Literal[False],
+    ) -> Sequence["SubjectResult[Any]"]: ...
+
     def map(
         self,
         op: Callable[[Subject], Any],
         *,
         backend: Optional["ExecutionBackend"] = None,
         checkpoint: Optional["CheckpointStore"] = None,
+        raise_on_failure: bool = True,
     ) -> Sequence[Any]:
         """
         Apply a subject-level operator to every subject, in cohort order.
@@ -396,14 +418,21 @@ class Cohort(Sequence[Subject]):
                 domain protocols or a ``SubjectPipeline``.
             backend: Execution strategy. Serial when omitted.
             checkpoint: Store enabling resume. Disabled when omitted.
+            raise_on_failure: When ``True`` (default), aggregate failed
+                subjects into :class:`~habit.exceptions.ProcessingError`.
+                When ``False``, return :class:`~habit.contracts.ops.SubjectResult`
+                slots in cohort order so callers (recipes / CLI) can proceed
+                with successes — matching v0.1 ``on_subject_failure: continue``.
 
         Returns:
-            Results in cohort order, not completion order, so that
-            downstream cohort-level steps stay reproducible.
+            When ``raise_on_failure`` is ``True``, unwrapped values in cohort
+            order. When ``False``, :class:`SubjectResult` slots in cohort
+            order (failed slots carry ``.error``).
 
         Raises:
-            ProcessingError: If any subject failed; the message lists every
-                failed subject id and its error.
+            ProcessingError: If ``raise_on_failure`` is ``True`` and any
+                subject failed; the message lists every failed subject id
+                and its error. Also raised when the backend omits a subject.
         """
         from habit.execution.backends import SerialBackend
         from habit.utils.progress_utils import CustomTqdm
@@ -438,7 +467,7 @@ class Cohort(Sequence[Subject]):
         failures = {
             sid: result.error for sid, result in by_subject.items() if result.error
         }
-        if failures:
+        if failures and raise_on_failure:
             detail = "; ".join(
                 f"{sid}: {type(err).__name__}: {err}" for sid, err in failures.items()
             )
@@ -453,7 +482,10 @@ class Cohort(Sequence[Subject]):
                     f"Backend returned no result for subject "
                     f"{subject.subject_id!r}."
                 )
-            ordered.append(result.result())
+            if raise_on_failure:
+                ordered.append(result.result())
+            else:
+                ordered.append(result)
         return ordered
 
     def summarize(self, description: Optional[str] = None) -> CohortFingerprint:

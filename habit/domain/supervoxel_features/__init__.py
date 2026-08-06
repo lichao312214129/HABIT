@@ -28,10 +28,24 @@ from habit.domain.supervoxel_features.radiomics import (
 from habit.domain.supervoxel_features.registry import (
     SupervoxelFeatureExtractorRegistry,
 )
+from habit.domain.supervoxel_features.statistics import (
+    MeanSupervoxelFeatures,
+    MeanSupervoxelFeaturesParams,
+    PercentileSupervoxelFeatures,
+    PercentileSupervoxelFeaturesParams,
+    StdSupervoxelFeatures,
+    StdSupervoxelFeaturesParams,
+)
 
 __all__ = [
+    "MeanSupervoxelFeatures",
+    "MeanSupervoxelFeaturesParams",
     "MeanVoxelFeatures",
     "MeanVoxelFeaturesParams",
+    "PercentileSupervoxelFeatures",
+    "PercentileSupervoxelFeaturesParams",
+    "StdSupervoxelFeatures",
+    "StdSupervoxelFeaturesParams",
     "SupervoxelRadiomicsFeatures",
     "SupervoxelRadiomicsFeaturesParams",
     "SupervoxelFeatureExtractorRegistry",

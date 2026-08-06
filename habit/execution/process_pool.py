@@ -46,10 +46,12 @@ arrays never do until the child loads them.
 from __future__ import annotations
 
 import multiprocessing
+import os
 import pickle
 import queue as queue_module
 import subprocess
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from typing import (
     TYPE_CHECKING,
@@ -70,6 +72,7 @@ from habit.exceptions import HABITAPIError
 from habit.contracts.ops import SubjectOperator, SubjectResult
 from habit.execution.backends import _cache_key_of, _subject_id_of
 from habit.execution.checkpoint import CheckpointStore
+from habit.utils.parallel_gpu_utils import HABIT_GPU_SLOT_INDEX_ENV
 
 if TYPE_CHECKING:
     # Typing-only reference: ``habit.spec`` sits outside the layers the
@@ -87,9 +90,45 @@ _STATUS_OK = "ok"
 _STATUS_ERROR = "error"
 _STATUS_OOM = "oom"
 _MSG_STARTED = "started"
+_MSG_BOUND = "bound"
+
+#: Parent -> worker command tags for the persistent protocol.
+_CMD_BIND = "bind"
+_CMD_RUN = "run"
 
 #: Poll interval of the parent-side scheduling loops, in seconds.
 _POLL_INTERVAL_SEC = 0.05
+
+#: BLAS / OpenMP thread caps applied once in every spawned worker so that
+#: ``workers × default_OMP`` cannot oversubscribe the machine (v0.1
+#: ``cluster_search_parallel`` parity; the process-pool path previously
+#: omitted this and could freeze laptop hosts under sklearn / numpy).
+_WORKER_THREAD_ENV = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+)
+
+
+def _configure_worker_runtime(worker_index: int) -> None:
+    """
+    Cap nested threading and publish the GPU slot for one child process.
+
+    Args:
+        worker_index: Zero-based slot index for this worker (also written to
+            ``HABIT_GPU_SLOT_INDEX`` for TorchRadiomics device selection).
+    """
+    for key in _WORKER_THREAD_ENV:
+        os.environ.setdefault(key, "1")
+    os.environ[HABIT_GPU_SLOT_INDEX_ENV] = str(int(worker_index))
+    try:
+        import torch
+
+        torch.set_num_threads(1)
+    except Exception:  # noqa: BLE001 - torch optional / broken is fine
+        pass
 
 
 class SubjectTimeoutError(TimeoutError):
@@ -128,7 +167,12 @@ def _picklable(exc: BaseException) -> BaseException:
     return exc
 
 
-def _isolated_worker(op: Any, item: Any, result_queue: Any) -> None:
+def _isolated_worker(
+    op: Any,
+    item: Any,
+    result_queue: Any,
+    worker_index: int = 0,
+) -> None:
     """
     Run one subject in a dedicated child process.
 
@@ -141,7 +185,9 @@ def _isolated_worker(op: Any, item: Any, result_queue: Any) -> None:
         op: The subject-level operator (pickled in).
         item: The subject-scoped payload (pickled in).
         result_queue: Parent-owned queue for messages.
+        worker_index: Slot index for GPU/thread configuration.
     """
+    _configure_worker_runtime(worker_index)
     result_queue.put(_MSG_STARTED)
     try:
         value = op(item)
@@ -169,29 +215,60 @@ def _isolated_worker(op: Any, item: Any, result_queue: Any) -> None:
 
 
 def _persistent_worker(
-    task_queue: Any, result_queue: Any, worker_index: int, op: Any
+    task_queue: Any,
+    result_queue: Any,
+    worker_index: int,
+    recycle_after_tasks: int = 0,
 ) -> None:
     """
-    Serve subject tasks from a private queue until poisoned (``None``).
+    Serve bind/run commands from a private queue until poisoned (``None``).
 
-    ``op`` arrives once at construction, so tasks carry only the item --
-    repeated operator pickling is avoided for heavy models. Each worker
-    owns its task queue: the parent dispatches exactly one task at a time
-    and only sends the next one after the outcome of the previous arrives,
-    so a terminated worker can never take an unaccounted task down with it.
+    The operator is bound via ``(_CMD_BIND, op)`` so a long-lived pool can
+    be reused across recipe stages with different operators (v0.1
+    ``PersistentWorkerPoolSession`` parity). Each worker owns its task
+    queue: the parent dispatches exactly one run at a time and only sends
+    the next after the previous outcome arrives.
 
     Args:
-        task_queue: This worker's private queue of ``_Task`` objects
-            (``None`` ends the loop).
+        task_queue: This worker's private command queue (``None`` ends the
+            loop).
         result_queue: Parent-owned queue for messages.
         worker_index: Slot index attached to every message.
-        op: The subject-level operator (pickled in once).
+        recycle_after_tasks: Exit cleanly after this many successful runs
+            (``0`` disables); the parent respawns the slot.
     """
+    _configure_worker_runtime(worker_index)
     result_queue.put((worker_index, None, _MSG_STARTED, None))
+    op: Any = None
+    successful_tasks = 0
     while True:
-        task = task_queue.get()
-        if task is None:
+        message = task_queue.get()
+        if message is None:
             return
+        if not isinstance(message, tuple) or not message:
+            continue
+        command = message[0]
+        if command == _CMD_BIND:
+            op = message[1]
+            successful_tasks = 0
+            result_queue.put((worker_index, None, _MSG_BOUND, None))
+            continue
+        if command != _CMD_RUN:
+            continue
+        task = message[1]
+        if op is None:
+            result_queue.put(
+                (
+                    worker_index,
+                    task.task_id,
+                    _STATUS_ERROR,
+                    HABITAPIError(
+                        f"Persistent worker {worker_index} received a run "
+                        "before its operator was bound."
+                    ),
+                )
+            )
+            continue
         try:
             value = op(task.item)
         except MemoryError as exc:
@@ -222,6 +299,12 @@ def _persistent_worker(
                 )
             else:
                 result_queue.put((worker_index, task.task_id, _STATUS_OK, value))
+                successful_tasks += 1
+                if (
+                    recycle_after_tasks > 0
+                    and successful_tasks >= recycle_after_tasks
+                ):
+                    return
 
 
 @dataclass(frozen=True)
@@ -242,8 +325,11 @@ class _PersistentSlot:
     proc: Any
     task_queue: Any
     started: bool
+    bound: bool
     in_flight_task: Optional[int]
     dispatched_at: float
+    consecutive_failures: int = 0
+    successful_tasks: int = 0
 
 
 def _detect_gpu_pool_size() -> int:
@@ -323,6 +409,10 @@ class ProcessPoolBackend:
             checkpoint success exists.
         clear_checkpoint_on_success: Clear the checkpoint store after a
             run with zero failures.
+        persistent_worker_max_consecutive_failures: Restart a persistent
+            slot after this many consecutive fatal-class failures.
+        persistent_worker_recycle_after_tasks: Restart a persistent worker
+            after this many successes (``0`` disables).
     """
 
     def __init__(
@@ -342,6 +432,8 @@ class ProcessPoolBackend:
         retry_failed_subjects: bool = False,
         force_rerun_subjects: Tuple[str, ...] = (),
         clear_checkpoint_on_success: bool = False,
+        persistent_worker_max_consecutive_failures: int = 1,
+        persistent_worker_recycle_after_tasks: int = 0,
     ) -> None:
         # RunPolicy owns the validation rules; building one here keeps the
         # two surfaces consistent by construction. The import is lazy on
@@ -365,6 +457,12 @@ class ProcessPoolBackend:
             retry_failed_subjects=retry_failed_subjects,
             force_rerun_subjects=tuple(force_rerun_subjects),
             clear_checkpoint_on_success=clear_checkpoint_on_success,
+            persistent_worker_max_consecutive_failures=(
+                persistent_worker_max_consecutive_failures
+            ),
+            persistent_worker_recycle_after_tasks=(
+                persistent_worker_recycle_after_tasks
+            ),
         )
         self.gpu_pool_size = _detect_gpu_pool_size() if cap_workers_to_gpu_pool else 0
         if cap_workers_to_gpu_pool and self.gpu_pool_size > 0:
@@ -372,6 +470,13 @@ class ProcessPoolBackend:
                 policy, workers=max(1, min(policy.workers, self.gpu_pool_size))
             )
         self._policy = policy
+        # Optional multi-map session (see :meth:`reuse_workers`).
+        self._reuse_depth = 0
+        self._session_ctx: Any = None
+        self._session_result_queue: Any = None
+        self._session_slots: Dict[int, _PersistentSlot] = {}
+        self._session_next_worker_index = 0
+        self._session_bound_op_id: Optional[int] = None
 
     @classmethod
     def from_policy(cls, policy: "RunPolicy") -> "ProcessPoolBackend":
@@ -400,7 +505,33 @@ class ProcessPoolBackend:
             retry_failed_subjects=policy.retry_failed_subjects,
             force_rerun_subjects=policy.force_rerun_subjects,
             clear_checkpoint_on_success=policy.clear_checkpoint_on_success,
+            persistent_worker_max_consecutive_failures=(
+                policy.persistent_worker_max_consecutive_failures
+            ),
+            persistent_worker_recycle_after_tasks=(
+                policy.persistent_worker_recycle_after_tasks
+            ),
         )
+
+    @contextmanager
+    def reuse_workers(self) -> Iterator["ProcessPoolBackend"]:
+        """
+        Keep persistent workers alive across successive :meth:`map` calls.
+
+        Nested enters are reference-counted. Isolated mode is a no-op (each
+        subject already owns a short-lived child). Recipes use this to avoid
+        paying Windows spawn/import twice for two_step units + labels.
+        """
+        if self._policy.parallel_mode != "persistent":
+            yield self
+            return
+        self._reuse_depth += 1
+        try:
+            yield self
+        finally:
+            self._reuse_depth -= 1
+            if self._reuse_depth == 0:
+                self._shutdown_worker_session()
 
     @property
     def policy(self) -> "RunPolicy":
@@ -637,9 +768,12 @@ class ProcessPoolBackend:
                         exhausted = True
                         continue
                     result_queue = ctx.Queue()
+                    # Slot index ≈ concurrent index so TorchRadiomics can
+                    # hash across a multi-GPU pool when one is configured.
+                    slot_index = len(running)
                     proc = ctx.Process(
                         target=_isolated_worker,
-                        args=(op, task.item, result_queue),
+                        args=(op, task.item, result_queue, slot_index),
                         daemon=True,
                     )
                     proc.start()
@@ -742,6 +876,26 @@ class ProcessPoolBackend:
             return current
         return max(1, current - self._policy.oom_reduce_workers_by)
 
+    def _shutdown_worker_session(self) -> None:
+        """Stop every persistent worker retained by :meth:`reuse_workers`."""
+        for slot in list(self._session_slots.values()):
+            self._stop_persistent_slot(slot)
+        self._session_slots.clear()
+        self._session_ctx = None
+        self._session_result_queue = None
+        self._session_next_worker_index = 0
+        self._session_bound_op_id = None
+
+    def _stop_persistent_slot(self, slot: _PersistentSlot) -> None:
+        """Poison one persistent slot and join its process."""
+        try:
+            slot.task_queue.put(None)
+        except Exception:  # noqa: BLE001 - queue already broken
+            pass
+        slot.proc.join(timeout=self._policy.graceful_shutdown_sec)
+        if slot.proc.is_alive():
+            self._terminate(slot.proc)
+
     def _round_persistent(
         self, op: SubjectOperator[TIn, TOut], tasks: List[_Task]
     ) -> Iterator[Tuple[_Task, str, Any]]:
@@ -756,6 +910,9 @@ class ProcessPoolBackend:
         realised as retirements consumed by slots as they become free, so
         busy workers always finish their current subject.
 
+        When :meth:`reuse_workers` is active, slots and the result queue
+        survive across ``map`` calls; only the operator is rebound.
+
         Args:
             op: The subject-level operator.
             tasks: Tasks to compute.
@@ -763,59 +920,155 @@ class ProcessPoolBackend:
         Yields:
             ``(task, status, payload)`` triples in completion order.
         """
-        ctx = multiprocessing.get_context("spawn")
-        result_queue = ctx.Queue()
+        keep_alive = self._reuse_depth > 0
+        recycle_after = self._policy.persistent_worker_recycle_after_tasks
+        max_consec = self._policy.persistent_worker_max_consecutive_failures
+
+        if keep_alive and self._session_ctx is None:
+            self._session_ctx = multiprocessing.get_context("spawn")
+            self._session_result_queue = self._session_ctx.Queue()
+
+        ctx = self._session_ctx if keep_alive else multiprocessing.get_context("spawn")
+        result_queue = (
+            self._session_result_queue if keep_alive else ctx.Queue()
+        )
+        assert ctx is not None and result_queue is not None
+
         task_by_id = {task.task_id: task for task in tasks}
         pending: List[_Task] = list(tasks)
-        slots: Dict[int, _PersistentSlot] = {}
-        slot_count = max(1, min(self.workers, len(tasks)))
-        next_worker_index = 0
+        slots: Dict[int, _PersistentSlot] = (
+            self._session_slots if keep_alive else {}
+        )
+        slot_count = max(1, min(self.workers, len(tasks))) if tasks else 0
+        next_worker_index = (
+            self._session_next_worker_index if keep_alive else 0
+        )
         completed = 0
         total = len(tasks)
         pending_retirements = 0
+        op_id = id(op)
 
         def _spawn_slot() -> int:
             nonlocal next_worker_index
             task_queue = ctx.Queue()
             proc = ctx.Process(
                 target=_persistent_worker,
-                args=(task_queue, result_queue, next_worker_index, op),
+                args=(
+                    task_queue,
+                    result_queue,
+                    next_worker_index,
+                    recycle_after,
+                ),
                 daemon=True,
             )
-            # An unpicklable operator surfaces here, in the parent, rather
-            # than as a mysteriously dead child.
             proc.start()
             slots[next_worker_index] = _PersistentSlot(
                 worker_index=next_worker_index,
                 proc=proc,
                 task_queue=task_queue,
                 started=False,
+                bound=False,
                 in_flight_task=None,
                 dispatched_at=time.monotonic(),
             )
             next_worker_index += 1
+            if keep_alive:
+                self._session_next_worker_index = next_worker_index
             return next_worker_index - 1
+
+        def _bind_slot(slot: _PersistentSlot) -> None:
+            # An unpicklable operator surfaces here, in the parent.
+            slot.bound = False
+            slot.dispatched_at = time.monotonic()
+            slot.task_queue.put((_CMD_BIND, op))
 
         def _dispatch(slot: _PersistentSlot) -> None:
             task = pending.pop(0)
             slot.in_flight_task = task.task_id
             slot.dispatched_at = time.monotonic()
-            slot.task_queue.put(task)
+            slot.task_queue.put((_CMD_RUN, task))
 
-        def _stop_slot(slot: _PersistentSlot) -> None:
-            # Poison first so an idle worker exits cleanly; a busy worker
-            # never reads the pill, so the ladder below still applies.
-            try:
-                slot.task_queue.put(None)
-            except Exception:  # noqa: BLE001 - queue already broken
-                pass
-            slot.proc.join(timeout=self._policy.graceful_shutdown_sec)
-            if slot.proc.is_alive():
-                self._terminate(slot.proc)
+        def _restart_slot(old: _PersistentSlot) -> _PersistentSlot:
+            self._stop_persistent_slot(old)
+            slots.pop(old.worker_index, None)
+            new_index = _spawn_slot()
+            new_slot = slots[new_index]
+            _bind_slot(new_slot)
+            return new_slot
+
+        def _note_outcome(slot: _PersistentSlot, kind: str) -> bool:
+            """
+            Update consecutive-failure counters; return whether to restart.
+
+            Args:
+                slot: Slot that just finished a run.
+                kind: Outcome kind (``ok`` / ``error`` / ``oom``).
+
+            Returns:
+                ``True`` when the slot should be restarted before reuse.
+            """
+            if kind == _STATUS_OK:
+                slot.consecutive_failures = 0
+                slot.successful_tasks += 1
+                return False
+            if kind in (_STATUS_ERROR, _STATUS_OOM):
+                slot.consecutive_failures += 1
+                return slot.consecutive_failures >= max_consec
+            return False
 
         try:
-            for _ in range(slot_count):
-                _dispatch(slots[_spawn_slot()])
+            # Grow the pool up to slot_count (session reuse may already have
+            # some warm workers).
+            while len(slots) < slot_count:
+                _spawn_slot()
+
+            # Always (re)bind before dispatching. Session reuse across recipe
+            # stages changes the operator; skipping bind when ``bound`` was
+            # still True from the previous map would silently run the old op
+            # (e.g. units results under label cache keys).
+            for slot in list(slots.values()):
+                if slot.in_flight_task is None:
+                    _bind_slot(slot)
+            if keep_alive:
+                self._session_bound_op_id = op_id
+
+            # Wait until every idle slot is bound, then dispatch.
+            unbound = [s for s in slots.values() if not s.bound]
+            while unbound:
+                try:
+                    message = result_queue.get(timeout=_POLL_INTERVAL_SEC)
+                except queue_module.Empty:
+                    message = None
+                if message is not None:
+                    worker_index, _task_id, kind, _payload = message
+                    slot = slots.get(worker_index)
+                    if slot is None:
+                        continue
+                    if kind == _MSG_STARTED:
+                        slot.started = True
+                        continue
+                    if kind == _MSG_BOUND:
+                        slot.bound = True
+                        slot.started = True
+                        continue
+                now = time.monotonic()
+                spawn_timeout = self._policy.subject_spawn_timeout_sec
+                for index, slot in list(slots.items()):
+                    if slot.bound or slot.in_flight_task is not None:
+                        continue
+                    elapsed = now - slot.dispatched_at
+                    if (
+                        spawn_timeout is not None
+                        and elapsed > spawn_timeout
+                        and not slot.started
+                    ):
+                        # Startup hang during bind: replace the slot.
+                        _restart_slot(slot)
+                unbound = [s for s in slots.values() if not s.bound]
+
+            for slot in list(slots.values()):
+                if pending and slot.in_flight_task is None and slot.bound:
+                    _dispatch(slot)
 
             while completed < total:
                 try:
@@ -827,30 +1080,40 @@ class ProcessPoolBackend:
                     worker_index, task_id, kind, payload = message
                     slot = slots.get(worker_index)
                     if slot is None:
-                        # Stale message from a retired or replaced worker.
                         continue
                     if kind == _MSG_STARTED:
                         slot.started = True
                         continue
+                    if kind == _MSG_BOUND:
+                        slot.bound = True
+                        slot.started = True
+                        if pending and slot.in_flight_task is None:
+                            _dispatch(slot)
+                        continue
                     if task_id != slot.in_flight_task:
-                        # Outcome for an already-accounted task (e.g. the
-                        # worker finished while being timed out).
                         continue
                     completed += 1
                     slot.in_flight_task = None
+                    restart = _note_outcome(slot, kind)
                     if kind == _STATUS_OOM and self._policy.oom_backoff:
                         pending_retirements = min(
                             pending_retirements
                             + self._policy.oom_reduce_workers_by,
-                            len(slots) - 1,
+                            max(0, len(slots) - 1),
                         )
+                    yield task_by_id[task_id], kind, payload
                     if pending_retirements > 0 and len(slots) > 1:
                         pending_retirements -= 1
                         slots.pop(worker_index)
-                        _stop_slot(slot)
-                    elif pending:
+                        self._stop_persistent_slot(slot)
+                    elif restart:
+                        new_slot = _restart_slot(slot)
+                        if pending:
+                            # Wait for bind ack on the next loop iteration.
+                            pass
+                        del new_slot
+                    elif pending and slot.bound:
                         _dispatch(slot)
-                    yield task_by_id[task_id], kind, payload
 
                 now = time.monotonic()
                 spawn_timeout = self._policy.subject_spawn_timeout_sec
@@ -876,6 +1139,7 @@ class ProcessPoolBackend:
                         )
                     elif (
                         slot.started
+                        and slot.bound
                         and subject_timeout is not None
                         and elapsed > subject_timeout
                     ):
@@ -891,14 +1155,14 @@ class ProcessPoolBackend:
                 for index, error in timed_out:
                     slot = slots.pop(index)
                     task_id = slot.in_flight_task
-                    # A slot only enters ``timed_out`` after its startup signal
-                    # arrived, which implies a task was dispatched into it.
                     assert task_id is not None
                     self._terminate(slot.proc)
                     completed += 1
+                    slot.consecutive_failures += 1
                     yield task_by_id[task_id], _STATUS_ERROR, error
                     if pending and completed < total:
-                        _dispatch(slots[_spawn_slot()])
+                        new_slot = slots[_spawn_slot()]
+                        _bind_slot(new_slot)
 
                 for index, slot in list(slots.items()):
                     if slot.proc.is_alive():
@@ -915,7 +1179,11 @@ class ProcessPoolBackend:
                             ),
                         )
                     if pending and completed < total and len(slots) < slot_count:
-                        _dispatch(slots[_spawn_slot()])
+                        new_slot = slots[_spawn_slot()]
+                        _bind_slot(new_slot)
         finally:
-            for slot in slots.values():
-                _stop_slot(slot)
+            if not keep_alive:
+                for slot in list(slots.values()):
+                    self._stop_persistent_slot(slot)
+                slots.clear()
+

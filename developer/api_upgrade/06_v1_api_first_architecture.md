@@ -263,6 +263,14 @@ HabitatFeatureExtractor(spec)        __call__(Subject, HabitatMap)         -> Fe
 
 生境分析对随机种子异常敏感（k-means / GMM 初始化、SLIC 播种，加上群体级聚类还对受试者顺序敏感）。v0.1 让每个组件各自发明 `random_state`，导致一次运行无法整体重播、也无法如实报告。参照 MONAI 的 `Randomizable`，随机组件实现 `set_random_state(seed)`；确定性组件不实现该协议，这本身就是有用的溯源信息。
 
+### 6.0d 特征树与 `Combiner`：多模态组合的显式化
+
+HABIT 的科学卖点是天然多模态：单模态提取方式多样，组合方式也应多样且可扩展。v1.0 初版把多模态组合塞进 `concat`（体素域的一个普通成员），超体素与生境层没有对应物，组合逻辑也无法被第三方替换。决策（命名细节见 `08` §1d）：
+
+- **组合器独立成第九个领域协议 `Combiner`**：`__call__(Sequence[DataFrame], context) -> DataFrame`，只吃 DataFrame、不认识 `Subject` / `Spec` / 文件系统。体素、超体素、生境三层复用同一批组合器（`concat` / `weighted_concat` / `average` / `ratio` / `difference` / `kinetic` / `expression`），组合逻辑因此可单独测试、可插件扩展（`habit.combiner` 入口组）。
+- **每个提取阶段统一为递归 Spec 树**：叶子是单模态（或几何）提取器，组合器节点的 children 存在 `params["children"]`——不给 `Spec` 加新字段，指纹与序列化零改动。树求值包装器（`VoxelFeatureTree` / `SupervoxelFeatureTree` / `HabitatFeatureTree`）实现各层既有协议，装配层 `build_*_extractor` 对叶子与树透明路由，**红线一（`op(subject)` 原子调用）不受影响**——树只是求值结构，管线与外部调用者看到的仍是单参可调用对象。
+- **表达式 DSL 是 Spec 树的投影**：严格形式（引号模态、显式 `key=value`、嵌套调用）由 `habit.spec.parse_feature_expression` 解析；v0.1 宽松语法只留在 legacy adapter——表达式含引号才路由到新解析器，旧配置翻译逐字节一致，新配置得到树。歧义输入硬报错，不猜。
+
 ### 6.1 三种 clustering_mode 如何表达
 
 现在 `_PIPELINE_RECIPES` 是硬编码 dict，加第四种范式必须改源码。新架构下三种模式只是这八个协议的**不同装配方式**：

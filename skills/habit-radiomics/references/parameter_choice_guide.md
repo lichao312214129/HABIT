@@ -19,7 +19,7 @@ setting:      # discretization, masks, normalization
 | Voxel-radiomics (clustering) | Original | firstorder + glcm (21 stable; see `params_voxel_radiomics.yaml`) | ~39 |
 
 **CT habitat voxel texture (R3B12):** omit `params_file` and use `params: {}` for defaults
-(`kernel_radius: 3`, bundled preset `binWidth: 12`; Petersen et al.,
+(`kernel_radius: 3`, bundled preset `binWidth: 12`; Prior O, et al.,
 *Radiol Artif Intell* 2024;6(2):e230118, doi:10.1148/ryai.230118). Whole-tumor CT
 radiomics below may still use `binWidth: 25`.
 

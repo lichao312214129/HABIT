@@ -192,19 +192,14 @@ You need PyRadiomics when your YAML / API uses:
 If you only use intensity ``raw`` / ``concat`` habitat features, you can skip
 this section.
 
-Option 1 — Conda-forge (preferred when Conda works)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Choose by platform:
 
-With the ``habit`` environment activated::
+* **Windows**: Option 1 (HABIT prebuilt wheel). Do **not** rely on
+  ``conda install -c conda-forge pyradiomics`` as the primary path.
+* **macOS / Linux**: Option 2 (conda-forge) when Conda network access works.
 
-   conda install -c conda-forge pyradiomics -y
-   python -c "import radiomics; print('pyradiomics OK')"
-
-This is the most portable route across Python 3.10–3.14 **when your Conda
-installation can write to its package cache**.
-
-Option 2 — Windows pip: prebuilt wheel from GitHub Releases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Option 1 — Windows: prebuilt wheel from GitHub Releases (recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Upstream PyPI has **no usable PyRadiomics Windows binaries** for any
 supported Python (3.10–3.14):
@@ -224,22 +219,41 @@ already satisfied::
 
    pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
    pip install "habitat-analysis[radiomics]"
-   python -c "import radiomics, habit; print(habit.__version__, 'pyradiomics OK')"
+   python -c "import radiomics; print(radiomics.__version__)"
 
 (Replace ``cp310`` with your interpreter tag, e.g. ``cp312`` / ``cp313`` /
 ``cp314``.) If you mirrored the wheels locally, point pip at them instead::
 
    pip install "habitat-analysis[radiomics]" --find-links C:\path\to\wheels
 
-On **macOS / Linux**, prefer Option 1 (conda-forge).
-
-Windows ZIP note
-~~~~~~~~~~~~~~~~
-
-Path A already installs a checked ``cp310`` wheel from
+Windows ZIP note: Path A already installs a checked ``cp310`` wheel from
 ``installer/vendor/pyradiomics-3.0.1-cp310-cp310-win_amd64.whl`` when the
 release bundle includes that file — you usually do not need a separate
 PyRadiomics step after the one-click installer.
+
+Option 2 — Conda-forge (preferred on macOS / Linux)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With the ``habit`` environment activated::
+
+   conda install -c conda-forge pyradiomics -y
+   python -c "import radiomics; print(radiomics.__version__)"
+
+This is the usual route on **macOS / Linux** when Conda can reach
+``conda-forge`` (or a working mirror) and write to its package cache.
+
+**Limitations (especially on Windows):** the command is valid, but it often
+fails in real hospital / China-network setups:
+
+* defaults or conda-forge mirrors time out (``HTTP 000 CONNECTION FAILED``,
+  ``repodata.json`` / ``current_repodata.json`` unreachable)
+* solver falls back to the full index and then hangs or errors
+* even when the index downloads, an existing crowded env may fail with an
+  unsatisfiable solve
+
+If any of those happen on Windows, stop retrying Conda and use **Option 1**
+instead. A successful Conda install still ends with the same import check
+above; ``import radiomics`` is what matters, not which channel provided it.
 
 
 Optional extras (programmers)
@@ -256,9 +270,10 @@ Install only what your workflow needs. Missing extras raise
      - Command
      - Needed for
    * - ``radiomics``
-     - Windows: install the prebuilt PyRadiomics wheel from GitHub Releases
-       first, then ``pip install "habitat-analysis[radiomics]"`` (≥ 1.0.2
-       allows ``pyradiomics`` 3.0.1–3.1.x); elsewhere: conda-forge
+     - Windows: HABIT Release prebuilt wheel first, then
+       ``pip install "habitat-analysis[radiomics]"`` (≥ 1.0.2 allows
+       ``pyradiomics`` 3.0.1–3.1.x). macOS/Linux: conda-forge when the
+       network works (Windows: not the primary path)
      - Voxel / supervoxel / traditional PyRadiomics
    * - ``ml``
      - ``pip install "habitat-analysis[ml]"``
@@ -317,7 +332,7 @@ Developer on any OS (minimal library)
 Developer who needs radiomics + ML
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+**macOS / Linux** (conda-forge when the network works)::
 
    conda create -n habit python=3.10 -y
    conda activate habit
@@ -325,7 +340,17 @@ Developer who needs radiomics + ML
    pip install -U pip
    pip install "habitat-analysis[ml,analysis]"
    habit --version
-   python -c "import radiomics, habit; print(habit.__version__, 'OK')"
+   python -c "import radiomics; print(radiomics.__version__)"
+
+**Windows** (use the HABIT Release wheel; replace ``cp310`` if needed)::
+
+   conda create -n habit python=3.10 -y
+   conda activate habit
+   pip install -U pip
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+   pip install "habitat-analysis[ml,analysis,radiomics]"
+   habit --version
+   python -c "import radiomics; print(radiomics.__version__)"
 
 From GitHub source
 ~~~~~~~~~~~~~~~~~~
@@ -338,8 +363,9 @@ From GitHub source
    conda activate habit
    pip install -U pip
    pip install .
-   # optional:
-   conda install -c conda-forge pyradiomics -y
+   # optional radiomics:
+   #   macOS/Linux: conda install -c conda-forge pyradiomics -y
+   #   Windows: pip-install the matching HABIT Release wheel (see above)
    pip install -e ".[ml]"
 
 
@@ -363,15 +389,20 @@ that declares the ``radiomics`` extra, or install without extras first::
 **``pip install pyradiomics`` fails (any Python, Windows)**
 
 Expected: PyPI ships no usable PyRadiomics Windows binaries. On Windows use
-the prebuilt 3.1.0 wheel from the HABIT GitHub Release (see *Install
-PyRadiomics* above); otherwise use::
+the prebuilt 3.1.0 wheel from the HABIT GitHub Release (Option 1 under
+*Install PyRadiomics*).
 
-   conda install -c conda-forge pyradiomics
+``conda install -c conda-forge pyradiomics`` is mainly for **macOS / Linux**.
+On Windows it frequently fails when mirrors or ``conda.anaconda.org`` time
+out, or when the solver cannot reconcile an existing env — then use the
+Release wheel instead of retrying Conda.
 
 **Permission / SSL / mirror errors at hospital networks**
 
-Ask IT to allow access to ``pypi.org`` and ``conda-forge``, or use an internal
-mirror. Offline Path A ZIP avoids most of these issues.
+Ask IT to allow access to ``pypi.org``, GitHub Releases (for Windows
+PyRadiomics wheels), and ``conda-forge`` (or a working mirror). Offline Path A
+ZIP avoids most of these issues. If only Conda indexes fail, Windows users can
+still install PyRadiomics from the Release wheel via pip.
 
 **More FAQ**
 

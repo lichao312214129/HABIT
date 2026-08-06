@@ -173,7 +173,7 @@ class TestFeatureExtractionAPI:
         config = habit.FeatureExtractionConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.compat.engines.habitat_analysis.run.run_feature_extraction_from_config"
+            "habit.compat.feature_extraction_runner.run_feature_extraction_from_config"
         ) as mock_run:
             habit.run_feature_extraction(config)
             mock_run.assert_called_once_with(
@@ -206,7 +206,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = habit.RadiomicsConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.compat.engines.habitat_analysis.run.run_radiomics_from_config"
+            "habit.compat.feature_extraction_runner.run_radiomics_from_config"
         ) as mock_run:
             habit.run_radiomics(config)
             mock_run.assert_called_once_with(config, logger=None)
@@ -249,7 +249,7 @@ class TestRadiomicsAndAnalysisAPI:
         config = habit.ICCConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.compat.engines.machine_learning.feature_selectors.icc.icc.run_icc_analysis_from_config"
+            "habit.compat.icc_runner.run_icc_analysis_from_config"
         ) as mock_run:
             habit.run_icc_analysis(config)
             mock_run.assert_called_once_with(config)

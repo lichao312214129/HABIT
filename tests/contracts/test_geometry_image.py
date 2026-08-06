@@ -38,6 +38,49 @@ def test_geometry_compatibility_requires_same_grid() -> None:
 
 
 @pytest.mark.unit
+def test_geometry_direction_tolerates_dicom_noise() -> None:
+    """Direction cosines tolerate ~1e-5 DICOM noise but reject real tilts.
+
+    Spacing/origin stay on the stricter absolute ``tolerance`` (1e-5);
+    only the direction matrix uses the looser ``direction_tolerance``
+    (default 1e-4). Phase-1 parity saw a 1.44e-5 cosine drift on a
+    near-zero off-diagonal entry reject sub1; perturbing a ~0 entry
+    reproduces that failure mode under absolute (rtol=0) comparison.
+    """
+    base = Geometry.from_array((4, 5, 6), spacing=(1.0, 1.0, 2.0))
+    # Off-diagonal entry of the identity direction matrix (value ~0).
+    noisy_direction = list(base.direction)
+    noisy_direction[1] += 1.44e-5
+    noisy = Geometry(
+        shape=base.shape,
+        spacing=base.spacing,
+        origin=base.origin,
+        direction=tuple(noisy_direction),
+    )
+    assert base.is_compatible_with(noisy)
+    assert not base.is_compatible_with(noisy, direction_tolerance=1e-5)
+
+    tilted_direction = list(base.direction)
+    tilted_direction[1] += 1e-3
+    tilted = Geometry(
+        shape=base.shape,
+        spacing=base.spacing,
+        origin=base.origin,
+        direction=tuple(tilted_direction),
+    )
+    assert not base.is_compatible_with(tilted)
+
+    # Spacing remains strict: 2e-5 exceeds the default 1e-5 absolute tol.
+    drifted_spacing = Geometry(
+        shape=base.shape,
+        spacing=(1.0, 1.0, 2.0 + 2e-5),
+        origin=base.origin,
+        direction=base.direction,
+    )
+    assert not base.is_compatible_with(drifted_spacing)
+
+
+@pytest.mark.unit
 def test_geometry_frame_of_reference_mismatch_detected() -> None:
     """Two different shared-space identifiers are never silently compatible."""
     a = Geometry.from_array((2, 2, 2), frame_of_reference="frame-a")

@@ -53,8 +53,53 @@ Direct (no-supervoxel) design — set ``supervoxelizer=None``::
        habitat_features=(Spec("volume"),),
    )
 
+Feature trees and the expression form
+-------------------------------------
+
+Extraction stages (``voxel_feature_extractor``,
+``supervoxel_feature_extractor``, ``habitat_features``) accept a **tree** of
+nodes: leaves carry ``modality=`` / ``modalities=`` parameters, and combiner
+nodes nest their children under ``params["children"]`` as plain
+``{"name", "params"}`` payloads. Any component entry may be written in two
+**fingerprint-identical** spellings — the structured mapping above, or the
+strict expression string parsed by :func:`~habit.spec.parse_feature_expression`
+(:func:`~habit.spec.coerce_spec` routes a string entry to the parser and a
+mapping entry to ``Spec.from_dict``):
+
+.. code-block:: python
+
+   from habit import HabitatSpec, parse_feature_expression
+
+   expr = parse_feature_expression(
+       'concat(raw("T1"), local_entropy("T2", kernel_size=3))'
+   )
+   spec = HabitatSpec(
+       name="tree",
+       voxel_feature_extractor=expr,
+       # ... same remaining fields as above ...
+   )
+
+   # YAML dual form — a string entry is parsed the same way:
+   again = HabitatSpec.from_dict(
+       {"name": "tree", "voxel_feature_extractor":
+        'concat(raw("T1"), local_entropy("T2", kernel_size=3))', ...}
+   )
+   assert again.fingerprint() == spec.fingerprint()
+
+Expression grammar is deliberately strict: modality names are **quoted
+strings**, parameters are explicit ``key=value`` literals, children are
+nested calls (a quoted string among children becomes an implicit ``raw``
+leaf). Bare v0.1-style identifiers are rejected with an explicit error
+rather than guessed — the legacy YAML adapter keeps its permissive parser
+for unquoted v0.1 expressions and only routes quoted expressions here, so
+old configs translate byte-identically while new configs get the tree.
+
 ``RunPolicy``
 -------------
+
+:class:`~habit.spec.RunPolicy` is the declarative snapshot of every
+scheduling concern. Field names match backend keyword arguments so the
+YAML ``policy:`` block and the Python form stay one-to-one.
 
 .. code-block:: python
 
@@ -65,9 +110,191 @@ Direct (no-supervoxel) design — set ``supervoxelizer=None``::
        backend="process",              # "serial" | "process"
        on_subject_failure="continue",  # or "fail_fast"
        subject_timeout_sec=900.0,
+       parallel_mode="persistent",     # library default
+       auto_retry_rounds=2,
    )
    save_run_policy(policy, "run_policy.yaml")
    policy2 = load_run_policy("run_policy.yaml")
+
+``on_subject_failure="continue"`` isolates errors inside the execution
+backend. :meth:`~habit.contracts.Cohort.map` still raises
+``ProcessingError`` by default; pass ``raise_on_failure=False`` (recipes /
+CLI) to proceed with successes — see :doc:`execution` and
+:doc:`../examples/fault_tolerance`.
+
+Full field set (defaults from ``habit/spec/policy.py``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 16 54
+
+   * - Field
+     - Default
+     - Role
+   * - ``workers``
+     - ``1``
+     - Parallel worker processes; with a positive timeout, ``1`` still uses ProcessPool
+   * - ``backend``
+     - ``"serial"``
+     - ``"serial"`` or ``"process"`` (timeout also forces process at the CLI gate)
+   * - ``subject_timeout_sec``
+     - ``900.0``
+     - Per-subject wall-clock seconds; ``None`` disables (ProcessPool when armed)
+   * - ``subject_spawn_timeout_sec``
+     - ``120.0``
+     - Spawn-startup seconds; ``None`` disables (ProcessPool / isolated)
+   * - ``graceful_shutdown_sec``
+     - ``15.0``
+     - Seconds between ``terminate()`` and ``kill()`` on timeout
+   * - ``on_subject_failure``
+     - ``"continue"``
+     - ``"continue"`` or ``"fail_fast"`` (Serial + ProcessPool)
+   * - ``oom_backoff``
+     - ``True``
+     - Reduce workers after fatal ``MemoryError`` (ProcessPool only)
+   * - ``oom_reduce_workers_by``
+     - ``1``
+     - Workers subtracted per OOM step
+   * - ``cap_workers_to_gpu_pool``
+     - ``False``
+     - Clamp workers to the usable GPU pool
+   * - ``resume``
+     - ``True``
+     - Reuse checkpointed subject results when a store is attached
+   * - ``checkpoint_dir``
+     - ``None``
+     - Checkpoint root; resolved by CLI/recipe (not applied by ``from_policy``)
+   * - ``parallel_mode``
+     - ``"persistent"``
+     - ``"persistent"`` or ``"isolated"`` (ProcessPool only)
+   * - ``auto_retry_rounds``
+     - ``2``
+     - In-run re-dispatch rounds for failed subjects; ``0`` disables
+   * - ``retry_failed_subjects``
+     - ``False``
+     - Re-queue checkpointed failures on the next resumed run
+   * - ``force_rerun_subjects``
+     - ``()``
+     - Subject IDs forced to recompute
+   * - ``clear_checkpoint_on_success``
+     - ``False``
+     - Remove the checkpoint directory after a clean run
+   * - ``strict_checkpoint_hash``
+     - ``False``
+     - Raise :class:`~habit.exceptions.CompatibilityError` on incompatible
+       checkpoint fingerprint / legacy v0.1 layout (v0.1 parity)
+   * - ``persistent_worker_max_consecutive_failures``
+     - ``1``
+     - Restart a persistent worker after this many consecutive fatal failures
+   * - ``persistent_worker_recycle_after_tasks``
+     - ``0``
+     - Restart a persistent worker after this many successes (``0`` disables)
+
+CLI / ``run_from_yaml`` select ProcessPoolBackend when
+``backend == "process"`` **or** ``subject_timeout_sec`` is positive
+(even for ``workers == 1``). Details: :doc:`execution`.
+
+v0.1 YAML top-level keys vs ``RunPolicy``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A **v0.1** habitat document keeps parallel knobs at the YAML top level
+(``processes``, ``individual_subject_*``, …).
+:class:`~habit.spec.legacy.LegacyConfigAdapter` renames them into the v1
+``policy:`` section. A native **v1** document writes the right-hand names
+under ``policy:`` directly (see ``config/habitat/config_habitat_two_step_v1.yaml``).
+Habitat field reference: :doc:`../configuration/habitat`.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 38 30 16 16
+
+   * - v0.1 top-level key
+     - ``RunPolicy`` / v1 ``policy:`` field
+     - Schema default
+     - ``RunPolicy`` default
+   * - ``processes``
+     - ``workers``
+     - ``2``
+     - ``1``
+   * - *(implied by* ``processes > 1`` *)*
+     - ``backend``
+     - —
+     - ``"serial"`` (set to ``"process"`` when translated ``workers > 1``)
+   * - ``individual_subject_timeout_sec``
+     - ``subject_timeout_sec``
+     - ``900.0``
+     - ``900.0``
+   * - ``individual_subject_spawn_timeout_sec``
+     - ``subject_spawn_timeout_sec``
+     - ``120.0``
+     - ``120.0``
+   * - ``individual_subject_graceful_shutdown_sec``
+     - ``graceful_shutdown_sec``
+     - ``15.0``
+     - ``15.0``
+   * - ``on_subject_failure``
+     - ``on_subject_failure``
+     - ``"continue"``
+     - ``"continue"``
+   * - ``oom_backoff``
+     - ``oom_backoff``
+     - ``True``
+     - ``True``
+   * - ``oom_reduce_workers_by``
+     - ``oom_reduce_workers_by``
+     - ``1``
+     - ``1``
+   * - ``cap_processes_to_gpu_pool``
+     - ``cap_workers_to_gpu_pool``
+     - ``False``
+     - ``False``
+   * - ``resume``
+     - ``resume``
+     - ``True``
+     - ``True``
+   * - ``checkpoint_dir``
+     - ``checkpoint_dir``
+     - ``None``
+     - ``None``
+   * - ``individual_subject_parallel_mode``
+     - ``parallel_mode``
+     - ``"persistent"``
+     - ``"persistent"``
+   * - ``individual_subject_auto_retry_rounds``
+     - ``auto_retry_rounds``
+     - ``2``
+     - ``2``
+   * - ``retry_failed_subjects``
+     - ``retry_failed_subjects``
+     - ``False``
+     - ``False``
+   * - ``force_rerun_subjects``
+     - ``force_rerun_subjects``
+     - ``[]``
+     - ``()``
+   * - ``clear_checkpoint_on_success``
+     - ``clear_checkpoint_on_success``
+     - ``False``
+     - ``False``
+   * - ``strict_checkpoint_hash``
+     - ``strict_checkpoint_hash``
+     - ``False``
+     - ``False``
+   * - ``persistent_worker_max_consecutive_failures``
+     - ``persistent_worker_max_consecutive_failures``
+     - ``1``
+     - ``1``
+   * - ``persistent_worker_recycle_after_tasks``
+     - ``persistent_worker_recycle_after_tasks``
+     - ``0``
+     - ``0``
+
+Note the default gap on ``processes`` / ``workers``: a bare v0.1 habitat
+YAML defaults to ``processes: 2`` (process backend after translation), while
+a bare ``RunPolicy()`` defaults to ``workers=1``, ``backend="serial"``.
+CLI / ``run_from_yaml`` still select ProcessPool when the default
+``subject_timeout_sec=900`` is armed.
 
 Detect, validate, migrate YAML
 ------------------------------

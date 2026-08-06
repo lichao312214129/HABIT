@@ -36,10 +36,63 @@ from habit.spec.specs import Spec
 
 __all__ = [
     "resolve_voxel_modalities",
+    "resolve_source_modalities",
     "roi_voxels",
     "aligned_image",
     "build_voxel_field",
 ]
+
+
+def resolve_source_modalities(
+    modality: Optional[str],
+    modalities: Sequence[str],
+    as_: Optional[str],
+    *,
+    owner: str,
+) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+    """
+    Resolve ``(modalities, source_labels)`` from the singular/plural forms.
+
+    Extractors accept either ``modality="T1"`` (the explicit single-modality
+    form used inside feature trees) or ``modalities=["T1", "T2"]`` (the
+    historical convenience that stacks several modalities in one node). The
+    source label is what output columns are named after: the ``as_`` alias
+    when given, else the modality name itself.
+
+    Args:
+        modality: Single modality key, or ``None``.
+        modalities: Modality keys in feature order; must be empty when
+            ``modality`` is set.
+        as_: Optional output-column alias. Only valid for exactly one
+            resolved modality, since it renames ONE source.
+        owner: Extractor name used in error messages.
+
+    Returns:
+        ``(modalities, source_labels)`` of equal length, in feature order.
+
+    Raises:
+        HABITAPIError: If both forms are given, or ``as_`` meets more than
+            one modality.
+    """
+    if modality is not None:
+        if modalities:
+            raise HABITAPIError(
+                f"{owner}: pass either 'modality' (one key) or 'modalities' "
+                "(a list), not both."
+            )
+        resolved: Tuple[str, ...] = (str(modality),)
+    else:
+        resolved = tuple(str(name) for name in modalities)
+    if as_ is not None:
+        if len(resolved) != 1:
+            raise HABITAPIError(
+                f"{owner}: 'as_' renames ONE modality's output and "
+                f"therefore requires exactly one modality; got {resolved}."
+            )
+        labels: Tuple[str, ...] = (str(as_),)
+    else:
+        labels = resolved
+    return resolved, labels
 
 
 def resolve_voxel_modalities(

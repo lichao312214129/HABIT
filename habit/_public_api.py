@@ -193,6 +193,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "apply_habitat_model",
         "extract_habitat_features",
         "traditional_radiomics",
+        "identify_precise_voxel_features",
+        "voxel_radiomics_factory",
         "train_model",
         "cross_validate",
         "predict_model",
@@ -220,6 +222,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "detect_yaml_version",
         "migrate_yaml",
         "validate_v1_document",
+        "coerce_spec",
+        "parse_feature_expression",
     ),
     "registry": ("ComponentRegistry",),
     "domain": (
@@ -228,6 +232,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "HabitatModelFitter",
         "HabitatAssigner",
         "HabitatFeatureExtractor",
+        "Combiner",
         "Seedable",
         "TablePreprocessor",
         "FeatureSelector",
@@ -235,6 +240,20 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "Metric",
         "SubjectPipeline",
         "TablePipeline",
+        # Precision screen (Prior et al. 2024): the perturbation protocol and
+        # its built-ins, the analysis functions, and the resulting artifact.
+        "ImagePerturbation",
+        "ImagePerturbationRegistry",
+        "GaussianNoisePerturbation",
+        "TranslationPerturbation",
+        "RotationPerturbation",
+        "PerturbationChain",
+        "PreciseFeatureSet",
+        "FeatureWhitelist",
+        "precision_panel",
+        "aggregate_panels",
+        "identify_precise_features",
+        "habitat_stability",
     ),
     # L0 kernels: the pure numerical core, mirrored from
     # ``habit.kernels.__all__`` so third parties can call a single metric
@@ -265,6 +284,13 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "two_way_mean_squares",
         "icc3_1",
         "icc2_1",
+        "estimate_noise_sigma",
+        "add_gaussian_noise",
+        "translate_image",
+        "rotate_image",
+        "ICCEstimate",
+        "icc3a_1",
+        "icc3c_1",
     ),
     # Ecosystem interop adapters (``habit.compat.*``). Only the factory
     # functions are top-level; the generated estimator classes stay namespaced

@@ -45,9 +45,8 @@ from habit.adapters.image_refs import FileImageRef
 from habit.contracts.habitat import HabitatModel
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
-from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
-from habit.execution.process_pool import ProcessPoolBackend
+from habit.execution.selection import backend_from_policy
 from habit.exceptions import HABITAPIError
 from habit.recipes.comparison import compare_models
 from habit.recipes.features import extract_habitat_features, traditional_radiomics
@@ -294,9 +293,9 @@ def _habitat_train_v1(
             "A train-mode habitat v1 document must carry a non-empty 'spec' section."
         )
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
-    checkpoint = _checkpoint_store_for(config, predict=False)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=False)
     mode = _clustering_mode_from_spec(spec)
     recipe = _RECIPE_BY_MODE.get(mode)
     if recipe is None:
@@ -318,9 +317,9 @@ def _habitat_predict_v1(
     if spec_payload is None:
         spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
-    checkpoint = _checkpoint_store_for(config, predict=True)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
     return apply_habitat_model(
         cohort, spec, model, backend=backend, checkpoint=checkpoint
     )
@@ -528,9 +527,9 @@ def _habitat_train(
             "must carry feature_construction and habitat_segmentation blocks."
         )
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
-    checkpoint = _checkpoint_store_for(config, predict=False)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=False)
 
     mode = str(config.habitat_segmentation.clustering_mode)
     recipe = _RECIPE_BY_MODE.get(mode)
@@ -554,9 +553,9 @@ def _habitat_predict(
         # Stub predict YAMLs rely on the embedded spec inside the model archive.
         spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
-    checkpoint = _checkpoint_store_for(config, predict=True)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
     return apply_habitat_model(
         cohort, spec, model, backend=backend, checkpoint=checkpoint
     )
@@ -875,19 +874,6 @@ def _load_feature_table(config: Any, *, logger: Optional[logging.Logger]) -> Fea
     )
 
 
-def _backend_from_policy(policy: RunPolicy) -> Any:
-    """Build the execution backend a policy asks for."""
-    if policy.backend == "process" and policy.workers > 1:
-        return ProcessPoolBackend.from_policy(policy)
-    return SerialBackend(
-        on_subject_failure=policy.on_subject_failure,
-        resume=policy.resume,
-        retry_failed_subjects=policy.retry_failed_subjects,
-        force_rerun_subjects=policy.force_rerun_subjects,
-        clear_checkpoint_on_success=policy.clear_checkpoint_on_success,
-    )
-
-
 def _checkpoint_root_for(config: Any, *, predict: bool) -> Path:
     """Resolve the checkpoint directory for a train or predict run."""
     if config.checkpoint_dir:
@@ -896,9 +882,24 @@ def _checkpoint_root_for(config: Any, *, predict: bool) -> Path:
     return Path(config.out_dir) / dirname
 
 
-def _checkpoint_store_for(config: Any, *, predict: bool) -> CheckpointStore:
+def _checkpoint_store_for(
+    config: Any,
+    *,
+    spec: HabitatSpec,
+    predict: bool,
+) -> CheckpointStore:
     """Attach the checkpoint store for a train or predict run."""
-    return CheckpointStore(_checkpoint_root_for(config, predict=predict))
+    clustering_mode = (
+        config.habitat_segmentation.clustering_mode
+        if getattr(config, "habitat_segmentation", None) is not None
+        else None
+    )
+    return CheckpointStore(
+        _checkpoint_root_for(config, predict=predict),
+        run_fingerprint=spec.fingerprint(),
+        strict=bool(getattr(config, "strict_checkpoint_hash", False)),
+        clustering_mode=clustering_mode,
+    )
 
 
 def _spec_modalities(spec: HabitatSpec) -> Tuple[str, ...]:

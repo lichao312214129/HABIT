@@ -40,6 +40,13 @@ from habit.kernels.habitat_metrics import (
     spatial_interaction_matrix,
 )
 from habit.kernels.icc import icc2_1, icc3_1, two_way_mean_squares
+from habit.kernels.image_perturbation import (
+    add_gaussian_noise,
+    estimate_noise_sigma,
+    rotate_image,
+    translate_image,
+)
+from habit.kernels.voxel_icc import ICCEstimate, icc3a_1, icc3c_1
 from habit.kernels.voxel_texture import local_entropy_map
 from habit.kernels.statistics import (
     compute_midrank,
@@ -77,4 +84,11 @@ __all__ = [
     "two_way_mean_squares",
     "icc3_1",
     "icc2_1",
+    "estimate_noise_sigma",
+    "add_gaussian_noise",
+    "translate_image",
+    "rotate_image",
+    "ICCEstimate",
+    "icc3a_1",
+    "icc3c_1",
 ]

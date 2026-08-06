@@ -239,10 +239,10 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
             ``self``, fitted.
         """
         subjects, cohort = self._subjects_from(X)
-        self._fit_components(subjects, cohort)
-        # Feature columns are fully determined by the fitted model plus the
-        # extractor specs, so one subject suffices to capture the layout.
-        first = self._extract_one(subjects[0])
+        units = self._fit_components(subjects, cohort)
+        # Feature columns come from assigning the already-computed units of
+        # one subject -- never a second Stage-1 extraction.
+        first = self._describe_from_units(subjects[0], units[0])
         self.feature_names_in_ = np.asarray(first.feature_columns, dtype=object)
         return self
 
@@ -250,20 +250,25 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
         """
         Fit on the cohort and return its habitat feature matrix in one pass.
 
-        Overriding :meth:`fit` + :meth:`transform` avoids computing the
-        per-subject pipeline twice for the training cohort, which is what
-        ``sklearn.pipeline.Pipeline`` calls on intermediate steps.
+        Stage-1 clustering units are computed once per subject during fit and
+        reused for assignment / habitat features. This is what
+        ``sklearn.pipeline.Pipeline`` calls on intermediate steps; without
+        the reuse, voxel radiomics (and any GPU workers) would run twice.
         """
         subjects, cohort = self._subjects_from(X)
-        self._fit_components(subjects, cohort)
-        first = self._extract_one(subjects[0])
+        units = self._fit_components(subjects, cohort)
+        first = self._describe_from_units(subjects[0], units[0])
         self.feature_names_in_ = np.asarray(first.feature_columns, dtype=object)
-        matrix = self._transform_subjects(subjects, first_table=first)
+        matrix = self._transform_from_units(subjects, units, first_table=first)
         return matrix.to_numpy(dtype=float)
 
     def transform(self, X: Any) -> np.ndarray:
         """
         Project a cohort onto the fitted habitat definition.
+
+        Predict-path: Stage-1 is recomputed from each subject's images.
+        Training cohorts that still have in-memory units should call
+        :meth:`fit_transform` instead of ``fit`` then ``transform``.
 
         Args:
             X: Iterable of :class:`~habit.contracts.subject.Subject`.
@@ -318,38 +323,49 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
             cohort = Cohort(subjects, name="fit")
         return subjects, cohort
 
-    def _fit_components(self, subjects: List[Subject], cohort: Cohort) -> None:
-        """Run the cohort-level fit and bind fitted state to ``self``."""
+    def _fit_components(
+        self, subjects: List[Subject], cohort: Cohort
+    ) -> List[Any]:
+        """
+        Run the cohort-level fit and bind fitted state to ``self``.
+
+        Returns:
+            Per-subject clustering units BEFORE cohort preprocessing, in
+            ``subjects`` order. Callers reuse these for assignment so
+            Stage-1 (voxel / supervoxel features) is not paid twice.
+        """
         effective = self._effective_spec()
         components = self._create_components(effective)
         # The SAME pipeline object produces units at fit time and at predict
         # time; only the assigner differs. Reimplementing the stages here is
         # how train/predict pipelines silently diverge.
         units_pipeline = components.pipeline(assigner=None)
-        units = [
+        raw_units = [
             units_pipeline.units(subject)
             for subject in _iter_with_progress(
                 subjects, enabled=self.verbose, desc="Fit: voxel->units"
             )
         ]
         cohort_chain = components.cohort_chain
+        fit_units: List[Any] = list(raw_units)
         if cohort_chain is not None:
             # Cohort-level statistics come from the pooled TRAINING units and
             # nothing else; this is the one leakage-sensitive step in habitat
-            # definition.
+            # definition. Transformed copies are used only for fitting;
+            # assignment re-applies the fitted chain to ``raw_units``.
             pooled = pd.concat(
-                [unit.feature_frame() for unit in units], ignore_index=True
+                [unit.feature_frame() for unit in raw_units], ignore_index=True
             )
             cohort_chain.fit(pooled)
-            units = [
+            fit_units = [
                 unit.with_feature_frame(
                     cohort_chain.transform(unit.feature_frame()),
                     produced_by="feature_preprocessing.cohort",
                     spec_fingerprint=cohort_chain.spec.fingerprint(),
                 )
-                for unit in units
+                for unit in raw_units
             ]
-        model = fitter_model = components.fitter.fit(units, cohort=cohort)
+        model = fitter_model = components.fitter.fit(fit_units, cohort=cohort)
         if cohort_chain is not None:
             # The centroids only mean something in the preprocessed feature
             # space, so the space travels with the model.
@@ -366,22 +382,95 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
         self._components = components
         self._assigner = assigner
         self._extractors = components.extractors
+        return raw_units
+
+    def _fitted_pipeline(self) -> Any:
+        """Return the subject pipeline with the fitted assigner attached."""
+        return self._components.pipeline(assigner=self._assigner)
+
+    def _describe_from_units(self, subject: Subject, units: Any) -> FeatureTable:
+        """
+        Assign habitats from precomputed units and extract habitat features.
+
+        Args:
+            subject: Owning subject (images for habitat-level descriptors).
+            units: Clustering units from the fit-time Stage-1 pass.
+
+        Returns:
+            One-row habitat feature table for ``subject``.
+        """
+        _, table, _ = self._fitted_pipeline().label_and_describe(
+            subject, units, self._extractors
+        )
+        if table is None:
+            raise HABITAPIError(
+                "HabitatFeaturesEstimator requires habitat feature extractors; "
+                "label_and_describe returned no table."
+            )
+        return table
 
     def _extract_one(self, subject: Subject) -> FeatureTable:
-        """Run the full per-subject chain and return its one-row table."""
-        pipeline = self._components.pipeline(assigner=self._assigner)
-        return pipeline.extract_features(subject, self._extractors)
+        """Predict-path: recompute Stage-1 from images, then describe."""
+        return self._fitted_pipeline().extract_features(subject, self._extractors)
+
+    def _align_feature_matrix(self, combined: pd.DataFrame) -> pd.DataFrame:
+        """Enforce the fit-time column layout on a stacked feature matrix."""
+        missing = [c for c in self.feature_names_in_ if c not in combined.columns]
+        if missing:
+            raise HABITAPIError(
+                "Transformed table lacks fit-time feature columns "
+                f"{missing}; the habitat feature layout drifted."
+            )
+        return combined.loc[:, list(self.feature_names_in_)]
+
+    def _transform_from_units(
+        self,
+        subjects: List[Subject],
+        units: Sequence[Any],
+        *,
+        first_table: Optional[FeatureTable] = None,
+    ) -> pd.DataFrame:
+        """
+        Build the feature matrix by assigning precomputed clustering units.
+
+        Args:
+            subjects: Subjects in the same order as ``units``.
+            units: Stage-1 units from :meth:`_fit_components`.
+            first_table: Optional precomputed table for ``subjects[0]``.
+
+        Returns:
+            Frame indexed by subject id with exactly the fit-time columns.
+        """
+        if len(subjects) != len(units):
+            raise HABITAPIError(
+                "HabitatFeaturesEstimator: subjects and units length mismatch "
+                f"({len(subjects)} vs {len(units)})."
+            )
+        rows: List[pd.DataFrame] = []
+        start = 0
+        if first_table is not None:
+            rows.append(first_table.feature_matrix())
+            start = 1
+        for subject, subject_units in _iter_with_progress(
+            list(zip(subjects[start:], units[start:])),
+            enabled=self.verbose,
+            desc="Habitat features",
+        ):
+            rows.append(
+                self._describe_from_units(subject, subject_units).feature_matrix()
+            )
+        return self._align_feature_matrix(pd.concat(rows))
 
     def _transform_subjects(
         self, subjects: List[Subject], *, first_table: Optional[FeatureTable] = None
     ) -> pd.DataFrame:
         """
-        Compute the feature matrix for ``subjects`` in fit-time layout.
+        Compute the feature matrix for ``subjects`` from images (predict path).
 
         Args:
             subjects: Subjects to process, in order.
-            first_table: Precomputed table for ``subjects[0]`` (the
-                fit_transform one-pass path already ran that subject).
+            first_table: Precomputed table for ``subjects[0]`` when the
+                caller already labelled that subject.
 
         Returns:
             Frame indexed by subject id with exactly the fit-time columns.
@@ -395,14 +484,7 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
             remaining, enabled=self.verbose, desc="Habitat features"
         ):
             rows.append(self._extract_one(subject).feature_matrix())
-        combined = pd.concat(rows)
-        missing = [c for c in self.feature_names_in_ if c not in combined.columns]
-        if missing:
-            raise HABITAPIError(
-                "Transformed table lacks fit-time feature columns "
-                f"{missing}; the habitat feature layout drifted."
-            )
-        return combined.loc[:, list(self.feature_names_in_)]
+        return self._align_feature_matrix(pd.concat(rows))
 
     def _check_fitted(self) -> None:
         """Guard sklearn's "no prediction before fitting" contract."""

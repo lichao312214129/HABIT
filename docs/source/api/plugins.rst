@@ -26,6 +26,26 @@ Discover built-in and entry-point components. Parameter order is always
    if schema is not None:
        json_schema = schema.model_json_schema()
 
+``load_plugins`` resilience
+---------------------------
+
+* ``strict=False`` (default) — broken entry points are recorded in
+  ``PluginLoadReport.failures`` and logged as warnings; discovery continues
+* ``strict=True`` — the first load error is re-raised immediately
+
+.. code-block:: python
+
+   report = load_plugins(strict=False)
+   if report.failures:
+       for name, message in report.failures.items():
+           print("plugin failure:", name, message)
+
+   # CI / production gate: abort if any third-party plugin is broken
+   load_plugins(strict=True)
+
+Legacy plural domains (e.g. ``habitat_features``, ``models``) still resolve
+but emit ``HabitDeprecationWarning``; prefer the v1 singular domains below.
+
 v1 protocol domains
 -------------------
 
@@ -41,6 +61,8 @@ Use these domain strings with ``list_plugins`` / ``get_plugin_info`` /
        "habitat_model_fitter",
        "habitat_assigner",
        "habitat_feature_extractor",
+       "combiner",
+       "image_perturbation",
        "preprocessor",
        "table_preprocessor",
        "feature_selector",

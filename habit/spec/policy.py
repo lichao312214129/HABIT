@@ -83,7 +83,13 @@ class RunPolicy:
         clear_checkpoint_on_success: Remove the checkpoint directory after a
             successful run.
         strict_checkpoint_hash: Raise instead of discarding checkpoints when
-            the recorded spec fingerprint is incompatible.
+            the recorded run fingerprint is incompatible.
+        persistent_worker_max_consecutive_failures: Restart a persistent
+            worker slot after this many consecutive fatal-class failures
+            (``1`` matches v0.1; ignored in isolated mode).
+        persistent_worker_recycle_after_tasks: Restart a persistent worker
+            after this many successful tasks (``0`` disables; ignored in
+            isolated mode).
     """
 
     workers: int = 1
@@ -103,6 +109,8 @@ class RunPolicy:
     force_rerun_subjects: Tuple[str, ...] = field(default_factory=tuple)
     clear_checkpoint_on_success: bool = False
     strict_checkpoint_hash: bool = False
+    persistent_worker_max_consecutive_failures: int = 1
+    persistent_worker_recycle_after_tasks: int = 0
 
     def __post_init__(self) -> None:
         """Validate policy values at the boundary."""
@@ -147,6 +155,24 @@ class RunPolicy:
                 "RunPolicy.auto_retry_rounds must be a non-negative integer; "
                 f"got {self.auto_retry_rounds!r}."
             )
+        if (
+            not isinstance(self.persistent_worker_max_consecutive_failures, int)
+            or self.persistent_worker_max_consecutive_failures < 1
+        ):
+            raise HABITAPIError(
+                "RunPolicy.persistent_worker_max_consecutive_failures must be "
+                "a positive integer; "
+                f"got {self.persistent_worker_max_consecutive_failures!r}."
+            )
+        if (
+            not isinstance(self.persistent_worker_recycle_after_tasks, int)
+            or self.persistent_worker_recycle_after_tasks < 0
+        ):
+            raise HABITAPIError(
+                "RunPolicy.persistent_worker_recycle_after_tasks must be a "
+                "non-negative integer; "
+                f"got {self.persistent_worker_recycle_after_tasks!r}."
+            )
         if self.checkpoint_dir is not None:
             object.__setattr__(self, "checkpoint_dir", str(self.checkpoint_dir))
         object.__setattr__(
@@ -173,6 +199,12 @@ class RunPolicy:
             "force_rerun_subjects": list(self.force_rerun_subjects),
             "clear_checkpoint_on_success": self.clear_checkpoint_on_success,
             "strict_checkpoint_hash": self.strict_checkpoint_hash,
+            "persistent_worker_max_consecutive_failures": (
+                self.persistent_worker_max_consecutive_failures
+            ),
+            "persistent_worker_recycle_after_tasks": (
+                self.persistent_worker_recycle_after_tasks
+            ),
         }
 
     @classmethod

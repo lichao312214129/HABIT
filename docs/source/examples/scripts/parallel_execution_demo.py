@@ -42,11 +42,13 @@ def main() -> None:
     print(f"Serial: {len(serial_result.habitat_maps)} maps, "
           f"{serial_result.habitat_model.n_habitats} habitats")
 
+    # Library default parallel_mode is "persistent" (long-lived workers).
+    # Use parallel_mode="isolated" when you need a fresh child process per subject.
     policy = RunPolicy(
         workers=2,
         backend="process",
         on_subject_failure="continue",
-        parallel_mode="isolated",
+        parallel_mode="persistent",
     )
     backend = ProcessPoolBackend.from_policy(policy)
     print(f"RunPolicy: workers={policy.workers}, backend={policy.backend!r}, "

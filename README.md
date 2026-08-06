@@ -60,12 +60,17 @@
   habit --version
   # 代码中仍然：import habit
   ```
-  PyRadiomics **不是**默认依赖。需要组学特征时（已本地验证的可靠写法）：
+  PyRadiomics **不是**默认依赖。需要组学特征时：
   ```bash
-  conda install -c conda-forge pyradiomics
-  # Windows pip 用户：PyPI 上没有可用的 PyRadiomics Windows 二进制包，
-  # 请先装 HABIT GitHub Release 附带的自建 3.1.0 wheel（cp310–cp314，numpy 1.26/2.x 均可），再：
+  # Windows（推荐）：先装 HABIT GitHub Release 的预编译 wheel（cp310–cp314），再：
+  # pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
   # pip install "habitat-analysis[radiomics]"
+
+  # macOS / Linux（Conda 网络正常时）：
+  conda install -c conda-forge pyradiomics -y
+  # Windows 上不要把上面这条当成首选：镜像/repodata 超时、solver 失败很常见，
+  # 失败后请改用 Release wheel，不要反复重试 conda。
+  python -c "import radiomics; print(radiomics.__version__)"
   ```
   其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。详见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
 - **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)

@@ -85,7 +85,7 @@ with `config/radiomics/params_voxel_radiomics.yaml`. Bare `glcm:` in a custom pa
 enables all 24 features; MCC/Imc1/Imc2 crash on small kernels. HABIT defaults unrestricted
 GLCM to 21 stable features.
 **CT voxel texture (R3B12):** default `kernel_radius: 3`, bundled preset `binWidth: 12`
-(Petersen et al., *Radiol Artif Intell* 2024;6(2):e230118, doi:10.1148/ryai.230118)
+(Prior O, et al., *Radiol Artif Intell* 2024;6(2):e230118, doi:10.1148/ryai.230118)
 and logs a warning. Minimal YAML: `method: concat(voxel_radiomics(T2))` with `params: {}`.
 Optional `torch_gpus` selects which CUDA devices may be used; `torch_gpu_count`
 limits how many of them are active. Stage-1 workers receive `gpu_slot_index` from the parallel

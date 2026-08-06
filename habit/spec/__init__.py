@@ -22,6 +22,7 @@ translation. Data location is deliberately absent: that is the
 
 from __future__ import annotations
 
+from habit.spec.expressions import parse_feature_expression
 from habit.spec.legacy import (
     LegacyConfigAdapter,
     LegacyTranslation,
@@ -31,7 +32,7 @@ from habit.spec.legacy import (
     validate_v1_document,
 )
 from habit.spec.policy import RunPolicy
-from habit.spec.specs import HabitatSpec, MLSpec, Spec
+from habit.spec.specs import HabitatSpec, MLSpec, Spec, coerce_spec
 from habit.spec.yaml_io import (
     load_habitat_spec,
     load_run_policy,
@@ -44,6 +45,8 @@ __all__ = [
     "HabitatSpec",
     "MLSpec",
     "RunPolicy",
+    "coerce_spec",
+    "parse_feature_expression",
     "load_habitat_spec",
     "save_habitat_spec",
     "load_run_policy",

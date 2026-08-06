@@ -38,16 +38,29 @@ The three designs differ only in WHERE the habitat definition is learned:
 
 from __future__ import annotations
 
+import logging
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Optional, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 import pandas as pd
 
-from habit.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError, ProcessingError
 from habit.contracts.habitat import HabitatMap, HabitatModel
 from habit.contracts.manifest import RunManifest
-from habit.contracts.ops import ExecutionBackend
+from habit.contracts.ops import ExecutionBackend, SubjectResult
 from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
@@ -60,6 +73,8 @@ if TYPE_CHECKING:
     # Typing-only reference: the store is an execution-layer concern and is
     # only ever passed through to ``Cohort.map``, never opened here.
     from habit.execution.checkpoint import CheckpointStore
+
+_LOG = logging.getLogger(__name__)
 
 __all__ = ["two_step", "one_step", "direct_pooling", "apply_habitat_model"]
 
@@ -150,12 +165,32 @@ class _ComputeUnits:
 
 
 @dataclass(frozen=True)
+class _SubjectUnits:
+    """
+    One subject plus clustering units already computed in an earlier stage.
+
+    Used by the cohort-level recipes so the label stage can assign habitats
+    without re-running voxel / supervoxel feature extraction (which is the
+    dominant cost for ``voxel_radiomics`` and would otherwise run twice).
+    """
+
+    subject: Subject
+    units: Any
+
+    @property
+    def subject_id(self) -> str:
+        """Return the subject identity for backends and checkpoints."""
+        return self.subject.subject_id
+
+
+@dataclass(frozen=True)
 class _LabelAndDescribe:
     """
-    Subject operator: assign habitats, then describe them.
+    Subject operator: extract units, assign habitats, then describe them.
 
-    A class rather than a closure because execution backends may ship the
-    operator to another process, and closures do not pickle.
+    Used by :func:`apply_habitat_model`, where units are not already in
+    memory. Cohort-level fit recipes use :class:`_AssignPrecomputedUnits`
+    instead so voxel radiomics is not paid twice.
 
     Attributes:
         pipeline: Fitted subject pipeline (assigner attached).
@@ -178,27 +213,47 @@ class _LabelAndDescribe:
         """
         Return this subject's habitat map, feature row and clustering units.
 
-        The assignment stages are spelled out here instead of calling
-        ``pipeline(subject)`` so the post-cohort-preprocessing units are
-        available alongside the map with no recomputation: the units feed
-        the v0.1 ``habitats.parquet`` unit table at the writer layer. The
-        sequence mirrors :meth:`SubjectPipeline.__call__` exactly.
+        Predict-path: Stage-1 runs here because held-out subjects have no
+        in-memory units. Post-cohort-preprocessing units ride along for the
+        v0.1 ``habitats.parquet`` writer.
         """
         units = self.pipeline.units(subject)
-        chain = self.pipeline.cohort_feature_preprocessor
-        if chain is not None:
-            units = units.with_feature_frame(
-                chain.transform(units.feature_frame()),
-                produced_by="feature_preprocessing.cohort",
-                spec_fingerprint=chain.spec.fingerprint(),
-            )
-        habitat_map = self.pipeline.habitat_assigner(units)
-        if not self.extractors:
-            return habitat_map, None, units
-        table = self.extractors[0](subject, habitat_map)
-        for extractor in self.extractors[1:]:
-            table = table.join(extractor(subject, habitat_map))
-        return habitat_map, table, units
+        return self.pipeline.label_and_describe(
+            subject, units, self.extractors
+        )
+
+
+@dataclass(frozen=True)
+class _AssignPrecomputedUnits:
+    """
+    Assign habitats from units already produced by the units stage.
+
+    Keeping this as a picklable operator (rather than a closure) preserves
+    checkpoint ``cache_key`` behaviour for resume tests while avoiding a
+    second ProcessPool wave that would re-extract features and contend for
+    the GPU.
+
+    Attributes:
+        pipeline: Fitted subject pipeline (assigner attached).
+        extractors: Habitat feature families; may be empty.
+        key_prefix: Checkpoint key prefix from :func:`_label_key_prefix`.
+    """
+
+    pipeline: Any
+    extractors: Tuple[Any, ...]
+    key_prefix: str
+
+    def cache_key(self, item: _SubjectUnits) -> str:
+        """Return the model-scoped checkpoint key for this subject's labels."""
+        return f"{self.key_prefix}:{item.subject.subject_id}"
+
+    def __call__(
+        self, item: _SubjectUnits
+    ) -> Tuple[HabitatMap, Optional[FeatureTable], Any]:
+        """Return habitat map, optional feature row, and post-prep units."""
+        return self.pipeline.label_and_describe(
+            item.subject, item.units, self.extractors
+        )
 
 
 @dataclass(frozen=True)
@@ -237,18 +292,17 @@ class _DefineAndLabelWithinSubject:
         The units ride along because the v0.1 one-step ``habitats.parquet``
         reports one row per defined habitat, aggregated from them.
         """
+        # Stage-1 once: units, then fit/assign/describe without re-extraction.
         units = self.components.pipeline(assigner=None).units(subject)
         model = self.components.fitter.fit([units])
         assigner = model.assigner(self.assigner_name, **dict(self.assigner_params))
         if self.seed is not None and isinstance(assigner, Seedable):
             assigner.set_random_state(self.seed)
-        habitat_map = assigner(units)
-        if not self.extractors:
-            return model, habitat_map, None, units
-        table = self.extractors[0](subject, habitat_map)
-        for extractor in self.extractors[1:]:
-            table = table.join(extractor(subject, habitat_map))
-        return model, habitat_map, table, units
+        pipeline = self.components.pipeline(assigner=assigner)
+        habitat_map, table, prepared = pipeline.label_and_describe(
+            subject, units, self.extractors
+        )
+        return model, habitat_map, table, prepared
 
 
 def _fit_cohort_model(
@@ -345,6 +399,8 @@ def _manifest(
     spec: HabitatSpec,
     habitat_maps: Sequence[HabitatMap],
     started_at: str,
+    *,
+    subject_outcomes: Optional[Mapping[str, str]] = None,
 ) -> RunManifest:
     """
     Record what actually ran.
@@ -355,10 +411,12 @@ def _manifest(
         habitat_maps: Produced maps, whose provenance chains carry every
             executed step.
         started_at: ISO-8601 timestamp taken before the run.
+        subject_outcomes: Optional per-subject success / failure summaries.
+            Defaults to success for every produced habitat map.
 
     Returns:
-        The manifest. Only successful subjects appear: ``Cohort.map`` raises
-        on failure, so a manifest exists only for a complete run.
+        The manifest, including subjects that failed and were excluded when
+        ``subject_outcomes`` records them (v0.1 continue parity).
     """
     provenance = Provenance(
         produced_by=f"recipes.habitat.{design}",
@@ -367,12 +425,17 @@ def _manifest(
         software=software_fingerprint(),
         random_seed=spec.random_seed,
     )
+    outcomes: Dict[str, str]
+    if subject_outcomes is not None:
+        outcomes = dict(subject_outcomes)
+    else:
+        outcomes = {
+            habitat_map.subject_id: "success" for habitat_map in habitat_maps
+        }
     return RunManifest(
         spec_payload=spec.to_dict(),
         provenance=provenance,
-        subject_outcomes={
-            habitat_map.subject_id: "success" for habitat_map in habitat_maps
-        },
+        subject_outcomes=outcomes,
         started_at=started_at,
         finished_at=datetime.now(timezone.utc).isoformat(),
     )
@@ -381,6 +444,169 @@ def _manifest(
 def _now() -> str:
     """Return the current UTC time as an ISO-8601 string."""
     return datetime.now(timezone.utc).isoformat()
+
+
+def _error_summary(error: BaseException) -> str:
+    """Format one subject failure for the run manifest."""
+    return f"{type(error).__name__}: {error}"
+
+
+@contextmanager
+def _backend_session(backend: Optional[ExecutionBackend]) -> Iterator[None]:
+    """
+    Reuse persistent workers across recipe stages when the backend supports it.
+
+    Args:
+        backend: Optional execution backend from the caller.
+    """
+    reuse = getattr(backend, "reuse_workers", None)
+    if callable(reuse):
+        with reuse():
+            yield
+        return
+    with nullcontext():
+        yield
+
+
+def _map_soft(
+    cohort: Cohort,
+    op: Callable[[Subject], Any],
+    *,
+    backend: Optional[ExecutionBackend],
+    checkpoint: Optional["CheckpointStore"],
+    stage: str,
+) -> Tuple[Cohort, List[Any], Dict[str, str]]:
+    """
+    Map ``op`` with soft failure (v0.1 ``on_subject_failure: continue``).
+
+    Args:
+        cohort: Subjects to process.
+        op: Subject-level operator.
+        backend: Optional execution backend.
+        checkpoint: Optional resume store.
+        stage: Short stage name for log / error messages.
+
+    Returns:
+        ``(survivor_cohort, values_in_survivor_order, failures)`` where
+        ``failures`` maps subject id to an error summary.
+
+    Raises:
+        ProcessingError: If every subject failed.
+    """
+    slots: Sequence[SubjectResult[Any]] = cohort.map(
+        op,
+        backend=backend,
+        checkpoint=checkpoint,
+        raise_on_failure=False,
+    )
+    failures: Dict[str, str] = {}
+    values_by_id: Dict[str, Any] = {}
+    for slot in slots:
+        if slot.error is not None:
+            summary = _error_summary(slot.error)
+            failures[slot.subject_id] = summary
+            _LOG.warning(
+                "[%s] subject %s failed: %s", stage, slot.subject_id, summary
+            )
+        else:
+            values_by_id[slot.subject_id] = slot.value
+    if not values_by_id:
+        detail = "; ".join(
+            f"{sid}: {msg}" for sid, msg in sorted(failures.items())
+        )
+        raise ProcessingError(
+            f"All {len(cohort)} subject(s) failed in recipe stage "
+            f"{stage!r}: {detail}"
+        )
+    survivors = Cohort(
+        [subject for subject in cohort if subject.subject_id in values_by_id],
+        name=cohort.name,
+        metadata=cohort.metadata,
+    )
+    values = [values_by_id[subject.subject_id] for subject in survivors]
+    return survivors, values, failures
+
+
+def _map_soft_items(
+    template_cohort: Cohort,
+    items: Sequence[Any],
+    op: Callable[[Any], Any],
+    *,
+    checkpoint: Optional["CheckpointStore"],
+    stage: str,
+) -> Tuple[Cohort, List[Any], Dict[str, str]]:
+    """
+    Map a soft-fail operator over arbitrary subject-scoped payloads.
+
+    Used when the payload is richer than a bare :class:`Subject` (for
+    example precomputed clustering units). Assignment is always serial in
+    the parent process: the heavy feature work already finished in the
+    units stage, and re-shipping volumes through a process pool would only
+    add pickle/GPU contention.
+
+    Args:
+        template_cohort: Cohort that supplies survivor ordering / metadata.
+        items: Payloads exposing ``subject_id`` (and optionally ``subject``).
+        op: Operator applied to each item.
+        checkpoint: Optional resume store.
+        stage: Short stage name for log / error messages.
+
+    Returns:
+        ``(survivor_cohort, values_in_survivor_order, failures)``.
+
+    Raises:
+        ProcessingError: If every item failed.
+    """
+    from habit.execution.backends import SerialBackend
+    from habit.utils.progress_utils import CustomTqdm
+
+    runner = SerialBackend(on_subject_failure="continue")
+    total = len(items)
+    op_name = type(op).__name__
+    bar = CustomTqdm(total=total, desc=f"Cohort.map[{op_name}]")
+
+    def _progress(completed: int, expected: int) -> None:
+        bar.total = expected
+        bar.n = completed
+        bar.refresh()
+
+    try:
+        slots = list(
+            runner.map(op, items, checkpoint=checkpoint, progress=_progress)
+        )
+    finally:
+        bar.close()
+
+    failures: Dict[str, str] = {}
+    values_by_id: Dict[str, Any] = {}
+    for slot in slots:
+        if slot.error is not None:
+            summary = _error_summary(slot.error)
+            failures[slot.subject_id] = summary
+            _LOG.warning(
+                "[%s] subject %s failed: %s", stage, slot.subject_id, summary
+            )
+        else:
+            values_by_id[slot.subject_id] = slot.value
+    if not values_by_id:
+        detail = "; ".join(
+            f"{sid}: {msg}" for sid, msg in sorted(failures.items())
+        )
+        raise ProcessingError(
+            f"All {len(items)} subject(s) failed in recipe stage "
+            f"{stage!r}: {detail}"
+        )
+    survivors = Cohort(
+        [
+            subject
+            for subject in template_cohort
+            if subject.subject_id in values_by_id
+        ],
+        name=template_cohort.name,
+        metadata=template_cohort.metadata,
+    )
+    values = [values_by_id[subject.subject_id] for subject in survivors]
+    return survivors, values, failures
 
 
 def _fit_cohort_design(
@@ -399,6 +625,9 @@ def _fit_cohort_design(
     as two functions rather than a ``mode`` string is the point: the caller
     names a design, not a switch value.
 
+    Per-subject failures are isolated (v0.1 continue): the recipe proceeds
+    with successful subjects and records exclusions on the run manifest.
+
     Args:
         design: Recipe name for provenance.
         cohort: Subjects to fit on.
@@ -413,30 +642,60 @@ def _fit_cohort_design(
     """
     started_at = _now()
     components = build_habitat_components(spec)
-    units = cohort.map(
-        _ComputeUnits(components.pipeline(assigner=None), _units_key_prefix(spec)),
-        backend=backend,
-        checkpoint=checkpoint,
-    )
-    model = _fit_cohort_model(components, cohort, units)
-    assigner = _build_assigner(model, spec, seed)
-    labelled = cohort.map(
-        _LabelAndDescribe(
-            components.pipeline(assigner=assigner),
-            components.extractors,
-            _label_key_prefix(model),
-        ),
-        backend=backend,
-        checkpoint=checkpoint,
-    )
+    outcomes: Dict[str, str] = {
+        subject.subject_id: "success" for subject in cohort
+    }
+    with _backend_session(backend):
+        units_cohort, units, unit_failures = _map_soft(
+            cohort,
+            _ComputeUnits(
+                components.pipeline(assigner=None), _units_key_prefix(spec)
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage=f"{design}.units",
+        )
+        for subject_id, summary in unit_failures.items():
+            outcomes[subject_id] = summary
+        model = _fit_cohort_model(components, units_cohort, units)
+        assigner = _build_assigner(model, spec, seed)
+        # Reuse units already resident in the parent. Re-mapping subjects
+        # through ``_LabelAndDescribe`` would re-run voxel_radiomics (and
+        # any GPU workers) a second time -- the dominant cost of texture
+        # habitats and a common freeze trigger when ProcessPool × CUDA
+        # oversubscribe a laptop GPU.
+        labelled_cohort, labelled, label_failures = _map_soft_items(
+            units_cohort,
+            [
+                _SubjectUnits(subject, subject_units)
+                for subject, subject_units in zip(units_cohort, units)
+            ],
+            _AssignPrecomputedUnits(
+                components.pipeline(assigner=assigner),
+                components.extractors,
+                _label_key_prefix(model),
+            ),
+            checkpoint=checkpoint,
+            stage=f"{design}.label",
+        )
+        for subject_id, summary in label_failures.items():
+            outcomes[subject_id] = summary
     habitat_maps = tuple(habitat_map for habitat_map, _, _ in labelled)
-    manifest = _manifest(design, spec, habitat_maps, started_at)
+    for habitat_map in habitat_maps:
+        outcomes[habitat_map.subject_id] = "success"
+    manifest = _manifest(
+        design,
+        spec,
+        habitat_maps,
+        started_at,
+        subject_outcomes=outcomes,
+    )
     return StudyResult(
         habitat_model=model,
         pipeline=components.pipeline(assigner=assigner),
         features=_cohort_feature_table(
             [table for _, table, _ in labelled],
-            [subject.subject_id for subject in cohort],
+            [subject.subject_id for subject in labelled_cohort],
             manifest.provenance,
         ),
         habitat_maps=habitat_maps,
@@ -612,26 +871,42 @@ def one_step(
         )
     started_at = _now()
     components = build_habitat_components(effective)
-    outcomes = cohort.map(
-        _DefineAndLabelWithinSubject(
-            components=components,
-            assigner_name=effective.habitat_assigner.name,
-            assigner_params=tuple(effective.habitat_assigner.params.items()),
-            extractors=components.extractors,
-            seed=effective.random_seed,
-            key_prefix=_one_step_key_prefix(effective),
-        ),
-        backend=backend,
-        checkpoint=checkpoint,
-    )
+    subject_outcomes: Dict[str, str] = {
+        subject.subject_id: "success" for subject in cohort
+    }
+    with _backend_session(backend):
+        survivors, outcomes, failures = _map_soft(
+            cohort,
+            _DefineAndLabelWithinSubject(
+                components=components,
+                assigner_name=effective.habitat_assigner.name,
+                assigner_params=tuple(effective.habitat_assigner.params.items()),
+                extractors=components.extractors,
+                seed=effective.random_seed,
+                key_prefix=_one_step_key_prefix(effective),
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage="one_step",
+        )
+    for subject_id, summary in failures.items():
+        subject_outcomes[subject_id] = summary
     habitat_maps = tuple(habitat_map for _, habitat_map, _, _ in outcomes)
-    manifest = _manifest("one_step", effective, habitat_maps, started_at)
+    for habitat_map in habitat_maps:
+        subject_outcomes[habitat_map.subject_id] = "success"
+    manifest = _manifest(
+        "one_step",
+        effective,
+        habitat_maps,
+        started_at,
+        subject_outcomes=subject_outcomes,
+    )
     return StudyResult(
         habitat_model=None,
         pipeline=None,
         features=_cohort_feature_table(
             [table for _, _, table, _ in outcomes],
-            [subject.subject_id for subject in cohort],
+            [subject.subject_id for subject in survivors],
             manifest.provenance,
         ),
         habitat_maps=habitat_maps,
@@ -709,23 +984,39 @@ def apply_habitat_model(
     components = build_habitat_components(effective)
     components = _with_model_preprocessing(components, model)
     assigner = _build_assigner(model, effective, effective.random_seed)
-    labelled = cohort.map(
-        _LabelAndDescribe(
-            components.pipeline(assigner=assigner),
-            components.extractors,
-            _label_key_prefix(model),
-        ),
-        backend=backend,
-        checkpoint=checkpoint,
-    )
+    subject_outcomes: Dict[str, str] = {
+        subject.subject_id: "success" for subject in cohort
+    }
+    with _backend_session(backend):
+        survivors, labelled, failures = _map_soft(
+            cohort,
+            _LabelAndDescribe(
+                components.pipeline(assigner=assigner),
+                components.extractors,
+                _label_key_prefix(model),
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage="apply_habitat_model",
+        )
+    for subject_id, summary in failures.items():
+        subject_outcomes[subject_id] = summary
     habitat_maps = tuple(habitat_map for habitat_map, _, _ in labelled)
-    manifest = _manifest("apply_habitat_model", effective, habitat_maps, started_at)
+    for habitat_map in habitat_maps:
+        subject_outcomes[habitat_map.subject_id] = "success"
+    manifest = _manifest(
+        "apply_habitat_model",
+        effective,
+        habitat_maps,
+        started_at,
+        subject_outcomes=subject_outcomes,
+    )
     return StudyResult(
         habitat_model=model,
         pipeline=components.pipeline(assigner=assigner),
         features=_cohort_feature_table(
             [table for _, table, _ in labelled],
-            [subject.subject_id for subject in cohort],
+            [subject.subject_id for subject in survivors],
             manifest.provenance,
         ),
         habitat_maps=habitat_maps,

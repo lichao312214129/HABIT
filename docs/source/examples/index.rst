@@ -36,6 +36,10 @@ Coverage map (aligned with ``demo_data/results/api/run_api_coverage.py``)
      - :doc:`habitat_preprocessing`, :doc:`habitat_preprocessing_api`
    * - Feature routes (raw / concat / radiomics / slic)
      - :doc:`habitat_feature_routes`
+   * - Feature trees (combiners / statistics / aliases)
+     - :doc:`feature_composition`
+   * - Precise-feature screen (precision screen + whitelist)
+     - :doc:`precise_features`
    * - Train + apply ``.habitatmodel``
      - :doc:`two_step_habitat`, :doc:`apply_saved_model`
    * - Feature extraction + radiomics
@@ -48,6 +52,8 @@ Coverage map (aligned with ``demo_data/results/api/run_api_coverage.py``)
      - :doc:`persistence`, :doc:`apply_saved_model`
    * - Parallel ``RunPolicy`` + ``ProcessPoolBackend``
      - :doc:`parallel_execution`, :doc:`viz_parallel_extras_api`
+   * - Fault tolerance (geometry / fail_fast / plugins / Cohort.map)
+     - :doc:`fault_tolerance`
    * - YAML / CLI twin
      - :doc:`run_from_yaml`, :doc:`cli_yaml_workflows`
    * - Cohort, plugins, icc/retest/dice/config tools
@@ -68,6 +74,8 @@ Coverage map (aligned with ``demo_data/results/api/run_api_coverage.py``)
    direct_pooling_habitat
    habitat_preprocessing
    habitat_feature_routes
+   feature_composition
+   precise_features
    custom_voxel_features
    apply_saved_model
    image_preprocessing
@@ -77,6 +85,7 @@ Coverage map (aligned with ``demo_data/results/api/run_api_coverage.py``)
    visualization
    persistence
    parallel_execution
+   fault_tolerance
    run_from_yaml
    cli_yaml_workflows
    cohort_plugins_auxiliary

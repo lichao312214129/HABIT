@@ -190,6 +190,8 @@ def test_from_policy_transcribes_every_field() -> None:
         retry_failed_subjects=True,
         force_rerun_subjects=("s9",),
         clear_checkpoint_on_success=True,
+        persistent_worker_max_consecutive_failures=4,
+        persistent_worker_recycle_after_tasks=9,
     )
     backend = ProcessPoolBackend.from_policy(policy)
     snapshot = backend.policy
@@ -207,6 +209,8 @@ def test_from_policy_transcribes_every_field() -> None:
     assert snapshot.retry_failed_subjects is True
     assert snapshot.force_rerun_subjects == ("s9",)
     assert snapshot.clear_checkpoint_on_success is True
+    assert snapshot.persistent_worker_max_consecutive_failures == 4
+    assert snapshot.persistent_worker_recycle_after_tasks == 9
     assert backend.workers == 3
 
 

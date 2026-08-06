@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 from pydantic import BaseModel, Field, ConfigDict
@@ -26,6 +26,7 @@ from habit.contracts.subject import Subject
 from habit.domain.voxel_features._base import (
     aligned_image,
     build_voxel_field,
+    resolve_source_modalities,
     resolve_voxel_modalities,
     roi_voxels,
 )
@@ -40,7 +41,9 @@ class LocalEntropyVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`LocalEntropyVoxelFeatures`."""
 
     model_config = ConfigDict(extra="forbid")
+    modality: Optional[str] = None
     modalities: Sequence[str] = ()
+    as_: Optional[str] = None
     roi: Optional[str] = None
     kernel_size: int = Field(default=3, gt=0)
     bins: int = Field(default=32, gt=1)
@@ -58,8 +61,12 @@ class LocalEntropyVoxelFeatures:
     in v0.1, so voxels at the ROI border still see their true neighbourhood.
 
     Args:
+        modality: Single modality key -- the explicit form used inside
+            feature trees. Mutually exclusive with ``modalities``.
         modalities: Modality keys to describe, in feature order; empty selects
             every image the subject carries.
+        as_: Optional output-column alias. Valid only with exactly one
+            resolved modality; the column suffix then uses the alias.
         roi: Mask key defining the region of interest; ``None`` uses the
             subject's single mask.
         kernel_size: Neighbourhood edge length in voxels. Even values are
@@ -73,8 +80,16 @@ class LocalEntropyVoxelFeatures:
         roi: Optional[str] = None,
         kernel_size: int = 3,
         bins: int = 32,
+        modality: Optional[str] = None,
+        as_: Optional[str] = None,
     ) -> None:
-        self.modalities = tuple(modalities)
+        resolved, labels = resolve_source_modalities(
+            modality, modalities, as_, owner="local_entropy"
+        )
+        self.modalities = resolved
+        self.source_labels = labels
+        self.modality = str(modality) if modality is not None else None
+        self.as_ = str(as_) if as_ is not None else None
         self.roi = roi
         self.kernel_size = int(kernel_size)
         self.bins = int(bins)
@@ -82,15 +97,19 @@ class LocalEntropyVoxelFeatures:
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification used for provenance."""
-        return Spec(
-            name="local_entropy",
-            params={
-                "modalities": list(self.modalities),
-                "roi": self.roi,
-                "kernel_size": self.kernel_size,
-                "bins": self.bins,
-            },
-        )
+        params: Dict[str, Any] = {
+            "modalities": list(self.modalities),
+            "roi": self.roi,
+            "kernel_size": self.kernel_size,
+            "bins": self.bins,
+        }
+        # Fold the singular/alias forms in only when set so the historical
+        # ``modalities=[...]`` fingerprint stays byte-identical.
+        if self.modality is not None:
+            params["modality"] = self.modality
+        if self.as_ is not None:
+            params["as_"] = self.as_
+        return Spec(name="local_entropy", params=params)
 
     def __call__(self, subject: Subject) -> VoxelFeatureField:
         """
@@ -100,8 +119,9 @@ class LocalEntropyVoxelFeatures:
             subject: Subject providing the requested modalities and mask.
 
         Returns:
-            One row per ROI voxel, one ``local_entropy-{modality}`` column per
-            modality.
+            One row per ROI voxel, one ``local_entropy-{source}`` column per
+            modality, where ``source`` is the ``as_`` alias when given, else
+            the modality name.
 
         Raises:
             GeometryError: If a modality and the mask are on different grids.
@@ -110,16 +130,23 @@ class LocalEntropyVoxelFeatures:
         modalities = resolve_voxel_modalities(
             subject, self.modalities, owner="local_entropy"
         )
+        # ``resolve_voxel_modalities`` may expand an empty request to every
+        # subject image; labels track that expansion one-to-one.
+        labels = (
+            self.source_labels
+            if len(self.source_labels) == len(modalities)
+            else modalities
+        )
         mask, inside, voxel_index = roi_voxels(subject, self.roi)
 
         names: List[str] = []
         columns: List[np.ndarray] = []
-        for modality in modalities:
+        for modality, label in zip(modalities, labels):
             array = aligned_image(subject, modality, mask, owner="local_entropy")
             entropy = local_entropy_map(
                 array, kernel_size=self.kernel_size, bins=self.bins
             )
-            names.append(f"local_entropy-{modality}")
+            names.append(f"local_entropy-{label}")
             columns.append(entropy[inside])
 
         values = np.stack(columns, axis=1)

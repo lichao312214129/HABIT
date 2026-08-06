@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The eight built-in feature-preprocessing methods.
+"""The built-in feature-preprocessing methods.
 
 Each method is a ``fit``/``transform`` pair over a unit-by-feature matrix.
 Whether the fitted state survives the call is the CHAIN's decision, not the
 method's: a per-subject chain throws it away, a cohort chain stores it in the
-:class:`~habit.contracts.habitat.HabitatModel`. This is why the same eight
+:class:`~habit.contracts.habitat.HabitatModel`. This is why the same
 methods serve voxel features, supervoxel features and both stateless and
 stateful use -- v0.1 already worked this way internally
 (``apply_stateless_preprocessing`` is literally a fit that discards state),
 but its configuration surface split the methods into two named blocks and
-hid the fact.
+hid the fact. The ninth method, ``feature_whitelist``, learns nothing at
+all: its column list arrives from outside (e.g. a precision screen).
 
 Registered names match the v0.1 YAML spellings so a legacy configuration
 translates without a lookup table.
@@ -37,7 +38,7 @@ intensity scale between modalities, while per-column scaling erases it.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
 from pydantic import BaseModel, Field, ConfigDict
@@ -54,6 +55,8 @@ __all__ = [
     "BinningParams",
     "CorrelationFilter",
     "CorrelationFilterParams",
+    "FeatureWhitelist",
+    "FeatureWhitelistParams",
     "Impute",
     "ImputeParams",
     "LogTransform",
@@ -601,6 +604,99 @@ class VarianceFilter:
         return block[kept]
 
 
+class FeatureWhitelistParams(BaseModel):
+    """Constructor parameters for :class:`FeatureWhitelist`."""
+
+    model_config = ConfigDict(extra="forbid")
+    features: List[str]
+
+
+@FeaturePreprocessingMethodRegistry.register("feature_whitelist")
+class FeatureWhitelist:
+    """
+    Restrict the feature matrix to an explicit, externally derived list.
+
+    This is the bridge from a precision screen to habitat computation: the
+    :class:`~habit.domain.precision.PreciseFeatureSet` names the features
+    that survived, and this method makes a habitat spec cluster exactly
+    those -- the workflow of Prior et al. (Radiol Artif Intell
+    2024;6(2):e230118), where only precise features may define habitats.
+
+    Unlike the data-driven filters, the column list is a CONSTRUCTOR
+    argument: nothing is learned from the matrix, so the method is
+    leakage-free by construction and ``fit`` simply echoes the list.
+
+    Args:
+        features: Feature names to keep, in output order. At least one is
+            required, and every name must be present in the matrix -- a
+        missing feature breaks the "same features" contract and raises
+        rather than being silently dropped.
+    """
+
+    _name = "feature_whitelist"
+    changes_columns: bool = True
+
+    def __init__(self, features: Sequence[str]) -> None:
+        columns = [str(feature) for feature in features]
+        if not columns:
+            raise HABITAPIError("feature_whitelist: features must not be empty.")
+        self._features = tuple(columns)
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification."""
+        return Spec(name=self._name, params={"features": list(self._features)})
+
+    def _restrict(self, block: pd.DataFrame) -> pd.DataFrame:
+        """
+        Return the matrix restricted to the whitelist, checking presence.
+
+        Args:
+            block: Matrix to restrict.
+
+        Returns:
+            The whitelist columns, in whitelist order.
+
+        Raises:
+            HABITAPIError: If a whitelisted feature is absent.
+        """
+        missing = [column for column in self._features if column not in block.columns]
+        if missing:
+            raise HABITAPIError(
+                f"feature_whitelist: features absent from the matrix: "
+                f"{missing}; available: {list(block.columns)}."
+            )
+        return block[list(self._features)]
+
+    def fit(self, block: pd.DataFrame) -> Dict[str, Any]:
+        """
+        Echo the whitelist as the fitted state (nothing is learned).
+
+        Args:
+            block: Unit-by-feature matrix, checked against the whitelist.
+
+        Returns:
+            State naming the columns to keep.
+        """
+        self._restrict(block)
+        return {"columns": list(self._features)}
+
+    def transform(
+        self, block: pd.DataFrame, state: Mapping[str, Any]
+    ) -> pd.DataFrame:
+        """
+        Restrict the matrix to the whitelisted columns.
+
+        Args:
+            block: Matrix to transform.
+            state: State from :meth:`fit` (the whitelist itself is used).
+
+        Returns:
+            The matrix with only the whitelisted columns.
+        """
+        return self._restrict(block)
+
+
 class CorrelationFilterParams(BaseModel):
     """Constructor parameters for :class:`CorrelationFilter`."""
 
@@ -701,6 +797,9 @@ FeaturePreprocessingMethodRegistry.register_params_model(
 FeaturePreprocessingMethodRegistry.register_params_model("binning", BinningParams)
 FeaturePreprocessingMethodRegistry.register_params_model(
     "variance_filter", VarianceFilterParams
+)
+FeaturePreprocessingMethodRegistry.register_params_model(
+    "feature_whitelist", FeatureWhitelistParams
 )
 FeaturePreprocessingMethodRegistry.register_params_model(
     "correlation_filter", CorrelationFilterParams

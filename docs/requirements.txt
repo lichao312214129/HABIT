@@ -1,6 +1,8 @@
 # Sphinx 核心依赖
 sphinx>=7.0.0
 sphinx-rtd-theme>=2.0.0
+# docutils>=0.21 移除了 docutils.utils.roman，sphinx 7.x latex builder 回退到该包
+roman>=3.3
 
 # 扩展
 sphinx-autobuild>=2021.3.14

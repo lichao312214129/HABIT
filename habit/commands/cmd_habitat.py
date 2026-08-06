@@ -27,13 +27,12 @@ both the train and predict paths at the v0.1 locations
 ``out_dir``, or ``checkpoint_dir`` when set), and the recipes receive it
 as an assembly argument. Cache keys incorporate the spec fingerprint
 (units and one-step stages) or the fitted model's ``model_id`` (label
-stage), so a changed spec or definition never reads a stale entry -- the
-precondition the stage-4 layout deferred wiring on. Reads honour
-``resume``; writes always happen, matching v0.1. What is NOT reproduced:
-``strict_checkpoint_hash``'s raise-on-mismatch and v0.1's manifest-hash
-discard (entries from an older spec simply become unreachable garbage),
-and v0.1-format payloads in the same directory are never read -- a logged
-warning covers both situations.
+stage), so a changed spec or definition never reads a stale entry.
+A legacy v0.1 ``manifest.json`` / ``subjects/`` tree is auto-migrated on
+open (logged), then resume continues. ``strict_checkpoint_hash=True``
+raises :class:`~habit.exceptions.CompatibilityError` only for fingerprint
+mismatch or a corrupt/unreadable legacy manifest. Reads honour
+``resume``; writes always happen, matching v0.1.
 
 Predict compatibility: models fitted by this command are saved as v1
 ``.habitatmodel`` archives only. Legacy v0.1 raw-pickle pipelines are
@@ -64,9 +63,8 @@ from habit.exceptions import (
     HABITAPIError,
 )
 from habit.schemas import HabitatAnalysisConfig
-from habit.execution.backends import SerialBackend
 from habit.execution.checkpoint import CheckpointStore
-from habit.execution.process_pool import ProcessPoolBackend
+from habit.execution.selection import backend_from_policy
 from habit.recipes import apply_habitat_model, direct_pooling, one_step, two_step
 from habit.recipes.result import StudyResult
 from habit.spec.legacy import LegacyConfigAdapter
@@ -224,9 +222,9 @@ def _run_train(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
             "must carry feature_construction and habitat_segmentation blocks."
         )
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_cohort(config, spec, logger)
-    checkpoint = _checkpoint_store_for(config, predict=False)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=False)
     _log_checkpoint_strategy(config, checkpoint.root, logger)
 
     mode = str(config.habitat_segmentation.clustering_mode)
@@ -292,9 +290,9 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
         # the v1 model archive rather than duplicating feature_construction.
         spec_payload = model.spec_payload
     spec = HabitatSpec.from_dict(spec_payload)
-    backend = _backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
+    backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_cohort(config, spec, logger)
-    checkpoint = _checkpoint_store_for(config, predict=True)
+    checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
     _log_checkpoint_strategy(config, checkpoint.root, logger)
     logger.info(
         "Applying v1 habitat model %s (id=%s, n_habitats=%d, produced_by=%s)",
@@ -323,32 +321,6 @@ def _translate_document(config: HabitatAnalysisConfig) -> Dict[str, Any]:
     return document
 
 
-def _backend_from_policy(policy: RunPolicy) -> Any:
-    """
-    Build the execution backend a policy asks for.
-
-    Args:
-        policy: Translated run policy.
-
-    Returns:
-        A process-pool backend when the policy asks for parallel process
-        execution; otherwise a serial backend carrying the policy's
-        checkpoint flags, so resume/failure semantics hold identically on
-        the default path instead of only under multiprocessing. A default
-        policy maps onto the serial backend's own defaults, so behaviour
-        is unchanged when no checkpoint is attached.
-    """
-    if policy.backend == "process" and policy.workers > 1:
-        return ProcessPoolBackend.from_policy(policy)
-    return SerialBackend(
-        on_subject_failure=policy.on_subject_failure,
-        resume=policy.resume,
-        retry_failed_subjects=policy.retry_failed_subjects,
-        force_rerun_subjects=policy.force_rerun_subjects,
-        clear_checkpoint_on_success=policy.clear_checkpoint_on_success,
-    )
-
-
 def _checkpoint_root_for(config: HabitatAnalysisConfig, *, predict: bool) -> Path:
     """
     Resolve the checkpoint directory for a train or predict run.
@@ -367,22 +339,45 @@ def _checkpoint_root_for(config: HabitatAnalysisConfig, *, predict: bool) -> Pat
     return Path(config.out_dir) / dirname
 
 
-def _checkpoint_store_for(config: HabitatAnalysisConfig, *, predict: bool) -> CheckpointStore:
+def _checkpoint_store_for(
+    config: HabitatAnalysisConfig,
+    *,
+    spec: HabitatSpec,
+    predict: bool,
+) -> CheckpointStore:
     """
     Attach the checkpoint store for a train or predict run.
 
     The store is attached unconditionally: reads honour the backend's
     ``resume`` flag, but a run always records its outcomes so a later
-    resumed run can skip them (v0.1 behaviour).
+    resumed run can skip them (v0.1 behaviour). Bound to
+    ``spec.fingerprint()`` so ``strict_checkpoint_hash`` can raise on
+    incompatible resumes.
 
     Args:
         config: Validated v0.1 habitat configuration.
+        spec: Effective habitat spec whose fingerprint scopes the store.
         predict: Whether the run is a predict run.
 
     Returns:
         The store rooted at :func:`_checkpoint_root_for`.
+
+    Raises:
+        CompatibilityError: When ``strict_checkpoint_hash`` is set and the
+            on-disk fingerprint is incompatible, or a legacy v0.1 manifest
+            is corrupt/unreadable.
     """
-    return CheckpointStore(_checkpoint_root_for(config, predict=predict))
+    clustering_mode = (
+        config.habitat_segmentation.clustering_mode
+        if getattr(config, "habitat_segmentation", None) is not None
+        else None
+    )
+    return CheckpointStore(
+        _checkpoint_root_for(config, predict=predict),
+        run_fingerprint=spec.fingerprint(),
+        strict=bool(config.strict_checkpoint_hash),
+        clustering_mode=clustering_mode,
+    )
 
 
 def _spec_modalities(spec: HabitatSpec) -> Tuple[str, ...]:
@@ -598,14 +593,12 @@ def _log_checkpoint_strategy(
     config: HabitatAnalysisConfig, checkpoint_root: Path, logger: logging.Logger
 ) -> None:
     """
-    Log the checkpoint wiring actually in effect, plus its known gaps.
+    Log the checkpoint wiring actually in effect.
 
-    Two situations still deserve a loud record rather than silence: a
-    ``strict_checkpoint_hash`` request (whose raise-on-mismatch semantics
-    the fingerprint-in-key design makes unnecessary for correctness but
-    does not reproduce as an error), and a checkpoint directory holding
-    v0.1-format payloads, which this path never reads and would otherwise
-    look like a silently ignored resume.
+    Fingerprint binding and legacy-layout checks run inside
+    :class:`~habit.execution.CheckpointStore` (raising when
+    ``strict_checkpoint_hash`` is set). This helper only records the active
+    resume knobs for operators.
 
     Args:
         config: Validated v0.1 habitat configuration.
@@ -614,31 +607,14 @@ def _log_checkpoint_strategy(
     """
     logger.info(
         "Checkpoint store: %s (v1 format; resume=%s, retry_failed=%s, "
-        "force_rerun=%s, clear_on_success=%s)",
+        "force_rerun=%s, clear_on_success=%s, strict_hash=%s)",
         checkpoint_root,
         config.resume,
         config.retry_failed_subjects,
         tuple(config.force_rerun_subjects),
         config.clear_checkpoint_on_success,
+        config.strict_checkpoint_hash,
     )
-    if config.strict_checkpoint_hash:
-        logger.warning(
-            "strict_checkpoint_hash=True is not reproduced by the v1 path: "
-            "cache keys already embed the spec fingerprint, so an "
-            "incompatible checkpoint is never read -- it is left on disk "
-            "unreachable instead of raising or being discarded."
-        )
-    legacy_markers = (
-        checkpoint_root / "manifest.json",
-        checkpoint_root / "subjects",
-    )
-    if any(marker.exists() for marker in legacy_markers):
-        logger.warning(
-            "Checkpoint directory %s contains v0.1-format payloads "
-            "(manifest.json / subjects/); the v1 path never reads them, so "
-            "those subjects are recomputed into v1 entries.",
-            checkpoint_root,
-        )
 
 
 def _save_result(result: StudyResult, config: HabitatAnalysisConfig) -> None:

@@ -15,6 +15,8 @@ Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
        hosmer_lemeshow_test,
        icc2_1,
        icc3_1,
+       icc3a_1,
+       icc3c_1,
        ith_score,
        msi_features_from_matrix,
        spatial_interaction_matrix,
@@ -49,6 +51,37 @@ ICC kernels
    ms = two_way_mean_squares(n_targets, k_raters)
    icc_agreement = icc2_1(n_targets, k_raters)
    icc_consistency = icc3_1(n_targets, k_raters)
+
+Voxel-level reliability (the precision screen's statistics) returns point
+estimates with confidence limits; negative values truncate at 0:
+
+.. code-block:: python
+
+   # matrix: n_voxels x n_conditions, one column per condition
+   est = icc3a_1(matrix)   # absolute agreement -> ICCEstimate(value, lcl, ucl)
+   est = icc3c_1(matrix)   # consistency
+
+Image perturbation
+------------------
+
+Simulated-retest kernels behind the ``image_perturbation`` domain. Noise
+estimation and addition work on plain arrays; the geometric kernels take
+and return ``sitk.Image`` so spacing, origin and direction are honoured,
+and resample back onto the original grid:
+
+.. code-block:: python
+
+   from habit.kernels import (
+       add_gaussian_noise,
+       estimate_noise_sigma,
+       rotate_image,
+       translate_image,
+   )
+
+   sigma = estimate_noise_sigma(array, method="chang")  # wavelet estimator
+   noisy = add_gaussian_noise(array, sigma, rng)        # zero-mean Gaussian
+   shifted = translate_image(image, shift_voxels=(0.3, -0.2, 0.0))
+   rotated = rotate_image(image, angle_degrees=0.5, axis="z")
 
 Classification statistics
 -------------------------

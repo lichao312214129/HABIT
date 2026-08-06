@@ -64,6 +64,8 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     "habitat_model_fitter": "habit.habitat_model_fitter",
     "habitat_assigner": "habit.habitat_assigner",
     "habitat_feature_extractor": "habit.habitat_feature_extractor",
+    "combiner": "habit.combiner",
+    "image_perturbation": "habit.image_perturbation",
     "preprocessor": "habit.preprocessor",
     "table_preprocessor": "habit.table_preprocessor",
     "classifier": "habit.classifier",
@@ -113,6 +115,11 @@ _V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
     "habitat_feature_extractor": (
         "habit.domain.habitat_features",
         "HabitatFeatureExtractorRegistry",
+    ),
+    "combiner": ("habit.domain.combiners", "CombinerRegistry"),
+    "image_perturbation": (
+        "habit.domain.precision",
+        "ImagePerturbationRegistry",
     ),
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()

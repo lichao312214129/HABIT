@@ -78,6 +78,24 @@ def cli():
     """
     ensure_cli_stdio()
 
+@cli.command('list-components')
+@click.option(
+    '--domain', '-d',
+    type=str,
+    default=None,
+    help='Restrict the listing to one plugin domain (e.g. combiner, voxel_feature_extractor)',
+)
+@click.option(
+    '--json', 'as_json',
+    is_flag=True,
+    help='Emit machine-readable JSON instead of a text table',
+)
+def list_components(domain: Optional[str], as_json: bool) -> None:
+    """List registered components usable in YAML configs and expressions"""
+    from habit.commands.cmd_list_components import run_list_components
+    run_list_components(domain, as_json)
+
+
 @cli.command('check-config')
 @config_option(help='Path to configuration YAML to check (does not run the pipeline)')
 @click.option(

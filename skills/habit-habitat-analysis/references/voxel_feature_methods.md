@@ -63,7 +63,7 @@ numbers live in `voxel_level.params` (placeholders are resolved from `params`). 
 not Python `kwargs` syntax (`params_file=...` in the string is invalid).
 
 For **CT habitat** voxel texture, omit `params_file` to use the bundled **R3B12**
-preset (`kernel_radius: 3`, `binWidth: 12` HU) from Petersen et al. (*Radiol Artif Intell*
+preset (`kernel_radius: 3`, `binWidth: 12` HU) from Prior O, et al. (*Radiol Artif Intell*
 2024;6(2):e230118, doi:10.1148/ryai.230118) — better repeatability/reproducibility than R1B25.
 Bundled file: `habit/resources/radiomics/params_voxel_radiomics.yaml` (same content as
 `config/radiomics/params_voxel_radiomics.yaml`). GLCM lists **21 stable features** (excludes
