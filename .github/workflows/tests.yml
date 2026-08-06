@@ -52,16 +52,13 @@ jobs:
       - name: Install and verify wheel
         shell: pwsh
         run: |
-          $wheel = @(
-            Get-ChildItem dist\habitat_analysis-*.whl -ErrorAction SilentlyContinue
-            Get-ChildItem dist\HABIT-*.whl -ErrorAction SilentlyContinue
-          ) | Select-Object -First 1
+          $wheel = Get-ChildItem dist\habitat_analysis-*.whl | Select-Object -First 1
           if (-not $wheel) {
             throw "habitat-analysis wheel was not created."
           }
           python -m pip install --force-reinstall --no-deps $wheel.FullName
           Push-Location $env:RUNNER_TEMP
-          python -c "import importlib.metadata as md, pathlib, sys, habit; files = {str(path).replace(chr(92), '/') for path in md.distribution('HABIT').files}; required = {'habit/py.typed', 'habit/api/registry.py', 'habit/recipes/habitat.py', 'habit/contracts/subject.py', 'habit/resources/radiomics/params_voxel_radiomics.yaml'}; missing = required - files; assert not missing, f'Missing wheel files: {sorted(missing)}'; assert not any(path.startswith('tests/') for path in files), 'tests package leaked into wheel'; from habit.utils.radiomics_preset_utils import get_preset_path; assert pathlib.Path(get_preset_path('voxel')).is_file(); assert pathlib.Path(habit.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix).resolve())"
+          python -c "import importlib.metadata as md, pathlib, sys, habit; files = {str(path).replace(chr(92), '/') for path in md.distribution('habitat-analysis').files}; required = {'habit/py.typed', 'habit/api/registry.py', 'habit/recipes/habitat.py', 'habit/contracts/subject.py', 'habit/resources/radiomics/params_voxel_radiomics.yaml'}; missing = required - files; assert not missing, f'Missing wheel files: {sorted(missing)}'; assert not any(path.startswith('tests/') for path in files), 'tests package leaked into wheel'; from habit.utils.radiomics_preset_utils import get_preset_path; assert pathlib.Path(get_preset_path('voxel')).is_file(); assert pathlib.Path(habit.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix).resolve())"
           Pop-Location
 
   unit:
@@ -80,11 +77,12 @@ jobs:
       - name: Install API test dependencies
         run: |
           pip install --upgrade pip
-          # PyRadiomics is an optional extra (HABIT[radiomics]). CI still needs
-          # it for radiomics tests. PyPI often serves only an sdist that does
-          # not declare numpy as a build dependency, so install numpy first and
-          # build without isolation.
-          pip install "numpy==1.26.1" wheel setuptools
+          # PyRadiomics is an optional extra (habitat-analysis[radiomics]). CI
+          # still needs it for radiomics tests. PyPI serves only the 3.1.0
+          # sdist for CPython 3.10+, which neither declares numpy as a build
+          # dependency nor bundles versioneer.py, so install the build
+          # requirements first and build without isolation.
+          pip install "numpy==1.26.1" wheel setuptools versioneer
           pip install "pyradiomics>=3.0,<4" --no-build-isolation
           pip install -r requirements-ci.txt
           pip install --no-deps -e .

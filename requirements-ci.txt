@@ -17,9 +17,12 @@ tqdm
 # v1 domain/kernels test dependencies (lazy-imported by habit.domain and
 # habit.kernels.radiomics, exercised for real by the test suites):
 matplotlib
-# Optional at runtime (HABIT[radiomics]); install via CI with
-# ``pip install pyradiomics --no-build-isolation`` after numpy (see tests.yml).
-pyradiomics
+# Optional at runtime (habitat-analysis[radiomics]). Deliberately NOT listed
+# here: PyPI serves only a broken sdist for CPython 3.10+ (missing versioneer
+# at build time), so a bare ``pip install pyradiomics`` inside this file fails.
+# The unit job in tests.yml installs it separately with
+# ``pip install pyradiomics --no-build-isolation`` after numpy + versioneer;
+# the docs job mocks it via autodoc_mock_imports and does not need it.
 lifelines
 scikit-survival
 statsmodels
