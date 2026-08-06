@@ -23,6 +23,17 @@ matplotlib
 # The unit job in tests.yml installs it separately with
 # ``pip install pyradiomics --no-build-isolation`` after numpy + versioneer;
 # the docs job mocks it via autodoc_mock_imports and does not need it.
+# Core runtime deps from pyproject.toml [project.dependencies] that the
+# unit job needs. tests.yml installs the editable package with --no-deps
+# (to avoid re-resolving the pinned numpy above), so these must be listed
+# here explicitly; they used to arrive transitively when ``pip install -e .``
+# still resolved project.dependencies.
+scikit-image>=0.23,<0.27
+seaborn>=0.13,<1
+chardet>=5.0,<8
+pydicom>=3.0,<4
+kneed>=0.8,<1
+pyarrow>=15,<22
 lifelines
 scikit-survival
 statsmodels

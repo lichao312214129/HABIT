@@ -34,7 +34,7 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__all__ = ["sklearn", "monai", "nnunet"]
+__all__ = ["sklearn", "monai", "nnunet", "test_retest_mapper"]
 
 
 def __getattr__(name: str) -> Any:
