@@ -174,10 +174,17 @@ class VoxelFeatureField:
                 "matrix must preserve voxels: dropping rows would "
                 "desynchronise the matrix from voxel_index."
             )
+        # Preserve the frame's floating dtype. Forcing float64 here undid
+        # float32 radiomics tables (v0.1 default) after subject-level
+        # preprocessing and shifted cohort z-score means/stds enough to
+        # break rtol=1e-6 parity on the matrix entering k-means.
+        values = frame.to_numpy(copy=True)
+        if not np.issubdtype(values.dtype, np.floating):
+            values = np.asarray(values, dtype=np.float64)
         return VoxelFeatureField(
             subject_id=self.subject_id,
             feature_names=tuple(str(column) for column in frame.columns),
-            values=frame.to_numpy(dtype=np.float64, copy=True),
+            values=values,
             voxel_index=self.voxel_index,
             geometry=self.geometry,
             provenance=self.provenance.derive(
