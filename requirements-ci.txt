@@ -1,4 +1,4 @@
-﻿# Dependencies required by the public API, architecture, packaging, and v1
+# Dependencies required by the public API, architecture, packaging, and v1
 # layer test suites (tests/{api,contracts,domain,execution,compat,spec,
 # registry,kernels,golden}).
 # Keep this list small: heavyweight optional workflow backends (AutoGluon,
