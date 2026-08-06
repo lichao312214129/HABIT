@@ -24,7 +24,11 @@ from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
 
 if TYPE_CHECKING:
-    from habit.schemas.workflows.ml import MLConfig, ModelComparisonConfig, TestRetestConfig
+    from habit.schemas.workflows.ml import (
+        MLConfig,
+        ModelComparisonConfig,
+        TestRetestConfig,
+    )
 
 __all__ = [
     "MLConfig",

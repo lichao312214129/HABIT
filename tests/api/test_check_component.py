@@ -26,5 +26,8 @@ def test_check_component_resolves_builtin_names() -> None:
 
     assert habit.check_component("kmeans", domain="habitat_model_fitter") is True
     assert habit.check_component("slic", domain="supervoxelizer") is True
-    assert habit.check_component("not_a_real_plugin", domain="habitat_model_fitter") is False
+    assert (
+        habit.check_component("not_a_real_plugin", domain="habitat_model_fitter")
+        is False
+    )
     assert habit.check_component("kmeans", domain="not_a_real_domain") is False

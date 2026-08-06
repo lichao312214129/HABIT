@@ -110,7 +110,10 @@ _V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
         "habit.domain.feature_preprocessing",
         "FeaturePreprocessingMethodRegistry",
     ),
-    "habitat_model_fitter": ("habit.domain.habitat_model", "HabitatModelFitterRegistry"),
+    "habitat_model_fitter": (
+        "habit.domain.habitat_model",
+        "HabitatModelFitterRegistry",
+    ),
     "habitat_assigner": ("habit.domain.assignment", "HabitatAssignerRegistry"),
     "habitat_feature_extractor": (
         "habit.domain.habitat_features",
@@ -185,7 +188,9 @@ def _legacy_registry_for_domain(domain: str) -> Type[Any]:
     if domain == "habitat_features":
         return cast(Type[Any], plugin_registries.get_legacy_habitat_feature_factory())
     if domain == "feature_extractors":
-        return cast(Type[Any], plugin_registries.get_legacy_feature_extractor_registry())
+        return cast(
+            Type[Any], plugin_registries.get_legacy_feature_extractor_registry()
+        )
     raise HABITAPIError(
         f"Domain '{domain}' is not a legacy alias. Available legacy aliases: "
         f"{sorted(_LEGACY_DOMAIN_ALIASES)}."

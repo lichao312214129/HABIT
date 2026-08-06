@@ -121,7 +121,10 @@ def test_extract_batch_fail_fast_false_collects_failures() -> None:
 
     assert list(batch.table["subject_id"]) == ["ok"]
     assert "bad" in batch.failures
-    assert "GeometryError" in batch.failures["bad"] or "incompatible" in batch.failures["bad"]
+    assert (
+        "GeometryError" in batch.failures["bad"]
+        or "incompatible" in batch.failures["bad"]
+    )
     assert len(batch.results) == 1
 
 

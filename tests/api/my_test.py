@@ -89,8 +89,8 @@ def make_subject(
     images = {}
     for offset, modality in enumerate(modalities):
         array = np.zeros(shape, dtype=np.float64)
-        array[:half_z] = 1.0                        # low-intensity compartment
-        array[half_z:] = 10.0                       # high-intensity compartment
+        array[:half_z] = 1.0  # low-intensity compartment
+        array[half_z:] = 10.0  # high-intensity compartment
         array += rng.normal(scale=0.05, size=shape) + offset
         images[modality] = ArrayImageRef(array=array, geometry=geometry)
 
@@ -117,9 +117,7 @@ def materialised_volumes_demo() -> None:
     ``from_geometry`` when a ``Geometry`` value is already at hand.
     """
     geometry = make_geometry(SHAPE)
-    image = ImageVolume.from_geometry(
-        np.random.rand(*SHAPE), geometry, modality="T1"
-    )
+    image = ImageVolume.from_geometry(np.random.rand(*SHAPE), geometry, modality="T1")
     mask = MaskVolume.from_geometry(
         np.ones(SHAPE, dtype=np.int32), geometry, roi_name="tumor"
     )

@@ -55,7 +55,10 @@ def test_show_versions_returns_software_fingerprint() -> None:
     assert "habit" in versions
     assert isinstance(versions["habit"], str)
     assert versions["habit"]
-    assert all(isinstance(key, str) and isinstance(value, str) for key, value in versions.items())
+    assert all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in versions.items()
+    )
     assert versions == dict(software_fingerprint())
 
 
@@ -253,9 +256,7 @@ def test_run_test_retest_analysis_maps_and_processes_images() -> None:
             "habit.compat.test_retest_mapper.find_habitat_mapping",
             return_value=expected_mapping,
         ) as mock_find,
-        patch(
-            "habit.compat.test_retest_mapper.batch_process_files"
-        ) as mock_batch,
+        patch("habit.compat.test_retest_mapper.batch_process_files") as mock_batch,
     ):
         result = habit.run_test_retest_analysis(config, logger=logger)
 

@@ -172,15 +172,11 @@ def preprocess_subject(
 
     for step_name, raw_params in steps.items():
         if not isinstance(step_name, str) or not step_name.strip():
-            raise HABITAPIError(
-                f"Invalid preprocessing step name: {step_name!r}."
-            )
+            raise HABITAPIError(f"Invalid preprocessing step name: {step_name!r}.")
         params = dict(raw_params or {})
         step_modalities = list(params.pop("images", modalities))
         if not step_modalities:
-            raise HABITAPIError(
-                f"Step {step_name!r} has an empty 'images' list."
-            )
+            raise HABITAPIError(f"Step {step_name!r} has an empty 'images' list.")
         missing = [m for m in step_modalities if m not in subject_data]
         if missing:
             raise HABITAPIError(
