@@ -90,9 +90,10 @@ def run_habitat_analysis_from_config(
     """
     log = logger or _LOG
     out = output_dir or str(config.out_dir)
-    configurator = HabitatConfigurator(config=config, logger=log, output_dir=out)
-    analysis = configurator.create_habitat_analysis()
 
+    # Validate predict-mode requirements before constructing HabitatAnalysis,
+    # which scans data_dir and would otherwise fail first when demo data is
+    # absent (e.g. CI runners).
     if config.run_mode == "predict":
         if not config.pipeline_path:
             raise ValueError(
@@ -101,9 +102,15 @@ def run_habitat_analysis_from_config(
             )
         resolved_pipeline = Path(config.pipeline_path)
         if not resolved_pipeline.exists():
-            raise FileNotFoundError(
-                f"Pipeline file not found: {resolved_pipeline}"
-            )
+            raise FileNotFoundError(f"Pipeline file not found: {resolved_pipeline}")
+    else:
+        resolved_pipeline = None
+
+    configurator = HabitatConfigurator(config=config, logger=log, output_dir=out)
+    analysis = configurator.create_habitat_analysis()
+
+    if config.run_mode == "predict":
+        assert resolved_pipeline is not None  # narrowed above
         return analysis.predict(
             pipeline_path=str(resolved_pipeline),
             save_results_csv=config.save_results_csv,
