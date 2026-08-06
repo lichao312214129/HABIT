@@ -104,16 +104,39 @@ class NearestCentroidAssigner:
         # are ignored so a richer feature frame stays assignable.
         matrix = frame[list(self._model.feature_names)].to_numpy(dtype=np.float64)
 
-        unit_ids = frame.index.to_numpy()
+        unit_ids = np.asarray(frame.index, dtype=np.int64)
         labels = np.asarray(supervoxel_map.label_array)
-        present = np.unique(labels)
-        present = present[present != 0]
-        unknown = sorted(set(int(v) for v in present) - set(int(v) for v in unit_ids))
-        if unknown:
-            raise CompatibilityError(
-                f"Subject {supervoxel_map.subject_id!r}: supervoxel labels "
-                f"{unknown} have no feature rows."
-            )
+        # one_step / direct_pooling use voxel_units: every ROI voxel is its
+        # own id inside a full-volume label_array (often 10^6–10^7 voxels).
+        # Prefer ``bincount`` coverage over ``np.unique`` + Python set
+        # difference at that scale; behaviour is identical.
+        if unit_ids.size == 0:
+            if np.any(labels != 0):
+                raise CompatibilityError(
+                    f"Subject {supervoxel_map.subject_id!r}: supervoxel "
+                    "labels are present but the feature table is empty."
+                )
+        else:
+            max_unit = int(unit_ids.max())
+            max_label = int(labels.max()) if labels.size else 0
+            if max_label > max_unit:
+                raise CompatibilityError(
+                    f"Subject {supervoxel_map.subject_id!r}: supervoxel "
+                    f"labels up to {max_label} have no feature rows "
+                    f"(feature index max={max_unit})."
+                )
+            covered = np.zeros(max_unit + 1, dtype=bool)
+            covered[unit_ids] = True
+            counts = np.bincount(labels.ravel(), minlength=max_unit + 1)
+            present = np.flatnonzero(counts)
+            present = present[present != 0]
+            missing_mask = ~covered[present]
+            if np.any(missing_mask):
+                unknown = [int(v) for v in present[missing_mask]]
+                raise CompatibilityError(
+                    f"Subject {supervoxel_map.subject_id!r}: supervoxel labels "
+                    f"{unknown} have no feature rows."
+                )
 
         # Euclidean nearest-centroid assignment; ids are row index + 1 so
         # that 0 stays available for background.

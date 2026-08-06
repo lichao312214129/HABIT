@@ -92,6 +92,11 @@ def _dump_subject_features(
     """
     Write checkpoints 1 / 1b / 2 for one subject and return its units.
 
+    Stage-1 runs once: the dump mirrors ``SubjectPipeline.units`` so the
+    voxel extractor is not invoked a second time just to materialise the
+    checkpoint tables (that double call dwarfed wall time on radiomics and
+    still mattered for raw one_step / direct_pooling dumps).
+
     Args:
         fit_pipeline: Subject pipeline without an assigner.
         subject: Subject to process.
@@ -100,18 +105,44 @@ def _dump_subject_features(
     Returns:
         The subject's clustering units (``Supervoxelization``).
     """
+    from habit.domain.pipeline import voxel_units
+
     subject_id = subject.subject_id
     field = fit_pipeline.voxel_feature_extractor(subject)
     pio.write_table(
         field.feature_frame(), leg_dir / pio.CK1_DIR / f"{subject_id}.parquet"
     )
+    original_field = field
     if fit_pipeline.voxel_feature_preprocessor is not None:
         chain = fit_pipeline.voxel_feature_preprocessor
-        prepped = chain(field.feature_frame())
+        field = field.with_feature_frame(
+            chain(field.feature_frame()),
+            produced_by="feature_preprocessing.subject.voxel",
+            spec_fingerprint=chain.spec.fingerprint(),
+        )
+    pio.write_table(
+        field.feature_frame(), leg_dir / pio.CK1B_DIR / f"{subject_id}.parquet"
+    )
+    if fit_pipeline.supervoxelizer is None:
+        units = voxel_units(field)
     else:
-        prepped = field.feature_frame()
-    pio.write_table(prepped, leg_dir / pio.CK1B_DIR / f"{subject_id}.parquet")
-    units = fit_pipeline.units(subject)
+        # Keep the full pipeline path for two_step so statistical
+        # supervoxel extractors still see ``original`` vs ``working``.
+        units = fit_pipeline.supervoxelizer(field)
+        if fit_pipeline.supervoxel_feature_extractor is not None:
+            binder = getattr(
+                fit_pipeline.supervoxel_feature_extractor, "bind_fields", None
+            )
+            if callable(binder):
+                binder(working=field, original=original_field)
+            units = fit_pipeline.supervoxel_feature_extractor(subject, units)
+        if fit_pipeline.supervoxel_feature_preprocessor is not None:
+            chain = fit_pipeline.supervoxel_feature_preprocessor
+            units = units.with_feature_frame(
+                chain(units.feature_frame()),
+                produced_by="feature_preprocessing.subject.supervoxel",
+                spec_fingerprint=chain.spec.fingerprint(),
+            )
     pio.write_table(
         units.feature_frame(), leg_dir / pio.CK2_DIR / f"{subject_id}.parquet"
     )
@@ -454,6 +485,13 @@ def _unit_habitat_labels(units: Any, habitat_map: Any) -> np.ndarray:
     the same table shape. The label of a unit is the habitat value of any of
     its voxels, taken from the label volume.
 
+    Implementation note: one_step / direct_pooling use ``voxel_units``, so
+    every ROI voxel is its own unit id inside a full-volume ``label_array``
+    (often ~10^6–10^7 voxels with thousands of unique ids). A Python loop
+    ``for unit_id: label_array == unit_id`` is O(n_units * volume) and was
+    the entire ~20s→90s+ wall-time gap in the dump harness — not a recipe
+    regression. Build a dense unit→habitat lookup in one O(volume) pass.
+
     Args:
         units: Clustering units after cohort preprocessing.
         habitat_map: The habitat label image produced for the same subject.
@@ -461,14 +499,17 @@ def _unit_habitat_labels(units: Any, habitat_map: Any) -> np.ndarray:
     Returns:
         One habitat label per unit, in ``units.feature_frame()`` row order.
     """
-    unit_labels = np.asarray(units.label_array)
-    habitat_labels = np.asarray(habitat_map.label_array)
-    out: List[int] = []
-    for unit_id in np.asarray(units.features.index):
-        selection = unit_labels == int(unit_id)
-        values = habitat_labels[selection]
-        out.append(int(values.flat[0]) if values.size else 0)
-    return np.asarray(out, dtype=np.int64)
+    unit_ids = np.asarray(units.features.index, dtype=np.int64)
+    unit_labels = np.asarray(units.label_array).ravel()
+    habitat_labels = np.asarray(habitat_map.label_array).ravel()
+    if unit_ids.size == 0:
+        return np.asarray([], dtype=np.int64)
+    lookup_size = int(max(int(unit_ids.max()), int(unit_labels.max()), 0)) + 1
+    lookup = np.zeros(lookup_size, dtype=np.int64)
+    # First-hit wins; all voxels of a unit share one habitat after assign.
+    nz = unit_labels != 0
+    lookup[unit_labels[nz]] = habitat_labels[nz].astype(np.int64, copy=False)
+    return lookup[unit_ids]
 
 
 if __name__ == "__main__":
