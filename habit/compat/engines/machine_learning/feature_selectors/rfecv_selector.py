@@ -107,7 +107,7 @@ def rfecv_selector(data: pd.DataFrame,
     if estimator.startswith('XGB') and not XGBOOST_AVAILABLE:
         raise OptionalDependencyError(
             f"rfecv estimator {estimator!r} requires the optional xgboost "
-            "dependency; install 'HABIT[ml]' to use it."
+            "dependency; install 'habitat-analysis[ml]' to use it."
         )
     if estimator not in ESTIMATOR_MAP:
         raise ValueError(f"Unsupported estimator: {estimator}. Must be one of {list(ESTIMATOR_MAP.keys())}")

@@ -69,7 +69,7 @@ def _train_run(csv_path: Path, seed: int) -> pd.DataFrame:
         name="comparison_ml",
         classifier=Spec(
             name="LogisticRegression",
-            params={"random_state": seed, "max_iter": 1000},
+            params={"max_iter": 1000},
         ),
         table_preprocessors=(Spec(name="zscore"),),
         metrics=(Spec(name="accuracy"), Spec(name="auc")),

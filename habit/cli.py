@@ -31,11 +31,20 @@ from habit.utils.project_urls import docs_page
 def _package_version() -> str:
     """Return installed package version with a safe fallback."""
     try:
-        from importlib.metadata import version
-        return version("HABIT")
+        from importlib.metadata import PackageNotFoundError, version
+
+        # PyPI distribution name is ``habitat-analysis``; older installs may use ``habit-analysis``; local/editable
+        # installs may still register as ``HABIT``.
+        for dist_name in ("habitat-analysis", "habit-analysis", "HABIT", "habit"):
+            try:
+                return version(dist_name)
+            except PackageNotFoundError:
+                continue
     except Exception:  # noqa: BLE001
-        from habit import __version__
-        return __version__
+        pass
+    from habit import __version__
+
+    return __version__
 
 
 def config_option(**overrides: object):

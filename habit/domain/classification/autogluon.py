@@ -21,7 +21,7 @@ from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.contracts.table import FeatureTable
@@ -35,6 +35,7 @@ __all__ = ["AutogluonTabularClassifier", "AutogluonTabularClassifierParams"]
 class AutogluonTabularClassifierParams(BaseModel):
     """Constructor parameters for :class:`AutogluonTabularClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: HABIT-level feature-importance mode (never forwarded to AutoGluon).
     feature_importance: str = "auto"
     #: Label column name inside the AutoGluon training frame; defaults to the
@@ -53,7 +54,7 @@ def _lazy_tabular_predictor() -> Any:
     except ImportError as exc:
         raise OptionalDependencyError(
             "classifier.AutoGluonTabular requires the optional AutoGluon "
-            "dependency; install 'HABIT[automl]' to use it."
+            "dependency; install 'habitat-analysis[automl]' to use it."
         ) from exc
     return TabularPredictor
 

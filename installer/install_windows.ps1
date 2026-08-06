@@ -21,7 +21,8 @@ $ConstraintsLock = Join-Path $ScriptDir "constraints-runtime-win-py310.lock"
 $CondarcFile = Join-Path $ScriptDir "condarc_cn.yml"
 $VendorManifestFile = Join-Path $ScriptDir "vendor_assets.json"
 $VerifyScript = Join-Path $ScriptDir "verify_habit_env.py"
-$PyradiomicsWheel = Join-Path $Root "tools\vendor\pyradiomics-3.0.1-cp310-cp310-win_amd64.whl"
+# Path must match installer/vendor_assets.json → package_path for pyradiomics-wheel.
+$PyradiomicsWheel = Join-Path $Root "installer\vendor\pyradiomics-3.0.1-cp310-cp310-win_amd64.whl"
 $HabitWheelDir = Join-Path $Root "tools\wheels"
 $StampFile = Join-Path $EnvPath ".habit_env_spec.sha256"
 $LogDir = Join-Path $Root "logs"
@@ -89,6 +90,7 @@ function Assert-Hash {
 
 function Get-HabitWheel {
     $wheels = @(
+        Get-ChildItem -LiteralPath $HabitWheelDir -Filter "habitat_analysis-*.whl" -File -ErrorAction SilentlyContinue
         Get-ChildItem -LiteralPath $HabitWheelDir -Filter "HABIT-*.whl" -File -ErrorAction SilentlyContinue
     )
     if ($wheels.Count -ne 1) {

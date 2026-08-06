@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import HabitatMap
@@ -37,7 +37,7 @@ __all__ = ["MsiHabitatFeatures", "MsiHabitatFeaturesParams"]
 class MsiHabitatFeaturesParams(BaseModel):
     """Constructor parameters for :class:`MsiHabitatFeatures` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @HabitatFeatureExtractorRegistry.register("msi")
 class MsiHabitatFeatures:
     """

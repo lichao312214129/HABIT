@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.domain.regression._base import SklearnRegressorBase
 from habit.domain.regression.registry import RegressorRegistry
@@ -69,6 +69,7 @@ class _SpecParamsMixin:
 class RidgeRegressorParams(BaseModel):
     """Constructor parameters for :class:`RidgeRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     alpha: float = 1.0
 
 
@@ -91,6 +92,7 @@ class RidgeRegressor(_SpecParamsMixin, SklearnRegressorBase):
 class LassoRegressorParams(BaseModel):
     """Constructor parameters for :class:`LassoRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     alpha: float = 1.0
     max_iter: int = 1000
 
@@ -114,6 +116,7 @@ class LassoRegressor(_SpecParamsMixin, SklearnRegressorBase):
 class ElasticNetRegressorParams(BaseModel):
     """Constructor parameters for :class:`ElasticNetRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     alpha: float = 1.0
     l1_ratio: float = 0.5
     max_iter: int = 1000
@@ -145,6 +148,7 @@ class ElasticNetRegressor(_SpecParamsMixin, SklearnRegressorBase):
 class SvrRegressorParams(BaseModel):
     """Constructor parameters for :class:`SvrRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     C: float = 1.0
     kernel: str = "rbf"
     gamma: Union[str, float] = "scale"
@@ -181,6 +185,7 @@ class SvrRegressor(_SpecParamsMixin, SklearnRegressorBase):
 class RandomForestRegressorParams(BaseModel):
     """Constructor parameters for :class:`RandomForestRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_estimators: int = 100
     max_depth: Optional[int] = None
     min_samples_split: int = 2
@@ -220,6 +225,7 @@ class RandomForestRegressor(_SpecParamsMixin, SklearnRegressorBase):
 class GradientBoostingRegressorParams(BaseModel):
     """Constructor parameters for :class:`GradientBoostingRegressor`."""
 
+    model_config = ConfigDict(extra="forbid")
     loss: str = "squared_error"
     learning_rate: float = 0.1
     n_estimators: int = 100

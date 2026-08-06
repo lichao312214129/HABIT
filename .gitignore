@@ -213,3 +213,7 @@ demo_data/dicom/*
 !installer/*.json
 !installer/*.yml
 !installer/*.lock
+
+# Local scratch: install-matrix probes, wheel builds, verification output, build backups
+.tmp_*/
+build_locked_bak_*/

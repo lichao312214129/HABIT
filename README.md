@@ -2,7 +2,7 @@
 
 **肿瘤生境（Habitat）分析与瘤内异质性评估工具箱** — 面向临床与影像组学研究，通过 YAML 配置驱动预处理、生境分割、特征提取与机器学习。
 
-**语言 / Language**：[简体中文](README.md) | [English](README_en.md)
+**语言 / Language**：[简体中文](https://github.com/lichao312214129/HABIT/blob/main/README.md) | [English](https://github.com/lichao312214129/HABIT/blob/main/README_en.md)
 
 ---
 
@@ -52,6 +52,21 @@
 
 ## 源码与演示数据
 
+- **pip 安装（开发者 / 嵌入其它环境）**：需要 Python **3.10–3.12**
+  ```bash
+  pip install habitat-analysis
+  # 或从源码：
+  pip install .
+  habit --version
+  # 代码中仍然：import habit
+  ```
+  PyRadiomics **不是**默认依赖。需要组学特征时（已本地验证的可靠写法）：
+  ```bash
+  conda install -c conda-forge pyradiomics
+  # 或 pip（务必钉死 3.0.1；不要裸装最新 3.1.0，源码包会失败）：
+  pip install "pyradiomics==3.0.1"
+  ```
+  其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。详见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
 - **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
   - 解压轻量 ZIP 到纯英文、无空格的短路径（例如 `D:\HABIT`）
   - 打开 `launchers/`，双击 `一键安装HABIT.bat`；安装器会在项目内创建锁定的 Python 3.10 环境，不要求预装 Python 或 Conda，也不会修改用户 PATH

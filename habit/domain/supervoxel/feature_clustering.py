@@ -25,7 +25,7 @@ segmentation. Choose ``slic`` when spatial coherence matters.
 from __future__ import annotations
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import Supervoxelization, VoxelFeatureField
@@ -65,6 +65,7 @@ def _effective_clusters(requested: int, n_voxels: int) -> int:
 class KMeansSupervoxelizerParams(BaseModel):
     """Constructor parameters for :class:`KMeansSupervoxelizer`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_supervoxels: int = Field(default=50, gt=0)
     max_iter: int = Field(default=300, gt=0)
     n_init: int = Field(default=10, gt=0)
@@ -142,6 +143,7 @@ class KMeansSupervoxelizer:
 class GmmSupervoxelizerParams(BaseModel):
     """Constructor parameters for :class:`GmmSupervoxelizer`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_supervoxels: int = Field(default=50, gt=0)
     max_iter: int = Field(default=300, gt=0)
     n_init: int = Field(default=10, gt=0)

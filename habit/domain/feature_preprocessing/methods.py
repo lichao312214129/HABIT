@@ -40,7 +40,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.domain.feature_preprocessing.registry import (
@@ -74,6 +74,7 @@ __all__ = [
 class ImputeParams(BaseModel):
     """Constructor parameters for :class:`Impute`."""
 
+    model_config = ConfigDict(extra="forbid")
     strategy: str = "mean"
 
 
@@ -170,6 +171,7 @@ class _ScopedMethod:
 class MinMaxScalingParams(BaseModel):
     """Constructor parameters for :class:`MinMaxScaling`."""
 
+    model_config = ConfigDict(extra="forbid")
     across_features: bool = False
 
 
@@ -216,6 +218,7 @@ class MinMaxScaling(_ScopedMethod):
 class ZScoreScalingParams(BaseModel):
     """Constructor parameters for :class:`ZScoreScaling`."""
 
+    model_config = ConfigDict(extra="forbid")
     across_features: bool = False
 
 
@@ -262,6 +265,7 @@ class ZScoreScaling(_ScopedMethod):
 class RobustScalingParams(BaseModel):
     """Constructor parameters for :class:`RobustScaling`."""
 
+    model_config = ConfigDict(extra="forbid")
     across_features: bool = False
 
 
@@ -308,6 +312,7 @@ class RobustScaling(_ScopedMethod):
 class LogTransformParams(BaseModel):
     """Constructor parameters for :class:`LogTransform`."""
 
+    model_config = ConfigDict(extra="forbid")
     across_features: bool = False
 
 
@@ -353,6 +358,7 @@ class LogTransform(_ScopedMethod):
 class WinsorizingParams(BaseModel):
     """Constructor parameters for :class:`Winsorizing`."""
 
+    model_config = ConfigDict(extra="forbid")
     winsor_limits: Tuple[float, float] = (0.05, 0.05)
     across_features: bool = False
 
@@ -434,6 +440,7 @@ class Winsorizing:
 class BinningParams(BaseModel):
     """Constructor parameters for :class:`Binning`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_bins: int = Field(default=10, gt=1)
     bin_strategy: str = "uniform"
     across_features: bool = False
@@ -525,6 +532,7 @@ class Binning:
 class VarianceFilterParams(BaseModel):
     """Constructor parameters for :class:`VarianceFilter`."""
 
+    model_config = ConfigDict(extra="forbid")
     variance_threshold: float = 0.0
 
 
@@ -596,6 +604,7 @@ class VarianceFilter:
 class CorrelationFilterParams(BaseModel):
     """Constructor parameters for :class:`CorrelationFilter`."""
 
+    model_config = ConfigDict(extra="forbid")
     corr_threshold: float = 0.95
     corr_method: str = "spearman"
 

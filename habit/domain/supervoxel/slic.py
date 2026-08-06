@@ -16,16 +16,20 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Dict, Mapping, Optional
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import Supervoxelization, VoxelFeatureField
 from habit.domain.supervoxel.registry import SupervoxelizerRegistry
 from habit.domain.supervoxel_features import aggregate_voxel_means
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import (
+    check_passthrough_accepted,
+    validate_estimator_params,
+)
 
 __all__ = ["SlicSupervoxelizer", "SlicSupervoxelizerParams"]
 
@@ -33,9 +37,13 @@ __all__ = ["SlicSupervoxelizer", "SlicSupervoxelizerParams"]
 class SlicSupervoxelizerParams(BaseModel):
     """Constructor parameters for :class:`SlicSupervoxelizer`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_supervoxels: int = Field(default=100, gt=0)
     compactness: float = Field(default=10.0, gt=0.0)
     enforce_connectivity: bool = True
+    #: Vendor kwargs forwarded verbatim to ``skimage.segmentation.slic``
+    #: (e.g. ``sigma``, ``max_num_iter``); see :class:`SlicSupervoxelizer`.
+    estimator_params: Dict[str, Any] = Field(default_factory=dict)
 
 
 @SupervoxelizerRegistry.register("slic")
@@ -56,6 +64,14 @@ class SlicSupervoxelizer:
             (``skimage.segmentation.slic`` semantics).
         enforce_connectivity: When ``True``, disconnected segments are
             relabelled so every supervoxel is connected.
+        estimator_params: Extra keyword arguments forwarded verbatim to
+            ``skimage.segmentation.slic`` (e.g. ``{"sigma": 1.0}``), for
+            vendor parameters HABIT does not declare. Keys colliding with a
+            declared parameter or with a call argument HABIT controls
+            (``n_segments``, ``mask``, ``channel_axis``, ``start_label``) are
+            rejected, and every key is validated against the vendor signature
+            at call time: a key recorded in the spec fingerprint must reach
+            the vendor function, never be silently dropped.
     """
 
     def __init__(
@@ -63,6 +79,7 @@ class SlicSupervoxelizer:
         n_supervoxels: int = 100,
         compactness: float = 10.0,
         enforce_connectivity: bool = True,
+        estimator_params: Optional[Mapping[str, Any]] = None,
     ) -> None:
         if n_supervoxels < 1:
             raise HABITAPIError(
@@ -71,18 +88,26 @@ class SlicSupervoxelizer:
         self.n_supervoxels = int(n_supervoxels)
         self.compactness = float(compactness)
         self.enforce_connectivity = bool(enforce_connectivity)
+        self.estimator_params: Dict[str, Any] = validate_estimator_params(
+            estimator_params,
+            declared=("n_supervoxels", "compactness", "enforce_connectivity"),
+            fixed=("n_segments", "mask", "channel_axis", "start_label"),
+            owner="supervoxelizer.slic",
+        )
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(
-            name="slic",
-            params={
-                "n_supervoxels": self.n_supervoxels,
-                "compactness": self.compactness,
-                "enforce_connectivity": self.enforce_connectivity,
-            },
-        )
+        params: Dict[str, Any] = {
+            "n_supervoxels": self.n_supervoxels,
+            "compactness": self.compactness,
+            "enforce_connectivity": self.enforce_connectivity,
+        }
+        # Fold the passthrough in only when non-empty so the default
+        # configuration keeps its historical fingerprint.
+        if self.estimator_params:
+            params["estimator_params"] = dict(self.estimator_params)
+        return Spec(name="slic", params=params)
 
     def __call__(self, field: VoxelFeatureField) -> Supervoxelization:
         """
@@ -98,6 +123,10 @@ class SlicSupervoxelizer:
             the pipeline to describe the same regions differently.
         """
         from skimage.segmentation import slic
+
+        check_passthrough_accepted(
+            slic, self.estimator_params, owner="supervoxelizer.slic"
+        )
 
         shape = tuple(int(v) for v in field.geometry.shape)
         n_voxels, n_features = field.values.shape
@@ -115,6 +144,7 @@ class SlicSupervoxelizer:
             channel_axis=-1,
             start_label=1,
             enforce_connectivity=self.enforce_connectivity,
+            **self.estimator_params,
         )
         labels = np.where(mask, labels, 0).astype(np.int32)
 

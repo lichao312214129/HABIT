@@ -355,6 +355,26 @@ class ExecutionBackend(Protocol):
 
 `Spec.fingerprint()` 是对规范化后参数的稳定哈希，用于：`HabitatModel.model_id`、缓存键、checkpoint 键、以及判断"两次运行的算法是否真的一致"。
 
+### 8.4 参数治理：第三方参数的三类归属
+
+`Spec.params` 必须**完整且只含**实际生效的算法参数——漏了，指纹与溯源就在撒谎；写了未生效的，同样在撒谎。落地机制：domain 层每个 `*Params` 模型一律 `ConfigDict(extra="forbid")`，任何未声明的键在装配期即报 `ValidationError`，从结构上消灭 silent-drop（`tests/domain/test_estimator_params_passthrough.py` 对全部注册表强制此约束）。
+
+第三方库（skimage / sklearn / PyRadiomics …）的参数按**算法所有权**分三类：
+
+| 类别 | 定义 | 参数政策 | 例 |
+|---|---|---|---|
+| **A 自有算法** | 科学逻辑由 HABIT 定义 | 全部参数显式声明，无透传 | MSI / ITH / `binning` / `winsorize` |
+| **B 薄包装** | HABIT 只做领域装配，算法本体是第三方 estimator | 常用参数显式声明（进校验、进 JSON Schema 自省）；厂商长尾参数走保留键 **`estimator_params`** 透传 | `SlicSupervoxelizer`、`LogisticRegressionClassifier`、`LassoSelector` |
+| **C 本即透传** | 组件的语义就是"执行一张外部参数表" | 参数表整体作为声明字段，逐值进指纹 | PyRadiomics 设置表 |
+
+B 类的三条纪律（`habit/utils/estimator_utils.py` 提供强制函数）：
+
+1. **冲突在构造期报错**（`validate_estimator_params`）：`estimator_params` 的键不得与已声明参数同名（一个参数两处真相），不得覆盖结构性固定参数（如 slic 的 `mask` / `channel_axis` / `start_label`），不得含 `random_state`——种子只能由 `Seedable.set_random_state()` 注入（§6.0c 的统一控制点），绕过它指纹就抓不住真实行为。
+2. **未知键在调用期报错**（`check_passthrough_accepted`）：对厂商 callable 做签名检查，拼错的参数名给出 did-you-mean 提示，而不是被 `**kwargs` 静默吞掉。签名检查也对齐"厂商升级删参数"的场景。
+3. **进指纹**：非空的 `estimator_params` 并入 `spec.params` 参与 `fingerprint()`；为空时不写入，使默认配置的指纹与政策落地前的历史基线逐值一致。
+
+**ML 侧 `extra="allow"` 的边界**：`habit/schemas/steps/ml_models.py` 的 `ModelParamsBase` 保留 `ConfigDict(extra="allow")`——那是 **v0.1 YAML 兼容层（schemas）**的语义，不是领域层的例外：声明字段是文档化的常用参数，额外键由 `build_estimator_params` 在构建期对照 estimator 真实签名过滤并报告丢弃项。v1 领域路径（`MLSpec` → registry `create`）一律走 domain `*Params`（forbid）。两条路径的收口强度相同：未知键都会浮出水面，区别只在"装配期拒绝"（v1）与"构建期过滤并报告"（v0.1 兼容层）。
+
 ---
 
 ## 9. Provenance 与报告（v1.0 的差异化重点）

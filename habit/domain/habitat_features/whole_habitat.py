@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
@@ -39,6 +39,7 @@ __all__ = ["WholeHabitatRadiomicsFeatures", "WholeHabitatRadiomicsFeaturesParams
 class WholeHabitatRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`WholeHabitatRadiomicsFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Path to the PyRadiomics parameter YAML for the habitat image; ``None``
     #: selects PyRadiomics defaults (the v0.1 no-file behaviour).
     params_file: Optional[str] = None

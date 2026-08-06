@@ -38,8 +38,9 @@ import difflib
 import inspect
 from contextvars import ContextVar
 from dataclasses import dataclass, field
-from typing import Any, Dict, FrozenSet, Iterator, List, Mapping, Optional, Tuple
+from typing import Any, Callable, Dict, FrozenSet, Iterable, Iterator, List, Mapping, Optional, Tuple
 
+from habit.exceptions import HABITAPIError
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger(__name__)
@@ -48,6 +49,12 @@ logger = get_module_logger(__name__)
 # estimators legitimately have no such parameter (KNN, naive Bayes), so dropping
 # these is routine and is logged at debug level instead of warning level.
 AUTO_INJECTED_PARAMS: FrozenSet[str] = frozenset({"random_state"})
+
+#: Reserved key under which a thin-wrapper component accepts vendor-specific
+#: keyword arguments (policy: developer/api_upgrade/08_naming_decisions.md).
+#: The mapping is part of the component's ``spec.params`` whenever non-empty,
+#: so passthrough parameters are covered by the spec fingerprint.
+ESTIMATOR_PARAMS_KEY: str = "estimator_params"
 
 
 @dataclass
@@ -115,13 +122,16 @@ def strict_model_params(enabled: bool = True) -> Iterator[None]:
         _STRICT_MODE.reset(token)
 
 
-def get_accepted_params(estimator_cls: type) -> Tuple[FrozenSet[str], bool]:
+def get_accepted_params(estimator_cls: Callable[..., Any]) -> Tuple[FrozenSet[str], bool]:
     """
-    Inspect an estimator constructor and return the keywords it accepts.
+    Inspect a vendor callable and return the keywords it accepts.
 
     Args:
         estimator_cls: Estimator class to inspect, e.g.
-            ``sklearn.neighbors.KNeighborsClassifier``.
+            ``sklearn.neighbors.KNeighborsClassifier``, or a plain vendor
+            function such as ``skimage.segmentation.slic``. For classes the
+            ``__init__`` signature is inspected; for functions the call
+            signature itself.
 
     Returns:
         Tuple[FrozenSet[str], bool]: The explicitly named keyword parameters,
@@ -130,7 +140,8 @@ def get_accepted_params(estimator_cls: type) -> Tuple[FrozenSet[str], bool]:
         (``XGBClassifier`` is the practical example).
     """
     try:
-        signature = inspect.signature(estimator_cls.__init__)
+        source = estimator_cls.__init__ if inspect.isclass(estimator_cls) else estimator_cls
+        signature = inspect.signature(source)
     except (TypeError, ValueError):
         # C extensions without an introspectable signature: forward everything
         # rather than silently dropping parameters the estimator may support.
@@ -264,6 +275,116 @@ def _record_report(report: ParamReport) -> None:
     reports = _ACTIVE_REPORTS.get()
     if reports is not None:
         reports.append(report)
+
+
+def validate_estimator_params(
+    estimator_params: Optional[Mapping[str, Any]],
+    *,
+    declared: Iterable[str] = (),
+    fixed: Iterable[str] = (),
+    owner: str,
+) -> Dict[str, Any]:
+    """
+    Validate vendor keyword arguments passed through a thin wrapper.
+
+    Three kinds of keys are rejected at construction time, because each of
+    them has exactly one authoritative source elsewhere and allowing a second
+    one would create silent ambiguity:
+
+    - keys colliding with a ``declared`` constructor parameter of the wrapper
+      (they must be set directly so they stay validated, documented and
+      visible to GUI forms);
+    - keys the wrapper passes to the vendor call itself (``fixed``), whose
+      override would silently break the component contract (e.g. the
+      ``start_label`` of a supervoxel partition);
+    - HABIT-injected names (:data:`AUTO_INJECTED_PARAMS`): seeds belong to
+      ``set_random_state`` / the spec-level ``random_seed``, never to a
+      constructor parameter (v1.0 naming decisions).
+
+    Args:
+        estimator_params: User-supplied vendor kwargs, or ``None``.
+        declared: Names of the wrapper's declared constructor parameters.
+        fixed: Names the wrapper passes to the vendor call itself.
+        owner: Dotted component name used in error messages
+            (``"<domain>.<name>"``).
+
+    Returns:
+        Dict[str, Any]: Plain dict copy of ``estimator_params`` (empty when
+        ``None``).
+
+    Raises:
+        HABITAPIError: On a non-mapping value, a non-string key, or any
+        colliding key.
+    """
+    if estimator_params is None:
+        return {}
+    if not isinstance(estimator_params, Mapping):
+        raise HABITAPIError(
+            f"[{owner}] {ESTIMATOR_PARAMS_KEY} must be a mapping of vendor "
+            f"keyword arguments; got {type(estimator_params).__name__}."
+        )
+    declared_set = set(declared)
+    fixed_set = set(fixed)
+    problems: List[str] = []
+    for key in estimator_params:
+        if not isinstance(key, str):
+            problems.append(f"non-string key {key!r}")
+        elif key in declared_set:
+            problems.append(
+                f"{key!r} is a declared parameter of {owner}; pass it "
+                f"directly, not via {ESTIMATOR_PARAMS_KEY}"
+            )
+        elif key in fixed_set:
+            problems.append(
+                f"{key!r} is fixed by {owner} and cannot be overridden"
+            )
+        elif key in AUTO_INJECTED_PARAMS:
+            problems.append(
+                f"{key!r} is injected by HABIT through set_random_state / "
+                "the spec-level random_seed and must not be set here"
+            )
+    if problems:
+        raise HABITAPIError(
+            f"[{owner}] invalid {ESTIMATOR_PARAMS_KEY}: " + "; ".join(problems)
+        )
+    return dict(estimator_params)
+
+
+def check_passthrough_accepted(
+    vendor_callable: Callable[..., Any],
+    estimator_params: Mapping[str, Any],
+    *,
+    owner: str,
+) -> None:
+    """
+    Verify passthrough kwargs against the vendor callable's signature.
+
+    Passthrough keys are part of the component's spec fingerprint, so they
+    must actually reach the vendor callable: an unacceptable key is an error
+    here, never a warning-and-drop -- otherwise the fingerprint would claim a
+    configuration the run did not use.
+
+    Args:
+        vendor_callable: Estimator class or function about to be called.
+        estimator_params: Vendor kwargs to splat into the call.
+        owner: Dotted component name used in error messages.
+
+    Raises:
+        HABITAPIError: When the callable does not declare ``**kwargs`` and at
+            least one key is absent from its signature.
+    """
+    if not estimator_params:
+        return
+    accepted, accepts_var_keyword = get_accepted_params(vendor_callable)
+    if accepts_var_keyword:
+        return
+    rejected = [key for key in estimator_params if key not in accepted]
+    if rejected:
+        vendor_name = getattr(vendor_callable, "__name__", type(vendor_callable).__name__)
+        raise HABITAPIError(
+            f"[{owner}] {ESTIMATOR_PARAMS_KEY} key(s) not accepted by "
+            f"{vendor_name}: {_describe_rejected(rejected, accepted)}."
+        )
 
 
 def build_estimator_params(

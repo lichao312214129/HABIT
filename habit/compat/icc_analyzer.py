@@ -60,7 +60,7 @@ def _require_pingouin() -> None:
     if not PINGOUIN_AVAILABLE:
         raise OptionalDependencyError(
             "ICC analysis requires the optional pingouin dependency; "
-            "install 'HABIT[analysis]' to use it."
+            "install 'habitat-analysis[analysis]' to use it."
         )
 
 

@@ -33,7 +33,7 @@ from typing import Any, Dict, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import Supervoxelization
@@ -58,6 +58,7 @@ _V01_LABEL_COLUMN = "supervoxel_id"
 class SupervoxelRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`SupervoxelRadiomicsFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     modalities: Sequence[str] = ()
     params_file: Optional[str] = None
     params: Optional[Dict[str, Any]] = None

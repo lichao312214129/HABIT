@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.domain.evaluation.regression_registry import RegressionMetricRegistry
 from habit.spec.specs import Spec
@@ -51,7 +51,7 @@ class _SpecParamsMixin:
 class R2MetricParams(BaseModel):
     """Constructor parameters for :class:`R2Metric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @RegressionMetricRegistry.register("r2")
 class R2Metric(_SpecParamsMixin):
     """Coefficient of determination; 1.0 is perfect, 0.0 predicts the mean."""
@@ -69,7 +69,7 @@ class R2Metric(_SpecParamsMixin):
 class MaeMetricParams(BaseModel):
     """Constructor parameters for :class:`MaeMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @RegressionMetricRegistry.register("mae")
 class MaeMetric(_SpecParamsMixin):
     """Mean absolute error; robust to outliers, lower is better."""
@@ -87,7 +87,7 @@ class MaeMetric(_SpecParamsMixin):
 class MseMetricParams(BaseModel):
     """Constructor parameters for :class:`MseMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @RegressionMetricRegistry.register("mse")
 class MseMetric(_SpecParamsMixin):
     """Mean squared error; penalises large errors, lower is better."""
@@ -105,7 +105,7 @@ class MseMetric(_SpecParamsMixin):
 class RmseMetricParams(BaseModel):
     """Constructor parameters for :class:`RmseMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @RegressionMetricRegistry.register("rmse")
 class RmseMetric(_SpecParamsMixin):
     """Root mean squared error, in the response's own units; lower is better."""

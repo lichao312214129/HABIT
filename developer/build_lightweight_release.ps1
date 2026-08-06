@@ -661,9 +661,12 @@ function Assert-FactoryChecks {
     }
 
     $wheelDirectory = Join-Path $PackageRoot 'tools\wheels'
-    $habitWheels = @(Get-ChildItem -LiteralPath $wheelDirectory -File -Filter 'HABIT-*.whl')
+    $habitWheels = @(
+        Get-ChildItem -LiteralPath $wheelDirectory -File -Filter 'habitat_analysis-*.whl' -ErrorAction SilentlyContinue
+        Get-ChildItem -LiteralPath $wheelDirectory -File -Filter 'HABIT-*.whl' -ErrorAction SilentlyContinue
+    )
     if ($habitWheels.Count -ne 1) {
-        throw "Release must contain exactly one HABIT wheel; found $($habitWheels.Count)."
+        throw "Release must contain exactly one habitat-analysis wheel; found $($habitWheels.Count)."
     }
     Assert-WheelContents -WheelPath $habitWheels[0].FullName
 
@@ -948,9 +951,12 @@ try {
         $env:PIP_DISABLE_PIP_VERSION_CHECK = $savedPipDisableVersionCheck
     }
 
-    $builtWheels = @(Get-ChildItem -LiteralPath $wheelOutput -File -Filter 'HABIT-*.whl')
+    $builtWheels = @(
+        Get-ChildItem -LiteralPath $wheelOutput -File -Filter 'habitat_analysis-*.whl' -ErrorAction SilentlyContinue
+        Get-ChildItem -LiteralPath $wheelOutput -File -Filter 'HABIT-*.whl' -ErrorAction SilentlyContinue
+    )
     if ($builtWheels.Count -ne 1) {
-        throw "Wheel build produced $($builtWheels.Count) HABIT wheels instead of one."
+        throw "Wheel build produced $($builtWheels.Count) habitat-analysis wheels instead of one."
     }
     Assert-WheelContents -WheelPath $builtWheels[0].FullName
 

@@ -28,16 +28,21 @@ importing this module stays cheap (L3 layer rule).
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from habit.exceptions import OptionalDependencyError
 from habit.domain.classification._base import SklearnClassifierBase
 from habit.domain.classification.registry import ClassifierRegistry
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import (
+    ESTIMATOR_PARAMS_KEY,
+    check_passthrough_accepted,
+    validate_estimator_params,
+)
 
 __all__ = [
     "DecisionTreeClassifier",
@@ -70,7 +75,14 @@ __all__ = [
 
 
 class _SpecParamsMixin:
-    """Build ``spec.params`` from the constructor-stored parameter mapping."""
+    """Build ``spec.params`` from the constructor-stored parameter mapping.
+
+    A subclass that accepts vendor passthrough kwargs stores them in
+    ``self._estimator_params``; they are folded into ``spec.params`` under
+    the reserved :data:`~habit.utils.estimator_utils.ESTIMATOR_PARAMS_KEY`
+    only when non-empty, so untouched components keep their historical
+    fingerprint.
+    """
 
     _spec_name: str = ""
     _params: Dict[str, Any]
@@ -78,7 +90,11 @@ class _SpecParamsMixin:
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(name=self._spec_name, params=dict(self._params))
+        params = dict(self._params)
+        passthrough = getattr(self, "_estimator_params", None)
+        if passthrough:
+            params[ESTIMATOR_PARAMS_KEY] = dict(passthrough)
+        return Spec(name=self._spec_name, params=params)
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +105,7 @@ class _SpecParamsMixin:
 class DecisionTreeClassifierParams(BaseModel):
     """Constructor parameters for :class:`DecisionTreeClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     criterion: str = "gini"
     splitter: str = "best"
     max_depth: Optional[int] = None
@@ -139,6 +156,7 @@ class DecisionTreeClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class KnnClassifierParams(BaseModel):
     """Constructor parameters for :class:`KnnClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_neighbors: int = 5
     weights: str = "uniform"
     algorithm: str = "auto"
@@ -189,6 +207,7 @@ class KnnClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class SvmClassifierParams(BaseModel):
     """Constructor parameters for :class:`SvmClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     C: float = 1.0
     class_weight: Optional[Union[str, Dict[Any, float]]] = None
     max_iter: int = 1000
@@ -234,6 +253,7 @@ class SvmClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class SvcClassifierParams(BaseModel):
     """Constructor parameters for :class:`SvcClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     C: float = 1.0
     kernel: str = "rbf"
     gamma: Union[str, float] = "scale"
@@ -285,6 +305,7 @@ class SvcClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class MlpClassifierParams(BaseModel):
     """Constructor parameters for :class:`MlpClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     hidden_layer_sizes: Tuple[int, ...] = (100,)
     activation: str = "relu"
     solver: str = "adam"
@@ -354,16 +375,34 @@ class MlpClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class LogisticRegressionClassifierParams(BaseModel):
     """Constructor parameters for :class:`LogisticRegressionClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     C: float = 1.0
     penalty: str = "l2"
     solver: str = "liblinear"
     max_iter: int = 1000
     class_weight: Optional[Union[str, Dict[Any, float]]] = None
+    #: Vendor kwargs forwarded verbatim to sklearn ``LogisticRegression``
+    #: (e.g. ``{"fit_intercept": false}``); keys colliding with a declared
+    #: parameter or with the HABIT-injected ``random_state`` are rejected.
+    estimator_params: Dict[str, Any] = Field(default_factory=dict)
 
 
 @ClassifierRegistry.register("LogisticRegression")
 class LogisticRegressionClassifier(_SpecParamsMixin, SklearnClassifierBase):
-    """Penalised logistic regression (sklearn ``LogisticRegression``)."""
+    """
+    Penalised logistic regression (sklearn ``LogisticRegression``).
+
+    Args:
+        C: Inverse regularisation strength.
+        penalty: Penalty norm.
+        solver: Optimisation algorithm.
+        max_iter: Maximum solver iterations.
+        class_weight: Optional class rebalancing.
+        estimator_params: Extra keyword arguments forwarded verbatim to the
+            sklearn estimator, for vendor parameters HABIT does not declare.
+            They are validated against the estimator signature at fit time
+            and recorded in the spec fingerprint.
+    """
 
     _spec_name = "LogisticRegression"
 
@@ -374,6 +413,7 @@ class LogisticRegressionClassifier(_SpecParamsMixin, SklearnClassifierBase):
         solver: str = "liblinear",
         max_iter: int = 1000,
         class_weight: Optional[Union[str, Dict[Any, float]]] = None,
+        estimator_params: Optional[Mapping[str, Any]] = None,
     ) -> None:
         super().__init__()
         self._params = {
@@ -383,11 +423,21 @@ class LogisticRegressionClassifier(_SpecParamsMixin, SklearnClassifierBase):
             "max_iter": max_iter,
             "class_weight": class_weight,
         }
+        self._estimator_params: Dict[str, Any] = validate_estimator_params(
+            estimator_params,
+            declared=self._params.keys(),
+            owner=f"classifier.{self._spec_name}",
+        )
 
     def _build_estimator(self) -> Any:
         from sklearn.linear_model import LogisticRegression as _SkLogReg
 
-        return _SkLogReg(random_state=self._seed, **self._params)
+        check_passthrough_accepted(
+            _SkLogReg,
+            self._estimator_params,
+            owner=f"classifier.{self._spec_name}",
+        )
+        return _SkLogReg(random_state=self._seed, **self._params, **self._estimator_params)
 
 
 # ---------------------------------------------------------------------------
@@ -398,6 +448,7 @@ class LogisticRegressionClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class RandomForestClassifierParams(BaseModel):
     """Constructor parameters for :class:`RandomForestClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_estimators: int = 100
     max_depth: Optional[int] = None
     min_samples_split: int = 2
@@ -443,6 +494,7 @@ class RandomForestClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class GradientBoostingClassifierParams(BaseModel):
     """Constructor parameters for :class:`GradientBoostingClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     loss: str = "log_loss"
     learning_rate: float = 0.1
     n_estimators: int = 100
@@ -494,6 +546,7 @@ class GradientBoostingClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class XgboostClassifierParams(BaseModel):
     """Constructor parameters for :class:`XgboostClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_estimators: int = 100
     max_depth: int = 3
     learning_rate: float = 0.1
@@ -542,7 +595,7 @@ class XgboostClassifier(_SpecParamsMixin, SklearnClassifierBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "classifier.XGBoost requires the optional xgboost dependency; "
-                "install 'HABIT[ml]' to use it."
+                "install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         return xgb.XGBClassifier(random_state=self._seed, **self._params)
@@ -551,6 +604,7 @@ class XgboostClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class AdaboostClassifierParams(BaseModel):
     """Constructor parameters for :class:`AdaboostClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_estimators: int = 50
     learning_rate: float = 1.0
 
@@ -579,6 +633,7 @@ class AdaboostClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class GaussianNbClassifierParams(BaseModel):
     """Constructor parameters for :class:`GaussianNbClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     priors: Optional[List[float]] = None
     var_smoothing: float = 1e-9
 
@@ -606,6 +661,7 @@ class GaussianNbClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class MultinomialNbClassifierParams(BaseModel):
     """Constructor parameters for :class:`MultinomialNbClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     alpha: float = 1.0
     fit_prior: bool = True
     class_prior: Optional[List[float]] = None
@@ -645,6 +701,7 @@ class MultinomialNbClassifier(_SpecParamsMixin, SklearnClassifierBase):
 class BernoulliNbClassifierParams(BaseModel):
     """Constructor parameters for :class:`BernoulliNbClassifier`."""
 
+    model_config = ConfigDict(extra="forbid")
     alpha: float = 1.0
     binarize: Optional[float] = 0.0
     fit_prior: bool = True

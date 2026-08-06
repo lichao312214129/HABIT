@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Dict
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
@@ -35,7 +35,7 @@ __all__ = ["HabitatVolumeFeatures", "HabitatVolumeFeaturesParams"]
 class HabitatVolumeFeaturesParams(BaseModel):
     """Constructor parameters for :class:`HabitatVolumeFeatures` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @HabitatFeatureExtractorRegistry.register("volume")
 class HabitatVolumeFeatures:
     """

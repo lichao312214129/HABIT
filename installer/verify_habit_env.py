@@ -153,7 +153,7 @@ def run_checks(require_gpu: bool, profile: str | None = None) -> List[Result]:
     """Run deterministic installation checks in dependency order."""
     results = [
         check_python(),
-        check_distribution("HABIT"),
+        check_distribution("habitat-analysis"),
         check_distribution("pyradiomics", "3.0.1"),
         check_distribution("numpy", "1.26.1"),
         check_distribution("SimpleITK", "2.2.1"),

@@ -300,12 +300,18 @@ def _setup_keyword(keyword_name: str) -> ast.AST:
 
 
 def test_python_310_contract_is_explicit_and_patch_pinned() -> None:
-    """Package metadata must allow only 3.10 and provision exactly 3.10.20."""
+    """
+    PyPI metadata allows 3.10–3.12; the Windows installer still pins 3.10.20.
+
+    The portable ZIP is a reproducible product environment (exact patch). The
+    library metadata is wider so third-party projects can ``pip install HABIT``
+    into existing 3.11/3.12 stacks (radiomics remains an optional extra).
+    """
     pyproject_text = PYPROJECT_FILE.read_text(encoding="utf-8")
     environment_text = ENVIRONMENT_FILE.read_text(encoding="utf-8")
 
-    assert 'requires-python = ">=3.10,<3.11"' in pyproject_text
-    assert 'python = ">=3.10,<3.11"' in pyproject_text
+    assert 'requires-python = ">=3.10,<3.13"' in pyproject_text
+    assert 'python = ">=3.10,<3.13"' in pyproject_text
     assert re.search(r"(?m)^\s*-\s*python=3\.10\.20\s*$", environment_text)
 
 
@@ -324,10 +330,11 @@ def test_heavy_features_are_declared_only_as_targeted_optional_extras() -> None:
 
 
 def test_setup_reads_runtime_metadata_and_keeps_c_extension() -> None:
-    """Legacy setuptools builds must consume pyproject and compile the extension."""
+    """Legacy setuptools builds must consume pyproject and keep the optional C ext."""
     install_requires = _setup_keyword("install_requires")
     python_requires = _setup_keyword("python_requires")
     extension_modules = _setup_keyword("ext_modules")
+    cmdclass = _setup_keyword("cmdclass")
 
     assert isinstance(install_requires, ast.Call)
     assert isinstance(install_requires.func, ast.Name)
@@ -335,12 +342,15 @@ def test_setup_reads_runtime_metadata_and_keeps_c_extension() -> None:
     assert isinstance(python_requires, ast.Call)
     assert isinstance(python_requires.func, ast.Name)
     assert python_requires.func.id == "_read_python_requirement"
-    assert isinstance(extension_modules, ast.List)
-    assert any(
-        isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Name)
-        and node.func.id == "Extension"
-        for node in extension_modules.elts
+    # ext_modules=list(_extension_modules()) — optional native accel with fallback.
+    assert isinstance(extension_modules, ast.Call)
+    assert isinstance(extension_modules.func, ast.Name)
+    assert extension_modules.func.id == "list"
+    assert isinstance(cmdclass, ast.Dict)
+    cmdclass_src = ast.unparse(cmdclass) if hasattr(ast, "unparse") else ""
+    assert "_OptionalBuildExt" in cmdclass_src or any(
+        isinstance(v, ast.Name) and v.id == "_OptionalBuildExt"
+        for v in cmdclass.values
     )
 
 
@@ -363,7 +373,12 @@ def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
     assert not unbounded, f"Dependencies with no upper bound: {unbounded}"
     assert not FORBIDDEN_DEFAULT_PACKAGES.intersection(project_dependencies)
     assert "autogluon" not in project_dependencies
-    assert "pyradiomics" in project_dependencies
+    # PyRadiomics is intentionally optional: PyPI sdists often fail to build
+    # (missing numpy build dep / Python 3.12+ versioneer breakage).
+    assert "pyradiomics" not in project_dependencies
+    extras = _optional_dependency_ranges()
+    assert "pyradiomics" in extras["radiomics"]
+    assert "pyradiomics" in extras["all"]
 
 
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:
@@ -502,7 +517,7 @@ def test_vendor_manifest_has_valid_static_and_dynamic_hash_policies() -> None:
     assert dynamic_assets == [
         {
             "id": "habit-wheel",
-            "package_path_glob": "dist/HABIT-*.whl",
+            "package_path_glob": "dist/habitat_analysis-*.whl",
             "hash_policy": "compute-during-build",
         }
     ]

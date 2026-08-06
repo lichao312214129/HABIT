@@ -17,6 +17,8 @@ tqdm
 # v1 domain/kernels test dependencies (lazy-imported by habit.domain and
 # habit.kernels.radiomics, exercised for real by the test suites):
 matplotlib
+# Optional at runtime (HABIT[radiomics]); install via CI with
+# ``pip install pyradiomics --no-build-isolation`` after numpy (see tests.yml).
 pyradiomics
 lifelines
 scikit-survival

@@ -36,7 +36,7 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.domain.survival._base import SurvivalModelBase
@@ -75,7 +75,7 @@ def _import_or_raise(module: str, extra: str, owner: str):
         raise HABITAPIError(
             f"survival_model.{owner} needs the optional dependency "
             f"{module.split('.')[0]!r}; install it with the {extra!r} extra "
-            f"(pip install HABIT[{extra}])."
+            f"(pip install \"habitat-analysis[{extra}]\")."
         ) from exc
 
 
@@ -87,6 +87,7 @@ def _import_or_raise(module: str, extra: str, owner: str):
 class CoxPhSurvivalParams(BaseModel):
     """Constructor parameters for :class:`CoxPhSurvival`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: L2 penaliser on the partial likelihood (lifelines ``penalizer``).
     penalizer: float = 0.0
     #: Elastic-net mixing; 1.0 is pure L2 (lifelines ``l1_ratio``).
@@ -156,6 +157,7 @@ class CoxPhSurvival(_SpecParamsMixin, SurvivalModelBase):
 class RandomSurvivalForestParams(BaseModel):
     """Constructor parameters for :class:`RandomSurvivalForest`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_estimators: int = 100
     min_samples_split: int = 6
     min_samples_leaf: int = 3
@@ -226,6 +228,7 @@ class RandomSurvivalForest(_SpecParamsMixin, SurvivalModelBase):
 class GradientBoostingSurvivalParams(BaseModel):
     """Constructor parameters for :class:`GradientBoostingSurvival`."""
 
+    model_config = ConfigDict(extra="forbid")
     loss: str = "coxph"
     learning_rate: float = 0.1
     n_estimators: int = 100

@@ -37,7 +37,7 @@
   "dynamic_assets": [
     {
       "id": "habit-wheel",
-      "package_path_glob": "dist/HABIT-*.whl",
+      "package_path_glob": "dist/habitat_analysis-*.whl",
       "hash_policy": "compute-during-build"
     }
   ]

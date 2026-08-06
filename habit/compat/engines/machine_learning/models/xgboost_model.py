@@ -57,7 +57,7 @@ class XGBoostModel(BaseModel):
         if not XGBOOST_AVAILABLE:
             raise OptionalDependencyError(
                 "model 'XGBoost' requires the optional xgboost dependency; "
-                "install 'HABIT[ml]' to use it."
+                "install 'habitat-analysis[ml]' to use it."
             )
         super().__init__(config)
 

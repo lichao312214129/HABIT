@@ -271,8 +271,13 @@ def test_per_component_seed_preserved_with_warning() -> None:
 
 
 @pytest.mark.unit
-def test_multiple_selection_methods_first_wins() -> None:
-    """A selection-method list keeps its first entry as validation."""
+def test_multiple_selection_methods_vote_as_in_v0() -> None:
+    """A selection-method list is preserved whole: the v1 fitters vote.
+
+    The v0 engine kept every valid method, so the translator forwards the
+    full list as ``validation`` (a single method stays a scalar, keeping
+    specs byte-identical to pre-voting runs).
+    """
     payload = _load_config("config_habitat_two_step.yaml")
     payload["habitat_segmentation"]["habitat"][
         "habitat_cluster_selection_method"
@@ -280,9 +285,8 @@ def test_multiple_selection_methods_first_wins() -> None:
     translation = LegacyConfigAdapter().translate(payload, "habitat")
 
     params = translation.document["spec"]["habitat_model_fitter"]["params"]
-    assert params["validation"] == "elbow"
-    assert params["selection_methods"] == ["elbow", "silhouette"]
-    assert any("selection" in note for note in translation.warnings)
+    assert params["validation"] == ["elbow", "silhouette"]
+    assert "selection_methods" not in params
 
 
 # ---------------------------------------------------------------------------

@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import CompatibilityError
 from habit.contracts.habitat import HabitatMap, HabitatModel, Supervoxelization
@@ -32,6 +32,7 @@ __all__ = ["NearestCentroidAssigner", "NearestCentroidAssignerParams"]
 class NearestCentroidAssignerParams(BaseModel):
     """Constructor parameters for :class:`NearestCentroidAssigner`."""
 
+    model_config = ConfigDict(extra="forbid")
     model: Any = Field(
         description="Fitted HabitatModel the assigner projects onto subjects."
     )

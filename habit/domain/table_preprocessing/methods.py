@@ -41,7 +41,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Tuple
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
@@ -168,6 +168,7 @@ class _ScopedScaler(_FittedPreprocessor):
 class MinMaxPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`MinMaxPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: When true, learn ONE (min, max) across all feature columns instead of
     #: per-column statistics. Renamed from v0.1's ``global_normalize``, which
     #: read as "use cohort-wide statistics" and never meant that.
@@ -193,6 +194,7 @@ class MinMaxPreprocessor(_ScopedScaler):
 class ZScorePreprocessorParams(BaseModel):
     """Constructor parameters for :class:`ZScorePreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: When true, learn ONE (mean, std) across all feature columns.
     across_features: bool = False
 
@@ -215,6 +217,7 @@ class ZScorePreprocessor(_ScopedScaler):
 class RobustPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`RobustPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: When true, learn ONE (median, IQR) across all feature columns.
     across_features: bool = False
 
@@ -243,6 +246,7 @@ class RobustPreprocessor(_ScopedScaler):
 class BinningPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`BinningPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Number of bins per feature (or globally).
     n_bins: int = 10
     #: Binning strategy passed to sklearn's ``KBinsDiscretizer``.
@@ -321,6 +325,7 @@ class BinningPreprocessor(_FittedPreprocessor):
 class WinsorizePreprocessorParams(BaseModel):
     """Constructor parameters for :class:`WinsorizePreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Lower/upper tail fractions clipped at the corresponding quantiles.
     winsor_limits: Tuple[float, float] = (0.05, 0.05)
     #: When true, learn one pair of clip bounds across all feature columns.
@@ -390,6 +395,7 @@ class WinsorizePreprocessor(_FittedPreprocessor):
 class LogPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`LogPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: When true, shift by ONE minimum taken across all feature columns.
     across_features: bool = False
 
@@ -417,6 +423,7 @@ class LogPreprocessor(_ScopedScaler):
 class VarianceFilterPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`VarianceFilterPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Columns with variance at or below this value are dropped (0 removes
     #: only constant columns).
     variance_threshold: float = 0.0
@@ -466,6 +473,7 @@ class VarianceFilterPreprocessor(_FittedPreprocessor):
 class CorrelationFilterPreprocessorParams(BaseModel):
     """Constructor parameters for :class:`CorrelationFilterPreprocessor`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Absolute-correlation cut-off above which later columns are dropped.
     corr_threshold: float = 0.95
     #: Correlation method for ``DataFrame.corr``.

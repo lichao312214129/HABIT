@@ -30,7 +30,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.domain.evaluation.survival_registry import SurvivalMetricRegistry
@@ -53,7 +53,7 @@ def _sksurv_metrics(owner: str):
     except ImportError as exc:
         raise HABITAPIError(
             f"survival_metric.{owner} needs scikit-survival; install the "
-            "'analysis' extra (pip install HABIT[analysis])."
+            "'analysis' extra (pip install \"habitat-analysis[analysis]\")."
         ) from exc
     return _m
 
@@ -111,7 +111,7 @@ class _SpecParamsMixin:
 class CIndexMetricParams(BaseModel):
     """Constructor parameters for :class:`CIndexMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @SurvivalMetricRegistry.register("c_index")
 class CIndexMetric(_SpecParamsMixin):
     """
@@ -147,6 +147,7 @@ class CIndexMetric(_SpecParamsMixin):
 class IntegratedBrierScoreMetricParams(BaseModel):
     """Constructor parameters for :class:`IntegratedBrierScoreMetric`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Number of grid points spanning the follow-up range for integration.
     n_times: int = 100
 
@@ -208,6 +209,7 @@ class IntegratedBrierScoreMetric(_SpecParamsMixin):
 class CumulativeDynamicAucMetricParams(BaseModel):
     """Constructor parameters for :class:`CumulativeDynamicAucMetric`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Number of time points spanning the follow-up range.
     n_times: int = 100
 

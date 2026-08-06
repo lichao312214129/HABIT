@@ -14,11 +14,15 @@
 #
 """Setuptools build configuration for the HABIT package."""
 
+from __future__ import annotations
+
+import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence
 
 import numpy as np
 from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
 try:
     import tomllib
@@ -26,7 +30,7 @@ except ModuleNotFoundError:
     # Python 3.10 does not include ``tomllib``. Build isolation installs
     # ``tomli`` from pyproject.toml so legacy setup.py invocations use the same
     # standards-compliant parser without introducing a second metadata source.
-    import tomli as tomllib
+    import tomli as tomllib  # type: ignore[no-redef]
 
 
 _ROOT = Path(__file__).resolve().parent
@@ -109,10 +113,61 @@ def _read_python_requirement() -> str:
     return requirement
 
 
+class _OptionalBuildExt(build_ext):
+    """
+    Build C extensions when a compiler is available; otherwise skip them.
+
+    Supervoxel radiomics has a pure-Python / PyRadiomics ``cMatrices`` fallback
+    in ``habit.kernels.radiomics.cext``, so a missing compiler must not make
+    ``pip install HABIT`` fail on Windows machines without MSVC or on slim CI
+    images. A successful native build is still preferred when possible.
+    """
+
+    def build_extensions(self) -> None:
+        try:
+            super().build_extensions()
+        except Exception as exc:  # noqa: BLE001 — intentional soft-fail for packaging
+            self._skip_all_extensions(exc)
+
+    def build_extension(self, ext: Extension) -> None:
+        try:
+            super().build_extension(ext)
+        except Exception as exc:  # noqa: BLE001
+            self._skip_extension(ext, exc)
+
+    def _skip_all_extensions(self, exc: BaseException) -> None:
+        for ext in list(self.extensions):
+            self._skip_extension(ext, exc)
+        self.extensions = []
+
+    def _skip_extension(self, ext: Extension, exc: BaseException) -> None:
+        sys.stderr.write(
+            f"\nWARNING: skipping HABIT C extension {ext.name!r}: {exc}\n"
+            "         Supervoxel radiomics will use the Python fallback "
+            "(habit.kernels.radiomics.cext). Install a C compiler to enable "
+            "the native acceleration path.\n\n"
+        )
+
+
+def _extension_modules() -> Sequence[Extension]:
+    """Return the optional supervoxel radiomics C extension list."""
+    return [
+        Extension(
+            _SV_CMATRICES_MODULE,
+            [
+                f"{_CEXT_SRC}/_sv_cmatrices.c",
+                f"{_CEXT_SRC}/sv_cmatrices.c",
+            ],
+            include_dirs=[_CEXT_SRC, np.get_include()],
+        )
+    ]
+
+
 setup(
-    name="HABIT",
+    # Keep in sync with [project].name in pyproject.toml (PyPI forbids "HABIT").
+    name="habitat-analysis",
     version=_read_version(),
-    description="Habitat Analysis: Biomedical Imaging Toolkit",
+    description="Habitat Analysis: Biomedical Imaging Toolkit (HABIT)",
     author="lichao19870617@163.com",
     license="Apache-2.0",
     # Restrict discovery to HABIT itself. The repository's ``tests`` directory
@@ -124,27 +179,12 @@ setup(
         "habit": ["py.typed"],
         "habit.resources.radiomics": ["*.yaml"],
     },
-    ext_modules=[
-        Extension(
-            _SV_CMATRICES_MODULE,
-            [
-                f"{_CEXT_SRC}/_sv_cmatrices.c",
-                f"{_CEXT_SRC}/sv_cmatrices.c",
-            ],
-            include_dirs=[_CEXT_SRC, np.get_include()],
-        ),
-    ],
+    cmdclass={"build_ext": _OptionalBuildExt},
+    ext_modules=list(_extension_modules()),
     install_requires=_read_runtime_dependencies(),
     # Entry points are intentionally NOT declared here: an explicit dict would
     # override the PEP 621 metadata ([project.scripts] console script and the
     # [project.entry-points."habit.*"] plugin groups) in pyproject.toml, which
     # is the single source of truth for HABIT's packaging contract.
     python_requires=_read_python_requirement(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Medical Science Apps.",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.10",
-    ],
 )

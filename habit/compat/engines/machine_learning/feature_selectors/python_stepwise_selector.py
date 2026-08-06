@@ -516,7 +516,7 @@ def python_stepwise_selector(X: pd.DataFrame,
     if not STATSMODELS_AVAILABLE:
         raise OptionalDependencyError(
             "selector 'stepwise' requires the optional statsmodels dependency; "
-            "install 'HABIT[ml]' to use it."
+            "install 'habitat-analysis[ml]' to use it."
         )
     if context is not None:
         X = context.X

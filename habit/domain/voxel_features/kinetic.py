@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -56,6 +56,7 @@ _EPSILON = 1e-6
 class KineticVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`KineticVoxelFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     timestamps: Union[str, Dict[str, Dict[str, str]]]
     phases: Sequence[str] = DEFAULT_PHASES
     roi: Optional[str] = None

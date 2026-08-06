@@ -43,7 +43,7 @@ class AntsRegistrationBackend(BaseRegistrationBackend):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "ANTs registration requires the optional antspyx dependency; "
-                "install 'HABIT[registration]' to use it."
+                "install 'habitat-analysis[registration]' to use it."
             ) from exc
 
         moving_image_ants = ImageConverter.itk_2_ants(moving_image_sitk)
@@ -100,7 +100,7 @@ class AntsRegistrationBackend(BaseRegistrationBackend):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "ANTs transform application requires the optional antspyx "
-                "dependency; install 'HABIT[registration]' to use it."
+                "dependency; install 'habitat-analysis[registration]' to use it."
             ) from exc
 
         moving_mask_ants = ImageConverter.itk_2_ants(moving_mask_sitk)

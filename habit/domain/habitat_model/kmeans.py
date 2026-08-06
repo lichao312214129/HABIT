@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Dict, List, Mapping, Optional, Sequence, Union
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import HabitatModel, Supervoxelization
@@ -54,11 +54,13 @@ _INERTIA_METHODS = ("inertia", "elbow", "kneedle")
 class KMeansHabitatModelFitterParams(BaseModel):
     """Constructor parameters for :class:`KMeansHabitatModelFitter`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_habitats: Optional[int] = Field(default=None, ge=2)
     min_habitats: int = Field(default=2, ge=2)
     max_habitats: int = Field(default=10, ge=3)
     validation: Union[str, List[str]] = "silhouette"
     n_init: int = Field(default=50, gt=0)
+    max_iter: int = Field(default=300, gt=0)
 
 
 @HabitatModelFitterRegistry.register("kmeans")
@@ -87,6 +89,9 @@ class KMeansHabitatModelFitter:
             Since v1.0 ``elbow`` is an alias of ``kneedle``; see
             :mod:`habit.kernels.cluster_selection`.
         n_init: k-means restarts per candidate count.
+        max_iter: Maximum k-means iterations per fit. Defaults to the
+            scikit-learn default (300), which is also the value the v0.1
+            configuration schema recorded.
     """
 
     def __init__(
@@ -96,6 +101,7 @@ class KMeansHabitatModelFitter:
         max_habitats: int = 10,
         validation: Union[str, Sequence[str]] = "silhouette",
         n_init: int = 50,
+        max_iter: int = 300,
     ) -> None:
         self._validation_methods = normalize_validation(
             validation, _VALIDATION_METHODS
@@ -116,6 +122,7 @@ class KMeansHabitatModelFitter:
             else list(self._validation_methods)
         )
         self.n_init = int(n_init)
+        self.max_iter = int(max_iter)
         self._seed = 0
 
     @property
@@ -129,6 +136,7 @@ class KMeansHabitatModelFitter:
                 "max_habitats": self.max_habitats,
                 "validation": self.validation,
                 "n_init": self.n_init,
+                "max_iter": self.max_iter,
             },
         )
 
@@ -144,6 +152,7 @@ class KMeansHabitatModelFitter:
             n_clusters=n_clusters,
             random_state=self._seed,
             n_init=self.n_init,
+            max_iter=self.max_iter,
         )
         model.fit(matrix)
         return model

@@ -48,6 +48,7 @@ _V1_BUILTINS = {
         "kinetic",
         "local_entropy",
         "concat",
+        "expression",
     },
     "supervoxelizer": {"slic", "kmeans", "gmm"},
     "supervoxel_feature_extractor": {"mean_voxel_features", "supervoxel_radiomics"},

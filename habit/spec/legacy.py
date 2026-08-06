@@ -161,6 +161,22 @@ _PREPROCESSING_NAME_KEY = "method"
 _V0_SCOPE_KEY = "global_normalize"
 _V1_SCOPE_KEY = "across_features"
 
+#: v0.1 preprocessing methods that actually consumed ``global_normalize``
+#: (the scalers and binning, which pool statistics across feature columns).
+#: The filters (``variance_filter`` / ``correlation_filter``) accepted the
+#: key in their config block but never read it, so forwarding it would state
+#: a parameter the v1 component does not declare -- it goes to the legacy
+#: sink instead. The set is a property of the frozen v0.1 vocabulary.
+_V0_SCOPE_AWARE_METHODS: frozenset = frozenset(
+    {"minmax", "zscore", "robust", "binning", "winsorize", "log"}
+)
+
+#: v0.1 selector params that switch plotting, not the algorithm
+#: (``visualize`` on lasso/rfecv/vif/correlation, ``plot_variances`` on
+#: variance). v1 keeps visualisation in the reporting layer, so these keys
+#: move to the legacy sink with a warning instead of becoming Spec params.
+_V0_SELECTOR_PLOT_KEYS: frozenset = frozenset({"visualize", "plot_variances"})
+
 # ---------------------------------------------------------------------------
 # Generic (non-habitat) workflow field classification
 # ---------------------------------------------------------------------------
@@ -549,7 +565,9 @@ class LegacyConfigAdapter:
             # supervoxel features) has no v0.1 source: that version could only
             # preprocess supervoxel features at cohort level.
             "voxel_feature_preprocessors": self._translate_preprocessing_chain(
-                feature_construction.get("preprocessing_for_subject_level")
+                feature_construction.get("preprocessing_for_subject_level"),
+                warnings,
+                unmapped,
             ),
             "supervoxel_feature_preprocessors": [],
             "cohort_feature_preprocessors": self._translate_cohort_chain(
@@ -679,6 +697,19 @@ class LegacyConfigAdapter:
                     ),
                 }
             )
+            # v0 forwarded ``max_iter``/``sigma`` to skimage's slic verbatim
+            # (``max_iter`` maps to ``max_num_iter``). Keep them alive through
+            # the reserved passthrough key instead of dropping them silently.
+            # ``max_num_iter`` is always emitted because the v0 schema
+            # materialised its default (300), which differs from the skimage
+            # default; ``sigma`` is omitted at its skimage default (0.0).
+            passthrough: Dict[str, Any] = {
+                "max_num_iter": int(supervoxel_block.get("max_iter", 300)),
+            }
+            sigma = float(supervoxel_block.get("sigma", 0.0))
+            if sigma != 0.0:
+                passthrough["sigma"] = sigma
+            params["estimator_params"] = passthrough
         else:
             params.update(
                 {
@@ -835,17 +866,15 @@ class LegacyConfigAdapter:
             "n_habitats": habitat_block.get("fixed_n_clusters"),
             "min_habitats": habitat_block.get("min_clusters", 2),
             "max_habitats": habitat_block.get("max_clusters", 10),
-            "validation": methods[0] if methods else "elbow",
+            # The v1 fitters accept a criterion list and vote, matching the
+            # v0 engine, which kept every valid method. A single method stays
+            # a scalar so specs (and fingerprints) equal pre-voting runs.
+            "validation": (
+                methods[0] if len(methods) == 1 else methods
+            ) if methods else "elbow",
             "max_iter": habitat_block.get("max_iter", 300),
             "n_init": habitat_block.get("n_init", 10),
         }
-        if len(methods) > 1:
-            params["selection_methods"] = methods
-            warnings.append(
-                "v0 allowed multiple habitat selection methods "
-                f"{methods}; v1 fits one 'validation' criterion -- the first "
-                "entry wins, the full list is kept as 'selection_methods'."
-            )
         for key in ("parallel_cluster_search", "cluster_search_workers"):
             if key in habitat_block:
                 unmapped.setdefault("habitat_segmentation", {}).setdefault(
@@ -854,7 +883,10 @@ class LegacyConfigAdapter:
         return {"name": name, "params": params}
 
     def _translate_preprocessing_chain(
-        self, block: Optional[Mapping[str, Any]]
+        self,
+        block: Optional[Mapping[str, Any]],
+        warnings: List[str],
+        unmapped: Dict[str, Any],
     ) -> List[Dict[str, Any]]:
         """
         Translate one v0 preprocessing block into method Specs.
@@ -868,10 +900,15 @@ class LegacyConfigAdapter:
         selects whether statistics are pooled across feature COLUMNS. Whose
         rows they are pooled over is decided by which chain holds the method,
         so keeping the old name next to the new chain names would actively
-        mislead. The value carries over unchanged.
+        mislead. The value carries over unchanged -- but only for the methods
+        that consumed it in v0.1 (:data:`_V0_SCOPE_AWARE_METHODS`); the
+        filters ignored the key, so for them it lands in the legacy sink
+        rather than in a params mapping the v1 component does not declare.
 
         Args:
             block: v0 ``preprocessing_for_*_level`` block or ``None``.
+            warnings: Warning sink.
+            unmapped: Legacy sink for scope flags a method never consumed.
 
         Returns:
             Ordered list of ``Spec.to_dict()`` payloads.
@@ -888,8 +925,30 @@ class LegacyConfigAdapter:
                     f"got {entry!r}."
                 )
             if _V0_SCOPE_KEY in entry:
-                entry[_V1_SCOPE_KEY] = bool(entry.pop(_V0_SCOPE_KEY))
-            chain.append({"name": str(name), "params": entry})
+                scope_value = bool(entry.pop(_V0_SCOPE_KEY))
+                if str(name) in _V0_SCOPE_AWARE_METHODS:
+                    entry[_V1_SCOPE_KEY] = scope_value
+                else:
+                    unmapped.setdefault("preprocessing_scope_flags", {})[
+                        str(name)
+                    ] = scope_value
+                    warnings.append(
+                        f"Preprocessing method {name!r} accepted but never "
+                        f"consumed '{_V0_SCOPE_KEY}' in v0.1; the value "
+                        "is preserved under 'legacy' and not forwarded."
+                    )
+            # The v0 ``PreprocessingMethod`` schema is a single wide model:
+            # when the CLI feeds a ``model_dump()`` payload, every knob the
+            # user never wrote materialises as an explicit None (e.g. a
+            # ``winsorize`` entry arrives carrying ``n_bins: None``). The
+            # v0.1 engine treated None as "not set" (handlers guard with
+            # ``if value is not None``), so stripping it here is behaviour-
+            # preserving -- and required, since the v1 domain params are
+            # ``extra="forbid"`` and would reject the foreign None keys.
+            params = {
+                key: value for key, value in entry.items() if value is not None
+            }
+            chain.append({"name": str(name), "params": params})
         return chain
 
     def _translate_cohort_chain(
@@ -921,7 +980,7 @@ class LegacyConfigAdapter:
         """
         block = feature_construction.get("preprocessing_for_group_level")
         if clustering_mode != "one_step":
-            return self._translate_preprocessing_chain(block)
+            return self._translate_preprocessing_chain(block, warnings, unmapped)
         if block and (block.get("methods") or ()):
             unmapped.setdefault("feature_construction", {})[
                 "preprocessing_for_group_level"
@@ -1214,6 +1273,21 @@ class LegacyConfigAdapter:
             seed = params.pop("random_state", None)
             if seed is not None:
                 seeds[v0_name] = seed
+            plot_flags = {
+                key: params.pop(key)
+                for key in _V0_SELECTOR_PLOT_KEYS
+                if key in params
+            }
+            if plot_flags:
+                unmapped.setdefault("feature_selection_plot_flags", {})[
+                    v0_name
+                ] = plot_flags
+                warnings.append(
+                    f"Selector {v0_name!r} plotting switch(es) "
+                    f"{sorted(plot_flags)} have no v1 params slot; v1 keeps "
+                    "visualisation in the reporting layer. The values are "
+                    "preserved under 'legacy'."
+                )
             if v0_name == "icc":
                 # v0.1's ``icc`` selector ONLY read a precomputed results
                 # JSON; the v1 registry names that contract ``icc_precomputed``

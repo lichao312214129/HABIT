@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import List, Optional, Sequence
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -39,6 +39,7 @@ __all__ = ["LocalEntropyVoxelFeatures", "LocalEntropyVoxelFeaturesParams"]
 class LocalEntropyVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`LocalEntropyVoxelFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     modalities: Sequence[str] = ()
     roi: Optional[str] = None
     kernel_size: int = Field(default=3, gt=0)

@@ -29,6 +29,7 @@ from pathlib import Path
 
 import click
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.browser_utils import (
     ensure_localhost_no_proxy,
     get_wsl_browser_access_hint,
@@ -48,7 +49,9 @@ def _require_gui_dependencies() -> None:
     Ensure FastAPI / uvicorn are available for the next-generation GUI.
 
     Raises:
-        SystemExit: When required packages are missing.
+        OptionalDependencyError: When required packages are missing.
+            Subclasses ``ImportError``, consistent with every other
+            optional-dependency path in HABIT.
     """
     missing: list[str] = []
     for package in ("fastapi", "uvicorn"):
@@ -57,14 +60,11 @@ def _require_gui_dependencies() -> None:
         except ImportError:
             missing.append(package)
     if missing:
-        click.secho(
+        raise OptionalDependencyError(
             "Missing GUI dependencies: "
             + ", ".join(missing)
-            + "\nInstall with: pip install fastapi 'uvicorn[standard]'  (or pip install habit[gui])",
-            fg="red",
-            err=True,
+            + '. Install with: pip install "habitat-analysis[gui]"'
         )
-        raise SystemExit(1)
 
 
 def _resolve_habit_cli_executable() -> str:

@@ -2,7 +2,7 @@
 
 **Tumor habitat analysis and intratumoral heterogeneity quantification** for clinical and radiomics research. Workflows are driven by YAML configs: preprocessing, habitat segmentation, feature extraction, and optional machine learning.
 
-**Language / 语言**：[English](README_en.md) | [简体中文](README.md)
+**Language / 语言**：[English](https://github.com/lichao312214129/HABIT/blob/main/README_en.md) | [简体中文](https://github.com/lichao312214129/HABIT/blob/main/README.md)
 
 ---
 
@@ -45,7 +45,7 @@ Local build: `cd docs && make html` → `docs/build/html/index.html`
 
 ## Bundled config templates
 
-After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/HABIT/configuration/index.html).
+After cloning or unpacking the repo, use the **`config/`** folder at the **project root** (sibling to the `habit/` Python package). See [`config/README_CONFIG.md`](https://github.com/lichao312214129/HABIT/blob/main/config/README_CONFIG.md) and [Configuration reference](https://lichao312214129.github.io/HABIT/configuration/index.html).
 
 ---
 
@@ -63,5 +63,5 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 ## Support & citation
 
 - **Issues**: [GitHub Issues](https://github.com/lichao312214129/HABIT/issues)
-- **Citation**: see [CITATION.cff](CITATION.cff)
-- **License**: [Apache License 2.0](LICENSE). Free for academic and commercial use; the only obligation is to retain the copyright and license notices and to ship [NOTICE](NOTICE) with redistributions. When HABIT supports scientific work, the authors request -- but do not require as a license condition -- that you cite it
+- **Citation**: see [CITATION.cff](https://github.com/lichao312214129/HABIT/blob/main/CITATION.cff)
+- **License**: [Apache License 2.0](https://github.com/lichao312214129/HABIT/blob/main/LICENSE). Free for academic and commercial use; the only obligation is to retain the copyright and license notices and to ship [NOTICE](https://github.com/lichao312214129/HABIT/blob/main/NOTICE) with redistributions. When HABIT supports scientific work, the authors request -- but do not require as a license condition -- that you cite it

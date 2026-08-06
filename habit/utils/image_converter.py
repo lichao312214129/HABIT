@@ -86,10 +86,13 @@ class ImageConverter:
             np.ndarray: Numpy array with channel dimension removed if single channel.
             
         Raises:
-            ImportError: If torch is not installed.
+            OptionalDependencyError: If torch is not installed (subclasses ImportError).
         """
         if not TORCH_AVAILABLE:
-            raise ImportError("torch is required for tensor_to_numpy. Install it with: pip install torch")
+            raise OptionalDependencyError(
+                "tensor_to_numpy requires the optional torch dependency; "
+                'install with pip install "habitat-analysis[torch]" to use it.'
+            )
         array = tensor.cpu().numpy()
         if array.shape[0] == 1:  # If single channel
             array = array.squeeze(0)  # Remove channel dimension
@@ -108,10 +111,13 @@ class ImageConverter:
             torch.Tensor: Torch tensor with added channel dimension [1,Z,Y,X].
             
         Raises:
-            ImportError: If torch is not installed.
+            OptionalDependencyError: If torch is not installed (subclasses ImportError).
         """
         if not TORCH_AVAILABLE:
-            raise ImportError("torch is required for numpy_to_tensor. Install it with: pip install torch")
+            raise OptionalDependencyError(
+                "numpy_to_tensor requires the optional torch dependency; "
+                'install with pip install "habitat-analysis[torch]" to use it.'
+            )
         if array.ndim == 2:
             array = array[np.newaxis, ...]  # Add channel dim for 2D
         elif array.ndim == 3:
@@ -127,7 +133,7 @@ class ImageConverter:
         if not ANTS_AVAILABLE:
             raise OptionalDependencyError(
                 "ANTs<->ITK conversion requires the optional antspyx dependency; "
-                "install 'HABIT[registration]' to use it."
+                "install 'habitat-analysis[registration]' to use it."
             )
         imageITK = sitk.GetImageFromArray(image.numpy().transpose(2, 1, 0))
         imageITK.SetOrigin(image.origin)
@@ -140,7 +146,7 @@ class ImageConverter:
         if not ANTS_AVAILABLE:
             raise OptionalDependencyError(
                 "ITK<->ANTs conversion requires the optional antspyx dependency; "
-                "install 'HABIT[registration]' to use it."
+                "install 'habitat-analysis[registration]' to use it."
             )
         image_ants = ants.from_numpy(sitk.GetArrayFromImage(image).transpose(2, 1, 0),
                                     origin=image.GetOrigin(),

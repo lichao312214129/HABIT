@@ -8,12 +8,14 @@ Installation
 
 - Windows lightweight installer: double-click ``launchers/启动HABIT命令行.bat``
   (after ``launchers/一键安装HABIT.bat`` succeeds).
-- Source: ``conda activate habit`` .
+- pip / Conda: ``conda activate habit`` then ``habit --version``.
+- Full step-by-step: :doc:`../tutorial/installation`.
 
 **Installer path rejected**
 
 Use a short local path with ASCII characters only and no spaces
-(for example ``D:\HABIT``).
+(for example ``D:\HABIT``). Avoid Desktop paths that contain Chinese
+characters or spaces.
 
 **CUDA False**
 
@@ -26,6 +28,19 @@ Current default installs include ``pyarrow``. Rebuild or re-run
 ``launchers/一键安装HABIT.bat`` so the environment picks up the updated runtime
 lock. Temporary workaround: ``pip install pyarrow==20.0.0`` inside the HABIT
 command-line session.
+
+**``pip install habitat-analysis`` / ``pip install pyradiomics`` fails**
+
+Follow :doc:`../tutorial/installation` (Path B + Install PyRadiomics). Short version:
+
+- Base ``pip install habitat-analysis`` does **not** need PyRadiomics.
+- Bare ``pip install pyradiomics`` often pulls broken **3.1.0 sdist**
+  (``No module named 'versioneer'``). Use the pin instead::
+
+     pip install "pyradiomics==3.0.1"
+
+- Or: ``conda install -c conda-forge pyradiomics``
+- habitat-analysis ≥ 1.0.1 extras pin ``pyradiomics>=3.0.1,<3.1``.
 
 Runtime
 -------

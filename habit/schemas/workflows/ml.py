@@ -35,6 +35,10 @@ class InputFileConfig(BaseModel):
     features_from_log: Optional[str] = None
     split_col: Optional[str] = None
     pred_col: Optional[str] = None
+    #: When True, prepend ``name`` to every feature column of this table
+    #: (v0.1 ``DataManager`` contract). Default False: ``name`` is only used
+    #: for multi-table collision renames and logging.
+    add_prefix: bool = False
 
 
 class NormalizationConfig(BaseModel):

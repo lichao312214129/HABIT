@@ -51,6 +51,13 @@ def test_distribution_excludes_repository_tests() -> None:
     assert not any(name == "tests" or name.startswith("tests.") for name in packages)
 
 
+def test_manifest_prunes_developer_trees() -> None:
+    """Published sdists must not ship tests/docs/demo trees."""
+    manifest = (PROJECT_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    for prune in ("tests", "demo_data", "docs", "developer", ".github"):
+        assert f"prune {prune}" in manifest, f"MANIFEST.in must prune {prune}"
+
+
 def test_package_version_and_python_support_are_consistent() -> None:
     """Build metadata and Poetry metadata must describe the tested runtime."""
     version_scope: dict[str, object] = {}
@@ -69,5 +76,17 @@ def test_package_version_and_python_support_are_consistent() -> None:
     )
     assert version_match is not None
     assert version_match.group(1) == package_version
-    assert 'python = ">=3.10,<3.11"' in pyproject_text
+    assert 'python = ">=3.10,<3.13"' in pyproject_text
+    assert 'requires-python = ">=3.10,<3.13"' in pyproject_text
+    # PyPI long_description must stay English; Chinese README remains in the
+    # repository / sdist for bilingual readers but is not the packaging default.
+    assert 'readme = "README_en.md"' in pyproject_text
+    assert (PROJECT_ROOT / "README_en.md").is_file()
     assert (PROJECT_ROOT / "habit" / "py.typed").is_file()
+
+
+def test_manifest_includes_bilingual_readmes() -> None:
+    """Sdist must ship both READMEs even though PyPI renders the English one."""
+    manifest = (PROJECT_ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    assert "include README.md" in manifest
+    assert "include README_en.md" in manifest

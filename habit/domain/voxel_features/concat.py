@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -34,6 +34,7 @@ __all__ = ["ConcatVoxelFeatures", "ConcatVoxelFeaturesParams"]
 class ConcatVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`ConcatVoxelFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     extractors: Sequence[Dict[str, Any]]
     roi: Optional[str] = None
     modalities: Sequence[str] = ()

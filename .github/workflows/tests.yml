@@ -52,9 +52,12 @@ jobs:
       - name: Install and verify wheel
         shell: pwsh
         run: |
-          $wheel = Get-ChildItem dist\HABIT-*.whl | Select-Object -First 1
+          $wheel = @(
+            Get-ChildItem dist\habitat_analysis-*.whl -ErrorAction SilentlyContinue
+            Get-ChildItem dist\HABIT-*.whl -ErrorAction SilentlyContinue
+          ) | Select-Object -First 1
           if (-not $wheel) {
-            throw "HABIT wheel was not created."
+            throw "habitat-analysis wheel was not created."
           }
           python -m pip install --force-reinstall --no-deps $wheel.FullName
           Push-Location $env:RUNNER_TEMP
@@ -77,11 +80,12 @@ jobs:
       - name: Install API test dependencies
         run: |
           pip install --upgrade pip
-          # pyradiomics may fall back to an sdist build on Linux; its sdist
-          # does not declare numpy as a build dependency (upstream packaging
-          # issue), so install numpy first and build without isolation.
+          # PyRadiomics is an optional extra (HABIT[radiomics]). CI still needs
+          # it for radiomics tests. PyPI often serves only an sdist that does
+          # not declare numpy as a build dependency, so install numpy first and
+          # build without isolation.
           pip install "numpy==1.26.1" wheel setuptools
-          pip install pyradiomics --no-build-isolation
+          pip install "pyradiomics>=3.0,<4" --no-build-isolation
           pip install -r requirements-ci.txt
           pip install --no-deps -e .
 

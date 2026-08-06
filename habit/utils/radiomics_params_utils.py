@@ -29,7 +29,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import yaml
-from radiomics import featureextractor
+
+from habit.utils.optional_deps import require_pyradiomics
 
 # Stable GLCM features for voxel-based extraction (small kernel_radius neighborhoods).
 # Excludes MCC, Imc1, Imc2 — they need eigenvalue / mutual-information stats that crash
@@ -174,7 +175,7 @@ def load_radiomics_params_yaml(params_path: Union[str, Path]) -> Dict[str, Any]:
 
 def create_radiomics_feature_extractor(
     params_source: Union[str, Path, Dict[str, Any], None],
-) -> featureextractor.RadiomicsFeatureExtractor:
+) -> Any:
     """
     Create a PyRadiomics feature extractor without relying on system file encoding.
 
@@ -184,17 +185,23 @@ def create_radiomics_feature_extractor(
 
     Returns:
         Initialized ``RadiomicsFeatureExtractor`` instance.
+
+    Raises:
+        OptionalDependencyError: When PyRadiomics is not installed.
     """
+    radiomics_mod = require_pyradiomics()
+    extractor_cls = radiomics_mod.featureextractor.RadiomicsFeatureExtractor
+
     if params_source is None:
-        return featureextractor.RadiomicsFeatureExtractor()
+        return extractor_cls()
 
     if isinstance(params_source, dict):
-        return featureextractor.RadiomicsFeatureExtractor(params_source)
+        return extractor_cls(params_source)
 
     path: Path = Path(str(params_source))
     if path.is_file():
         params: Dict[str, Any] = load_radiomics_params_yaml(path)
-        return featureextractor.RadiomicsFeatureExtractor(params)
+        return extractor_cls(params)
 
     # Legacy path: treat non-existent path as inline YAML text (supervoxel extractor).
     parsed: Any = yaml.safe_load(str(params_source))
@@ -202,7 +209,7 @@ def create_radiomics_feature_extractor(
         raise ValueError(
             f"Invalid radiomics parameters: expected mapping, got {type(parsed).__name__}"
         )
-    return featureextractor.RadiomicsFeatureExtractor(parsed)
+    return extractor_cls(parsed)
 
 
 def _glcm_requests_all_features(glcm_config: Any) -> bool:
@@ -277,7 +284,7 @@ def apply_voxel_glcm_defaults(
 
 
 def configure_voxel_glcm_on_extractor(
-    extractor: featureextractor.RadiomicsFeatureExtractor,
+    extractor: Any,
     logger: Optional[logging.Logger] = None,
 ) -> None:
     """

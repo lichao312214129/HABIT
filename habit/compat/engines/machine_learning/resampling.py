@@ -262,7 +262,7 @@ def apply_resampling(
         except Exception as exc:
             raise OptionalDependencyError(
                 "SMOTE resampling requires the optional imbalanced-learn "
-                "dependency; install 'HABIT[ml]' to use it."
+                "dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         smote = SMOTE(sampling_strategy=ratio, random_state=seed)

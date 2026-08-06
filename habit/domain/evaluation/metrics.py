@@ -34,7 +34,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.domain.evaluation._base import binary_class_scores, confusion_matrix
 from habit.domain.evaluation.registry import MetricRegistry
@@ -140,7 +140,7 @@ def _npv_from_cm(cm: np.ndarray) -> float:
 class AccuracyMetricParams(BaseModel):
     """Constructor parameters for :class:`AccuracyMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("accuracy")
 class AccuracyMetric(_SpecMixin):
     """Fraction of exactly matching labels."""
@@ -169,7 +169,7 @@ class AccuracyMetric(_SpecMixin):
 class SensitivityMetricParams(BaseModel):
     """Constructor parameters for :class:`SensitivityMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("sensitivity")
 class SensitivityMetric(_SpecMixin):
     """Sensitivity (recall, true positive rate); macro mean when multi-class."""
@@ -192,7 +192,7 @@ class SensitivityMetric(_SpecMixin):
 class SpecificityMetricParams(BaseModel):
     """Constructor parameters for :class:`SpecificityMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("specificity")
 class SpecificityMetric(_SpecMixin):
     """Specificity (true negative rate); macro mean when multi-class."""
@@ -215,7 +215,7 @@ class SpecificityMetric(_SpecMixin):
 class PpvMetricParams(BaseModel):
     """Constructor parameters for :class:`PpvMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("ppv")
 class PpvMetric(_SpecMixin):
     """Positive predictive value (precision); macro mean when multi-class."""
@@ -238,7 +238,7 @@ class PpvMetric(_SpecMixin):
 class NpvMetricParams(BaseModel):
     """Constructor parameters for :class:`NpvMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("npv")
 class NpvMetric(_SpecMixin):
     """Negative predictive value; macro per-class mean when multi-class."""
@@ -261,7 +261,7 @@ class NpvMetric(_SpecMixin):
 class F1ScoreMetricParams(BaseModel):
     """Constructor parameters for :class:`F1ScoreMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("f1_score")
 class F1ScoreMetric(_SpecMixin):
     """Harmonic mean of PPV and sensitivity over one shared confusion matrix."""
@@ -293,7 +293,7 @@ class F1ScoreMetric(_SpecMixin):
 class AucMetricParams(BaseModel):
     """Constructor parameters for :class:`AucMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("auc")
 class AucMetric(_SpecMixin):
     """
@@ -338,6 +338,7 @@ class AucMetric(_SpecMixin):
 class HosmerLemeshowPValueMetricParams(BaseModel):
     """Constructor parameters for :class:`HosmerLemeshowPValueMetric`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Number of quantile-based risk groups (classically 10, the decile test).
     n_groups: int = 10
 
@@ -386,7 +387,7 @@ class HosmerLemeshowPValueMetric(_SpecMixin):
 class SpiegelhalterZPValueMetricParams(BaseModel):
     """Constructor parameters for :class:`SpiegelhalterZPValueMetric` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @MetricRegistry.register("spiegelhalter_z_p_value")
 class SpiegelhalterZPValueMetric(_SpecMixin):
     """

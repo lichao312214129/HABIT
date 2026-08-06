@@ -112,10 +112,9 @@ def _create_pyradiomics_extractor(params: RadiomicsParams) -> Any:
         )
     except ModuleNotFoundError as exc:
         if exc.name == "radiomics":
-            raise OptionalDependencyError(
-                "PyRadiomics is required for backend='pyradiomics'. "
-                "Install the radiomics or full HABIT dependency set."
-            ) from exc
+            from habit.utils.optional_deps import pyradiomics_install_hint
+
+            raise OptionalDependencyError(pyradiomics_install_hint()) from exc
         raise
     if isinstance(params, Mapping):
         return create_radiomics_feature_extractor(dict(params))

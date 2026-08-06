@@ -26,7 +26,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -53,6 +53,7 @@ DEFAULT_VOXEL_BATCH = 1000
 class VoxelRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`VoxelRadiomicsFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     modalities: Sequence[str] = ()
     roi: Optional[str] = None
     params_file: Optional[str] = None

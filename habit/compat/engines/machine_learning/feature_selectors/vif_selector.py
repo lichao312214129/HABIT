@@ -62,7 +62,7 @@ def vif_selector(X: pd.DataFrame,
     if not STATSMODELS_AVAILABLE:
         raise OptionalDependencyError(
             "selector 'vif' requires the optional statsmodels dependency; "
-            "install 'HABIT[ml]' to use it."
+            "install 'habitat-analysis[ml]' to use it."
         )
     if selected_features is None:
         selected_features = X.columns.tolist()

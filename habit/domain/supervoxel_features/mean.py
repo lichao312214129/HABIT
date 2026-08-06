@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import Supervoxelization, VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -37,7 +37,7 @@ __all__ = ["MeanVoxelFeatures", "MeanVoxelFeaturesParams"]
 class MeanVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`MeanVoxelFeatures` (none)."""
 
-
+    model_config = ConfigDict(extra="forbid")
 @SupervoxelFeatureExtractorRegistry.register("mean_voxel_features")
 class MeanVoxelFeatures:
     """

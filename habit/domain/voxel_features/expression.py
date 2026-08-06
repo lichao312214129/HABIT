@@ -27,7 +27,7 @@ import math
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 
 from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
@@ -70,6 +70,7 @@ _FUNCTIONS: Mapping[str, Any] = {
 class ExpressionVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`ExpressionVoxelFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     features: Optional[Dict[str, str]] = None
     expressions: Optional[List[str]] = None
     feature_names: Optional[List[str]] = None

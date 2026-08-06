@@ -25,7 +25,7 @@ spec:
       min_habitats: 2
       max_habitats: 5
       validation: elbow
-      fixed_n_habitats: 3
+      n_habitats: 3
       max_iter: 100
       n_init: 5
   habitat_assigner:

@@ -64,7 +64,7 @@ def _lifelines(owner: str):
     except ImportError as exc:
         raise HABITAPIError(
             f"habit.viz.{owner} needs lifelines; install the 'analysis' "
-            "extra (pip install HABIT[analysis])."
+            "extra (pip install \"habitat-analysis[analysis]\")."
         ) from exc
     return lifelines
 
@@ -76,7 +76,7 @@ def _sksurv(owner: str):
     except ImportError as exc:
         raise HABITAPIError(
             f"habit.viz.{owner} needs scikit-survival; install the 'analysis' "
-            "extra (pip install HABIT[analysis])."
+            "extra (pip install \"habitat-analysis[analysis]\")."
         ) from exc
     return _m
 

@@ -29,11 +29,11 @@ imported lazily inside ``fit`` so importing this module stays cheap.
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.contracts.table import FeatureTable
@@ -45,6 +45,10 @@ from habit.domain.feature_selection.registry import FeatureSelectorRegistry
 from habit.domain.evaluation.statistics import repeat_measurement_matrix
 from habit.kernels.icc import icc2_1, icc3_1
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import (
+    check_passthrough_accepted,
+    validate_estimator_params,
+)
 from habit.utils.feature_selection_utils import resolve_n_features_to_select
 from habit.utils.progress_utils import CustomTqdm
 
@@ -110,6 +114,7 @@ def _resolve_top_n(
 class VarianceSelectorParams(BaseModel):
     """Constructor parameters for :class:`VarianceSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Columns with variance at or below this value are dropped.
     threshold: float = 0.0
     #: Keep the ``top_k`` highest-variance columns (overrides ``threshold``).
@@ -186,6 +191,7 @@ class VarianceSelector(FittedSelectorBase):
 class CorrelationSelectorParams(BaseModel):
     """Constructor parameters for :class:`CorrelationSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Absolute-correlation cut-off above which later columns are dropped.
     threshold: float = 0.8
     #: Correlation method for ``DataFrame.corr``.
@@ -250,6 +256,7 @@ class CorrelationSelector(FittedSelectorBase):
 class VifSelectorParams(BaseModel):
     """Constructor parameters for :class:`VifSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Maximum tolerated VIF; the highest-VIF column is removed until every
     #: remaining column is at or below this value.
     max_vif: float = 10.0
@@ -289,7 +296,7 @@ class VifSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.vif requires the optional statsmodels "
-                "dependency; install 'HABIT[ml]' to use it."
+                "dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         data = table.frame[list(table.feature_columns)].copy()
@@ -324,6 +331,7 @@ class VifSelector(FittedSelectorBase):
 class AnovaSelectorParams(BaseModel):
     """Constructor parameters for :class:`AnovaSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Keep columns whose ANOVA F-test p-value is below this threshold.
     p_threshold: float = 0.05
     #: ``>= 1`` absolute count or ``(0, 1)`` ratio of top-F columns to keep
@@ -392,6 +400,7 @@ class AnovaSelector(FittedSelectorBase):
 class Chi2SelectorParams(BaseModel):
     """Constructor parameters for :class:`Chi2Selector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Keep columns whose chi-square p-value is below this threshold.
     p_threshold: float = 0.05
     #: ``>= 1`` absolute count or ``(0, 1)`` ratio of top-chi2 columns to keep
@@ -462,6 +471,7 @@ class Chi2Selector(FittedSelectorBase):
 class StatisticalTestSelectorParams(BaseModel):
     """Constructor parameters for :class:`StatisticalTestSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Keep columns whose test p-value is below this threshold.
     p_threshold: float = 0.05
     #: ``>= 1`` absolute count or ``(0, 1)`` ratio of top-statistic columns to
@@ -589,6 +599,7 @@ class StatisticalTestSelector(FittedSelectorBase):
 class UnivariateLogisticSelectorParams(BaseModel):
     """Constructor parameters for :class:`UnivariateLogisticSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Keep columns whose univariate logistic p-value is below this level.
     alpha: float = 0.05
     #: Show a progress bar over the per-feature model fits.
@@ -633,7 +644,7 @@ class UnivariateLogisticSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.univariate_logistic requires the optional "
-                "statsmodels dependency; install 'HABIT[ml]' to use it."
+                "statsmodels dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         block = table.frame[list(table.feature_columns)]
@@ -666,6 +677,7 @@ class UnivariateLogisticSelector(FittedSelectorBase):
 class StepwiseSelectorParams(BaseModel):
     """Constructor parameters for :class:`StepwiseSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Selection direction: ``"forward"``, ``"backward"`` or ``"both"``.
     direction: str = "backward"
     #: P-value threshold for inclusion (``criterion="pvalue"`` only).
@@ -686,7 +698,7 @@ def _logit_fit(y: pd.Series, X_subset: pd.DataFrame) -> Any:
     except ImportError as exc:
         raise OptionalDependencyError(
             "feature_selector.stepwise requires the optional statsmodels "
-            "dependency; install 'HABIT[ml]' to use it."
+            "dependency; install 'habitat-analysis[ml]' to use it."
         ) from exc
 
     return Logit(y, sm.add_constant(X_subset)).fit(disp=0)
@@ -923,6 +935,7 @@ def _stepwise_selection(
 class UnivariateCoxSelectorParams(BaseModel):
     """Constructor parameters for :class:`UnivariateCoxSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Keep columns whose univariate-Cox p-value is below this threshold.
     p_threshold: float = 0.05
     #: ``>= 1`` absolute count or ``(0, 1)`` ratio of top columns to keep
@@ -978,7 +991,7 @@ class UnivariateCoxSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.univariate_cox needs lifelines; install the "
-                "'analysis' extra (pip install HABIT[analysis])."
+                "'analysis' extra (pip install \"habitat-analysis[analysis]\")."
             ) from exc
         from lifelines.exceptions import ConvergenceError
 
@@ -1114,6 +1127,7 @@ class StepwiseSelector(FittedSelectorBase):
 class RfecvSelectorParams(BaseModel):
     """Constructor parameters for :class:`RfecvSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Estimator name (one of the v0.1 supported set, e.g.
     #: ``"RandomForestClassifier"``, ``"LogisticRegression"``, ``"SVC"``,
     #: ``"GradientBoostingClassifier"``, ``"XGBClassifier"`` and the
@@ -1155,7 +1169,7 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
         except ImportError as exc:
             raise OptionalDependencyError(
                 "rfecv estimator 'XGBClassifier' requires the optional xgboost "
-                "dependency; install 'HABIT[ml]' to use it."
+                "dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         return xgb.XGBClassifier(random_state=seed)
@@ -1181,7 +1195,7 @@ def _build_rfecv_estimator(name: str, seed: Optional[int]) -> Any:
         except ImportError as exc:
             raise OptionalDependencyError(
                 "rfecv estimator 'XGBRegressor' requires the optional xgboost "
-                "dependency; install 'HABIT[ml]' to use it."
+                "dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         return xgb.XGBRegressor(random_state=seed)
@@ -1273,6 +1287,7 @@ class RfecvSelector(FittedSelectorBase):
 class LassoSelectorParams(BaseModel):
     """Constructor parameters for :class:`LassoSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Cross-validation folds for ``LassoCV``.
     cv: int = 10
     #: Number of alpha values along the regularisation path.
@@ -1281,6 +1296,10 @@ class LassoSelectorParams(BaseModel):
     alphas: Optional[List[float]] = None
     #: Parallel jobs for the cross-validation.
     n_jobs: int = -1
+    #: Vendor kwargs forwarded verbatim to ``LassoCV`` (e.g. ``{"eps": 1e-4}``);
+    #: keys colliding with a declared parameter or with the HABIT-injected
+    #: ``random_state`` are rejected.
+    estimator_params: Dict[str, Any] = Field(default_factory=dict)
 
 
 @FeatureSelectorRegistry.register("lasso")
@@ -1292,6 +1311,16 @@ class LassoSelector(FittedSelectorBase):
     non-zero coefficient at the cross-validated optimal alpha -- the v0.1
     rule. Unlike v0.1 the random state is not a constructor parameter; use
     :meth:`set_random_state` (v1.0 naming decisions).
+
+    Args:
+        cv: Cross-validation folds for ``LassoCV``.
+        n_alphas: Number of alpha values along the regularisation path.
+        alphas: Explicit alpha grid (overrides ``n_alphas`` when given).
+        n_jobs: Parallel jobs for the cross-validation.
+        estimator_params: Extra keyword arguments forwarded verbatim to
+            ``LassoCV``, for vendor parameters HABIT does not declare. They
+            are validated against the ``LassoCV`` signature at fit time and
+            recorded in the spec fingerprint.
     """
 
     _spec_name = "lasso"
@@ -1302,12 +1331,18 @@ class LassoSelector(FittedSelectorBase):
         n_alphas: int = 100,
         alphas: Optional[List[float]] = None,
         n_jobs: int = -1,
+        estimator_params: Optional[Mapping[str, Any]] = None,
     ) -> None:
         super().__init__()
         self._cv = int(cv)
         self._n_alphas = int(n_alphas)
         self._alphas = None if alphas is None else [float(a) for a in alphas]
         self._n_jobs = int(n_jobs)
+        self._estimator_params: Dict[str, Any] = validate_estimator_params(
+            estimator_params,
+            declared=("cv", "n_alphas", "alphas", "n_jobs"),
+            owner=f"feature_selector.{self._spec_name}",
+        )
         self._seed: Optional[int] = None
 
     def set_random_state(self, seed: int) -> None:
@@ -1317,15 +1352,17 @@ class LassoSelector(FittedSelectorBase):
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={
-                "cv": self._cv,
-                "n_alphas": self._n_alphas,
-                "alphas": self._alphas,
-                "n_jobs": self._n_jobs,
-            },
-        )
+        params: Dict[str, Any] = {
+            "cv": self._cv,
+            "n_alphas": self._n_alphas,
+            "alphas": self._alphas,
+            "n_jobs": self._n_jobs,
+        }
+        # Fold the passthrough in only when non-empty so the default
+        # configuration keeps its historical fingerprint.
+        if self._estimator_params:
+            params["estimator_params"] = dict(self._estimator_params)
+        return Spec(name=self._spec_name, params=params)
 
     def fit(
         self,
@@ -1336,6 +1373,9 @@ class LassoSelector(FittedSelectorBase):
         """Fit LassoCV and keep non-zero-coefficient columns."""
         from sklearn.linear_model import LassoCV
 
+        check_passthrough_accepted(
+            LassoCV, self._estimator_params, owner=f"feature_selector.{self._spec_name}"
+        )
         block = table.frame[list(table.feature_columns)]
         y = outcome_series(table, owner=f"feature_selector.{self._spec_name}")
         lasso_cv = LassoCV(
@@ -1344,6 +1384,7 @@ class LassoSelector(FittedSelectorBase):
             alphas=self._alphas,
             random_state=self._seed,
             n_jobs=self._n_jobs,
+            **self._estimator_params,
         )
         lasso_cv.fit(block, y)
         coefs = np.asarray(lasso_cv.coef_)
@@ -1361,6 +1402,7 @@ class LassoSelector(FittedSelectorBase):
 class IccSelectorParams(BaseModel):
     """Constructor parameters for :class:`IccSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Minimum ICC value for a feature to count as stable.
     threshold: float = 0.75
     #: ICC variant: ``"icc3"`` (two-way mixed, consistency; the v0.1 default)
@@ -1439,6 +1481,7 @@ class IccSelector(FittedSelectorBase):
 class PrecomputedIccSelectorParams(BaseModel):
     """Constructor parameters for :class:`PrecomputedIccSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Path to the ICC results JSON produced by a standalone ICC analysis run.
     icc_results_path: str
     #: Group names in the JSON whose stable-feature sets are intersected.
@@ -1620,6 +1663,7 @@ class PrecomputedIccSelector(FittedSelectorBase):
 class MrmrSelectorParams(BaseModel):
     """Constructor parameters for :class:`MrmrSelector`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Number of features to select (clipped to the candidate count).
     n_features: int = 10
     #: ``"classification"`` or ``"regression"``.
@@ -1675,7 +1719,7 @@ class MrmrSelector(FittedSelectorBase):
         except ImportError as exc:
             raise OptionalDependencyError(
                 "feature_selector.mrmr requires the optional mrmr-selection "
-                "dependency; install 'HABIT[ml]' to use it."
+                "dependency; install 'habitat-analysis[ml]' to use it."
             ) from exc
 
         block = table.frame[list(table.feature_columns)]

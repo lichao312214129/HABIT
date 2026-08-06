@@ -25,6 +25,7 @@ import random
 import numpy as np
 import pandas as pd
 
+from habit.exceptions import OptionalDependencyError
 from habit.utils.estimator_utils import get_accepted_params
 from habit.utils.log_utils import get_module_logger
 from .base import BaseModel
@@ -35,10 +36,10 @@ logger = get_module_logger(__name__)
 try:
     from autogluon.tabular import TabularPredictor
 except ImportError:
-    raise ImportError(
+    raise OptionalDependencyError(
         "AutoML support is not installed. Windows lightweight-release users "
         "can run 'launchers/一键启用HABIT-AutoML.bat'; package users can install "
-        "'HABIT[automl]'."
+        "'habitat-analysis[automl]'."
     )
 
 # HABIT-level keys that configure the wrapper rather than AutoGluon itself.

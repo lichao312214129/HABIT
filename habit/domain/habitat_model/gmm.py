@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Dict, List, Mapping, Optional, Sequence, Union
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import HabitatModel, Supervoxelization
@@ -53,11 +53,13 @@ _COVARIANCE_TYPES = ("full", "tied", "diag", "spherical")
 class GmmHabitatModelFitterParams(BaseModel):
     """Constructor parameters for :class:`GmmHabitatModelFitter`."""
 
+    model_config = ConfigDict(extra="forbid")
     n_habitats: Optional[int] = Field(default=None, ge=2)
     min_habitats: int = Field(default=2, ge=2)
     max_habitats: int = Field(default=10, ge=3)
     validation: Union[str, List[str]] = "bic"
     covariance_type: str = "full"
+    n_init: int = Field(default=50, gt=0)
     max_iter: int = Field(default=100, gt=0)
 
 
@@ -85,6 +87,8 @@ class GmmHabitatModelFitter:
             or ``"silhouette"`` / ``"calinski_harabasz"`` / ``"gap"``
             (maximise).
         covariance_type: GaussianMixture covariance structure.
+        n_init: Number of mixture initialisations per candidate count; the
+            best-likelihood run is kept (sklearn ``n_init``).
         max_iter: EM iteration limit per candidate count.
     """
 
@@ -95,6 +99,7 @@ class GmmHabitatModelFitter:
         max_habitats: int = 10,
         validation: Union[str, Sequence[str]] = "bic",
         covariance_type: str = "full",
+        n_init: int = 50,
         max_iter: int = 100,
     ) -> None:
         self._validation_methods = normalize_validation(
@@ -121,6 +126,7 @@ class GmmHabitatModelFitter:
             else list(self._validation_methods)
         )
         self.covariance_type = covariance_type
+        self.n_init = int(n_init)
         self.max_iter = int(max_iter)
         self._seed = 0
 
@@ -135,6 +141,7 @@ class GmmHabitatModelFitter:
                 "max_habitats": self.max_habitats,
                 "validation": self.validation,
                 "covariance_type": self.covariance_type,
+                "n_init": self.n_init,
                 "max_iter": self.max_iter,
             },
         )
@@ -151,6 +158,7 @@ class GmmHabitatModelFitter:
             n_components=n_components,
             random_state=self._seed,
             covariance_type=self.covariance_type,
+            n_init=self.n_init,
             max_iter=self.max_iter,
         )
         model.fit(matrix)

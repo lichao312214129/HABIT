@@ -3,6 +3,10 @@
 include LICENSE
 include NOTICE
 include CITATION.cff
+include README.md
+include README_en.md
+include pyproject.toml
+include setup.py
 
 # Include C sources for supervoxel texture matrix extension in sdists.
 recursive-include habit/kernels/radiomics/cext/src *.c
@@ -13,6 +17,16 @@ recursive-include habit/resources/radiomics *.yaml
 
 # PEP 561 marker for users of static type checkers.
 include habit/py.typed
+
+# Keep published sdists lean: never ship the developer test suite or local
+# build / demo artefacts (they are not part of the installable package).
+prune tests
+prune demo_data
+prune docs
+prune developer
+prune .github
+prune build
+prune dist
 
 # Next-generation web GUI (API bridge, presets, built frontend).
 recursive-include habit-gui/bridge *.py

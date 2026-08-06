@@ -195,6 +195,7 @@ v1 把它注册成普通方法 `impute`（`strategy: mean | median | zero`）。
 - 失败策略取值：`"continue"` / `"fail_fast"`；并发度参数 `workers`（不是 `processes`）。
 - 超体素个数参数 `n_supervoxels`；生境个数 `n_habitats`；随机种子统一 `set_random_state(seed)`（不在构造器里塞 `random_state`）。
 - 异常基类：`HabitError`（`HABITAPIError` 为其 API 层子类）。
+- **保留键 `estimator_params`**：B 类薄包装组件（政策三分见 `06` §8.4）接收厂商长尾参数的**唯一**键名，常量为 `habit.utils.estimator_utils.ESTIMATOR_PARAMS_KEY`。不造同义词（`kwargs` / `extra_params` / `vendor_params`）：`kwargs` 是 Python 语法词而非领域词，`extra`/`vendor` 都不说"这是给底层 estimator 的"。该键非空时并入 `spec.params` 进指纹；`random_state` 永远禁止出现在其中（种子只走 `set_random_state`）。
 
 ---
 

@@ -65,7 +65,7 @@ def mrmr_selector(data: pd.DataFrame,
     if not MRMR_AVAILABLE:
         raise OptionalDependencyError(
             "selector 'mrmr' requires the optional mrmr-selection dependency; "
-            "install 'HABIT[ml]' to use it."
+            "install 'habitat-analysis[ml]' to use it."
         )
     # Input validation
     if not isinstance(data, pd.DataFrame):

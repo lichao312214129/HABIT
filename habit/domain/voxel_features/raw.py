@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from habit.exceptions import HABITAPIError
 from habit.contracts.habitat import VoxelFeatureField
@@ -38,6 +38,7 @@ __all__ = ["RawVoxelFeatures", "RawVoxelFeaturesParams"]
 class RawVoxelFeaturesParams(BaseModel):
     """Constructor parameters for :class:`RawVoxelFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     modalities: List[str] = Field(min_length=1)
     roi: Optional[str] = None
 

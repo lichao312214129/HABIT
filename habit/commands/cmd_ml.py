@@ -598,8 +598,10 @@ def _load_feature_table(config: MLConfig, logger: logging.Logger) -> FeatureTabl
     Assemble one labelled :class:`FeatureTable` from the v0.1 ``input`` list.
 
     Paths are already resolved by :meth:`MLConfig.from_file`. Multi-table
-    inputs are outer-joined on the subject-id column of the first table;
-    collision columns are prefixed with each table's ``name`` when set.
+    inputs are outer-joined on the subject-id column of the first table.
+    Column prefixes follow the v0.1 ``DataManager`` contract: a table's
+    ``name`` is applied only when ``add_prefix`` is true, or as a collision
+    rename when a later table reuses a column name.
 
     Args:
         config: Validated v0.1 ML configuration.
@@ -646,13 +648,21 @@ def _load_feature_table(config: MLConfig, logger: logging.Logger) -> FeatureTabl
             label_col = lbl_col
 
         features = list(entry.features or [])
-        available = [column for column in frame.columns if column not in {subj_col, lbl_col}]
+        available = [
+            column for column in frame.columns if column not in {subj_col, lbl_col}
+        ]
         selected = features if features else available
+        # Match v0.1 DataManager._extract_features: the input ``name`` is a
+        # label for collision resolution / logging, not an automatic column
+        # rename. Prefixing every feature when ``name`` is set (e.g. the ICC
+        # demo's ``radiomics_``) made ICC JSON keys miss the table and left
+        # an empty feature matrix for the classifier.
         prefix = str(entry.name or "").strip()
+        add_prefix = bool(entry.add_prefix)
         rename = {
             column: f"{prefix}{column}"
             for column in selected
-            if prefix and column in frame.columns
+            if add_prefix and prefix and column in frame.columns
         }
         subset = frame.set_index(subj_col)[selected].rename(columns=rename)
 

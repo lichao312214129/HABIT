@@ -19,7 +19,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from habit.contracts.habitat import HabitatMap
 from habit.contracts.subject import Subject
@@ -41,6 +41,7 @@ __all__ = ["EachHabitatRadiomicsFeatures", "EachHabitatRadiomicsFeaturesParams"]
 class EachHabitatRadiomicsFeaturesParams(BaseModel):
     """Constructor parameters for :class:`EachHabitatRadiomicsFeatures`."""
 
+    model_config = ConfigDict(extra="forbid")
     #: Path to the PyRadiomics parameter YAML for the raw image; ``None``
     #: selects PyRadiomics defaults (the v0.1 no-file behaviour).
     params_file: Optional[str] = None
