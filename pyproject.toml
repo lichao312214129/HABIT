@@ -3,16 +3,18 @@
 # The literal name "HABIT" is prohibited on PyPI (admin block / name policy),
 # so we publish as ``habitat-analysis``: pip install habitat-analysis
 name = "habitat-analysis"
-version = "1.0.1"
+version = "1.0.2"
 description = "Habitat Analysis: Biomedical Imaging Toolkit (HABIT)"
 # PyPI long description must be English by default. Keep README.md (Chinese) in
 # the repository and sdist for bilingual readers; language switcher links use
 # absolute GitHub URLs because relative paths break on pypi.org.
 readme = "README_en.md"
-# HABIT itself supports CPython 3.10–3.12. The optional ``radiomics`` extra
-# (PyRadiomics) is only reliably installable via pip on 3.10/3.11, or via
-# conda-forge on newer Pythons — see docs/tutorial/installation.rst.
-requires-python = ">=3.10,<3.13"
+# HABIT supports CPython 3.10–3.14 (verified on Windows: full check suite on
+# 3.10, install + smoke on 3.13/3.14). The optional ``radiomics`` extra
+# (PyRadiomics) has no usable PyPI binaries for Windows on any supported
+# Python — HABIT publishes self-built wheels via GitHub Releases; see
+# docs/tutorial/installation.rst.
+requires-python = ">=3.10,<3.15"
 authors = [
     { name = "Li Chao", email = "lichao19870617@163.com" },
 ]
@@ -26,6 +28,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 # HABIT is a library first: runtime dependencies use compatible ranges so the
 # package can coexist with other scientific-Python stacks (sklearn / MONAI /
@@ -34,7 +38,10 @@ classifiers = [
 # path is required here; heavier or narrower workflows live in the extras
 # below and fail with OptionalDependencyError when used without their extra.
 dependencies = [
-    "numpy>=1.26,<2",
+    # numpy 2.x is fully supported (verified: full check suite + golden tests
+    # under numpy 2.2.6). Extensions built against numpy 2 headers also run on
+    # numpy 1.26, so one build covers both generations.
+    "numpy>=1.26,<3",
     "SimpleITK>=2.2,<3",
     "matplotlib>=3.8,<4",
     "scipy>=1.11,<2",
@@ -51,7 +58,10 @@ dependencies = [
     "pydicom>=3.0,<4",
     "pydantic>=2.7,<3",
     "kneed>=0.8,<1",
-    "pyarrow>=15,<22",
+    # pyarrow 22 is the first release shipping CPython 3.14 wheels; keep the
+    # tested 15–21 range on 3.10–3.13 so existing installs stay untouched.
+    "pyarrow>=15,<22; python_version < '3.14'",
+    "pyarrow>=22,<23; python_version >= '3.14'",
 ]
 
 [project.scripts]
@@ -66,14 +76,16 @@ habit = "habit.cli:cli"
 # in docs/source/api/plugins.rst.
 
 [project.optional-dependencies]
-# PyRadiomics is optional. Pin below 3.1: PyPI's pyradiomics 3.1.0 sdist is
-# broken (missing versioneer / bad metadata). 3.0.1 still ships binary wheels
-# on common platforms (verified: Windows cp310). Preferred recipes:
+# PyRadiomics is optional. PyPI ships NO usable Windows binaries for cp310+:
+# the 3.1.0 sdist is broken (wrong static version 3.0.1a1 / versioneer
+# metadata), and 3.0.1 has no Windows wheels either. HABIT publishes
+# self-built 3.1.0 Windows wheels (cp310–cp314, numpy-2 compiled, verified on
+# numpy 1.26 and 2.x) as GitHub Release assets. Preferred recipes on Windows:
+#   pip install <released-wheel-url-or-file>   # then the extra is satisfied
+#   pip install "habitat-analysis[radiomics]" --find-links <wheel-dir-or-url>
 #   conda install -c conda-forge pyradiomics
-#   pip install "pyradiomics==3.0.1"
-#   pip install "habitat-analysis[radiomics]"
 radiomics = [
-    "pyradiomics>=3.0.1,<3.1",
+    "pyradiomics>=3.0.1,<3.2",
 ]
 gui = [
     "fastapi>=0.100",
@@ -110,7 +122,7 @@ automl = [
 ]
 # Convenience meta-extra: every optional workflow dependency at once.
 all = [
-    "pyradiomics>=3.0.1,<3.1",
+    "pyradiomics>=3.0.1,<3.2",
     "xgboost>=2.1,<4",
     "imbalanced-learn>=0.12,<1",
     "mrmr-selection>=0.2.8,<1",
@@ -136,7 +148,7 @@ torch = [
 # Poetry remains able to identify the supported interpreter, but all runtime
 # package requirements live exclusively in ``project.dependencies`` above.
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.10,<3.15"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^6.2.5"
@@ -154,7 +166,10 @@ license-files = ["LICENSE", "NOTICE"]
 requires = [
     "setuptools>=64",
     "wheel",
-    "numpy>=1.26,<2",
+    # Build against numpy 2.x headers: the resulting C extension runs on both
+    # numpy 1.26 and 2.x (numpy 2 headers are backward-compatible to 1.19+),
+    # so a single wheel serves every supported runtime.
+    "numpy>=2,<3",
     "tomli>=2.0.1; python_version < '3.11'",
 ]
 build-backend = "setuptools.build_meta"

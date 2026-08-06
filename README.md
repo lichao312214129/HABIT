@@ -52,7 +52,7 @@
 
 ## 源码与演示数据
 
-- **pip 安装（开发者 / 嵌入其它环境）**：需要 Python **3.10–3.12**
+- **pip 安装（开发者 / 嵌入其它环境）**：需要 Python **3.10–3.14**（numpy 1.26 与 2.x 均支持）
   ```bash
   pip install habitat-analysis
   # 或从源码：
@@ -63,8 +63,9 @@
   PyRadiomics **不是**默认依赖。需要组学特征时（已本地验证的可靠写法）：
   ```bash
   conda install -c conda-forge pyradiomics
-  # 或 pip（务必钉死 3.0.1；不要裸装最新 3.1.0，源码包会失败）：
-  pip install "pyradiomics==3.0.1"
+  # Windows pip 用户：PyPI 上没有可用的 PyRadiomics Windows 二进制包，
+  # 请先装 HABIT GitHub Release 附带的自建 3.1.0 wheel（cp310–cp314，numpy 1.26/2.x 均可），再：
+  # pip install "habitat-analysis[radiomics]"
   ```
   其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。详见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
 - **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)

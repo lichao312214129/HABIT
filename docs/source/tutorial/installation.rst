@@ -38,7 +38,8 @@ Which path should I choose?
      - Prefer **Path A** (portable folder) or ask IT for Conda
      - Path A does not modify system Python / PATH
 
-Supported Python versions (Path B): **3.10, 3.11, 3.12**.
+Supported Python versions (Path B): **3.10, 3.11, 3.12, 3.13, 3.14**
+(verified on Windows x64; both ``numpy`` 1.26 and 2.x are supported).
 The Windows ZIP (Path A) pins **Python 3.10.20** for reproducibility.
 
 .. note::
@@ -109,7 +110,7 @@ Prerequisites
 ~~~~~~~~~~~~~
 
 1. Install **Miniconda** or **Anaconda** (recommended), *or* a standalone
-   Python 3.10–3.12 from https://www.python.org .
+   Python 3.10–3.14 from https://www.python.org .
 2. Open a terminal:
 
    * Windows: **Anaconda Prompt** or PowerShell
@@ -119,7 +120,7 @@ Prerequisites
 
       python --version
 
-   Expect ``Python 3.10.x``, ``3.11.x``, or ``3.12.x``.
+   Expect ``Python 3.10.x`` up to ``3.14.x``.
 
 B1. Create an isolated environment (strongly recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,38 +200,38 @@ With the ``habit`` environment activated::
    conda install -c conda-forge pyradiomics -y
    python -c "import radiomics; print('pyradiomics OK')"
 
-This is the most portable route across Python 3.10–3.12 **when your Conda
+This is the most portable route across Python 3.10–3.14 **when your Conda
 installation can write to its package cache**.
 
-Option 2 — pip with a **pinned** wheel (verified on Windows Python 3.10)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Option 2 — Windows pip: prebuilt wheel from GitHub Releases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Upstream PyPI packaging for PyRadiomics is fragile:
+Upstream PyPI has **no usable PyRadiomics Windows binaries** for any
+supported Python (3.10–3.14):
 
-* ``pip install pyradiomics`` (no pin) often downloads **3.1.0 sdist**, which
-  fails with ``No module named 'versioneer'``
-* **Do not** rely on ``habitat-analysis[radiomics]`` alone against an unpinned
-  3.1.0 — that was verified to fail on a clean Windows 3.10 venv
-* **Does work** (verified locally): pin **3.0.1**, which still has a Windows
-  ``cp310`` binary wheel
+* ``pip install pyradiomics`` downloads the **3.1.0 sdist**, whose build
+  fails (broken versioneer metadata)
+* 3.0.1 has **no** Windows wheels on PyPI either (``--only-binary`` finds
+  nothing)
 
-Recommended pip recipe::
+For Windows x64, HABIT publishes self-built **PyRadiomics 3.1.0** wheels
+(CPython 3.10–3.14, compiled against numpy 2.x headers so they run on both
+numpy 1.26 and 2.x) as assets of the GitHub Release:
+https://github.com/lichao312214129/HABIT/releases
 
-   pip install habitat-analysis
-   pip install "pyradiomics==3.0.1"
+Install the wheel matching your Python first, then the extra resolves as
+already satisfied::
+
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+   pip install "habitat-analysis[radiomics]"
    python -c "import radiomics, habit; print(habit.__version__, 'pyradiomics OK')"
 
-From habitat-analysis ≥ 1.0.1 the ``[radiomics]`` extra also pins
-``pyradiomics>=3.0.1,<3.1``, so this is equivalent::
+(Replace ``cp310`` with your interpreter tag, e.g. ``cp312`` / ``cp313`` /
+``cp314``.) If you mirrored the wheels locally, point pip at them instead::
 
-   pip install "habitat-analysis[radiomics]"
+   pip install "habitat-analysis[radiomics]" --find-links C:\path\to\wheels
 
-If pip still tries to build from source and fails, force the binary wheel::
-
-   pip install "pyradiomics==3.0.1" --only-binary=:all:
-
-On **Python 3.12+**, prefer Option 1 (conda-forge); PyPI wheels for 3.0.1 may
-not exist for that ABI.
+On **macOS / Linux**, prefer Option 1 (conda-forge).
 
 Windows ZIP note
 ~~~~~~~~~~~~~~~~
@@ -255,8 +256,9 @@ Install only what your workflow needs. Missing extras raise
      - Command
      - Needed for
    * - ``radiomics``
-     - ``pip install "pyradiomics==3.0.1"`` then
-       ``pip install "habitat-analysis[radiomics]"`` (≥ 1.0.1 pins ``<3.1``)
+     - Windows: install the prebuilt PyRadiomics wheel from GitHub Releases
+       first, then ``pip install "habitat-analysis[radiomics]"`` (≥ 1.0.2
+       allows ``pyradiomics`` 3.0.1–3.1.x); elsewhere: conda-forge
      - Voxel / supervoxel / traditional PyRadiomics
    * - ``ml``
      - ``pip install "habitat-analysis[ml]"``
@@ -358,13 +360,13 @@ that declares the ``radiomics`` extra, or install without extras first::
 
    pip install habitat-analysis
 
-**``pip install pyradiomics`` fails on Python 3.12**
+**``pip install pyradiomics`` fails (any Python, Windows)**
 
-Expected with current upstream PyPI packages. Use::
+Expected: PyPI ships no usable PyRadiomics Windows binaries. On Windows use
+the prebuilt 3.1.0 wheel from the HABIT GitHub Release (see *Install
+PyRadiomics* above); otherwise use::
 
    conda install -c conda-forge pyradiomics
-
-or create a **Python 3.10 / 3.11** environment.
 
 **Permission / SSL / mirror errors at hospital networks**
 

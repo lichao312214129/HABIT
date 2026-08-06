@@ -76,8 +76,8 @@ def test_package_version_and_python_support_are_consistent() -> None:
     )
     assert version_match is not None
     assert version_match.group(1) == package_version
-    assert 'python = ">=3.10,<3.13"' in pyproject_text
-    assert 'requires-python = ">=3.10,<3.13"' in pyproject_text
+    assert 'python = ">=3.10,<3.15"' in pyproject_text
+    assert 'requires-python = ">=3.10,<3.15"' in pyproject_text
     # PyPI long_description must stay English; Chinese README remains in the
     # repository / sdist for bilingual readers but is not the packaging default.
     assert 'readme = "README_en.md"' in pyproject_text

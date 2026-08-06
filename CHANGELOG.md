@@ -129,3 +129,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   imports and ``habit.recipes`` for new integrations.
 - Deep paths such as ``habit.compat.engines.preprocessing.run.run_preprocess_from_config``
   continue to work for YAML-driven workflows via ``habit.compat.legacy_core``.
+
+## [1.0.2] - 2026-08-06
+
+### Changed
+
+- **Python support widened to 3.10–3.14** (``requires-python``
+  ``>=3.10,<3.15``). Verified on Windows x64: full install-check suite passes
+  on 3.10, 3.13 and 3.14. Windows wheels are now published for every
+  supported CPython (cp310–cp314); the sdist builds on all of them.
+- **numpy 2.x supported**: the base dependency is now ``numpy>=1.26,<3``.
+  Verified: full check suite, fast golden tests (no numeric drift) and all
+  packaging/API/architecture gates pass under numpy 2.2.6, and the published
+  C extension (built against numpy 2 headers) also runs under numpy 1.26.
+  Installing HABIT no longer forces a numpy 2.x environment to downgrade.
+- ``pyarrow`` on CPython 3.14 requires ``>=22`` (first release with cp314
+  wheels); 3.10–3.13 keep the previous ``>=15,<22`` range via environment
+  markers.
+- ``radiomics`` extra widened to ``pyradiomics>=3.0.1,<3.2``. PyPI ships no
+  usable PyRadiomics Windows binaries (the 3.1.0 sdist is broken; 3.0.1 has
+  no Windows wheels), so HABIT publishes self-built PyRadiomics 3.1.0 Windows
+  wheels (cp310–cp314, numpy-2 compiled, verified on numpy 1.26 and 2.x) as
+  GitHub Release assets. PyRadiomics remains an optional extra, never a hard
+  dependency.

@@ -34,13 +34,16 @@ command-line session.
 Follow :doc:`../tutorial/installation` (Path B + Install PyRadiomics). Short version:
 
 - Base ``pip install habitat-analysis`` does **not** need PyRadiomics.
-- Bare ``pip install pyradiomics`` often pulls broken **3.1.0 sdist**
-  (``No module named 'versioneer'``). Use the pin instead::
+- PyPI has **no usable PyRadiomics Windows binaries**: bare
+  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**, and 3.0.1
+  has no Windows wheels either. On Windows install the prebuilt 3.1.0 wheel
+  (cp310–cp314) from the HABIT GitHub Release first, then::
 
-     pip install "pyradiomics==3.0.1"
+     pip install "habitat-analysis[radiomics]"
 
 - Or: ``conda install -c conda-forge pyradiomics``
-- habitat-analysis ≥ 1.0.1 extras pin ``pyradiomics>=3.0.1,<3.1``.
+- habitat-analysis ≥ 1.0.2 extras allow ``pyradiomics>=3.0.1,<3.2`` and
+  support Python 3.10–3.14 with numpy 1.26 or 2.x.
 
 Runtime
 -------
