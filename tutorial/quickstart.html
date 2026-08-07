@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1458,12 +1459,33 @@ extraction → machine learning → model comparison.</p>
 <p><code class="docutils literal notranslate"><span class="pre">D:\habit</span></code> is an example project root — use your clone or working directory.</p>
 </div>
 <ol class="arabic">
-<li><p>Download and extract to the project root (repo root that contains <code class="docutils literal notranslate"><span class="pre">config/</span></code>):</p>
-<p><code class="docutils literal notranslate"><span class="pre">demo_data.rar</span></code> (required)</p>
+<li><p>Obtain demo images (pick <strong>one</strong> path):</p>
+<p><strong>A. Packaged DCE demo</strong> (Baidu Netdisk; matches the YAML commands below):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>demo_data.rar → extract at the project root (folder that contains ``config/``)
+</pre></div>
+</div>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9">Download demo_data.rar</a></p></li>
 <li><p>Code: 9ws9</p></li>
 </ul>
+<p>Modalities in that pack are <code class="docutils literal notranslate"><span class="pre">delay2</span></code> / <code class="docutils literal notranslate"><span class="pre">delay3</span></code> / <code class="docutils literal notranslate"><span class="pre">delay5</span></code>.</p>
+<p><strong>B. Public MSD BrainTumour mini-demo</strong> (international HTTPS; no Baidu):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">download_msd_brain_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">n</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>This pulls Medical Segmentation Decathlon Task01 (BraTS-like) cases via
+plain HTTPS, splits the 4D volumes with SimpleITK, and writes HABIT’s
+<code class="docutils literal notranslate"><span class="pre">images/</span></code> + <code class="docutils literal notranslate"><span class="pre">masks/</span></code> layout under
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/processed_images/</span></code>. Modalities are
+<code class="docutils literal notranslate"><span class="pre">t1ce</span></code> / <code class="docutils literal notranslate"><span class="pre">t1</span></code> / <code class="docutils literal notranslate"><span class="pre">t2</span></code> / <code class="docutils literal notranslate"><span class="pre">flair</span></code>; ROI folder is <code class="docutils literal notranslate"><span class="pre">tumor</span></code>.
+Then run the matching config instead of the delay* demo:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
+<span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span>  <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>Cite MSD / BraTS when publishing; data license CC-BY-SA 4.0
+(see <code class="docutils literal notranslate"><span class="pre">medicaldecathlon.com</span></code>). Details:
+<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">config/</span></code> is already included in the source checkout.</p>
 <p><code class="docutils literal notranslate"><span class="pre">tests.zip</span></code> (optional)</p>
 <ul class="simple">
@@ -1471,7 +1493,7 @@ extraction → machine learning → model comparison.</p>
 <li><p>Code: vv2c</p></li>
 </ul>
 </li>
-<li><p>Verify <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code> prints <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>.</p></li>
+<li><p>Verify <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code> prints a <code class="docutils literal notranslate"><span class="pre">1.0.x</span></code> version.</p></li>
 </ol>
 </section>
 <section id="run-the-demo">

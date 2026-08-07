@@ -101,6 +101,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1468,6 +1469,33 @@
 </pre></div>
 </div>
 <p>See <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/processed_images/</span></code> after extracting the demo.</p>
+</section>
+<section id="public-msd-braintumour-alternative">
+<h2>Public MSD BrainTumour alternative<a class="headerlink" href="#public-msd-braintumour-alternative" title="Link to this heading"></a></h2>
+<p>If you cannot download the Baidu <code class="docutils literal notranslate"><span class="pre">demo_data.rar</span></code> pack, fetch 5–10 public
+MSD Task01 BrainTumour (BraTS-like) cases with stdlib + SimpleITK only
+(no MONAI / torch):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">download_msd_brain_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">n</span> <span class="mi">5</span>
+</pre></div>
+</div>
+<p>Layout written under <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/processed_images/</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">images</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;/</span><span class="p">{</span><span class="n">flair</span><span class="p">,</span><span class="n">t1</span><span class="p">,</span><span class="n">t1ce</span><span class="p">,</span><span class="n">t2</span><span class="p">}</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">mod</span><span class="o">&gt;.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">masks</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;/</span><span class="n">tumor</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;</span><span class="n">_tumor</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>MSD stores modalities as one 4D volume in the order <strong>flair, t1, t1ce, t2</strong>.
+The script also copies the whole-tumor mask (<code class="docutils literal notranslate"><span class="pre">label</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>) under each
+modality folder so <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> can load the tree with the current
+CLI ROI rule (first modality key in the feature expression).</p>
+<p>Matching habitat config (replaces <code class="docutils literal notranslate"><span class="pre">delay2</span></code> / <code class="docutils literal notranslate"><span class="pre">delay3</span></code> / <code class="docutils literal notranslate"><span class="pre">delay5</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
+<span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span>  <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
+<p>Acknowledgement: Medical Segmentation Decathlon Task01 / BraTS 2016–2017;
+please cite MSD and BraTS when using these cases. License: CC-BY-SA 4.0
+(<code class="docutils literal notranslate"><span class="pre">https://medicaldecathlon.com/</span></code>). The large tarball is cached under
+<code class="docutils literal notranslate"><span class="pre">demo_data/_msd_cache/</span></code> (gitignored).</p>
 </section>
 <section id="data-specification">
 <h2>Data specification<a class="headerlink" href="#data-specification" title="Link to this heading"></a></h2>
