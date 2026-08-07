@@ -88,4 +88,8 @@ fig_reg.savefig(reg_path, dpi=120, bbox_inches="tight")
 print(f"Wrote {reg_path.name} ({reg_path.stat().st_size} bytes)")
 
 print(f"\nAll figures under {out_dir}")
-print("Binary ML ROC/calibration plots: see ml_advanced_demo.py (compare_models).")
+print(
+    "Binary ML ROC/calibration: habit.viz + recipes.ml_reporting "
+    "(train_/test_/cv_ under output/visualizations/); "
+    "multi-model compare: ml_advanced_demo.py (compare_models)."
+)

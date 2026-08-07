@@ -5,6 +5,12 @@ This page documents **model comparison** YAML used by ``habit compare``.
 Schema: ``ModelComparisonConfig``. Demo:
 ``config/model_comparison/config_model_comparison_demo.yaml``.
 
+Runtime path: :func:`~habit.recipes.compare_models`
+(:mod:`habit.recipes.comparison`) →
+:mod:`habit.domain.evaluation.comparison` →
+:mod:`habit.recipes.comparison_reporting` + ``habit.viz.classification``.
+The v0.1 ML comparison engine is not on this path.
+
 Command usage: :doc:`../how_to/compare_models`. Python API:
 :doc:`../api/python_api` and :doc:`../api/domain_table`.
 
@@ -131,14 +137,15 @@ If both ``model_name`` and ``name`` are omitted, HABIT uses the file stem of
 **split**
 
 - ``enabled`` (bool, default ``false``): when ``true``, generate per-split
-  analyses using ``split_col`` in each prediction file
+  analyses using ``split_col`` in each prediction file. Figures and DeLong
+  JSON are written under ``<output_dir>/<split_name>/``.
 
 **visualization**
 
 Sub-blocks ``roc``, ``dca``, ``calibration``, and ``pr_curve`` each accept:
 
 - ``enabled`` (bool, default ``true``)
-- ``save_name`` (output filename under ``output_dir``)
+- ``save_name`` (output filename under ``output_dir`` or the split subdirectory)
 - ``title`` (plot title, English)
 - ``n_bins`` (calibration only; number of probability bins)
 
@@ -157,10 +164,20 @@ Sub-blocks ``roc``, ``dca``, ``calibration``, and ``pr_curve`` each accept:
 Typical outputs under ``output_dir``
 ------------------------------------
 
-- ``roc_curves.pdf``, ``decision_curves.pdf``, ``calibration_curves.pdf``,
-  ``precision_recall_curves.pdf``
-- ``delong_results.json``
 - ``combined_predictions.csv`` (when merge is enabled)
+- ``metrics/metrics.json``
+- ``habit_run_manifest.json``
+- With ``split.enabled: true`` (demo layout)::
+
+     train/roc_curves.pdf
+     train/decision_curves.pdf
+     train/calibration_curves.pdf
+     train/precision_recall_curves.pdf
+     train/delong_results.json
+     test/...   (same filenames)
+
+- With ``split.enabled: false``, the curve PDFs and ``delong_results.json``
+  sit directly under ``output_dir``.
 
 Related machine-learning training fields remain on
 :doc:`machine_learning`.

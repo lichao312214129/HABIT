@@ -92,7 +92,13 @@ Top-level package responsibilities
    * - ``habit/recipes/``
      - **L4**: the standard study designs — ``two_step`` / ``one_step`` /
        ``direct_pooling``, ``train_model`` / ``cross_validate`` /
-       ``predict_model``, ``run_from_yaml``, ``apply_habitat_model``.
+       ``predict_model``, ``extract_habitat_features`` /
+       ``traditional_radiomics``, ``compare_models``, ``run_from_yaml``,
+       ``apply_habitat_model``. ML/compare disk figures go through
+       ``ml_reporting.py`` / ``comparison_reporting.py``.
+   * - ``habit/viz/``
+     - Publication figures (``Figure`` in, no filesystem). Classification
+       curves and SHAP helpers used by ML and compare reporting.
    * - ``habit/cli.py`` + ``habit/commands/``
      - **L5**: Click command group and command implementations. Commands
        validate YAML, translate via ``LegacyConfigAdapter`` when needed, and
@@ -123,8 +129,9 @@ Top-level package responsibilities
      - Habitat segmentation, clustering features, post-segmentation feature
        extraction, and traditional radiomics (see :doc:`subsystems`).
    * - ``habit/compat/engines/machine_learning/``
-     - Tabular machine learning: data assembly, feature selection, modeling,
-       evaluation, reporting, visualization, and statistical tests.
+     - Legacy tabular ML engine (holdout/K-fold workflows, pickle pipelines).
+       CLI train/cv/compare prefer v1 recipes + ``habit.viz``; this tree is
+       retained for YAML parity and opaque v0.1 pipeline loads.
    * - ``habit/compat/dicom_sort_runner.py``
      - Standalone DICOM sorting based on dcm2niix; invoked from
        ``habit.recipes.sort_dicom``.
@@ -181,6 +188,8 @@ run the contract tests when adding a factory or orchestrator:
 
      ORC["recipes/habitat.py<br/>two_step / one_step / direct_pooling"] --> DOM["habit/domain/<br/>component registries"]
      ORC2["recipes/modeling.py<br/>train_model / cross_validate / predict_model"] --> TP["TablePipeline"]
+     ORC3["recipes/comparison.py<br/>compare_models"] --> EV["domain/evaluation/comparison"]
+     ORC3 --> VIZ["habit.viz"]
 
      TST["tests/test_architecture_contracts.py"] -.-> REG
      TST -.-> ORC
@@ -212,8 +221,13 @@ Where to start when changing X
      - ``habit/recipes/habitat.py`` (v1 recipes) + ``compat/engines/habitat_analysis/pipelines/steps/``
    * - Change the ML training or prediction flow
      - v1: ``habit/recipes/modeling.py`` + ``habit/domain/`` components;
+       figures: ``recipes/ml_reporting.py`` + ``habit/viz/``;
        v0.1 engine: ``compat/engines/machine_learning/workflows/`` and
        ``runners/``
+   * - Change multi-model comparison (``habit compare``)
+     - ``habit/recipes/comparison.py``,
+       ``habit/domain/evaluation/comparison.py``,
+       ``habit/recipes/comparison_reporting.py``, ``habit/viz/``
    * - Add a class-based factory
      - Subclass ``ClassRegistry`` from ``habit/registry/base.py``;
        follow an existing factory in the same domain.

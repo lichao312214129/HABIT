@@ -174,35 +174,19 @@ def run_model_comparison(
     """
     Compare multiple trained models from a validated config object.
 
+    Delegates to :func:`habit.recipes.comparison.compare_models` (v1 domain +
+    ``habit.viz``). The v0.1 ``ModelComparison`` engine is no longer invoked.
+
     Args:
         config: Validated config or dictionary accepted by
             :class:`~habit.schemas.workflows.ml.ModelComparisonConfig`.
-        logger: Optional logger passed to the core runner.
+        logger: Optional logger passed to the recipe.
         output_dir: Optional output directory override.
 
     Returns:
-        Model-comparison metrics in ``data`` and the output directory in
+        Model-comparison metrics in ``data`` and written artefact paths in
         ``artifacts``.
     """
-    from habit.compat.legacy_core import run_model_comparison_from_config
-    from habit.schemas.workflows.ml import ModelComparisonConfig
+    from habit.recipes.comparison import compare_models
 
-    validated_config = coerce_config(config, ModelComparisonConfig)
-    resolved_output_dir = output_dir or validated_config.output_dir
-    result = run_model_comparison_from_config(
-        validated_config,
-        logger=logger,
-        output_dir=resolved_output_dir,
-    )
-    manifest = create_run_manifest("model_comparison", validated_config)
-    manifest_path = write_run_manifest(manifest, resolved_output_dir)
-    return WorkflowResult(
-        data=result,
-        output_dir=Path(resolved_output_dir),
-        metadata={
-            "config_hash": manifest.config_hash,
-            "habit_version": manifest.habit_version,
-        },
-        run_id=manifest.run_id,
-        manifest_path=manifest_path,
-    )
+    return compare_models(config, logger=logger, output_dir=output_dir)

@@ -7,17 +7,25 @@ simpler structures; see :doc:`repo_layout`.
 
 .. note::
 
-   **v1.0 framing.** User-facing orchestration moved to the v1 recipes
-   (:doc:`../api/index`): habitat studies run through
-   ``habit.recipes.two_step`` / ``one_step`` / ``direct_pooling`` over the
-   ``habit/domain/`` component registries, and tabular ML runs through
-   ``habit.recipes.train_model`` / ``cross_validate`` / ``predict_model``
-   over :class:`~habit.domain.TablePipeline`. What follows are the internals
-   of the **v0.1 engines** under ``habit/compat/engines/``, which remain the
-   execution core behind the configuration-object API
-   (``habit.api.machine_learning``) and the ``extract`` / ``radiomics`` /
-   ``compare`` workflows. Read this page when changing engine internals;
-   read :doc:`architecture` for the v1 layering.
+   **v1.0 framing.** User-facing orchestration lives in the v1 recipes
+   (:doc:`../api/index`):
+
+   * Habitat studies: ``habit.recipes.two_step`` / ``one_step`` /
+     ``direct_pooling`` over ``habit/domain/`` registries.
+   * Tabular ML: ``habit.recipes.train_model`` / ``cross_validate`` /
+     ``predict_model`` over :class:`~habit.domain.TablePipeline`, with
+     figures via :mod:`habit.recipes.ml_reporting` + ``habit.viz``.
+   * Feature extract / radiomics: ``extract_habitat_features`` /
+     ``traditional_radiomics`` in :mod:`habit.recipes.features` (parallel
+     L4 recipes; built-in extract is domain-native).
+   * Model comparison: :func:`~habit.recipes.compare_models` in
+     :mod:`habit.recipes.comparison` (domain evaluation +
+     :mod:`habit.recipes.comparison_reporting` + ``habit.viz``).
+
+   What follows are the internals of the **v0.1 engines** under
+   ``habit/compat/engines/``, retained for YAML/CLI parity and residual
+   fallbacks. Read this page when changing engine internals; read
+   :doc:`architecture` for the v1 layering.
 
 Habitat analysis
 ----------------
@@ -70,19 +78,30 @@ Training and prediction
   new subjects with the same fitted state.
 * **Resume** uses subject-level checkpoints for interrupted large cohorts.
 
-After habitat maps are generated, ``habit extract`` uses
-``HabitatMapAnalyzer`` for downstream features and ``habit radiomics`` uses
-``TraditionalRadiomicsExtractor``.
+After habitat maps are generated, ``habit extract`` runs
+:func:`~habit.recipes.extract_habitat_features` (domain
+``HabitatFeatureExtractor`` components for built-in types; compat
+``HabitatMapAnalyzer`` only when YAML requests an unregistered plugin).
+``habit radiomics`` runs :func:`~habit.recipes.traditional_radiomics`.
 
 Machine learning
 ----------------
 
-The v0.1 machine-learning engine
-(``habit/compat/engines/machine_learning/``; modules below are relative to
-it) assembles feature tables, splits data, builds an sklearn pipeline,
-trains and evaluates models, and writes reports. The v1 recipes reuse the
-same ideas through ``habit/domain/`` components instead of this module
-tree.
+**v1 path (CLI / recipes).** ``habit model`` and ``habit cv`` call
+:func:`~habit.recipes.train_model` / :func:`~habit.recipes.cross_validate`.
+Reporting writes ``metrics.json``, prediction tables, and — when
+visualization is enabled — figures under ``<output>/visualizations/`` via
+:mod:`habit.recipes.ml_reporting` and ``habit.viz.classification``
+(prefixes ``train_`` / ``test_`` / ``cv_``). ``habit compare`` is a separate
+recipe (:func:`~habit.recipes.compare_models`); it merges prediction CSVs,
+computes metrics / DeLong in
+:mod:`habit.domain.evaluation.comparison`, and writes multi-model curves
+through :mod:`habit.recipes.comparison_reporting`.
+
+**v0.1 engine (compat).** The modules below live under
+``habit/compat/engines/machine_learning/``. They remain available for
+legacy configuration-object callers and opaque ``*_final_pipeline.pkl``
+predict loads. New work should target the v1 recipes and ``habit.viz``.
 
 .. list-table::
    :header-rows: 1
@@ -99,7 +118,9 @@ tree.
    * - ``feature_selectors/``
      - Registered selectors and ICC/retest analysis.
    * - ``workflows/``
-     - High-level holdout, K-fold, and model-comparison workflows.
+     - High-level holdout and K-fold workflows (legacy). Multi-model
+       comparison for ``habit compare`` is v1
+       (:mod:`habit.recipes.comparison`), not this tree.
    * - ``runners/``
      - Concrete training and inference execution.
    * - ``contracts/``

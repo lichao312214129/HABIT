@@ -14,9 +14,10 @@
 #
 """Model comparison command implementation.
 
-L5 wiring only: parse the v0.1 YAML through the v0.1 schema, hand the
-validated object to the L4 recipe, and surface success/failure. No
-``habit.core.run`` imports live here.
+L5 wiring only: parse the comparison YAML through
+:class:`~habit.schemas.workflows.ml.ModelComparisonConfig`, hand the
+validated object to :func:`habit.recipes.comparison.compare_models`, and
+surface success/failure. The v0.1 ``ModelComparison`` engine is not used.
 """
 
 from __future__ import annotations

@@ -69,7 +69,7 @@ compare_config: Dict[str, Any] = {
             "model_name": "oracle",
             "subject_id_col": "subject",
             "label_col": "label",
-            "prediction_col": "prediction",
+            "pred_col": "prediction",
             "prob_col": "probability",
         },
         {
@@ -77,7 +77,7 @@ compare_config: Dict[str, Any] = {
             "model_name": "noisy",
             "subject_id_col": "subject",
             "label_col": "label",
-            "prediction_col": "prediction",
+            "pred_col": "prediction",
             "prob_col": "probability",
         },
     ],
@@ -90,4 +90,11 @@ if compare_result.data:
         if isinstance(metrics, dict):
             print(f"  {model_name}: { {k: round(v, 3) if isinstance(v, float) else v for k, v in metrics.items()} }")
 
-print("\nML evaluation figures (ROC, calibration) are written under output_dir/plots/")
+# compare_models writes multi-model curves at output_dir root (or per-split
+# subdirs when split.enabled). Single-model train/CV figures from habit model /
+# habit cv use <output>/visualizations/ with train_ / test_ / cv_ prefixes.
+out = Path(compare_result.output_dir)
+print(
+    "\ncompare_models artefacts (ROC/DCA/calibration/PR, metrics/metrics.json) "
+    f"under {out}"
+)

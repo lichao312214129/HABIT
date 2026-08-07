@@ -24,8 +24,9 @@ import pandas as pd
 import pytest
 
 import habit.commands.cmd_compare as cmd_compare
+from habit.api.machine_learning import run_model_comparison
 from habit.commands.cmd_compare import run_compare
-from habit.compat.engines.machine_learning.config_schemas import ModelComparisonConfig
+from habit.schemas.workflows.ml import ModelComparisonConfig
 from habit.recipes.comparison import compare_models, pairwise_delong_test
 
 
@@ -36,16 +37,19 @@ def _write_prediction_csv(
     labels: np.ndarray,
     probs: np.ndarray,
     model_tag: str,
+    datasets: np.ndarray | None = None,
 ) -> None:
-    """Write one synthetic prediction CSV accepted by ModelComparison."""
+    """Write one synthetic prediction CSV accepted by ModelComparisonConfig."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    if datasets is None:
+        datasets = np.array(["test"] * len(subject_ids))
     frame = pd.DataFrame(
         {
             "subject_id": subject_ids,
             "label": labels,
             f"{model_tag}_prob": probs,
             f"{model_tag}_pred": (probs >= 0.5).astype(int),
-            "dataset": "test",
+            "dataset": datasets,
         }
     )
     frame.to_csv(path, index=False)
@@ -55,8 +59,12 @@ def _comparison_config_yaml(
     out_dir: Path,
     model_a_csv: Path,
     model_b_csv: Path,
+    *,
+    split_enabled: bool = False,
+    enable_metrics: bool = False,
+    enable_viz: bool = False,
 ) -> str:
-    """Render a minimal v0.1 model-comparison config for synthetic CSVs."""
+    """Render a minimal model-comparison config for synthetic CSVs."""
     return f"""output_dir: "{out_dir.as_posix()}"
 files_config:
   - path: "{model_a_csv.as_posix()}"
@@ -77,26 +85,29 @@ merged_data:
   enabled: true
   save_name: combined_predictions.csv
 split:
-  enabled: false
+  enabled: {str(split_enabled).lower()}
 visualization:
   roc:
-    enabled: false
+    enabled: {str(enable_viz).lower()}
   dca:
-    enabled: false
+    enabled: {str(enable_viz).lower()}
   calibration:
-    enabled: false
+    enabled: {str(enable_viz).lower()}
   pr_curve:
-    enabled: false
+    enabled: {str(enable_viz).lower()}
 delong_test:
   enabled: true
   save_name: delong_results.json
 metrics:
   basic_metrics:
-    enabled: false
+    enabled: {str(enable_metrics).lower()}
   youden_metrics:
-    enabled: false
+    enabled: {str(enable_metrics).lower()}
   target_metrics:
-    enabled: false
+    enabled: {str(enable_metrics).lower()}
+    targets:
+      sensitivity: 0.5
+      specificity: 0.5
 """
 
 
@@ -129,6 +140,13 @@ def synthetic_predictions(tmp_path: Path) -> tuple[Path, Path, Path]:
     return model_a_csv, model_b_csv, tmp_path / "out_compare"
 
 
+def _write_config_file(root: Path, content: str) -> Path:
+    """Write one YAML config under ``root`` and return its path."""
+    path = root / "config_compare.yaml"
+    path.write_text(content, encoding="utf-8")
+    return path
+
+
 @pytest.mark.cli
 def test_compare_cli_dispatches_to_recipe(
     synthetic_predictions: tuple[Path, Path, Path],
@@ -158,11 +176,11 @@ def test_compare_cli_dispatches_to_recipe(
 
 
 @pytest.mark.cli
-def test_compare_models_recipe_delegates_to_api(
+def test_api_delegates_to_recipe(
     synthetic_predictions: tuple[Path, Path, Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The L4 recipe forwards to habit.api.machine_learning.run_model_comparison."""
+    """Public API forwards to the v1 recipe (not the v0.1 engine)."""
     model_a_csv, model_b_csv, out_dir = synthetic_predictions
     config = ModelComparisonConfig.from_file(
         str(
@@ -179,22 +197,12 @@ def test_compare_models_recipe_delegates_to_api(
         calls.append({"args": args, "kwargs": kwargs})
         return object()
 
-    monkeypatch.setattr(
-        "habit.api.machine_learning.run_model_comparison",
-        _spy,
-    )
+    monkeypatch.setattr("habit.recipes.comparison.compare_models", _spy)
 
-    compare_models(config, output_dir=str(out_dir))
+    run_model_comparison(config, output_dir=str(out_dir))
 
     assert len(calls) == 1
     assert calls[0]["kwargs"]["output_dir"] == str(out_dir)
-
-
-def _write_config_file(root: Path, content: str) -> Path:
-    """Write one YAML config under ``root`` and return its path."""
-    path = root / "config_compare.yaml"
-    path.write_text(content, encoding="utf-8")
-    return path
 
 
 @pytest.mark.cli
@@ -230,3 +238,110 @@ def test_compare_models_writes_delong_artifact(
     assert delong_path.is_file()
     assert (out_dir / "combined_predictions.csv").is_file()
     assert (out_dir / "habit_run_manifest.json").is_file()
+
+
+@pytest.mark.cli
+def test_compare_models_split_artifacts_checklist(tmp_path: Path) -> None:
+    """Split-aware run writes the full acceptance artefact checklist."""
+    rng = np.random.default_rng(21)
+    n_rows = 60
+    labels = rng.integers(0, 2, size=n_rows)
+    # Ensure both classes in both splits.
+    labels[:15] = 0
+    labels[15:30] = 1
+    labels[30:45] = 0
+    labels[45:] = 1
+    subject_ids = np.array([f"S{i:03d}" for i in range(n_rows)])
+    datasets = np.array(["train"] * 30 + ["test"] * 30)
+    scores_a = np.clip(labels + rng.normal(0.0, 0.25, size=n_rows), 0.0, 1.0)
+    scores_b = np.clip(scores_a + rng.normal(0.0, 0.05, size=n_rows), 0.0, 1.0)
+
+    model_a_csv = tmp_path / "pred_a.csv"
+    model_b_csv = tmp_path / "pred_b.csv"
+    out_dir = tmp_path / "out_split"
+    _write_prediction_csv(
+        model_a_csv,
+        subject_ids=subject_ids,
+        labels=labels,
+        probs=scores_a,
+        model_tag="model_a",
+        datasets=datasets,
+    )
+    _write_prediction_csv(
+        model_b_csv,
+        subject_ids=subject_ids,
+        labels=labels,
+        probs=scores_b,
+        model_tag="model_b",
+        datasets=datasets,
+    )
+    config = ModelComparisonConfig.from_file(
+        str(
+            _write_config_file(
+                tmp_path,
+                _comparison_config_yaml(
+                    out_dir,
+                    model_a_csv,
+                    model_b_csv,
+                    split_enabled=True,
+                    enable_metrics=True,
+                    enable_viz=True,
+                ),
+            )
+        )
+    )
+
+    compare_models(config, output_dir=str(out_dir))
+
+    assert (out_dir / "combined_predictions.csv").is_file()
+    assert (out_dir / "metrics" / "metrics.json").is_file()
+    assert (out_dir / "habit_run_manifest.json").is_file()
+    for split_name in ("train", "test"):
+        split_dir = out_dir / split_name
+        assert (split_dir / "roc_curves.pdf").is_file()
+        assert (split_dir / "decision_curves.pdf").is_file()
+        assert (split_dir / "calibration_curves.pdf").is_file()
+        assert (split_dir / "precision_recall_curves.pdf").is_file()
+        delong_path = split_dir / "delong_results.json"
+        assert delong_path.is_file()
+        payload = delong_path.read_text(encoding="utf-8")
+        assert "p_value" in payload
+        assert "significant_difference" in payload
+        assert "conclusion" in payload
+
+    import json
+
+    metrics = json.loads((out_dir / "metrics" / "metrics.json").read_text(encoding="utf-8"))
+    assert "train" in metrics and "test" in metrics
+    train_a = metrics["train"]["model_a"]
+    test_a = metrics["test"]["model_a"]
+    assert "basic_metrics" in train_a
+    assert "youden_metrics" in train_a and "youden_metrics" in test_a
+    assert "target_metrics" in train_a and "target_metrics" in test_a
+    assert "thresholds" in train_a and "youden" in train_a["thresholds"]
+    # Youden / target thresholds are fixed on train and reused on test.
+    assert train_a["thresholds"]["youden"] == test_a["thresholds"]["youden"]
+    assert train_a["thresholds"]["target"] == test_a["thresholds"]["target"]
+
+
+@pytest.mark.cli
+def test_compare_recipe_does_not_import_v0_engine() -> None:
+    """The comparison recipe source must stay free of the v0.1 ML engine."""
+    import ast
+    from pathlib import Path as _Path
+
+    recipe_path = _Path(compare_models.__code__.co_filename)
+    tree = ast.parse(recipe_path.read_text(encoding="utf-8"))
+    imported: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported.append(node.module)
+    offenders = [
+        name
+        for name in imported
+        if name.startswith("habit.compat.engines.machine_learning")
+        or name.startswith("habit.compat.engines.machine_learning.")
+    ]
+    assert not offenders

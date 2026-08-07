@@ -67,6 +67,27 @@ from habit.domain.evaluation.statistics import (
     icc_analysis,
     repeat_measurement_matrix,
 )
+from habit.domain.evaluation.panel import (
+    CleanedPredictions,
+    clean_binary_predictions,
+    compute_classification_metrics,
+)
+from habit.domain.evaluation.comparison import (
+    ComparisonResult,
+    MergedPredictions,
+    PredictionSource,
+    evaluate_comparison,
+    merge_prediction_frames,
+    pairwise_delong_report,
+    resolve_training_group_name,
+)
+from habit.domain.evaluation.thresholds import (
+    apply_target_threshold,
+    apply_youden_threshold,
+    metrics_at_threshold,
+    target_threshold_metrics,
+    youden_threshold_metrics,
+)
 
 __all__ = [
     "MetricRegistry",
@@ -112,4 +133,19 @@ __all__ = [
     "calibration_tests",
     "repeat_measurement_matrix",
     "icc_analysis",
+    "CleanedPredictions",
+    "clean_binary_predictions",
+    "compute_classification_metrics",
+    "MergedPredictions",
+    "PredictionSource",
+    "ComparisonResult",
+    "merge_prediction_frames",
+    "evaluate_comparison",
+    "pairwise_delong_report",
+    "resolve_training_group_name",
+    "metrics_at_threshold",
+    "youden_threshold_metrics",
+    "apply_youden_threshold",
+    "target_threshold_metrics",
+    "apply_target_threshold",
 ]

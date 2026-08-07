@@ -53,9 +53,18 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
    
    visualization:
      enabled: true
+     # Allowed: roc, dca, calibration, pr, confusion,
+     #          shap, shap_dependence, shap_waterfall, permutation
      plot_types: [roc, dca, calibration, pr, confusion, shap]
      dpi: 600
      format: pdf
+     # Optional knobs for shap_dependence / shap_waterfall / permutation:
+     # explainability:
+     #   shap_dependence_top_k: 3
+     #   shap_waterfall_samples: 3
+     #   permutation_repeats: 10
+     #   permutation_scoring: roc_auc
+     #   permutation_top_k: 20
 
 **Prediction mode YAML example** (``run_mode: predict``):
 
@@ -507,10 +516,23 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
 **visualization**: visualization settings (``VisualizationConfig``)
 
+CLI train / CV write figures under ``<output>/visualizations/`` through
+:mod:`habit.recipes.ml_reporting` and ``habit.viz`` (not a legacy
+``plots/`` directory). Filename prefixes: ``train_`` / ``test_`` (hold-out)
+or ``cv_`` (pooled out-of-fold).
+
 - ``enabled``: **default** ``true``
-- ``plot_types``: **default** ``[roc, dca, calibration, pr, confusion, shap]``; values match listed type names
+- ``plot_types``: **default** ``[roc, dca, calibration, pr, confusion, shap]``.
+  Allowed values: ``roc``, ``dca``, ``calibration``, ``pr``, ``confusion``,
+  ``shap``, ``shap_dependence``, ``shap_waterfall``, ``permutation``.
+  Unknown names fail validation.
 - ``dpi``: **default** ``600``
 - ``format``: **default** ``pdf``
+- ``explainability`` (optional): tuning for explanation figures when those
+  ``plot_types`` are enabled — ``shap_dependence_top_k``,
+  ``shap_waterfall_samples``, ``permutation_repeats``,
+  ``permutation_scoring``, ``permutation_top_k``,
+  ``permutation_random_state``
 
 **is_save_model**: save trained pipeline to ``output`` (default ``true``).
 
@@ -526,5 +548,7 @@ Model comparison (``habit compare``)
 ------------------------------------
 
 Multi-model ROC / DCA / DeLong comparison uses a separate schema
-(``ModelComparisonConfig``). Full field reference:
+(``ModelComparisonConfig``) and the v1 recipe
+:func:`~habit.recipes.compare_models` (domain evaluation +
+``habit.viz`` multi-model figures). Full field reference:
 :doc:`model_comparison`.

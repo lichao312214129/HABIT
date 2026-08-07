@@ -138,16 +138,22 @@ def run_model_comparison_from_config(
     """
     Run multi-model comparison (plots, metrics, DeLong tests).
 
+    Thin legacy entry point: forwards to the v1
+    :func:`habit.recipes.comparison.compare_models` recipe so callers that still
+    import this helper do not resurrect the v0.1 ``ModelComparison`` engine.
+
     Args:
         config: Validated model-comparison configuration.
         logger: Optional run logger.
         output_dir: Optional output directory override.
-    """
-    from habit.compat.engines.machine_learning.run import (
-        run_model_comparison_from_config as _run,
-    )
 
-    return _run(config, logger=logger, output_dir=output_dir)
+    Returns:
+        The metrics store mapping from the recipe ``WorkflowResult.data``.
+    """
+    from habit.recipes.comparison import compare_models
+
+    result = compare_models(config, logger=logger, output_dir=output_dir)
+    return result.data
 
 
 def _run_v1_train(config: Any, *, logger: logging.Logger) -> _RecipeWorkflowResult:
