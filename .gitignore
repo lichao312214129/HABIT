@@ -190,6 +190,7 @@ habit-gui/
 
 # Specific directories to ignore
 demo_data/results/
+out/
 results/
 demo_data/preprocessed/*
 demo_data/preprocessed-backup/
