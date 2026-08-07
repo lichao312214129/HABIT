@@ -635,23 +635,68 @@ def apply_log(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
-def select_variance_columns(block: pd.DataFrame, threshold: float) -> List[str]:
+def select_variance_columns(
+    block: pd.DataFrame,
+    threshold: float,
+    *,
+    top_k: Optional[int] = None,
+    top_percent: Optional[float] = None,
+    keep_at_least_one: bool = True,
+) -> List[str]:
     """
-    Return the columns whose variance exceeds a threshold.
+    Return the surviving columns of variance-based selection.
+
+    THE single implementation of variance selection in HABIT. It is reached
+    from four registered names, which differ only in default parameter values
+    and in the spelling of their parameters:
+
+    * ``variance_filter`` (table preprocessor) and ``variance_filter``
+      (cohort feature preprocessor) -- ``variance_threshold``,
+      ``keep_at_least_one=True``;
+    * ``variance`` (feature selector) -- ``threshold`` / ``top_k`` /
+      ``top_percent``, ``keep_at_least_one=False``.
+
+    The ``keep_at_least_one`` difference is REAL and must not be smoothed
+    over: the preprocessor has always guaranteed a non-empty matrix (the v0.1
+    rule -- a preprocessing chain that empties the feature block would make
+    every later step fail on an unrelated error), while the selector has
+    always been allowed to select nothing, which is legitimate information
+    ("no feature clears this threshold"). Making it a parameter is what let
+    the two names collapse onto one implementation without either changing
+    its numbers.
 
     Args:
         block: Matrix to inspect.
         threshold: Columns with ``var <= threshold`` are dropped; ``0.0``
-            removes only constant columns.
+            removes only constant columns. Ignored when ``top_k`` or
+            ``top_percent`` applies.
+        top_k: Keep the ``top_k`` highest-variance columns. Checked FIRST,
+            the v0.1 priority order. Ignored when ``None`` or non-positive.
+        top_percent: Keep the highest-variance ``top_percent`` percent of
+            columns (0-100 scale), rounded up. Checked second. Ignored when
+            ``None`` or outside ``(0, 100]``.
+        keep_at_least_one: When nothing survives, keep the single
+            highest-variance column instead of returning an empty selection.
 
     Returns:
-        Surviving column names. When nothing survives, the single
-        highest-variance column is kept so the chain never empties the
-        matrix (the v0.1 rule).
+        List[str]: Surviving column names. The ``threshold`` mode returns
+        them in the matrix's own column order; the ``top_k`` /
+        ``top_percent`` modes return them in descending-variance order, which
+        is what the v0.1 selector did (callers that need a stable schema
+        re-order against the table).
     """
     variances = block.var()
-    selected = variances[variances > threshold].index.tolist()
-    if not selected:
+    if top_k is not None and int(top_k) > 0:
+        ranked = variances.sort_values(ascending=False)
+        selected = list(ranked.index[: min(int(top_k), len(ranked))])
+    elif top_percent is not None and 0 < float(top_percent) <= 100:
+        ranked = variances.sort_values(ascending=False)
+        count = int(np.ceil(len(ranked) * float(top_percent) / 100))
+        selected = list(ranked.index[:count])
+    else:
+        # sklearn VarianceThreshold semantics: keep variance > threshold.
+        selected = variances[variances > threshold].index.tolist()
+    if not selected and keep_at_least_one and len(variances):
         selected = [variances.sort_values(ascending=False).index[0]]
     return [str(column) for column in selected]
 
@@ -667,6 +712,14 @@ def select_correlation_columns(
     Walks columns left to right and drops later columns correlating above
     ``threshold`` with a kept one, so the surviving subset is deterministic
     and favours earlier columns -- the v0.1 algorithm.
+
+    THE single implementation of correlation-based pruning in HABIT, reached
+    from the ``correlation`` feature selector (defaults: ``threshold=0.8``,
+    ``method="spearman"``) and the ``correlation_filter`` preprocessors
+    (defaults: ``corr_threshold=0.95``, ``corr_method="spearman"``). Unlike
+    variance selection the two names differ ONLY in default values and
+    parameter spelling -- the greedy walk always keeps the first column, so
+    there is no "empty result" case to disagree about.
 
     Args:
         block: Matrix to inspect.

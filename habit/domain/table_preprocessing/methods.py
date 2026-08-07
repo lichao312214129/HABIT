@@ -433,6 +433,17 @@ class VarianceFilterPreprocessorParams(BaseModel):
     #: Columns with variance at or below this value are dropped (0 removes
     #: only constant columns).
     variance_threshold: float = 0.0
+    #: Keep the single highest-variance column when nothing clears the
+    #: threshold, so a preprocessing chain never hands the next step an empty
+    #: feature block (the v0.1 rule). ``True`` here versus ``False`` for the
+    #: ``variance`` feature selector.
+    keep_at_least_one: bool = True
+
+
+#: Default of :class:`VarianceFilterPreprocessor`'s fallback parameter. The
+#: spec records it only when it DEVIATES from this value, so every fingerprint
+#: written before the parameter existed stays valid.
+_VARIANCE_FILTER_KEEP_AT_LEAST_ONE_DEFAULT = True
 
 
 @TablePreprocessorRegistry.register("variance_filter")
@@ -444,26 +455,58 @@ class VarianceFilterPreprocessor(_FittedPreprocessor):
     but still cost model capacity; removing them on TRAINING variances and
     applying the same column subset to prediction data keeps the schema fixed
     between fit and predict.
+
+    This is an ALIAS of the ``variance`` FEATURE SELECTOR under a
+    preprocessor name, not a second implementation: both delegate to
+    :func:`habit.kernels.feature_transforms.select_variance_columns`. The two
+    registrations exist because a preprocessor can sit anywhere inside the
+    preprocessing chain while a selector historically could only sit at its
+    ends; both names stay available. They differ in exactly two documented
+    ways:
+
+    * parameter spelling -- ``variance_threshold`` here, ``threshold``
+      there (and this name offers no ``top_k`` / ``top_percent`` modes);
+    * ``keep_at_least_one`` defaults to ``True`` here and ``False`` there.
+      The difference is REAL and predates the convergence: a preprocessing
+      chain that empties the feature block makes every later step fail on an
+      unrelated error, whereas a selector selecting nothing is a legitimate
+      finding.
     """
 
     _spec_name = "variance_filter"
 
-    def __init__(self, variance_threshold: float = 0.0) -> None:
+    def __init__(
+        self,
+        variance_threshold: float = 0.0,
+        keep_at_least_one: bool = _VARIANCE_FILTER_KEEP_AT_LEAST_ONE_DEFAULT,
+    ) -> None:
         super().__init__()
         self._variance_threshold = float(variance_threshold)
+        self._keep_at_least_one = bool(keep_at_least_one)
 
     @property
     def spec(self) -> Spec:
-        """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={"variance_threshold": self._variance_threshold},
-        )
+        """
+        Return the algorithm specification.
+
+        ``keep_at_least_one`` appears only when it DEVIATES from the default,
+        for the same reason as in the ``variance`` selector: this payload is
+        hashed into every provenance record, so unconditionally adding a key
+        would move every fingerprint written before the parameter existed.
+        """
+        params: Dict[str, Any] = {"variance_threshold": self._variance_threshold}
+        if self._keep_at_least_one != _VARIANCE_FILTER_KEEP_AT_LEAST_ONE_DEFAULT:
+            params["keep_at_least_one"] = self._keep_at_least_one
+        return Spec(name=self._spec_name, params=params)
 
     def fit(self, table: FeatureTable) -> "VarianceFilterPreprocessor":
         """Learn the surviving column subset from the training table."""
         block = table.frame[list(table.feature_columns)]
-        columns = _kernel.select_variance_columns(block, self._variance_threshold)
+        columns = _kernel.select_variance_columns(
+            block,
+            self._variance_threshold,
+            keep_at_least_one=self._keep_at_least_one,
+        )
         self._remember_fit(table, {"columns": columns})
         return self
 

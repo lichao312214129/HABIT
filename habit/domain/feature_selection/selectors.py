@@ -43,6 +43,7 @@ from habit.domain.feature_selection._base import (
 )
 from habit.domain.feature_selection.registry import FeatureSelectorRegistry
 from habit.domain.evaluation.statistics import repeat_measurement_matrix
+from habit.kernels import feature_transforms as _kernel
 from habit.kernels.icc import icc2_1, icc3_1
 from habit.spec.specs import Spec
 from habit.utils.estimator_utils import (
@@ -122,6 +123,16 @@ class VarianceSelectorParams(BaseModel):
     #: Keep the top ``top_percent`` percent (0-100 scale) highest-variance
     #: columns (overrides ``threshold`` when ``top_k`` is absent).
     top_percent: Optional[float] = None
+    #: Keep the single highest-variance column when nothing clears the
+    #: threshold. ``False`` here (a selector may legitimately select nothing)
+    #: versus ``True`` for the ``variance_filter`` preprocessor.
+    keep_at_least_one: bool = False
+
+
+#: Default of :class:`VarianceSelector`'s fallback parameter. Kept as a module
+#: constant because ``spec.params`` records it only when it DEVIATES from this
+#: value -- see the note in :meth:`VarianceSelector.spec`.
+_VARIANCE_KEEP_AT_LEAST_ONE_DEFAULT = False
 
 
 @FeatureSelectorRegistry.register("variance")
@@ -134,6 +145,19 @@ class VarianceSelector(FittedSelectorBase):
     (relative count), then the plain variance ``threshold``. Feature
     variances carry no outcome information, so this selector never looks at
     the outcome column.
+
+    The same algorithm is registered a second time, as the
+    ``variance_filter`` TABLE PREPROCESSOR. That is an ALIAS, not a second
+    implementation: both delegate to
+    :func:`habit.kernels.feature_transforms.select_variance_columns`. They
+    differ in exactly two documented ways, both preserved deliberately:
+
+    * parameter spelling -- ``threshold`` here, ``variance_threshold`` there;
+    * the degenerate case -- ``keep_at_least_one`` defaults to ``False``
+      here (selecting nothing is a legitimate finding) and ``True`` there (a
+      preprocessing chain must never hand the next step an empty feature
+      block). Pass ``keep_at_least_one=True`` to get the preprocessor's
+      behaviour from the selector.
     """
 
     _spec_name = "variance"
@@ -143,23 +167,34 @@ class VarianceSelector(FittedSelectorBase):
         threshold: float = 0.0,
         top_k: Optional[int] = None,
         top_percent: Optional[float] = None,
+        keep_at_least_one: bool = _VARIANCE_KEEP_AT_LEAST_ONE_DEFAULT,
     ) -> None:
         super().__init__()
         self._threshold = float(threshold)
         self._top_k = None if top_k is None else int(top_k)
         self._top_percent = None if top_percent is None else float(top_percent)
+        self._keep_at_least_one = bool(keep_at_least_one)
 
     @property
     def spec(self) -> Spec:
-        """Return the algorithm specification."""
-        return Spec(
-            name=self._spec_name,
-            params={
-                "threshold": self._threshold,
-                "top_k": self._top_k,
-                "top_percent": self._top_percent,
-            },
-        )
+        """
+        Return the algorithm specification.
+
+        ``keep_at_least_one`` appears only when it DEVIATES from the default.
+        A ``Spec`` records deviations (see :class:`~habit.spec.specs.Spec`),
+        and the asymmetry is load-bearing here: every provenance record and
+        golden baseline ever written by HABIT hashes this payload, so
+        unconditionally adding a key would move every recorded ``variance``
+        fingerprint. Same pattern as the ``estimator_params`` reserved key.
+        """
+        params: Dict[str, Any] = {
+            "threshold": self._threshold,
+            "top_k": self._top_k,
+            "top_percent": self._top_percent,
+        }
+        if self._keep_at_least_one != _VARIANCE_KEEP_AT_LEAST_ONE_DEFAULT:
+            params["keep_at_least_one"] = self._keep_at_least_one
+        return Spec(name=self._spec_name, params=params)
 
     def fit(
         self,
@@ -169,16 +204,13 @@ class VarianceSelector(FittedSelectorBase):
     ) -> "VarianceSelector":
         """Select high-variance columns of the training table."""
         block = table.frame[list(table.feature_columns)]
-        variances = block.var().sort_values(ascending=False)
-        if self._top_k is not None and self._top_k > 0:
-            k = min(self._top_k, len(variances))
-            selected = list(variances.index[:k])
-        elif self._top_percent is not None and 0 < self._top_percent <= 100:
-            k = int(np.ceil(len(variances) * self._top_percent / 100))
-            selected = list(variances.index[:k])
-        else:
-            # sklearn VarianceThreshold semantics: keep variance > threshold.
-            selected = list(block.var()[block.var() > self._threshold].index)
+        selected = _kernel.select_variance_columns(
+            block,
+            self._threshold,
+            top_k=self._top_k,
+            top_percent=self._top_percent,
+            keep_at_least_one=self._keep_at_least_one,
+        )
         self._remember_selection(table, selected)
         return self
 
@@ -205,8 +237,15 @@ class CorrelationSelector(FittedSelectorBase):
 
     Walks columns left-to-right and drops later columns whose absolute
     correlation with a kept column exceeds ``threshold`` (the v0.1
-    ``correlation`` selector; distinct from the ``correlation_filter``
-    preprocessor only in its defaults: 0.8 here versus 0.95 there).
+    ``correlation`` selector).
+
+    The ``correlation_filter`` TABLE PREPROCESSOR is an ALIAS of this same
+    algorithm, not a second implementation: both delegate to
+    :func:`habit.kernels.feature_transforms.select_correlation_columns`. They
+    differ only in parameter spelling (``threshold`` / ``method`` here,
+    ``corr_threshold`` / ``corr_method`` there) and in defaults (0.8 here,
+    0.95 there). Unlike variance selection there is no degenerate case to
+    disagree about: the greedy walk always keeps the first column.
     """
 
     _spec_name = "correlation"
@@ -232,19 +271,12 @@ class CorrelationSelector(FittedSelectorBase):
     ) -> "CorrelationSelector":
         """Select a greedily de-correlated column subset."""
         block = table.frame[list(table.feature_columns)]
-        full_corr = block.corr(method=self._method)
-        features = list(block.columns)
-        i = 0
-        while i < len(features):
-            current = features[i]
-            to_remove = [
-                features[j]
-                for j in range(i + 1, len(features))
-                if abs(full_corr.loc[current, features[j]]) > self._threshold
-            ]
-            features = [f for f in features if f not in to_remove]
-            i += 1
-        self._remember_selection(table, features)
+        self._remember_selection(
+            table,
+            _kernel.select_correlation_columns(
+                block, self._threshold, self._method
+            ),
+        )
         return self
 
 
