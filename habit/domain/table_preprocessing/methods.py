@@ -52,6 +52,7 @@ from habit.domain.table_preprocessing._base import (
 from habit.domain.table_preprocessing.registry import TablePreprocessorRegistry
 from habit.kernels import feature_transforms as _kernel
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 __all__ = [
     "MinMaxPreprocessor",
@@ -73,13 +74,18 @@ __all__ = [
 ]
 
 
-class _FittedPreprocessor:
+class _FittedPreprocessor(ComponentParamsMixin):
     """
     Shared fitted-state bookkeeping for the built-in preprocessors.
 
     Tracks the feature columns seen at ``fit`` time and provides the
     transform-side guard that turns silent schema drift into an explicit
     error. Subclasses set ``_spec_name`` and implement ``fit``/``transform``.
+
+    :class:`~habit.utils.estimator_utils.ComponentParamsMixin` adds the
+    scikit-learn ``get_params``/``set_params``/``clone`` protocol, reading
+    each constructor parameter back from its ``self._<name>`` attribute so a
+    hyperparameter search can address it without replacing the whole object.
     """
 
     _spec_name: str = ""

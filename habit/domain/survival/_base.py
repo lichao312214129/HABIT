@@ -25,11 +25,12 @@ from habit.exceptions import HABITAPIError
 from habit.contracts.outcome import SurvivalOutcome
 from habit.contracts.table import FeatureTable
 from habit.domain.outcome_access import structured_survival_array
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 __all__ = ["SurvivalModelBase"]
 
 
-class SurvivalModelBase:
+class SurvivalModelBase(ComponentParamsMixin):
     """
     Shared fit/predict bookkeeping for the built-in survival models.
 
@@ -40,6 +41,10 @@ class SurvivalModelBase:
     and :meth:`_survival_probabilities`, which is where the lifelines /
     scikit-survival imports live (kept lazy so importing this module stays
     cheap, per the L3 layer rule).
+
+    :class:`~habit.utils.estimator_utils.ComponentParamsMixin` adds the
+    scikit-learn ``get_params``/``set_params``/``clone`` protocol, sourced
+    from ``self._params`` so it cannot drift from ``spec.params``.
     """
 
     _spec_name: str = ""

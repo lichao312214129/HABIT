@@ -24,11 +24,12 @@ import pandas as pd
 from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
 from habit.domain.outcome_access import outcome_series
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 __all__ = ["SklearnRegressorBase"]
 
 
-class SklearnRegressorBase:
+class SklearnRegressorBase(ComponentParamsMixin):
     """
     Shared fit/predict bookkeeping for estimator-backed regressors.
 
@@ -39,6 +40,10 @@ class SklearnRegressorBase:
     orthogonal to the endpoint family. Stochastic estimators receive the seed
     set via :meth:`set_random_state`; subclasses set ``_spec_name`` and
     implement :meth:`_build_estimator`.
+
+    :class:`~habit.utils.estimator_utils.ComponentParamsMixin` adds the
+    scikit-learn ``get_params``/``set_params``/``clone`` protocol, sourced
+    from ``self._params`` so it cannot drift from ``spec.params``.
     """
 
     _spec_name: str = ""

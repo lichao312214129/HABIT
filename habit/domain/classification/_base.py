@@ -24,11 +24,12 @@ import pandas as pd
 from habit.exceptions import HABITAPIError
 from habit.contracts.table import FeatureTable
 from habit.domain.outcome_access import outcome_series
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 __all__ = ["SklearnClassifierBase"]
 
 
-class SklearnClassifierBase:
+class SklearnClassifierBase(ComponentParamsMixin):
     """
     Shared fit/predict bookkeeping for estimator-backed classifiers.
 
@@ -38,6 +39,13 @@ class SklearnClassifierBase:
     Stochastic estimators receive the seed set via :meth:`set_random_state`
     (v1.0 naming decisions: never a constructor parameter). Subclasses set
     ``_spec_name`` and implement :meth:`_build_estimator`.
+
+    :class:`~habit.utils.estimator_utils.ComponentParamsMixin` adds the
+    scikit-learn ``get_params``/``set_params``/``clone`` protocol on top,
+    reading the values straight out of ``self._params`` -- the same mapping
+    ``spec.params`` is built from -- so a nested hyperparameter grid such as
+    ``model__component__C`` addresses exactly the value the fingerprint
+    records.
     """
 
     _spec_name: str = ""

@@ -28,6 +28,7 @@ from habit.contracts.table import FeatureTable
 from habit.domain.classification.registry import ClassifierRegistry
 from habit.domain.outcome_access import outcome_series
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 __all__ = ["AutogluonTabularClassifier", "AutogluonTabularClassifierParams"]
 
@@ -60,7 +61,7 @@ def _lazy_tabular_predictor() -> Any:
 
 
 @ClassifierRegistry.register("AutoGluonTabular")
-class AutogluonTabularClassifier:
+class AutogluonTabularClassifier(ComponentParamsMixin):
     """
     AutoML classifier wrapping AutoGluon's ``TabularPredictor``.
 
@@ -70,9 +71,17 @@ class AutogluonTabularClassifier:
     blocks. AutoGluon's ``fit`` accepts no random-state argument (v1.3+), so
     :meth:`set_random_state` seeds the global Python/NumPy RNGs before
     training, the same mitigation the v0.1 wrapper applied.
+
+    Both AutoGluon parameter blocks need an explicit
+    ``_PARAM_ATTRIBUTES`` entry: the ``fit`` parameter would otherwise
+    resolve to this class's ``fit`` METHOD, and ``predictor`` to the fitted
+    ``TabularPredictor`` rather than to the kwargs that construct it.
     """
 
     _spec_name = "AutoGluonTabular"
+
+    #: The two blocks whose attribute names diverge from the parameter names.
+    _PARAM_ATTRIBUTES = {"predictor": "_predictor_params", "fit": "_fit_params"}
 
     def __init__(
         self,
