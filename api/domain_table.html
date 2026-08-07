@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1613,6 +1615,56 @@
 <span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="tablepipeline-is-an-sklearn-pipeline-pipeline">
+<h2><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code><a class="headerlink" href="#tablepipeline-is-an-sklearn-pipeline-pipeline" title="Link to this heading"></a></h2>
+<p>Since v1.1 <code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> <strong>inherits</strong> <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code>, so
+<code class="docutils literal notranslate"><span class="pre">clone</span></code>, <code class="docutils literal notranslate"><span class="pre">get_params</span></code> / <code class="docutils literal notranslate"><span class="pre">set_params</span></code>, nested parameter addressing and
+the whole <code class="docutils literal notranslate"><span class="pre">sklearn.model_selection</span></code> family work on it directly. Two things
+follow:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pipe.steps</span></code> has scikit-learn’s meaning – <code class="docutils literal notranslate"><span class="pre">[(name,</span> <span class="pre">estimator),</span> <span class="pre">...]</span></code>,
+where the estimators are the interop adapters. The HABIT components are
+read from <code class="docutils literal notranslate"><span class="pre">pipe.components</span></code> (transformation steps, in execution order)
+and <code class="docutils literal notranslate"><span class="pre">pipe.model</span></code> (the terminal one).</p></li>
+<li><p>The step list always begins with a <code class="docutils literal notranslate"><span class="pre">FrameToTable</span></code> head named
+<code class="docutils literal notranslate"><span class="pre">&quot;frame_to_table&quot;</span></code> and ends with the outcome-model adapter named
+<code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code>; intermediate steps take their component’s registered name.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span> <span class="o">=</span> <span class="n">TablePipeline</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">VarianceSelector</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">),</span> <span class="n">ZScorePreprocessor</span><span class="p">()],</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">LogisticRegressionClassifier</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pipe</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
+<span class="c1"># [&#39;frame_to_table&#39;, &#39;variance&#39;, &#39;zscore&#39;, &#39;model&#39;]</span>
+<span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pipe</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
+<span class="c1"># [&#39;variance&#39;, &#39;zscore&#39;]</span>
+</pre></div>
+</div>
+<p>Hyperparameter search needs one extra thing: scikit-learn’s cross-validation
+drivers slice <code class="docutils literal notranslate"><span class="pre">X</span></code> <strong>by row</strong>, and a <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code> is a frozen dataclass
+that deliberately is not row-indexable. So pass the raw frame as <code class="docutils literal notranslate"><span class="pre">X</span></code> and let
+the <code class="docutils literal notranslate"><span class="pre">FrameToTable</span></code> head rebuild the table from a declared column schema:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.sklearn_interop</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrameToTable</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">TablePipeline</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">FrameToTable</span><span class="o">.</span><span class="n">from_table</span><span class="p">(</span><span class="n">train_table</span><span class="p">),</span> <span class="n">ZScorePreprocessor</span><span class="p">()],</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">LogisticRegressionClassifier</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">pipe</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;model__component__C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]},</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_table</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">train_table</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>An already-built pipeline can be given the schema afterwards, the sklearn way:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">frame_to_table</span><span class="o">=</span><span class="n">FrameToTable</span><span class="o">.</span><span class="n">from_table</span><span class="p">(</span><span class="n">train_table</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">pipe.fit(train_table)</span></code> with a <code class="docutils literal notranslate"><span class="pre">FeatureTable</span></code> needs no schema at
+all: the head passes tables straight through, with no frame round-trip and
+therefore no dtype promotion that could shift a later z-score.</p>
 </section>
 </section>
 

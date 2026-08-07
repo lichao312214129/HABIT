@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -409,11 +409,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +455,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -557,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1548,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1819,6 +1826,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -2338,24 +2346,41 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="c1">#: Tabular preprocessing / selection chains of an MLSpec, keyed by field</span>
-<span class="c1">#: name, with the prose each renders as. Ordered as they run: selection may</span>
-<span class="c1">#: happen BEFORE preprocessing (the stage v0.1 expressed as</span>
-<span class="c1">#: ``before_z_score: true`` -- scientifically meaningful whenever a</span>
-<span class="c1">#: selector&#39;s statistics are distorted by normalisation, e.g. variance-based</span>
-<span class="c1">#: selection is vacuous after z-scoring), preprocessing itself, then the</span>
-<span class="c1">#: ordinary post-preprocessing selection. A TablePipeline fits steps in</span>
-<span class="c1">#: chain order, so this tuple order IS the execution order.</span>
+<span class="c1">#: DEPRECATED tabular chains of an MLSpec, keyed by field name, with the</span>
+<span class="c1">#: prose each renders as. Ordered as they run, which is also the order they</span>
+<span class="c1">#: are concatenated into :attr:`MLSpec.steps`: selection may happen BEFORE</span>
+<span class="c1">#: preprocessing (the stage v0.1 expressed as ``before_z_score: true`` --</span>
+<span class="c1">#: scientifically meaningful whenever a selector&#39;s statistics are distorted</span>
+<span class="c1">#: by normalisation, e.g. variance-based selection is vacuous after</span>
+<span class="c1">#: z-scoring), preprocessing itself, then the ordinary post-preprocessing</span>
+<span class="c1">#: selection.</span>
+<span class="c1">#:</span>
+<span class="c1">#: These three fixed slots express ORDER through STRUCTURE, which caps the</span>
+<span class="c1">#: expressible orderings at two positions -- before all preprocessing, or</span>
+<span class="c1">#: after all of it. ``zscore -&gt; variance -&gt; minmax -&gt; lasso`` has no</span>
+<span class="c1">#: representation here at all. :attr:`MLSpec.steps` replaces them with one</span>
+<span class="c1">#: ordered list; they are kept as deprecated aliases for all of v1.x.</span>
 <span class="n">_ML_CHAINS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="s2">&quot;pre_preprocessing_feature_selectors&quot;</span><span class="p">,</span> <span class="s2">&quot;pre-preprocessing feature selection&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;table_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;table preprocessing&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s2">&quot;feature_selectors&quot;</span><span class="p">,</span> <span class="s2">&quot;feature selection&quot;</span><span class="p">),</span>
 <span class="p">)</span>
 
+<span class="c1">#: Field name of the single ordered step list that supersedes ``_ML_CHAINS``.</span>
+<span class="n">_ML_STEPS_FIELD</span> <span class="o">=</span> <span class="s2">&quot;steps&quot;</span>
+
+<span class="c1">#: Prose for the single ordered step list.</span>
+<span class="n">_ML_STEPS_PHRASE</span> <span class="o">=</span> <span class="s2">&quot;an ordered table pipeline of&quot;</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_ml_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Render an MLSpec-shaped payload as ordered prose phrases.</span>
+
+<span class="sd">    Handles both payload layouts. A payload carrying the single ordered</span>
+<span class="sd">    ``steps`` list renders as one phrase, because that is exactly what the</span>
+<span class="sd">    list is -- one ordered sequence whose positions carry the meaning the</span>
+<span class="sd">    three deprecated chains used to carry structurally.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        payload: Spec payload as produced by ``MLSpec.to_dict``.</span>
@@ -2364,6 +2389,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        One phrase per present chain or component, in pipeline order.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">phrases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ordered_steps</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">ordered_steps</span><span class="p">:</span>
+        <span class="n">rendered</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ordered_steps</span>
+        <span class="p">)</span>
+        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_ML_STEPS_PHRASE</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">rendered</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">chain_phrase</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span><span class="p">:</span>
         <span class="n">chain</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">chain</span><span class="p">:</span>
@@ -2398,30 +2432,52 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Complete specification of a tabular machine-learning analysis.</span>
 
 <span class="sd">    A frozen, fingerprintable value object describing ONE modelling</span>
-<span class="sd">    definition: an optional pre-preprocessing selection chain, an ordered</span>
-<span class="sd">    table-preprocessing chain, an ordered post-preprocessing selection</span>
-<span class="sd">    chain, exactly one terminal classifier, and the evaluation metric</span>
-<span class="sd">    panel. It deliberately does NOT describe the validation design (split</span>
-<span class="sd">    counts, resampling, id files) -- those are choices of the calling</span>
-<span class="sd">    recipe, not of the model definition.</span>
+<span class="sd">    definition: an ordered chain of table steps (preprocessors and feature</span>
+<span class="sd">    selectors, interleaved however the design calls for), exactly one</span>
+<span class="sd">    terminal classifier, and the evaluation metric panel. It deliberately</span>
+<span class="sd">    does NOT describe the validation design (split counts, resampling, id</span>
+<span class="sd">    files) -- those are choices of the calling recipe, not of the model</span>
+<span class="sd">    definition.</span>
+
+<span class="sd">    **Step order lives in one ordered list.** :attr:`steps` is the pipeline:</span>
+<span class="sd">    position N of the list is step N of the fit. The three fields</span>
+<span class="sd">    :attr:`pre_preprocessing_feature_selectors`,</span>
+<span class="sd">    :attr:`table_preprocessors` and :attr:`feature_selectors` are the</span>
+<span class="sd">    DEPRECATED predecessor of that list -- they expressed order through</span>
+<span class="sd">    three fixed slots, which allowed a selector to sit only before all</span>
+<span class="sd">    preprocessing or after all of it. Declaring any of them still works for</span>
+<span class="sd">    the whole of v1.x: the three are concatenated in their documented order</span>
+<span class="sd">    (pre -&gt; preprocessors -&gt; post) into :attr:`steps`, with a</span>
+<span class="sd">    ``DeprecationWarning``. Declaring both layouts at once is an error --</span>
+<span class="sd">    which of the two is the pipeline would be a guess.</span>
+
+<span class="sd">    **Which layout a spec serialises in.** :meth:`to_dict` emits the three</span>
+<span class="sd">    deprecated keys for a spec declared with them, and the single ``steps``</span>
+<span class="sd">    key for a spec declared with ``steps``. That asymmetry is deliberate and</span>
+<span class="sd">    load-bearing: every provenance record and golden baseline HABIT has ever</span>
+<span class="sd">    written hashes this payload, so unconditionally adding a ``steps`` key</span>
+<span class="sd">    would move the fingerprint of every analysis already published. A spec</span>
+<span class="sd">    with no table steps at all serialises in the deprecated shape for the</span>
+<span class="sd">    same reason.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        name: Human-readable specification name.</span>
 <span class="sd">        classifier: Spec of the terminal classifier.</span>
-<span class="sd">        pre_preprocessing_feature_selectors: Ordered specs of the selection</span>
-<span class="sd">            chain fitted on the RAW training table, BEFORE any</span>
-<span class="sd">            preprocessing (v0.1&#39;s ``before_z_score: true`` selectors). The</span>
-<span class="sd">            stage exists because some selection statistics are distorted by</span>
-<span class="sd">            normalisation -- after z-scoring every feature variance is 1.0,</span>
-<span class="sd">            so variance-based selection only carries information on the raw</span>
-<span class="sd">            table. The preprocessors then fit on the SELECTED training</span>
-<span class="sd">            features, exactly as v0.1&#39;s two-stage pipeline did.</span>
-<span class="sd">        table_preprocessors: Ordered specs of the stateful preprocessing</span>
-<span class="sd">            chain fitted on the TRAINING rows and replayed afterwards</span>
-<span class="sd">            (v0.1&#39;s ``normalization``).</span>
-<span class="sd">        feature_selectors: Ordered specs of the selection chain, fitted</span>
-<span class="sd">            after preprocessing (v0.1&#39;s ``feature_selection_methods``</span>
-<span class="sd">            entries without ``before_z_score``).</span>
+<span class="sd">        pre_preprocessing_feature_selectors: DEPRECATED. Ordered specs of</span>
+<span class="sd">            the selection chain fitted on the RAW training table, BEFORE</span>
+<span class="sd">            any preprocessing (v0.1&#39;s ``before_z_score: true`` selectors).</span>
+<span class="sd">            The stage exists because some selection statistics are</span>
+<span class="sd">            distorted by normalisation -- after z-scoring every feature</span>
+<span class="sd">            variance is 1.0, so variance-based selection only carries</span>
+<span class="sd">            information on the raw table. Use :attr:`steps` and put the</span>
+<span class="sd">            selector before the preprocessor instead.</span>
+<span class="sd">        table_preprocessors: DEPRECATED. Ordered specs of the stateful</span>
+<span class="sd">            preprocessing chain fitted on the TRAINING rows and replayed</span>
+<span class="sd">            afterwards (v0.1&#39;s ``normalization``). Use :attr:`steps`.</span>
+<span class="sd">        feature_selectors: DEPRECATED. Ordered specs of the selection</span>
+<span class="sd">            chain, fitted after preprocessing (v0.1&#39;s</span>
+<span class="sd">            ``feature_selection_methods`` entries without</span>
+<span class="sd">            ``before_z_score``). Use :attr:`steps`.</span>
 <span class="sd">        metrics: Specs of the evaluation metric panel. An empty tuple asks</span>
 <span class="sd">            the calling recipe for its default panel.</span>
 <span class="sd">        random_seed: Seed applied to every</span>
@@ -2429,6 +2485,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            change the scientific result, so they live in the spec (and its</span>
 <span class="sd">            fingerprint), not in the run policy.</span>
 <span class="sd">        version: Specification schema version.</span>
+<span class="sd">        steps: The ordered table-step chain -- preprocessors and feature</span>
+<span class="sd">            selectors in the exact order they are fitted. Names are</span>
+<span class="sd">            resolved across both registries by</span>
+<span class="sd">            :func:`habit.domain.assembly.build_table_pipeline`; the spec</span>
+<span class="sd">            layer records the order and stays registry-free. Declared last</span>
+<span class="sd">            among the fields purely so that existing positional</span>
+<span class="sd">            construction keeps meaning what it meant.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -2439,11 +2502,23 @@ window.runMermaid = runMermaid;</script>
     <span class="n">metrics</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+    <span class="c1"># Appended after ``version`` rather than inserted next to the chains it</span>
+    <span class="c1"># replaces: inserting it would silently change the meaning of every</span>
+    <span class="c1"># positional MLSpec(...) call, which is the kind of breakage that does</span>
+    <span class="c1"># not raise and lands straight in someone&#39;s results.</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
 
 <div class="viewcode-block" id="MLSpec.__post_init__">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.__post_init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Coerce component payloads into Spec instances and tuples.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coerce payloads into Specs, and fold deprecated chains into ``steps``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: On a missing/mistyped name or classifier, a chain</span>
+<span class="sd">                entry that is not a :class:`Spec`, or a spec that declares</span>
+<span class="sd">                both ``steps`` and any deprecated chain.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;MLSpec.name must be a non-empty string.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
@@ -2451,7 +2526,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;MLSpec.classifier must be a Spec; got &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span> <span class="o">+</span> <span class="p">((</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),):</span>
+        <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
             <span class="n">chain</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">))</span>
             <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
@@ -2460,8 +2538,64 @@ window.runMermaid = runMermaid;</script>
                         <span class="sa">f</span><span class="s2">&quot;Every entry of MLSpec.</span><span class="si">{</span><span class="n">chain_field</span><span class="si">}</span><span class="s2"> must be a Spec.&quot;</span>
                     <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span></div>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span>
+        <span class="n">declared_chains</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">chain_field</span>
+            <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">folded</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">entry</span>
+            <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">declared_chains</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">!=</span> <span class="n">folded</span><span class="p">:</span>
+            <span class="c1"># An already-translated spec passes BOTH through</span>
+            <span class="c1"># ``dataclasses.replace`` (which re-supplies every field), and</span>
+            <span class="c1"># that is consistent, not contradictory -- ``steps`` is then</span>
+            <span class="c1"># exactly the fold of the chains. Only a genuine disagreement is</span>
+            <span class="c1"># rejected, because there the pipeline would have to be guessed.</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;MLSpec declares both &#39;steps&#39; and the deprecated chain(s) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">declared_chains</span><span class="p">)</span><span class="si">}</span><span class="s2">, and they disagree: &#39;steps&#39; is &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span><span class="si">}</span><span class="s2"> while the chains &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;fold into </span><span class="si">{</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">folded</span><span class="p">]</span><span class="si">}</span><span class="s2">. Move every &quot;</span>
+                <span class="s2">&quot;step into &#39;steps&#39; in the order it should run, or keep only &quot;</span>
+                <span class="s2">&quot;the deprecated chains.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">declared_chains</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;MLSpec fields &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_ML_CHAINS</span><span class="p">)</span><span class="si">}</span><span class="s2"> are deprecated; &quot;</span>
+                <span class="s2">&quot;declare one ordered &#39;steps&#39; list instead, where the list &quot;</span>
+                <span class="s2">&quot;order is the execution order. The deprecated fields are &quot;</span>
+                <span class="s2">&quot;translated into &#39;steps&#39; as &quot;</span>
+                <span class="s2">&quot;pre_preprocessing_feature_selectors + table_preprocessors &quot;</span>
+                <span class="s2">&quot;+ feature_selectors and will be kept for all of v1.x.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="n">folded</span><span class="p">)</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">declares_deprecated_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Report whether this spec was declared through the deprecated chains.</span>
+
+<span class="sd">        Derived from the fields alone (never from hidden construction state)</span>
+<span class="sd">        so that two equal specs always agree on it -- and therefore always</span>
+<span class="sd">        serialise identically. A spec with no table steps at all counts as</span>
+<span class="sd">        deprecated-shaped, which is what keeps its payload byte-identical to</span>
+<span class="sd">        every one written before ``steps`` existed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: ``True`` when :meth:`to_dict` emits the three deprecated</span>
+<span class="sd">            chain keys, ``False`` when it emits the single ``steps`` key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span> <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span>
 
 <div class="viewcode-block" id="MLSpec.describe_methods">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.describe_methods">[docs]</a>
@@ -2517,15 +2651,28 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="MLSpec.to_dict">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.to_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialise to a plain dict (YAML isomorphic).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialise to a plain dict (YAML isomorphic).</span>
+
+<span class="sd">        Emits exactly ONE of the two table-step layouts -- see the class</span>
+<span class="sd">        docstring for why the choice is asymmetric rather than always</span>
+<span class="sd">        writing both.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: The payload, with either the three deprecated</span>
+<span class="sd">            chain keys or the single ``steps`` key, never both.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">payload</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="n">chain_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_key</span><span class="p">)</span>
-            <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">declares_deprecated_chains</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span><span class="p">:</span>
+                <span class="n">payload</span><span class="p">[</span><span class="n">chain_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_key</span><span class="p">)</span>
+                <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">payload</span><span class="p">[</span><span class="n">_ML_STEPS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;classifier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">]</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;random_seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
@@ -2539,14 +2686,21 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rebuild a machine-learning specification from its dict form.</span>
 
+<span class="sd">        Reads whichever table-step layout the payload carries. A payload</span>
+<span class="sd">        that carries both is rejected rather than resolved by precedence:</span>
+<span class="sd">        picking one would silently drop half of a hand-written document&#39;s</span>
+<span class="sd">        pipeline.</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            payload: Mapping as produced by :meth:`to_dict`.</span>
+<span class="sd">            payload: Mapping as produced by :meth:`to_dict`, or a</span>
+<span class="sd">                hand-written v1 ``spec`` section.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The reconstructed specification.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If the classifier component is missing.</span>
+<span class="sd">            HABITAPIError: If the classifier component is missing, or the</span>
+<span class="sd">                payload declares both ``steps`` and a deprecated chain.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">chains</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">chain_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>
@@ -2554,6 +2708,9 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span> <span class="o">+</span> <span class="p">((</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),)</span>
         <span class="p">}</span>
+        <span class="n">chains</span><span class="p">[</span><span class="n">_ML_STEPS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">Spec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="p">())</span>
+        <span class="p">)</span>
         <span class="n">classifier</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;ml_spec&quot;</span><span class="p">)),</span>

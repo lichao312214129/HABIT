@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -409,11 +409,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +455,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -557,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1548,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1818,7 +1825,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">returned in memory and a caller that wants it on disk uses</span>
 <span class="sd">:meth:`TablePipeline.save`.</span>
 
-<span class="sd">Three recipes exist because three scientific acts exist:</span>
+<span class="sd">Four recipes exist because four scientific acts exist:</span>
 
 <span class="sd">* :func:`train_model` -- fit ONE pipeline on ONE table and score it. With no</span>
 <span class="sd">  split arguments the score is the training-set readout of a final model;</span>
@@ -1829,10 +1836,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">  does not carry -- is stated at the call site that owns it.</span>
 <span class="sd">* :func:`cross_validate` -- estimate generalisation by refitting the SAME</span>
 <span class="sd">  definition on K stratified folds; every fold builds a fresh pipeline from</span>
-<span class="sd">  the spec, so no fitted state can leak across folds.</span>
+<span class="sd">  the spec, so no fitted state can leak across folds. With ``inner_cv`` and</span>
+<span class="sd">  a ``param_grid`` it becomes NESTED cross-validation: the hyperparameters</span>
+<span class="sd">  are re-tuned inside every outer fold&#39;s training rows, so the outer score</span>
+<span class="sd">  estimates the whole TUNING PROCEDURE rather than one lucky parameter set.</span>
+<span class="sd">* :func:`search_hyperparameters` -- choose hyperparameters by K-fold search</span>
+<span class="sd">  and write the winners back into the ``MLSpec``. Writing them back (rather</span>
+<span class="sd">  than into a fitted object) is what keeps the provenance chain intact: the</span>
+<span class="sd">  tuned definition is a spec like any other, with its own fingerprint, and</span>
+<span class="sd">  it can be saved, re-run and published.</span>
 <span class="sd">* :func:`predict_model` -- apply one FITTED pipeline to new rows. This is</span>
 <span class="sd">  the inference half of the train/predict contract: preprocessing and</span>
 <span class="sd">  selection replay their TRAINING state, never refit on the new data.</span>
+
+<span class="sd">The search recipes assemble scikit-learn&#39;s own ``GridSearchCV`` /</span>
+<span class="sd">``RandomizedSearchCV`` drivers around :class:`TablePipeline` (itself an</span>
+<span class="sd">``sklearn.pipeline.Pipeline``); no search algorithm is implemented here, in</span>
+<span class="sd">keeping with a recipe&#39;s job of wiring existing operators together.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1840,7 +1860,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1851,22 +1871,43 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_ml_metrics</span><span class="p">,</span> <span class="n">build_table_pipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">TablePipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.sklearn_interop</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrameToTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.split</span><span class="w"> </span><span class="kn">import</span> <span class="n">kfold_indices</span><span class="p">,</span> <span class="n">stratify_labels</span><span class="p">,</span> <span class="n">train_test_indices</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.table_protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Classifier</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">Spec</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;ModelResult&quot;</span><span class="p">,</span>
     <span class="s2">&quot;CVResult&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PredictionResult&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SearchResult&quot;</span><span class="p">,</span>
     <span class="s2">&quot;train_model&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cross_validate&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;search_hyperparameters&quot;</span><span class="p">,</span>
     <span class="s2">&quot;predict_model&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1">#: Metric panel a recipe falls back on when the spec declares none. Kept</span>
 <span class="c1">#: deliberately small: the panel a paper reports belongs in the spec.</span>
 <span class="n">_DEFAULT_METRIC_NAMES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">,</span> <span class="s2">&quot;auc&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Search strategies :func:`search_hyperparameters` accepts. ``&quot;grid&quot;`` is an</span>
+<span class="c1">#: exhaustive ``GridSearchCV``, ``&quot;random&quot;`` an ``n_iter``-budget</span>
+<span class="c1">#: ``RandomizedSearchCV``. Deliberately no third entry: a Bayesian /</span>
+<span class="c1">#: evolutionary backend would be a new hard dependency, and HABIT&#39;s dependency</span>
+<span class="c1">#: policy keeps those optional and explicit rather than smuggled in behind a</span>
+<span class="c1">#: string.</span>
+<span class="n">_SEARCH_STRATEGIES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">)</span>
+
+<span class="c1">#: Objective metric used when neither the caller nor the spec names one. AUC</span>
+<span class="c1">#: rather than accuracy: a search that maximises accuracy on the imbalanced</span>
+<span class="c1">#: endpoints radiomics studies usually carry can win by predicting the</span>
+<span class="c1">#: majority class. Stated here rather than inferred from the data, so that two</span>
+<span class="c1">#: runs of the same spec always optimise the same quantity.</span>
+<span class="n">_DEFAULT_OBJECTIVE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auc&quot;</span>
+
+<span class="c1">#: Type of a scikit-learn scorer callable: ``scorer(estimator, X, y)``.</span>
+<span class="n">Scorer</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ModelResult">
@@ -1919,7 +1960,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            fitted on its own training rows only; keeping them lets a caller</span>
 <span class="sd">            inspect fold-level selection stability without refitting.</span>
 <span class="sd">        manifest: Record of what ran: the effective spec payload, the</span>
-<span class="sd">            provenance chain, and every row&#39;s outcome.</span>
+<span class="sd">            provenance chain, and every row&#39;s outcome. Under nested</span>
+<span class="sd">            cross-validation the recorded spec is the UNTUNED declaration --</span>
+<span class="sd">            the protocol being evaluated -- because there is no single tuned</span>
+<span class="sd">            spec: each outer fold selected its own (see</span>
+<span class="sd">            :attr:`fold_best_params`).</span>
+<span class="sd">        fold_best_params: Winning hyperparameters of each outer fold&#39;s inner</span>
+<span class="sd">            search, in fold order; empty for a plain (non-nested) run. Their</span>
+<span class="sd">            SPREAD is the number a nested-CV report needs: parameters that</span>
+<span class="sd">            change from fold to fold say the search is fitting noise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">fold_metrics</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
@@ -1927,8 +1976,48 @@ window.runMermaid = runMermaid;</script>
     <span class="n">std_metrics</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
     <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">manifest</span><span class="p">:</span> <span class="n">RunManifest</span>
-    <span class="n">pipelines</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TablePipeline</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">())</span></div>
+    <span class="n">pipelines</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">TablePipeline</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">())</span>
+    <span class="n">fold_best_params</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">())</span></div>
 
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Outcome of :func:`search_hyperparameters`, entirely in memory.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        spec: The TUNED modelling definition -- the input spec with every</span>
+<span class="sd">            searched parameter replaced by its winning value, in the same</span>
+<span class="sd">            field layout it was declared in. This is the publishable</span>
+<span class="sd">            artefact of a search: it fingerprints, serialises back to YAML</span>
+<span class="sd">            and re-runs, so the tuning step never breaks the provenance</span>
+<span class="sd">            chain the way a fitted-object-only result would.</span>
+<span class="sd">        best_params: Winning parameters, keyed exactly as the grid was</span>
+<span class="sd">            (``&quot;model__component__C&quot;``), so a caller can compare them against</span>
+<span class="sd">            what it asked for without re-deriving the key syntax.</span>
+<span class="sd">        best_score: Cross-validated score of the winning candidate, in the</span>
+<span class="sd">            objective metric&#39;s OWN direction (higher is better for ``auc``,</span>
+<span class="sd">            lower for ``mae``) -- never scikit-learn&#39;s internally negated</span>
+<span class="sd">            form, which would silently flip the sign of a reported number.</span>
+<span class="sd">        objective: Name of the metric that was optimised.</span>
+<span class="sd">        trials: One record per evaluated candidate: ``params``,</span>
+<span class="sd">            ``mean_score``, ``std_score`` (across the search folds) and</span>
+<span class="sd">            ``rank``. This is the tuning table a methods section reports.</span>
+<span class="sd">        manifest: Record of what ran, fingerprinting the TUNED spec.</span>
+<span class="sd">        model: The final model, refitted on the whole table with</span>
+<span class="sd">            :attr:`spec`; ``None`` when the caller asked for the tuned spec</span>
+<span class="sd">            only (``refit=False``), which is what nested cross-validation</span>
+<span class="sd">            does since it refits on its own outer training rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span>
+    <span class="n">best_params</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">best_score</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">trials</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">manifest</span><span class="p">:</span> <span class="n">RunManifest</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelResult</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="train_model">
@@ -1987,7 +2076,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)</span>
 <span class="sd">        &gt;&gt;&gt; spec = MLSpec(</span>
 <span class="sd">        ...     name=&quot;demo&quot;,</span>
-<span class="sd">        ...     table_preprocessors=(Spec(&quot;zscore&quot;),),</span>
+<span class="sd">        ...     steps=(Spec(&quot;zscore&quot;),),</span>
 <span class="sd">        ...     classifier=Spec(&quot;LogisticRegression&quot;, {&quot;max_iter&quot;: 500}),</span>
 <span class="sd">        ...     metrics=(Spec(&quot;accuracy&quot;), Spec(&quot;auc&quot;)),</span>
 <span class="sd">        ... )</span>
@@ -2092,7 +2181,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)</span>
 <span class="sd">        &gt;&gt;&gt; spec = MLSpec(</span>
 <span class="sd">        ...     name=&quot;demo&quot;,</span>
-<span class="sd">        ...     table_preprocessors=(Spec(&quot;zscore&quot;),),</span>
+<span class="sd">        ...     steps=(Spec(&quot;zscore&quot;),),</span>
 <span class="sd">        ...     classifier=Spec(&quot;LogisticRegression&quot;, {&quot;max_iter&quot;: 500}),</span>
 <span class="sd">        ...     metrics=(Spec(&quot;accuracy&quot;),),</span>
 <span class="sd">        ... )</span>
@@ -2124,6 +2213,11 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inner_cv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CVResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate generalisation with stratified K-fold cross-validation.</span>
@@ -2134,21 +2228,46 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    stratified on the outcome when the endpoint family has strata (binary,</span>
 <span class="sd">    multiclass, survival).</span>
 
+<span class="sd">    **Nested cross-validation.** Passing ``inner_cv`` together with a</span>
+<span class="sd">    ``param_grid`` re-tunes the hyperparameters inside every outer fold, on</span>
+<span class="sd">    that fold&#39;s TRAINING rows only, and scores the winner on the untouched</span>
+<span class="sd">    validation rows. The reported panel then estimates the whole tuning</span>
+<span class="sd">    PROCEDURE, which is the quantity a reviewer asks for: tuning once on all</span>
+<span class="sd">    the data and cross-validating afterwards reuses the validation rows for</span>
+<span class="sd">    selection and reports an optimistically biased number. The two arguments</span>
+<span class="sd">    are required together -- a grid without ``inner_cv`` would have to tune</span>
+<span class="sd">    on the outer validation rows, and ``inner_cv`` without a grid would tune</span>
+<span class="sd">    nothing.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        table: Feature table with a declared outcome.</span>
-<span class="sd">        spec: The modelling definition to evaluate.</span>
-<span class="sd">        n_splits: Number of folds; must be at least 2.</span>
+<span class="sd">        spec: The modelling definition to evaluate. Under nested CV this is</span>
+<span class="sd">            the definition MINUS the tuned parameters: each outer fold</span>
+<span class="sd">            overwrites the searched ones with its own winners.</span>
+<span class="sd">        n_splits: Number of OUTER folds; must be at least 2.</span>
 <span class="sd">        seed: Optional seed override, folded into the spec (and therefore</span>
 <span class="sd">            into the fold shuffling, the component seeding, and the</span>
 <span class="sd">            manifest) before anything runs.</span>
+<span class="sd">        inner_cv: Number of INNER folds used to tune inside each outer</span>
+<span class="sd">            fold&#39;s training rows; must be at least 2. ``None`` (the default)</span>
+<span class="sd">            runs plain cross-validation with no tuning.</span>
+<span class="sd">        param_grid: The search space, in the key syntax</span>
+<span class="sd">            :func:`search_hyperparameters` documents.</span>
+<span class="sd">        strategy: ``&quot;grid&quot;`` or ``&quot;random&quot;``; see</span>
+<span class="sd">            :func:`search_hyperparameters`.</span>
+<span class="sd">        n_iter: Candidate budget for ``strategy=&quot;random&quot;``.</span>
+<span class="sd">        objective: Registered metric name the inner search maximises (or</span>
+<span class="sd">            minimises, honouring the metric&#39;s own direction); see</span>
+<span class="sd">            :func:`search_hyperparameters`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Per-fold panels, their across-fold summary, and the per-fold fitted</span>
-<span class="sd">        pipelines.</span>
+<span class="sd">        Per-fold panels, their across-fold summary, the per-fold fitted</span>
+<span class="sd">        pipelines, and -- under nested CV -- each fold&#39;s winning parameters.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If the table declares no outcome, or ``n_splits``</span>
-<span class="sd">            is below 2, or a stratum is smaller than ``n_splits``.</span>
+<span class="sd">        HABITAPIError: If the table declares no outcome, ``n_splits`` or</span>
+<span class="sd">            ``inner_cv`` is below 2, a stratum is smaller than the fold</span>
+<span class="sd">            count, or exactly one of ``inner_cv`` / ``param_grid`` is given.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from habit import MLSpec, Spec, make_synthetic_feature_table</span>
@@ -2156,7 +2275,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)</span>
 <span class="sd">        &gt;&gt;&gt; spec = MLSpec(</span>
 <span class="sd">        ...     name=&quot;demo&quot;,</span>
-<span class="sd">        ...     table_preprocessors=(Spec(&quot;zscore&quot;),),</span>
+<span class="sd">        ...     steps=(Spec(&quot;zscore&quot;),),</span>
 <span class="sd">        ...     classifier=Spec(&quot;LogisticRegression&quot;, {&quot;max_iter&quot;: 500}),</span>
 <span class="sd">        ...     metrics=(Spec(&quot;accuracy&quot;), Spec(&quot;auc&quot;)),</span>
 <span class="sd">        ... )</span>
@@ -2167,24 +2286,39 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        [&#39;accuracy&#39;, &#39;auc&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_require_outcome</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;cross_validate&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n_splits</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;cross_validate needs at least 2 folds; got n_splits=</span><span class="si">{</span><span class="n">n_splits</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">)</span>
+    <span class="n">_require_paired_nesting</span><span class="p">(</span><span class="n">inner_cv</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">)</span>
     <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
     <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">stratify_labels</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="n">build_ml_metrics</span><span class="p">(</span><span class="n">effective</span><span class="p">,</span> <span class="n">default_names</span><span class="o">=</span><span class="n">_DEFAULT_METRIC_NAMES</span><span class="p">)</span>
-    <span class="n">fold_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pipelines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TablePipeline</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">validation_index</span> <span class="ow">in</span> <span class="n">kfold_indices</span><span class="p">(</span>
-        <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">),</span>
+    <span class="n">fold_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pipelines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TablePipeline</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fold_best_params</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">validation_index</span> <span class="ow">in</span> <span class="n">_fold_pairs</span><span class="p">(</span>
+        <span class="n">table</span><span class="p">,</span>
         <span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span>
-        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
         <span class="n">seed</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;cross_validate&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">build_table_pipeline</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
-        <span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">_select_rows</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">train_index</span><span class="p">))</span>
+        <span class="n">fit_table</span> <span class="o">=</span> <span class="n">_select_rows</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">train_index</span><span class="p">)</span>
+        <span class="n">fold_spec</span> <span class="o">=</span> <span class="n">effective</span>
+        <span class="k">if</span> <span class="n">inner_cv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># The inner search sees this fold&#39;s TRAINING rows only, which is</span>
+            <span class="c1"># the whole point of nesting: the validation rows below are</span>
+            <span class="c1"># untouched by both the tuning and the fitting.</span>
+            <span class="n">tuned</span> <span class="o">=</span> <span class="n">search_hyperparameters</span><span class="p">(</span>
+                <span class="n">fit_table</span><span class="p">,</span>
+                <span class="n">effective</span><span class="p">,</span>
+                <span class="n">param_grid</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
+                <span class="n">n_splits</span><span class="o">=</span><span class="n">inner_cv</span><span class="p">,</span>
+                <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span>
+                <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+                <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span>
+                <span class="n">refit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">fold_spec</span> <span class="o">=</span> <span class="n">tuned</span><span class="o">.</span><span class="n">spec</span>
+            <span class="n">fold_best_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tuned</span><span class="o">.</span><span class="n">best_params</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">build_table_pipeline</span><span class="p">(</span><span class="n">fold_spec</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">fit_table</span><span class="p">)</span>
         <span class="n">fold_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">_select_rows</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">validation_index</span><span class="p">),</span> <span class="n">metrics</span><span class="p">)</span>
         <span class="p">)</span>
@@ -2205,8 +2339,666 @@ window.runMermaid = runMermaid;</script>
         <span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span>
         <span class="n">manifest</span><span class="o">=</span><span class="n">_manifest</span><span class="p">(</span><span class="s2">&quot;cross_validate&quot;</span><span class="p">,</span> <span class="n">effective</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">started_at</span><span class="p">),</span>
         <span class="n">pipelines</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pipelines</span><span class="p">),</span>
+        <span class="n">fold_best_params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">fold_best_params</span><span class="p">),</span>
     <span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">search_hyperparameters</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+        <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]],</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]</span>
+    <span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">refit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tune hyperparameters by K-fold search and write the winners into the spec.</span>
+
+<span class="sd">    The search itself is scikit-learn&#39;s (``GridSearchCV`` /</span>
+<span class="sd">    ``RandomizedSearchCV``) driving a :class:`TablePipeline`, which IS an</span>
+<span class="sd">    ``sklearn.pipeline.Pipeline``; nothing about the search is reimplemented</span>
+<span class="sd">    here. What this recipe adds is the two things a study needs and sklearn</span>
+<span class="sd">    does not provide:</span>
+
+<span class="sd">    * **The folds are HABIT&#39;s own.** They come from</span>
+<span class="sd">      :func:`habit.domain.split.kfold_indices` with the spec&#39;s seed, so a</span>
+<span class="sd">      search over K folds partitions the rows exactly as</span>
+<span class="sd">      :func:`cross_validate` would with the same ``n_splits`` and seed. Each</span>
+<span class="sd">      candidate is therefore fitted on training rows only -- preprocessing</span>
+<span class="sd">      statistics and feature selection included, since they are steps of the</span>
+<span class="sd">      pipeline being cloned per fold, never precomputed on all the rows.</span>
+<span class="sd">    * **The winners land in the ``MLSpec``.** A tuned model is a DEFINITION,</span>
+<span class="sd">      not just a fitted object: written back into the spec it keeps its</span>
+<span class="sd">      fingerprint, serialises to YAML, and can be re-run by someone else.</span>
+<span class="sd">      A search that returned only ``best_estimator_`` would end the</span>
+<span class="sd">      provenance chain at the point the parameters were chosen.</span>
+
+<span class="sd">    **Grid key syntax.** Keys address one HABIT component parameter through</span>
+<span class="sd">    the pipeline&#39;s step names: ``&quot;&lt;step&gt;__component__&lt;parameter&gt;&quot;``. The</span>
+<span class="sd">    terminal model&#39;s step is called ``&quot;model&quot;`` and every transformation step</span>
+<span class="sd">    is named after its registered spec name, so</span>
+<span class="sd">    ``{&quot;model__component__C&quot;: [0.1, 1, 10],</span>
+<span class="sd">    &quot;variance__component__threshold&quot;: [0.0, 0.01]}`` tunes the classifier&#39;s</span>
+<span class="sd">    regularisation and the variance filter&#39;s threshold. Keys of any other</span>
+<span class="sd">    shape are rejected up front rather than searched: this recipe can only</span>
+<span class="sd">    write a value back into the spec if it knows which component and which</span>
+<span class="sd">    parameter it belongs to, and a search whose result cannot be recorded is</span>
+<span class="sd">    worse than no search.</span>
+
+<span class="sd">    **The objective.** ``objective`` names a registered HABIT metric (not an</span>
+<span class="sd">    sklearn scorer string), and the metric&#39;s own ``greater_is_better`` decides</span>
+<span class="sd">    the direction, so a &quot;lower is better&quot; metric is minimised without the</span>
+<span class="sd">    caller negating anything. Omitted, the objective is the FIRST metric of</span>
+<span class="sd">    ``spec.metrics``, and for a spec with no metric panel it is ``auc``.</span>
+<span class="sd">    Scoring goes through :meth:`TablePipeline.evaluate`, so the search</span>
+<span class="sd">    optimises exactly the quantity the final report prints, in the same</span>
+<span class="sd">    vocabulary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table: Feature table with a declared outcome; the rows the search</span>
+<span class="sd">            partitions into folds.</span>
+<span class="sd">        spec: The modelling definition to tune. Everything not named in the</span>
+<span class="sd">            grid is left exactly as declared.</span>
+<span class="sd">        param_grid: One mapping of key to candidate values, or a sequence of</span>
+<span class="sd">            such mappings (sklearn&#39;s disjoint-grids form). For</span>
+<span class="sd">            ``strategy=&quot;random&quot;`` a value may also be a scipy distribution.</span>
+<span class="sd">        n_splits: Number of search folds; must be at least 2.</span>
+<span class="sd">        seed: Optional seed override, folded into the spec before anything</span>
+<span class="sd">            runs, and therefore driving the fold shuffling, the component</span>
+<span class="sd">            seeding and the random search&#39;s own sampling.</span>
+<span class="sd">        strategy: ``&quot;grid&quot;`` for an exhaustive search over the product of</span>
+<span class="sd">            the candidate lists, ``&quot;random&quot;`` for ``n_iter`` sampled</span>
+<span class="sd">            candidates.</span>
+<span class="sd">        n_iter: Candidate budget for ``strategy=&quot;random&quot;``; ignored by</span>
+<span class="sd">            ``&quot;grid&quot;``, where the budget is the grid.</span>
+<span class="sd">        objective: Registered metric name to optimise, or ``None`` for the</span>
+<span class="sd">            fallback chain described above.</span>
+<span class="sd">        refit: Fit the tuned spec on the whole table and return the result</span>
+<span class="sd">            in :attr:`SearchResult.model`. ``False`` returns the tuned spec</span>
+<span class="sd">            only, which is what nested cross-validation needs (it refits on</span>
+<span class="sd">            its own outer training rows).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The tuned spec, the winning parameters and score, the per-candidate</span>
+<span class="sd">        trial table, and -- unless ``refit=False`` -- the final model.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If the table declares no outcome, ``n_splits`` is</span>
+<span class="sd">            below 2, the strategy is unknown, the grid is empty, or a grid</span>
+<span class="sd">            key does not address a tunable component parameter of this</span>
+<span class="sd">            pipeline.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from habit import MLSpec, Spec, make_synthetic_feature_table</span>
+<span class="sd">        &gt;&gt;&gt; import habit.recipes as recipes</span>
+<span class="sd">        &gt;&gt;&gt; table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)</span>
+<span class="sd">        &gt;&gt;&gt; spec = MLSpec(</span>
+<span class="sd">        ...     name=&quot;demo&quot;,</span>
+<span class="sd">        ...     steps=(Spec(&quot;zscore&quot;),),</span>
+<span class="sd">        ...     classifier=Spec(&quot;LogisticRegression&quot;, {&quot;max_iter&quot;: 500}),</span>
+<span class="sd">        ...     metrics=(Spec(&quot;auc&quot;),),</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; tuned = recipes.search_hyperparameters(</span>
+<span class="sd">        ...     table, spec, {&quot;model__component__C&quot;: [0.01, 1.0]},</span>
+<span class="sd">        ...     n_splits=3, seed=42,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; tuned.spec.classifier.params[&quot;C&quot;] in (0.01, 1.0)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; tuned.objective</span>
+<span class="sd">        &#39;auc&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_require_outcome</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;search_hyperparameters&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SEARCH_STRATEGIES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;search_hyperparameters does not know strategy </span><span class="si">{</span><span class="n">strategy</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;supported strategies are </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_SEARCH_STRATEGIES</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">grids</span> <span class="o">=</span> <span class="n">_param_grid_mappings</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+    <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+    <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">_searchable_pipeline</span><span class="p">(</span><span class="n">effective</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+    <span class="n">targets</span> <span class="o">=</span> <span class="n">_resolve_param_targets</span><span class="p">(</span><span class="n">grids</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="n">_objective_metric</span><span class="p">(</span><span class="n">effective</span><span class="p">,</span> <span class="n">objective</span><span class="p">)</span>
+    <span class="n">greater_is_better</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">greater_is_better</span><span class="p">)</span>
+    <span class="n">folds</span> <span class="o">=</span> <span class="n">_fold_pairs</span><span class="p">(</span>
+        <span class="n">table</span><span class="p">,</span>
+        <span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;search_hyperparameters&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="n">_search_driver</span><span class="p">(</span>
+        <span class="n">pipeline</span><span class="p">,</span>
+        <span class="n">param_grid</span><span class="p">,</span>
+        <span class="n">strategy</span><span class="o">=</span><span class="n">strategy</span><span class="p">,</span>
+        <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+        <span class="n">scorer</span><span class="o">=</span><span class="n">_objective_scorer</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">greater_is_better</span><span class="p">),</span>
+        <span class="n">folds</span><span class="o">=</span><span class="n">folds</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># ``y=None``: the outcome rides inside the FeatureTable that the</span>
+    <span class="c1"># pipeline&#39;s FrameToTable head rebuilds from each row slice, and the</span>
+    <span class="c1"># scorer reads it from there. Handing sklearn a separate label vector</span>
+    <span class="c1"># would create a second source of truth for the same column.</span>
+    <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">tuned</span> <span class="o">=</span> <span class="n">_spec_with_best_params</span><span class="p">(</span><span class="n">effective</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+    <span class="n">best_score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SearchResult</span><span class="p">(</span>
+        <span class="n">spec</span><span class="o">=</span><span class="n">tuned</span><span class="p">,</span>
+        <span class="n">best_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span><span class="p">),</span>
+        <span class="n">best_score</span><span class="o">=</span><span class="n">best_score</span> <span class="k">if</span> <span class="n">greater_is_better</span> <span class="k">else</span> <span class="o">-</span><span class="n">best_score</span><span class="p">,</span>
+        <span class="n">objective</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+        <span class="n">trials</span><span class="o">=</span><span class="n">_search_trials</span><span class="p">(</span><span class="n">search</span><span class="o">.</span><span class="n">cv_results_</span><span class="p">,</span> <span class="n">greater_is_better</span><span class="p">),</span>
+        <span class="n">manifest</span><span class="o">=</span><span class="n">_manifest</span><span class="p">(</span><span class="s2">&quot;search_hyperparameters&quot;</span><span class="p">,</span> <span class="n">tuned</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">started_at</span><span class="p">),</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">train_model</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">tuned</span><span class="p">)</span> <span class="k">if</span> <span class="n">refit</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_paired_nesting</span><span class="p">(</span>
+    <span class="n">inner_cv</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">param_grid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reject a half-declared nested cross-validation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inner_cv: The inner fold count as given.</span>
+<span class="sd">        param_grid: The search space as given.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If exactly one of the two is given. Each half alone</span>
+<span class="sd">            is a silent mistake rather than a harmless one: a grid without</span>
+<span class="sd">            ``inner_cv`` has nowhere to tune except the outer validation</span>
+<span class="sd">            rows (leakage, reported as a good score), and ``inner_cv``</span>
+<span class="sd">            without a grid describes a search over nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">inner_cv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">param_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">param_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;cross_validate received inner_cv=</span><span class="si">{</span><span class="n">inner_cv</span><span class="si">}</span><span class="s2"> but no param_grid, &quot;</span>
+            <span class="s2">&quot;so the inner folds would search over nothing. Pass the grid to &quot;</span>
+            <span class="s2">&quot;tune, or drop inner_cv for plain cross-validation.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+        <span class="s2">&quot;cross_validate received a param_grid but no inner_cv. Tuning &quot;</span>
+        <span class="s2">&quot;without an inner split would select hyperparameters on the same &quot;</span>
+        <span class="s2">&quot;rows the outer fold scores, which reports an optimistically biased &quot;</span>
+        <span class="s2">&quot;number. Pass inner_cv=&lt;folds&gt; for nested cross-validation, or tune &quot;</span>
+        <span class="s2">&quot;separately with search_hyperparameters.&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fold_pairs</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">owner</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Materialise the (train, validation) fold indices of one K-fold split.</span>
+
+<span class="sd">    The single fold-generating call site of this module, so a search and the</span>
+<span class="sd">    cross-validation it is nested in partition the rows identically for the</span>
+<span class="sd">    same ``n_splits`` and seed. Folds are stratified on the outcome whenever</span>
+<span class="sd">    the endpoint family has strata.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table: The table whose rows are partitioned.</span>
+<span class="sd">        n_splits: Number of folds.</span>
+<span class="sd">        seed: Seed driving the shuffle.</span>
+<span class="sd">        owner: Recipe name used in the error message.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Tuple[np.ndarray, np.ndarray]]: One ``(train, validation)``</span>
+<span class="sd">        index pair per fold, in fold order. Materialised (rather than left</span>
+<span class="sd">        as the generator) because sklearn&#39;s search drivers iterate the fold</span>
+<span class="sd">        list once per candidate.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If ``n_splits`` is below 2, or a stratum is smaller</span>
+<span class="sd">            than ``n_splits``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_splits</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">owner</span><span class="si">}</span><span class="s2"> needs at least 2 folds; got n_splits=</span><span class="si">{</span><span class="n">n_splits</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">stratify_labels</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">kfold_indices</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">),</span>
+            <span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_searchable_pipeline</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TablePipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the spec&#39;s pipeline with a frame schema an sklearn driver can slice.</span>
+
+<span class="sd">    A search driver slices ``X`` by row, and a ``FeatureTable`` is a frozen</span>
+<span class="sd">    dataclass with column semantics rather than a row-indexable container, so</span>
+<span class="sd">    ``X`` is the plain frame and the pipeline&#39;s</span>
+<span class="sd">    :class:`~habit.domain.sklearn_interop.FrameToTable` head rebuilds the</span>
+<span class="sd">    table for each slice. The schema is read off ``table``, so it cannot</span>
+<span class="sd">    disagree with the data being searched.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The effective modelling definition.</span>
+<span class="sd">        table: The table being searched; only its column schema is read.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TablePipeline: The unfitted pipeline handed to the search driver,</span>
+<span class="sd">        which clones it once per candidate and fold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">build_table_pipeline</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">head_name</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">pipeline</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">head_name</span><span class="p">:</span> <span class="n">FrameToTable</span><span class="o">.</span><span class="n">from_table</span><span class="p">(</span><span class="n">table</span><span class="p">)})</span>
+    <span class="k">return</span> <span class="n">pipeline</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_grid_mappings</span><span class="p">(</span>
+    <span class="n">param_grid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalise a grid argument into a tuple of mappings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        param_grid: One mapping of key to candidates, or a sequence of such</span>
+<span class="sd">            mappings (sklearn&#39;s disjoint-grids form).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[Mapping[str, Any], ...]: The grids, for key validation. The</span>
+<span class="sd">        ORIGINAL argument is what reaches sklearn, so nothing here can</span>
+<span class="sd">        change the search space.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If the grid is empty or malformed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">grids</span> <span class="o">=</span> <span class="p">(</span><span class="n">param_grid</span><span class="p">,)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_grid</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">grids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;param_grid must be a mapping of parameter key to candidate &quot;</span>
+            <span class="s2">&quot;values, or a sequence of such mappings; got &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param_grid</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">grids</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;param_grid is empty, so there is nothing to search. Drop the &quot;</span>
+            <span class="s2">&quot;search, or name at least one parameter.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">grid</span> <span class="ow">in</span> <span class="n">grids</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">grid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;Every param_grid entry must be a non-empty mapping of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;parameter key to candidate values; got </span><span class="si">{</span><span class="n">grid</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">grids</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_param_targets</span><span class="p">(</span>
+    <span class="n">grids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="n">TablePipeline</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map every grid key onto the spec location its winning value belongs in.</span>
+
+<span class="sd">    Resolved BEFORE the search rather than after it: a key this recipe</span>
+<span class="sd">    cannot write back into the spec would otherwise be discovered only once</span>
+<span class="sd">    the (possibly long) search had finished, and the result would be a set of</span>
+<span class="sd">    winning parameters with nowhere to record them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grids: The normalised grids.</span>
+<span class="sd">        pipeline: The pipeline the search will drive, which is what defines</span>
+<span class="sd">            the step names a key may address.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Tuple[str, int, str]]: Key to</span>
+<span class="sd">        ``(kind, index, parameter)``, where ``kind`` is ``&quot;classifier&quot;``</span>
+<span class="sd">        (``index`` unused) or ``&quot;step&quot;`` (``index`` positions the step in</span>
+<span class="sd">        ``spec.steps``).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: On a key that is not</span>
+<span class="sd">            ``&quot;&lt;step&gt;__component__&lt;parameter&gt;&quot;``, or names a step this</span>
+<span class="sd">            pipeline does not have.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model_step</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Step i of ``spec.steps`` is step i of this slice by construction: the</span>
+    <span class="c1"># pipeline is built as [FrameToTable, *components, model].</span>
+    <span class="n">step_index</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">}</span>
+    <span class="n">tunable</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_step</span><span class="p">,</span> <span class="o">*</span><span class="n">step_index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">_param_target</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">model_step</span><span class="p">,</span> <span class="n">step_index</span><span class="p">,</span> <span class="n">tunable</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">grid</span> <span class="ow">in</span> <span class="n">grids</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">grid</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_target</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model_step</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">step_index</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">tunable</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve one grid key into a spec location.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        key: The grid key, e.g. ``&quot;model__component__C&quot;``.</span>
+<span class="sd">        model_step: Step name of the terminal outcome model.</span>
+<span class="sd">        step_index: Transformation step name to ``spec.steps`` position.</span>
+<span class="sd">        tunable: Step names to list in error messages.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[str, int, str]: ``(kind, index, parameter)``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: On an unaddressable key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;component&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;search_hyperparameters cannot write the searched parameter &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> back into the MLSpec. A grid key must read &quot;</span>
+            <span class="s2">&quot;&#39;&lt;step&gt;__component__&lt;parameter&gt;&#39;, e.g. &#39;model__component__C&#39; or &quot;</span>
+            <span class="s2">&quot;&#39;variance__component__threshold&#39; -- the &#39;component&#39; segment is &quot;</span>
+            <span class="s2">&quot;the HABIT component inside the pipeline&#39;s sklearn adapter. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Tunable steps of this pipeline: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">tunable</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">step</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">parameter</span> <span class="o">=</span> <span class="n">parts</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">model_step</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">step_index</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">step_index</span><span class="p">[</span><span class="n">step</span><span class="p">]),</span> <span class="n">parameter</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Grid key </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> addresses step </span><span class="si">{</span><span class="n">step</span><span class="si">!r}</span><span class="s2">, which this pipeline does &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;not have. Tunable steps: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">tunable</span><span class="p">)</span><span class="si">}</span><span class="s2">. Step names are the &quot;</span>
+        <span class="s2">&quot;components&#39; registered spec names, in declaration order.&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_objective_metric</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the single metric a search optimises.</span>
+
+<span class="sd">    Resolved against the classification metric registry, which is the family</span>
+<span class="sd">    an ``MLSpec`` can declare: its terminal model is a ``classifier`` spec,</span>
+<span class="sd">    assembled through</span>
+<span class="sd">    :class:`~habit.domain.classification.ClassifierRegistry`. Scoring itself</span>
+<span class="sd">    goes through :meth:`TablePipeline.evaluate` and so stays family-agnostic;</span>
+<span class="sd">    when ``MLSpec`` grows regression and survival terminals, this resolution</span>
+<span class="sd">    is the one place that has to follow.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The effective spec, whose metric panel supplies the default.</span>
+<span class="sd">        objective: Registered metric name, or ``None`` for the fallback</span>
+<span class="sd">            chain: first declared metric, else :data:`_DEFAULT_OBJECTIVE`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The metric instance. Its ``greater_is_better`` flag is what decides</span>
+<span class="sd">        the optimisation direction.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ComponentNotFoundError: If the name is not a registered metric.</span>
+<span class="sd">        ConfigurationError: If the metric&#39;s parameters fail validation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Lazy import: an L4 recipe may read L3 registries, but importing the</span>
+    <span class="c1"># evaluation package at module level would pull sklearn and the metric</span>
+    <span class="c1"># stack into every ``import habit.recipes``.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricRegistry</span>
+
+    <span class="k">if</span> <span class="n">objective</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
+        <span class="c1"># The panel a paper reports is the panel it tuned on, parameters</span>
+        <span class="c1"># included; taking the whole first entry keeps them together.</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">MetricRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">entry</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MetricRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">objective</span> <span class="k">if</span> <span class="n">objective</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_DEFAULT_OBJECTIVE</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_objective_scorer</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">greater_is_better</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Scorer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap one HABIT metric as a scikit-learn scorer.</span>
+
+<span class="sd">    Scoring goes through :meth:`TablePipeline.evaluate`, which already</span>
+<span class="sd">    dispatches on the endpoint family (probabilities for a classification</span>
+<span class="sd">    metric, risk or survival curves for a survival metric), so the search</span>
+<span class="sd">    optimises exactly the number the final report prints. sklearn always</span>
+<span class="sd">    MAXIMISES a scorer, hence the sign flip for metrics whose own direction</span>
+<span class="sd">    is &quot;lower is better&quot;.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        metric: The metric instance to score with.</span>
+<span class="sd">        greater_is_better: The metric&#39;s own direction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Scorer: A callable ``scorer(estimator, X, y=None) -&gt; float``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="n">estimator</span><span class="p">:</span> <span class="n">TablePipeline</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Score one fitted candidate on one validation slice.&quot;&quot;&quot;</span>
+        <span class="c1"># The head step holds the column schema, so the row slice sklearn</span>
+        <span class="c1"># handed us becomes the same FeatureTable the pipeline was fitted on</span>
+        <span class="c1"># the training half of -- outcome column included.</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">frame_schema</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">estimator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">(</span><span class="n">metric</span><span class="p">,))[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">greater_is_better</span> <span class="k">else</span> <span class="o">-</span><span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">score</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_search_driver</span><span class="p">(</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="n">TablePipeline</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">n_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">scorer</span><span class="p">:</span> <span class="n">Scorer</span><span class="p">,</span>
+    <span class="n">folds</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configure the scikit-learn search driver for one strategy.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pipeline: The unfitted pipeline to clone per candidate.</span>
+<span class="sd">        param_grid: The search space, exactly as the caller gave it.</span>
+<span class="sd">        strategy: ``&quot;grid&quot;`` or ``&quot;random&quot;``.</span>
+<span class="sd">        n_iter: Candidate budget for ``&quot;random&quot;``.</span>
+<span class="sd">        scorer: The objective, already sign-corrected for maximisation.</span>
+<span class="sd">        folds: Explicit ``(train, validation)`` index pairs, so the search</span>
+<span class="sd">            uses HABIT&#39;s fold layout rather than sklearn&#39;s own splitter.</span>
+<span class="sd">        seed: Seed for the random strategy&#39;s sampling.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The configured (unfitted) search object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">RandomizedSearchCV</span>
+
+    <span class="n">shared</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;scoring&quot;</span><span class="p">:</span> <span class="n">scorer</span><span class="p">,</span>
+        <span class="s2">&quot;cv&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">folds</span><span class="p">),</span>
+        <span class="c1"># The tuned parameters are refitted through the SPEC (see</span>
+        <span class="c1"># ``search_hyperparameters``), not through sklearn&#39;s own</span>
+        <span class="c1"># ``best_estimator_``, so that the final model is built by the same</span>
+        <span class="c1"># assembly path as any other HABIT model.</span>
+        <span class="s2">&quot;refit&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># A candidate that raises is a bug or an invalid grid value, not a</span>
+        <span class="c1"># data point: scoring it NaN would let the search quietly return the</span>
+        <span class="c1"># best of the candidates that happened to work.</span>
+        <span class="s2">&quot;error_score&quot;</span><span class="p">:</span> <span class="s2">&quot;raise&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="s2">&quot;grid&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="o">**</span><span class="n">shared</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span>
+        <span class="n">pipeline</span><span class="p">,</span>
+        <span class="n">param_grid</span><span class="p">,</span>
+        <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">shared</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_search_trials</span><span class="p">(</span>
+    <span class="n">cv_results</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">greater_is_better</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn sklearn&#39;s ``cv_results_`` into the per-candidate trial table.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cv_results: The driver&#39;s ``cv_results_`` mapping.</span>
+<span class="sd">        greater_is_better: The objective&#39;s own direction, used to undo the</span>
+<span class="sd">            sign flip the scorer applied, so a reported ``mean_score`` is</span>
+<span class="sd">            always the metric&#39;s own value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[Mapping[str, Any], ...]: One record per candidate, in the</span>
+<span class="sd">        driver&#39;s own candidate order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">greater_is_better</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
+            <span class="s2">&quot;mean_score&quot;</span><span class="p">:</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span>
+            <span class="s2">&quot;std_score&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">std</span><span class="p">),</span>
+            <span class="s2">&quot;rank&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">rank</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">params</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">],</span>
+            <span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;mean_test_score&quot;</span><span class="p">],</span>
+            <span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;std_test_score&quot;</span><span class="p">],</span>
+            <span class="n">cv_results</span><span class="p">[</span><span class="s2">&quot;rank_test_score&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spec_with_best_params</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span><span class="p">,</span>
+    <span class="n">targets</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="n">best_params</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MLSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return ``spec`` with every searched parameter set to its winning value.</span>
+
+<span class="sd">    Only the searched parameters move; every other declaration -- component</span>
+<span class="sd">    names, step order, untouched parameters, the metric panel, the seed -- is</span>
+<span class="sd">    carried over verbatim, so the tuned spec differs from the declared one in</span>
+<span class="sd">    exactly the places the caller asked to tune.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The effective (untuned) spec.</span>
+<span class="sd">        targets: Grid key to spec location, from</span>
+<span class="sd">            :func:`_resolve_param_targets`.</span>
+<span class="sd">        best_params: The driver&#39;s winning parameters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MLSpec: The tuned definition, in the same field layout as ``spec``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step_params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
+    <span class="n">classifier_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">best_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">kind</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">parameter</span> <span class="o">=</span> <span class="n">targets</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+        <span class="n">plain</span> <span class="o">=</span> <span class="n">_plain_param_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;classifier&quot;</span><span class="p">:</span>
+            <span class="n">classifier_params</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">plain</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_params</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">plain</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="n">entry</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="n">step_params</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">classifier</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">classifier_params</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_spec_with_layout</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">classifier</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_spec_with_layout</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">MLSpec</span><span class="p">,</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">classifier</span><span class="p">:</span> <span class="n">Spec</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MLSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rebuild a spec&#39;s table steps in the FIELD LAYOUT it was declared in.</span>
+
+<span class="sd">    ``MLSpec`` serialises the deprecated three-chain layout and the single</span>
+<span class="sd">    ordered ``steps`` layout differently on purpose -- that asymmetry is what</span>
+<span class="sd">    keeps the fingerprint of every already-published analysis stable. A tuned</span>
+<span class="sd">    spec must therefore keep its predecessor&#39;s layout, or the same analysis</span>
+<span class="sd">    would fingerprint differently before and after tuning for a reason that</span>
+<span class="sd">    has nothing to do with the tuning. ``dataclasses.replace`` cannot be used</span>
+<span class="sd">    for this: it re-supplies the derived ``steps`` alongside the chains, and</span>
+<span class="sd">    changing one without the other is exactly what ``MLSpec`` rejects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The spec whose layout is being preserved.</span>
+<span class="sd">        steps: The full ordered step list to install.</span>
+<span class="sd">        classifier: The (possibly tuned) terminal classifier spec.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MLSpec: The rebuilt spec.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">common</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;classifier&quot;</span><span class="p">:</span> <span class="n">classifier</span><span class="p">,</span>
+        <span class="s2">&quot;metrics&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span>
+        <span class="s2">&quot;random_seed&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">declares_deprecated_chains</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MLSpec</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span> <span class="o">**</span><span class="n">common</span><span class="p">)</span>
+    <span class="n">n_pre</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">pre_preprocessing_feature_selectors</span><span class="p">)</span>
+    <span class="n">n_preprocessors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">table_preprocessors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MLSpec</span><span class="p">(</span>
+        <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="n">steps</span><span class="p">[:</span><span class="n">n_pre</span><span class="p">],</span>
+        <span class="n">table_preprocessors</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="n">n_pre</span> <span class="p">:</span> <span class="n">n_pre</span> <span class="o">+</span> <span class="n">n_preprocessors</span><span class="p">],</span>
+        <span class="n">feature_selectors</span><span class="o">=</span><span class="n">steps</span><span class="p">[</span><span class="n">n_pre</span> <span class="o">+</span> <span class="n">n_preprocessors</span> <span class="p">:],</span>
+        <span class="o">**</span><span class="n">common</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plain_param_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coerce a searched value into something a ``Spec`` can serialise.</span>
+
+<span class="sd">    A randomised search samples from scipy distributions, which yield numpy</span>
+<span class="sd">    scalars; left as they are, they would reach YAML as opaque objects and</span>
+<span class="sd">    the tuned spec would not round-trip. Everything else is passed through</span>
+<span class="sd">    untouched, so no component ever sees a value the caller did not offer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: One winning parameter value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The value as a plain Python object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_plain_param_value</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">value</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_holdout</span><span class="p">(</span>

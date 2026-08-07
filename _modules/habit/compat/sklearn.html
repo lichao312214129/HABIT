@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -409,11 +409,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +455,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -557,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1548,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1834,14 +1841,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">                          scoring=&quot;roc_auc&quot;, cv=5)</span>
 <span class="sd">    search.fit(cohort, labels)   # cohort: a Sequence of habit Subject</span>
 
-<span class="sd">The table-ML adapters keep ``FeatureTable`` semantics inside an sklearn</span>
-<span class="sd">pipeline::</span>
+<span class="sd">The TABLE-level adapters moved up to the domain layer in</span>
+<span class="sd">:mod:`habit.domain.sklearn_interop`, because</span>
+<span class="sd">:class:`~habit.domain.pipeline.TablePipeline` is now itself an</span>
+<span class="sd">``sklearn.pipeline.Pipeline`` built out of them and this module is a frozen</span>
+<span class="sd">compatibility surface that must not grow new capability. The four names this</span>
+<span class="sd">module used to own stay importable here as thin deprecated aliases for all of</span>
+<span class="sd">v1.x::</span>
 
-<span class="sd">    from habit.compat.sklearn import as_classifier, as_transformer</span>
+<span class="sd">    from habit.domain.sklearn_interop import as_classifier, as_transformer</span>
 
 <span class="sd">    pipe = Pipeline([</span>
 <span class="sd">        (&quot;scale&quot;, as_transformer(ZScorePreprocessor())),</span>
-<span class="sd">        (&quot;select&quot;, as_transformer(AnovaSelector(top_n=20))),</span>
+<span class="sd">        (&quot;select&quot;, as_transformer(AnovaSelector(n_features_to_select=20))),</span>
 <span class="sd">        (&quot;model&quot;, as_classifier(LogisticRegressionClassifier())),</span>
 <span class="sd">    ])</span>
 <span class="sd">    pipe.fit(train_table)          # outcome rides inside the FeatureTable</span>
@@ -1850,29 +1862,34 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">Note on cross-validation splits: sklearn&#39;s ``_safe_indexing`` handles any</span>
 <span class="sd">sequence of subjects (including :class:`~habit.contracts.subject.Cohort`), so</span>
 <span class="sd">``GridSearchCV`` works directly on cohorts. A bare ``FeatureTable`` is NOT</span>
-<span class="sd">row-indexable by design, so CV drivers over tables should split the frame</span>
-<span class="sd">first (or use ``habit.recipes.cross_validate`` when it lands).</span>
+<span class="sd">row-indexable by design; a CV driver over tables passes the FRAME as ``X``</span>
+<span class="sd">and rebuilds the table in a</span>
+<span class="sd">:class:`~habit.domain.sklearn_interop.FrameToTable` head step (which is what</span>
+<span class="sd">``TablePipeline`` does), or uses ``habit.recipes.cross_validate``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">ClassifierMixin</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.outcome</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryOutcome</span><span class="p">,</span> <span class="n">MulticlassOutcome</span><span class="p">,</span> <span class="n">Outcome</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span><span class="p">,</span> <span class="n">Subject</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatComponents</span><span class="p">,</span> <span class="n">build_habitat_components</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.outcome_access</span><span class="w"> </span><span class="kn">import</span> <span class="n">outcome_series</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seedable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.table_protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Classifier</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">,</span> <span class="n">TablePreprocessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.sklearn_interop</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TableClassifierEstimator</span> <span class="k">as</span> <span class="n">_TableClassifierEstimator</span><span class="p">,</span>
+    <span class="n">TableTransformerEstimator</span> <span class="k">as</span> <span class="n">_TableTransformerEstimator</span><span class="p">,</span>
+    <span class="n">as_classifier</span> <span class="k">as</span> <span class="n">_as_classifier</span><span class="p">,</span>
+    <span class="n">as_transformer</span> <span class="k">as</span> <span class="n">_as_transformer</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.progress_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomTqdm</span>
 
@@ -1884,6 +1901,76 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;as_transformer&quot;</span><span class="p">,</span>
     <span class="s2">&quot;as_classifier&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="c1">#: Text appended to every deprecation message of this module, so a user who</span>
+<span class="c1">#: sees one knows both where the symbol went and how long the alias lives.</span>
+<span class="n">_MOVED_NOTE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;It moved to habit.domain.sklearn_interop when TablePipeline became an &quot;</span>
+    <span class="s2">&quot;sklearn Pipeline subclass; the alias here is kept for all of v1.x.&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_moved</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Emit the module&#39;s standard &quot;symbol moved&quot; deprecation warning.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        old: Fully-qualified old name, as written in user code.</span>
+<span class="sd">        new: Fully-qualified replacement to import instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">old</span><span class="si">}</span><span class="s2"> is deprecated; use </span><span class="si">{</span><span class="n">new</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">_MOVED_NOTE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="TableTransformerEstimator">
+<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableTransformerEstimator</span><span class="p">(</span><span class="n">_TableTransformerEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deprecated alias of</span>
+<span class="sd">    :class:`habit.domain.sklearn_interop.TableTransformerEstimator`.</span>
+
+<span class="sd">    Subclassing rather than re-binding keeps ``isinstance`` checks written</span>
+<span class="sd">    against either name true, so existing code that tests the type keeps</span>
+<span class="sd">    working while the warning points at the new import path. Kept through</span>
+<span class="sd">    v1.x.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TableTransformerEstimator.__init__">
+<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_warn_moved</span><span class="p">(</span>
+            <span class="s2">&quot;habit.compat.sklearn.TableTransformerEstimator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;habit.domain.sklearn_interop.TableTransformerEstimator&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="TableClassifierEstimator">
+<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableClassifierEstimator</span><span class="p">(</span><span class="n">_TableClassifierEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deprecated alias of</span>
+<span class="sd">    :class:`habit.domain.sklearn_interop.TableClassifierEstimator`.</span>
+
+<span class="sd">    Kept through v1.x; see :class:`TableTransformerEstimator` for why this is</span>
+<span class="sd">    a subclass rather than a re-binding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TableClassifierEstimator.__init__">
+<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_warn_moved</span><span class="p">(</span>
+            <span class="s2">&quot;habit.compat.sklearn.TableClassifierEstimator&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;habit.domain.sklearn_interop.TableClassifierEstimator&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_iter_with_progress</span><span class="p">(</span>
@@ -2326,285 +2413,48 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that a pipeline step received a ``FeatureTable``.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-            <span class="s2">&quot;Table adapters operate on habit FeatureTable objects; got &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Chain them with other table-aware steps.&quot;</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">X</span>
-
-
-<div class="viewcode-block" id="TableTransformerEstimator">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TableTransformerEstimator</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adapt a HABIT table transformation to the sklearn transformer API.</span>
-
-<span class="sd">    ``X`` is a :class:`~habit.contracts.table.FeatureTable` in and out, so the</span>
-<span class="sd">    adapter composes with other table-aware steps inside an sklearn</span>
-<span class="sd">    ``Pipeline`` while the fitted state (training statistics, selected</span>
-<span class="sd">    columns) follows sklearn&#39;s clone/fit lifecycle. The wrapped component is</span>
-<span class="sd">    deep-copied at fit time, so the instance the user passed is never mutated.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        component: A :class:`~habit.domain.table_protocols.TablePreprocessor`</span>
-<span class="sd">            or :class:`~habit.domain.table_protocols.FeatureSelector`</span>
-<span class="sd">            implementation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="TableTransformerEstimator.__init__">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span></div>
-
-
-<div class="viewcode-block" id="TableTransformerEstimator.fit">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TableTransformerEstimator&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Fit the wrapped component on a training table.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            X: Training ``FeatureTable``.</span>
-<span class="sd">            y: Ignored (supervised selectors read the table&#39;s outcome</span>
-<span class="sd">                column); accepted for sklearn compatibility.</span>
-<span class="sd">            **fit_params: Forwarded to the component&#39;s ``fit`` (e.g.</span>
-<span class="sd">                ``repeat_tables=`` for ICC-driven selectors).</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ``self``, fitted.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="p">(</span><span class="n">TablePreprocessor</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;TableTransformerEstimator wraps a TablePreprocessor or &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;FeatureSelector; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component_</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-
-<div class="viewcode-block" id="TableTransformerEstimator.transform">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.transform">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Apply the fitted transformation.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            X: Table carrying the fit-time feature columns.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The transformed ``FeatureTable``.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            NotFittedError: If called before :meth:`fit`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;component_&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span>
-                <span class="s2">&quot;This TableTransformerEstimator is not fitted yet; call fit first.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="TableClassifierEstimator">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TableClassifierEstimator</span><span class="p">(</span><span class="n">ClassifierMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adapt a HABIT :class:`~habit.domain.table_protocols.Classifier` to sklearn.</span>
-
-<span class="sd">    The outcome rides inside the ``FeatureTable`` (the leakage-safe HABIT</span>
-<span class="sd">    convention); a separate ``y`` is only used to fill a missing outcome</span>
-<span class="sd">    column, and is cross-checked against an existing one so a misaligned</span>
-<span class="sd">    ``y`` fails loudly instead of silently training on the wrong labels.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        component: A HABIT ``Classifier`` implementation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="TableClassifierEstimator.__init__">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span></div>
-
-
-<div class="viewcode-block" id="TableClassifierEstimator.fit">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TableClassifierEstimator&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Train the wrapped classifier.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            X: Training ``FeatureTable`` with an outcome column (or pass</span>
-<span class="sd">                ``y`` to attach one).</span>
-<span class="sd">            y: Optional outcome values. When the table already carries an</span>
-<span class="sd">                outcome, ``y`` must agree with it exactly.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            ``self``, fitted.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: On missing outcome or a ``y``/outcome mismatch.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;TableClassifierEstimator wraps a HABIT Classifier; got &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">outcome</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">outcome</span> <span class="o">=</span> <span class="n">outcome_series</span><span class="p">(</span>
-                <span class="n">table</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;TableClassifierEstimator.fit&quot;</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">outcome</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="s2">&quot;y disagrees with the table&#39;s outcome column; refusing &quot;</span>
-                    <span class="s2">&quot;to train on ambiguous labels.&quot;</span>
-                <span class="p">)</span>
-        <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">outcome</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="s2">&quot;Training table has no outcome column and no y was given.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attach_outcome</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component_</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
-        <span class="c1"># HABIT classifiers label probability columns by class (e.g. &quot;0&quot;/&quot;1&quot;);</span>
-        <span class="c1"># capturing the labels from the fitted classifier itself guarantees</span>
-        <span class="c1"># predict_proba stays column-aligned without private-state access.</span>
-        <span class="n">probe</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">probe</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-
-<div class="viewcode-block" id="TableClassifierEstimator.predict">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.predict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict class labels for a table&#39;s rows.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="TableClassifierEstimator.predict_proba">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.predict_proba">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict class probabilities, columns aligned to ``classes_``.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
-        <span class="n">proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
-        <span class="n">aligned</span> <span class="o">=</span> <span class="n">proba</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">aligned</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;Classifier probability columns do not cover the classes &quot;</span>
-                <span class="s2">&quot;seen at fit time.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">aligned</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="TableClassifierEstimator.score">
-<a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.score">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return accuracy on a table.</span>
-
-<span class="sd">        Differs from ``ClassifierMixin.score`` in one deliberate way: when</span>
-<span class="sd">        ``y`` is omitted the table&#39;s own outcome column supplies the truth,</span>
-<span class="sd">        which is the natural call inside a FeatureTable-carrying pipeline.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            X: ``FeatureTable`` to score.</span>
-<span class="sd">            y: True labels; falls back to the table&#39;s outcome column.</span>
-<span class="sd">            sample_weight: Optional per-row weights.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Mean accuracy.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span>
-
-        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">table</span> <span class="o">=</span> <span class="n">_require_table</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">outcome</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="s2">&quot;score needs y or a table carrying an outcome column.&quot;</span>
-                <span class="p">)</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">outcome_series</span><span class="p">(</span>
-                <span class="n">table</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="s2">&quot;TableClassifierEstimator.score&quot;</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span></div>
-
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_attach_outcome</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of ``table`` with ``y`` attached as outcome column.&quot;&quot;&quot;</span>
-        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;y has </span><span class="si">{</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> entries but the table has &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;outcome&quot;</span>
-        <span class="k">while</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;habit_</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">frame</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
-        <span class="c1"># sklearn passes bare labels, so the endpoint family is inferred from</span>
-        <span class="c1"># them; the positive class follows sklearn&#39;s own convention that the</span>
-        <span class="c1"># greater of two labels is positive.</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-        <span class="n">outcome</span><span class="p">:</span> <span class="n">Outcome</span>
-        <span class="k">if</span> <span class="n">labels</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">outcome</span> <span class="o">=</span> <span class="n">BinaryOutcome</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">positive_label</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">outcome</span> <span class="o">=</span> <span class="n">MulticlassOutcome</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">FeatureTable</span><span class="p">(</span>
-            <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
-            <span class="n">id_columns</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">id_columns</span><span class="p">,</span>
-            <span class="n">feature_columns</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">,</span>
-            <span class="n">outcome</span><span class="o">=</span><span class="n">outcome</span><span class="p">,</span>
-            <span class="n">provenance</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">provenance</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_check_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Guard sklearn&#39;s &quot;no prediction before fitting&quot; contract.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;component_&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span>
-                <span class="s2">&quot;This TableClassifierEstimator is not fitted yet; call fit first.&quot;</span>
-            <span class="p">)</span></div>
-
-
 
 <div class="viewcode-block" id="as_transformer">
 <a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.as_transformer.html#habit.compat.sklearn.as_transformer">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">as_transformer</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableTransformerEstimator</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_transformer</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_TableTransformerEstimator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Wrap a HABIT table preprocessor/selector as a sklearn transformer.</span>
+<span class="sd">    Deprecated alias of</span>
+<span class="sd">    :func:`habit.domain.sklearn_interop.as_transformer` (kept through v1.x).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        component: ``TablePreprocessor`` or ``FeatureSelector`` implementation.</span>
+<span class="sd">        **options: Forwarded verbatim to the domain-layer factory.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The configured adapter.</span>
+<span class="sd">        The configured adapter, of the domain-layer type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">TableTransformerEstimator</span><span class="p">(</span><span class="n">component</span><span class="p">)</span></div>
+    <span class="n">_warn_moved</span><span class="p">(</span>
+        <span class="s2">&quot;habit.compat.sklearn.as_transformer()&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;habit.domain.sklearn_interop.as_transformer()&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_as_transformer</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="as_classifier">
 <a class="viewcode-back" href="../../../api/generated/habit.compat.sklearn.as_classifier.html#habit.compat.sklearn.as_classifier">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">as_classifier</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TableClassifierEstimator</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">as_classifier</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_TableClassifierEstimator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Wrap a HABIT classifier as a sklearn classifier.</span>
+<span class="sd">    Deprecated alias of</span>
+<span class="sd">    :func:`habit.domain.sklearn_interop.as_classifier` (kept through v1.x).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        component: ``Classifier`` implementation.</span>
+<span class="sd">        **options: Forwarded verbatim to the domain-layer factory.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The configured adapter.</span>
+<span class="sd">        The configured adapter, of the domain-layer type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">TableClassifierEstimator</span><span class="p">(</span><span class="n">component</span><span class="p">)</span></div>
+    <span class="n">_warn_moved</span><span class="p">(</span>
+        <span class="s2">&quot;habit.compat.sklearn.as_classifier()&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;habit.domain.sklearn_interop.as_classifier()&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_as_classifier</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
 
 </pre></div>
 

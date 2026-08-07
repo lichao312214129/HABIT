@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1760,15 +1762,16 @@ data. Tabular building blocks are documented in <a class="reference internal" hr
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="n">table</span> <span class="o">=</span> <span class="n">make_synthetic_feature_table</span><span class="p">(</span><span class="n">n_rows</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="c1"># Variance belongs in pre_preprocessing_*: after z-score every feature</span>
-<span class="c1"># has variance ~1, so a post-zscore variance filter is uninformative.</span>
-<span class="c1"># Post-preprocessing selectors (ANOVA, LASSO, ...) use feature_selectors.</span>
+<span class="c1"># ``steps`` is ONE ordered list and its order is the execution order.</span>
+<span class="c1"># Variance goes first, on the raw table: after z-score every feature has</span>
+<span class="c1"># variance ~1, so a variance step placed later is uninformative.</span>
+<span class="c1"># Supervised selectors (ANOVA, LASSO, ...) normally follow the scaling.</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
-    <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
         <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
     <span class="p">),</span>
-    <span class="n">table_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
@@ -1777,6 +1780,85 @@ data. Tabular building blocks are documented in <a class="reference internal" hr
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">test_metrics</span><span class="p">)</span>    <span class="c1"># held-out rows</span>
 </pre></div>
 </div>
+<p>Steps interleave freely, which the three predecessor fields could not
+express. <code class="docutils literal notranslate"><span class="pre">zscore</span></code> → <code class="docutils literal notranslate"><span class="pre">variance</span></code> → <code class="docutils literal notranslate"><span class="pre">minmax</span></code> → <code class="docutils literal notranslate"><span class="pre">lasso</span></code> is a plain list:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;interleaved&quot;</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;lasso&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;cv&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}),</span>
+    <span class="p">),</span>
+    <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The fields <code class="docutils literal notranslate"><span class="pre">pre_preprocessing_feature_selectors</span></code>, <code class="docutils literal notranslate"><span class="pre">table_preprocessors</span></code>
+and <code class="docutils literal notranslate"><span class="pre">feature_selectors</span></code> are deprecated aliases kept for all of v1.x. They
+are folded into <code class="docutils literal notranslate"><span class="pre">steps</span></code> in that documented order and raise a
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>; a spec declaring both layouts with different content
+is rejected rather than resolved by precedence.</p>
+<section id="hyperparameter-search-and-nested-cross-validation">
+<h3>Hyperparameter search and nested cross-validation<a class="headerlink" href="#hyperparameter-search-and-nested-cross-validation" title="Link to this heading"></a></h3>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">search_hyperparameters()</span></code> tunes a spec with scikit-learn’s
+<code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code> / <code class="docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code> and writes the winners <strong>back into
+the</strong> <a class="reference internal" href="generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.specs.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a>. That is the point of the recipe: a
+tuned model is a <em>definition</em>, so it keeps a fingerprint, serialises to YAML
+and can be re-run by a reader — a search that returned only a fitted object
+would end the provenance chain where the parameters were chosen.</p>
+<p>Grid keys address one HABIT component parameter through the pipeline’s step
+names, <code class="docutils literal notranslate"><span class="pre">&quot;&lt;step&gt;__component__&lt;parameter&gt;&quot;</span></code>. The terminal model’s step is
+<code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code>; every other step is named after its registered spec name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tuned</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">search_hyperparameters</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;model__component__C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+        <span class="s2">&quot;variance__component__threshold&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">objective</span><span class="o">=</span><span class="s2">&quot;auc&quot;</span><span class="p">,</span>          <span class="c1"># a registered HABIT metric, not a scorer string</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tuned</span><span class="o">.</span><span class="n">best_params</span><span class="p">,</span> <span class="n">tuned</span><span class="o">.</span><span class="n">best_score</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tuned</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">])</span>   <span class="c1"># written back into the spec</span>
+<span class="n">fitted</span> <span class="o">=</span> <span class="n">tuned</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">pipeline</span>                <span class="c1"># refitted with the tuned spec</span>
+</pre></div>
+</div>
+<p>The folds come from <code class="xref py py-func docutils literal notranslate"><span class="pre">habit.domain.split.kfold_indices()</span></code>, so a search
+partitions the rows exactly as <a class="reference internal" href="generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a> does for
+the same <code class="docutils literal notranslate"><span class="pre">n_splits</span></code> and seed, and every candidate is fitted on training rows
+only — preprocessing statistics and feature selection included, because they
+are pipeline steps that get cloned per fold. <code class="docutils literal notranslate"><span class="pre">strategy=&quot;random&quot;</span></code> switches to
+a sampled search with an <code class="docutils literal notranslate"><span class="pre">n_iter</span></code> budget. The objective’s own
+<code class="docutils literal notranslate"><span class="pre">greater_is_better</span></code> sets the direction, so a “lower is better” metric is
+minimised without the caller negating anything; omitted, the objective is the
+first metric of <code class="docutils literal notranslate"><span class="pre">spec.metrics</span></code>, and <code class="docutils literal notranslate"><span class="pre">auc</span></code> for a spec with no panel.</p>
+<p>Tuning once on all the rows and cross-validating afterwards reports an
+optimistically biased number, because the validation rows took part in the
+selection. Passing <code class="docutils literal notranslate"><span class="pre">inner_cv</span></code> together with <code class="docutils literal notranslate"><span class="pre">param_grid</span></code> makes
+<a class="reference internal" href="generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a> nested instead: each outer fold re-tunes
+on its own training rows and is scored on rows neither the tuning nor the fit
+has seen.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nested</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">cross_validate</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">inner_cv</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model__component__C&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">]},</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nested</span><span class="o">.</span><span class="n">mean_metrics</span><span class="p">)</span>        <span class="c1"># estimate of the whole tuning procedure</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nested</span><span class="o">.</span><span class="n">fold_best_params</span><span class="p">)</span>    <span class="c1"># one winner per outer fold</span>
+</pre></div>
+</div>
+<p>Report <code class="docutils literal notranslate"><span class="pre">fold_best_params</span></code> alongside the panel: parameters that change from
+fold to fold say the search is fitting noise. The two arguments are required
+together — a grid without <code class="docutils literal notranslate"><span class="pre">inner_cv</span></code> has nowhere to tune except the outer
+validation rows, and <code class="docutils literal notranslate"><span class="pre">inner_cv</span></code> without a grid searches over nothing. There
+is deliberately no Bayesian/Optuna backend, which would be a new hard
+dependency.</p>
 <p>The older configuration-object entry points (<code class="docutils literal notranslate"><span class="pre">run_ml</span></code>, <code class="docutils literal notranslate"><span class="pre">run_kfold</span></code>,
 <code class="docutils literal notranslate"><span class="pre">run_model_comparison</span></code> from <code class="docutils literal notranslate"><span class="pre">habit.api.machine_learning</span></code>) remain
 available for YAML-parity workflows; the CLI commands <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> /
@@ -1785,6 +1867,7 @@ available for YAML-parity workflows; the CLI commands <code class="docutils lite
 <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> / <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> into the same domain core, and
 <a class="reference internal" href="generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> exposes the identical path to Python
 callers (see <a class="reference internal" href="#common-workflows-yaml"><span class="std std-ref">the YAML section</span></a> above).</p>
+</section>
 <section id="feature-extraction-config-driven">
 <h3>Feature extraction (config-driven)<a class="headerlink" href="#feature-extraction-config-driven" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">habit.recipes.extract_habitat_features</span></code> and

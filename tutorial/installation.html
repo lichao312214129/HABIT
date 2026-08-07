@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1486,15 +1488,56 @@ macOS / Linux).</p></li>
 </section>
 <section id="what-the-base-install-includes">
 <h3>What the base install includes<a class="headerlink" href="#what-the-base-install-includes" title="Link to this heading"></a></h3>
-<p>The default <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> is intentionally <strong>light</strong>:</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> is intentionally <strong>light</strong> — it
+installs only what the habitat kernel cannot run without:</p>
 <ul class="simple">
-<li><p>Image I/O and geometry helpers</p></li>
+<li><p>Image I/O and geometry helpers (SimpleITK)</p></li>
 <li><p>Image preprocessing recipes</p></li>
-<li><p>Habitat analysis with intensity / raw-concat style features</p></li>
-<li><p>Core tabular machine learning</p></li>
+<li><p>Habitat analysis end to end: voxel features, supervoxels (kmeans / gmm
+feature clustering), cohort habitat fitting, habitat assignment</p></li>
+<li><p>Habitat feature extraction and the CSV result table</p></li>
 <li><p>CLI entry point <code class="docutils literal notranslate"><span class="pre">habit</span></code></p></li>
 </ul>
-<p>It does <strong>not</strong> pull PyRadiomics by default (see below).</p>
+<p>The 11 required packages are <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy</span></code>, <code class="docutils literal notranslate"><span class="pre">pandas</span></code>,
+<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>, <code class="docutils literal notranslate"><span class="pre">SimpleITK</span></code>, <code class="docutils literal notranslate"><span class="pre">pydantic</span></code>, <code class="docutils literal notranslate"><span class="pre">PyYAML</span></code>, <code class="docutils literal notranslate"><span class="pre">click</span></code>, <code class="docutils literal notranslate"><span class="pre">tqdm</span></code>,
+<code class="docutils literal notranslate"><span class="pre">joblib</span></code> and <code class="docutils literal notranslate"><span class="pre">kneed</span></code>. Nothing else. Measured on CPython 3.10 / Linux:
+20 wheels, 129 MB downloaded, 635 MB of <code class="docutils literal notranslate"><span class="pre">site-packages</span></code>.</p>
+<p>It does <strong>not</strong> pull PyRadiomics by default (see below), and since <strong>1.1.0</strong> it
+no longer pulls plotting, DICOM, parquet/xlsx or SLIC either — see
+<a class="reference internal" href="#installation-optional-extras"><span class="std std-ref">Optional extras</span></a> and
+<a class="reference internal" href="#installation-migrating-to-1-1-0"><span class="std std-ref">Upgrading from 1.0.x</span></a>.</p>
+</section>
+<section id="upgrading-from-1-0-x">
+<span id="installation-migrating-to-1-1-0"></span><h3>Upgrading from 1.0.x<a class="headerlink" href="#upgrading-from-1-0-x" title="Link to this heading"></a></h3>
+<p>HABIT 1.1.0 moved six packages out of the required set and into extras:
+<code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>, <code class="docutils literal notranslate"><span class="pre">seaborn</span></code>, <code class="docutils literal notranslate"><span class="pre">scikit-image</span></code>, <code class="docutils literal notranslate"><span class="pre">pydicom</span></code>, <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> and
+<code class="docutils literal notranslate"><span class="pre">openpyxl</span></code>. (<code class="docutils literal notranslate"><span class="pre">chardet</span></code> was removed entirely; nothing needs it any more.)
+A bare install therefore dropped from 212 MB to 129 MB of downloads, from
+931 MB to 635 MB of <code class="docutils literal notranslate"><span class="pre">site-packages</span></code>, and from 43 to 23 distributions
+(measured on CPython 3.10 / Linux).</p>
+<p>The Python API did not change: every public symbol keeps its name and
+signature. What changed is what <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> gives you.</p>
+<p><strong>One-line migration</strong> — reproduce everything a 1.0.x install plus <code class="docutils literal notranslate"><span class="pre">[all]</span></code>
+used to provide:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="s2">&quot;habitat-analysis[full]&quot;</span>
+</pre></div>
+</div>
+<p>If you would rather install only what you actually use, pick from the table
+below. You do not have to guess: whenever a workflow reaches for a package that
+is not installed, HABIT raises <code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code> containing the exact
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> command for the extra that provides it.</p>
+<p>Two consequences worth knowing before you upgrade:</p>
+<ul class="simple">
+<li><p><strong>Figures.</strong> Anything under <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>, the ML report figures, and the
+clustering plots need <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>.</p></li>
+<li><p><strong>Result tables.</strong> <code class="docutils literal notranslate"><span class="pre">habitats_results_format</span></code> still defaults to
+<code class="docutils literal notranslate"><span class="pre">parquet</span></code>, and the default was deliberately left alone so output filenames
+never change silently. Writing parquet needs <code class="docutils literal notranslate"><span class="pre">[tables]</span></code>. Without it the run
+fails with a message offering both exits: install <code class="docutils literal notranslate"><span class="pre">[tables]</span></code>, or set
+<code class="docutils literal notranslate"><span class="pre">habitats_results_format:</span> <span class="pre">csv</span></code> in your YAML to write <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code>
+instead (CSV needs no optional package at all). HABIT never switches format
+on your behalf.</p></li>
+</ul>
 </section>
 <section id="verify-the-install">
 <h3>Verify the install<a class="headerlink" href="#verify-the-install" title="Link to this heading"></a></h3>
@@ -1606,57 +1649,105 @@ broken <strong>3.1.0 sdist</strong>. HABIT publishes self-built <strong>PyRadiom
 </section>
 </section>
 <section id="optional-extras">
-<h2>Optional extras<a class="headerlink" href="#optional-extras" title="Link to this heading"></a></h2>
-<p>Install only what your workflow needs. Missing extras raise
-<code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code> with the install hint.</p>
+<span id="installation-optional-extras"></span><h2>Optional extras<a class="headerlink" href="#optional-extras" title="Link to this heading"></a></h2>
+<p>Install only what your workflow needs. When a workflow reaches for a package
+that is missing, HABIT raises <code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code> naming the extra and
+printing the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> command, so you never have to work out the mapping
+yourself.</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 18.0%" />
-<col style="width: 42.0%" />
-<col style="width: 40.0%" />
+<col style="width: 16.0%" />
+<col style="width: 34.0%" />
+<col style="width: 34.0%" />
+<col style="width: 16.0%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Extra</p></th>
 <th class="head"><p>Command</p></th>
 <th class="head"><p>Needed for</p></th>
+<th class="head"><p>Packages</p></th>
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">viz</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[viz]&quot;</span></code></p></td>
+<td><p>Every figure: <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>, ML report plots,
+clustering plots, KM curves</p></td>
+<td><p>matplotlib, seaborn</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tables</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[tables]&quot;</span></code></p></td>
+<td><p>Reading/writing <code class="docutils literal notranslate"><span class="pre">.parquet</span></code> (the default
+<code class="docutils literal notranslate"><span class="pre">habitats_results_format</span></code>) and <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code></p></td>
+<td><p>pyarrow, openpyxl</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dicom</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[dicom]&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">dicom-info</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>.
+NIfTI / NRRD input needs nothing extra</p></td>
+<td><p>pydicom</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">slic</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[slic]&quot;</span></code></p></td>
+<td><p>The SLIC supervoxel backend. The default
+<code class="docutils literal notranslate"><span class="pre">kmeans</span></code> / <code class="docutils literal notranslate"><span class="pre">gmm</span></code> backends need nothing extra</p></td>
+<td><p>scikit-image</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">radiomics</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[radiomics]&quot;</span></code>
 (empty alias; still install PyRadiomics
 separately as above)</p></td>
 <td><p>Documented alias only — does <strong>not</strong> install
 PyRadiomics</p></td>
+<td><p>—</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ml</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[ml]&quot;</span></code></p></td>
 <td><p>XGBoost, SMOTE, mRMR / VIF / stepwise selectors</p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code>, <code class="docutils literal notranslate"><span class="pre">tables</span></code></p></li>
+</ul>
+</td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">registration</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[registration]&quot;</span></code></p></td>
 <td><p>ANTs registration backend in preprocessing</p></td>
+<td><p>antspyx</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">analysis</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[analysis]&quot;</span></code></p></td>
 <td><p>SHAP, Plotly, ICC (pingouin), survival tools</p></td>
+<td><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">viz</span></code>, <code class="docutils literal notranslate"><span class="pre">tables</span></code></p></li>
+</ul>
+</td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">automl</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[automl]&quot;</span></code></p></td>
 <td><p>AutoGluon Tabular</p></td>
+<td><p>autogluon.tabular</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[torch]&quot;</span></code></p></td>
 <td><p>TorchRadiomics / GPU texture backends</p></td>
+<td><p>torch</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gui</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[gui]&quot;</span></code></p></td>
 <td><p>Web GUI server dependencies (preview)</p></td>
+<td><p>fastapi, uvicorn</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">all</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[all]&quot;</span></code></p></td>
-<td><p>Every optional workflow dep <strong>except</strong>
-PyRadiomics (install that separately)</p></td>
+<td><p>Every optional workflow dep <strong>except</strong> <code class="docutils literal notranslate"><span class="pre">torch</span></code>
+(CUDA index) and PyRadiomics (install separately)</p></td>
+<td><p>all of the above</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">full</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[full]&quot;</span></code></p></td>
+<td><p>Migration alias for 1.0.x users: everything a
+pre-1.1.0 bare install plus <code class="docutils literal notranslate"><span class="pre">[all]</span></code> provided</p></td>
+<td><p>same as <code class="docutils literal notranslate"><span class="pre">all</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1668,6 +1759,8 @@ PyRadiomics (install that separately)</p></td>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;.[ml,analysis]&quot;</span>
 </pre></div>
 </div>
+<p>Not sure which extras you need? Install none of them, run your workflow, and
+follow the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> command in the first error you get.</p>
 </section>
 <section id="copy-paste-recipes">
 <h2>Copy-paste recipes<a class="headerlink" href="#copy-paste-recipes" title="Link to this heading"></a></h2>
@@ -1724,6 +1817,26 @@ PyRadiomics (install that separately)</p></td>
 <p><strong>``pip install pyradiomics`` fails on Windows</strong></p>
 <p>Expected. Use the matching GitHub Release wheel URL from the table above
 instead of bare <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyradiomics</span></code>.</p>
+<p><strong>``OptionalDependencyError`` after upgrading from 1.0.x</strong></p>
+<p>Expected: 1.1.0 moved matplotlib, seaborn, scikit-image, pydicom, pyarrow and
+openpyxl into extras. The error message contains the <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> command
+for the extra you need. To restore everything at once:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="s2">&quot;habitat-analysis[full]&quot;</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#installation-migrating-to-1-1-0"><span class="std std-ref">Upgrading from 1.0.x</span></a>.</p>
+<p><strong>My habitat run stops at “pyarrow is required for writing the habitats results
+table as parquet”</strong></p>
+<p>The result table defaults to parquet, which needs the <code class="docutils literal notranslate"><span class="pre">tables</span></code> extra. Either:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;habitat-analysis[tables]&quot;</span>
+</pre></div>
+</div>
+<p>or write CSV instead, which needs no optional package — in your YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habitats_results_format</span><span class="p">:</span> <span class="n">csv</span>
+</pre></div>
+</div>
+<p>HABIT will not switch format on its own, because that would change your output
+filename from <code class="docutils literal notranslate"><span class="pre">habitats.parquet</span></code> to <code class="docutils literal notranslate"><span class="pre">habitats.csv</span></code> without telling you.</p>
 <p><strong>Permission / SSL / mirror errors at hospital networks</strong></p>
 <p>Ask IT to allow access to <code class="docutils literal notranslate"><span class="pre">pypi.org</span></code> and GitHub Releases (Windows
 PyRadiomics wheels).</p>

@@ -17,7 +17,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=71272d9f"></script>
+        <script src="_static/documentation_options.js?v=fc837d61"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -409,6 +409,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -562,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1553,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -2487,6 +2489,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry">ComponentRegistry (class in habit.registry)</a>
 </li>
+      <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.components">components (TablePipeline property)</a>
+</li>
       <li><a href="api/generated/habit.kernels.compute_midrank.html#habit.kernels.compute_midrank">compute_midrank() (in module habit.kernels)</a>
 </li>
       <li><a href="api/generated/habit.exceptions.ConfigurationError.html#habit.exceptions.ConfigurationError">ConfigurationError</a>
@@ -2548,6 +2552,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.DecisionTreeClassifier.html#habit.domain.DecisionTreeClassifier">DecisionTreeClassifier (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.DecisionTreeClassifierParams.html#habit.domain.DecisionTreeClassifierParams">DecisionTreeClassifierParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.declares_deprecated_chains">declares_deprecated_chains (MLSpec property)</a>
 </li>
       <li><a href="api/generated/habit.kernels.delong_roc_ci.html#habit.kernels.delong_roc_ci">delong_roc_ci() (in module habit.kernels)</a>
 </li>
@@ -2856,13 +2862,9 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.api.estimators.SubjectFeatureAggregator.html#habit.api.estimators.SubjectFeatureAggregator.fit">(SubjectFeatureAggregator method)</a>
 </li>
-        <li><a href="api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.fit">(TableClassifierEstimator method)</a>
-</li>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.fit">(TablePipeline method)</a>
 </li>
         <li><a href="api/generated/habit.domain.TablePreprocessor.html#habit.domain.TablePreprocessor.fit">(TablePreprocessor method)</a>
-</li>
-        <li><a href="api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.fit">(TableTransformerEstimator method)</a>
 </li>
         <li><a href="api/generated/habit.domain.UnivariateLogisticSelector.html#habit.domain.UnivariateLogisticSelector.fit">(UnivariateLogisticSelector method)</a>
 </li>
@@ -2897,6 +2899,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.api.clinical.HabitatSegmenter.html#habit.api.clinical.HabitatSegmenter.fit_transform">(HabitatSegmenter method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/habit.recipes.CVResult.html#habit.recipes.CVResult.fold_best_params">fold_best_params (CVResult attribute)</a>
+</li>
       <li><a href="api/generated/habit.recipes.CVResult.html#habit.recipes.CVResult.fold_metrics">fold_metrics (CVResult attribute)</a>
 </li>
       <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec.font_family">font_family (StyleSpec attribute)</a>
@@ -2910,6 +2914,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable.frame">frame (FeatureTable attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.frame_of_reference">frame_of_reference (Geometry attribute)</a>
+</li>
+      <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.frame_schema">frame_schema (TablePipeline property)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.from_array">from_array() (Geometry class method)</a>
 
@@ -3195,6 +3201,12 @@ window.runMermaid = runMermaid;</script>
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.domain.VarianceFilterPreprocessorParams.html#habit.domain.VarianceFilterPreprocessorParams.keep_at_least_one">keep_at_least_one (VarianceFilterPreprocessorParams attribute)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.VarianceSelectorParams.html#habit.domain.VarianceSelectorParams.keep_at_least_one">(VarianceSelectorParams attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/habit.domain.ClassifierRegistry.html#habit.domain.ClassifierRegistry.kind">kind (ClassifierRegistry attribute)</a>
 
       <ul>
@@ -3689,10 +3701,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.api.plugins.PluginLoadReport.html#habit.api.plugins.PluginLoadReport">PluginLoadReport (class in habit.api.plugins)</a>
 </li>
-      <li><a href="api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.policy">policy (ProcessPoolBackend property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.policy">policy (ProcessPoolBackend property)</a>
+</li>
       <li><a href="api/generated/habit.contracts.BinaryOutcome.html#habit.contracts.BinaryOutcome.positive_label">positive_label (BinaryOutcome attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.BinaryOutcome.html#habit.contracts.BinaryOutcome.positive_mask">positive_mask() (BinaryOutcome method)</a>
@@ -3718,8 +3730,6 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.api.estimators.HabitClassifier.html#habit.api.estimators.HabitClassifier.predict">(HabitClassifier method)</a>
 </li>
-        <li><a href="api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.predict">(TableClassifierEstimator method)</a>
-</li>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.predict">(TablePipeline method)</a>
 </li>
       </ul></li>
@@ -3731,8 +3741,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.Classifier.html#habit.domain.Classifier.predict_proba">(Classifier method)</a>
 </li>
         <li><a href="api/generated/habit.api.estimators.HabitClassifier.html#habit.api.estimators.HabitClassifier.predict_proba">(HabitClassifier method)</a>
-</li>
-        <li><a href="api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.predict_proba">(TableClassifierEstimator method)</a>
 </li>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.predict_proba">(TablePipeline method)</a>
 </li>
@@ -3914,11 +3922,7 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter.SCHEMA_VERSION">SCHEMA_VERSION (LegacyConfigAdapter attribute)</a>
 </li>
       <li><a href="api/generated/habit.api.estimators.HabitClassifier.html#habit.api.estimators.HabitClassifier.score">score() (HabitClassifier method)</a>
-
-      <ul>
-        <li><a href="api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.score">(TableClassifierEstimator method)</a>
 </li>
-      </ul></li>
       <li><a href="api/generated/habit.kernels.score_direction.html#habit.kernels.score_direction">score_direction() (in module habit.kernels)</a>
 </li>
       <li><a href="api/generated/habit.kernels.cluster_selection.SCORE_DIRECTIONS.html#habit.kernels.cluster_selection.SCORE_DIRECTIONS">SCORE_DIRECTIONS (in module habit.kernels.cluster_selection)</a>
@@ -3932,6 +3936,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.SensitivityMetricParams.html#habit.domain.SensitivityMetricParams">SensitivityMetricParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend">SerialBackend (class in habit.execution)</a>
+</li>
+      <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.set_fit_request">set_fit_request() (TablePipeline method)</a>
 </li>
       <li><a href="api/generated/habit.domain.AutogluonTabularClassifier.html#habit.domain.AutogluonTabularClassifier.set_random_state">set_random_state() (AutogluonTabularClassifier method)</a>
 
@@ -3962,7 +3968,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="api/generated/habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator.set_score_request">set_score_request() (TableClassifierEstimator method)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.set_score_request">(TablePipeline method)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/habit.api.utils.setup_logger.html#habit.api.utils.setup_logger">setup_logger() (in module habit.api.utils)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.shape">shape (Geometry attribute)</a>
@@ -4169,7 +4179,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.RfecvSelectorParams.html#habit.domain.RfecvSelectorParams.step">step (RfecvSelectorParams attribute)</a>
 </li>
-      <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.steps">steps (TablePipeline property)</a>
+      <li><a href="api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.steps">steps (MLSpec attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.StepwiseSelector.html#habit.domain.StepwiseSelector">StepwiseSelector (class in habit.domain)</a>
 </li>
@@ -4337,10 +4347,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html#habit.domain.TraditionalRadiomicsHabitatFeatures">TraditionalRadiomicsHabitatFeatures (class in habit.domain)</a>
 </li>
-      <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeaturesParams.html#habit.domain.TraditionalRadiomicsHabitatFeaturesParams">TraditionalRadiomicsHabitatFeaturesParams (class in habit.domain)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeaturesParams.html#habit.domain.TraditionalRadiomicsHabitatFeaturesParams">TraditionalRadiomicsHabitatFeaturesParams (class in habit.domain)</a>
+</li>
       <li><a href="api/generated/habit.recipes.ModelResult.html#habit.recipes.ModelResult.train_metrics">train_metrics (ModelResult attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.train_model.html#habit.recipes.train_model">train_model() (in module habit.recipes)</a>
@@ -4385,8 +4395,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.transform">(TablePipeline method)</a>
 </li>
         <li><a href="api/generated/habit.domain.TablePreprocessor.html#habit.domain.TablePreprocessor.transform">(TablePreprocessor method)</a>
-</li>
-        <li><a href="api/generated/habit.compat.sklearn.TableTransformerEstimator.html#habit.compat.sklearn.TableTransformerEstimator.transform">(TableTransformerEstimator method)</a>
 </li>
         <li><a href="api/generated/habit.domain.VarianceFilter.html#habit.domain.VarianceFilter.transform">(VarianceFilter method)</a>
 </li>

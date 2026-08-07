@@ -18,13 +18,13 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Advanced tabular ML: staged selection and model comparison" href="ml_advanced.html" />
+    <link rel="next" title="Advanced tabular ML: ordered selection and model comparison" href="ml_advanced.html" />
     <link rel="prev" title="Habitat and radiomics feature extraction" href="feature_extraction.html" /> 
 </head>
 
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1449,10 +1451,9 @@
 <p>Habitat (and radiomics) analyses bottom out in a per-subject feature table;
 the v1 ML recipes model that table directly. This example covers:</p>
 <ol class="arabic simple">
-<li><p>declare the modelling definition as an <a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a>
-(<code class="docutils literal notranslate"><span class="pre">pre_preprocessing_feature_selectors</span></code> for variance-style filters on
-the raw table, <code class="docutils literal notranslate"><span class="pre">table_preprocessors</span></code>, optional post-preprocessing
-<code class="docutils literal notranslate"><span class="pre">feature_selectors</span></code>, classifier, metrics),</p></li>
+<li><p>declare the modelling definition as an <a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> (one
+ordered <code class="docutils literal notranslate"><span class="pre">steps</span></code> list of preprocessors and feature selectors — list
+order is execution order — plus the classifier and metrics),</p></li>
 <li><p>hold-out evaluation with <a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a>,</p></li>
 <li><p>K-fold cross-validation with <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a>,</p></li>
 <li><p>inference with <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a>,</p></li>
@@ -1497,15 +1498,16 @@ refitted.</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table: </span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows x &quot;</span>
       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> features, outcome=</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">outcome</span><span class="o">.</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="c1"># Variance MUST run before z-score (raw scale). After z-scoring every</span>
-<span class="c1"># feature has variance ~1, so putting variance in feature_selectors is a no-op.</span>
-<span class="c1"># Post-preprocessing selectors (ANOVA, LASSO, ...) go in feature_selectors.</span>
+<span class="c1"># steps is ONE ordered list and the order is the execution order. Variance</span>
+<span class="c1"># MUST come before zscore (raw scale): after z-scoring every feature has</span>
+<span class="c1"># variance ~1, so a variance step placed after it is a no-op. Supervised</span>
+<span class="c1"># selectors (ANOVA, LASSO, ...) normally come after the scaling step.</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
-    <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
         <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
     <span class="p">),</span>
-    <span class="n">table_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
@@ -1566,7 +1568,7 @@ workflow, not the score:</p>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="ml_advanced.html"><span class="doc">Advanced tabular ML: staged selection and model comparison</span></a> — staged selectors + <code class="docutils literal notranslate"><span class="pre">compare_models</span></code></p></li>
+<li><p><a class="reference internal" href="ml_advanced.html"><span class="doc">Advanced tabular ML: ordered selection and model comparison</span></a> — staged selectors + <code class="docutils literal notranslate"><span class="pre">compare_models</span></code></p></li>
 <li><p><a class="reference internal" href="../api/domain_table.html"><span class="doc">Table ML domain API</span></a> — tabular building blocks</p></li>
 <li><p><a class="reference internal" href="../configuration/machine_learning.html"><span class="doc">Machine Learning Configuration</span></a> — YAML equivalent (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>)</p></li>
 </ul>
@@ -1578,7 +1580,7 @@ workflow, not the score:</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="feature_extraction.html" class="btn btn-neutral float-left" title="Habitat and radiomics feature extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="ml_advanced.html" class="btn btn-neutral float-right" title="Advanced tabular ML: staged selection and model comparison" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ml_advanced.html" class="btn btn-neutral float-right" title="Advanced tabular ML: ordered selection and model comparison" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

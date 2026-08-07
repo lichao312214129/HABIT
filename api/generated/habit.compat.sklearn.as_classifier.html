@@ -18,7 +18,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1448,14 +1450,18 @@
 <h1>as_classifier<a class="headerlink" href="#as-classifier" title="Link to this heading"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="habit.compat.sklearn.as_classifier">
-<span class="sig-name descname"><span class="pre">as_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.compat.sklearn.TableClassifierEstimator.html#habit.compat.sklearn.TableClassifierEstimator" title="habit.compat.sklearn.TableClassifierEstimator"><span class="pre">TableClassifierEstimator</span></a></span></span><a class="reference internal" href="../../_modules/habit/compat/sklearn.html#as_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.compat.sklearn.as_classifier" title="Link to this definition"></a></dt>
-<dd><p>Wrap a HABIT classifier as a sklearn classifier.</p>
+<span class="sig-name descname"><span class="pre">as_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TableClassifierEstimator</span></span></span><a class="reference internal" href="../../_modules/habit/compat/sklearn.html#as_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.compat.sklearn.as_classifier" title="Link to this definition"></a></dt>
+<dd><p>Deprecated alias of
+<code class="xref py py-func docutils literal notranslate"><span class="pre">habit.domain.sklearn_interop.as_classifier()</span></code> (kept through v1.x).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>component</strong> – <code class="docutils literal notranslate"><span class="pre">Classifier</span></code> implementation.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> – <code class="docutils literal notranslate"><span class="pre">Classifier</span></code> implementation.</p></li>
+<li><p><strong>**options</strong> – Forwarded verbatim to the domain-layer factory.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The configured adapter.</p>
+<dd class="field-even"><p>The configured adapter, of the domain-layer type.</p>
 </dd>
 </dl>
 </dd></dl>

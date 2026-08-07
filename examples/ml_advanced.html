@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced tabular ML: staged selection and model comparison &mdash; HABIT Documentation</title>
+  <title>Advanced tabular ML: ordered selection and model comparison &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +56,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -209,7 +210,7 @@
 <li class="toctree-l4"><a class="reference internal" href="tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
@@ -1200,6 +1201,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1434,7 +1436,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
-      <li class="breadcrumb-item active">Advanced tabular ML: staged selection and model comparison</li>
+      <li class="breadcrumb-item active">Advanced tabular ML: ordered selection and model comparison</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples/ml_advanced.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -1444,27 +1446,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="advanced-tabular-ml-staged-selection-and-model-comparison">
-<h1>Advanced tabular ML: staged selection and model comparison<a class="headerlink" href="#advanced-tabular-ml-staged-selection-and-model-comparison" title="Link to this heading"></a></h1>
-<p><a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> exposes three ordered table stages:</p>
+  <section id="advanced-tabular-ml-ordered-selection-and-model-comparison">
+<h1>Advanced tabular ML: ordered selection and model comparison<a class="headerlink" href="#advanced-tabular-ml-ordered-selection-and-model-comparison" title="Link to this heading"></a></h1>
+<p><a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a> declares its table steps as ONE ordered list,
+<code class="docutils literal notranslate"><span class="pre">steps</span></code>. The list order is the execution order, so preprocessors and
+selectors interleave freely and position is the only thing that expresses
+stage:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pre_preprocessing_feature_selectors</span></code> — on the <strong>raw</strong> table before any
-normalisation (v0.1 <code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">true</span></code>). Variance filtering must run
-here: after z-scoring every feature variance is 1.0.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">table_preprocessors</span></code> — stateful preprocessing (z-score, min-max, …).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">feature_selectors</span></code> — post-preprocessing selection (ANOVA, LASSO, …).</p></li>
+<li><p>a variance filter belongs <strong>first</strong>, on the raw table — after z-scoring
+every feature variance is 1.0, so the same step placed later selects
+nothing meaningful (v0.1 spelled this <code class="docutils literal notranslate"><span class="pre">before_z_score:</span> <span class="pre">true</span></code>);</p></li>
+<li><p>stateful preprocessing (z-score, min-max, …) sits wherever the design puts
+it, including <em>between</em> two selectors;</p></li>
+<li><p>supervised selection (ANOVA, LASSO, …) normally follows the scaling.</p></li>
 </ul>
+<p>The three predecessor fields <code class="docutils literal notranslate"><span class="pre">pre_preprocessing_feature_selectors</span></code>,
+<code class="docutils literal notranslate"><span class="pre">table_preprocessors</span></code> and <code class="docutils literal notranslate"><span class="pre">feature_selectors</span></code> are deprecated aliases kept
+for all of v1.x; they are folded into <code class="docutils literal notranslate"><span class="pre">steps</span></code> in that order.</p>
 <p><a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a> compares saved prediction CSVs and writes
 ROC / calibration figures (the programmatic twin of <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>).</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Advanced tabular ML: staged feature selection and model comparison.</span>
+<span class="sd">Advanced tabular ML: ordered feature selection and model comparison.</span>
 
-<span class="sd">* ``MLSpec.pre_preprocessing_feature_selectors`` — selection on the RAW table</span>
-<span class="sd">  before z-scoring (v0.1 ``before_z_score: true``).</span>
-<span class="sd">* ``MLSpec.feature_selectors`` — selection after preprocessing.</span>
+<span class="sd">* ``MLSpec.steps`` — one ordered list of table steps; the list order IS the</span>
+<span class="sd">  execution order, so a selector can sit before, between or after</span>
+<span class="sd">  preprocessors (v0.1&#39;s ``before_z_score`` is just &quot;put it first&quot;).</span>
 <span class="sd">* :func:`~habit.recipes.compare_models` — ROC/AUC comparison across saved</span>
 <span class="sd">  prediction CSVs (the programmatic twin of ``habit compare``).</span>
 
@@ -1493,11 +1502,11 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
 <span class="c1"># has unit variance and the selector becomes uninformative.</span>
 <span class="n">staged_spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;staged_selection&quot;</span><span class="p">,</span>
-    <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
         <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;anova&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_features_to_select&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
     <span class="p">),</span>
-    <span class="n">table_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
-    <span class="n">feature_selectors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;anova&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
@@ -1566,7 +1575,7 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Table</span><span class="p">:</span> <span class="mi">60</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">10</span> <span class="n">features</span>
 
 <span class="o">---</span> <span class="n">Staged</span> <span class="n">pipeline</span> <span class="p">(</span><span class="n">pre</span><span class="o">-</span><span class="n">variance</span> <span class="o">-&gt;</span> <span class="n">zscore</span> <span class="o">-&gt;</span> <span class="n">k</span><span class="o">-</span><span class="n">best</span> <span class="o">-&gt;</span> <span class="n">LR</span><span class="p">)</span> <span class="o">---</span>
-<span class="n">Train</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.978</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="n">Train</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 <span class="n">Test</span> <span class="n">metrics</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 
 <span class="o">---</span> <span class="n">compare_models</span> <span class="n">output</span><span class="p">:</span> <span class="o">.../</span><span class="n">comparison</span> <span class="o">---</span>

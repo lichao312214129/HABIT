@@ -17,7 +17,7 @@
   
         <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
@@ -409,11 +409,16 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +455,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -557,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1548,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1822,6 +1829,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.classification.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassifierRegistry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.outcome_access</span><span class="w"> </span><span class="kn">import</span> <span class="n">outcome_series</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.estimator_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComponentParamsMixin</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AutogluonTabularClassifier&quot;</span><span class="p">,</span> <span class="s2">&quot;AutogluonTabularClassifierParams&quot;</span><span class="p">]</span>
 
@@ -1859,7 +1867,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="AutogluonTabularClassifier">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.AutogluonTabularClassifier.html#habit.domain.AutogluonTabularClassifier">[docs]</a>
 <span class="nd">@ClassifierRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;AutoGluonTabular&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">AutogluonTabularClassifier</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AutogluonTabularClassifier</span><span class="p">(</span><span class="n">ComponentParamsMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AutoML classifier wrapping AutoGluon&#39;s ``TabularPredictor``.</span>
 
@@ -1869,9 +1877,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    blocks. AutoGluon&#39;s ``fit`` accepts no random-state argument (v1.3+), so</span>
 <span class="sd">    :meth:`set_random_state` seeds the global Python/NumPy RNGs before</span>
 <span class="sd">    training, the same mitigation the v0.1 wrapper applied.</span>
+
+<span class="sd">    Both AutoGluon parameter blocks need an explicit</span>
+<span class="sd">    ``_PARAM_ATTRIBUTES`` entry: the ``fit`` parameter would otherwise</span>
+<span class="sd">    resolve to this class&#39;s ``fit`` METHOD, and ``predictor`` to the fitted</span>
+<span class="sd">    ``TabularPredictor`` rather than to the kwargs that construct it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_spec_name</span> <span class="o">=</span> <span class="s2">&quot;AutoGluonTabular&quot;</span>
+
+    <span class="c1">#: The two blocks whose attribute names diverge from the parameter names.</span>
+    <span class="n">_PARAM_ATTRIBUTES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictor&quot;</span><span class="p">:</span> <span class="s2">&quot;_predictor_params&quot;</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">:</span> <span class="s2">&quot;_fit_params&quot;</span><span class="p">}</span>
 
 <div class="viewcode-block" id="AutogluonTabularClassifier.__init__">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.AutogluonTabularClassifier.html#habit.domain.AutogluonTabularClassifier.__init__">[docs]</a>

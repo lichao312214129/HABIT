@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=71272d9f"></script>
+        <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.4
+                1.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -409,6 +409,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
@@ -562,7 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#script">Script</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#output">Output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -1553,6 +1554,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#metrics">Metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#statistical-helpers">Statistical helpers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_table.html#tablepipeline-is-an-sklearn-pipeline-pipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> is an <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
@@ -1815,8 +1817,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
@@ -1825,6 +1825,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span> <span class="k">as</span> <span class="n">SkPipeline</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompatibilityError</span><span class="p">,</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">Supervoxelization</span><span class="p">,</span> <span class="n">VoxelFeatureField</span>
@@ -1840,6 +1841,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">SupervoxelFeatureExtractor</span><span class="p">,</span>
     <span class="n">Supervoxelizer</span><span class="p">,</span>
     <span class="n">VoxelFeatureExtractor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.sklearn_interop</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FrameToTable</span><span class="p">,</span>
+    <span class="n">as_outcome_model</span><span class="p">,</span>
+    <span class="n">as_transformer</span><span class="p">,</span>
+    <span class="n">step_consumes_repeat_tables</span><span class="p">,</span>
+    <span class="n">wraps_outcome_model</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.table_protocols</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Classifier</span><span class="p">,</span>
@@ -2217,18 +2225,204 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># TablePipeline: fitted preprocessing/selection + classifier over FeatureTable</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
-<span class="c1">#: On-disk format identifier and the version this HABIT build can read/write.</span>
-<span class="c1">#: Bump ``_PIPELINE_FORMAT_VERSION`` (and extend the loader) whenever the</span>
-<span class="c1">#: layout changes; older files must either load or fail with a clear message.</span>
+<span class="c1">#: On-disk format identifier and the version this HABIT build WRITES.</span>
+<span class="c1">#: ``format_version`` 1 files were produced before ``TablePipeline`` became an</span>
+<span class="c1">#: ``sklearn.pipeline.Pipeline`` subclass; version 2 adds the frame schema of</span>
+<span class="c1">#: the :class:`~habit.domain.sklearn_interop.FrameToTable` head step. Both are</span>
+<span class="c1">#: readable -- see :meth:`TablePipeline.load`.</span>
 <span class="n">_PIPELINE_FORMAT_NAME</span> <span class="o">=</span> <span class="s2">&quot;habit.tablepipeline&quot;</span>
-<span class="n">_PIPELINE_FORMAT_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_PIPELINE_FORMAT_VERSION</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#: Step name of the ``FrameToTable`` head and of the terminal outcome model.</span>
+<span class="c1">#: Fixed (rather than derived) so ``pipe.set_params(frame_to_table=...)`` and</span>
+<span class="c1">#: a ``param_grid`` key like ``&quot;model__component__C&quot;`` are stable, documentable</span>
+<span class="c1">#: strings rather than something a caller has to discover per pipeline.</span>
+<span class="n">_HEAD_STEP_NAME</span> <span class="o">=</span> <span class="s2">&quot;frame_to_table&quot;</span>
+<span class="n">_MODEL_STEP_NAME</span> <span class="o">=</span> <span class="s2">&quot;model&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sklearn_pipeline_param_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the constructor parameter names of ``sklearn.pipeline.Pipeline``.</span>
+
+<span class="sd">    Read off sklearn itself rather than hard-coded, because the set has grown</span>
+<span class="sd">    across the supported range (``transform_input`` arrived in 1.6 and HABIT</span>
+<span class="sd">    supports ``scikit-learn&gt;=1.4,&lt;2``). Anything sklearn declares is a</span>
+<span class="sd">    parameter ``TablePipeline`` must expose unchanged, and a step name must</span>
+<span class="sd">    never collide with one.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[str, ...]: Parameter names, sorted as sklearn sorts them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">SkPipeline</span><span class="o">.</span><span class="n">_get_param_names</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_sklearn_step_list</span><span class="p">(</span><span class="n">steps</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Report whether ``steps`` is already in scikit-learn ``(name, est)`` form.</span>
+
+<span class="sd">    ``TablePipeline`` accepts two shapes for the same argument, and the shape</span>
+<span class="sd">    decides how it is interpreted:</span>
+
+<span class="sd">    * HABIT form -- a flat sequence of HABIT components, which is what call</span>
+<span class="sd">      sites and YAML-driven assembly pass, and which this class wraps into</span>
+<span class="sd">      adapters;</span>
+<span class="sd">    * sklearn form -- ``[(name, estimator), ...]``, which is what</span>
+<span class="sd">      ``sklearn.base.clone``, ``Pipeline.set_params(steps=...)`` and pipeline</span>
+<span class="sd">      slicing pass back in, and which must be stored VERBATIM (``clone``</span>
+<span class="sd">      verifies that ``get_params()`` returns the very object it handed to the</span>
+<span class="sd">      constructor).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        steps: The ``steps`` argument as received.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` for sklearn form. An empty sequence is reported as</span>
+<span class="sd">        HABIT form, so the &quot;no terminal model&quot; error still fires for</span>
+<span class="sd">        ``TablePipeline(steps=[])``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unique_step_name</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">taken</span><span class="p">:</span> <span class="nb">set</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive a stable, unique sklearn step name for a HABIT component.</span>
+
+<span class="sd">    The component&#39;s registered spec name is the name a user already knows</span>
+<span class="sd">    (``&quot;zscore&quot;``, ``&quot;variance&quot;``, ``&quot;lasso&quot;``), so it is what a</span>
+<span class="sd">    ``param_grid`` key should read as. Uniqueness and sklearn&#39;s own naming</span>
+<span class="sd">    rules are enforced on top: names must be distinct, must not contain</span>
+<span class="sd">    ``&quot;__&quot;`` (the parameter separator) and must not collide with a</span>
+<span class="sd">    constructor parameter of the pipeline.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        component: The HABIT component about to be wrapped.</span>
+<span class="sd">        taken: Names already used; mutated to include the returned name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The step name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">base</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">while</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">taken</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">suffix</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">taken</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_component_spec_payload</span><span class="p">(</span><span class="n">component</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return one component&#39;s ``Spec`` payload for the composed pipeline spec.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        component: A HABIT component taken from the pipeline.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict[str, Any]: The component&#39;s ``spec.to_dict()``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When the object carries no ``Spec``. A pipeline holding</span>
+<span class="sd">            a foreign estimator cannot be described, fingerprinted or saved,</span>
+<span class="sd">            and failing here is the only way that stays visible instead of</span>
+<span class="sd">            reappearing as a provenance record nobody can reproduce.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;spec&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;to_dict&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;TablePipeline.spec needs every step to carry a habit Spec, but &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> carries none. Only HABIT components &quot;</span>
+            <span class="s2">&quot;(and a FrameToTable head) belong in a TablePipeline; a foreign &quot;</span>
+            <span class="s2">&quot;scikit-learn estimator cannot be fingerprinted or saved.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_sklearn_steps</span><span class="p">(</span>
+    <span class="n">components</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrap HABIT components into the ``(name, estimator)`` list sklearn needs.</span>
+
+<span class="sd">    Layout, always: a :class:`~habit.domain.sklearn_interop.FrameToTable` head</span>
+<span class="sd">    (so an sklearn cross-validation driver can hand the pipeline a plain,</span>
+<span class="sd">    row-sliceable frame), then one</span>
+<span class="sd">    :class:`~habit.domain.sklearn_interop.TableTransformerEstimator` per</span>
+<span class="sd">    transformation component, then the terminal outcome-model adapter.</span>
+
+<span class="sd">    Every adapter is built with ``copy_on_fit=False``: the pipeline&#39;s</span>
+<span class="sd">    :attr:`TablePipeline.components`, its :meth:`TablePipeline.save` artefact</span>
+<span class="sd">    and every reporting call site read fitted state off the very component</span>
+<span class="sd">    objects the caller constructed, so the pipeline must fit them in place.</span>
+<span class="sd">    ``sklearn.base.clone`` still gives each cross-validation fold its own</span>
+<span class="sd">    components, so nothing leaks across folds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        components: HABIT transformation components in execution order. A</span>
+<span class="sd">            ``FrameToTable`` may be given as the FIRST element to declare the</span>
+<span class="sd">            column schema of the frames an sklearn driver will slice; anywhere</span>
+<span class="sd">            else it is an error, because rebuilding the table halfway through</span>
+<span class="sd">            a chain would silently discard the upstream selection.</span>
+<span class="sd">        model: The terminal outcome model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[Tuple[str, Any]]: The sklearn step list.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: On a misplaced ``FrameToTable``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">components</span><span class="p">)</span>
+    <span class="n">head</span><span class="p">:</span> <span class="n">FrameToTable</span> <span class="o">=</span> <span class="n">FrameToTable</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">items</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">FrameToTable</span><span class="p">):</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">FrameToTable</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;A FrameToTable step rebuilds the FeatureTable from a plain &quot;</span>
+                <span class="s2">&quot;frame, so it only makes sense at the HEAD of a &quot;</span>
+                <span class="s2">&quot;TablePipeline; found one after another step, where it would &quot;</span>
+                <span class="s2">&quot;silently discard the upstream selection. Move it to the &quot;</span>
+                <span class="s2">&quot;front of the steps list.&quot;</span>
+            <span class="p">)</span>
+    <span class="n">prepared</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_HEAD_STEP_NAME</span><span class="p">,</span> <span class="n">head</span><span class="p">)]</span>
+    <span class="n">taken</span> <span class="o">=</span> <span class="p">{</span><span class="n">_HEAD_STEP_NAME</span><span class="p">,</span> <span class="n">_MODEL_STEP_NAME</span><span class="p">,</span> <span class="o">*</span><span class="n">_sklearn_pipeline_param_names</span><span class="p">()}</span>
+    <span class="n">selector_position</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_unique_step_name</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">taken</span><span class="p">)</span>
+        <span class="n">selector_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">_is_feature_selector_step</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+            <span class="n">selector_position</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">selector_index</span> <span class="o">=</span> <span class="n">selector_position</span>
+        <span class="n">prepared</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">as_transformer</span><span class="p">(</span>
+                    <span class="n">component</span><span class="p">,</span>
+                    <span class="n">copy_on_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">selector_step_index</span><span class="o">=</span><span class="n">selector_index</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">prepared</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">_MODEL_STEP_NAME</span><span class="p">,</span> <span class="n">as_outcome_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">copy_on_fit</span><span class="o">=</span><span class="kc">False</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">prepared</span>
 
 
 <div class="viewcode-block" id="TablePipeline">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TablePipeline</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TablePipeline</span><span class="p">(</span><span class="n">SkPipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fitted preprocessing/selection chain plus classifier over feature tables.</span>
+<span class="sd">    Fitted preprocessing/selection chain plus model over feature tables.</span>
 
 <span class="sd">    The structural answer to the train/predict leakage class of bugs: the</span>
 <span class="sd">    preprocessing and feature-selection steps are fitted ONCE on the training</span>
@@ -2238,68 +2432,230 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    The fitted pipeline is also the artefact a study publishes for external</span>
 <span class="sd">    validation of its tabular model, which is why :meth:`save` persists the</span>
-<span class="sd">    steps and the classifier together in one versioned, self-describing</span>
-<span class="sd">    file (a JSON manifest recording every component&#39;s :class:`~habit.spec.specs.Spec`</span>
-<span class="sd">    alongside the pickled fitted state).</span>
+<span class="sd">    steps and the model together in one versioned, self-describing file (a</span>
+<span class="sd">    JSON manifest recording every component&#39;s</span>
+<span class="sd">    :class:`~habit.spec.specs.Spec` alongside the pickled fitted state).</span>
+
+<span class="sd">    **This IS an ``sklearn.pipeline.Pipeline``.** Subclassing rather than</span>
+<span class="sd">    re-implementing composition is what gives HABIT&#39;s tabular models</span>
+<span class="sd">    ``clone``, ``get_params``/``set_params``, nested parameter addressing and</span>
+<span class="sd">    therefore ``GridSearchCV`` / ``RandomizedSearchCV`` / ``cross_val_score``</span>
+<span class="sd">    for free, instead of a second composition engine that would drift from</span>
+<span class="sd">    the one the rest of the ecosystem uses.</span>
+
+<span class="sd">    Two consequences a caller must know:</span>
+
+<span class="sd">    * ``.steps`` has sklearn&#39;s meaning -- ``List[Tuple[str, estimator]]``,</span>
+<span class="sd">      where the estimators are the interop adapters. It is NOT overridden,</span>
+<span class="sd">      because sklearn&#39;s ``_iter`` / ``_validate_steps`` / ``get_params`` /</span>
+<span class="sd">      ``set_params`` all read and WRITE it directly. The HABIT components are</span>
+<span class="sd">      reached through :attr:`components` (transformation steps) and</span>
+<span class="sd">      :attr:`model` (the terminal one).</span>
+<span class="sd">    * The step list always begins with a</span>
+<span class="sd">      :class:`~habit.domain.sklearn_interop.FrameToTable` head named</span>
+<span class="sd">      ``&quot;frame_to_table&quot;`` and ends with the outcome-model adapter named</span>
+<span class="sd">      ``&quot;model&quot;``. The head is what lets an sklearn cross-validation driver</span>
+<span class="sd">      pass a plain frame as ``X`` (a ``FeatureTable`` is a frozen dataclass</span>
+<span class="sd">      and deliberately not row-sliceable); when the pipeline is handed a</span>
+<span class="sd">      ``FeatureTable`` directly -- HABIT&#39;s own entry point -- it passes</span>
+<span class="sd">      straight through, with no frame round-trip and therefore no dtype</span>
+<span class="sd">      promotion that could shift a later z-score.</span>
+
+<span class="sd">    HABIT&#39;s verbs are kept as overrides, because a ``FeatureTable`` in must</span>
+<span class="sd">    give a HABIT type out: :meth:`fit`, :meth:`transform`, :meth:`predict`</span>
+<span class="sd">    and :meth:`predict_proba` return tables / labelled Series / labelled</span>
+<span class="sd">    frames for ``FeatureTable`` input, and plain arrays for frame input (what</span>
+<span class="sd">    an sklearn scorer expects). :meth:`evaluate`,</span>
+<span class="sd">    :meth:`predict_survival_function`, :meth:`set_random_state`, :meth:`spec`,</span>
+<span class="sd">    :meth:`save` and :meth:`load` have no sklearn equivalent and are</span>
+<span class="sd">    unchanged.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        steps: Ordered transformation steps (``TablePreprocessor`` and/or</span>
-<span class="sd">            ``FeatureSelector`` implementations). May be empty, in which case</span>
-<span class="sd">            the pipeline is the bare model.</span>
+<span class="sd">        steps: Either the HABIT form -- ordered transformation components</span>
+<span class="sd">            (``TablePreprocessor`` and/or ``FeatureSelector``</span>
+<span class="sd">            implementations), optionally preceded by a ``FrameToTable``</span>
+<span class="sd">            declaring the frame schema; may be empty, in which case the</span>
+<span class="sd">            pipeline is the bare model -- or the sklearn form</span>
+<span class="sd">            ``[(name, estimator), ...]``, which is what ``clone``,</span>
+<span class="sd">            ``set_params(steps=...)`` and slicing pass back in.</span>
 <span class="sd">        model: The terminal outcome model -- a :class:`Classifier`,</span>
 <span class="sd">            :class:`Regressor`, or :class:`SurvivalModel`, matched to the</span>
-<span class="sd">            endpoint family of the tables it will be fitted on.</span>
+<span class="sd">            endpoint family of the tables it will be fitted on. Must be</span>
+<span class="sd">            omitted when ``steps`` is already in sklearn form (the terminal</span>
+<span class="sd">            step carries it).</span>
 <span class="sd">        classifier: Deprecated alias for ``model`` (binary/multiclass</span>
 <span class="sd">            endpoints); kept so existing call sites keep working.</span>
+<span class="sd">        **pipeline_options: Forwarded verbatim to</span>
+<span class="sd">            ``sklearn.pipeline.Pipeline`` (``memory``, ``verbose``, and</span>
+<span class="sd">            ``transform_input`` on scikit-learn &gt;= 1.6).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Nested hyperparameter search over a HABIT component&#39;s own parameter::</span>
+
+<span class="sd">            from sklearn.model_selection import GridSearchCV</span>
+
+<span class="sd">            from habit.domain.sklearn_interop import FrameToTable</span>
+
+<span class="sd">            pipe = TablePipeline(</span>
+<span class="sd">                steps=[FrameToTable.from_table(train), ZScorePreprocessor()],</span>
+<span class="sd">                model=LogisticRegressionClassifier(),</span>
+<span class="sd">            )</span>
+<span class="sd">            search = GridSearchCV(pipe, {&quot;model__component__C&quot;: [0.1, 1, 10]})</span>
+<span class="sd">            search.fit(train.frame, outcome_series(train))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TablePipeline.__init__">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">steps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TablePreprocessor</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">]],</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">classifier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Classifier</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">pipeline_options</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">classifier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="n">classifier</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;TablePipeline requires a terminal model.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TablePreprocessor</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
-        <span class="c1"># Which steps learn from repeat-measurement tables (ICC selection).</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_step_takes_repeats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;repeat_tables&quot;</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">fit</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span>
-        <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span></div>
+        <span class="k">if</span> <span class="n">_is_sklearn_step_list</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">classifier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;TablePipeline received steps already in scikit-learn &quot;</span>
+                    <span class="s2">&quot;(name, estimator) form together with a separate model. &quot;</span>
+                    <span class="s2">&quot;The terminal step already carries the model; passing it &quot;</span>
+                    <span class="s2">&quot;twice would leave two divergent copies, one of which &quot;</span>
+                    <span class="s2">&quot;would never be fitted.&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># Stored verbatim: ``sklearn.base.clone`` checks that</span>
+            <span class="c1"># ``get_params(deep=False)[&quot;steps&quot;]`` IS the list it passed in.</span>
+            <span class="n">prepared</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">steps</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">classifier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">classifier</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;TablePipeline requires a terminal model.&quot;</span><span class="p">)</span>
+            <span class="n">prepared</span> <span class="o">=</span> <span class="n">_build_sklearn_steps</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">prepared</span><span class="p">,</span> <span class="o">**</span><span class="n">pipeline_options</span><span class="p">)</span></div>
 
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_param_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Declare exactly ``sklearn.pipeline.Pipeline``&#39;s constructor parameters.</span>
+
+<span class="sd">        ``BaseEstimator._get_param_names`` derives the parameter set from the</span>
+<span class="sd">        subclass&#39;s own ``__init__``, which here would add ``model`` and</span>
+<span class="sd">        ``classifier``. Both are CONSTRUCTION conveniences, not state: the</span>
+<span class="sd">        terminal model lives inside ``steps``. Reporting them would make</span>
+<span class="sd">        ``clone`` rebuild the model twice -- once inside the cloned steps and</span>
+<span class="sd">        once from the ``model`` parameter -- leaving the pipeline with a</span>
+<span class="sd">        terminal model that never gets fitted, and ``clone``&#39;s own identity</span>
+<span class="sd">        check would fail. Delegating to sklearn&#39;s own answer also keeps the</span>
+<span class="sd">        set correct across the supported scikit-learn range.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[str]: Parameter names, in sklearn&#39;s sorted order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_sklearn_pipeline_param_names</span><span class="p">())</span>
+
+    <span class="c1"># -- HABIT views over the sklearn step list ---------------------------</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TablePreprocessor</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ordered transformation steps.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TablePreprocessor</span><span class="p">,</span> <span class="n">FeatureSelector</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the ordered HABIT transformation components.</span>
+
+<span class="sd">        This is the successor of the pre-v1.1 ``.steps`` property. ``.steps``</span>
+<span class="sd">        now means what sklearn means by it, so the HABIT components -- the</span>
+<span class="sd">        objects carrying ``spec``, the fitted statistics and the selected</span>
+<span class="sd">        column names -- are read here instead. The ``FrameToTable`` head and</span>
+<span class="sd">        the terminal model adapter are excluded: the head is interop</span>
+<span class="sd">        plumbing, and the model is :attr:`model`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple: The unwrapped components, in execution order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">collected</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">FrameToTable</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">wraps_outcome_model</span><span class="p">(</span><span class="n">estimator</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">,</span> <span class="n">estimator</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">collected</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Classifier</span><span class="p">,</span> <span class="n">Regressor</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the terminal outcome model.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the terminal outcome model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The HABIT ``Classifier`` / ``Regressor`` / ``SurvivalModel``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: When the pipeline does not end in a HABIT outcome</span>
+<span class="sd">                model -- which happens for a slice such as ``pipe[:-1]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">terminal</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wraps_outcome_model</span><span class="p">(</span><span class="n">terminal</span><span class="p">)</span> <span class="ow">or</span> <span class="n">component</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;This TablePipeline does not end in a HABIT outcome model &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(terminal step: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">terminal</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">), so it has no &quot;</span>
+                <span class="s2">&quot;model to report. Slices such as pipe[:-1] are transformation &quot;</span>
+                <span class="s2">&quot;chains only.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">component</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Classifier</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the terminal model, asserted to be a classifier.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>  <span class="c1"># type: ignore[return-value]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>  <span class="c1"># type: ignore[return-value]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">frame_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrameToTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the ``FrameToTable`` head step.</span>
+
+<span class="sd">        The one place to read or re-declare the column schema an sklearn</span>
+<span class="sd">        driver&#39;s frames follow. Prefer</span>
+<span class="sd">        ``pipe.set_params(frame_to_table=FrameToTable.from_table(table))`` to</span>
+<span class="sd">        replace it, so the change goes through sklearn&#39;s own parameter</span>
+<span class="sd">        machinery and survives ``clone``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: When the pipeline has no ``FrameToTable`` head.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">FrameToTable</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;This TablePipeline has no FrameToTable head step (first &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;step: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">head</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">), so it cannot accept a plain &quot;</span>
+                <span class="s2">&quot;frame as X.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">head</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the composed specification of every stage.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the composed specification of every stage.</span>
+
+<span class="sd">        The payload shape -- ``{&quot;steps&quot;: [...], &quot;model&quot;: {...}}`` -- is the</span>
+<span class="sd">        FINGERPRINTED one and is deliberately unchanged by the move to</span>
+<span class="sd">        ``sklearn.pipeline.Pipeline``: the ``FrameToTable`` head and the</span>
+<span class="sd">        adapters are interop plumbing, not scientific definition, so they do</span>
+<span class="sd">        not appear. Renaming or reshaping this payload would move every</span>
+<span class="sd">        recorded provenance fingerprint in the repository.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: When a step carries no ``Spec``, i.e. the pipeline</span>
+<span class="sd">                holds a foreign estimator that HABIT cannot describe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;table_pipeline&quot;</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">],</span>
-                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="n">_component_spec_payload</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">_component_spec_payload</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">),</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2309,105 +2665,167 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Seed every stochastic component of the pipeline.</span>
 
-<span class="sd">        Propagates to each step and the classifier implementing</span>
-<span class="sd">        :class:`~habit.domain.protocols.Seedable`; deterministic components</span>
-<span class="sd">        are untouched (v1.0 naming decisions: one seeding verb, never a</span>
-<span class="sd">        constructor parameter).</span>
+<span class="sd">        Propagates to each transformation component and the terminal model</span>
+<span class="sd">        implementing :class:`~habit.domain.protocols.Seedable`; deterministic</span>
+<span class="sd">        components are untouched (v1.0 naming decisions: one seeding verb,</span>
+<span class="sd">        never a constructor parameter).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            seed: The seed to install.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_terminal_components</span><span class="p">()]:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">Seedable</span><span class="p">):</span>
                 <span class="n">component</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_terminal_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the terminal model in a tuple, or empty when absent.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,)</span>
+        <span class="k">except</span> <span class="n">HABITAPIError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">()</span>
+
+    <span class="c1"># -- fit / transform / predict ---------------------------------------</span>
 
 <div class="viewcode-block" id="TablePipeline.fit">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">repeat_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TablePipeline&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Fit every step in order, then the classifier.</span>
+<span class="sd">        Fit every step in order, then the terminal model.</span>
 
 <span class="sd">        Each step is fitted on the table produced by the previous step, so</span>
 <span class="sd">        learned statistics compose exactly as they will at predict time.</span>
-<span class="sd">        Steps accepting ``repeat_tables`` (test-retest selectors) receive</span>
-<span class="sd">        them; the rest see only the primary table.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            table: Training table with feature columns and an outcome column.</span>
-<span class="sd">            repeat_tables: Optional aligned repeat-measurement tables, passed</span>
-<span class="sd">                only to the steps that consume them.</span>
+<span class="sd">            X: Training data. A ``FeatureTable`` (HABIT&#39;s entry point: the</span>
+<span class="sd">                outcome rides inside it and passes through the head step</span>
+<span class="sd">                untouched) or a plain frame carrying the identifier, feature</span>
+<span class="sd">                and outcome columns the ``FrameToTable`` head declares.</span>
+<span class="sd">            y: Training targets. Normally ``None`` for a ``FeatureTable``,</span>
+<span class="sd">                whose outcome column already supplies them; sklearn&#39;s</span>
+<span class="sd">                cross-validation drivers pass the sliced label array, which</span>
+<span class="sd">                is cross-checked against the table&#39;s own outcome so a</span>
+<span class="sd">                misaligned ``y`` fails loudly.</span>
+<span class="sd">            repeat_tables: Optional aligned repeat-measurement tables. Routed</span>
+<span class="sd">                ONLY to the steps whose ``fit`` declares ``repeat_tables``</span>
+<span class="sd">                (the test-retest / ICC selectors); the rest never see the</span>
+<span class="sd">                keyword.</span>
+<span class="sd">            **params: scikit-learn step-scoped fit parameters in</span>
+<span class="sd">                ``stepname__param`` form, forwarded unchanged.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ``self``, fitted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">current</span> <span class="o">=</span> <span class="n">table</span>
-        <span class="n">selector_step</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">takes_repeats</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_takes_repeats</span><span class="p">):</span>
-            <span class="n">is_selector</span> <span class="o">=</span> <span class="n">_is_feature_selector_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
-            <span class="n">n_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">is_selector</span><span class="p">:</span>
-                <span class="n">selector_step</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">method_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Step </span><span class="si">%s</span><span class="s2">: Applying &#39;</span><span class="si">%s</span><span class="s2">&#39; feature selection&quot;</span><span class="p">,</span>
-                    <span class="n">selector_step</span><span class="p">,</span>
-                    <span class="n">method_name</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Parameters: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Features before this step: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_before</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">takes_repeats</span><span class="p">:</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">repeat_tables</span><span class="o">=</span><span class="n">repeat_tables</span><span class="p">)</span>  <span class="c1"># type: ignore[call-arg]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">step</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">is_selector</span><span class="p">:</span>
-                <span class="n">n_after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
-                <span class="n">n_removed</span> <span class="o">=</span> <span class="n">n_before</span> <span class="o">-</span> <span class="n">n_after</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Features after this step: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_after</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Number of features removed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_removed</span><span class="p">)</span>
-                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">routed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">repeat_tables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">routed</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_repeat_table_params</span><span class="p">(</span><span class="n">repeat_tables</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">routed</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repeat_table_params</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">repeat_tables</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Expand ``repeat_tables`` into scikit-learn&#39;s step-scoped fit params.</span>
+
+<span class="sd">        Test-retest selectors learn from aligned repeat-measurement tables;</span>
+<span class="sd">        every other step must NOT be handed the keyword, or it would raise on</span>
+<span class="sd">        an unexpected argument. sklearn&#39;s routing key is</span>
+<span class="sd">        ``&quot;&lt;stepname&gt;__repeat_tables&quot;``, so the pipeline resolves which steps</span>
+<span class="sd">        consume it and names them explicitly.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            repeat_tables: The repeat tables to route.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict[str, Any]: Fit parameters, one entry per consuming step.</span>
+<span class="sd">            Empty when no step consumes them, which leaves the tables unused</span>
+<span class="sd">            exactly as before -- declaring repeats for a chain that has no</span>
+<span class="sd">            ICC selector is a configuration statement, not an error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">routed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">,</span> <span class="n">estimator</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">step_consumes_repeat_tables</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+                <span class="n">routed</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">__repeat_tables&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">repeat_tables</span>
+        <span class="k">return</span> <span class="n">routed</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise when a transformation is requested before fitting.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Raise a HABIT error when a transformation is requested before fitting.</span>
+
+<span class="sd">        Deliberately raises :class:`~habit.exceptions.HABITAPIError` rather</span>
+<span class="sd">        than sklearn&#39;s ``NotFittedError``: this is the error HABIT&#39;s own</span>
+<span class="sd">        callers have always caught on this class, and the sklearn-facing</span>
+<span class="sd">        methods inherited from ``Pipeline`` still raise ``NotFittedError``</span>
+<span class="sd">        through their own guard.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sklearn_is_fitted__</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="s2">&quot;TablePipeline must be fitted before transform/predict.&quot;</span>
             <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_transformed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the transformation chain (every step but the terminal model).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X: A ``FeatureTable`` or a plain frame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FeatureTable: The table the terminal model consumes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
+        <span class="n">current</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">current</span>
+
 <div class="viewcode-block" id="TablePipeline.transform">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.transform">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply the fitted transformation chain to a table.</span>
 
+<span class="sd">        Deliberately narrower than ``sklearn.pipeline.Pipeline.transform``,</span>
+<span class="sd">        which also calls the FINAL step: a ``TablePipeline`` always ends in an</span>
+<span class="sd">        outcome model, which has no ``transform``, so sklearn&#39;s version is</span>
+<span class="sd">        never available on this class anyway. What callers have always meant</span>
+<span class="sd">        by ``pipeline.transform(table)`` -- &quot;the classifier-ready table&quot; -- is</span>
+<span class="sd">        what this returns.</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            table: Table carrying the feature columns seen at fit time</span>
-<span class="sd">                (each fitted step validates its own input schema).</span>
+<span class="sd">            X: Table (or frame) carrying the feature columns seen at fit time;</span>
+<span class="sd">                each fitted step validates its own input schema.</span>
+<span class="sd">            **params: Accepted for signature compatibility; must be empty.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The table after every fitted step, ready for the classifier.</span>
+<span class="sd">            FeatureTable: The table after every fitted transformation step.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: If the pipeline is not fitted, or ``params`` is</span>
+<span class="sd">                non-empty (per-step transform parameters would silently do</span>
+<span class="sd">                nothing here).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fitted</span><span class="p">()</span>
-        <span class="n">current</span> <span class="o">=</span> <span class="n">table</span>
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">:</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">current</span></div>
+        <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;TablePipeline.transform takes no step parameters; got &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformed</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TablePipeline.predict">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.predict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict the terminal model&#39;s output for a table&#39;s rows.</span>
 
@@ -2415,20 +2833,27 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        for a survival model (routed through ``predict_risk``).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            table: Table to predict; transformed with the fitted state first.</span>
+<span class="sd">            X: Data to predict; transformed with the fitted state first.</span>
+<span class="sd">            **params: scikit-learn predict parameters, forwarded to the</span>
+<span class="sd">                terminal adapter on the array path only.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Predictions indexed by the table&#39;s identifier columns.</span>
+<span class="sd">            ``pd.Series`` indexed by the table&#39;s identifier columns for</span>
+<span class="sd">            ``FeatureTable`` input (HABIT semantics), or a plain ``ndarray``</span>
+<span class="sd">            for frame input, which is what an sklearn scorer expects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_risk</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span></div>
+        <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformed</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">transformed</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_risk</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TablePipeline.predict_proba">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.predict_proba">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Predict class probabilities for a table&#39;s rows.</span>
 
@@ -2436,23 +2861,30 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        survival models have no class-probability output.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            table: Table to predict; transformed with the fitted state first.</span>
+<span class="sd">            X: Data to predict; transformed with the fitted state first.</span>
+<span class="sd">            **params: scikit-learn predict parameters, forwarded to the</span>
+<span class="sd">                terminal adapter on the array path only.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Probability frame indexed by the identifier columns, one column</span>
-<span class="sd">            per class.</span>
+<span class="sd">            A probability frame indexed by the identifier columns, one column</span>
+<span class="sd">            per class, for ``FeatureTable`` input; a plain ``ndarray`` with</span>
+<span class="sd">            columns aligned to ``self.classes_`` for frame input.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            HABITAPIError: If the terminal model is not a classifier.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="s2">&quot;TablePipeline.predict_proba requires a classifier terminal &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;model; this pipeline ends in a &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Use predict() (values or &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">. Use predict() (values or &quot;</span>
                 <span class="s2">&quot;risk) or predict_survival_function() instead.&quot;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">table</span><span class="p">))</span></div>
+        <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transformed</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">transformed</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TablePipeline.predict_survival_function">
@@ -2473,13 +2905,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Raises:</span>
 <span class="sd">            HABITAPIError: If the terminal model is not a survival model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">SurvivalModel</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="s2">&quot;TablePipeline.predict_survival_function requires a survival &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;terminal model; this pipeline ends in a &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict_survival_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="n">times</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_survival_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transformed</span><span class="p">(</span><span class="n">table</span><span class="p">),</span> <span class="n">times</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TablePipeline.evaluate">
@@ -2616,6 +3049,20 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># -- persistence ----------------------------------------------------</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_output_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the feature columns the terminal model was fitted on.</span>
+
+<span class="sd">        Recorded by the terminal adapter at fit time (see</span>
+<span class="sd">        the terminal outcome-model adapter&#39;s ``fit``), which is the only place the</span>
+<span class="sd">        output of the whole transformation chain is observable without</span>
+<span class="sd">        re-running it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[str, ...]: The fit-time feature block, empty when unfitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;feature_columns_&quot;</span><span class="p">,</span> <span class="p">()))</span>
+
 <div class="viewcode-block" id="TablePipeline.save">
 <a class="viewcode-back" href="../../../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.save">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
@@ -2626,6 +3073,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        (format name, format version, producing HABIT version, and every</span>
 <span class="sd">        component&#39;s spec and class path) plus the pickled fitted state. The</span>
 <span class="sd">        manifest keeps the artefact inspectable without deserialising it.</span>
+
+<span class="sd">        What is pickled is the HABIT COMPONENTS, not the sklearn adapters</span>
+<span class="sd">        wrapping them: the components are the fitted science, the adapters are</span>
+<span class="sd">        interop plumbing that :meth:`load` rebuilds. Keeping the payload at</span>
+<span class="sd">        the component level is also what lets one loader read both format</span>
+<span class="sd">        version 1 (written before this class became an</span>
+<span class="sd">        ``sklearn.pipeline.Pipeline``) and version 2.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: Destination file path.</span>
@@ -2643,20 +3097,29 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="n">component</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
             <span class="p">}</span>
 
+        <span class="n">components</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">is_fitted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sklearn_is_fitted__</span><span class="p">()</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">FrameToTable</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">_PIPELINE_FORMAT_NAME</span><span class="p">,</span>
             <span class="s2">&quot;format_version&quot;</span><span class="p">:</span> <span class="n">_PIPELINE_FORMAT_VERSION</span><span class="p">,</span>
             <span class="s2">&quot;habit_version&quot;</span><span class="p">:</span> <span class="n">_habit_version</span><span class="p">,</span>
-            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">_component_record</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">],</span>
-            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">_component_record</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">),</span>
-            <span class="s2">&quot;is_fitted&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">,</span>
-            <span class="s2">&quot;fit_output_columns&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span><span class="p">),</span>
+            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">_component_record</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">components</span><span class="p">],</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">_component_record</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+            <span class="s2">&quot;is_fitted&quot;</span><span class="p">:</span> <span class="n">is_fitted</span><span class="p">,</span>
+            <span class="s2">&quot;fit_output_columns&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span><span class="p">()),</span>
+            <span class="c1"># Version 2 additions. Recorded in the manifest as well as the</span>
+            <span class="c1"># payload so the artefact stays inspectable without unpickling.</span>
+            <span class="s2">&quot;step_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">],</span>
+            <span class="s2">&quot;declares_frame_schema&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">head</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">head</span><span class="o">.</span><span class="n">declares_schema</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">,</span>
-            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span>
-            <span class="s2">&quot;is_fitted&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">,</span>
-            <span class="s2">&quot;fit_output_columns&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span><span class="p">,</span>
+            <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="n">components</span><span class="p">,</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+            <span class="s2">&quot;is_fitted&quot;</span><span class="p">:</span> <span class="n">is_fitted</span><span class="p">,</span>
+            <span class="s2">&quot;fit_output_columns&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span><span class="p">(),</span>
+            <span class="s2">&quot;frame_schema&quot;</span><span class="p">:</span> <span class="n">head</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
             <span class="n">zf</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span>
@@ -2673,6 +3136,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;TablePipeline&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a pipeline previously written by :meth:`save`.</span>
+
+<span class="sd">        Both on-disk format versions are readable:</span>
+
+<span class="sd">        * **version 1** -- written before this class became an</span>
+<span class="sd">          ``sklearn.pipeline.Pipeline``. It carries HABIT components and no</span>
+<span class="sd">          frame schema, so the loader rebuilds the adapters and gives the</span>
+<span class="sd">          pipeline a schema-less ``FrameToTable`` head. Such a pipeline</span>
+<span class="sd">          behaves exactly as it did when saved for every ``FeatureTable``</span>
+<span class="sd">          call; only the &quot;hand it a plain frame&quot; entry point needs a schema</span>
+<span class="sd">          declared afterwards.</span>
+<span class="sd">        * **version 2** -- additionally carries the head&#39;s frame schema.</span>
+
+<span class="sd">        A file whose ``format_version`` this build does not know raises rather</span>
+<span class="sd">        than being guessed at: silently loading a wrong-but-plausible pipeline</span>
+<span class="sd">        would produce numbers nobody could trace.</span>
 
 <span class="sd">        Security note: the fitted state is pickle-serialised (the standard</span>
 <span class="sd">        serialisation for sklearn estimators), so only ever load pipeline</span>
@@ -2711,19 +3189,58 @@ window.runMermaid = runMermaid;</script>
                     <span class="s2">&quot;pipeline.&quot;</span>
                 <span class="p">)</span>
             <span class="n">payload</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;payload.pkl&quot;</span><span class="p">))</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">])</span>
-        <span class="n">pipeline</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;is_fitted&quot;</span><span class="p">])</span>
-        <span class="n">pipeline</span><span class="o">.</span><span class="n">_fit_output_columns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;fit_output_columns&quot;</span><span class="p">])</span>
+        <span class="c1"># ``frame_schema`` is absent in version 1 files; a schema-less head</span>
+        <span class="c1"># still passes FeatureTables through unchanged, which is every path a</span>
+        <span class="c1"># version 1 pipeline ever had.</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_schema&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">FrameToTable</span><span class="p">()</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]],</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;is_fitted&quot;</span><span class="p">]):</span>
+            <span class="n">pipeline</span><span class="o">.</span><span class="n">_adopt_fitted_components</span><span class="p">(</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;fit_output_columns&quot;</span><span class="p">])</span>
+            <span class="p">)</span>
         <span class="c1"># Cross-check manifest against payload to catch archive corruption.</span>
         <span class="n">manifest_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]]</span>
-        <span class="n">payload_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">_steps</span><span class="p">]</span>
+        <span class="n">payload_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">components</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">manifest_names</span> <span class="o">!=</span> <span class="n">payload_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CompatibilityError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> is internally inconsistent: manifest steps &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">manifest_names</span><span class="si">}</span><span class="s2"> != payload steps </span><span class="si">{</span><span class="n">payload_names</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">pipeline</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_adopt_fitted_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_output_columns</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mark the freshly built adapters as fitted around already-fitted parts.</span>
+
+<span class="sd">        A loaded pipeline&#39;s components carry their fitted state (that is what</span>
+<span class="sd">        was pickled), but the adapters wrapping them were constructed empty.</span>
+<span class="sd">        scikit-learn decides fitted-ness by looking for trailing-underscore</span>
+<span class="sd">        attributes on the estimator, so the adapters must adopt their</span>
+<span class="sd">        component explicitly -- otherwise ``predict`` on a loaded pipeline</span>
+<span class="sd">        would raise &quot;not fitted&quot; while sitting on a perfectly fitted model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fit_output_columns: The feature block the terminal model was</span>
+<span class="sd">                trained on, as recorded in the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">FrameToTable</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">estimator</span><span class="o">.</span><span class="n">component_</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">component</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">terminal</span><span class="o">.</span><span class="n">feature_columns_</span> <span class="o">=</span> <span class="n">fit_output_columns</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">Classifier</span><span class="p">):</span>
+            <span class="c1"># Class labels are re-read from the fitted classifier rather than</span>
+            <span class="c1"># stored, so a file can never disagree with the model inside it.</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;_classes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">terminal</span><span class="o">.</span><span class="n">proba_columns_</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">)</span>
+                <span class="n">terminal</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span></div>
 
 </pre></div>
 
