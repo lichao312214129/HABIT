@@ -361,7 +361,7 @@ are folded into ``steps`` in that documented order and raise a
 is rejected rather than resolved by precedence.
 
 Hyperparameter search and nested cross-validation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :func:`~habit.recipes.search_hyperparameters` tunes a spec with scikit-learn's
 ``GridSearchCV`` / ``RandomizedSearchCV`` and writes the winners **back into

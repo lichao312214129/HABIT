@@ -186,7 +186,7 @@ Registry form::
    )
 
 ``TablePipeline`` is an ``sklearn.pipeline.Pipeline``
-----------------------------------------------------
+-----------------------------------------------------
 
 Since v1.1 ``TablePipeline`` **inherits** ``sklearn.pipeline.Pipeline``, so
 ``clone``, ``get_params`` / ``set_params``, nested parameter addressing and
