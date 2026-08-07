@@ -17,9 +17,20 @@ Visualization utilities for habitat analysis
 """
 
 import os
-import matplotlib.pyplot as plt
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
+
+from habit.utils.optional_deps import require
+
+# matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). Every function
+# in this module draws, so the gate is at module scope: importing it without
+# the viz extra raises OptionalDependencyError naming the extra.
+plt = require(
+    "matplotlib.pyplot",
+    extra="viz",
+    purpose="habitat analysis plots (cluster scores, cluster results)",
+)
+
 from .font_config import (
     PUBLICATION_FONT,
     get_font_config,

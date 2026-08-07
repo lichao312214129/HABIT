@@ -226,3 +226,100 @@ def test_retest_analysis_relabels_habitat_map(
     assert (remapped[original == 0] == 0).all()
     assert (remapped[original == 1] == 2).all()
     assert (remapped[original == 2] == 1).all()
+
+
+#: YAML payloads written in each encoding the retest config reader supports,
+#: paired with the object a correct read must produce. Non-ASCII content is the
+#: whole point: an ASCII-only fixture cannot distinguish a right codec from a
+#: wrong one.
+_ENCODING_FIXTURES: Tuple[Tuple[str, str, Dict[str, Any]], ...] = (
+    ("plain_ascii.yaml", "ascii", {"name": "plain", "values": [1]}),
+    ("utf8.yaml", "utf-8", {"name": "测试", "note": "病灶区域"}),
+    ("utf8_bom.yaml", "utf-8-sig", {"name": "测试", "note": "病灶区域"}),
+    ("gbk.yaml", "gbk", {"name": "测试", "note": "病灶区域"}),
+)
+
+
+def _write_encoded_yaml(directory: Path, name: str, encoding: str, obj: Any) -> Path:
+    """
+    Write ``obj`` as YAML using an explicit byte encoding.
+
+    ``yaml.safe_dump`` is deliberately not used: it escapes non-ASCII by
+    default, which would produce a pure-ASCII file and defeat the test.
+
+    Args:
+        directory: Directory to write into.
+        name: File name.
+        encoding: Codec used to encode the text.
+        obj: Mapping whose keys/values are rendered as ``key: value`` lines.
+
+    Returns:
+        Path: The written file.
+    """
+    lines = []
+    for key, value in obj.items():
+        if isinstance(value, list):
+            lines.append(f"{key}:")
+            lines.extend(f"  - {item}" for item in value)
+        else:
+            lines.append(f"{key}: {value}")
+    path = directory / name
+    path.write_bytes(("\n".join(lines) + "\n").encode(encoding))
+    return path
+
+
+@pytest.mark.unit
+def test_retest_config_reader_decodes_every_supported_encoding(
+    tmp_path: Path,
+) -> None:
+    """
+    The encoding probe must decode correctly without ``chardet`` installed.
+
+    ``chardet`` was a REQUIRED dependency purely for this probe until 1.1.0 and
+    is now declared nowhere, so the no-chardet path is the one users get. It
+    must still round-trip every codec the reader's candidate list covers, and
+    it must not depend on the machine's locale: a locale-derived first guess
+    reports ``cp936`` on a Chinese Windows install, and cp936 decodes most
+    UTF-8 byte sequences without raising, which would silently yield mojibake
+    for the commonest case instead of an error the retry loop could catch.
+    """
+    import locale
+    import sys
+    from importlib.abc import MetaPathFinder
+
+    class _NoChardet(MetaPathFinder):
+        """Hide ``chardet`` so the stdlib-only code path is what runs."""
+
+        def find_spec(
+            self,
+            fullname: str,
+            path: Any = None,
+            target: Any = None,
+        ) -> None:
+            if fullname.split(".")[0] == "chardet":
+                raise ModuleNotFoundError("hidden by test", name=fullname)
+            return None
+
+    fixtures = [
+        (_write_encoded_yaml(tmp_path, name, encoding, expected), expected)
+        for name, encoding, expected in _ENCODING_FIXTURES
+    ]
+
+    finder = _NoChardet()
+    sys.meta_path.insert(0, finder)
+    real_getpreferredencoding = locale.getpreferredencoding
+    try:
+        from habit.compat.test_retest_mapper import read_file_with_encoding
+
+        # Both a UTF-8 and a legacy Chinese locale must give the same answers.
+        for reported_locale in ("UTF-8", "cp936"):
+            locale.getpreferredencoding = (  # type: ignore[assignment]
+                lambda do_setlocale=True, _enc=reported_locale: _enc
+            )
+            for path, expected in fixtures:
+                assert (
+                    read_file_with_encoding(str(path)) == expected
+                ), f"{path.name} misdecoded with locale {reported_locale}"
+    finally:
+        locale.getpreferredencoding = real_getpreferredencoding  # type: ignore[assignment]
+        sys.meta_path.remove(finder)

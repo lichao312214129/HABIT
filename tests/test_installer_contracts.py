@@ -21,11 +21,13 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PYPROJECT_FILE = PROJECT_ROOT / "pyproject.toml"
+#: PyPI distribution name, used to recognize self-referencing extras.
+DISTRIBUTION_NAME = "habitat-analysis"
 CPU_LOCK_FILE = (
     PROJECT_ROOT / "installer" / "requirements-runtime-win-py310.lock"
 )
@@ -205,6 +207,29 @@ def _dependency_array(section: str, key: str) -> List[str]:
     return requirements
 
 
+def _marker_applies(dependency: str) -> bool:
+    """
+    Report whether a requirement's environment marker holds here.
+
+    A distribution may be declared twice with disjoint markers (pyarrow is
+    split at Python 3.14). Only the entry matching THIS interpreter is
+    relevant: the locks under test encode the Windows py310 bundle, which this
+    interpreter runs.
+
+    Args:
+        dependency: Requirement string, with or without a ``;`` marker.
+
+    Returns:
+        bool: ``True`` when the requirement applies to this interpreter.
+    """
+    _, _, marker = dependency.partition(";")
+    if not marker.strip():
+        return True
+    from packaging.markers import Marker
+
+    return bool(Marker(marker.strip()).evaluate())
+
+
 def _project_dependency_ranges() -> Dict[str, str]:
     """
     Return the default (non-optional) dependency ranges declared by the package.
@@ -214,25 +239,50 @@ def _project_dependency_ranges() -> Dict[str, str]:
     """
     result: Dict[str, str] = {}
     for dependency in _dependency_array("project", "dependencies"):
-        requirement, _, marker = dependency.partition(";")
-        if marker.strip():
-            # A distribution may be declared twice with disjoint environment
-            # markers (pyarrow is split at Python 3.14). Only the entry
-            # matching THIS interpreter is relevant: the locks under test
-            # encode the Windows py310 bundle, which this interpreter runs.
-            from packaging.markers import Marker
-
-            if not Marker(marker.strip()).evaluate():
-                continue
-        name, specifier = _parse_ranged_requirement(requirement)
+        if not _marker_applies(dependency):
+            continue
+        name, specifier = _parse_ranged_requirement(dependency)
         assert name not in result, f"Duplicate project dependency: {name}"
         result[name] = specifier
     return result
 
 
+def _self_referenced_extras(requirement: str) -> Optional[Tuple[str, ...]]:
+    """
+    Detect a self-referencing extra such as ``habitat-analysis[tables,viz]``.
+
+    An extra may depend on other extras of the same distribution. setuptools
+    records it verbatim in the wheel metadata and pip resolves it (verified by
+    ``test_meta_extras_are_self_references_that_resolve``), which is how the
+    ``ml`` / ``analysis`` / ``all`` / ``full`` groups avoid restating package
+    lists that would then drift.
+
+    Args:
+        requirement: One entry of an optional-dependency array.
+
+    Returns:
+        Optional[Tuple[str, ...]]: The referenced extra names, or ``None``
+        when the entry is an ordinary third-party requirement.
+    """
+    match = re.fullmatch(
+        r"(?P<name>[A-Za-z0-9_.-]+)\[(?P<extras>[A-Za-z0-9_,.-]+)\]",
+        requirement.strip(),
+    )
+    if match is None:
+        return None
+    if _canonical_name(match.group("name")) != _canonical_name(DISTRIBUTION_NAME):
+        return None
+    return tuple(part.strip() for part in match.group("extras").split(","))
+
+
 def _optional_dependency_ranges() -> Dict[str, Dict[str, str]]:
     """
     Return the declared ranges of every optional-dependency group.
+
+    Self-referencing extras are expanded transitively, so every group maps to
+    the third-party packages a user actually receives. That keeps the contracts
+    below (lock coverage, feature scoping) meaningful regardless of whether a
+    group lists its packages directly or aggregates other groups.
 
     Returns:
         Dict[str, Dict[str, str]]: Extra name -> (dependency name -> specifier).
@@ -243,14 +293,40 @@ def _optional_dependency_ranges() -> Dict[str, Dict[str, str]]:
         text,
     )
     assert section_match is not None, "pyproject.toml must declare extras."
-    groups: Dict[str, Dict[str, str]] = {}
+    direct: Dict[str, Dict[str, str]] = {}
+    references: Dict[str, Tuple[str, ...]] = {}
     for extra, array in re.findall(
         r"(?ms)^([A-Za-z0-9_-]+)\s*=\s*(\[.*?\])\s*$", section_match.group(1)
     ):
         requirements = ast.literal_eval(array)
-        groups[extra] = dict(
-            _parse_ranged_requirement(requirement) for requirement in requirements
-        )
+        referenced: List[str] = []
+        packages: Dict[str, str] = {}
+        for requirement in requirements:
+            self_extras = _self_referenced_extras(requirement)
+            if self_extras is not None:
+                referenced.extend(self_extras)
+                continue
+            if not _marker_applies(requirement):
+                continue
+            name, specifier = _parse_ranged_requirement(requirement)
+            packages[name] = specifier
+        direct[extra] = packages
+        references[extra] = tuple(referenced)
+
+    for extra in references:
+        for referenced_extra in references[extra]:
+            assert referenced_extra in direct, (
+                f"extra {extra!r} references undeclared extra {referenced_extra!r}"
+            )
+
+    def _resolve(extra: str, seen: Tuple[str, ...] = ()) -> Dict[str, str]:
+        assert extra not in seen, f"circular self-extra reference: {seen + (extra,)}"
+        resolved = dict(direct[extra])
+        for referenced_extra in references[extra]:
+            resolved.update(_resolve(referenced_extra, seen + (extra,)))
+        return resolved
+
+    groups = {extra: _resolve(extra) for extra in direct}
     assert groups, "no optional-dependency groups parsed"
     return groups
 
@@ -403,6 +479,59 @@ def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
         assert "pyradiomics" not in group, (
             f"extra {group_name!r} must not declare pyradiomics"
         )
+
+
+def test_meta_extras_are_self_references_that_resolve() -> None:
+    """
+    ``all`` and ``full`` must aggregate other extras instead of restating them.
+
+    A hand-copied package list in a meta-extra is guaranteed to drift the next
+    time a group changes -- exactly what the old ``all`` array risked. Writing
+    them as self-references makes drift impossible by construction, and pip
+    resolves them (setuptools records the requirement verbatim, and
+    ``Requires-Dist: habitat-analysis[all]; extra == "full"`` is a normal
+    dependency edge for the resolver).
+
+    ``full`` is also the documented migration target for pre-1.1.0 users, so it
+    must transitively contain every package that used to be a REQUIRED
+    dependency and is now optional.
+    """
+    text = PYPROJECT_FILE.read_text(encoding="utf-8")
+    section_match = re.search(
+        r"(?ms)^\[project\.optional-dependencies\]\s*(.*?)(?=^\[|\Z)",
+        text,
+    )
+    assert section_match is not None
+    arrays = dict(
+        re.findall(r"(?ms)^([A-Za-z0-9_-]+)\s*=\s*(\[.*?\])\s*$", section_match.group(1))
+    )
+
+    for meta_extra in ("all", "full"):
+        entries = ast.literal_eval(arrays[meta_extra])
+        assert entries, f"extra {meta_extra!r} must not be empty"
+        for entry in entries:
+            assert _self_referenced_extras(entry) is not None, (
+                f"extra {meta_extra!r} restates the requirement {entry!r} "
+                "instead of referencing the extra that owns it."
+            )
+
+    extras = _optional_dependency_ranges()
+    # Everything demoted from required to optional in 1.1.0. `chardet` is
+    # absent on purpose: it was removed outright, not moved to an extra.
+    demoted = {
+        "matplotlib",
+        "seaborn",
+        "scikit-image",
+        "pydicom",
+        "pyarrow",
+        "openpyxl",
+    }
+    missing = sorted(demoted - set(extras["full"]))
+    assert not missing, (
+        f"extra 'full' does not restore {missing}, so it is not a valid "
+        "migration path for a pre-1.1.0 bare install."
+    )
+    assert set(extras["all"]) <= set(extras["full"])
 
 
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:

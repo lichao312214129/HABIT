@@ -160,6 +160,10 @@ def write_comparison_figures(
     def _save(fig: Any, filename: str, key: str) -> None:
         path = out_dir / filename
         fig.savefig(path, bbox_inches="tight")
+        # No optional-dependency gate here on purpose: ``fig`` was produced by
+        # habit.viz, which already went through require("matplotlib"), so
+        # matplotlib is provably importable at this point. The except clause
+        # only guards against a backend teardown error while closing.
         try:
             import matplotlib.pyplot as plt
 

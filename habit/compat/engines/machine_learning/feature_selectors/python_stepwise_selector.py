@@ -21,7 +21,15 @@ implemented purely in Python without R dependencies.
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+
+from habit.utils.optional_deps import require
+
+# matplotlib is OPTIONAL dependencies (habitat-analysis[viz]).
+# This module draws its own diagnostic figures at module scope, so the gate
+# stays at module scope too: the import failure then names the extra instead
+# of raising a bare ModuleNotFoundError.
+_VIZ_PURPOSE = "stepwise feature-selection diagnostic figures"
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 from typing import List, Optional, Tuple, Dict, Union
 from pathlib import Path
 try:

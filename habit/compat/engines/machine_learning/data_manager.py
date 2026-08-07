@@ -15,6 +15,7 @@
 import json
 import logging
 from habit.utils.log_utils import get_module_logger
+from habit.utils.optional_deps import require_excel_backend
 import os
 from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
@@ -53,6 +54,8 @@ class TabularLoader:
         if ext in (".tsv", ".txt"):
             return pd.read_csv(path, sep="\t", dtype=dtype)
         if ext in (".xlsx", ".xls"):
+            # openpyxl is optional (habitat-analysis[tables]).
+            require_excel_backend(purpose=f"reading the feature table {path}")
             # Read first, then caller may normalize subject column explicitly.
             return pd.read_excel(path)
 

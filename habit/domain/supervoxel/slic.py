@@ -122,7 +122,20 @@ class SlicSupervoxelizer:
             :class:`~habit.domain.protocols.SupervoxelFeatureExtractor` to
             the pipeline to describe the same regions differently.
         """
-        from skimage.segmentation import slic
+        # scikit-image is an OPTIONAL dependency (habitat-analysis[slic]): the
+        # kernel contract is the Supervoxelizer PROTOCOL, and the default
+        # backends (kmeans / gmm feature clustering) need nothing beyond the
+        # required set. Only this SLIC implementation pulls scikit-image, and
+        # it does so here rather than at module scope so the registry entry
+        # stays importable (and discoverable via ``habit list``) without the
+        # extra installed.
+        from habit.utils.optional_deps import require
+
+        slic = require(
+            "skimage.segmentation",
+            extra="slic",
+            purpose="SLIC supervoxel segmentation (supervoxelizer 'slic')",
+        ).slic
 
         check_passthrough_accepted(
             slic, self.estimator_params, owner="supervoxelizer.slic"

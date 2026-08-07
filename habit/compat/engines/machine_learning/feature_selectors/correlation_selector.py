@@ -19,8 +19,16 @@ Removes highly correlated redundant features and retains the most informative fe
 """
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+from habit.utils.optional_deps import require
+
+# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# This module draws its own diagnostic figures at module scope, so the gate
+# stays at module scope too: the import failure then names the extra instead
+# of raising a bare ModuleNotFoundError.
+_VIZ_PURPOSE = "correlation feature-selection diagnostic figures"
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+sns = require("seaborn", extra="viz", purpose=_VIZ_PURPOSE)
 import os
 import json
 from typing import List, Optional, Tuple, Dict, Union

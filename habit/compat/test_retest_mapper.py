@@ -66,6 +66,7 @@ import numpy as np
 import SimpleITK as sitk
 import yaml
 import argparse
+import codecs
 import sys
 import logging
 import glob
@@ -73,12 +74,12 @@ import os
 import multiprocessing
 from pathlib import Path
 from functools import partial
-from typing import Dict, Tuple, List, Any
-import chardet
+from typing import Dict, Tuple, List, Any, Optional
 from scipy.spatial.distance import euclidean, cosine
 from scipy.stats import pearsonr, spearmanr, kendalltau
 
 from habit.utils.log_utils import setup_logger, get_module_logger
+from habit.utils.optional_deps import require_excel_backend, require_parquet_backend
 from habit.utils.progress_utils import CustomTqdm
 
 # Module logger - will inherit configuration from root logger
@@ -123,6 +124,42 @@ def calculate_similarity(x: np.ndarray, y: np.ndarray, method: str = 'pearson') 
         raise ValueError(f"不支持的相似度计算方法: {method}")
 
 
+def _read_habitat_table(table_path: str, argument_name: str) -> pd.DataFrame:
+    """
+    Read a habitats feature table in any of the three supported formats.
+
+    ``.parquet`` needs pyarrow and ``.xlsx`` needs openpyxl; both live in the
+    optional ``tables`` extra, so the read is gated to report the extra name
+    instead of pandas' internal engine error. ``.csv`` needs nothing.
+
+    Args:
+        table_path: Path to a ``.csv``, ``.parquet`` or ``.xlsx`` table.
+        argument_name: Caller's parameter name, quoted in the error message.
+
+    Returns:
+        pd.DataFrame: The loaded habitats table.
+
+    Raises:
+        ValueError: When the file extension is not one of the three supported.
+        OptionalDependencyError: When the format's pandas engine is missing.
+    """
+    if table_path.endswith('.csv'):
+        return pd.read_csv(table_path)
+    if table_path.endswith('.parquet'):
+        require_parquet_backend(
+            purpose=f"reading the habitats table {os.path.basename(table_path)}"
+        )
+        return pd.read_parquet(table_path)
+    if table_path.endswith('.xlsx'):
+        require_excel_backend(
+            purpose=f"reading the habitats table {os.path.basename(table_path)}"
+        )
+        return pd.read_excel(table_path)
+    raise ValueError(
+        f'{argument_name} should be a csv, parquet, or excel file'
+    )
+
+
 def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str, 
                         features: List[str] = None,
                         similarity_method: str = 'pearson') -> Dict[int, int]:
@@ -140,27 +177,8 @@ def find_habitat_mapping(test_habitat_table: str, retest_habitat_table: str,
         Dict[int, int]: Mapping from retest habitat labels to test habitat labels
     """
     # Load data
-    if test_habitat_table.endswith('.csv'):
-        test_df = pd.read_csv(test_habitat_table)
-    elif test_habitat_table.endswith('.parquet'):
-        test_df = pd.read_parquet(test_habitat_table)
-    elif test_habitat_table.endswith('.xlsx'):
-        test_df = pd.read_excel(test_habitat_table)
-    else:
-        raise ValueError(
-            'test_habitat_table should be a csv, parquet, or excel file'
-        )
-
-    if retest_habitat_table.endswith('.csv'):
-        retest_df = pd.read_csv(retest_habitat_table)
-    elif retest_habitat_table.endswith('.parquet'):
-        retest_df = pd.read_parquet(retest_habitat_table)
-    elif retest_habitat_table.endswith('.xlsx'):
-        retest_df = pd.read_excel(retest_habitat_table)
-    else:
-        raise ValueError(
-            'retest_habitat_table should be a csv, parquet, or excel file'
-        )
+    test_df = _read_habitat_table(test_habitat_table, 'test_habitat_table')
+    retest_df = _read_habitat_table(retest_habitat_table, 'retest_habitat_table')
     
     # If features not specified, use columns 4 to second-to-last
     if features is None:
@@ -321,21 +339,55 @@ def batch_process_files(input_dir: str, habitat_mapping: Dict[int, int], out_dir
     logger.info(f"Processing complete. Success: {success_count}, Failed: {failure_count}")
 
 
-def detect_file_encoding(file_path: str) -> str:
+def detect_file_encoding(file_path: str) -> Optional[str]:
     """
-    Detect the encoding format of a file.
-    
+    Guess the text encoding of a file.
+
+    ``chardet`` used to be a REQUIRED HABIT dependency for this one function.
+    It is no longer declared at all: the caller
+    (:func:`read_file_with_encoding`) already retries a fixed candidate list
+    (utf-8 / gbk / gb2312 / gb18030 / big5), so statistical detection is only
+    a first guess that shortens the retry loop -- never the sole answer. When
+    chardet happens to be installed (it is a common transitive dependency) it
+    is still consulted, so installations that have it behave exactly as before.
+
+    Without chardet this returns ``None`` rather than guessing, which hands the
+    decision to the caller's deterministic candidate list. Guessing from
+    :func:`locale.getpreferredencoding` was measured to be actively harmful
+    here: on a Windows machine with a Chinese locale it reports ``cp936``, and
+    because cp936 decodes most UTF-8 byte sequences without raising, a UTF-8
+    config -- the common case -- would be silently decoded into mojibake with
+    no ``UnicodeDecodeError`` for the retry loop to catch. Trying utf-8 first
+    and falling back on failure is both platform-independent and correct for
+    every encoding in the candidate list.
+
     Args:
-        file_path: Path to the file
-    
+        file_path: Path to the file whose encoding should be guessed.
+
     Returns:
-        str: Detected encoding format
+        Optional[str]: Best-guess encoding name, or ``None`` when no guess is
+        available (the caller then relies on its candidate list alone).
     """
-    # Read first 1000 bytes of the file to detect encoding
+    # Read the first 1000 bytes: enough for a statistical guess, cheap enough
+    # to do on every call.
     with open(file_path, 'rb') as f:
         raw_data = f.read(1000)
-        result = chardet.detect(raw_data)
-        return result['encoding']
+
+    # A UTF-8 BOM is a definitive answer that needs no detector at all.
+    if raw_data.startswith(codecs.BOM_UTF8):
+        return 'utf-8-sig'
+
+    try:
+        import chardet
+    except ImportError:
+        # No guess at all: the caller's candidate list starts with utf-8, which
+        # raises UnicodeDecodeError on non-UTF-8 input and therefore lets the
+        # loop advance to the correct codec. See the docstring for why a
+        # locale-derived guess is worse than no guess.
+        return None
+
+    result = chardet.detect(raw_data)
+    return result['encoding']
 
 
 def read_file_with_encoding(file_path: str) -> Any:

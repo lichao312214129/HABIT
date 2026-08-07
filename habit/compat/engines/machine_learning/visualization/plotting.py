@@ -21,8 +21,16 @@ import os
 from typing import Dict, List, Tuple, Union, Any
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+from habit.utils.optional_deps import require
+
+# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# This module draws its own diagnostic figures at module scope, so the gate
+# stays at module scope too: the import failure then names the extra instead
+# of raising a bare ModuleNotFoundError.
+_VIZ_PURPOSE = "machine-learning evaluation figures (ROC, DCA, calibration, SHAP)"
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+sns = require("seaborn", extra="viz", purpose=_VIZ_PURPOSE)
 from sklearn.metrics import roc_curve, precision_recall_curve, confusion_matrix, auc
 from sklearn.calibration import calibration_curve  # Calibration curve related
 from ..evaluation.metrics import calculate_net_benefit

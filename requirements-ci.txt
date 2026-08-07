@@ -23,17 +23,30 @@ matplotlib
 # The unit job in tests.yml installs it separately with
 # ``pip install pyradiomics --no-build-isolation`` after numpy + versioneer;
 # the docs job mocks it via autodoc_mock_imports and does not need it.
-# Core runtime deps from pyproject.toml [project.dependencies] that the
-# unit job needs. tests.yml installs the editable package with --no-deps
-# (to avoid re-resolving the pinned numpy above), so these must be listed
-# here explicitly; they used to arrive transitively when ``pip install -e .``
-# still resolved project.dependencies.
-scikit-image>=0.23,<0.27
-seaborn>=0.13,<1
-chardet>=5.0,<8
-pydicom>=3.0,<4
+# Runtime deps the unit job needs. tests.yml installs the editable package
+# with --no-deps (to avoid re-resolving the pinned numpy above), so these must
+# be listed here explicitly; they used to arrive transitively when
+# ``pip install -e .`` still resolved project.dependencies.
+#
+# Since 1.1.0 most of these are OPTIONAL extras rather than required
+# dependencies. The unit job installs them anyway because the suites it runs
+# exercise the optional backends for real (figures, DICOM, parquet, SLIC).
+# The separate `bare-install` job in tests.yml is what proves the REQUIRED set
+# is self-contained: it installs the wheel with no extras at all and runs the
+# bare-install smoke test in tests/test_packaging_contracts.py.
+#
+# `chardet` is deliberately absent: it is no longer declared anywhere. The
+# test-retest encoding probe now lets its existing candidate list decide.
 kneed>=0.8,<1
+# extra [slic]
+scikit-image>=0.23,<0.27
+# extra [viz] (matplotlib is listed above, next to the domain/kernels deps)
+seaborn>=0.13,<1
+# extra [dicom]
+pydicom>=3.0,<4
+# extra [tables]
 pyarrow>=15,<22
+openpyxl>=3.1,<4
 lifelines
 scikit-survival
 statsmodels

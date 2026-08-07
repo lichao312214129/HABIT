@@ -28,9 +28,17 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+from habit.utils.optional_deps import require
+
+# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# This module is not re-exported by ``habit.viz.__init__`` -- it is imported
+# only by callers that already asked for a KM figure -- so gating at module
+# scope is safe and gives the clearest failure point.
+_VIZ_PURPOSE = "Kaplan-Meier survival figures"
+mpl = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+sns = require("seaborn", extra="viz", purpose=_VIZ_PURPOSE)
 
 from lifelines import CoxPHFitter, KaplanMeierFitter
 from lifelines.plotting import add_at_risk_counts

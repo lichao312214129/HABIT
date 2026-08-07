@@ -45,15 +45,62 @@ Install from PyPI::
 What the base install includes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The default ``pip install habitat-analysis`` is intentionally **light**:
+The default ``pip install habitat-analysis`` is intentionally **light** — it
+installs only what the habitat kernel cannot run without:
 
-* Image I/O and geometry helpers
+* Image I/O and geometry helpers (SimpleITK)
 * Image preprocessing recipes
-* Habitat analysis with intensity / raw-concat style features
-* Core tabular machine learning
+* Habitat analysis end to end: voxel features, supervoxels (kmeans / gmm
+  feature clustering), cohort habitat fitting, habitat assignment
+* Habitat feature extraction and the CSV result table
 * CLI entry point ``habit``
 
-It does **not** pull PyRadiomics by default (see below).
+The 11 required packages are ``numpy``, ``scipy``, ``pandas``,
+``scikit-learn``, ``SimpleITK``, ``pydantic``, ``PyYAML``, ``click``, ``tqdm``,
+``joblib`` and ``kneed``. Nothing else. Measured on CPython 3.10 / Linux:
+20 wheels, 129 MB downloaded, 635 MB of ``site-packages``.
+
+It does **not** pull PyRadiomics by default (see below), and since **1.1.0** it
+no longer pulls plotting, DICOM, parquet/xlsx or SLIC either — see
+:ref:`installation-optional-extras` and
+:ref:`installation-migrating-to-1-1-0`.
+
+.. _installation-migrating-to-1-1-0:
+
+Upgrading from 1.0.x
+~~~~~~~~~~~~~~~~~~~~
+
+HABIT 1.1.0 moved six packages out of the required set and into extras:
+``matplotlib``, ``seaborn``, ``scikit-image``, ``pydicom``, ``pyarrow`` and
+``openpyxl``. (``chardet`` was removed entirely; nothing needs it any more.)
+A bare install therefore dropped from 212 MB to 129 MB of downloads, from
+931 MB to 635 MB of ``site-packages``, and from 43 to 23 distributions
+(measured on CPython 3.10 / Linux).
+
+The Python API did not change: every public symbol keeps its name and
+signature. What changed is what ``pip install habitat-analysis`` gives you.
+
+**One-line migration** — reproduce everything a 1.0.x install plus ``[all]``
+used to provide::
+
+   pip install -U "habitat-analysis[full]"
+
+If you would rather install only what you actually use, pick from the table
+below. You do not have to guess: whenever a workflow reaches for a package that
+is not installed, HABIT raises ``OptionalDependencyError`` containing the exact
+``pip install`` command for the extra that provides it.
+
+Two consequences worth knowing before you upgrade:
+
+* **Figures.** Anything under ``habit.viz``, the ML report figures, and the
+  clustering plots need ``[viz]``.
+* **Result tables.** ``habitats_results_format`` still defaults to
+  ``parquet``, and the default was deliberately left alone so output filenames
+  never change silently. Writing parquet needs ``[tables]``. Without it the run
+  fails with a message offering both exits: install ``[tables]``, or set
+  ``habitats_results_format: csv`` in your YAML to write ``habitats.csv``
+  instead (CSV needs no optional package at all). HABIT never switches format
+  on your behalf.
 
 Verify the install
 ~~~~~~~~~~~~~~~~~~
@@ -161,47 +208,85 @@ Or from conda-forge if you prefer::
    conda install -c conda-forge pyradiomics
 
 
+.. _installation-optional-extras:
+
 Optional extras
 ---------------
 
-Install only what your workflow needs. Missing extras raise
-``OptionalDependencyError`` with the install hint.
+Install only what your workflow needs. When a workflow reaches for a package
+that is missing, HABIT raises ``OptionalDependencyError`` naming the extra and
+printing the ``pip install`` command, so you never have to work out the mapping
+yourself.
 
 .. list-table::
    :header-rows: 1
-   :widths: 18 42 40
+   :widths: 16 34 34 16
 
    * - Extra
      - Command
      - Needed for
+     - Packages
+   * - ``viz``
+     - ``pip install "habitat-analysis[viz]"``
+     - Every figure: ``habit.viz``, ML report plots,
+       clustering plots, KM curves
+     - matplotlib, seaborn
+   * - ``tables``
+     - ``pip install "habitat-analysis[tables]"``
+     - Reading/writing ``.parquet`` (the default
+       ``habitats_results_format``) and ``.xlsx``
+     - pyarrow, openpyxl
+   * - ``dicom``
+     - ``pip install "habitat-analysis[dicom]"``
+     - ``habit dicom-info`` / ``habit sort-dicom``.
+       NIfTI / NRRD input needs nothing extra
+     - pydicom
+   * - ``slic``
+     - ``pip install "habitat-analysis[slic]"``
+     - The SLIC supervoxel backend. The default
+       ``kmeans`` / ``gmm`` backends need nothing extra
+     - scikit-image
    * - ``radiomics``
      - ``pip install "habitat-analysis[radiomics]"``
        (empty alias; still install PyRadiomics
        separately as above)
      - Documented alias only — does **not** install
        PyRadiomics
+     - —
    * - ``ml``
      - ``pip install "habitat-analysis[ml]"``
      - XGBoost, SMOTE, mRMR / VIF / stepwise selectors
+     - + ``viz``, ``tables``
    * - ``registration``
      - ``pip install "habitat-analysis[registration]"``
      - ANTs registration backend in preprocessing
+     - antspyx
    * - ``analysis``
      - ``pip install "habitat-analysis[analysis]"``
      - SHAP, Plotly, ICC (pingouin), survival tools
+     - + ``viz``, ``tables``
    * - ``automl``
      - ``pip install "habitat-analysis[automl]"``
      - AutoGluon Tabular
+     - autogluon.tabular
    * - ``torch``
      - ``pip install "habitat-analysis[torch]"``
      - TorchRadiomics / GPU texture backends
+     - torch
    * - ``gui``
      - ``pip install "habitat-analysis[gui]"``
      - Web GUI server dependencies (preview)
+     - fastapi, uvicorn
    * - ``all``
      - ``pip install "habitat-analysis[all]"``
-     - Every optional workflow dep **except**
-       PyRadiomics (install that separately)
+     - Every optional workflow dep **except** ``torch``
+       (CUDA index) and PyRadiomics (install separately)
+     - all of the above
+   * - ``full``
+     - ``pip install "habitat-analysis[full]"``
+     - Migration alias for 1.0.x users: everything a
+       pre-1.1.0 bare install plus ``[all]`` provided
+     - same as ``all``
 
 Combine extras::
 
@@ -210,6 +295,9 @@ Combine extras::
 From a source checkout (editable)::
 
    pip install -e ".[ml,analysis]"
+
+Not sure which extras you need? Install none of them, run your workflow, and
+follow the ``pip install`` command in the first error you get.
 
 
 Copy-paste recipes
@@ -273,6 +361,30 @@ Base HABIT does not require PyRadiomics. Install without extras first::
 
 Expected. Use the matching GitHub Release wheel URL from the table above
 instead of bare ``pip install pyradiomics``.
+
+**``OptionalDependencyError`` after upgrading from 1.0.x**
+
+Expected: 1.1.0 moved matplotlib, seaborn, scikit-image, pydicom, pyarrow and
+openpyxl into extras. The error message contains the ``pip install`` command
+for the extra you need. To restore everything at once::
+
+   pip install -U "habitat-analysis[full]"
+
+See :ref:`installation-migrating-to-1-1-0`.
+
+**My habitat run stops at "pyarrow is required for writing the habitats results
+table as parquet"**
+
+The result table defaults to parquet, which needs the ``tables`` extra. Either::
+
+   pip install "habitat-analysis[tables]"
+
+or write CSV instead, which needs no optional package — in your YAML::
+
+   habitats_results_format: csv
+
+HABIT will not switch format on its own, because that would change your output
+filename from ``habitats.parquet`` to ``habitats.csv`` without telling you.
 
 **Permission / SSL / mirror errors at hospital networks**
 

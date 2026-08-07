@@ -50,6 +50,7 @@ except ImportError:
     pg = None
 from habit.exceptions import OptionalDependencyError
 from habit.utils.log_utils import get_module_logger
+from habit.utils.optional_deps import require_excel_backend
 
 # ==================== Setup Logger ====================
 logger = get_module_logger(__name__)
@@ -78,6 +79,8 @@ def load_and_merge_data(file_paths: List[str]) -> Tuple[List[pd.DataFrame], List
         if p.suffix == '.csv':
             df = pd.read_csv(file_path, index_col=0)
         elif p.suffix in ['.xlsx', '.xls']:
+            # openpyxl is optional (habitat-analysis[tables]).
+            require_excel_backend(purpose=f"reading the ICC input table {p.name}")
             df = pd.read_excel(file_path, index_col=0)
         else:
             raise ValueError(f"Unsupported file type: {p.suffix}")

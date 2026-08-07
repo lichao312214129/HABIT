@@ -32,6 +32,7 @@ import pandas as pd
 
 from habit.contracts.table import FeatureTable
 from habit.exceptions import HABITAPIError, OptionalDependencyError
+from habit.utils.optional_deps import require
 from habit.recipes.modeling import (
     CVResult,
     ModelResult,
@@ -47,6 +48,11 @@ __all__ = [
     "write_ml_figures_from_config",
     "visualization_enabled",
 ]
+
+#: matplotlib is an OPTIONAL dependency (habitat-analysis[viz]) and this whole
+#: module is figure reporting, but it is imported from the modelling recipes,
+#: so the gates stay inside the functions that actually draw.
+_VIZ_PURPOSE = "machine-learning report figures"
 
 _CURVE_TYPES = frozenset({"roc", "dca", "calibration", "pr"})
 _LABEL_TYPES = frozenset({"confusion"})
@@ -223,7 +229,7 @@ def write_classification_figures(
         plot_roc,
     )
 
-    import matplotlib.pyplot as plt
+    plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 
     with use_style("radiology"):
         if "roc" in requested:
@@ -731,7 +737,8 @@ def _try_write_shap(
         rank_shap_feature_indices,
         select_representative_sample_indices,
     )
-    import matplotlib.pyplot as plt
+
+    plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 
     written: List[Path] = []
     if "shap" in plot_types:
@@ -897,7 +904,8 @@ def _try_write_permutation(
 
     try:
         from habit.viz.classification import plot_permutation_importance
-        import matplotlib.pyplot as plt
+
+        plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 
         path = destination / f"{prefix}{model_name}_permutation_importance.{ext}"
         fig = plot_permutation_importance(

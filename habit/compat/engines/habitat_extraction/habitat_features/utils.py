@@ -15,6 +15,8 @@
 import pandas as pd
 import os
 
+from habit.utils.optional_deps import require_excel_backend
+
 def flatten_dict(data):
     """
     将嵌套字典扁平化为指定格式的字典。
@@ -40,6 +42,9 @@ def save_to_excel_sheet(df, file_name, sheet_name):
     - 若文件存在：覆盖指定 Sheet，保留其他 Sheet
     - 若文件不存在：创建新文件并写入 Sheet
     """
+    # openpyxl is an optional dependency (habitat-analysis[tables]); the
+    # engine is named explicitly below, so gate it explicitly too.
+    require_excel_backend(purpose=f"writing habitat features to {file_name}")
     try:
         # 尝试追加模式（文件已存在）
         with pd.ExcelWriter(file_name, engine='openpyxl', mode='a') as writer:

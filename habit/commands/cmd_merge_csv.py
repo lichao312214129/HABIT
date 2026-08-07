@@ -26,6 +26,7 @@ import csv
 from pathlib import Path
 from typing import List, Optional, Tuple
 from habit.utils.log_utils import setup_logger
+from habit.utils.optional_deps import require_excel_backend
 from habit.commands.common import echo_success
 
 
@@ -132,6 +133,11 @@ def run_merge_csv(
             file_ext = os.path.splitext(file_path)[1].lower()
             index_already_set = False
             if file_ext == '.xlsx' or file_ext == '.xls':
+                # openpyxl is optional (habitat-analysis[tables]); fail with
+                # the extra name rather than pandas' engine-level ImportError.
+                require_excel_backend(
+                    purpose=f"reading the spreadsheet {os.path.basename(file_path)}"
+                )
                 # Read Excel header first to resolve the index column and keep it as string.
                 header_df = pd.read_excel(file_path, nrows=0)
                 if current_index_col and current_index_col in header_df.columns:

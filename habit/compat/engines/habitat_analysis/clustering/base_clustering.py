@@ -18,11 +18,13 @@ Base clustering module for habitat analysis.
 
 import logging
 import numpy as np
-import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Tuple, Optional, Union, Callable, Iterator
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
-import matplotlib.pyplot as plt
+# matplotlib.pyplot used to be imported here twice; neither binding was ever
+# referenced. Removing the dead imports keeps the clustering factory -- and
+# every backend registered through it -- importable without the optional viz
+# extra (habitat-analysis[viz]).
 import warnings
 import os
 import importlib

@@ -35,6 +35,7 @@ from dataclasses import dataclass, field, replace
 from typing import Dict, Iterator, Tuple
 
 from habit.exceptions import HABITAPIError
+from habit.utils.optional_deps import require
 
 __all__ = [
     "StyleSpec",
@@ -246,7 +247,10 @@ def use_style(name: str | StyleSpec) -> Iterator[StyleSpec]:
         >>> fig.savefig("km.tiff", dpi=300)  # doctest: +SKIP
     """
     spec = name if isinstance(name, StyleSpec) else get_style(name)
-    import matplotlib as mpl
+    # matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). Style
+    # presets can be registered and inspected without it; only ACTIVATING one
+    # touches rcParams, so the gate sits here.
+    mpl = require("matplotlib", extra="viz", purpose="applying a figure style preset")
 
     with mpl.rc_context(spec.rcparams()):
         yield spec
