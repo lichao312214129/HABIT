@@ -42,8 +42,10 @@ from habit.recipes.modeling import (
     CVResult,
     ModelResult,
     PredictionResult,
+    SearchResult,
     cross_validate,
     predict_model,
+    search_hyperparameters,
     train_model,
 )
 from habit.recipes.preprocess import (
@@ -66,6 +68,7 @@ __all__ = [
     "CVResult",
     "ModelResult",
     "PredictionResult",
+    "SearchResult",
     "Study",
     "StudyResult",
     "apply_habitat_model",
@@ -87,6 +90,7 @@ __all__ = [
     "preprocess_images",
     "preprocess_subject",
     "run_from_yaml",
+    "search_hyperparameters",
     "sort_dicom",
     "test_retest_analysis",
     "traditional_radiomics",
