@@ -1,0 +1,56 @@
+---
+description: After every local git commit, rebuild Sphinx HTML (py310) and deploy to gh-pages
+alwaysApply: true
+---
+
+# Docs → GitHub Pages（提交后必部署）
+
+站址：https://lichao312214129.github.io/HABIT/  
+Pages 源：分支 `gh-pages` / 根目录。
+
+用户固定偏好：**本仓库中凡由 agent 创建的 git commit（尤其推到 main），提交完成后必须本地重建 Sphinx HTML 并推送到 `gh-pages`。** 即使用户说的是「每次提交都要」——也按此执行，不要假设「小改动不影响文档」而跳过。发布/发版时同样执行。
+
+权威路径是**本地 deploy**；`.github/workflows/docs.yml` 可能仍存在，但**不以 Actions 代替**本次本地推送。
+
+## 硬约束
+
+1. **禁止**把 `docs/build/html` 或任何生成 HTML 提交进 `main`。
+2. 构建必须用 `py310`（见 `runtime-environment.mdc`）；勿用 PATH 上的 base `sphinx-build`。
+3. 部署用 **git worktree** 指向 `gh-pages`，勿在 `main` 工作树里 checkout 该分支污染状态。
+4. **Never force-push** `gh-pages` 或 `main`。
+5. 勿把无关脏文件一并提交；deploy 只动 gh-pages worktree。
+
+## 流程（PowerShell）
+
+```powershell
+# 1) Build (from docs/)
+cd f:\work\habit_project\docs
+$env:PYTHONPATH = "f:\work\habit_project"   # if autodoc needs habit
+& "E:\conda\mconda\envs\py310\python.exe" -m sphinx -M html source build
+# Expected: 0 errors, 0 warnings. Output: docs/build/html
+
+# Or: $env:SPHINXBUILD = "E:\conda\mconda\envs\py310\Scripts\sphinx-build.exe"
+#     cmd /c "make.bat html"
+
+# 2) Worktree + copy (repo root)
+cd f:\work\habit_project
+git fetch origin gh-pages
+git worktree add ..\habit_gh-pages gh-pages
+# Clear old site files in worktree root (keep .git); then:
+Copy-Item -Path "docs\build\html\*" -Destination "..\habit_gh-pages\" -Recurse -Force
+# Ensure GitHub Pages serves without Jekyll:
+New-Item -ItemType File -Path "..\habit_gh-pages\.nojekyll" -Force | Out-Null
+
+# 3) Commit + push gh-pages
+cd ..\habit_gh-pages
+git add -A
+git status
+git commit -m "docs: publish Sphinx HTML to GitHub Pages"
+git push origin gh-pages
+
+# 4) Cleanup
+cd f:\work\habit_project
+git worktree remove ..\habit_gh-pages
+```
+
+若 worktree 路径已占用，先 `git worktree list` 清理或换目录名。推送后站点通常数分钟内更新。
