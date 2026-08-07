@@ -54,6 +54,7 @@ from habit.utils.job_cancel import is_job_cancelled, JobCancelledError
 __all__ = [
     "ProcessingResult",
     "default_thread_worker_count",
+    "resolve_process_count",
     "parallel_map",
     "parallel_map_simple",
     "ParallelProcessor",
@@ -75,6 +76,33 @@ def default_thread_worker_count() -> int:
     Reserves two CPU cores for the main process and system overhead.
     """
     return max(1, multiprocessing.cpu_count() - 2)
+
+
+def resolve_process_count(
+    n_processes: Optional[int],
+    *,
+    default_divisor: int = 2,
+) -> int:
+    """
+    Resolve a safe process-pool size for subject-level batch work.
+
+    Historical extract code used ``min(n_processes, cpu_count - 2)`` without a
+    lower bound, which could yield ``0`` (or a negative clamp via ``min``) on
+    small machines and break ``multiprocessing.Pool``. This helper always
+    returns at least 1 and never exceeds ``cpu_count``.
+
+    Args:
+        n_processes: Requested worker count, or ``None`` for
+            ``max(1, cpu_count // default_divisor)``.
+        default_divisor: Divisor used when ``n_processes`` is ``None``.
+
+    Returns:
+        int: Worker count in ``[1, cpu_count]``.
+    """
+    cpu_count = max(1, multiprocessing.cpu_count() or 1)
+    if n_processes is None:
+        return max(1, cpu_count // max(1, int(default_divisor)))
+    return max(1, min(int(n_processes), cpu_count))
 
 
 def default_cluster_search_workers(cpu_reserve: int = 4) -> int:

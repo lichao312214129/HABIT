@@ -96,10 +96,10 @@ class TraditionalRadiomicsExtractor:
         self.out_dir = out_dir
 
         # 进程数设置
-        if n_processes is None:
-            self.n_processes = max(1, multiprocessing.cpu_count() // 2)
-        else:
-            self.n_processes = min(n_processes, multiprocessing.cpu_count() - 2)
+        from habit.utils.parallel_utils import resolve_process_count
+
+        # Same floor/ceiling as HabitatMapAnalyzer: never 0, never > cpu_count.
+        self.n_processes = resolve_process_count(n_processes)
 
         # 设置日志
         self._setup_logging()

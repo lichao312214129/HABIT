@@ -35,6 +35,20 @@ Two consequences of that rule:
 
 from __future__ import annotations
 
+from habit.viz.classification import (
+    net_benefit,
+    plot_calibration,
+    plot_confusion_matrix,
+    plot_decision_curve,
+    plot_permutation_importance,
+    plot_precision_recall,
+    plot_roc,
+    plot_shap_dependence,
+    plot_shap_summary,
+    plot_shap_waterfall,
+    rank_shap_feature_indices,
+    select_representative_sample_indices,
+)
 from habit.viz.labels import sanitize_label
 from habit.viz.regression import (
     plot_bland_altman,
@@ -84,6 +98,19 @@ __all__ = [
     "plot_residual_qq",
     "plot_bland_altman",
     "plot_coefficient_forest",
+    # classification
+    "plot_roc",
+    "plot_precision_recall",
+    "plot_calibration",
+    "plot_decision_curve",
+    "plot_confusion_matrix",
+    "plot_shap_summary",
+    "plot_shap_dependence",
+    "plot_shap_waterfall",
+    "plot_permutation_importance",
+    "rank_shap_feature_indices",
+    "select_representative_sample_indices",
+    "net_benefit",
     # habitat clustering
     "plot_habitat_clustering_pca_2d",
     "plot_habitat_clustering_pca_3d",

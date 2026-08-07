@@ -356,7 +356,7 @@ def _run_v1_ml_yaml(
         )
         if save:
             config = _ml_config_shim_from_v1(document, path)
-            _save_cv_result(result, config, logger=logger)
+            _save_cv_result(result, config, table=table, logger=logger)
         return result
 
     result = train_model(table, spec, seed=spec.random_seed)
@@ -588,7 +588,7 @@ def _run_ml_yaml(
             seed=config.random_state,
         )
         if save:
-            _save_cv_result(result, config, logger=logger)
+            _save_cv_result(result, config, table=table, logger=logger)
     else:
         result = train_model(
             table,
@@ -1095,6 +1095,9 @@ def _save_model_result(
         log.info("Saved fitted pipeline to %s", pipeline_path)
 
     _write_all_prediction_results(result, table, out_dir, logger=logger)
+    _write_ml_figures(
+        result, table, config, out_dir=out_dir, mode="holdout", logger=logger
+    )
 
 
 def _write_all_prediction_results(
@@ -1159,6 +1162,7 @@ def _save_cv_result(
     result: CVResult,
     config: Any,
     *,
+    table: Optional[FeatureTable] = None,
     logger: Optional[logging.Logger],
 ) -> None:
     """Write cross-validation artefacts with v0.1-friendly filenames."""
@@ -1185,16 +1189,47 @@ def _save_cv_result(
         json.dumps(legacy_payload, indent=2), encoding="utf-8"
     )
 
+    log = logger or logging.getLogger(__name__)
     if config.is_save_model and result.pipelines:
         model_dir = out_dir / "models"
         model_dir.mkdir(parents=True, exist_ok=True)
-        log = logger or logging.getLogger(__name__)
         for fold_index, pipeline in enumerate(result.pipelines):
             destination = (
                 model_dir / f"{model_name}_fold{fold_index}_pipeline.habitpipeline"
             )
             pipeline.save(destination)
             log.info("Saved fold %d pipeline to %s", fold_index, destination)
+
+    if table is not None:
+        _write_ml_figures(
+            result, table, config, out_dir=out_dir, mode="cv", logger=log
+        )
+
+
+def _write_ml_figures(
+    result: Union[ModelResult, CVResult],
+    table: FeatureTable,
+    config: Any,
+    *,
+    out_dir: Path,
+    mode: str,
+    logger: Optional[logging.Logger],
+) -> None:
+    """Persist v1 ML figures under ``out_dir/visualizations`` when enabled."""
+    from habit.recipes.ml_reporting import write_ml_figures_from_config
+
+    log = logger or logging.getLogger(__name__)
+    figure_dir = out_dir / "visualizations"
+    paths = write_ml_figures_from_config(
+        result,
+        table,
+        config,
+        destination=figure_dir,
+        mode=mode,
+        logger=log,
+    )
+    if paths:
+        log.info("Wrote %d ML figure(s) under %s", len(paths), figure_dir)
 
 
 def _is_v1_model_archive(path: Path) -> bool:

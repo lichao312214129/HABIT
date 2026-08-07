@@ -16,39 +16,81 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any, Dict, List
 from unittest.mock import MagicMock
 
 import pytest
 
 from habit.recipes import extract_habitat_features, traditional_radiomics
+from habit.schemas.workflows.habitat import FeatureExtractionConfig
+
+
+def _feature_config(feature_types: List[str]) -> FeatureExtractionConfig:
+    """Build a minimal validated extract config for unit tests."""
+    return FeatureExtractionConfig.model_construct(
+        raw_img_folder="/tmp/images",
+        habitats_map_folder="/tmp/habitats",
+        out_dir="/tmp/out",
+        feature_types=feature_types,
+        n_processes=1,
+        habitat_pattern="*_habitats.nrrd",
+        n_habitats=2,
+        debug=False,
+    )
 
 
 @pytest.mark.unit
-def test_extract_habitat_features_delegates_to_public_api(
+def test_extract_habitat_features_uses_domain_path(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The recipe forwards config and plugin settings to habit.api.habitat."""
+    """Built-in feature_types run through the domain extract helper."""
     calls: List[Dict[str, Any]] = []
 
     def _spy(*args: Any, **kwargs: Any) -> MagicMock:
         calls.append({"args": args, "kwargs": kwargs})
-        return MagicMock(run_id="test-run")
+        return MagicMock(run_id="test-run", metadata={"engine": "domain"})
 
-    monkeypatch.setattr("habit.api.habitat.run_feature_extraction", _spy)
+    monkeypatch.setattr(
+        "habit.recipes.features._run_domain_extract", _spy
+    )
 
-    config = MagicMock(out_dir="/tmp/out")
-    plugins = {"graph": {"enabled": True}}
+    config = _feature_config(["msi", "ith_score", "non_radiomics"])
     logger = MagicMock()
 
-    result = extract_habitat_features(config, plugin_configs=plugins, logger=logger)
+    result = extract_habitat_features(config, logger=logger)
 
     assert len(calls) == 1
     assert calls[0]["args"][0] is config
-    assert calls[0]["kwargs"]["plugin_configs"] == plugins
     assert calls[0]["kwargs"]["logger"] is logger
     assert result.run_id == "test-run"
+
+
+@pytest.mark.unit
+def test_extract_habitat_features_falls_back_for_plugins(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Optional plugin feature types keep the compat analyzer path."""
+    calls: List[Dict[str, Any]] = []
+
+    def _spy(*args: Any, **kwargs: Any) -> MagicMock:
+        calls.append({"args": args, "kwargs": kwargs})
+        return MagicMock(run_id="compat-run", metadata={"engine": "compat"})
+
+    monkeypatch.setattr(
+        "habit.recipes.features._run_compat_extract", _spy
+    )
+
+    config = _feature_config(["msi", "graph"])
+    plugins = {"graph": {"enabled": True}}
+    logger = MagicMock()
+
+    result = extract_habitat_features(
+        config, plugin_configs=plugins, logger=logger
+    )
+
+    assert len(calls) == 1
+    assert calls[0]["kwargs"]["plugin_configs"] == plugins
+    assert result.run_id == "compat-run"
 
 
 @pytest.mark.unit

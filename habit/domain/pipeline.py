@@ -54,8 +54,29 @@ from habit.domain.table_protocols import (
 )
 from habit._version import __version__ as _habit_version
 from habit.spec.specs import Spec
+from habit.utils.log_utils import get_module_logger
 
 __all__ = ["SubjectPipeline", "TablePipeline", "voxel_units"]
+
+_logger = get_module_logger(__name__)
+
+
+def _is_feature_selector_step(step: object) -> bool:
+    """
+    Return True when ``step`` is a registered feature selector.
+
+    ``FeatureSelector`` and ``TablePreprocessor`` are structurally similar
+    ``@runtime_checkable`` protocols, so ``isinstance(..., FeatureSelector)``
+    is not reliable. Registry membership on ``step.spec.name`` is the
+    definitive check used by assembly.
+    """
+    from habit.domain.feature_selection.registry import FeatureSelectorRegistry
+
+    try:
+        name = step.spec.name  # type: ignore[attr-defined]
+    except AttributeError:
+        return False
+    return FeatureSelectorRegistry.get(str(name)) is not None
 
 
 def voxel_units(field: VoxelFeatureField) -> Supervoxelization:
@@ -493,12 +514,34 @@ class TablePipeline:
             ``self``, fitted.
         """
         current = table
+        selector_step = 0
         for step, takes_repeats in zip(self._steps, self._step_takes_repeats):
+            is_selector = _is_feature_selector_step(step)
+            n_before = len(current.feature_columns)
+            if is_selector:
+                selector_step += 1
+                method_name = str(step.spec.name)
+                _logger.info(
+                    "Step %s: Applying '%s' feature selection",
+                    selector_step,
+                    method_name,
+                )
+                _logger.info("  Parameters: %s", dict(step.spec.params))
+                _logger.info("  Features before this step: %s", n_before)
+
             if takes_repeats:
                 step.fit(current, repeat_tables=repeat_tables)  # type: ignore[call-arg]
             else:
                 step.fit(current)
             current = step.transform(current)
+
+            if is_selector:
+                n_after = len(current.feature_columns)
+                n_removed = n_before - n_after
+                _logger.info("  Features after this step: %s", n_after)
+                _logger.info("  Number of features removed: %s", n_removed)
+                _logger.info("-" * 80)
+
         self._model.fit(current)
         self._fit_output_columns = tuple(current.feature_columns)
         self._is_fitted = True

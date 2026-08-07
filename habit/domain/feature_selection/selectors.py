@@ -603,7 +603,8 @@ class UnivariateLogisticSelectorParams(BaseModel):
     #: Keep columns whose univariate logistic p-value is below this level.
     alpha: float = 0.05
     #: Show a progress bar over the per-feature model fits.
-    verbose: bool = False
+    #: Default True restores the v0.1 always-on univariate progress bar.
+    verbose: bool = True
 
 
 @FeatureSelectorRegistry.register("univariate_logistic")
@@ -619,7 +620,7 @@ class UnivariateLogisticSelector(FittedSelectorBase):
 
     _spec_name = "univariate_logistic"
 
-    def __init__(self, alpha: float = 0.05, verbose: bool = False) -> None:
+    def __init__(self, alpha: float = 0.05, verbose: bool = True) -> None:
         super().__init__()
         self._alpha = float(alpha)
         self._verbose = bool(verbose)

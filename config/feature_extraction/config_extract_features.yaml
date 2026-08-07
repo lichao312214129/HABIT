@@ -68,16 +68,22 @@ n_processes: 3
 # 中文：`habitat_pattern` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `habitat_pattern` is a setting for this module; retain the example default initially and document any change.
 habitat_pattern: '*_habitats_remapped.nrrd'
-# Feature types to extract
-# Options: traditional, non_radiomics, whole_habitat, each_habitat, msi, ith_score
+# Feature types to extract.
+# Light (recommended default): msi, ith_score, non_radiomics
+# Heavy radiomics (opt-in): traditional, whole_habitat, each_habitat
+# Optional backend (habitat radiomics only; does not change bin width):
+#   use_torch_radiomics: false | auto | true
+# Supervoxel cext is configured under get-habitat, not extract.
 # 中文：`feature_types` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `feature_types` is a setting for this module; retain the example default initially and document any change.
 feature_types:
-- traditional
-- non_radiomics
-- whole_habitat
 - msi
 - ith_score
+- non_radiomics
+# - traditional
+# - whole_habitat
+# - each_habitat
+
 # 中文：`n_habitats` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `n_habitats` is a setting for this module; retain the example default initially and document any change.
 n_habitats:

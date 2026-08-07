@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from pydantic import BaseModel, ConfigDict
 
@@ -25,6 +25,7 @@ from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
 from habit.domain.habitat_features._base import single_subject_table
 from habit.domain.habitat_features._radiomics import (
+    DEFAULT_USE_TORCH_RADIOMICS,
     binarized_habitat_mask,
     build_pyradiomics_extractor,
     execute_radiomics,
@@ -46,6 +47,9 @@ class WholeHabitatRadiomicsFeaturesParams(BaseModel):
     #: Inline PyRadiomics parameter mapping (mutually exclusive with
     #: ``params_file``), for API users holding settings in memory.
     params: Optional[Dict[str, Any]] = None
+    use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS
+    torch_device: str = "auto"
+    torch_dtype: str = "float32"
 
 
 @HabitatFeatureExtractorRegistry.register("whole_habitat")
@@ -68,16 +72,28 @@ class WholeHabitatRadiomicsFeatures:
         self,
         params_file: Optional[str] = None,
         params: Optional[Dict[str, Any]] = None,
+        use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
+        torch_device: str = "auto",
+        torch_dtype: str = "float32",
     ) -> None:
         self._params_file = params_file
         self._params = dict(params) if params is not None else None
+        self._use_torch_radiomics = use_torch_radiomics
+        self._torch_device = str(torch_device)
+        self._torch_dtype = str(torch_dtype)
 
     @property
     def spec(self) -> Spec:
         """Return the algorithm specification."""
         return Spec(
             name="whole_habitat",
-            params={"params_file": self._params_file, "params": self._params},
+            params={
+                "params_file": self._params_file,
+                "params": self._params,
+                "use_torch_radiomics": self._use_torch_radiomics,
+                "torch_device": self._torch_device,
+                "torch_dtype": self._torch_dtype,
+            },
         )
 
     def __call__(self, subject: Subject, habitat_map: HabitatMap) -> FeatureTable:
@@ -95,7 +111,16 @@ class WholeHabitatRadiomicsFeatures:
         extractor = build_pyradiomics_extractor(self._params_file, self._params, owner=owner)
         habitat_sitk = sitk_image_from_contract(habitat_map.label_array, habitat_map.geometry)
         mask_sitk = binarized_habitat_mask(habitat_sitk)
-        features = execute_radiomics(extractor, habitat_sitk, mask_sitk, label=1)
+        features = execute_radiomics(
+            extractor,
+            habitat_sitk,
+            mask_sitk,
+            label=1,
+            use_torch_radiomics=self._use_torch_radiomics,
+            torch_device=self._torch_device,
+            torch_dtype=self._torch_dtype,
+            subject_id=subject.subject_id,
+        )
         return single_subject_table(
             subject_id=subject.subject_id,
             features=features,

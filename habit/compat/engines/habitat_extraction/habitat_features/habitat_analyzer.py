@@ -14,7 +14,12 @@
 #
 #!/usr/bin/env python
 """
-HabitatMapAnalyzer — orchestrator for post-clustering feature extraction.
+HabitatMapAnalyzer — compat orchestrator for post-clustering feature extraction.
+
+The primary ``habit extract`` path is domain-native
+(:func:`habit.recipes.features.extract_habitat_features`). This class remains
+as a compatibility analyzer for optional plugins (e.g. ``graph``) and for
+callers that still construct it directly.
 
 All feature types (built-in and optional) are implemented as handlers that
 inherit from BaseHabitatFeature and are registered with
@@ -93,10 +98,11 @@ class HabitatMapAnalyzer:
         self.n_habitats: Optional[int] = None
         self.save_every_n_files = 5
 
-        if n_processes is None:
-            self.n_processes = max(1, multiprocessing.cpu_count() // 2)
-        else:
-            self.n_processes = min(n_processes, multiprocessing.cpu_count() - 2)
+        from habit.utils.parallel_utils import resolve_process_count
+
+        # Always keep n_processes >= 1; the old ``cpu_count - 2`` cap could
+        # collapse to 0 on small machines and break multiprocessing.Pool.
+        self.n_processes = resolve_process_count(n_processes)
 
         self._all_features = self._build_feature_handlers(plugin_configs or {})
 

@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence, Union
 
 from pydantic import BaseModel, ConfigDict
 
@@ -26,6 +26,7 @@ from habit.contracts.table import FeatureTable
 from habit.exceptions import HABITAPIError
 from habit.domain.habitat_features._base import single_subject_table
 from habit.domain.habitat_features._radiomics import (
+    DEFAULT_USE_TORCH_RADIOMICS,
     binarized_habitat_mask,
     build_pyradiomics_extractor,
     execute_radiomics,
@@ -55,6 +56,11 @@ class TraditionalRadiomicsHabitatFeaturesParams(BaseModel):
     modality: Optional[str] = None
     #: Alias used as the ``_of_`` column suffix; requires ``modality``.
     as_: Optional[str] = None
+    #: TorchRadiomics switch (``auto`` / ``true`` / ``false``); does not alter
+    #: scientific PyRadiomics parameters such as bin width.
+    use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS
+    torch_device: str = "auto"
+    torch_dtype: str = "float32"
 
 
 @HabitatFeatureExtractorRegistry.register("traditional")
@@ -89,6 +95,9 @@ class TraditionalRadiomicsHabitatFeatures:
         modalities: Optional[Sequence[str]] = None,
         modality: Optional[str] = None,
         as_: Optional[str] = None,
+        use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
+        torch_device: str = "auto",
+        torch_dtype: str = "float32",
     ) -> None:
         if modality is not None and modalities is not None:
             raise HABITAPIError(
@@ -109,6 +118,9 @@ class TraditionalRadiomicsHabitatFeatures:
         )
         self._modality = modality
         self._as = as_
+        self._use_torch_radiomics = use_torch_radiomics
+        self._torch_device = str(torch_device)
+        self._torch_dtype = str(torch_dtype)
 
     @property
     def spec(self) -> Spec:
@@ -117,6 +129,9 @@ class TraditionalRadiomicsHabitatFeatures:
             "params_file": self._params_file,
             "params": self._params,
             "modalities": self._modalities,
+            "use_torch_radiomics": self._use_torch_radiomics,
+            "torch_device": self._torch_device,
+            "torch_dtype": self._torch_dtype,
         }
         # Fold the single-modality spelling in only when used, so existing
         # configurations keep their historical fingerprints.
@@ -152,7 +167,16 @@ class TraditionalRadiomicsHabitatFeatures:
             image_sitk = sitk_image_from_contract(volume.load(), volume.geometry)
             # v0.1 semantics: the mask adopts the raw image's metadata.
             harmonize_mask_geometry(image_sitk, mask_sitk)
-            for key, value in execute_radiomics(extractor, image_sitk, mask_sitk, label=1).items():
+            for key, value in execute_radiomics(
+                extractor,
+                image_sitk,
+                mask_sitk,
+                label=1,
+                use_torch_radiomics=self._use_torch_radiomics,
+                torch_device=self._torch_device,
+                torch_dtype=self._torch_dtype,
+                subject_id=subject.subject_id,
+            ).items():
                 features[f"{key}_of_{suffix}"] = value
         return single_subject_table(
             subject_id=subject.subject_id,

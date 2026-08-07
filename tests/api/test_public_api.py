@@ -204,32 +204,32 @@ def test_load_feature_extraction_config_delegates_to_plugin_aware_loader() -> No
 
 @pytest.mark.unit
 def test_run_feature_extraction_passes_plugin_configs() -> None:
-    """Public feature runner accepts dictionaries and explicit plugin settings."""
+    """Public feature runner forwards plugin settings into the L4 recipe."""
     from unittest.mock import MagicMock, patch
 
     import habit
 
     plugins = {"graph": MagicMock()}
     with patch(
-        "habit.compat.feature_extraction_runner.run_feature_extraction_from_config"
+        "habit.recipes.features.extract_habitat_features"
     ) as mock_run:
+        mock_run.return_value = MagicMock(run_id="extract-run")
         habit.run_feature_extraction(
             {
                 "raw_img_folder": "raw",
                 "habitats_map_folder": "habitats",
                 "out_dir": "features",
-                "feature_types": ["non_radiomics"],
+                "feature_types": ["non_radiomics", "graph"],
             },
             plugin_configs=plugins,
         )
 
-    delegated_config = mock_run.call_args.args[0]
-    assert isinstance(delegated_config, habit.FeatureExtractionConfig)
-    mock_run.assert_called_once_with(
-        delegated_config,
-        logger=None,
-        plugin_configs=plugins,
-    )
+    mock_run.assert_called_once()
+    assert mock_run.call_args.kwargs["plugin_configs"] == plugins
+    assert mock_run.call_args.kwargs["logger"] is None
+    config_arg = mock_run.call_args.args[0]
+    assert isinstance(config_arg, dict)
+    assert "graph" in config_arg["feature_types"]
 
 
 @pytest.mark.unit

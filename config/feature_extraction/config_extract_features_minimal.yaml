@@ -39,13 +39,16 @@ out_dir: ../../demo_data/results/features                          # ★ 输出
 # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
 n_processes: 2
 habitat_pattern: '*_habitats.nrrd'
+# Default: light families only. Uncomment heavy radiomics when needed.
+# See config_extract_features_demo.yaml for traditional / whole_habitat / each_habitat
+# and optional use_torch_radiomics (cext is a get-habitat supervoxel setting).
 feature_types:
-  - traditional
-  - non_radiomics
-  - whole_habitat
-  - each_habitat
   - msi
   - ith_score
+  - non_radiomics
+  # - traditional
+  # - whole_habitat
+  # - each_habitat
 # 中文：`n_habitats` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `n_habitats` is a setting for this module; retain the example default initially and document any change.
 n_habitats:

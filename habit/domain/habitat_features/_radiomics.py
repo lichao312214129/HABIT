@@ -29,7 +29,7 @@ function bodies, keeping the L3 module cheap to import.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -45,6 +45,13 @@ __all__ = [
     "binarized_habitat_mask",
     "execute_radiomics",
 ]
+
+#: Default TorchRadiomics switch for habitat-level radiomics families.
+#: ``False`` keeps the historical CPU PyRadiomics path (no silent numeric
+#: drift). Callers may set ``"auto"`` / ``True`` to opt into TorchRadiomics;
+#: scientific parameters (bin width, feature classes, ...) are never altered
+#: by this switch.
+DEFAULT_USE_TORCH_RADIOMICS: Union[str, bool] = False
 
 
 def resolve_modalities(
@@ -202,6 +209,11 @@ def execute_radiomics(
     image_sitk: Any,
     mask_sitk: Any,
     label: int,
+    *,
+    use_torch_radiomics: Union[str, bool] = DEFAULT_USE_TORCH_RADIOMICS,
+    torch_device: str = "auto",
+    torch_dtype: str = "float32",
+    subject_id: str = "",
 ) -> Dict[str, float]:
     """
     Run PyRadiomics once and clean its output into a numeric feature dict.
@@ -210,20 +222,45 @@ def execute_radiomics(
     same) and every remaining value is coerced to a plain float, so the
     resulting mapping can populate a feature table directly.
 
+    When ``use_torch_radiomics`` resolves to the torch backend, TorchRadiomics
+    is injected for this call only; bin width and enabled feature classes from
+    the parameter file are left untouched.
+
     Args:
         extractor: Initialised PyRadiomics feature extractor.
         image_sitk: Intensity image (SimpleITK).
         mask_sitk: Mask image (SimpleITK).
         label: Mask label to extract within.
+        use_torch_radiomics: ``"auto"``, ``True``/``"true"``, or
+            ``False``/``"false"`` -- same switch as voxel/supervoxel radiomics.
+        torch_device: Torch device string, or ``"auto"``.
+        torch_dtype: ``"float32"`` or ``"float64"`` for the torch path.
+        subject_id: Optional subject id for backend resolution logging.
 
     Returns:
         Feature name to float value mapping, PyRadiomics order preserved.
     """
-    result = extractor.execute(
-        imageFilepath=image_sitk,
-        maskFilepath=mask_sitk,
-        label=int(label),
+    from habit.utils.torch_radiomics_utils import (
+        injected_torch_radiomics,
+        resolve_torch_dtype,
+        resolve_voxel_radiomics_backend,
     )
+
+    backend, device = resolve_voxel_radiomics_backend(
+        use_torch_radiomics=use_torch_radiomics,
+        torch_device=torch_device,
+        subject=subject_id or None,
+    )
+    if backend == "torch" and device is not None:
+        extractor.settings["device"] = device
+        extractor.settings["dtype"] = resolve_torch_dtype(torch_dtype)
+
+    with injected_torch_radiomics(enabled=(backend == "torch")):
+        result = extractor.execute(
+            imageFilepath=image_sitk,
+            maskFilepath=mask_sitk,
+            label=int(label),
+        )
     features: Dict[str, float] = {}
     for key, value in result.items():
         if "diagnostic" in key:

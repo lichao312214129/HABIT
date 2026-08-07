@@ -23,7 +23,23 @@ layout, a DataFrame, in-memory arrays, or an nnU-Net dataset -- into the L2
 from __future__ import annotations
 
 from habit.adapters.directory import DirectoryDataSource
+from habit.adapters.extract_io import (
+    discover_habitat_map_paths,
+    load_extract_cohort,
+    read_habitat_map,
+    resolve_n_habitats,
+    write_extract_feature_csvs,
+)
 from habit.adapters.image_refs import FileImageRef
 from habit.adapters.writers import DirectoryResultWriter
 
-__all__ = ["DirectoryDataSource", "DirectoryResultWriter", "FileImageRef"]
+__all__ = [
+    "DirectoryDataSource",
+    "DirectoryResultWriter",
+    "FileImageRef",
+    "discover_habitat_map_paths",
+    "load_extract_cohort",
+    "read_habitat_map",
+    "resolve_n_habitats",
+    "write_extract_feature_csvs",
+]

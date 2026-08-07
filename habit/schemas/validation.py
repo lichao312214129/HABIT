@@ -28,7 +28,12 @@ from pydantic import BaseModel, ValidationError
 from habit.schemas.registry import Domain, ParamSchemaRegistry
 
 # Keys injected by the pipeline / recipe builder — not part of step param schemas.
-RUNTIME_STEP_KEYS: FrozenSet[str] = frozenset({"images", "before_z_score"})
+# ``verbose`` / ``outdir`` are runtime UX switches that YAML may set even when a
+# selector's *Params model does not declare them; preserving them avoids silent
+# drops during ``exclude_unset`` validation.
+RUNTIME_STEP_KEYS: FrozenSet[str] = frozenset(
+    {"images", "before_z_score", "outdir", "verbose"}
+)
 
 
 def validate_step_params(

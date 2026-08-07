@@ -60,22 +60,34 @@ n_processes: 2
 # 生境图文件名匹配模式（一般勿改）
 habitat_pattern: '*_habitats.nrrd'
 
-# 要提取的特征类型（公开版可用）：
-#   traditional   : ROI 上传统 PyRadiomics
-#   non_radiomics : 非组学形态特征（体积占比、连通域等）
-#   whole_habitat : 在生境 label 图上做 PyRadiomics
-#   each_habitat  : 每个生境标签在原始影像上的 PyRadiomics
-#   msi           : 多区域空间相互作用
-#   ith_score     : 瘤内异质性评分
-# 中文：`feature_types` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
-# EN: `feature_types` is a setting for this module; retain the example default initially and document any change.
+# Default feature_types: lightweight families (fast demo / first run).
+# 中文：默认只开轻量特征（msi / ith_score / non_radiomics），适合首次试跑。
+# EN: Defaults emphasise light families; enable heavy radiomics only when needed.
+#
+# Available names:
+#   msi           : multiregional spatial interaction (light)
+#   ith_score     : intratumoral heterogeneity score (light)
+#   non_radiomics : region count / volume fraction (light)
+#   traditional   : PyRadiomics on raw image within whole ROI (heavy — opt-in)
+#   whole_habitat : PyRadiomics on the habitat label map (heavy — opt-in)
+#   each_habitat  : per-habitat PyRadiomics on raw image (heavy — opt-in)
 feature_types:
-  - traditional
-  - non_radiomics
-  - whole_habitat
-  - each_habitat
   - msi
   - ith_score
+  - non_radiomics
+  # --- Opt-in heavy radiomics (uncomment as needed) ---
+  # - traditional
+  # - whole_habitat
+  # - each_habitat
+
+# Optional radiomics compute backend (does NOT change bin width / feature classes).
+# Supervoxel native cext is configured under get-habitat (feature_construction),
+# not here. For habitat-level traditional/whole/each radiomics:
+# use_torch_radiomics: false   # default: CPU PyRadiomics
+# use_torch_radiomics: auto    # torch when CUDA is available
+# use_torch_radiomics: true
+# torch_device: auto
+# torch_dtype: float32
 
 # 生境个数；留空/null 表示自动检测
 # 中文：`n_habitats` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。

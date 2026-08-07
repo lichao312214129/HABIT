@@ -29,6 +29,19 @@
 | [04_ci_quality_governance.md](04_ci_quality_governance.md) | CI 矩阵、类型标注、版本/弃用、文档与治理 | 仍适用 |
 | [05_roadmap_and_estimates.md](05_roadmap_and_estimates.md) | 分 PR 路线图、验收标准、估算 | v1.0 路线见 `06` 第 12 节 |
 
+## 贡献者须读：改动 HABIT 前先看这两份规则
+
+设计文档（`06`/`07`/`08`）说明架构**是什么**；日常改动**该怎么发生**写在仓库根的
+`.cursor/rules/` 下（`.mdc` 是带 YAML 头的 Markdown，可直接阅读，不必使用 Cursor）：
+
+| 文件 | 内容 |
+|------|------|
+| [`.cursor/rules/habit-api-first.mdc`](../../.cursor/rules/habit-api-first.mdc) | **宪法**：三个北极星目标、分层依赖铁律、三条骨架级不变量、四条不可协商的红线、向后兼容优先顺序、打包与依赖纪律 |
+| [`.cursor/rules/habit-change-protocol.mdc`](../../.cursor/rules/habit-change-protocol.mdc) | **程序法**：新代码该落在哪一层、新增领域组件的八条合格清单、反模式清单、"改了什么必须跑什么"门禁矩阵、弃用与破坏性变更的标准动作 |
+
+两份规则与本目录的设计文档冲突时，**以设计文档为准**（命名以 `08` 为准）；发现冲突
+说明规则过期，应同一次提交里改回来。
+
 ## 使用方式
 
 1. **设计评审**：读 `06_v1_api_first_architecture.md`，对照 `prototype/usage_examples.py` 看调用形态。

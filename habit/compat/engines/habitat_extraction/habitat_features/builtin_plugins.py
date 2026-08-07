@@ -161,6 +161,20 @@ class TraditionalRadiomicsFeature(BaseHabitatFeature):
         """
         super().__init__()
         self.params_file = params_file
+        # Build the PyRadiomics extractor once per handler instance so multi-
+        # modality subjects do not pay YAML parse / extractor construction
+        # cost on every modality (scientific params unchanged).
+        self._extractor = None
+
+    def _get_extractor(self) -> Any:
+        """Return a cached PyRadiomics extractor for ``params_file``."""
+        if self._extractor is None:
+            from habit.utils.radiomics_params_utils import (
+                create_radiomics_feature_extractor,
+            )
+
+            self._extractor = create_radiomics_feature_extractor(self.params_file)
+        return self._extractor
 
     def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
         """Extract traditional radiomics for each image modality of one subject.
@@ -172,10 +186,17 @@ class TraditionalRadiomicsFeature(BaseHabitatFeature):
             Dict mapping image name to its radiomics feature dict.
         """
         results: Dict[str, Any] = {}
+        extractor = self._get_extractor()
         for img_name, img_path in ctx.image_paths.items():
             try:
-                results[img_name] = HabitatRadiomicsExtractor.extract_tranditional_radiomics(
-                    img_path, ctx.habitat_path, ctx.subj, self.params_file
+                results[img_name] = (
+                    HabitatRadiomicsExtractor.extract_tranditional_radiomics(
+                        img_path,
+                        ctx.habitat_path,
+                        ctx.subj,
+                        self.params_file,
+                        extractor=extractor,
+                    )
                 )
             except Exception as exc:
                 ctx.logger.error(
@@ -267,6 +288,17 @@ class WholeHabitatFeature(BaseHabitatFeature):
         """
         super().__init__()
         self.params_file = params_file
+        self._extractor = None
+
+    def _get_extractor(self) -> Any:
+        """Return a cached PyRadiomics extractor for ``params_file``."""
+        if self._extractor is None:
+            from habit.utils.radiomics_params_utils import (
+                create_radiomics_feature_extractor,
+            )
+
+            self._extractor = create_radiomics_feature_extractor(self.params_file)
+        return self._extractor
 
     def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
         """Extract radiomics from the whole habitat map for one subject.
@@ -278,7 +310,7 @@ class WholeHabitatFeature(BaseHabitatFeature):
             Dict of radiomics feature name → value.
         """
         return HabitatRadiomicsExtractor.extract_radiomics_features_for_whole_habitat(
-            ctx.habitat_path, self.params_file
+            ctx.habitat_path, self.params_file, extractor=self._get_extractor()
         )
 
     def export_batch(
@@ -355,6 +387,17 @@ class EachHabitatFeature(BaseHabitatFeature):
         """
         super().__init__()
         self.params_file = params_file
+        self._extractor = None
+
+    def _get_extractor(self) -> Any:
+        """Return a cached PyRadiomics extractor for ``params_file``."""
+        if self._extractor is None:
+            from habit.utils.radiomics_params_utils import (
+                create_radiomics_feature_extractor,
+            )
+
+            self._extractor = create_radiomics_feature_extractor(self.params_file)
+        return self._extractor
 
     def extract_subject(self, ctx: SubjectExtractionContext) -> Dict[str, Any]:
         """Extract radiomics per habitat label for each image modality.
@@ -366,11 +409,16 @@ class EachHabitatFeature(BaseHabitatFeature):
             Dict mapping image name to {habitat_id: radiomics_dict}.
         """
         results: Dict[str, Any] = {}
+        extractor = self._get_extractor()
         for img_name, img_path in ctx.image_paths.items():
             try:
                 results[img_name] = (
                     HabitatRadiomicsExtractor.extract_radiomics_features_from_each_habitat(
-                        ctx.habitat_path, img_path, ctx.subj, self.params_file
+                        ctx.habitat_path,
+                        img_path,
+                        ctx.subj,
+                        self.params_file,
+                        extractor=extractor,
                     )
                 )
             except Exception as exc:

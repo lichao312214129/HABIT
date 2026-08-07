@@ -226,7 +226,7 @@ def _run_cross_validate(config: MLConfig, logger: logging.Logger) -> None:
         len(table.frame),
     )
     result = cross_validate(table, spec, n_splits=n_splits, seed=config.random_state)
-    _save_cv_result(result, config, logger)
+    _save_cv_result(result, config, logger, table=table)
 
 
 def _run_predict(config: MLConfig, logger: logging.Logger) -> None:
@@ -776,12 +776,23 @@ def _save_model_result(
     from habit.recipes.yaml_runner import _write_all_prediction_results
 
     _write_all_prediction_results(result, table, out_dir, logger=logger)
+    _maybe_write_ml_figures(
+        result=result,
+        table=table,
+        config=config,
+        out_dir=out_dir,
+        logger=logger,
+        mode="holdout",
+    )
 
     logger.info("Metrics written to %s", metrics_path)
 
 
 def _save_cv_result(
-    result: CVResult, config: MLConfig, logger: logging.Logger
+    result: CVResult,
+    config: MLConfig,
+    logger: logging.Logger,
+    table: Optional[FeatureTable] = None,
 ) -> None:
     """
     Persist a cross-validation result with v0.1-friendly filenames.
@@ -822,4 +833,52 @@ def _save_cv_result(
             pipeline.save(destination)
             logger.info("Saved fold %d pipeline to %s", fold_index, destination)
 
+    if table is not None:
+        _maybe_write_ml_figures(
+            result=result,
+            table=table,
+            config=config,
+            out_dir=out_dir,
+            logger=logger,
+            mode="cv",
+        )
+
     logger.info("Cross-validation metrics written to %s", metrics_path)
+
+
+def _maybe_write_ml_figures(
+    *,
+    result: Any,
+    table: FeatureTable,
+    config: MLConfig,
+    out_dir: Path,
+    logger: logging.Logger,
+    mode: str,
+) -> None:
+    """
+    Emit v1 ``habit.viz`` figures when visualization is enabled.
+
+    Args:
+        result: :class:`ModelResult` or :class:`CVResult`.
+        table: Feature table used for scoring / OOF reconstruction.
+        config: Validated ML configuration (reads ``is_visualize`` /
+            ``visualization``).
+        out_dir: Run output directory.
+        logger: Run logger.
+        mode: ``"holdout"`` or ``"cv"``.
+    """
+    from habit.recipes.ml_reporting import write_ml_figures_from_config
+
+    figure_dir = out_dir / "visualizations"
+    paths = write_ml_figures_from_config(
+        result,
+        table,
+        config,
+        destination=figure_dir,
+        mode=mode,
+        logger=logger,
+    )
+    if paths:
+        logger.info("Wrote %d ML figure(s) under %s", len(paths), figure_dir)
+    else:
+        logger.info("No ML figures were written.")

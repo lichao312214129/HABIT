@@ -12,82 +12,88 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#!/usr/bin/env python
 """
-Basic Habitat Features Extraction
-This module provides functionality for extracting basic features from habitat maps:
+Basic Habitat Features Extraction (non_radiomics).
+
 1. Number of disconnected regions for each habitat
 2. Volume percentage for each habitat
+
+Uses L0 kernels :func:`habitat_region_stats` and
+:func:`habitat_volume_fractions` instead of per-label SimpleITK
+``BinaryThreshold`` + ``ConnectedComponent`` loops. The nested return
+shape is unchanged so ``NonRadiomicsFeature.export_batch`` keeps working.
 """
 
-import logging
+from __future__ import annotations
+
+from typing import Any, Dict, Union
+
 import numpy as np
 import SimpleITK as sitk
-from typing import Dict
+
+from habit.kernels.habitat_metrics import (
+    habitat_region_stats,
+    habitat_volume_fractions,
+)
 from habit.utils.log_utils import get_module_logger
 
 logger = get_module_logger(__name__)
 
+
 class BasicFeatureExtractor:
-    """Extractor class for basic habitat features"""
-    
+    """Extractor class for basic (non-radiomics) habitat features."""
+
     @staticmethod
-    def get_non_radiomics_features(habitat_img):
+    def get_non_radiomics_features(
+        habitat_img: Union[str, sitk.Image],
+    ) -> Dict[Any, Any]:
         """
-        Calculate number of disconnected regions and volume ratio for each habitat
-        
+        Calculate disconnected-region counts and volume ratios per habitat.
+
         Args:
-            habitat_img: SimpleITK image or path to habitat map file
-            
+            habitat_img: SimpleITK image or path to habitat map file.
+
         Returns:
-            Dict: Dictionary containing basic features for each habitat
+            Nested dict::
+
+                {
+                    <habitat_id: int>: {
+                        "num_regions": int,
+                        "volume_ratio": float,
+                    },
+                    ...,
+                    "num_habitats": int,
+                }
+
+            On failure returns ``{"error": ..., "num_habitats": 0}``.
         """
         try:
             if isinstance(habitat_img, str):
                 habitat_img = sitk.ReadImage(habitat_img)
             elif not isinstance(habitat_img, sitk.Image):
-                raise ValueError("habitat_img must be a SimpleITK image or a file path.")
+                raise ValueError(
+                    "habitat_img must be a SimpleITK image or a file path."
+                )
 
-            results = {}
-            
-            # Calculate total volume of the habitat map
-            stats_filter = sitk.StatisticsImageFilter()
-            stats_filter.Execute(habitat_img != 0)
-            total_voxels = int(stats_filter.GetSum())
+            labels = np.asarray(sitk.GetArrayFromImage(habitat_img))
+            if not np.issubdtype(labels.dtype, np.integer):
+                labels = np.rint(labels).astype(np.int64)
 
-            label_filter = sitk.LabelStatisticsImageFilter()
-            label_filter.Execute(habitat_img, habitat_img)
-            labels = label_filter.GetLabels()
-            labels = [int(label) for label in labels if label != 0]
-            
-            for label in labels:
-                try:
-                    binary_img = sitk.BinaryThreshold(habitat_img, lowerThreshold=label, upperThreshold=label)
-                    
-                    stats_filter.Execute(binary_img)
-                    habitat_voxels = int(stats_filter.GetSum())
-                    volume_ratio = habitat_voxels / total_voxels if total_voxels > 0 else 0.0
-                    
-                    cc_filter = sitk.ConnectedComponentImageFilter()
-                    cc_filter.SetFullyConnected(False)
-                    labeled_img = cc_filter.Execute(binary_img)
-                    num_regions = cc_filter.GetObjectCount()
-                    
-                    results[label] = {
-                        'num_regions': num_regions,
-                        'volume_ratio': volume_ratio
-                    }
-                except Exception as e:
-                    logger.error(f"Error processing habitat label {label}: {str(e)}")
-                    results[label] = {
-                        'num_regions': 0,
-                        'volume_ratio': 0.0,
-                        'error': str(e)
-                    }
-                    
-            results['num_habitats'] = len(labels)
-            
+            present_ids = sorted(
+                int(v) for v in np.unique(labels) if int(v) != 0
+            )
+            region_stats = habitat_region_stats(labels)
+            volume_fractions = habitat_volume_fractions(labels, present_ids)
+
+            results: Dict[Any, Any] = {}
+            for habitat_id in present_ids:
+                num_regions, _largest = region_stats.get(habitat_id, (0, 0))
+                results[habitat_id] = {
+                    "num_regions": int(num_regions),
+                    "volume_ratio": float(volume_fractions.get(habitat_id, 0.0)),
+                }
+            results["num_habitats"] = len(present_ids)
             return results
-        except Exception as e:
-            logger.error(f"Error calculating basic habitat features: {str(e)}")
-            return {"error": str(e), "num_habitats": 0} 
+        except Exception as exc:  # noqa: BLE001 — keep CLI batch resilient
+            logger.error("Error calculating basic habitat features: %s", exc)
+            return {"error": str(exc), "num_habitats": 0}

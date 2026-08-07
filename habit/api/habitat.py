@@ -195,10 +195,15 @@ def run_feature_extraction(
     """
     Extract habitat-map features from a validated config object.
 
+    Delegates to :func:`habit.recipes.features.extract_habitat_features`, the
+    domain-native recipe used by ``habit extract``. Optional plugins that are
+    not registered in the domain registry still fall back to the compat
+    analyzer inside the recipe.
+
     Args:
         config: Validated config or dictionary accepted by
             :class:`~habit.schemas.workflows.habitat.FeatureExtractionConfig`.
-        logger: Optional logger passed to the core runner.
+        logger: Optional logger passed to the recipe.
         plugin_configs: Optional settings returned by
             :func:`load_feature_extraction_config` or
             :func:`build_feature_extraction_config` for plugin-backed features.
@@ -206,42 +211,12 @@ def run_feature_extraction(
     Returns:
         A result with the feature output directory in ``artifacts``.
     """
-    from habit.compat.legacy_core import run_feature_extraction_from_config
-    from habit.schemas.workflows.habitat import FeatureExtractionConfig
+    from habit.recipes.features import extract_habitat_features
 
-    if isinstance(config, Mapping):
-        validated_config, inferred_plugin_configs = build_feature_extraction_config(
-            config
-        )
-        resolved_plugin_configs: Optional[Dict[str, Any]] = (
-            dict(plugin_configs)
-            if plugin_configs is not None
-            else inferred_plugin_configs
-        )
-    else:
-        validated_config = coerce_config(config, FeatureExtractionConfig)
-        resolved_plugin_configs = (
-            dict(plugin_configs) if plugin_configs is not None else None
-        )
-    run_feature_extraction_from_config(
-        validated_config,
+    return extract_habitat_features(
+        config,
+        plugin_configs=plugin_configs,
         logger=logger,
-        plugin_configs=resolved_plugin_configs,
-    )
-    manifest = create_run_manifest(
-        "feature_extraction",
-        validated_config,
-        metadata={"plugins": sorted((resolved_plugin_configs or {}).keys())},
-    )
-    manifest_path = write_run_manifest(manifest, validated_config.out_dir)
-    return WorkflowResult(
-        output_dir=validated_config.out_dir,
-        metadata={
-            "config_hash": manifest.config_hash,
-            "habit_version": manifest.habit_version,
-        },
-        run_id=manifest.run_id,
-        manifest_path=manifest_path,
     )
 
 

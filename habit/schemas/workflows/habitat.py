@@ -677,6 +677,24 @@ class FeatureExtractionConfig(BaseConfig):
     feature_types: List[str] = Field(..., description="List of feature types to extract")
     n_habitats: Optional[int] = Field(None, description="Number of habitats (auto-detected if None)")
 
+    use_torch_radiomics: Union[str, bool] = Field(
+        False,
+        description=(
+            "TorchRadiomics backend for traditional / whole_habitat / each_habitat. "
+            "false (default) keeps CPU PyRadiomics; auto uses torch when CUDA is "
+            "available; true forces torch. Does not change bin width or feature "
+            "classes. Supervoxel cext belongs to get-habitat, not extract."
+        ),
+    )
+    torch_device: str = Field(
+        "auto",
+        description="Torch device for habitat radiomics when use_torch_radiomics is enabled.",
+    )
+    torch_dtype: str = Field(
+        "float32",
+        description="Torch dtype for habitat radiomics when use_torch_radiomics is enabled.",
+    )
+
     debug: bool = Field(False, description="Enable debug mode")
 
 # -----------------------------------------------------------------------------

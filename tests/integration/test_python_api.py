@@ -164,7 +164,7 @@ class TestFeatureExtractionAPI:
         self,
         cwd_repo_root: None,
     ) -> None:
-        """Top-level ``habit.run_feature_extraction`` delegates to the core runner."""
+        """Top-level ``habit.run_feature_extraction`` delegates to the L4 recipe."""
         import habit
 
         cfg_path = _require_config(
@@ -173,13 +173,14 @@ class TestFeatureExtractionAPI:
         config = habit.FeatureExtractionConfig.from_file(str(cfg_path))
 
         with patch(
-            "habit.compat.feature_extraction_runner.run_feature_extraction_from_config"
+            "habit.recipes.features.extract_habitat_features"
         ) as mock_run:
+            mock_run.return_value = MagicMock(run_id="extract-run")
             habit.run_feature_extraction(config)
             mock_run.assert_called_once_with(
                 config,
-                logger=None,
                 plugin_configs=None,
+                logger=None,
             )
 
 

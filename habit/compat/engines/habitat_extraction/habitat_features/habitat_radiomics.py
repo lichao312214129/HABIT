@@ -32,19 +32,24 @@ class HabitatRadiomicsExtractor:
     """Extractor class for habitat radiomics features"""
     
     @staticmethod
-    def extract_radiomics_features_for_whole_habitat(habitat_img, params_file):
+    def extract_radiomics_features_for_whole_habitat(
+        habitat_img, params_file, extractor=None
+    ):
         """
         Extract radiomics features from the whole habitat map within the ROI
         
         Args:
             habitat_img: SimpleITK image or path to habitat map file
             params_file: Parameter file for PyRadiomics feature extraction
+            extractor: Optional pre-built RadiomicsFeatureExtractor (avoids
+                re-parsing params when the caller already holds one).
             
         Returns:
             Dict: Dictionary containing extracted radiomics features
         """
         try:
-            extractor = create_radiomics_feature_extractor(params_file)
+            if extractor is None:
+                extractor = create_radiomics_feature_extractor(params_file)
             
             if isinstance(habitat_img, str):
                 habitat_img = sitk.ReadImage(habitat_img)
@@ -75,7 +80,9 @@ class HabitatRadiomicsExtractor:
             return {"error": f"Feature extraction error: {str(e)}"}
     
     @staticmethod
-    def extract_radiomics_features_from_each_habitat(habitat_path, image_path, subject_id, params_file):
+    def extract_radiomics_features_from_each_habitat(
+        habitat_path, image_path, subject_id, params_file, extractor=None
+    ):
         """
         Extract radiomics features from original images within each habitat
         
@@ -84,11 +91,13 @@ class HabitatRadiomicsExtractor:
             image_path: Path to original image file
             subject_id: Subject identifier
             params_file: Parameter file for PyRadiomics feature extraction
+            extractor: Optional pre-built RadiomicsFeatureExtractor.
             
         Returns:
             Dict: Dictionary containing extracted radiomics features for each habitat
         """
-        extractor = create_radiomics_feature_extractor(params_file)
+        if extractor is None:
+            extractor = create_radiomics_feature_extractor(params_file)
         
         try:
             habitat_img = sitk.ReadImage(habitat_path)
@@ -130,7 +139,9 @@ class HabitatRadiomicsExtractor:
         return feature_vector
     
     @staticmethod
-    def extract_tranditional_radiomics(image_path, habitat_path, subject_id, params_file):
+    def extract_tranditional_radiomics(
+        image_path, habitat_path, subject_id, params_file, extractor=None
+    ):
         """
         Extract traditional radiomics features from original images
         
@@ -139,12 +150,14 @@ class HabitatRadiomicsExtractor:
             habitat_path: Path to habitat map file
             subject_id: Subject identifier
             params_file: Parameter file for PyRadiomics feature extraction
+            extractor: Optional pre-built RadiomicsFeatureExtractor.
             
         Returns:
             Dict: Dictionary containing extracted traditional radiomics features
         """
         try:
-            extractor = create_radiomics_feature_extractor(params_file)
+            if extractor is None:
+                extractor = create_radiomics_feature_extractor(params_file)
             
             habitat_img = sitk.ReadImage(habitat_path)
             raw_img = sitk.ReadImage(image_path)

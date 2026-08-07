@@ -141,6 +141,11 @@ class StepwiseParams(BaseModel):
 
 class UnivariateLogisticParams(BaseModel):
     alpha: float = Field(0.05, gt=0.0, lt=1.0)
+    #: Show a progress bar over per-feature logistic fits (v0.1 always showed one).
+    verbose: bool = Field(
+        True,
+        description="Show a progress bar while fitting one logistic model per feature.",
+    )
 
 
 class IccParams(BaseModel):

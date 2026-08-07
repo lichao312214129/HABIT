@@ -23,7 +23,7 @@ from typing import ClassVar, List, Dict, Any, Optional, Tuple, Union, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator, validator, ConfigDict
 
 from habit.schemas.base import BaseConfig
-from habit.schemas.validation import validate_step_params
+from habit.schemas.validation import RUNTIME_STEP_KEYS, validate_step_params
 
 
 class InputFileConfig(BaseModel):
@@ -53,11 +53,13 @@ class FeatureSelectionMethod(BaseModel):
     @model_validator(mode="after")
     def _validate_params_against_registry(self) -> "FeatureSelectionMethod":
         """Coerce ``params`` using the registered selector *Params model."""
+        # Keep runtime keys (before_z_score, verbose, outdir, ...) so YAML
+        # staging and progress switches are not silently dropped.
         self.params = validate_step_params(
             "feature_selection",
             self.method,
             self.params,
-            preserve_keys=frozenset(),
+            preserve_keys=RUNTIME_STEP_KEYS,
         )
         return self
 
@@ -129,8 +131,9 @@ class ExplainabilityConfig(BaseModel):
 
 
 class VisualizationConfig(BaseModel):
-    #: Figures implemented by ``PlotManager``. The three explanation figures are
-    #: opt-in because they are markedly slower than the curve plots.
+    #: Figures rendered through ``habit.viz.classification`` (CLI/recipe
+    #: reporting). The three explanation figures are opt-in because they are
+    #: markedly slower than the curve plots.
     ALLOWED_PLOT_TYPES: ClassVar[Tuple[str, ...]] = (
         'roc',
         'dca',
@@ -461,7 +464,7 @@ class MLConfig(BaseConfig):
                         "feature_selection",
                         str(item["method"]),
                         dict(item.get("params") or {}),
-                        preserve_keys=frozenset(),
+                        preserve_keys=RUNTIME_STEP_KEYS,
                     )
                     coerced_methods.append({**item, "params": params})
                 else:
@@ -477,7 +480,7 @@ class MLConfig(BaseConfig):
                         "model",
                         str(model_name),
                         dict(block.get("params") or {}),
-                        preserve_keys=frozenset(),
+                        preserve_keys=RUNTIME_STEP_KEYS,
                     )
                     coerced_models[model_name] = {**block, "params": params}
                 else:
