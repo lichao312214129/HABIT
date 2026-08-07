@@ -184,3 +184,57 @@ Registry form::
            max_iter=500,
        ),
    )
+
+``TablePipeline`` is an ``sklearn.pipeline.Pipeline``
+----------------------------------------------------
+
+Since v1.1 ``TablePipeline`` **inherits** ``sklearn.pipeline.Pipeline``, so
+``clone``, ``get_params`` / ``set_params``, nested parameter addressing and
+the whole ``sklearn.model_selection`` family work on it directly. Two things
+follow:
+
+* ``pipe.steps`` has scikit-learn's meaning -- ``[(name, estimator), ...]``,
+  where the estimators are the interop adapters. The HABIT components are
+  read from ``pipe.components`` (transformation steps, in execution order)
+  and ``pipe.model`` (the terminal one).
+* The step list always begins with a ``FrameToTable`` head named
+  ``"frame_to_table"`` and ends with the outcome-model adapter named
+  ``"model"``; intermediate steps take their component's registered name.
+
+.. code-block:: python
+
+   pipe = TablePipeline(
+       steps=[VarianceSelector(threshold=0.01), ZScorePreprocessor()],
+       model=LogisticRegressionClassifier(max_iter=500),
+   )
+
+   [name for name, _ in pipe.steps]
+   # ['frame_to_table', 'variance', 'zscore', 'model']
+   [c.spec.name for c in pipe.components]
+   # ['variance', 'zscore']
+
+Hyperparameter search needs one extra thing: scikit-learn's cross-validation
+drivers slice ``X`` **by row**, and a ``FeatureTable`` is a frozen dataclass
+that deliberately is not row-indexable. So pass the raw frame as ``X`` and let
+the ``FrameToTable`` head rebuild the table from a declared column schema:
+
+.. code-block:: python
+
+   from sklearn.model_selection import GridSearchCV
+
+   from habit.domain.sklearn_interop import FrameToTable
+
+   pipe = TablePipeline(
+       steps=[FrameToTable.from_table(train_table), ZScorePreprocessor()],
+       model=LogisticRegressionClassifier(max_iter=500),
+   )
+   search = GridSearchCV(pipe, {"model__component__C": [0.1, 1.0, 10.0]}, cv=5)
+   search.fit(train_table.frame, train_table.frame["label"])
+
+An already-built pipeline can be given the schema afterwards, the sklearn way::
+
+   pipe.set_params(frame_to_table=FrameToTable.from_table(train_table))
+
+Calling ``pipe.fit(train_table)`` with a ``FeatureTable`` needs no schema at
+all: the head passes tables straight through, with no frame round-trip and
+therefore no dtype promotion that could shift a later z-score.

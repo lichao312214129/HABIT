@@ -103,6 +103,7 @@ __all__ = [
     "as_survival_model",
     "as_outcome_model",
     "step_consumes_repeat_tables",
+    "wraps_outcome_model",
 ]
 
 _logger = get_module_logger(__name__)
@@ -563,6 +564,12 @@ class _TableModelEstimatorBase(BaseEstimator):
             copy.deepcopy(self.component) if self.copy_on_fit else self.component
         )
         self.component_.fit(table)
+        # The feature block the terminal model was actually trained on. It is
+        # the output of the whole transformation chain, and the only place it
+        # is observable after the fact, so the pipeline reads its
+        # ``fit_output_columns`` (recorded in the ``.habitpipeline`` manifest)
+        # from here rather than re-running the chain.
+        self.feature_columns_ = tuple(table.feature_columns)
         return self.component_
 
 
@@ -580,9 +587,17 @@ class TableClassifierEstimator(ClassifierMixin, _TableModelEstimatorBase):
 
     Attributes:
         component_: The fitted classifier.
-        classes_: Class labels in the fitted classifier's own order, taken
-            from the probability frame's columns so ``predict_proba`` stays
-            column-aligned without reaching into private state.
+        classes_: Class labels in the fitted classifier's own order. HABIT
+            classifiers label their probability FRAME columns with
+            ``str(label)``, but sklearn's scorers compare ``classes_``
+            against the ``y`` they were handed, so the labels are recovered
+            in the endpoint's own dtype whenever the string round-trip is
+            unambiguous (it is for every integer / string endpoint). Without
+            that, ``scoring="roc_auc"`` on an integer 0/1 endpoint would fail
+            to match ``classes_`` and report an error rather than a score.
+        proba_columns_: The probability frame's column labels, in the fitted
+            classifier's order. Column alignment always goes through these,
+            so ``classes_`` never has to be the thing that indexes a frame.
     """
 
     _protocol = Classifier
@@ -603,11 +618,12 @@ class TableClassifierEstimator(ClassifierMixin, _TableModelEstimatorBase):
         """
         table = self._prepared_table(X, y)
         component = self._bind(table)
-        # HABIT classifiers label probability columns by class (e.g. "0"/"1");
-        # capturing the labels from the fitted classifier itself guarantees
-        # predict_proba stays column-aligned without private-state access.
+        # Capturing the labels from the FITTED classifier (via a one-row
+        # probe) guarantees predict_proba stays column-aligned without
+        # reaching into private state.
         probe = dataclasses.replace(table, frame=table.frame.head(1))
-        self.classes_ = np.asarray(component.predict_proba(probe).columns)
+        self.proba_columns_ = tuple(component.predict_proba(probe).columns)
+        self.classes_ = _native_class_labels(table, self.proba_columns_)
         return self
 
     def predict(self, X: Any) -> np.ndarray:
@@ -617,7 +633,7 @@ class TableClassifierEstimator(ClassifierMixin, _TableModelEstimatorBase):
     def predict_proba(self, X: Any) -> np.ndarray:
         """Predict class probabilities, columns aligned to ``classes_``."""
         proba = self._fitted_component().predict_proba(_require_table(X))
-        aligned = proba.reindex(columns=list(self.classes_))
+        aligned = proba.reindex(columns=list(self.proba_columns_))
         if aligned.isna().any().any():
             raise HABITAPIError(
                 "Classifier probability columns do not cover the classes "
@@ -771,6 +787,49 @@ class TableSurvivalEstimator(_TableModelEstimatorBase):
         )
 
 
+def _native_class_labels(
+    table: FeatureTable, proba_columns: Sequence[Any]
+) -> np.ndarray:
+    """
+    Recover the class labels in the endpoint's own dtype.
+
+    A HABIT classifier's probability frame is keyed by ``str(label)``, which
+    is what makes the frame readable but loses the endpoint's dtype. sklearn
+    compares ``estimator.classes_`` against the ``y`` a scorer was handed, so
+    an integer 0/1 endpoint reported as ``["0", "1"]`` breaks
+    ``scoring="roc_auc"`` (and every other label-aware scorer) with a
+    confusing "labels not in classes_" error.
+
+    Args:
+        table: The training table, whose outcome column carries the labels in
+            their native dtype.
+        proba_columns: The probability frame's column labels, in the fitted
+            classifier's own order.
+
+    Returns:
+        np.ndarray: The labels in native dtype, ordered to match
+        ``proba_columns``, when the ``str()`` round-trip is unambiguous;
+        otherwise ``proba_columns`` as-is, since a wrong dtype is better than
+        a wrong ORDER (order decides which column is the positive class).
+    """
+    columns = [str(column) for column in proba_columns]
+    if table.outcome is None:
+        return np.asarray(columns)
+    try:
+        observed = np.unique(
+            outcome_series(table, owner="TableClassifierEstimator.fit").to_numpy()
+        )
+    except Exception:  # pragma: no cover - non-label endpoints
+        return np.asarray(columns)
+    by_text = {str(label): label for label in observed}
+    if len(by_text) != len(observed) or not set(columns) <= set(by_text):
+        # Either two distinct labels share a string form, or the fitted
+        # classifier knows a class the training rows never showed. Neither is
+        # safe to re-map, so keep the classifier's own labels.
+        return np.asarray(columns)
+    return np.asarray([by_text[column] for column in columns])
+
+
 def _truth_from_table(X: Any, *, owner: str) -> np.ndarray:
     """
     Read the ground truth out of a table for a ``score`` call.
@@ -899,6 +958,26 @@ def as_survival_model(component: Any, **options: Any) -> TableSurvivalEstimator:
         The configured adapter.
     """
     return TableSurvivalEstimator(component, **options)
+
+
+def wraps_outcome_model(estimator: Any) -> bool:
+    """
+    Report whether ``estimator`` is one of the terminal outcome-model adapters.
+
+    The single place that answers "is this pipeline step the terminal model?".
+    A pipeline needs it in two directions -- to EXCLUDE the model when
+    listing transformation components, and to find it when reporting
+    ``pipeline.model`` -- and answering it in two places would eventually
+    answer it differently.
+
+    Args:
+        estimator: Any pipeline step.
+
+    Returns:
+        bool: ``True`` for a :class:`TableClassifierEstimator`,
+        :class:`TableRegressorEstimator` or :class:`TableSurvivalEstimator`.
+    """
+    return isinstance(estimator, _TableModelEstimatorBase)
 
 
 def as_outcome_model(

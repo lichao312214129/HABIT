@@ -6,6 +6,56 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING (behaviour): ``TablePipeline`` now inherits
+  ``sklearn.pipeline.Pipeline``.** The constructor signature is unchanged
+  (``TablePipeline(steps=[...HABIT components...], model=...)``) and every
+  HABIT verb — ``fit(table)``, ``transform(table)``, ``predict(table)``,
+  ``predict_proba(table)``, ``predict_survival_function``, ``evaluate``,
+  ``set_random_state``, ``spec``, ``save`` / ``load`` — behaves exactly as
+  before. Two attributes changed meaning:
+  - ``pipeline.steps`` is now scikit-learn's ``List[Tuple[str, estimator]]``.
+    It is not overridden, because ``sklearn.pipeline.Pipeline`` reads *and
+    writes* it directly.
+  - **``pipeline.components`` is the new home of the HABIT transformation
+    components** (the tuple ``pipeline.steps`` used to return).
+    ``pipeline.model`` / ``pipeline.classifier`` are unchanged.
+
+  In exchange, a ``TablePipeline`` works directly with ``sklearn.base.clone``,
+  ``get_params`` / ``set_params``, ``cross_val_score``, ``GridSearchCV`` and
+  ``RandomizedSearchCV``, and nested parameter grids such as
+  ``{"model__component__C": [0.1, 1, 10]}`` address a HABIT component's own
+  parameters. Rationale and the full contract are recorded in
+  ``developer/api_upgrade/08_naming_decisions.md`` §8.
+- ``TableClassifierEstimator.classes_`` now reports the endpoint's own dtype
+  (e.g. ``[0, 1]``) instead of the probability frame's string column labels,
+  matching ``predict()`` and letting label-aware scikit-learn scorers work.
+  The frame column labels moved to the new ``proba_columns_`` attribute.
+- ``.habitpipeline`` files are now written at ``format_version = 2`` (the
+  added field is the ``FrameToTable`` head's column schema). Version 1 files
+  written by earlier releases still load and predict identically.
+
+### Added
+
+- ``habit.domain.sklearn_interop``: the table-level scikit-learn interop
+  adapters, lifted out of the frozen ``habit.compat`` layer into L3.
+  ``habit.compat.sklearn`` keeps deprecated aliases of
+  ``TableTransformerEstimator`` / ``TableClassifierEstimator`` /
+  ``as_transformer`` / ``as_classifier`` for all of v1.x.
+- ``habit.domain.sklearn_interop.FrameToTable``: rebuilds a ``FeatureTable``
+  from a plain frame plus a static column schema, which is what lets
+  scikit-learn's cross-validation drivers slice ``X`` by row. Every
+  ``TablePipeline`` carries one as its head step (named ``"frame_to_table"``);
+  it passes ``FeatureTable`` input straight through unchanged.
+- ``as_regressor`` / ``as_survival_model`` / ``as_outcome_model`` factories for
+  the two terminal-model families the v1.0 interop surface did not cover.
+- Every built-in tabular component (classifiers, regressors, survival models,
+  preprocessors, feature selectors) now implements scikit-learn's
+  ``get_params`` / ``set_params`` / ``clone`` protocol, sourced from the same
+  single mapping ``spec.params`` is built from, so a searched value cannot
+  disagree with the recorded fingerprint.
+
 ## [1.0.4] - 2026-08-07
 
 ### Changed

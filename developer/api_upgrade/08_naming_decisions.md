@@ -216,6 +216,44 @@ HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。�
 
 ---
 
+## 8. v1.1 契约变更：`TablePipeline` 成为 `sklearn.pipeline.Pipeline` 子类
+
+`TablePipeline` 原本是自己写的组合器。v1.1 起它**继承** `sklearn.pipeline.Pipeline`，理由是组合语义只应该有一份实现：继承之后 `clone` / `get_params` / `set_params` / 嵌套参数寻址 / `GridSearchCV` / `cross_val_score` 全部免费获得，而自己再写一套只会与生态那套慢慢漂移，且漂移无人察觉。
+
+下面三条是**行为变更**（签名未变而语义变了，按 `06` 的定义同属破坏性变更），故在此登记理由与新契约。
+
+### 8.1 `.steps` 归 sklearn 语义，HABIT 组件改走 `.components`
+
+| | v1.0 | v1.1 |
+|---|---|---|
+| `pipeline.steps` | `Tuple[HABIT 组件, ...]` | `List[Tuple[str, estimator]]`（sklearn 语义） |
+| HABIT 变换组件 | `pipeline.steps` | **`pipeline.components`** |
+| 终端模型 | `pipeline.model` | `pipeline.model`（不变） |
+
+**为什么不覆写 `.steps` 保持旧语义**：sklearn 的 `Pipeline._iter` / `_validate_steps` / `_get_params` / `_set_params` / `_fit` 直接读**并写** `self.steps`（`_fit` 里有 `self.steps = list(self.steps)`，`_replace_estimator` 里有 `setattr(self, attr, new_items)`）。把它变成只读 property 会直接坏掉父类。所以 `.steps` 让给 sklearn，HABIT 视角新开 `.components`——它是**解包后**的组件元组，跳过 `FrameToTable` 头步与终端模型适配器。
+
+**为什么不叫 `.habit_steps` / `.operators`**：`06` 的分层文档一直把这些对象称作"组件"（component），registry 也叫"组件注册表"。沿用已有领域词，不另造同义词。
+
+**步名是稳定的公开字符串**：头步恒为 `"frame_to_table"`，终端恒为 `"model"`，中间步取组件的注册名（`"zscore"` / `"variance"` / `"lasso"`），重名追加 `_2`。这样 `param_grid={"model__component__C": [...]}` 是可写进文档的固定写法，而不是每条流水线都要先去发现一遍。
+
+### 8.2 `FrameToTable` 头步：为什么流水线一定带一个
+
+sklearn 的交叉验证驱动要对 `X` **按行切片**，而 `FeatureTable` 是 frozen dataclass、故意不可按行索引——实测 `cross_val_score(pipe, FeatureTable, y)` 直接死在 sklearn 的入参校验里。所以：**`X` 传原始 `DataFrame`（id 列 + 特征列 + outcome 列都在里面），流水线第一步按静态 schema 把它重建成 `FeatureTable`**。schema（哪些是 id 列、endpoint 是什么）是元数据不是数据，行重采样不改变它，所以它是构造参数，能原样穿过 `clone`。
+
+头步在收到 `FeatureTable` 时**原样返回**：不走 frame 往返、不发生 dtype 提升、不重排列。这是数值要求而不是优化——float32 表经 `DataFrame` 重建可能移动后续 z-score 学到的队列统计量。
+
+### 8.3 适配器 `classes_` 改为 endpoint 原生 dtype
+
+HABIT 分类器的概率**帧**用 `str(label)` 作列名（这让帧可读），v1.0 的 `TableClassifierEstimator.classes_` 直接照抄了这些列名，于是同一个适配器 `predict()` 返回 `0/1` 整数、`classes_` 却说 `['0','1']`——**自相矛盾**，且 sklearn 的打分器要拿 `classes_` 去和它收到的 `y` 对齐，`cross_val_predict(..., method="predict_proba")` 这类路径会直接报错。
+
+v1.1 起：
+- `classes_` = endpoint 原生 dtype 的标签，顺序与概率帧列一致（`str()` 往返不唯一时退回列名，因为错 dtype 好过错**顺序**——顺序决定哪一列是正类）；
+- 新增 `proba_columns_` 承载概率帧列名，列对齐一律走它。
+
+受影响的门禁断言：`tests/compat/test_sklearn_compat.py::test_table_classifier_full_surface`、`::test_table_classifier_outcome_contract`（两处 `set(classifier.classes_) == {"0","1"}` → `{0, 1}`）。
+
+---
+
 ## 附：prototype 与文档 07 已收敛的矛盾
 
 以下曾在 prototype 与 07 文档间互相矛盾，**以本定案为准**：

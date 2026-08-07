@@ -17,12 +17,16 @@
 from __future__ import annotations
 
 import json
+import pickle
 import zipfile
 from typing import Sequence
 
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.base import clone, is_classifier
+from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.pipeline import Pipeline as SkPipeline
 
 from habit.api.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts import BinaryOutcome, FeatureTable
@@ -31,6 +35,7 @@ from habit.domain.classification import LogisticRegressionClassifier, RandomFore
 from habit.domain.evaluation import AccuracyMetric, AucMetric, HosmerLemeshowPValueMetric
 from habit.domain.feature_selection import IccSelector, VarianceSelector
 from habit.domain.pipeline import TablePipeline
+from habit.domain.sklearn_interop import FrameToTable, as_transformer
 from habit.domain.table_preprocessing import ZScorePreprocessor
 from habit.spec import MLSpec, Spec
 
@@ -146,7 +151,7 @@ def test_save_load_roundtrip_preserves_predictions(tmp_path) -> None:
     with zipfile.ZipFile(destination, "r") as archive:
         manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
     assert manifest["format"] == "habit.tablepipeline"
-    assert manifest["format_version"] == 1
+    assert manifest["format_version"] == 2
     assert manifest["is_fitted"] is True
     assert [record["spec"]["name"] for record in manifest["steps"]] == [
         "variance",
@@ -285,10 +290,19 @@ def test_build_table_pipeline_orders_stages_as_declared() -> None:
         feature_selectors=(Spec(name="correlation"),),
     )
     pipeline = build_table_pipeline(spec)
-    assert [step.spec.name for step in pipeline.steps] == [
+    assert [component.spec.name for component in pipeline.components] == [
         "variance",
         "zscore",
         "correlation",
+    ]
+    # ``.steps`` now carries scikit-learn's meaning: the FrameToTable head,
+    # one adapter per component, and the terminal model adapter.
+    assert [name for name, _ in pipeline.steps] == [
+        "frame_to_table",
+        "variance",
+        "zscore",
+        "correlation",
+        "model",
     ]
 
 
@@ -312,6 +326,362 @@ def test_post_stage_selector_reads_scaled_variances() -> None:
     # Post-z-score all variances are ~1.0 > 0.5, so nothing is pruned: the
     # stage assignment, not the selector, decides the semantics.
     assert pipeline.transform(table).feature_columns == ("low_a", "low_b", "high_var")
+
+
+# ---------------------------------------------------------------------------
+# scikit-learn Pipeline inheritance (v1.1)
+# ---------------------------------------------------------------------------
+
+
+def _sklearn_ready_pipeline(table: FeatureTable) -> TablePipeline:
+    """A pipeline whose head declares ``table``'s column schema."""
+    return TablePipeline(
+        steps=[
+            FrameToTable.from_table(table),
+            VarianceSelector(threshold=0.0),
+            ZScorePreprocessor(),
+        ],
+        model=LogisticRegressionClassifier(max_iter=500),
+    )
+
+
+@pytest.mark.unit
+def test_pipeline_is_an_sklearn_pipeline() -> None:
+    """The class IS an ``sklearn.pipeline.Pipeline``, not a look-alike."""
+    assert issubclass(TablePipeline, SkPipeline)
+    pipeline = _pipeline()
+    # sklearn's own structural expectations of ``steps``.
+    assert isinstance(pipeline.steps, list)
+    assert all(
+        isinstance(step, tuple) and len(step) == 2 and isinstance(step[0], str)
+        for step in pipeline.steps
+    )
+    assert set(pipeline.named_steps) == {
+        "frame_to_table",
+        "variance",
+        "zscore",
+        "model",
+    }
+    assert is_classifier(pipeline)
+
+
+@pytest.mark.unit
+def test_components_expose_the_unwrapped_habit_objects() -> None:
+    """``.components`` is the HABIT view; ``.model`` is the terminal one."""
+    selector = VarianceSelector(threshold=0.01)
+    scaler = ZScorePreprocessor()
+    model = LogisticRegressionClassifier(max_iter=500)
+    pipeline = TablePipeline(steps=[selector, scaler], model=model)
+    assert pipeline.components == (selector, scaler)
+    assert pipeline.model is model
+    assert pipeline.classifier is model
+
+
+@pytest.mark.unit
+def test_pipeline_fits_its_own_component_objects_in_place() -> None:
+    """Fitted state lands on the objects the caller passed, not on copies."""
+    selector = VarianceSelector(threshold=0.01)
+    pipeline = TablePipeline(
+        steps=[selector], model=LogisticRegressionClassifier(max_iter=500)
+    )
+    pipeline.fit(make_feature_table(seed=21))
+    assert pipeline.components[0] is selector
+    # The reporting / save paths read the selection off this very object.
+    assert selector.transform(make_feature_table(seed=22)).feature_columns
+
+
+@pytest.mark.unit
+def test_get_params_reports_only_sklearn_pipeline_parameters() -> None:
+    """``model``/``classifier`` are construction sugar, never parameters."""
+    pipeline = _pipeline()
+    shallow = pipeline.get_params(deep=False)
+    assert set(shallow) == set(SkPipeline._get_param_names())
+    assert shallow["steps"] is pipeline.steps
+    deep = pipeline.get_params(deep=True)
+    # Nested addressing is what a param_grid needs.
+    assert deep["model"] is pipeline.steps[-1][1]
+    assert deep["model__component"] is pipeline.model
+    assert deep["model__component__max_iter"] == 500
+
+
+@pytest.mark.unit
+def test_clone_returns_an_unfitted_equivalent_pipeline() -> None:
+    """``clone`` rebuilds the whole pipeline, spec included, unfitted."""
+    original = _pipeline().fit(make_feature_table(seed=23))
+    copy = clone(original)
+    assert isinstance(copy, TablePipeline)
+    assert [name for name, _ in copy.steps] == [
+        name for name, _ in original.steps
+    ]
+    assert copy.spec.fingerprint() == original.spec.fingerprint()
+    assert copy.components[0] is not original.components[0]
+    with pytest.raises(HABITAPIError):
+        copy.transform(make_feature_table(seed=24))
+
+
+@pytest.mark.unit
+def test_clone_carries_the_seed_into_every_fold() -> None:
+    """A seeded pipeline clones seeded, so CV folds stay reproducible."""
+    pipeline = TablePipeline(
+        steps=[], model=RandomForestClassifier()
+    )
+    pipeline.set_random_state(31)
+    assert clone(pipeline).model._seed == 31
+
+
+@pytest.mark.unit
+def test_set_params_replaces_a_step_through_sklearn() -> None:
+    """A step is addressable by name, the sklearn way."""
+    pipeline = _pipeline()
+    replacement = ZScorePreprocessor(across_features=True)
+    pipeline.set_params(zscore=as_transformer(replacement, copy_on_fit=False))
+    assert pipeline.components[1] is replacement
+    assert pipeline.spec.params["steps"][1]["params"]["across_features"] is True
+
+
+@pytest.mark.unit
+def test_frame_schema_head_passes_feature_tables_through_unchanged() -> None:
+    """A FeatureTable never round-trips through frame construction."""
+    table = make_feature_table(seed=25)
+    head = TablePipeline(steps=[], model=LogisticRegressionClassifier()).frame_schema
+    assert head.transform(table) is table
+
+
+@pytest.mark.unit
+def test_frame_to_table_must_sit_at_the_head() -> None:
+    """A misplaced FrameToTable would silently discard upstream selection."""
+    with pytest.raises(HABITAPIError, match="HEAD"):
+        TablePipeline(
+            steps=[ZScorePreprocessor(), FrameToTable()],
+            model=LogisticRegressionClassifier(),
+        )
+
+
+@pytest.mark.unit
+def test_a_bare_frame_without_a_declared_schema_fails_loudly() -> None:
+    """Modelling on an identifier column must never happen silently."""
+    table = make_feature_table(seed=26)
+    pipeline = TablePipeline(
+        steps=[ZScorePreprocessor()], model=LogisticRegressionClassifier()
+    )
+    with pytest.raises(HABITAPIError, match="declares no column schema"):
+        pipeline.fit(table.frame)
+
+
+@pytest.mark.unit
+def test_cross_val_score_runs_on_the_raw_frame() -> None:
+    """sklearn's CV driver slices the frame; the head rebuilds the table."""
+    table = make_feature_table(tuple(f"S{i:02d}" for i in range(40)), seed=27)
+    scores = cross_val_score(
+        _sklearn_ready_pipeline(table),
+        table.frame,
+        table.frame["y"].to_numpy(),
+        cv=3,
+        scoring="roc_auc",
+    )
+    assert scores.shape == (3,)
+    assert np.all(scores > 0.5)
+
+
+@pytest.mark.unit
+def test_grid_search_addresses_nested_component_parameters() -> None:
+    """``model__component__C`` reaches the HABIT classifier's own parameter."""
+    table = make_feature_table(tuple(f"S{i:02d}" for i in range(40)), seed=28)
+    search = GridSearchCV(
+        _sklearn_ready_pipeline(table),
+        {"model__component__C": [0.001, 1.0, 100.0]},
+        cv=3,
+    )
+    search.fit(table.frame, table.frame["y"].to_numpy())
+    assert search.best_params_["model__component__C"] in (0.001, 1.0, 100.0)
+    # The winning value really is the one the refitted pipeline carries.
+    best = search.best_estimator_
+    assert best.model.spec.params["C"] == search.best_params_["model__component__C"]
+
+
+@pytest.mark.unit
+def test_predict_returns_arrays_for_frames_and_series_for_tables() -> None:
+    """HABIT type in, HABIT type out; sklearn type in, sklearn type out."""
+    table = make_feature_table(tuple(f"S{i:02d}" for i in range(30)), seed=29)
+    pipeline = _sklearn_ready_pipeline(table).fit(table)
+    assert isinstance(pipeline.predict(table), pd.Series)
+    assert isinstance(pipeline.predict_proba(table), pd.DataFrame)
+    assert isinstance(pipeline.predict(table.frame), np.ndarray)
+    probabilities = pipeline.predict_proba(table.frame)
+    assert isinstance(probabilities, np.ndarray)
+    assert probabilities.shape == (30, 2)
+    # ``classes_`` carries the endpoint's own dtype, so label-aware scorers
+    # can match it against the y they were handed.
+    assert list(pipeline.classes_) == [0, 1]
+
+
+@pytest.mark.unit
+def test_selector_report_is_logged_from_the_adapter(caplog) -> None:
+    """The per-selector feature-count report survived the move into adapters."""
+    table = make_feature_table(seed=30, n_noise=2, constant_column=True)
+    with caplog.at_level("INFO", logger="habit.domain.sklearn_interop"):
+        TablePipeline(
+            steps=[VarianceSelector(threshold=0.0), ZScorePreprocessor()],
+            model=LogisticRegressionClassifier(max_iter=500),
+        ).fit(table)
+    messages = [record.getMessage() for record in caplog.records]
+    assert "Step 1: Applying 'variance' feature selection" in messages
+    assert "  Features before this step: 4" in messages
+    assert "  Features after this step: 3" in messages
+    assert "  Number of features removed: 1" in messages
+    # Preprocessors were never part of this report and still are not.
+    assert not any("'zscore' feature selection" in m for m in messages)
+
+
+# ---------------------------------------------------------------------------
+# Hard constraints: spec fingerprint shape and .habitpipeline compatibility
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.unit
+def test_spec_payload_shape_is_locked() -> None:
+    """
+    Lock the composed ``Spec`` payload SHAPE, byte for byte.
+
+    Every provenance record ever written by HABIT hashes this payload, so a
+    new key, a renamed key or an extra entry (the ``FrameToTable`` head or one
+    of the sklearn adapters leaking in) would move every recorded fingerprint
+    and silently invalidate the golden baselines. The literal below is the
+    contract; changing it is a breaking change to the artefact format, not a
+    refactor.
+    """
+    pipeline = TablePipeline(
+        steps=[
+            FrameToTable(id_columns=("subject",), outcome=BinaryOutcome("y")),
+            VarianceSelector(threshold=0.01),
+            ZScorePreprocessor(),
+        ],
+        model=LogisticRegressionClassifier(max_iter=500),
+    )
+    payload = pipeline.spec.to_dict()
+    assert payload["name"] == "table_pipeline"
+    assert set(payload["params"]) == {"steps", "model"}
+    assert payload["params"]["steps"] == [
+        {
+            "name": "variance",
+            "params": {"threshold": 0.01, "top_k": None, "top_percent": None},
+            "version": "1.0",
+        },
+        {"name": "zscore", "params": {"across_features": False}, "version": "1.0"},
+    ]
+    assert payload["params"]["model"] == {
+        "name": "LogisticRegression",
+        "params": {
+            "C": 1.0,
+            "class_weight": None,
+            "max_iter": 500,
+            "penalty": "l2",
+            "solver": "liblinear",
+        },
+        "version": "1.0",
+    }
+    # A pipeline WITHOUT an explicit head must fingerprint identically: the
+    # head is interop plumbing, never scientific definition.
+    bare = TablePipeline(
+        steps=[VarianceSelector(threshold=0.01), ZScorePreprocessor()],
+        model=LogisticRegressionClassifier(max_iter=500),
+    )
+    assert bare.spec.fingerprint() == pipeline.spec.fingerprint()
+
+
+def _write_format_version_1_file(path, pipeline: TablePipeline):
+    """
+    Write a ``.habitpipeline`` exactly as HABIT v1.0 wrote them.
+
+    Reproducing the old writer here (rather than shipping a binary fixture)
+    keeps the compatibility test readable and pins the v1 layout in one
+    place: a JSON manifest at ``format_version`` 1 plus a payload pickling
+    the HABIT components, with no frame schema.
+    """
+    def _record(component):
+        cls = type(component)
+        return {
+            "class": f"{cls.__module__}.{cls.__qualname__}",
+            "spec": component.spec.to_dict(),
+        }
+
+    components = list(pipeline.components)
+    manifest = {
+        "format": "habit.tablepipeline",
+        "format_version": 1,
+        "habit_version": "1.0.4",
+        "steps": [_record(component) for component in components],
+        "model": _record(pipeline.model),
+        "is_fitted": True,
+        "fit_output_columns": list(pipeline.transform(_LOAD_PROBE).feature_columns),
+    }
+    payload = {
+        "steps": components,
+        "model": pipeline.model,
+        "is_fitted": True,
+        "fit_output_columns": tuple(
+            pipeline.transform(_LOAD_PROBE).feature_columns
+        ),
+    }
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
+        archive.writestr("payload.pkl", pickle.dumps(payload))
+    return path
+
+
+#: Fixed table the format-version-1 fixture is fitted and probed with.
+_LOAD_PROBE = make_feature_table(tuple(f"S{i:02d}" for i in range(20)), seed=33)
+
+
+@pytest.mark.unit
+def test_load_reads_format_version_1_files(tmp_path) -> None:
+    """
+    A ``.habitpipeline`` written before the sklearn refactor still loads.
+
+    Hard requirement: published artefacts must keep opening, and must predict
+    IDENTICALLY -- a loader that produced a plausible-but-different pipeline
+    would be worse than one that refused.
+    """
+    pipeline = _pipeline().fit(_LOAD_PROBE)
+    expected = pipeline.predict_proba(_LOAD_PROBE).to_numpy()
+    legacy = _write_format_version_1_file(
+        tmp_path / "v1.habitpipeline", pipeline
+    )
+    loaded = TablePipeline.load(legacy)
+    assert [name for name, _ in loaded.steps] == [
+        "frame_to_table",
+        "variance",
+        "zscore",
+        "model",
+    ]
+    assert loaded.spec.fingerprint() == pipeline.spec.fingerprint()
+    np.testing.assert_allclose(
+        loaded.predict_proba(_LOAD_PROBE).to_numpy(), expected
+    )
+
+
+@pytest.mark.unit
+def test_saved_pipeline_declares_format_version_2(tmp_path) -> None:
+    """New files announce version 2 and carry the head's frame schema."""
+    table = make_feature_table(seed=34)
+    pipeline = _sklearn_ready_pipeline(table).fit(table)
+    destination = pipeline.save(tmp_path / "v2.habitpipeline")
+    with zipfile.ZipFile(destination, "r") as archive:
+        manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
+    assert manifest["format_version"] == 2
+    assert manifest["declares_frame_schema"] is True
+    assert manifest["step_names"] == [
+        "frame_to_table",
+        "variance",
+        "zscore",
+        "model",
+    ]
+    loaded = TablePipeline.load(destination)
+    assert loaded.frame_schema.declares_schema
+    np.testing.assert_allclose(
+        loaded.predict_proba(table).to_numpy(),
+        pipeline.predict_proba(table).to_numpy(),
+    )
 
 
 @pytest.mark.unit
