@@ -321,10 +321,15 @@ data. Tabular building blocks are documented in :doc:`domain_table`.
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
+   # Variance belongs in pre_preprocessing_*: after z-score every feature
+   # has variance ~1, so a post-zscore variance filter is uninformative.
+   # Post-preprocessing selectors (ANOVA, LASSO, ...) use feature_selectors.
    spec = MLSpec(
        name="demo",
+       pre_preprocessing_feature_selectors=(
+           Spec("variance", {"threshold": 0.01}),
+       ),
        table_preprocessors=(Spec("zscore"),),
-       feature_selectors=(Spec("variance", {"threshold": 0.01}),),
        classifier=Spec("LogisticRegression", {"max_iter": 500}),
        metrics=(Spec("accuracy"), Spec("auc")),
    )

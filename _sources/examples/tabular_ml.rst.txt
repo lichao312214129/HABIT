@@ -5,7 +5,9 @@ Habitat (and radiomics) analyses bottom out in a per-subject feature table;
 the v1 ML recipes model that table directly. This example covers:
 
 1. declare the modelling definition as an :class:`~habit.spec.MLSpec`
-   (preprocessors, selector, classifier, metrics),
+   (``pre_preprocessing_feature_selectors`` for variance-style filters on
+   the raw table, ``table_preprocessors``, optional post-preprocessing
+   ``feature_selectors``, classifier, metrics),
 2. hold-out evaluation with :func:`~habit.recipes.train_model`,
 3. K-fold cross-validation with :func:`~habit.recipes.cross_validate`,
 4. inference with :func:`~habit.recipes.predict_model`,

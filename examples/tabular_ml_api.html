@@ -1490,10 +1490,13 @@ probabilities from <code class="docutils literal notranslate"><span class="pre">
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">table</span> <span class="o">=</span> <span class="n">make_synthetic_feature_table</span><span class="p">(</span><span class="n">n_rows</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="c1"># Variance on the raw table (pre_preprocessing_*); z-score afterwards.</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ml_api_demo&quot;</span><span class="p">,</span>
+    <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+    <span class="p">),</span>
     <span class="n">table_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
-    <span class="n">feature_selectors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>

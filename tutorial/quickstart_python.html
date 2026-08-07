@@ -1535,10 +1535,13 @@ train and predict stay consistent. Full walkthrough:
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="n">table</span> <span class="o">=</span> <span class="n">make_synthetic_feature_table</span><span class="p">(</span><span class="n">n_rows</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="c1"># Variance on the raw table; after z-score every feature variance is ~1.</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span>
+    <span class="n">pre_preprocessing_feature_selectors</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+    <span class="p">),</span>
     <span class="n">table_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
-    <span class="n">feature_selectors</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
@@ -1574,19 +1577,22 @@ preprocessing and selection can never leak.</p>
 <tr class="row-even"><td><p>Run the same thing from a config file (no code)</p></td>
 <td><p><a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: YAML + CLI (no programming)</span></a> (YAML + CLI)</p></td>
 </tr>
-<tr class="row-odd"><td><p>See full runnable studies with output</p></td>
+<tr class="row-odd"><td><p>Staged selection (variance before z-score, ANOVA after)</p></td>
+<td><p><a class="reference internal" href="../examples/ml_advanced.html"><span class="doc">Advanced tabular ML: staged selection and model comparison</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>See full runnable studies with output</p></td>
 <td><p><a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Load my own images / tables</p></td>
+<tr class="row-odd"><td><p>Load my own images / tables</p></td>
 <td><p><a class="reference internal" href="../api/data_model.html"><span class="doc">Data model (habit.contracts)</span></a> · <a class="reference internal" href="../api/adapters.html"><span class="doc">Adapters (habit.adapters)</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p>Understand specs and migrate v0.1 YAML</p></td>
+<tr class="row-even"><td><p>Understand specs and migrate v0.1 YAML</p></td>
 <td><p><a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p>Look up a class or function</p></td>
+<tr class="row-odd"><td><p>Look up a class or function</p></td>
 <td><p><a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a> (API Reference)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Tune every YAML field</p></td>
+<tr class="row-even"><td><p>Tune every YAML field</p></td>
 <td><p><a class="reference internal" href="../configuration/index.html"><span class="doc">Configuration Reference</span></a></p></td>
 </tr>
 </tbody>

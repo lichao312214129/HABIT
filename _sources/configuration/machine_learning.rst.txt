@@ -35,6 +35,9 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
      - method: variance
        params:
          threshold: 0.0
+         # Default for variance is true; keep explicit — after z-score
+         # every feature variance is 1.0, so this filter must run first.
+         before_z_score: true
      - method: correlation
        params:
          threshold: 0.9
@@ -390,11 +393,12 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
   .. code-block:: yaml
 
-     # Variance threshold
+     # Variance threshold (must run before normalization)
      feature_selection_methods:
        - method: variance
          params:
            threshold: 0.0
+           before_z_score: true
            plot_variances: true
      
      # Correlation filter + ANOVA

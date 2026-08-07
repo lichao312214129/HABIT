@@ -103,10 +103,13 @@ Habitat features (or radiomics, or clinical variables) form a
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
+   # Variance on the raw table; after z-score every feature variance is ~1.
    spec = MLSpec(
        name="demo",
+       pre_preprocessing_feature_selectors=(
+           Spec("variance", {"threshold": 0.01}),
+       ),
        table_preprocessors=(Spec("zscore"),),
-       feature_selectors=(Spec("variance", {"threshold": 0.01}),),
        classifier=Spec("LogisticRegression", {"max_iter": 500}),
        metrics=(Spec("accuracy"), Spec("auc")),
    )
@@ -136,6 +139,8 @@ Where to go next
      - Read
    * - Run the same thing from a config file (no code)
      - :doc:`quickstart` (YAML + CLI)
+   * - Staged selection (variance before z-score, ANOVA after)
+     - :doc:`../examples/ml_advanced`
    * - See full runnable studies with output
      - :doc:`../examples/index`
    * - Load my own images / tables
