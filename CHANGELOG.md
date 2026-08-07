@@ -6,6 +6,115 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING (behaviour): ``TablePipeline`` now inherits
+  ``sklearn.pipeline.Pipeline``.** The constructor signature is unchanged
+  (``TablePipeline(steps=[...HABIT components...], model=...)``) and every
+  HABIT verb — ``fit(table)``, ``transform(table)``, ``predict(table)``,
+  ``predict_proba(table)``, ``predict_survival_function``, ``evaluate``,
+  ``set_random_state``, ``spec``, ``save`` / ``load`` — behaves exactly as
+  before. Two attributes changed meaning:
+  - ``pipeline.steps`` is now scikit-learn's ``List[Tuple[str, estimator]]``.
+    It is not overridden, because ``sklearn.pipeline.Pipeline`` reads *and
+    writes* it directly.
+  - **``pipeline.components`` is the new home of the HABIT transformation
+    components** (the tuple ``pipeline.steps`` used to return).
+    ``pipeline.model`` / ``pipeline.classifier`` are unchanged.
+
+  In exchange, a ``TablePipeline`` works directly with ``sklearn.base.clone``,
+  ``get_params`` / ``set_params``, ``cross_val_score``, ``GridSearchCV`` and
+  ``RandomizedSearchCV``, and nested parameter grids such as
+  ``{"model__component__C": [0.1, 1, 10]}`` address a HABIT component's own
+  parameters. Rationale and the full contract are recorded in
+  ``developer/api_upgrade/08_naming_decisions.md`` §8.
+- ``TableClassifierEstimator.classes_`` now reports the endpoint's own dtype
+  (e.g. ``[0, 1]``) instead of the probability frame's string column labels,
+  matching ``predict()`` and letting label-aware scikit-learn scorers work.
+  The frame column labels moved to the new ``proba_columns_`` attribute.
+- ``.habitpipeline`` files are now written at ``format_version = 2`` (the
+  added field is the ``FrameToTable`` head's column schema). Version 1 files
+  written by earlier releases still load and predict identically.
+- **DEPRECATED: ``MLSpec``'s three fixed table chains.**
+  ``pre_preprocessing_feature_selectors``, ``table_preprocessors`` and
+  ``feature_selectors`` expressed step order through three slots, which
+  offered a selector exactly two positions — before all preprocessing or
+  after all of it — so an order such as ``zscore → variance → minmax →
+  lasso`` had no representation. They are superseded by the single ordered
+  ``MLSpec.steps`` list (below) and remain accepted, with a
+  ``DeprecationWarning``, for all of v1.x. A spec that declares both layouts
+  with different content is rejected rather than resolved by precedence.
+  ``MLSpec.to_dict()`` keeps emitting the three deprecated keys (and no
+  ``steps`` key) for a spec declared with them, so **every fingerprint
+  written before this release is unchanged**; a spec declared with ``steps``
+  serialises as ``steps``.
+- ``variance`` / ``variance_filter`` and ``correlation`` /
+  ``correlation_filter`` are now one implementation each, in
+  ``habit.kernels.feature_transforms``, reached through all four registry
+  names. Defaults, parameter spellings and numbers are unchanged; the
+  behavioural difference the two variance names always had — the filter keeps
+  the highest-variance column when nothing clears the threshold, the selector
+  keeps nothing — is now the explicit ``keep_at_least_one`` parameter,
+  defaulting per name to what that name always did. It is recorded in
+  ``spec.params`` only when it deviates from that default, so no existing
+  fingerprint moves.
+
+### Added
+
+- ``habit.recipes.search_hyperparameters`` and ``habit.recipes.SearchResult``:
+  hyperparameter tuning as a recipe. It drives scikit-learn's
+  ``GridSearchCV`` / ``RandomizedSearchCV`` (``strategy="grid"`` /
+  ``"random"``) over a ``TablePipeline``, on folds produced by
+  ``habit.domain.split.kfold_indices`` so a search partitions the rows exactly
+  as ``cross_validate`` does for the same ``n_splits`` and seed, and **writes
+  the winning parameters back into the ``MLSpec``** — the tuned definition
+  fingerprints, serialises to YAML and re-runs, so tuning does not end the
+  provenance chain. Grid keys read ``"<step>__component__<parameter>"``
+  (``"model__component__C"``, ``"variance__component__threshold"``); a key
+  that cannot be written back into the spec is rejected before the search
+  starts. The objective is a registered HABIT metric name whose own
+  ``greater_is_better`` sets the direction, defaulting to the spec's first
+  declared metric and then to ``auc``. No new dependency: there is
+  deliberately no Bayesian/Optuna backend.
+- ``cross_validate(..., inner_cv=..., param_grid=...)``: nested
+  cross-validation. The hyperparameters are re-tuned inside every outer fold's
+  training rows and scored on the untouched validation rows, so the reported
+  panel estimates the whole tuning procedure. Each fold's winner is returned
+  in the new ``CVResult.fold_best_params``. Passing only one of the two
+  arguments is an error, because a grid without ``inner_cv`` would tune on the
+  rows it scores. Plain ``cross_validate`` calls are unaffected.
+- ``MLSpec.steps``: ONE ordered list of table steps (preprocessors and
+  feature selectors, freely interleaved) whose list order is the execution
+  order. Step names resolve across both registries; the two vocabularies are
+  disjoint, and an ambiguous or unknown name is an explicit error rather than
+  a skipped step. See
+  ``config/machine_learning/config_machine_learning_steps_v1.yaml`` for a
+  runnable native-v1 document.
+- ``habit.domain.assembly.build_table_step``: builds one ``MLSpec.steps``
+  entry by resolving its name across the table-preprocessor and
+  feature-selector registries.
+- ``keep_at_least_one`` on the ``variance`` selector and the
+  ``variance_filter`` preprocessor, making the historical
+  "never empty the feature block" fallback selectable from either name.
+
+- ``habit.domain.sklearn_interop``: the table-level scikit-learn interop
+  adapters, lifted out of the frozen ``habit.compat`` layer into L3.
+  ``habit.compat.sklearn`` keeps deprecated aliases of
+  ``TableTransformerEstimator`` / ``TableClassifierEstimator`` /
+  ``as_transformer`` / ``as_classifier`` for all of v1.x.
+- ``habit.domain.sklearn_interop.FrameToTable``: rebuilds a ``FeatureTable``
+  from a plain frame plus a static column schema, which is what lets
+  scikit-learn's cross-validation drivers slice ``X`` by row. Every
+  ``TablePipeline`` carries one as its head step (named ``"frame_to_table"``);
+  it passes ``FeatureTable`` input straight through unchanged.
+- ``as_regressor`` / ``as_survival_model`` / ``as_outcome_model`` factories for
+  the two terminal-model families the v1.0 interop surface did not cover.
+- Every built-in tabular component (classifiers, regressors, survival models,
+  preprocessors, feature selectors) now implements scikit-learn's
+  ``get_params`` / ``set_params`` / ``clone`` protocol, sourced from the same
+  single mapping ``spec.params`` is built from, so a searched value cannot
+  disagree with the recorded fingerprint.
+
 ## [1.0.4] - 2026-08-07
 
 ### Changed

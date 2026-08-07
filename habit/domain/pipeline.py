@@ -16,8 +16,6 @@
 
 from __future__ import annotations
 
-import inspect
-import io
 import json
 import pickle
 import zipfile
@@ -26,6 +24,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from sklearn.pipeline import Pipeline as SkPipeline
 
 from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatMap, Supervoxelization, VoxelFeatureField
@@ -41,6 +40,13 @@ from habit.domain.protocols import (
     SupervoxelFeatureExtractor,
     Supervoxelizer,
     VoxelFeatureExtractor,
+)
+from habit.domain.sklearn_interop import (
+    FrameToTable,
+    as_outcome_model,
+    as_transformer,
+    step_consumes_repeat_tables,
+    wraps_outcome_model,
 )
 from habit.domain.table_protocols import (
     Classifier,
@@ -397,16 +403,202 @@ class SubjectPipeline:
 # TablePipeline: fitted preprocessing/selection + classifier over FeatureTable
 # ---------------------------------------------------------------------------
 
-#: On-disk format identifier and the version this HABIT build can read/write.
-#: Bump ``_PIPELINE_FORMAT_VERSION`` (and extend the loader) whenever the
-#: layout changes; older files must either load or fail with a clear message.
+#: On-disk format identifier and the version this HABIT build WRITES.
+#: ``format_version`` 1 files were produced before ``TablePipeline`` became an
+#: ``sklearn.pipeline.Pipeline`` subclass; version 2 adds the frame schema of
+#: the :class:`~habit.domain.sklearn_interop.FrameToTable` head step. Both are
+#: readable -- see :meth:`TablePipeline.load`.
 _PIPELINE_FORMAT_NAME = "habit.tablepipeline"
-_PIPELINE_FORMAT_VERSION = 1
+_PIPELINE_FORMAT_VERSION = 2
+
+#: Step name of the ``FrameToTable`` head and of the terminal outcome model.
+#: Fixed (rather than derived) so ``pipe.set_params(frame_to_table=...)`` and
+#: a ``param_grid`` key like ``"model__component__C"`` are stable, documentable
+#: strings rather than something a caller has to discover per pipeline.
+_HEAD_STEP_NAME = "frame_to_table"
+_MODEL_STEP_NAME = "model"
 
 
-class TablePipeline:
+def _sklearn_pipeline_param_names() -> Tuple[str, ...]:
     """
-    Fitted preprocessing/selection chain plus classifier over feature tables.
+    Return the constructor parameter names of ``sklearn.pipeline.Pipeline``.
+
+    Read off sklearn itself rather than hard-coded, because the set has grown
+    across the supported range (``transform_input`` arrived in 1.6 and HABIT
+    supports ``scikit-learn>=1.4,<2``). Anything sklearn declares is a
+    parameter ``TablePipeline`` must expose unchanged, and a step name must
+    never collide with one.
+
+    Returns:
+        Tuple[str, ...]: Parameter names, sorted as sklearn sorts them.
+    """
+    return tuple(SkPipeline._get_param_names())
+
+
+def _is_sklearn_step_list(steps: Any) -> bool:
+    """
+    Report whether ``steps`` is already in scikit-learn ``(name, est)`` form.
+
+    ``TablePipeline`` accepts two shapes for the same argument, and the shape
+    decides how it is interpreted:
+
+    * HABIT form -- a flat sequence of HABIT components, which is what call
+      sites and YAML-driven assembly pass, and which this class wraps into
+      adapters;
+    * sklearn form -- ``[(name, estimator), ...]``, which is what
+      ``sklearn.base.clone``, ``Pipeline.set_params(steps=...)`` and pipeline
+      slicing pass back in, and which must be stored VERBATIM (``clone``
+      verifies that ``get_params()`` returns the very object it handed to the
+      constructor).
+
+    Args:
+        steps: The ``steps`` argument as received.
+
+    Returns:
+        bool: ``True`` for sklearn form. An empty sequence is reported as
+        HABIT form, so the "no terminal model" error still fires for
+        ``TablePipeline(steps=[])``.
+    """
+    if not isinstance(steps, (list, tuple)) or not steps:
+        return False
+    return all(
+        isinstance(step, tuple) and len(step) == 2 and isinstance(step[0], str)
+        for step in steps
+    )
+
+
+def _unique_step_name(component: Any, taken: set) -> str:
+    """
+    Derive a stable, unique sklearn step name for a HABIT component.
+
+    The component's registered spec name is the name a user already knows
+    (``"zscore"``, ``"variance"``, ``"lasso"``), so it is what a
+    ``param_grid`` key should read as. Uniqueness and sklearn's own naming
+    rules are enforced on top: names must be distinct, must not contain
+    ``"__"`` (the parameter separator) and must not collide with a
+    constructor parameter of the pipeline.
+
+    Args:
+        component: The HABIT component about to be wrapped.
+        taken: Names already used; mutated to include the returned name.
+
+    Returns:
+        str: The step name.
+    """
+    try:
+        base = str(component.spec.name)
+    except AttributeError:
+        base = type(component).__name__
+    base = base.replace("__", "_") or type(component).__name__
+    name = base
+    suffix = 2
+    while name in taken:
+        name = f"{base}_{suffix}"
+        suffix += 1
+    taken.add(name)
+    return name
+
+
+def _component_spec_payload(component: Any) -> Dict[str, Any]:
+    """
+    Return one component's ``Spec`` payload for the composed pipeline spec.
+
+    Args:
+        component: A HABIT component taken from the pipeline.
+
+    Returns:
+        Dict[str, Any]: The component's ``spec.to_dict()``.
+
+    Raises:
+        HABITAPIError: When the object carries no ``Spec``. A pipeline holding
+            a foreign estimator cannot be described, fingerprinted or saved,
+            and failing here is the only way that stays visible instead of
+            reappearing as a provenance record nobody can reproduce.
+    """
+    spec = getattr(component, "spec", None)
+    if spec is None or not hasattr(spec, "to_dict"):
+        raise HABITAPIError(
+            f"TablePipeline.spec needs every step to carry a habit Spec, but "
+            f"{type(component).__name__} carries none. Only HABIT components "
+            "(and a FrameToTable head) belong in a TablePipeline; a foreign "
+            "scikit-learn estimator cannot be fingerprinted or saved."
+        )
+    return spec.to_dict()
+
+
+def _build_sklearn_steps(
+    components: Sequence[Any],
+    model: Any,
+) -> List[Tuple[str, Any]]:
+    """
+    Wrap HABIT components into the ``(name, estimator)`` list sklearn needs.
+
+    Layout, always: a :class:`~habit.domain.sklearn_interop.FrameToTable` head
+    (so an sklearn cross-validation driver can hand the pipeline a plain,
+    row-sliceable frame), then one
+    :class:`~habit.domain.sklearn_interop.TableTransformerEstimator` per
+    transformation component, then the terminal outcome-model adapter.
+
+    Every adapter is built with ``copy_on_fit=False``: the pipeline's
+    :attr:`TablePipeline.components`, its :meth:`TablePipeline.save` artefact
+    and every reporting call site read fitted state off the very component
+    objects the caller constructed, so the pipeline must fit them in place.
+    ``sklearn.base.clone`` still gives each cross-validation fold its own
+    components, so nothing leaks across folds.
+
+    Args:
+        components: HABIT transformation components in execution order. A
+            ``FrameToTable`` may be given as the FIRST element to declare the
+            column schema of the frames an sklearn driver will slice; anywhere
+            else it is an error, because rebuilding the table halfway through
+            a chain would silently discard the upstream selection.
+        model: The terminal outcome model.
+
+    Returns:
+        List[Tuple[str, Any]]: The sklearn step list.
+
+    Raises:
+        HABITAPIError: On a misplaced ``FrameToTable``.
+    """
+    items = list(components)
+    head: FrameToTable = FrameToTable()
+    if items and isinstance(items[0], FrameToTable):
+        head = items.pop(0)
+    for item in items:
+        if isinstance(item, FrameToTable):
+            raise HABITAPIError(
+                "A FrameToTable step rebuilds the FeatureTable from a plain "
+                "frame, so it only makes sense at the HEAD of a "
+                "TablePipeline; found one after another step, where it would "
+                "silently discard the upstream selection. Move it to the "
+                "front of the steps list."
+            )
+    prepared: List[Tuple[str, Any]] = [(_HEAD_STEP_NAME, head)]
+    taken = {_HEAD_STEP_NAME, _MODEL_STEP_NAME, *_sklearn_pipeline_param_names()}
+    selector_position = 0
+    for component in items:
+        name = _unique_step_name(component, taken)
+        selector_index: Optional[int] = None
+        if _is_feature_selector_step(component):
+            selector_position += 1
+            selector_index = selector_position
+        prepared.append(
+            (
+                name,
+                as_transformer(
+                    component,
+                    copy_on_fit=False,
+                    selector_step_index=selector_index,
+                ),
+            )
+        )
+    prepared.append((_MODEL_STEP_NAME, as_outcome_model(model, copy_on_fit=False)))
+    return prepared
+
+
+class TablePipeline(SkPipeline):
+    """
+    Fitted preprocessing/selection chain plus model over feature tables.
 
     The structural answer to the train/predict leakage class of bugs: the
     preprocessing and feature-selection steps are fitted ONCE on the training
@@ -416,65 +608,227 @@ class TablePipeline:
 
     The fitted pipeline is also the artefact a study publishes for external
     validation of its tabular model, which is why :meth:`save` persists the
-    steps and the classifier together in one versioned, self-describing
-    file (a JSON manifest recording every component's :class:`~habit.spec.specs.Spec`
-    alongside the pickled fitted state).
+    steps and the model together in one versioned, self-describing file (a
+    JSON manifest recording every component's
+    :class:`~habit.spec.specs.Spec` alongside the pickled fitted state).
+
+    **This IS an ``sklearn.pipeline.Pipeline``.** Subclassing rather than
+    re-implementing composition is what gives HABIT's tabular models
+    ``clone``, ``get_params``/``set_params``, nested parameter addressing and
+    therefore ``GridSearchCV`` / ``RandomizedSearchCV`` / ``cross_val_score``
+    for free, instead of a second composition engine that would drift from
+    the one the rest of the ecosystem uses.
+
+    Two consequences a caller must know:
+
+    * ``.steps`` has sklearn's meaning -- ``List[Tuple[str, estimator]]``,
+      where the estimators are the interop adapters. It is NOT overridden,
+      because sklearn's ``_iter`` / ``_validate_steps`` / ``get_params`` /
+      ``set_params`` all read and WRITE it directly. The HABIT components are
+      reached through :attr:`components` (transformation steps) and
+      :attr:`model` (the terminal one).
+    * The step list always begins with a
+      :class:`~habit.domain.sklearn_interop.FrameToTable` head named
+      ``"frame_to_table"`` and ends with the outcome-model adapter named
+      ``"model"``. The head is what lets an sklearn cross-validation driver
+      pass a plain frame as ``X`` (a ``FeatureTable`` is a frozen dataclass
+      and deliberately not row-sliceable); when the pipeline is handed a
+      ``FeatureTable`` directly -- HABIT's own entry point -- it passes
+      straight through, with no frame round-trip and therefore no dtype
+      promotion that could shift a later z-score.
+
+    HABIT's verbs are kept as overrides, because a ``FeatureTable`` in must
+    give a HABIT type out: :meth:`fit`, :meth:`transform`, :meth:`predict`
+    and :meth:`predict_proba` return tables / labelled Series / labelled
+    frames for ``FeatureTable`` input, and plain arrays for frame input (what
+    an sklearn scorer expects). :meth:`evaluate`,
+    :meth:`predict_survival_function`, :meth:`set_random_state`, :meth:`spec`,
+    :meth:`save` and :meth:`load` have no sklearn equivalent and are
+    unchanged.
 
     Args:
-        steps: Ordered transformation steps (``TablePreprocessor`` and/or
-            ``FeatureSelector`` implementations). May be empty, in which case
-            the pipeline is the bare model.
+        steps: Either the HABIT form -- ordered transformation components
+            (``TablePreprocessor`` and/or ``FeatureSelector``
+            implementations), optionally preceded by a ``FrameToTable``
+            declaring the frame schema; may be empty, in which case the
+            pipeline is the bare model -- or the sklearn form
+            ``[(name, estimator), ...]``, which is what ``clone``,
+            ``set_params(steps=...)`` and slicing pass back in.
         model: The terminal outcome model -- a :class:`Classifier`,
             :class:`Regressor`, or :class:`SurvivalModel`, matched to the
-            endpoint family of the tables it will be fitted on.
+            endpoint family of the tables it will be fitted on. Must be
+            omitted when ``steps`` is already in sklearn form (the terminal
+            step carries it).
         classifier: Deprecated alias for ``model`` (binary/multiclass
             endpoints); kept so existing call sites keep working.
+        **pipeline_options: Forwarded verbatim to
+            ``sklearn.pipeline.Pipeline`` (``memory``, ``verbose``, and
+            ``transform_input`` on scikit-learn >= 1.6).
+
+    Examples:
+        Nested hyperparameter search over a HABIT component's own parameter::
+
+            from sklearn.model_selection import GridSearchCV
+
+            from habit.domain.sklearn_interop import FrameToTable
+
+            pipe = TablePipeline(
+                steps=[FrameToTable.from_table(train), ZScorePreprocessor()],
+                model=LogisticRegressionClassifier(),
+            )
+            search = GridSearchCV(pipe, {"model__component__C": [0.1, 1, 10]})
+            search.fit(train.frame, outcome_series(train))
     """
 
     def __init__(
         self,
-        steps: Sequence[Union[TablePreprocessor, FeatureSelector]],
+        steps: Sequence[Any],
         model: Optional[Union[Classifier, Regressor, SurvivalModel]] = None,
         *,
         classifier: Optional[Classifier] = None,
+        **pipeline_options: Any,
     ) -> None:
-        if model is None and classifier is not None:
-            model = classifier
-        if model is None:
-            raise HABITAPIError("TablePipeline requires a terminal model.")
-        self._steps: List[Union[TablePreprocessor, FeatureSelector]] = list(steps)
-        self._model = model
-        # Which steps learn from repeat-measurement tables (ICC selection).
-        self._step_takes_repeats: List[bool] = [
-            "repeat_tables" in inspect.signature(step.fit).parameters
-            for step in self._steps
-        ]
-        self._is_fitted = False
-        self._fit_output_columns: Tuple[str, ...] = ()
+        if _is_sklearn_step_list(steps):
+            if model is not None or classifier is not None:
+                raise HABITAPIError(
+                    "TablePipeline received steps already in scikit-learn "
+                    "(name, estimator) form together with a separate model. "
+                    "The terminal step already carries the model; passing it "
+                    "twice would leave two divergent copies, one of which "
+                    "would never be fitted."
+                )
+            # Stored verbatim: ``sklearn.base.clone`` checks that
+            # ``get_params(deep=False)["steps"]`` IS the list it passed in.
+            prepared: List[Tuple[str, Any]] = steps  # type: ignore[assignment]
+        else:
+            if model is None and classifier is not None:
+                model = classifier
+            if model is None:
+                raise HABITAPIError("TablePipeline requires a terminal model.")
+            prepared = _build_sklearn_steps(steps, model)
+        super().__init__(prepared, **pipeline_options)
+
+    @classmethod
+    def _get_param_names(cls) -> List[str]:
+        """
+        Declare exactly ``sklearn.pipeline.Pipeline``'s constructor parameters.
+
+        ``BaseEstimator._get_param_names`` derives the parameter set from the
+        subclass's own ``__init__``, which here would add ``model`` and
+        ``classifier``. Both are CONSTRUCTION conveniences, not state: the
+        terminal model lives inside ``steps``. Reporting them would make
+        ``clone`` rebuild the model twice -- once inside the cloned steps and
+        once from the ``model`` parameter -- leaving the pipeline with a
+        terminal model that never gets fitted, and ``clone``'s own identity
+        check would fail. Delegating to sklearn's own answer also keeps the
+        set correct across the supported scikit-learn range.
+
+        Returns:
+            List[str]: Parameter names, in sklearn's sorted order.
+        """
+        return list(_sklearn_pipeline_param_names())
+
+    # -- HABIT views over the sklearn step list ---------------------------
 
     @property
-    def steps(self) -> Tuple[Union[TablePreprocessor, FeatureSelector], ...]:
-        """Return the ordered transformation steps."""
-        return tuple(self._steps)
+    def components(self) -> Tuple[Union[TablePreprocessor, FeatureSelector], ...]:
+        """
+        Return the ordered HABIT transformation components.
+
+        This is the successor of the pre-v1.1 ``.steps`` property. ``.steps``
+        now means what sklearn means by it, so the HABIT components -- the
+        objects carrying ``spec``, the fitted statistics and the selected
+        column names -- are read here instead. The ``FrameToTable`` head and
+        the terminal model adapter are excluded: the head is interop
+        plumbing, and the model is :attr:`model`.
+
+        Returns:
+            Tuple: The unwrapped components, in execution order.
+        """
+        collected: List[Any] = []
+        for _, estimator in self.steps:
+            if isinstance(estimator, FrameToTable):
+                continue
+            if wraps_outcome_model(estimator):
+                continue
+            collected.append(getattr(estimator, "component", estimator))
+        return tuple(collected)
 
     @property
     def model(self) -> Union[Classifier, Regressor, SurvivalModel]:
-        """Return the terminal outcome model."""
-        return self._model
+        """
+        Return the terminal outcome model.
+
+        Returns:
+            The HABIT ``Classifier`` / ``Regressor`` / ``SurvivalModel``.
+
+        Raises:
+            HABITAPIError: When the pipeline does not end in a HABIT outcome
+                model -- which happens for a slice such as ``pipe[:-1]``.
+        """
+        terminal = self.steps[-1][1] if self.steps else None
+        component = getattr(terminal, "component", None)
+        if not wraps_outcome_model(terminal) or component is None:
+            raise HABITAPIError(
+                "This TablePipeline does not end in a HABIT outcome model "
+                f"(terminal step: {type(terminal).__name__}), so it has no "
+                "model to report. Slices such as pipe[:-1] are transformation "
+                "chains only."
+            )
+        return component
 
     @property
     def classifier(self) -> Classifier:
         """Return the terminal model, asserted to be a classifier."""
-        return self._model  # type: ignore[return-value]
+        return self.model  # type: ignore[return-value]
+
+    @property
+    def frame_schema(self) -> FrameToTable:
+        """
+        Return the ``FrameToTable`` head step.
+
+        The one place to read or re-declare the column schema an sklearn
+        driver's frames follow. Prefer
+        ``pipe.set_params(frame_to_table=FrameToTable.from_table(table))`` to
+        replace it, so the change goes through sklearn's own parameter
+        machinery and survives ``clone``.
+
+        Raises:
+            HABITAPIError: When the pipeline has no ``FrameToTable`` head.
+        """
+        head = self.steps[0][1] if self.steps else None
+        if not isinstance(head, FrameToTable):
+            raise HABITAPIError(
+                "This TablePipeline has no FrameToTable head step (first "
+                f"step: {type(head).__name__}), so it cannot accept a plain "
+                "frame as X."
+            )
+        return head
 
     @property
     def spec(self) -> Spec:
-        """Return the composed specification of every stage."""
+        """
+        Return the composed specification of every stage.
+
+        The payload shape -- ``{"steps": [...], "model": {...}}`` -- is the
+        FINGERPRINTED one and is deliberately unchanged by the move to
+        ``sklearn.pipeline.Pipeline``: the ``FrameToTable`` head and the
+        adapters are interop plumbing, not scientific definition, so they do
+        not appear. Renaming or reshaping this payload would move every
+        recorded provenance fingerprint in the repository.
+
+        Raises:
+            HABITAPIError: When a step carries no ``Spec``, i.e. the pipeline
+                holds a foreign estimator that HABIT cannot describe.
+        """
         return Spec(
             name="table_pipeline",
             params={
-                "steps": [step.spec.to_dict() for step in self._steps],
-                "model": self._model.spec.to_dict(),
+                "steps": [
+                    _component_spec_payload(component)
+                    for component in self.components
+                ],
+                "model": _component_spec_payload(self.model),
             },
         )
 
@@ -482,96 +836,158 @@ class TablePipeline:
         """
         Seed every stochastic component of the pipeline.
 
-        Propagates to each step and the classifier implementing
-        :class:`~habit.domain.protocols.Seedable`; deterministic components
-        are untouched (v1.0 naming decisions: one seeding verb, never a
-        constructor parameter).
+        Propagates to each transformation component and the terminal model
+        implementing :class:`~habit.domain.protocols.Seedable`; deterministic
+        components are untouched (v1.0 naming decisions: one seeding verb,
+        never a constructor parameter).
+
+        Args:
+            seed: The seed to install.
         """
-        for component in [*self._steps, self._model]:
+        for component in [*self.components, *self._terminal_components()]:
             if isinstance(component, Seedable):
                 component.set_random_state(seed)
 
+    def _terminal_components(self) -> Tuple[Any, ...]:
+        """Return the terminal model in a tuple, or empty when absent."""
+        try:
+            return (self.model,)
+        except HABITAPIError:
+            return ()
+
+    # -- fit / transform / predict ---------------------------------------
+
     def fit(
         self,
-        table: FeatureTable,
+        X: Any,
+        y: Any = None,
         *,
         repeat_tables: Optional[Sequence[FeatureTable]] = None,
+        **params: Any,
     ) -> "TablePipeline":
         """
-        Fit every step in order, then the classifier.
+        Fit every step in order, then the terminal model.
 
         Each step is fitted on the table produced by the previous step, so
         learned statistics compose exactly as they will at predict time.
-        Steps accepting ``repeat_tables`` (test-retest selectors) receive
-        them; the rest see only the primary table.
 
         Args:
-            table: Training table with feature columns and an outcome column.
-            repeat_tables: Optional aligned repeat-measurement tables, passed
-                only to the steps that consume them.
+            X: Training data. A ``FeatureTable`` (HABIT's entry point: the
+                outcome rides inside it and passes through the head step
+                untouched) or a plain frame carrying the identifier, feature
+                and outcome columns the ``FrameToTable`` head declares.
+            y: Training targets. Normally ``None`` for a ``FeatureTable``,
+                whose outcome column already supplies them; sklearn's
+                cross-validation drivers pass the sliced label array, which
+                is cross-checked against the table's own outcome so a
+                misaligned ``y`` fails loudly.
+            repeat_tables: Optional aligned repeat-measurement tables. Routed
+                ONLY to the steps whose ``fit`` declares ``repeat_tables``
+                (the test-retest / ICC selectors); the rest never see the
+                keyword.
+            **params: scikit-learn step-scoped fit parameters in
+                ``stepname__param`` form, forwarded unchanged.
 
         Returns:
             ``self``, fitted.
         """
-        current = table
-        selector_step = 0
-        for step, takes_repeats in zip(self._steps, self._step_takes_repeats):
-            is_selector = _is_feature_selector_step(step)
-            n_before = len(current.feature_columns)
-            if is_selector:
-                selector_step += 1
-                method_name = str(step.spec.name)
-                _logger.info(
-                    "Step %s: Applying '%s' feature selection",
-                    selector_step,
-                    method_name,
-                )
-                _logger.info("  Parameters: %s", dict(step.spec.params))
-                _logger.info("  Features before this step: %s", n_before)
-
-            if takes_repeats:
-                step.fit(current, repeat_tables=repeat_tables)  # type: ignore[call-arg]
-            else:
-                step.fit(current)
-            current = step.transform(current)
-
-            if is_selector:
-                n_after = len(current.feature_columns)
-                n_removed = n_before - n_after
-                _logger.info("  Features after this step: %s", n_after)
-                _logger.info("  Number of features removed: %s", n_removed)
-                _logger.info("-" * 80)
-
-        self._model.fit(current)
-        self._fit_output_columns = tuple(current.feature_columns)
-        self._is_fitted = True
+        routed = dict(params)
+        if repeat_tables is not None:
+            routed.update(self._repeat_table_params(repeat_tables))
+        super().fit(X, y, **routed)
         return self
 
+    def _repeat_table_params(
+        self, repeat_tables: Sequence[FeatureTable]
+    ) -> Dict[str, Any]:
+        """
+        Expand ``repeat_tables`` into scikit-learn's step-scoped fit params.
+
+        Test-retest selectors learn from aligned repeat-measurement tables;
+        every other step must NOT be handed the keyword, or it would raise on
+        an unexpected argument. sklearn's routing key is
+        ``"<stepname>__repeat_tables"``, so the pipeline resolves which steps
+        consume it and names them explicitly.
+
+        Args:
+            repeat_tables: The repeat tables to route.
+
+        Returns:
+            Dict[str, Any]: Fit parameters, one entry per consuming step.
+            Empty when no step consumes them, which leaves the tables unused
+            exactly as before -- declaring repeats for a chain that has no
+            ICC selector is a configuration statement, not an error.
+        """
+        routed: Dict[str, Any] = {}
+        for name, estimator in self.steps:
+            target = getattr(estimator, "component", estimator)
+            if step_consumes_repeat_tables(target):
+                routed[f"{name}__repeat_tables"] = repeat_tables
+        return routed
+
     def _check_fitted(self) -> None:
-        """Raise when a transformation is requested before fitting."""
-        if not self._is_fitted:
+        """
+        Raise a HABIT error when a transformation is requested before fitting.
+
+        Deliberately raises :class:`~habit.exceptions.HABITAPIError` rather
+        than sklearn's ``NotFittedError``: this is the error HABIT's own
+        callers have always caught on this class, and the sklearn-facing
+        methods inherited from ``Pipeline`` still raise ``NotFittedError``
+        through their own guard.
+        """
+        if not self.__sklearn_is_fitted__():
             raise HABITAPIError(
                 "TablePipeline must be fitted before transform/predict."
             )
 
-    def transform(self, table: FeatureTable) -> FeatureTable:
+    def _transformed(self, X: Any) -> FeatureTable:
         """
-        Apply the fitted transformation chain to a table.
+        Run the transformation chain (every step but the terminal model).
 
         Args:
-            table: Table carrying the feature columns seen at fit time
-                (each fitted step validates its own input schema).
+            X: A ``FeatureTable`` or a plain frame.
 
         Returns:
-            The table after every fitted step, ready for the classifier.
+            FeatureTable: The table the terminal model consumes.
         """
         self._check_fitted()
-        current = table
-        for step in self._steps:
+        current: Any = X
+        for _, _, step in self._iter(with_final=False):
             current = step.transform(current)
         return current
 
-    def predict(self, table: FeatureTable) -> pd.Series:
+    def transform(self, X: Any, **params: Any) -> FeatureTable:  # type: ignore[override]
+        """
+        Apply the fitted transformation chain to a table.
+
+        Deliberately narrower than ``sklearn.pipeline.Pipeline.transform``,
+        which also calls the FINAL step: a ``TablePipeline`` always ends in an
+        outcome model, which has no ``transform``, so sklearn's version is
+        never available on this class anyway. What callers have always meant
+        by ``pipeline.transform(table)`` -- "the classifier-ready table" -- is
+        what this returns.
+
+        Args:
+            X: Table (or frame) carrying the feature columns seen at fit time;
+                each fitted step validates its own input schema.
+            **params: Accepted for signature compatibility; must be empty.
+
+        Returns:
+            FeatureTable: The table after every fitted transformation step.
+
+        Raises:
+            HABITAPIError: If the pipeline is not fitted, or ``params`` is
+                non-empty (per-step transform parameters would silently do
+                nothing here).
+        """
+        if params:
+            raise HABITAPIError(
+                "TablePipeline.transform takes no step parameters; got "
+                f"{sorted(params)}."
+            )
+        return self._transformed(X)
+
+    def predict(self, X: Any, **params: Any) -> Any:  # type: ignore[override]
         """
         Predict the terminal model's output for a table's rows.
 
@@ -579,17 +995,24 @@ class TablePipeline:
         for a survival model (routed through ``predict_risk``).
 
         Args:
-            table: Table to predict; transformed with the fitted state first.
+            X: Data to predict; transformed with the fitted state first.
+            **params: scikit-learn predict parameters, forwarded to the
+                terminal adapter on the array path only.
 
         Returns:
-            Predictions indexed by the table's identifier columns.
+            ``pd.Series`` indexed by the table's identifier columns for
+            ``FeatureTable`` input (HABIT semantics), or a plain ``ndarray``
+            for frame input, which is what an sklearn scorer expects.
         """
-        transformed = self.transform(table)
-        if isinstance(self._model, SurvivalModel):
-            return self._model.predict_risk(transformed)
-        return self._model.predict(transformed)
+        transformed = self._transformed(X)
+        if not isinstance(X, FeatureTable):
+            return self.steps[-1][1].predict(transformed, **params)
+        model = self.model
+        if isinstance(model, SurvivalModel):
+            return model.predict_risk(transformed)
+        return model.predict(transformed)
 
-    def predict_proba(self, table: FeatureTable) -> pd.DataFrame:
+    def predict_proba(self, X: Any, **params: Any) -> Any:  # type: ignore[override]
         """
         Predict class probabilities for a table's rows.
 
@@ -597,23 +1020,30 @@ class TablePipeline:
         survival models have no class-probability output.
 
         Args:
-            table: Table to predict; transformed with the fitted state first.
+            X: Data to predict; transformed with the fitted state first.
+            **params: scikit-learn predict parameters, forwarded to the
+                terminal adapter on the array path only.
 
         Returns:
-            Probability frame indexed by the identifier columns, one column
-            per class.
+            A probability frame indexed by the identifier columns, one column
+            per class, for ``FeatureTable`` input; a plain ``ndarray`` with
+            columns aligned to ``self.classes_`` for frame input.
 
         Raises:
             HABITAPIError: If the terminal model is not a classifier.
         """
-        if not isinstance(self._model, Classifier):
+        model = self.model
+        if not isinstance(model, Classifier):
             raise HABITAPIError(
                 "TablePipeline.predict_proba requires a classifier terminal "
                 f"model; this pipeline ends in a "
-                f"{type(self._model).__name__}. Use predict() (values or "
+                f"{type(model).__name__}. Use predict() (values or "
                 "risk) or predict_survival_function() instead."
             )
-        return self._model.predict_proba(self.transform(table))
+        transformed = self._transformed(X)
+        if not isinstance(X, FeatureTable):
+            return self.steps[-1][1].predict_proba(transformed, **params)
+        return model.predict_proba(transformed)
 
     def predict_survival_function(
         self, table: FeatureTable, times: np.ndarray
@@ -631,13 +1061,14 @@ class TablePipeline:
         Raises:
             HABITAPIError: If the terminal model is not a survival model.
         """
-        if not isinstance(self._model, SurvivalModel):
+        model = self.model
+        if not isinstance(model, SurvivalModel):
             raise HABITAPIError(
                 "TablePipeline.predict_survival_function requires a survival "
                 f"terminal model; this pipeline ends in a "
-                f"{type(self._model).__name__}."
+                f"{type(model).__name__}."
             )
-        return self._model.predict_survival_function(self.transform(table), times)
+        return model.predict_survival_function(self._transformed(table), times)
 
     def evaluate(
         self,
@@ -770,6 +1201,20 @@ class TablePipeline:
 
     # -- persistence ----------------------------------------------------
 
+    def _fit_output_columns(self) -> Tuple[str, ...]:
+        """
+        Return the feature columns the terminal model was fitted on.
+
+        Recorded by the terminal adapter at fit time (see
+        the terminal outcome-model adapter's ``fit``), which is the only place the
+        output of the whole transformation chain is observable without
+        re-running it.
+
+        Returns:
+            Tuple[str, ...]: The fit-time feature block, empty when unfitted.
+        """
+        return tuple(getattr(self.steps[-1][1], "feature_columns_", ()))
+
     def save(self, path: Union[str, Path]) -> Path:
         """
         Persist the fitted pipeline in a versioned, self-describing format.
@@ -778,6 +1223,13 @@ class TablePipeline:
         (format name, format version, producing HABIT version, and every
         component's spec and class path) plus the pickled fitted state. The
         manifest keeps the artefact inspectable without deserialising it.
+
+        What is pickled is the HABIT COMPONENTS, not the sklearn adapters
+        wrapping them: the components are the fitted science, the adapters are
+        interop plumbing that :meth:`load` rebuilds. Keeping the payload at
+        the component level is also what lets one loader read both format
+        version 1 (written before this class became an
+        ``sklearn.pipeline.Pipeline``) and version 2.
 
         Args:
             path: Destination file path.
@@ -795,20 +1247,29 @@ class TablePipeline:
                 "spec": component.spec.to_dict(),
             }
 
+        components = list(self.components)
+        model = self.model
+        is_fitted = self.__sklearn_is_fitted__()
+        head = self.steps[0][1] if isinstance(self.steps[0][1], FrameToTable) else None
         manifest = {
             "format": _PIPELINE_FORMAT_NAME,
             "format_version": _PIPELINE_FORMAT_VERSION,
             "habit_version": _habit_version,
-            "steps": [_component_record(step) for step in self._steps],
-            "model": _component_record(self._model),
-            "is_fitted": self._is_fitted,
-            "fit_output_columns": list(self._fit_output_columns),
+            "steps": [_component_record(step) for step in components],
+            "model": _component_record(model),
+            "is_fitted": is_fitted,
+            "fit_output_columns": list(self._fit_output_columns()),
+            # Version 2 additions. Recorded in the manifest as well as the
+            # payload so the artefact stays inspectable without unpickling.
+            "step_names": [name for name, _ in self.steps],
+            "declares_frame_schema": bool(head is not None and head.declares_schema),
         }
         payload = {
-            "steps": self._steps,
-            "model": self._model,
-            "is_fitted": self._is_fitted,
-            "fit_output_columns": self._fit_output_columns,
+            "steps": components,
+            "model": model,
+            "is_fitted": is_fitted,
+            "fit_output_columns": self._fit_output_columns(),
+            "frame_schema": head,
         }
         with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.writestr(
@@ -822,6 +1283,21 @@ class TablePipeline:
     def load(cls, path: Union[str, Path]) -> "TablePipeline":
         """
         Load a pipeline previously written by :meth:`save`.
+
+        Both on-disk format versions are readable:
+
+        * **version 1** -- written before this class became an
+          ``sklearn.pipeline.Pipeline``. It carries HABIT components and no
+          frame schema, so the loader rebuilds the adapters and gives the
+          pipeline a schema-less ``FrameToTable`` head. Such a pipeline
+          behaves exactly as it did when saved for every ``FeatureTable``
+          call; only the "hand it a plain frame" entry point needs a schema
+          declared afterwards.
+        * **version 2** -- additionally carries the head's frame schema.
+
+        A file whose ``format_version`` this build does not know raises rather
+        than being guessed at: silently loading a wrong-but-plausible pipeline
+        would produce numbers nobody could trace.
 
         Security note: the fitted state is pickle-serialised (the standard
         serialisation for sklearn estimators), so only ever load pipeline
@@ -860,15 +1336,54 @@ class TablePipeline:
                     "pipeline."
                 )
             payload = pickle.loads(archive.read("payload.pkl"))
-        pipeline = cls(steps=payload["steps"], model=payload["model"])
-        pipeline._is_fitted = bool(payload["is_fitted"])
-        pipeline._fit_output_columns = tuple(payload["fit_output_columns"])
+        # ``frame_schema`` is absent in version 1 files; a schema-less head
+        # still passes FeatureTables through unchanged, which is every path a
+        # version 1 pipeline ever had.
+        head = payload.get("frame_schema") or FrameToTable()
+        pipeline = cls(
+            steps=[head, *payload["steps"]],
+            model=payload["model"],
+        )
+        if bool(payload["is_fitted"]):
+            pipeline._adopt_fitted_components(
+                tuple(payload["fit_output_columns"])
+            )
         # Cross-check manifest against payload to catch archive corruption.
         manifest_names = [record["spec"]["name"] for record in manifest["steps"]]
-        payload_names = [step.spec.name for step in pipeline._steps]
+        payload_names = [step.spec.name for step in pipeline.components]
         if manifest_names != payload_names:
             raise CompatibilityError(
                 f"{source} is internally inconsistent: manifest steps "
                 f"{manifest_names} != payload steps {payload_names}."
             )
         return pipeline
+
+    def _adopt_fitted_components(self, fit_output_columns: Tuple[str, ...]) -> None:
+        """
+        Mark the freshly built adapters as fitted around already-fitted parts.
+
+        A loaded pipeline's components carry their fitted state (that is what
+        was pickled), but the adapters wrapping them were constructed empty.
+        scikit-learn decides fitted-ness by looking for trailing-underscore
+        attributes on the estimator, so the adapters must adopt their
+        component explicitly -- otherwise ``predict`` on a loaded pipeline
+        would raise "not fitted" while sitting on a perfectly fitted model.
+
+        Args:
+            fit_output_columns: The feature block the terminal model was
+                trained on, as recorded in the file.
+        """
+        for _, estimator in self.steps:
+            if isinstance(estimator, FrameToTable):
+                continue
+            estimator.component_ = estimator.component
+        terminal = self.steps[-1][1]
+        terminal.feature_columns_ = fit_output_columns
+        model = self.model
+        if isinstance(model, Classifier):
+            # Class labels are re-read from the fitted classifier rather than
+            # stored, so a file can never disagree with the model inside it.
+            classes = getattr(model, "_classes", None)
+            if classes is not None:
+                terminal.proba_columns_ = tuple(str(label) for label in classes)
+                terminal.classes_ = np.asarray(classes)

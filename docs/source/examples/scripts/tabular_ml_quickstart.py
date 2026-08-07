@@ -30,15 +30,16 @@ table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
 print(f"Table: {table.frame.shape[0]} rows x "
       f"{len(table.feature_columns)} features, outcome={table.outcome.task}")
 
-# Variance MUST run before z-score (raw scale). After z-scoring every
-# feature has variance ~1, so putting variance in feature_selectors is a no-op.
-# Post-preprocessing selectors (ANOVA, LASSO, ...) go in feature_selectors.
+# steps is ONE ordered list and the order is the execution order. Variance
+# MUST come before zscore (raw scale): after z-scoring every feature has
+# variance ~1, so a variance step placed after it is a no-op. Supervised
+# selectors (ANOVA, LASSO, ...) normally come after the scaling step.
 spec = MLSpec(
     name="demo",
-    pre_preprocessing_feature_selectors=(
+    steps=(
         Spec("variance", {"threshold": 0.01}),
+        Spec("zscore"),
     ),
-    table_preprocessors=(Spec("zscore"),),
     classifier=Spec("LogisticRegression", {"max_iter": 500}),
     metrics=(Spec("accuracy"), Spec("auc")),
 )

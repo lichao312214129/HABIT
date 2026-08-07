@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import warnings
 from dataclasses import dataclass, field
 from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, cast
 
@@ -508,24 +509,41 @@ class HabitatSpec:
         )
 
 
-#: Tabular preprocessing / selection chains of an MLSpec, keyed by field
-#: name, with the prose each renders as. Ordered as they run: selection may
-#: happen BEFORE preprocessing (the stage v0.1 expressed as
-#: ``before_z_score: true`` -- scientifically meaningful whenever a
-#: selector's statistics are distorted by normalisation, e.g. variance-based
-#: selection is vacuous after z-scoring), preprocessing itself, then the
-#: ordinary post-preprocessing selection. A TablePipeline fits steps in
-#: chain order, so this tuple order IS the execution order.
+#: DEPRECATED tabular chains of an MLSpec, keyed by field name, with the
+#: prose each renders as. Ordered as they run, which is also the order they
+#: are concatenated into :attr:`MLSpec.steps`: selection may happen BEFORE
+#: preprocessing (the stage v0.1 expressed as ``before_z_score: true`` --
+#: scientifically meaningful whenever a selector's statistics are distorted
+#: by normalisation, e.g. variance-based selection is vacuous after
+#: z-scoring), preprocessing itself, then the ordinary post-preprocessing
+#: selection.
+#:
+#: These three fixed slots express ORDER through STRUCTURE, which caps the
+#: expressible orderings at two positions -- before all preprocessing, or
+#: after all of it. ``zscore -> variance -> minmax -> lasso`` has no
+#: representation here at all. :attr:`MLSpec.steps` replaces them with one
+#: ordered list; they are kept as deprecated aliases for all of v1.x.
 _ML_CHAINS: Tuple[Tuple[str, str], ...] = (
     ("pre_preprocessing_feature_selectors", "pre-preprocessing feature selection"),
     ("table_preprocessors", "table preprocessing"),
     ("feature_selectors", "feature selection"),
 )
 
+#: Field name of the single ordered step list that supersedes ``_ML_CHAINS``.
+_ML_STEPS_FIELD = "steps"
+
+#: Prose for the single ordered step list.
+_ML_STEPS_PHRASE = "an ordered table pipeline of"
+
 
 def _ml_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
     """
     Render an MLSpec-shaped payload as ordered prose phrases.
+
+    Handles both payload layouts. A payload carrying the single ordered
+    ``steps`` list renders as one phrase, because that is exactly what the
+    list is -- one ordered sequence whose positions carry the meaning the
+    three deprecated chains used to carry structurally.
 
     Args:
         payload: Spec payload as produced by ``MLSpec.to_dict``.
@@ -534,6 +552,15 @@ def _ml_phrases(payload: Mapping[str, Any]) -> Tuple[str, ...]:
         One phrase per present chain or component, in pipeline order.
     """
     phrases: list[str] = []
+    ordered_steps = payload.get(_ML_STEPS_FIELD) or []
+    if ordered_steps:
+        rendered = ", ".join(
+            f"{entry['name']} ({_params_text(entry.get('params'))})"
+            if isinstance(entry, Mapping) and "name" in entry
+            else str(entry)
+            for entry in ordered_steps
+        )
+        phrases.append(f"{_ML_STEPS_PHRASE} {rendered}")
     for chain_key, chain_phrase in _ML_CHAINS:
         chain = payload.get(chain_key) or []
         if chain:
@@ -566,30 +593,52 @@ class MLSpec:
     Complete specification of a tabular machine-learning analysis.
 
     A frozen, fingerprintable value object describing ONE modelling
-    definition: an optional pre-preprocessing selection chain, an ordered
-    table-preprocessing chain, an ordered post-preprocessing selection
-    chain, exactly one terminal classifier, and the evaluation metric
-    panel. It deliberately does NOT describe the validation design (split
-    counts, resampling, id files) -- those are choices of the calling
-    recipe, not of the model definition.
+    definition: an ordered chain of table steps (preprocessors and feature
+    selectors, interleaved however the design calls for), exactly one
+    terminal classifier, and the evaluation metric panel. It deliberately
+    does NOT describe the validation design (split counts, resampling, id
+    files) -- those are choices of the calling recipe, not of the model
+    definition.
+
+    **Step order lives in one ordered list.** :attr:`steps` is the pipeline:
+    position N of the list is step N of the fit. The three fields
+    :attr:`pre_preprocessing_feature_selectors`,
+    :attr:`table_preprocessors` and :attr:`feature_selectors` are the
+    DEPRECATED predecessor of that list -- they expressed order through
+    three fixed slots, which allowed a selector to sit only before all
+    preprocessing or after all of it. Declaring any of them still works for
+    the whole of v1.x: the three are concatenated in their documented order
+    (pre -> preprocessors -> post) into :attr:`steps`, with a
+    ``DeprecationWarning``. Declaring both layouts at once is an error --
+    which of the two is the pipeline would be a guess.
+
+    **Which layout a spec serialises in.** :meth:`to_dict` emits the three
+    deprecated keys for a spec declared with them, and the single ``steps``
+    key for a spec declared with ``steps``. That asymmetry is deliberate and
+    load-bearing: every provenance record and golden baseline HABIT has ever
+    written hashes this payload, so unconditionally adding a ``steps`` key
+    would move the fingerprint of every analysis already published. A spec
+    with no table steps at all serialises in the deprecated shape for the
+    same reason.
 
     Attributes:
         name: Human-readable specification name.
         classifier: Spec of the terminal classifier.
-        pre_preprocessing_feature_selectors: Ordered specs of the selection
-            chain fitted on the RAW training table, BEFORE any
-            preprocessing (v0.1's ``before_z_score: true`` selectors). The
-            stage exists because some selection statistics are distorted by
-            normalisation -- after z-scoring every feature variance is 1.0,
-            so variance-based selection only carries information on the raw
-            table. The preprocessors then fit on the SELECTED training
-            features, exactly as v0.1's two-stage pipeline did.
-        table_preprocessors: Ordered specs of the stateful preprocessing
-            chain fitted on the TRAINING rows and replayed afterwards
-            (v0.1's ``normalization``).
-        feature_selectors: Ordered specs of the selection chain, fitted
-            after preprocessing (v0.1's ``feature_selection_methods``
-            entries without ``before_z_score``).
+        pre_preprocessing_feature_selectors: DEPRECATED. Ordered specs of
+            the selection chain fitted on the RAW training table, BEFORE
+            any preprocessing (v0.1's ``before_z_score: true`` selectors).
+            The stage exists because some selection statistics are
+            distorted by normalisation -- after z-scoring every feature
+            variance is 1.0, so variance-based selection only carries
+            information on the raw table. Use :attr:`steps` and put the
+            selector before the preprocessor instead.
+        table_preprocessors: DEPRECATED. Ordered specs of the stateful
+            preprocessing chain fitted on the TRAINING rows and replayed
+            afterwards (v0.1's ``normalization``). Use :attr:`steps`.
+        feature_selectors: DEPRECATED. Ordered specs of the selection
+            chain, fitted after preprocessing (v0.1's
+            ``feature_selection_methods`` entries without
+            ``before_z_score``). Use :attr:`steps`.
         metrics: Specs of the evaluation metric panel. An empty tuple asks
             the calling recipe for its default panel.
         random_seed: Seed applied to every
@@ -597,6 +646,13 @@ class MLSpec:
             change the scientific result, so they live in the spec (and its
             fingerprint), not in the run policy.
         version: Specification schema version.
+        steps: The ordered table-step chain -- preprocessors and feature
+            selectors in the exact order they are fitted. Names are
+            resolved across both registries by
+            :func:`habit.domain.assembly.build_table_pipeline`; the spec
+            layer records the order and stays registry-free. Declared last
+            among the fields purely so that existing positional
+            construction keeps meaning what it meant.
     """
 
     name: str
@@ -607,9 +663,21 @@ class MLSpec:
     metrics: Tuple[Spec, ...] = ()
     random_seed: Optional[int] = None
     version: str = "1.0"
+    # Appended after ``version`` rather than inserted next to the chains it
+    # replaces: inserting it would silently change the meaning of every
+    # positional MLSpec(...) call, which is the kind of breakage that does
+    # not raise and lands straight in someone's results.
+    steps: Tuple[Spec, ...] = ()
 
     def __post_init__(self) -> None:
-        """Coerce component payloads into Spec instances and tuples."""
+        """
+        Coerce payloads into Specs, and fold deprecated chains into ``steps``.
+
+        Raises:
+            HABITAPIError: On a missing/mistyped name or classifier, a chain
+                entry that is not a :class:`Spec`, or a spec that declares
+                both ``steps`` and any deprecated chain.
+        """
         if not isinstance(self.name, str) or not self.name.strip():
             raise HABITAPIError("MLSpec.name must be a non-empty string.")
         if not isinstance(self.classifier, Spec):
@@ -617,7 +685,10 @@ class MLSpec:
                 "MLSpec.classifier must be a Spec; got "
                 f"{type(self.classifier).__name__}."
             )
-        for chain_field, _ in _ML_CHAINS + (("metrics", ""),):
+        for chain_field, _ in _ML_CHAINS + (
+            ("metrics", ""),
+            (_ML_STEPS_FIELD, ""),
+        ):
             chain = tuple(getattr(self, chain_field))
             object.__setattr__(self, chain_field, chain)
             for entry in chain:
@@ -627,6 +698,62 @@ class MLSpec:
                     )
         if self.random_seed is not None:
             object.__setattr__(self, "random_seed", int(self.random_seed))
+        declared_chains = tuple(
+            chain_field
+            for chain_field, _ in _ML_CHAINS
+            if getattr(self, chain_field)
+        )
+        folded = tuple(
+            entry
+            for chain_field, _ in _ML_CHAINS
+            for entry in getattr(self, chain_field)
+        )
+        if declared_chains and self.steps and self.steps != folded:
+            # An already-translated spec passes BOTH through
+            # ``dataclasses.replace`` (which re-supplies every field), and
+            # that is consistent, not contradictory -- ``steps`` is then
+            # exactly the fold of the chains. Only a genuine disagreement is
+            # rejected, because there the pipeline would have to be guessed.
+            raise HABITAPIError(
+                "MLSpec declares both 'steps' and the deprecated chain(s) "
+                f"{list(declared_chains)}, and they disagree: 'steps' is "
+                f"{[entry.name for entry in self.steps]} while the chains "
+                f"fold into {[entry.name for entry in folded]}. Move every "
+                "step into 'steps' in the order it should run, or keep only "
+                "the deprecated chains."
+            )
+        if declared_chains:
+            warnings.warn(
+                "MLSpec fields "
+                f"{list(chain for chain, _ in _ML_CHAINS)} are deprecated; "
+                "declare one ordered 'steps' list instead, where the list "
+                "order is the execution order. The deprecated fields are "
+                "translated into 'steps' as "
+                "pre_preprocessing_feature_selectors + table_preprocessors "
+                "+ feature_selectors and will be kept for all of v1.x.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            object.__setattr__(self, _ML_STEPS_FIELD, folded)
+
+    @property
+    def declares_deprecated_chains(self) -> bool:
+        """
+        Report whether this spec was declared through the deprecated chains.
+
+        Derived from the fields alone (never from hidden construction state)
+        so that two equal specs always agree on it -- and therefore always
+        serialise identically. A spec with no table steps at all counts as
+        deprecated-shaped, which is what keeps its payload byte-identical to
+        every one written before ``steps`` existed.
+
+        Returns:
+            bool: ``True`` when :meth:`to_dict` emits the three deprecated
+            chain keys, ``False`` when it emits the single ``steps`` key.
+        """
+        return any(
+            getattr(self, chain_field) for chain_field, _ in _ML_CHAINS
+        ) or not self.steps
 
     def describe_methods(self, style: str = "radiology") -> str:
         """
@@ -674,15 +801,28 @@ class MLSpec:
         ).hexdigest()
 
     def to_dict(self) -> Dict[str, Any]:
-        """Serialise to a plain dict (YAML isomorphic)."""
+        """
+        Serialise to a plain dict (YAML isomorphic).
+
+        Emits exactly ONE of the two table-step layouts -- see the class
+        docstring for why the choice is asymmetric rather than always
+        writing both.
+
+        Returns:
+            Dict[str, Any]: The payload, with either the three deprecated
+            chain keys or the single ``steps`` key, never both.
+        """
         payload: Dict[str, Any] = {
             "name": self.name,
             "version": self.version,
         }
-        for chain_key, _ in _ML_CHAINS:
-            payload[chain_key] = [
-                entry.to_dict() for entry in getattr(self, chain_key)
-            ]
+        if self.declares_deprecated_chains:
+            for chain_key, _ in _ML_CHAINS:
+                payload[chain_key] = [
+                    entry.to_dict() for entry in getattr(self, chain_key)
+                ]
+        else:
+            payload[_ML_STEPS_FIELD] = [entry.to_dict() for entry in self.steps]
         payload["classifier"] = self.classifier.to_dict()
         payload["metrics"] = [entry.to_dict() for entry in self.metrics]
         payload["random_seed"] = self.random_seed
@@ -693,14 +833,21 @@ class MLSpec:
         """
         Rebuild a machine-learning specification from its dict form.
 
+        Reads whichever table-step layout the payload carries. A payload
+        that carries both is rejected rather than resolved by precedence:
+        picking one would silently drop half of a hand-written document's
+        pipeline.
+
         Args:
-            payload: Mapping as produced by :meth:`to_dict`.
+            payload: Mapping as produced by :meth:`to_dict`, or a
+                hand-written v1 ``spec`` section.
 
         Returns:
             The reconstructed specification.
 
         Raises:
-            HABITAPIError: If the classifier component is missing.
+            HABITAPIError: If the classifier component is missing, or the
+                payload declares both ``steps`` and a deprecated chain.
         """
         chains = {
             chain_key: tuple(
@@ -708,6 +855,9 @@ class MLSpec:
             )
             for chain_key, _ in _ML_CHAINS + (("metrics", ""),)
         }
+        chains[_ML_STEPS_FIELD] = tuple(
+            Spec.from_dict(item) for item in payload.get(_ML_STEPS_FIELD, ())
+        )
         classifier = payload.get("classifier")
         return cls(
             name=str(payload.get("name", "ml_spec")),

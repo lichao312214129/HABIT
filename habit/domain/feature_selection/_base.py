@@ -23,6 +23,7 @@ from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.table import FeatureTable
 from habit.domain.outcome_access import outcome_series
 from habit.spec.specs import Spec
+from habit.utils.estimator_utils import ComponentParamsMixin
 
 # ``outcome_series`` now lives in habit.domain.outcome_access, next to the
 # survival accessors, and is re-exported here because the selectors and the
@@ -76,7 +77,7 @@ def restrict_table(
     )
 
 
-class FittedSelectorBase:
+class FittedSelectorBase(ComponentParamsMixin):
     """
     Shared fitted-state bookkeeping for the built-in selectors.
 
@@ -84,6 +85,14 @@ class FittedSelectorBase:
     :meth:`_remember_selection`; ``transform`` restricts any later table to
     exactly those columns, so prediction data is reduced with the TRAINING
     selection and never re-selected. Subclasses set ``_spec_name``.
+
+    :class:`~habit.utils.estimator_utils.ComponentParamsMixin` adds the
+    scikit-learn ``get_params``/``set_params``/``clone`` protocol. Selectors
+    keep one private attribute per constructor parameter
+    (``self._threshold`` for ``threshold``), which is the second resolution
+    rule of the mixin, so a nested grid such as
+    ``select__component__threshold`` reaches the value ``spec.params``
+    publishes.
     """
 
     _spec_name: str = ""

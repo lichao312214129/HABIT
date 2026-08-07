@@ -162,7 +162,9 @@ def run_survival(frame: pd.DataFrame, out: Path) -> dict:
         "n_test": int(len(test.frame)),
         "event_rate_test": float(event.mean()),
         "metrics": {k: round(float(v), 4) for k, v in metrics.items()},
-        "selected_features": list(pipeline.steps[1].selected_columns_),
+        # ``.steps`` follows scikit-learn semantics since v1.1; the HABIT
+        # components are reached through ``.components``.
+        "selected_features": list(pipeline.components[1].selected_columns_),
     }
 
 

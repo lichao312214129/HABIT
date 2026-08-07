@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Advanced tabular ML: staged feature selection and model comparison.
+Advanced tabular ML: ordered feature selection and model comparison.
 
-* ``MLSpec.pre_preprocessing_feature_selectors`` — selection on the RAW table
-  before z-scoring (v0.1 ``before_z_score: true``).
-* ``MLSpec.feature_selectors`` — selection after preprocessing.
+* ``MLSpec.steps`` — one ordered list of table steps; the list order IS the
+  execution order, so a selector can sit before, between or after
+  preprocessors (v0.1's ``before_z_score`` is just "put it first").
 * :func:`~habit.recipes.compare_models` — ROC/AUC comparison across saved
   prediction CSVs (the programmatic twin of ``habit compare``).
 
@@ -33,11 +33,11 @@ print(f"Table: {table.frame.shape[0]} rows x {len(table.feature_columns)} featur
 # has unit variance and the selector becomes uninformative.
 staged_spec = MLSpec(
     name="staged_selection",
-    pre_preprocessing_feature_selectors=(
+    steps=(
         Spec("variance", {"threshold": 0.05}),
+        Spec("zscore"),
+        Spec("anova", {"n_features_to_select": 3}),
     ),
-    table_preprocessors=(Spec("zscore"),),
-    feature_selectors=(Spec("anova", {"k": 3}),),
     classifier=Spec("LogisticRegression", {"max_iter": 500}),
     metrics=(Spec("accuracy"), Spec("auc")),
 )

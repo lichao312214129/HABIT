@@ -295,11 +295,35 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
 
      **v1 API equivalent**: v0 entries flagged ``before_z_score: true``
      (including the ``variance`` selector's registry default) translate
-     losslessly into ``MLSpec.pre_preprocessing_feature_selectors`` -- an
-     ordered chain fitted on the raw training table before any
-     preprocessing. Preprocessors then fit on the selected training
-     features, exactly as the v0.1 two-stage pipeline did. The v1
-     translation no longer emits a reordering warning for these entries.
+     losslessly into a POSITION near the front of the v1
+     ``MLSpec.steps`` list -- ahead of the preprocessing steps, which then
+     fit on the selected training features exactly as the v0.1 two-stage
+     pipeline did. The v1 translation no longer emits a reordering warning
+     for these entries. In a native v1 document the same thing is written
+     positionally, and needs no flag:
+
+     .. code-block:: yaml
+
+        spec:
+          steps:
+            - name: variance        # raw scale: before any normalisation
+              params: {top_k: 20}
+            - name: zscore
+              params: {}
+            - name: correlation     # scaled matrix
+              params: {threshold: 0.80}
+            - name: minmax          # a SECOND preprocessor, mid-chain
+              params: {}
+            - name: lasso
+              params: {cv: 5}
+
+     See ``config/machine_learning/config_machine_learning_steps_v1.yaml``
+     for the full runnable document. The v0 layout expressed a step's
+     position with a boolean and therefore offered only two positions;
+     ``steps`` is an ordered list, so any interleaving is expressible. The
+     deprecated ``MLSpec`` fields
+     ``pre_preprocessing_feature_selectors`` / ``table_preprocessors`` /
+     ``feature_selectors`` remain accepted for all of v1.x.
 - **Methods and parameters**:
 
 **variance (variance threshold)**:

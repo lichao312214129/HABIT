@@ -29,11 +29,18 @@ unsafe:
 This module filters a parameter mapping down to what the target estimator
 actually accepts and reports exactly what was dropped, so that a wrong or stale
 key surfaces as an actionable message instead of an opaque crash.
+
+It also carries :class:`ComponentParamsMixin`, which exposes a HABIT
+component's own constructor parameters through scikit-learn's
+``get_params``/``set_params``/``clone`` protocol. That is what lets a
+hyperparameter search address a single parameter INSIDE a component
+(``model__component__C``) instead of replacing the whole object.
 """
 
 from __future__ import annotations
 
 import contextlib
+import copy
 import difflib
 import inspect
 from contextvars import ContextVar
@@ -385,6 +392,217 @@ def check_passthrough_accepted(
             f"[{owner}] {ESTIMATOR_PARAMS_KEY} key(s) not accepted by "
             f"{vendor_name}: {_describe_rejected(rejected, accepted)}."
         )
+
+
+class ComponentParamsMixin:
+    """
+    Expose a HABIT component's constructor parameters to scikit-learn.
+
+    A HABIT component stores its configuration in private attributes and
+    publishes it through ``spec.params``; scikit-learn expects the same
+    configuration through ``get_params`` / ``set_params`` and requires the
+    keys to match the constructor's parameter names one-to-one so that
+    ``sklearn.base.clone`` can rebuild the object. This mixin bridges the two
+    conventions WITHOUT introducing a second copy of the values: every value
+    is read back from the attribute the constructor wrote, so
+    ``get_params()`` and ``spec.params`` can never disagree. A drift there
+    would be silent and expensive -- a hyperparameter search would report an
+    optimum that the spec fingerprint says was never used.
+
+    Resolution order for one constructor parameter ``name``:
+
+    1. ``type(self)._PARAM_ATTRIBUTES[name]`` when the class declares an
+       explicit attribute for it. Needed whenever the derived attribute name
+       is already taken by something else (AutoGluon's ``fit`` parameter
+       versus the ``fit`` method).
+    2. ``self._params[name]`` -- the single mapping the estimator-backed
+       classifiers, regressors and survival models keep their parameters in,
+       and the one ``spec.params`` is built from.
+    3. ``self._<name>`` -- the per-parameter private attribute the
+       preprocessors and selectors use.
+    4. ``self.<name>`` -- a plain public attribute, for completeness.
+
+    ``set_params`` re-runs ``__init__`` with the merged parameters rather
+    than poking attributes, so constructor-side validation and coercion
+    (``float(threshold)``, ``"direction must be ..."``) apply to searched
+    values exactly as they do to configured ones. Re-running ``__init__``
+    also discards fitted state, which is the correct scikit-learn semantics:
+    changing a hyperparameter invalidates the fit.
+
+    The random seed is deliberately NOT a constructor parameter in HABIT
+    (v1.0 naming decisions: seeding goes through ``set_random_state``), so
+    both ``set_params`` and :meth:`__sklearn_clone__` re-apply the current
+    seed afterwards. Without that, every cross-validation fold of a
+    ``GridSearchCV`` would silently run unseeded.
+    """
+
+    #: Constructor parameter name -> attribute holding its current value.
+    #: Declared only for parameters whose attribute is not derivable by the
+    #: rules above.
+    _PARAM_ATTRIBUTES: Mapping[str, str] = {}
+
+    @classmethod
+    def _component_param_names(cls) -> Tuple[str, ...]:
+        """
+        Return the constructor's parameter names, sorted.
+
+        Returns:
+            Tuple[str, ...]: Names of every explicitly declared keyword or
+            positional parameter of ``cls.__init__``, excluding ``self``,
+            ``*args`` and ``**kwargs``. Sorted to match scikit-learn's own
+            ``_get_param_names`` ordering.
+        """
+        signature = inspect.signature(cls.__init__)
+        names = [
+            parameter.name
+            for parameter in signature.parameters.values()
+            if parameter.name != "self"
+            and parameter.kind
+            not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+        ]
+        return tuple(sorted(names))
+
+    def _component_param_value(self, name: str) -> Any:
+        """
+        Read one constructor parameter's current value off this instance.
+
+        Args:
+            name: Constructor parameter name.
+
+        Returns:
+            Any: The stored value. Mutable containers are returned as
+            shallow copies so a caller cannot mutate the component's
+            configuration (and therefore its fingerprint) by accident.
+
+        Raises:
+            HABITAPIError: When no attribute holds the parameter. This is a
+                component-implementation bug, not a user error: it means the
+                constructor accepted a parameter it never stored, so the
+                value would silently vanish on ``clone``.
+        """
+        attribute = type(self)._PARAM_ATTRIBUTES.get(name)
+        if attribute is not None:
+            return _copy_param_value(getattr(self, attribute))
+        params = getattr(self, "_params", None)
+        if isinstance(params, Mapping) and name in params:
+            return _copy_param_value(params[name])
+        private = f"_{name}"
+        if hasattr(self, private):
+            return _copy_param_value(getattr(self, private))
+        if name in vars(self):
+            return _copy_param_value(vars(self)[name])
+        raise HABITAPIError(
+            f"{type(self).__name__} accepts a constructor parameter "
+            f"{name!r} but stores it under no attribute this mixin can find "
+            f"(tried _PARAM_ATTRIBUTES, self._params[{name!r}], "
+            f"self.{private}, self.{name}). Declare it in "
+            "_PARAM_ATTRIBUTES so get_params/clone can see it."
+        )
+
+    def get_params(self, deep: bool = True) -> Dict[str, Any]:
+        """
+        Return the component's constructor parameters.
+
+        Args:
+            deep: Also expand any parameter value that is itself an
+                estimator, as ``prefix__param`` entries. HABIT component
+                parameters are plain values, so this rarely applies; it is
+                honoured for scikit-learn conformance.
+
+        Returns:
+            Dict[str, Any]: Parameter name to current value, with keys equal
+            to the constructor's parameter names.
+        """
+        out: Dict[str, Any] = {}
+        for name in self._component_param_names():
+            value = self._component_param_value(name)
+            if deep and hasattr(value, "get_params") and not isinstance(value, type):
+                for key, sub_value in value.get_params(deep=True).items():
+                    out[f"{name}__{key}"] = sub_value
+            out[name] = value
+        return out
+
+    def set_params(self, **params: Any) -> "ComponentParamsMixin":
+        """
+        Update constructor parameters in place, re-running validation.
+
+        Args:
+            **params: Parameter names as returned by :meth:`get_params`.
+
+        Returns:
+            ComponentParamsMixin: ``self``, reconfigured and unfitted.
+
+        Raises:
+            HABITAPIError: On a parameter this component does not declare.
+        """
+        if not params:
+            return self
+        known = set(self._component_param_names())
+        unknown = sorted(key for key in params if key not in known)
+        if unknown:
+            raise HABITAPIError(
+                f"{type(self).__name__} has no parameter(s) {unknown}; "
+                f"valid parameters are {sorted(known)}."
+            )
+        merged = {
+            name: self._component_param_value(name) for name in self._component_param_names()
+        }
+        merged.update(params)
+        seed = getattr(self, "_seed", None)
+        # Re-running the constructor is what makes a searched value pass the
+        # same validation a configured value passes; it also clears fitted
+        # state, which changing a hyperparameter must do.
+        type(self).__init__(self, **merged)  # type: ignore[misc]
+        if seed is not None:
+            setter = getattr(self, "set_random_state", None)
+            if callable(setter):
+                setter(seed)
+        return self
+
+    def __sklearn_clone__(self) -> "ComponentParamsMixin":
+        """
+        Return an unfitted copy carrying the same parameters AND seed.
+
+        scikit-learn's default ``clone`` rebuilds an estimator from
+        ``get_params()`` alone. HABIT keeps the random seed outside the
+        constructor, so the default would drop it and every
+        cross-validation fold would run unseeded -- a reproducibility bug
+        that produces plausible numbers rather than an error.
+
+        Returns:
+            ComponentParamsMixin: A fresh instance of the same class.
+        """
+        parameters = self.get_params(deep=False)
+        copy_ = type(self)(**{name: copy.deepcopy(value) for name, value in parameters.items()})
+        seed = getattr(self, "_seed", None)
+        if seed is not None:
+            setter = getattr(copy_, "set_random_state", None)
+            if callable(setter):
+                setter(seed)
+        return copy_
+
+
+def _copy_param_value(value: Any) -> Any:
+    """
+    Return a defensive copy of a parameter value when it is mutable.
+
+    Args:
+        value: Stored parameter value.
+
+    Returns:
+        Any: A shallow copy for ``dict``/``list``/``set`` values, the value
+        itself for immutable ones (numbers, strings, tuples, ``None``).
+        Copying matters because ``get_params`` output is handed to callers
+        that may mutate it, and mutating a component's own parameter mapping
+        would change its spec fingerprint behind its back.
+    """
+    if isinstance(value, dict):
+        return dict(value)
+    if isinstance(value, list):
+        return list(value)
+    if isinstance(value, set):
+        return set(value)
+    return value
 
 
 def build_estimator_params(

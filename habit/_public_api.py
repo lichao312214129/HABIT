@@ -184,6 +184,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "ModelResult",
         "CVResult",
         "PredictionResult",
+        "SearchResult",
         "two_step",
         "one_step",
         "direct_pooling",
@@ -197,6 +198,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "voxel_radiomics_factory",
         "train_model",
         "cross_validate",
+        "search_hyperparameters",
         "predict_model",
         "compare_models",
         "pairwise_delong_test",
@@ -292,14 +294,24 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "icc3a_1",
         "icc3c_1",
     ),
-    # Ecosystem interop adapters (``habit.compat.*``). Only the factory
-    # functions are top-level; the generated estimator classes stay namespaced
-    # under ``habit.compat.sklearn``.
-    "compat.sklearn": (
-        "as_estimator",
+    # Table-level scikit-learn interop (L3). The factories are top-level; the
+    # adapter classes stay namespaced under ``habit.domain.sklearn_interop``.
+    # ``FrameToTable`` is the exception: an sklearn cross-validation driver
+    # must name it to declare the column schema of the frames it slices, so
+    # it is part of the public vocabulary. ``habit.compat.sklearn`` keeps
+    # deprecated aliases of the two older factories for all of v1.x.
+    "domain.sklearn_interop": (
+        "FrameToTable",
         "as_transformer",
         "as_classifier",
+        "as_regressor",
+        "as_survival_model",
+        "as_outcome_model",
     ),
+    # Ecosystem interop adapters (``habit.compat.*``). Only the factory
+    # function is top-level; the generated estimator class stays namespaced
+    # under ``habit.compat.sklearn``.
+    "compat.sklearn": ("as_estimator",),
     "compat.monai": (
         "to_monai_dict",
         "from_monai_dict",

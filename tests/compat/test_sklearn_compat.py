@@ -349,7 +349,13 @@ def test_table_classifier_full_surface() -> None:
     probabilities = classifier.predict_proba(table)
     assert probabilities.shape == (30, 2)
     np.testing.assert_allclose(probabilities.sum(axis=1), 1.0, atol=1e-8)
-    assert set(classifier.classes_) == {"0", "1"}
+    # ``classes_`` carries the endpoint's OWN dtype (v1.1 contract, see
+    # developer/api_upgrade/08_naming_decisions.md section 8.3): sklearn
+    # scorers align it against the y they were handed, and ``predict`` has
+    # always returned native labels. The probability FRAME stays keyed by
+    # ``str(label)``, which ``proba_columns_`` records.
+    assert set(classifier.classes_) == {0, 1}
+    assert classifier.proba_columns_ == ("0", "1")
     # The signal column separates the classes well above chance.
     assert classifier.score(table) > 0.9
 
@@ -363,7 +369,7 @@ def test_table_classifier_outcome_contract() -> None:
 
     classifier = as_classifier(LogisticRegressionClassifier(max_iter=500))
     classifier.fit(no_outcome, y)
-    assert set(classifier.classes_) == {"0", "1"}
+    assert set(classifier.classes_) == {0, 1}
 
     with pytest.raises(HABITAPIError, match="no outcome column and no y"):
         as_classifier(LogisticRegressionClassifier()).fit(no_outcome)

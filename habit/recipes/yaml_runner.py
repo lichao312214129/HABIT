@@ -430,7 +430,61 @@ def _ml_v0_payload_from_v1(document: Mapping[str, Any], path: Path) -> Dict[str,
         payload["models"] = {
             spec["classifier"]["name"]: {"params": spec["classifier"].get("params") or {}}
         }
-    payload["feature_selection_methods"] = [
+    payload["feature_selection_methods"] = _v0_selection_methods_from_spec(spec)
+    return payload
+
+
+def _v0_selection_methods_from_spec(
+    spec: Mapping[str, Any],
+) -> List[Dict[str, Any]]:
+    """
+    Reverse-translate a v1 spec section into v0 ``feature_selection_methods``.
+
+    v0 had no ordered step list: a selector's position was a boolean,
+    ``before_z_score``, meaning "before the single normalisation block".
+    Both v1 layouts reduce to that boolean the same way -- a selector is
+    ``before_z_score`` exactly when no table preprocessor precedes it:
+
+    * the deprecated three-chain layout states it structurally (the
+      pre-preprocessing chain runs before all preprocessing);
+    * the ordered ``steps`` layout states it positionally, so the flag is
+      read off the position of the first preprocessor.
+
+    Interleaved orders that v0 cannot express (a second preprocessor after a
+    later selector) collapse onto the same boolean; nothing here depends on
+    the distinction, because the reconstructed v0 payload is used only to
+    build the ``MLConfig`` shim that LOADS the feature table. The
+    scientifically meaningful order is what ``MLSpec.steps`` already carries
+    into ``build_table_pipeline``.
+
+    Args:
+        spec: The v1 document's ``spec`` section, as a plain mapping.
+
+    Returns:
+        List[Dict[str, Any]]: v0 ``feature_selection_methods`` entries, in
+        execution order, each carrying ``before_z_score`` when it applies.
+    """
+    ordered_steps = spec.get("steps")
+    if ordered_steps:
+        # Lazy import: the L4 recipe layer may read L3 registries, but a
+        # module-level import here would pull the whole domain package in
+        # just to translate a config document.
+        from habit.domain.table_preprocessing import TablePreprocessorRegistry
+
+        preprocessor_names = set(TablePreprocessorRegistry.available())
+        methods: List[Dict[str, Any]] = []
+        seen_preprocessor = False
+        for entry in ordered_steps:
+            name = str(entry.get("name", ""))
+            if name in preprocessor_names:
+                seen_preprocessor = True
+                continue
+            params = dict(entry.get("params") or {})
+            if not seen_preprocessor:
+                params["before_z_score"] = True
+            methods.append({"method": name, "params": params})
+        return methods
+    return [
         # Pre-preprocessing selectors map back to v0's ``before_z_score``
         # stage flag; stage order (pre first) matches v0 execution order.
         {"method": entry["name"], "params": {**(entry.get("params") or {}), "before_z_score": True}}
@@ -439,7 +493,6 @@ def _ml_v0_payload_from_v1(document: Mapping[str, Any], path: Path) -> Dict[str,
         {"method": entry["name"], "params": entry.get("params") or {}}
         for entry in (spec.get("feature_selectors") or [])
     ]
-    return payload
 
 
 def _ml_config_shim_from_v1(document: Mapping[str, Any], path: Path) -> Any:
