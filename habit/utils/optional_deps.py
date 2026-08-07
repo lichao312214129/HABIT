@@ -14,11 +14,12 @@
 #
 """Helpers for optional third-party backends that are hard to install via pip.
 
-PyRadiomics is the main offender: PyPI often serves only an sdist, the sdist
-does not declare ``numpy`` as a build dependency, and Python 3.12+ breaks the
-upstream ``versioneer`` / ``SafeConfigParser`` packaging path. HABIT therefore
-keeps PyRadiomics out of the default ``pip install habitat-analysis`` dependency set and
-loads it lazily with an actionable error message.
+PyRadiomics is the main offender: PyPI has no usable Windows binaries for
+CPython 3.10–3.14 (broken 3.1.0 sdist; no 3.0.1 win_amd64 wheels), and PyPI
+forbids PEP 508 direct URL references in uploaded package metadata. HABIT
+therefore keeps PyRadiomics out of the default dependency set, declares the
+``radiomics`` extra for non-Windows only, and installs Windows wheels through
+:mod:`habit.install_radiomics`.
 """
 
 from __future__ import annotations
@@ -35,24 +36,23 @@ PYRADIOMICS_INSTALL_HINT: str = (
     "PyRadiomics is required for radiomics / voxel_radiomics / "
     "supervoxel_radiomics workflows.\n"
     "\n"
-    "Recommended (conda-forge):\n"
-    "  conda install -c conda-forge pyradiomics\n"
-    "\n"
-    "pip (prefer the 3.0.1 wheel; avoid 3.1.0 sdist on PyPI):\n"
-    "  pip install \"pyradiomics==3.0.1\"\n"
+    "Install the HABIT radiomics extra, then ensure PyRadiomics is present:\n"
     "  pip install \"habitat-analysis[radiomics]\"\n"
+    "  python -m habit.install_radiomics\n"
     "\n"
-    "Do NOT use bare ``pip install pyradiomics`` — it often pulls the broken\n"
-    "3.1.0 source distribution (missing versioneer). Python 3.12+: prefer conda.\n"
+    "On Windows, ``python -m habit.install_radiomics`` installs the prebuilt\n"
+    "3.1.0 wheel from the HABIT GitHub Release (cp310–cp314, win_amd64).\n"
+    "On macOS / Linux it installs ``pyradiomics`` from PyPI\n"
+    "(``pyradiomics>=3.0.1,<3.2``).\n"
     "\n"
-    "Windows portable ZIP: the installer installs a prebuilt "
-    "cp310 wheel from installer/vendor/ when present."
+    "Do NOT use bare ``pip install pyradiomics`` on Windows — PyPI serves a\n"
+    "broken sdist that fails to compile."
 )
 
 
 def pyradiomics_install_hint(*, python_version: Optional[tuple[int, int]] = None) -> str:
     """
-    Return the install hint, with an extra warning on unsupported Python.
+    Return the install hint, with an extra warning on unsupported Windows Python.
 
     Args:
         python_version: ``(major, minor)`` override; defaults to the running
@@ -61,15 +61,19 @@ def pyradiomics_install_hint(*, python_version: Optional[tuple[int, int]] = None
     Returns:
         Multi-line install guidance string.
     """
+    from habit.install_radiomics import SUPPORTED_WINDOWS_CPYTHON_MINORS
+
     version = python_version or sys.version_info[:2]
     hint = PYRADIOMICS_INSTALL_HINT
-    if version >= (3, 12):
+    if sys.platform == "win32" and (
+        version[0] != 3 or version[1] not in SUPPORTED_WINDOWS_CPYTHON_MINORS
+    ):
+        supported = ", ".join(f"3.{minor}" for minor in SUPPORTED_WINDOWS_CPYTHON_MINORS)
         hint += (
             "\n\n"
-            f"This interpreter is Python {version[0]}.{version[1]}. "
-            "Official PyRadiomics releases on PyPI do not install cleanly on "
-            "Python 3.12+. Use conda-forge, or run HABIT on Python 3.10/3.11 "
-            "when you need radiomics features."
+            f"This interpreter is Python {version[0]}.{version[1]} on Windows. "
+            f"HABIT publishes prebuilt PyRadiomics wheels only for {supported}. "
+            "Switch to a supported Python, or install PyRadiomics another way."
         )
     return hint
 
@@ -77,6 +81,10 @@ def pyradiomics_install_hint(*, python_version: Optional[tuple[int, int]] = None
 def require_pyradiomics() -> ModuleType:
     """
     Import the ``radiomics`` package or raise :class:`OptionalDependencyError`.
+
+    On Windows, a missing install triggers one automatic attempt to fetch the
+    HABIT GitHub Release wheel via :mod:`habit.install_radiomics` before the
+    error is raised.
 
     Returns:
         The imported ``radiomics`` module.
@@ -91,6 +99,14 @@ def require_pyradiomics() -> ModuleType:
             "radiomics."
         ):
             raise
+        if sys.platform == "win32":
+            from habit.install_radiomics import try_install_windows_wheel
+
+            if try_install_windows_wheel():
+                try:
+                    return importlib.import_module("radiomics")
+                except ImportError:
+                    pass
         raise OptionalDependencyError(pyradiomics_install_hint()) from exc
     except ImportError as exc:
         # Broken partial installs (failed C extension, wrong ABI, …).

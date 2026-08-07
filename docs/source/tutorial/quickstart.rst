@@ -16,16 +16,16 @@ Prepare data
 
 .. note::
 
-   ``D:\habit-cpu`` is an example path — use your portable or project root.
+   ``D:\habit`` is an example project root — use your clone or working directory.
 
-1. Download and extract to the project root (same level as ``python.exe`` or repo root):
+1. Download and extract to the project root (repo root that contains ``config/``):
 
    ``demo_data.rar`` (required)
 
    - |download_demo_data|
    - Code: |demo_data_code|
 
-   ``config/`` is already included in both the portable ZIP and source checkout.
+   ``config/`` is already included in the source checkout.
 
    ``tests.zip`` (optional)
 

@@ -16,7 +16,7 @@
 
 | 顺序 | 说明 | 链接 |
 |------|------|------|
-| 1 | **安装** HABIT（Windows 推荐便携包） | [安装](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
+| 1 | **安装** HABIT（pip 或 Git 源码） | [安装](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
 | 2 | 跑通 Demo | [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
 | 3 | 图形界面（开发中，暂不建议日常使用） | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
 | 4 | 用自己的数据逐步操作 | [操作指南](https://lichao312214129.github.io/HABIT/how_to/index.html) |
@@ -50,38 +50,34 @@
 
 ---
 
-## 源码与演示数据
+## 安装与演示数据
 
-- **pip 安装（开发者 / 嵌入其它环境）**：需要 Python **3.10–3.14**（numpy 1.26 与 2.x 均支持）
+仅支持两种安装方式（详见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)）。需要 Python **3.10–3.14**（numpy 1.26 与 2.x 均支持）。
+
+- **(A) pip 安装**（Miniconda / venv 等）
   ```bash
   pip install habitat-analysis
-  # 或从源码：
-  pip install .
   habit --version
   # 代码中仍然：import habit
   ```
-  PyRadiomics **不是**默认依赖。需要组学特征时：
+- **(B) 从 Git 源码安装**
   ```bash
-  # Windows（推荐）：先装 HABIT GitHub Release 的预编译 wheel（cp310–cp314），再：
-  # pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-  # pip install "habitat-analysis[radiomics]"
-
-  # macOS / Linux（Conda 网络正常时）：
-  conda install -c conda-forge pyradiomics -y
-  # Windows 上不要把上面这条当成首选：镜像/repodata 超时、solver 失败很常见，
-  # 失败后请改用 Release wheel，不要反复重试 conda。
-  python -c "import radiomics; print(radiomics.__version__)"
+  git clone https://github.com/lichao312214129/HABIT.git
+  cd HABIT
+  pip install .
+  # 开发常用：pip install -e .
   ```
-  其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。详见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
-- **Windows 轻量一键安装（推荐）**：[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
-  - 解压轻量 ZIP 到纯英文、无空格的短路径（例如 `D:\HABIT`）
-  - 打开 `launchers/`，双击 `一键安装HABIT.bat`；安装器会在项目内创建锁定的 Python 3.10 环境，不要求预装 Python 或 Conda，也不会修改用户 PATH
-  - 安装完成后，在 `launchers/` 中双击 `启动HABIT命令行.bat`
-  - 默认环境只包含基础影像、habitat 与常规模型依赖；仅在确实使用对应功能时，在 `launchers/` 中运行 `一键启用HABIT-AutoML.bat` 或 `一键启用HABIT-进阶分析.bat`
-  - NVIDIA GPU 为可选增强：先保证 CPU 环境通过自检，再在 `launchers/` 中双击 `一键启用HABIT-GPU.bat`；失败时基础 CPU 环境仍可用
-  - 轻量 ZIP 已包含 `config/`；跑 Demo 时仅需从网盘下载 [`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（提取码 **9ws9**）— 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
-- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT) · [下载 ZIP](https://github.com/lichao312214129/HABIT/archive/refs/heads/main.zip)（安装见 [安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)）
-- **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码和轻量 ZIP — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
+
+PyRadiomics **不是**默认依赖。需要组学特征时：
+```bash
+pip install "habitat-analysis[radiomics]"
+python -m habit.install_radiomics
+python -c "import radiomics; print(radiomics.__version__)"
+```
+Windows 上该命令会自动安装 HABIT GitHub Release 中对应 CPython 的预编译 wheel（避免 PyPI sdist 编译失败）；macOS / Linux 则从 PyPI 安装。其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。
+
+- **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT)
+- **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码 — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 
 ---
 

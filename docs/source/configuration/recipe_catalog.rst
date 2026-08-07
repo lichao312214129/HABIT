@@ -7,8 +7,8 @@ resolve from the **config file directory**, not the shell working directory.
 
 .. note::
 
-   The lightweight Windows ZIP ships ``config/`` next to the installers. Source
-   checkouts keep the same layout under the repository root.
+   Source checkouts keep ``config/`` under the repository root (sibling of
+   the ``habit/`` package).
 
 By workflow
 -----------

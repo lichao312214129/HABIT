@@ -49,12 +49,32 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 
 ---
 
-## Source & demo data
+## Install & demo data
 
-- **Windows lightweight one-click installer (recommended)**: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)
-  - Extract to a short ASCII-only path, open `launchers/`, run `一键安装HABIT.bat`, then use `启动HABIT命令行.bat`
-  - The default environment contains imaging, habitat, and standard ML dependencies only; run `一键启用HABIT-AutoML.bat` or `一键启用HABIT-进阶分析.bat` from `launchers/` only when those features are needed
-  - Optional NVIDIA acceleration is installed separately with `launchers/一键启用HABIT-GPU.bat`, after the CPU environment passes verification
+Two supported install methods (full steps: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)). Python **3.10–3.14** (numpy 1.26 and 2.x).
+
+- **(A) pip** (Miniconda / venv / etc.)
+  ```bash
+  pip install habitat-analysis
+  habit --version
+  # import name remains: import habit
+  ```
+- **(B) from Git source**
+  ```bash
+  git clone https://github.com/lichao312214129/HABIT.git
+  cd HABIT
+  pip install .
+  # editable: pip install -e .
+  ```
+
+PyRadiomics is **not** a default dependency. When you need radiomics features:
+```bash
+pip install "habitat-analysis[radiomics]"
+python -m habit.install_radiomics
+python -c "import radiomics; print(radiomics.__version__)"
+```
+On Windows this installs the matching prebuilt wheel from the HABIT GitHub Release (avoids the broken PyPI sdist). On macOS / Linux it installs `pyradiomics` from PyPI. Other extras: `pip install "habitat-analysis[ml,analysis,registration]"`.
+
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
 - **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 

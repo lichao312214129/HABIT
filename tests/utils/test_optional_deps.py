@@ -28,20 +28,20 @@ from habit.utils.optional_deps import (
 )
 
 
-def test_pyradiomics_hint_mentions_no_build_isolation_and_conda() -> None:
-    """The public install recipe must stay actionable for pip and conda users."""
+def test_pyradiomics_hint_mentions_habitat_analysis_and_helper() -> None:
+    """The public install recipe must point at the radiomics helper."""
     hint = pyradiomics_install_hint(python_version=(3, 10))
-    assert "conda-forge" in hint
-    assert "--no-build-isolation" in hint
-    assert "HABIT[radiomics]" in hint
-    assert "3.12" not in hint or "Python 3.10" in hint
+    assert "habitat-analysis[radiomics]" in hint
+    assert "python -m habit.install_radiomics" in hint
+    assert "pip install pyradiomics" in hint
 
 
-def test_pyradiomics_hint_warns_on_python_312() -> None:
-    """Python 3.12+ must get an explicit upstream-packaging warning."""
-    hint = pyradiomics_install_hint(python_version=(3, 12))
-    assert "3.12" in hint
-    assert "conda-forge" in hint
+def test_pyradiomics_hint_warns_on_unsupported_windows_python() -> None:
+    """Unsupported Windows CPython must get an explicit wheel-coverage warning."""
+    with mock.patch("habit.utils.optional_deps.sys.platform", "win32"):
+        hint = pyradiomics_install_hint(python_version=(3, 9))
+    assert "3.9" in hint
+    assert "prebuilt PyRadiomics wheels" in hint
 
 
 def test_require_pyradiomics_raises_optional_dependency_error() -> None:
@@ -49,11 +49,40 @@ def test_require_pyradiomics_raises_optional_dependency_error() -> None:
     with mock.patch(
         "habit.utils.optional_deps.importlib.import_module",
         side_effect=ModuleNotFoundError(name="radiomics"),
+    ), mock.patch(
+        "habit.utils.optional_deps.sys.platform",
+        "linux",
     ):
         with pytest.raises(OptionalDependencyError) as exc_info:
             require_pyradiomics()
-    assert "HABIT[radiomics]" in str(exc_info.value)
-    assert "--no-build-isolation" in str(exc_info.value)
+    assert "habitat-analysis[radiomics]" in str(exc_info.value)
+    assert "python -m habit.install_radiomics" in str(exc_info.value)
+
+
+def test_require_pyradiomics_auto_installs_windows_wheel() -> None:
+    """On Windows, one automatic wheel install is attempted before failing."""
+    fake_module = ModuleType("radiomics")
+    import_calls = {"n": 0}
+
+    def _import(name: str) -> ModuleType:
+        import_calls["n"] += 1
+        if import_calls["n"] == 1:
+            raise ModuleNotFoundError(name="radiomics")
+        return fake_module
+
+    with mock.patch(
+        "habit.utils.optional_deps.importlib.import_module",
+        side_effect=_import,
+    ), mock.patch(
+        "habit.utils.optional_deps.sys.platform",
+        "win32",
+    ), mock.patch(
+        "habit.install_radiomics.try_install_windows_wheel",
+        return_value=True,
+    ) as auto_install:
+        module = require_pyradiomics()
+    auto_install.assert_called_once_with()
+    assert module is fake_module
 
 
 def test_require_pyradiomics_returns_module_when_available() -> None:

@@ -6,47 +6,32 @@ Installation
 
 **``habit`` not found**
 
-- Windows lightweight installer: double-click ``launchers/启动HABIT命令行.bat``
-  (after ``launchers/一键安装HABIT.bat`` succeeds).
-- pip / Conda: ``conda activate habit`` then ``habit --version``.
+- Activate your environment (``conda activate habit`` or the venv you used),
+  then ``habit --version``.
 - Full step-by-step: :doc:`../tutorial/installation`.
-
-**Installer path rejected**
-
-Use a short local path with ASCII characters only and no spaces
-(for example ``D:\HABIT``). Avoid Desktop paths that contain Chinese
-characters or spaces.
-
-**CUDA False**
-
-Normal for the default CPU environment. After ``launchers/一键启用HABIT-GPU.bat``,
-check NVIDIA drivers; see :doc:`../tutorial/installation` .
 
 **``Parquet export requires pyarrow``**
 
-Current default installs include ``pyarrow``. Rebuild or re-run
-``launchers/一键安装HABIT.bat`` so the environment picks up the updated runtime
-lock. Temporary workaround: ``pip install pyarrow==20.0.0`` inside the HABIT
-command-line session.
+Current default installs include ``pyarrow``. Reinstall / upgrade
+``habitat-analysis`` in the same environment. Temporary workaround:
+``pip install "pyarrow>=15,<22"`` (or ``pyarrow>=22,<23`` on Python 3.14).
 
 **``pip install habitat-analysis`` / ``pip install pyradiomics`` fails**
 
-Follow :doc:`../tutorial/installation` (Path B + Install PyRadiomics). Short version:
+Follow :doc:`../tutorial/installation`. Short version:
 
 - Base ``pip install habitat-analysis`` does **not** need PyRadiomics.
 - PyPI has **no usable PyRadiomics Windows binaries**: bare
-  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**, and 3.0.1
-  has no Windows wheels either. On Windows install the prebuilt 3.1.0 wheel
-  (cp310–cp314) from the HABIT GitHub Release first, then::
+  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**. Use::
 
      pip install "habitat-analysis[radiomics]"
+     python -m habit.install_radiomics
 
-- On **macOS / Linux**, ``conda install -c conda-forge pyradiomics`` is fine
-  when Conda can reach conda-forge (or a working mirror). On **Windows** do
-  not treat Conda as the primary path: mirror / ``repodata`` timeouts and
-  unsatisfiable solves are common; use the Release wheel above instead.
-- habitat-analysis ≥ 1.0.2 extras allow ``pyradiomics>=3.0.1,<3.2`` and
-  support Python 3.10–3.14 with numpy 1.26 or 2.x.
+  On Windows the helper installs the prebuilt 3.1.0 wheel (cp310–cp314)
+  from the HABIT GitHub Release. On macOS / Linux it installs from PyPI.
+- The ``all`` extra uses the same platform marker so Windows is never
+  forced to compile PyRadiomics from sdist.
+- habitat-analysis ≥ 1.0.3 supports Python 3.10–3.14 with numpy 1.26 or 2.x.
 
 Runtime
 -------

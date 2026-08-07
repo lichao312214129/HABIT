@@ -393,6 +393,13 @@ def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
     extras = _optional_dependency_ranges()
     assert "pyradiomics" in extras["radiomics"]
     assert "pyradiomics" in extras["all"]
+    # Windows must not resolve pyradiomics from PyPI via the extras (broken
+    # sdist). The win_amd64 wheels come from ``python -m habit.install_radiomics``.
+    pyproject_text = PYPROJECT_FILE.read_text(encoding="utf-8")
+    assert "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'" in pyproject_text
+    assert pyproject_text.count(
+        "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'"
+    ) >= 2
 
 
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:
