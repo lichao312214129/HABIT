@@ -16,9 +16,20 @@
 Visualization utility functions
 """
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import ListedColormap
+
+from habit.utils.optional_deps import require
+
+# matplotlib and seaborn are OPTIONAL dependencies (habitat-analysis[viz]).
+# Every function in this module draws, so the gate is at module scope:
+# importing it without the viz extra raises OptionalDependencyError naming
+# the extra instead of a bare ModuleNotFoundError.
+_VIZ_PURPOSE = "habitat and SHAP visualization helpers"
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+sns = require("seaborn", extra="viz", purpose=_VIZ_PURPOSE)
+ListedColormap = require(
+    "matplotlib.colors", extra="viz", purpose=_VIZ_PURPOSE
+).ListedColormap
+
 from .font_config import PUBLICATION_FONT, get_font_config, setup_publication_font
 
 # Setup publication-quality font (Arial on Windows, DejaVu Sans on Linux/WSL)

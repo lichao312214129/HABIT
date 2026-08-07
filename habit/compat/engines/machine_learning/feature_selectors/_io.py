@@ -33,6 +33,7 @@ from typing import List, Optional, Tuple, Union
 
 import pandas as pd
 from habit.utils.log_utils import get_module_logger
+from habit.utils.optional_deps import require_excel_backend, require_parquet_backend
 
 
 LOGGER = get_module_logger("ml.feature_selectors.io")
@@ -107,10 +108,22 @@ def load_data(
         ValueError: If the file type cannot be detected, is unsupported, or if
             the loaded data is empty or ``target_column`` is not specified.
     """
+    # ``excel`` and ``parquet`` need optional pandas engines (openpyxl /
+    # pyarrow, both in habitat-analysis[tables]). The wrappers gate the read so
+    # a missing engine names the HABIT extra instead of surfacing pandas'
+    # internal "Missing optional dependency" message.
+    def _read_excel(source: Union[str, Path]) -> pd.DataFrame:
+        require_excel_backend(purpose=f"reading the feature table {source}")
+        return pd.read_excel(source)
+
+    def _read_parquet(source: Union[str, Path]) -> pd.DataFrame:
+        require_parquet_backend(purpose=f"reading the feature table {source}")
+        return pd.read_parquet(source)
+
     loaders = {
         "csv": pd.read_csv,
-        "excel": pd.read_excel,
-        "parquet": pd.read_parquet,
+        "excel": _read_excel,
+        "parquet": _read_parquet,
         "json": pd.read_json,
         "pickle": pd.read_pickle,
     }

@@ -27,13 +27,14 @@ import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from skimage.segmentation import slic
 from sklearn.cluster import KMeans
 from sklearn.metrics import (
     calinski_harabasz_score,
     davies_bouldin_score,
     silhouette_score,
 )
+
+from habit.utils.optional_deps import require
 
 from .base_clustering import BaseClustering, ClusteringAlgorithmFactory
 
@@ -247,6 +248,18 @@ class SLICClustering(BaseClustering):
         
         # Final safeguard before SLIC call.
         np.nan_to_num(feature_volume, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
+
+        # scikit-image is an OPTIONAL dependency (habitat-analysis[slic]).
+        # ``clustering/__init__.py`` imports this module eagerly to populate
+        # ClusteringAlgorithmFactory, so the import has to happen here: a
+        # module-scope import would make the whole compat clustering package
+        # -- including the kmeans/gmm backends that need nothing extra --
+        # unimportable on a bare install.
+        slic = require(
+            "skimage.segmentation",
+            extra="slic",
+            purpose="SLIC voxel clustering (clustering method 'slic')",
+        ).slic
 
         segments = slic(
             image=feature_volume,

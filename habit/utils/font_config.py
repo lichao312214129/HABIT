@@ -27,7 +27,18 @@ from __future__ import annotations
 import os
 from typing import Dict, List
 
-import matplotlib as mpl
+from habit.utils.optional_deps import require
+
+#: What this module needs matplotlib for, reused by every gate below so the
+#: three import failures all read the same way.
+_VIZ_PURPOSE = "publication-quality figures (font and backend configuration)"
+
+# matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). This module has
+# no reason to exist without it -- every symbol it exports configures
+# matplotlib -- so the gate sits at module scope: importing this module without
+# the viz extra raises OptionalDependencyError (naming the extra) instead of a
+# bare ModuleNotFoundError. Nothing on HABIT's habitat kernel path imports it.
+mpl = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
 
 _BACKEND_ENV_VAR = "HABIT_MPL_BACKEND"
 _DEFAULT_BACKEND = "Agg"
@@ -64,8 +75,10 @@ ACTIVE_BACKEND: str = _select_backend()
 
 # pyplot must be imported after the backend is selected so that the canvas
 # classes bound at import time match ACTIVE_BACKEND.
-import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib import font_manager  # noqa: E402
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+font_manager = require(
+    "matplotlib.font_manager", extra="viz", purpose=_VIZ_PURPOSE
+)
 
 
 def is_interactive_backend() -> bool:

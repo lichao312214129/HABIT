@@ -24,6 +24,7 @@ import pandas as pd
 import logging
 from habit.utils.log_utils import get_module_logger
 from habit.utils.io_utils import get_image_and_mask_paths, load_config
+from habit.utils.optional_deps import require, require_excel_backend
 from habit.utils.progress_utils import CustomTqdm
 
 # Default number of worker threads for parallel operations
@@ -32,13 +33,69 @@ DEFAULT_NUM_WORKERS = min(32, (os.cpu_count() or 1) + 4)
 
 logger = get_module_logger(__name__)
 
-try:
-    import pydicom
-    from pydicom.dataset import Dataset
-    PYDICOM_AVAILABLE = True
-except ImportError:
-    PYDICOM_AVAILABLE = False
-    logger.warning("pydicom is not installed. DICOM reading functionality will not be available.")
+#: pydicom is an OPTIONAL dependency (habitat-analysis[dicom]). This module is
+#: reachable from ``habit.recipes`` (via ``recipes.auxiliary``), which the
+#: habitat kernel path imports, so pydicom must NOT be imported at module
+#: scope: doing so would either drag a 20 MB dependency into every bare
+#: install or -- with the previous try/except -- emit a warning on a perfectly
+#: healthy non-DICOM run. ``_pydicom()`` imports it on first actual use and
+#: raises OptionalDependencyError (with the pip command) when absent.
+_PYDICOM_PURPOSE = "reading DICOM files (habit dicom-info / habit sort-dicom)"
+
+
+def _pydicom() -> Any:
+    """
+    Import ``pydicom`` on demand.
+
+    Returns:
+        Any: The imported ``pydicom`` module.
+
+    Raises:
+        OptionalDependencyError: When pydicom is not installed, carrying the
+            ``pip install "habitat-analysis[dicom]"`` command.
+    """
+    return require("pydicom", extra="dicom", purpose=_PYDICOM_PURPOSE)
+
+
+def is_pydicom_available() -> bool:
+    """
+    Report whether the optional pydicom backend can be imported.
+
+    Used by the CLI to fail with a friendly message before doing any work.
+
+    Returns:
+        bool: ``True`` when ``import pydicom`` succeeds.
+    """
+    from habit.exceptions import OptionalDependencyError
+
+    try:
+        _pydicom()
+    except OptionalDependencyError:
+        return False
+    return True
+
+
+def __getattr__(name: str) -> Any:
+    """
+    Resolve the legacy ``PYDICOM_AVAILABLE`` flag lazily (PEP 562).
+
+    The flag used to be a module-level constant computed by a try/except
+    import at import time. It is kept as a module attribute so existing
+    callers keep working, but it is now evaluated on first access so that
+    importing this module never imports pydicom.
+
+    Args:
+        name: Attribute requested from this module.
+
+    Returns:
+        Any: ``bool`` for ``PYDICOM_AVAILABLE``.
+
+    Raises:
+        AttributeError: For any other name.
+    """
+    if name == "PYDICOM_AVAILABLE":
+        return is_pydicom_available()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def get_dicom_files(input_path: Union[str, Path], recursive: bool = True) -> List[Path]:
@@ -529,9 +586,8 @@ def read_dicom_tags(dicom_path: Union[str, Path],
     Returns:
         Dictionary mapping tag names/numbers to values
     """
-    if not PYDICOM_AVAILABLE:
-        raise ImportError("pydicom is required for reading DICOM files. Install it with: pip install pydicom")
-    
+    pydicom = _pydicom()
+
     dicom_path = Path(dicom_path)
     if not dicom_path.exists():
         raise FileNotFoundError(f"DICOM file not found: {dicom_path}")
@@ -611,7 +667,9 @@ def _get_series_uid(dicom_file: Path) -> Optional[str]:
         SeriesInstanceUID or None if not available
     """
     try:
-        ds = pydicom.dcmread(str(dicom_file), force=True, stop_before_pixels=True)
+        ds = _pydicom().dcmread(
+            str(dicom_file), force=True, stop_before_pixels=True
+        )
         return getattr(ds, 'SeriesInstanceUID', None)
     except Exception:
         return None
@@ -665,9 +723,8 @@ def batch_read_dicom_info(input_path: Union[str, Path],
     Returns:
         DataFrame with DICOM information, one row per series (if group_by_series=True) or per file
     """
-    if not PYDICOM_AVAILABLE:
-        raise ImportError("pydicom is required for reading DICOM files. Install it with: pip install pydicom")
-    
+    _pydicom()
+
     input_path = Path(input_path)
     
     # Determine number of workers for parallel processing
@@ -848,6 +905,7 @@ def batch_read_dicom_info(input_path: Union[str, Path],
         if output_format.lower() == 'csv':
             df.to_csv(output_path, index=False)
         elif output_format.lower() == 'excel':
+            require_excel_backend(purpose="writing the DICOM info table as .xlsx")
             df.to_excel(output_path, index=False)
         elif output_format.lower() == 'json':
             df.to_json(output_path, orient='records', indent=2)
@@ -871,9 +929,8 @@ def list_available_tags(dicom_path: Union[str, Path],
     Returns:
         List of available tag names
     """
-    if not PYDICOM_AVAILABLE:
-        raise ImportError("pydicom is required for reading DICOM files. Install it with: pip install pydicom")
-    
+    pydicom = _pydicom()
+
     dicom_files = get_dicom_files(dicom_path, recursive=True)
     
     if not dicom_files:

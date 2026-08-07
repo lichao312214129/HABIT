@@ -23,7 +23,12 @@ import click
 import logging
 from pathlib import Path
 from typing import Optional, List, Set
-from habit.utils.dicom_utils import batch_read_dicom_info, list_available_tags, PYDICOM_AVAILABLE
+from habit.utils.dicom_utils import (
+    batch_read_dicom_info,
+    is_pydicom_available,
+    list_available_tags,
+)
+from habit.utils.optional_deps import install_command
 from habit.utils.log_utils import setup_logger, get_module_logger
 from habit.commands.common import echo_success, safe_echo
 
@@ -79,9 +84,15 @@ def run_dicom_info(input_path: str,
         logger = get_module_logger('cli.dicom_info')
     
     try:
-        # Check if pydicom is available
-        if not PYDICOM_AVAILABLE:
-            click.echo("Error: pydicom is not installed. Install it with: pip install pydicom", err=True)
+        # pydicom is an optional dependency (habitat-analysis[dicom]). Fail
+        # here, before any directory scan, so the user gets the install
+        # command instead of a traceback thousands of files later.
+        if not is_pydicom_available():
+            click.echo(
+                "Error: pydicom is not installed. Install the DICOM extra "
+                f"with: {install_command('dicom')}",
+                err=True,
+            )
             sys.exit(1)
         
         # Validate input path

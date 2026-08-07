@@ -31,6 +31,7 @@ import pandas as pd
 from habit.exceptions import HABITAPIError
 from habit.utils.dice_calculator import compute_dice, run_dice_calculation
 from habit.utils.dicom_utils import batch_read_dicom_info
+from habit.utils.optional_deps import require_excel_backend
 
 __all__ = ["dice", "dicom_info", "merge_tables"]
 
@@ -134,6 +135,9 @@ def dicom_info(
         destination = Path(output)
         destination.parent.mkdir(parents=True, exist_ok=True)
         if output_format == "excel":
+            require_excel_backend(
+                purpose="writing the DICOM info table as .xlsx"
+            )
             df.to_excel(destination, index=False)
         elif output_format == "json":
             df.to_json(destination, orient="records", indent=2)
@@ -218,6 +222,9 @@ def merge_tables(
 
         file_ext = os.path.splitext(file_path)[1].lower()
         if file_ext in (".xlsx", ".xls"):
+            require_excel_backend(
+                purpose=f"reading the spreadsheet {os.path.basename(file_path)}"
+            )
             header_df = pd.read_excel(file_path, nrows=0)
             resolved_index_col = (
                 current_index_col

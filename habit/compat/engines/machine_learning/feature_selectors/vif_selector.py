@@ -19,8 +19,15 @@ Used to detect and remove multicollinear features
 """
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+from habit.utils.optional_deps import require
+
+# matplotlib is OPTIONAL dependencies (habitat-analysis[viz]).
+# This module draws its own diagnostic figures at module scope, so the gate
+# stays at module scope too: the import failure then names the extra instead
+# of raising a bare ModuleNotFoundError.
+_VIZ_PURPOSE = "VIF feature-selection diagnostic figures"
+plt = require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 import os
 from typing import List, Optional, Tuple, Dict, Union
 try:

@@ -25,6 +25,7 @@ from typing import Dict, Any, Optional, List
 import yaml
 import logging
 from habit.utils.config_loader import load_config, save_config, validate_config
+from habit.utils.optional_deps import require_excel_backend
 
 
 def _scan_folder_for_paths(root_folder: str, keyword_of_raw_folder: str = "images", keyword_of_mask_folder: str = "masks") -> tuple:
@@ -180,6 +181,8 @@ def load_timestamp(file_path: str, subject_id_column: str = "Name") -> dict:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     
+    # openpyxl is an optional dependency (habitat-analysis[tables]).
+    require_excel_backend(purpose="reading the scan-timestamp spreadsheet")
     df = pd.read_excel(file_path, index_col=subject_id_column)
     # convert index to string
     df.index = df.index.astype(str)

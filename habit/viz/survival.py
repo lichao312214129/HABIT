@@ -34,6 +34,7 @@ from typing import Any, Dict, Optional, Sequence, Tuple
 import numpy as np
 
 from habit.exceptions import HABITAPIError
+from habit.utils.optional_deps import require
 from habit.viz.labels import sanitize_label
 
 __all__ = [
@@ -46,15 +47,35 @@ __all__ = [
 ]
 
 
+#: What habit.viz needs matplotlib for.
+_VIZ_PURPOSE = "survival figures (Kaplan-Meier, Cox forest, ...)"
+
+
 def _plt():
-    """Return the pyplot module with the Agg canvas guaranteed headless."""
-    import matplotlib
+    """
+    Return the pyplot module with the Agg canvas guaranteed headless.
 
-    if matplotlib.get_backend().lower() not in ("agg", "module://matplotlib_inline.backend_inline"):
+    matplotlib is an OPTIONAL dependency (habitat-analysis[viz]); it is
+    imported here rather than at module scope so ``import habit.viz`` stays
+    free of it, and it goes through ``require`` so a missing install names
+    the extra instead of raising a bare ModuleNotFoundError.
+
+    Returns:
+        The ``matplotlib.pyplot`` module, with a non-interactive backend
+        already active.
+
+    Raises:
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    matplotlib = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
+
+    if matplotlib.get_backend().lower() not in (
+        "agg",
+        "module://matplotlib_inline.backend_inline",
+    ):
         matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
 
-    return plt
+    return require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 
 
 def _lifelines(owner: str):

@@ -26,6 +26,8 @@ from typing import Literal, Optional, Union
 import numpy as np
 import pandas as pd
 
+from habit.utils.optional_deps import require_parquet_backend
+
 HabitatsResultsFormat = Literal["parquet", "csv"]
 SUPPORTED_HABITATS_RESULTS_FORMATS: tuple[str, ...] = ("parquet", "csv")
 HABITATS_RESULTS_STEM: str = "habitats"
@@ -133,6 +135,8 @@ def load_habitats_results(source: Union[str, Path]) -> pd.DataFrame:
     Raises:
         FileNotFoundError: If no supported habitats results file exists.
         ValueError: If the file extension is unsupported.
+        OptionalDependencyError: If the file is parquet but ``pyarrow`` is not
+            installed.
     """
     path = Path(source)
     if path.is_dir():
@@ -145,6 +149,14 @@ def load_habitats_results(source: Union[str, Path]) -> pd.DataFrame:
 
     suffix = path.suffix.lower()
     if suffix == ".parquet":
+        require_parquet_backend(
+            purpose=f"reading the habitats results table {path.name}",
+            alternatives=(
+                "re-run the habitat analysis with "
+                "habitats_results_format: csv in your YAML config to produce "
+                "habitats.csv, which needs no optional dependency",
+            ),
+        )
         return pd.read_parquet(path)
     if suffix == ".csv":
         return pd.read_csv(path)
@@ -174,7 +186,8 @@ def save_habitats_results(
         Path: Written results file path.
 
     Raises:
-        ImportError: If parquet is requested but ``pyarrow`` is not installed.
+        OptionalDependencyError: If parquet is requested (the default) but
+            ``pyarrow`` is not installed.
     """
     fmt = normalize_habitats_results_format(habitats_results_format)
     out_path = habitats_results_path(out_dir, fmt)
@@ -182,12 +195,23 @@ def save_habitats_results(
 
     started_at = time.monotonic()
     if fmt == "parquet":
-        try:
-            results_df.to_parquet(out_path, index=False, engine="pyarrow")
-        except ImportError as exc:
-            raise ImportError(
-                "Parquet export requires pyarrow. Install with: pip install pyarrow"
-            ) from exc
+        # pyarrow is an OPTIONAL dependency (habitat-analysis[tables]) and
+        # parquet remains the DEFAULT format. Deliberately no silent fallback
+        # to CSV: that would rename the output file from habitats.parquet to
+        # habitats.csv behind the user's back and break every downstream path
+        # that expects the configured name. Fail with both escape routes
+        # spelled out and let the user choose.
+        require_parquet_backend(
+            purpose=(
+                "writing the habitats results table as parquet "
+                "(habitats_results_format: parquet, the default)"
+            ),
+            alternatives=(
+                "set habitats_results_format: csv in your YAML config to "
+                "write habitats.csv instead (no optional dependency needed)",
+            ),
+        )
+        results_df.to_parquet(out_path, index=False, engine="pyarrow")
     else:
         results_df.to_csv(out_path, index=False)
 

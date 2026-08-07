@@ -34,6 +34,7 @@ from habit.contracts.habitat import HabitatMap, HabitatModel, Supervoxelization
 from habit.contracts.manifest import RunManifest
 from habit.contracts.ops import ResultWriter
 from habit.contracts.table import FeatureTable
+from habit.utils.optional_deps import require
 
 __all__ = ["StudyResult"]
 
@@ -312,7 +313,11 @@ class StudyResult:
             use_style,
         )
 
-        import matplotlib.pyplot as plt
+        plt = require(
+            "matplotlib.pyplot",
+            extra="viz",
+            purpose="habitat clustering figures written by StudyResult.save",
+        )
 
         kwargs = dict(
             features=features,
