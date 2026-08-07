@@ -254,6 +254,66 @@ v1.1 起：
 
 ---
 
+## 9. v1.1 契约变更：`MLSpec` 的表步骤收敛为单一有序 `steps`
+
+`MLSpec` 原本用三个固定字段表达顺序：
+
+```
+pre_preprocessing_feature_selectors  →  table_preprocessors  →  feature_selectors
+```
+
+这是**用槽位表达顺序**。它只提供两个可选位置——全部预处理之前、全部预处理之后——所以 `zscore → variance → minmax → lasso` 这种顺序根本写不出来。这正是"配置是界面不是架构"的反模式：顺序是领域事实（z-score 之后每个特征方差都是 1.0，方差筛选在那里就是空操作），却被编码成了数据结构的形状。
+
+v1.1 起 `MLSpec.steps: Tuple[Spec, ...]` 是**唯一**的表步骤表达：**列表顺序就是执行顺序**。三个旧字段保留为弃用别名，整个 v1.x 全程可用。
+
+### 9.1 名字跨注册表解析，不加 kind 标签
+
+`steps` 里每一项只有 `name`。解析发生在 L3 的 `habit.domain.assembly.build_table_step`：先查 `TablePreprocessorRegistry`，再查 `FeatureSelectorRegistry`。
+
+**为什么不给每项加 `kind: preprocessor|selector`**：那会成为注册表已经知道的事情的第二份事实源，两份就会漂移。两个词表当前无重名（`variance` / `variance_filter`、`correlation` / `correlation_filter`，见 §10），因此名字足以唯一确定组件；万一将来重名，`build_table_step` **报错而不是猜**，并由 `tests/domain/test_table_pipeline.py::test_the_two_step_registries_share_no_names` 提前拦住。
+
+**为什么解析不在 `habit.spec`**：`habit.spec` 在栈底，不得向上依赖 `habit.domain`（`tests/test_architecture_contracts.py` 强制）。所以 spec 层只记录顺序，保持 registry-free。
+
+### 9.2 序列化形状不对称——这一条是硬约束
+
+| 声明方式 | `to_dict()` 输出的键 |
+|---|---|
+| 三个旧字段（或**什么都不声明**） | `pre_preprocessing_feature_selectors` / `table_preprocessors` / `feature_selectors`，**没有** `steps` |
+| `steps=` | `steps`，**没有**三个旧键 |
+
+**为什么不无条件同时写两者**：`MLSpec.to_dict()` 的哈希就是 `provenance.spec_fingerprint`，`tests/golden/baseline/ml_kfold.json` 逐值记录了它以及展平后的 `spec_payload.*` 键集。无条件新增一个 `steps` 键会移动**每一个已发表分析**的指纹。所以"记录偏离默认值的东西"这条既有规则（`estimator_params`、`keep_at_least_one` 同一套）在这里也适用：什么都没声明的 spec 也走旧形状，因为绝大多数已发表 spec 属于这一类。
+
+**代价，如实记录**：同一条流水线用两种写法声明会得到**两个不同的指纹**。这是有意的——指纹标识的是**文档**，两个文档确实不同；规避这一点必须选一种形状做归一化，而选 `steps` 就会移动全部历史指纹。
+
+**旧字段 + `steps` 同时出现**：内容一致时接受（`dataclasses.replace` 会把所有字段重新传一遍，recipes 折叠 seed 覆盖时就走这条路），内容不一致时 `HABITAPIError`。不做优先级消歧：那等于运行一条文档同时声称自己没在运行的流水线。
+
+### 9.3 v0 YAML 翻译仍然输出旧三桶键
+
+`habit/spec/legacy.py` 的 v0→v1 翻译**继续**输出三个弃用键，`MLSpec` 再把它们折进 `steps`。于是 `before_z_score` 现在决定的确实是 `steps` 里的**位置**，但被翻译出的**文档本身**逐字节不变，指纹也不变。若让翻译直接输出 `steps`，全部历史 v0 配置的指纹都会移动——这正是 golden baseline 应当拦住的回归。
+
+反向翻译（`habit/recipes/yaml_runner.py:_v0_selection_methods_from_spec`）两种布局都读：`before_z_score` = "该选择器之前没有任何预处理器"。v0 表达不了的交错顺序会塌回同一个布尔值，但那个 v0 payload 只用于**加载特征表**，有科学意义的顺序由 `MLSpec.steps` 直接带进 `build_table_pipeline`。
+
+---
+
+## 10. v1.1：`variance` / `variance_filter`、`correlation` / `correlation_filter` 收敛为单一实现
+
+同一算法在两个注册表里注册两次、名字不同，动机就是 §9 的位置问题：作为 preprocessor 能放进预处理链中间，作为 selector 只能在两端。§9 让位置变成纯粹的位置之后，重复注册的动机消失。
+
+**收敛方式是别名 + 参数名翻译 + 默认值保留，不是合并**，因为两者在退化情形下行为**本来就不同**：
+
+| | `variance_filter`（preprocessor） | `variance`（selector） |
+|---|---|---|
+| 参数名 | `variance_threshold` | `threshold` / `top_k` / `top_percent` |
+| 无列存活时 | 保留方差最大的一列（v0.1 规则） | 不保留任何列 |
+
+这条差异是**真实的**：预处理链清空特征块会让后面每一步死在无关错误上（`check_array`: "at least one array or dtype is required"），而选择器"没有特征通过这个阈值"是合法结论。所以它成为显式参数 `keep_at_least_one`，两个名字各自默认成它一直以来的行为（filter=`True`，selector=`False`），并且**仅在偏离该默认值时**写入 `spec.params`——同 §9.2 的理由，否则每一个 `variance` 指纹都会移动。
+
+`correlation` / `correlation_filter` 只差参数拼写（`threshold`/`method` vs `corr_threshold`/`corr_method`）与默认值（0.8 vs 0.95），没有退化分歧：贪心左到右扫描永远保留第一列。
+
+四个名字全部继续可用。唯一实现在 `habit/kernels/feature_transforms.py`（`select_variance_columns` / `select_correlation_columns`）——同一公式两处需要时下沉到 L0，这是既有反模式条款的正解。
+
+---
+
 ## 附：prototype 与文档 07 已收敛的矛盾
 
 以下曾在 prototype 与 07 文档间互相矛盾，**以本定案为准**：

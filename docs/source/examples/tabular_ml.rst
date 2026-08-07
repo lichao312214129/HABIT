@@ -4,10 +4,9 @@ Tabular machine learning: train, cross-validate, predict
 Habitat (and radiomics) analyses bottom out in a per-subject feature table;
 the v1 ML recipes model that table directly. This example covers:
 
-1. declare the modelling definition as an :class:`~habit.spec.MLSpec`
-   (``pre_preprocessing_feature_selectors`` for variance-style filters on
-   the raw table, ``table_preprocessors``, optional post-preprocessing
-   ``feature_selectors``, classifier, metrics),
+1. declare the modelling definition as an :class:`~habit.spec.MLSpec` (one
+   ordered ``steps`` list of preprocessors and feature selectors — list
+   order is execution order — plus the classifier and metrics),
 2. hold-out evaluation with :func:`~habit.recipes.train_model`,
 3. K-fold cross-validation with :func:`~habit.recipes.cross_validate`,
 4. inference with :func:`~habit.recipes.predict_model`,

@@ -321,21 +321,44 @@ data. Tabular building blocks are documented in :doc:`domain_table`.
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
-   # Variance belongs in pre_preprocessing_*: after z-score every feature
-   # has variance ~1, so a post-zscore variance filter is uninformative.
-   # Post-preprocessing selectors (ANOVA, LASSO, ...) use feature_selectors.
+   # ``steps`` is ONE ordered list and its order is the execution order.
+   # Variance goes first, on the raw table: after z-score every feature has
+   # variance ~1, so a variance step placed later is uninformative.
+   # Supervised selectors (ANOVA, LASSO, ...) normally follow the scaling.
    spec = MLSpec(
        name="demo",
-       pre_preprocessing_feature_selectors=(
+       steps=(
            Spec("variance", {"threshold": 0.01}),
+           Spec("zscore"),
        ),
-       table_preprocessors=(Spec("zscore"),),
        classifier=Spec("LogisticRegression", {"max_iter": 500}),
        metrics=(Spec("accuracy"), Spec("auc")),
    )
    result = recipes.train_model(table, spec, test_size=0.3, seed=42)
    print(result.train_metrics)   # in-sample readout
    print(result.test_metrics)    # held-out rows
+
+Steps interleave freely, which the three predecessor fields could not
+express. ``zscore`` → ``variance`` → ``minmax`` → ``lasso`` is a plain list:
+
+.. code-block:: python
+
+   spec = MLSpec(
+       name="interleaved",
+       steps=(
+           Spec("zscore"),
+           Spec("variance", {"threshold": 0.01}),
+           Spec("minmax"),
+           Spec("lasso", {"cv": 5}),
+       ),
+       classifier=Spec("LogisticRegression", {"max_iter": 500}),
+   )
+
+The fields ``pre_preprocessing_feature_selectors``, ``table_preprocessors``
+and ``feature_selectors`` are deprecated aliases kept for all of v1.x. They
+are folded into ``steps`` in that documented order and raise a
+``DeprecationWarning``; a spec declaring both layouts with different content
+is rejected rather than resolved by precedence.
 
 The older configuration-object entry points (``run_ml``, ``run_kfold``,
 ``run_model_comparison`` from ``habit.api.machine_learning``) remain

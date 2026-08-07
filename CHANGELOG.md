@@ -35,8 +35,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - ``.habitpipeline`` files are now written at ``format_version = 2`` (the
   added field is the ``FrameToTable`` head's column schema). Version 1 files
   written by earlier releases still load and predict identically.
+- **DEPRECATED: ``MLSpec``'s three fixed table chains.**
+  ``pre_preprocessing_feature_selectors``, ``table_preprocessors`` and
+  ``feature_selectors`` expressed step order through three slots, which
+  offered a selector exactly two positions — before all preprocessing or
+  after all of it — so an order such as ``zscore → variance → minmax →
+  lasso`` had no representation. They are superseded by the single ordered
+  ``MLSpec.steps`` list (below) and remain accepted, with a
+  ``DeprecationWarning``, for all of v1.x. A spec that declares both layouts
+  with different content is rejected rather than resolved by precedence.
+  ``MLSpec.to_dict()`` keeps emitting the three deprecated keys (and no
+  ``steps`` key) for a spec declared with them, so **every fingerprint
+  written before this release is unchanged**; a spec declared with ``steps``
+  serialises as ``steps``.
+- ``variance`` / ``variance_filter`` and ``correlation`` /
+  ``correlation_filter`` are now one implementation each, in
+  ``habit.kernels.feature_transforms``, reached through all four registry
+  names. Defaults, parameter spellings and numbers are unchanged; the
+  behavioural difference the two variance names always had — the filter keeps
+  the highest-variance column when nothing clears the threshold, the selector
+  keeps nothing — is now the explicit ``keep_at_least_one`` parameter,
+  defaulting per name to what that name always did. It is recorded in
+  ``spec.params`` only when it deviates from that default, so no existing
+  fingerprint moves.
 
 ### Added
+
+- ``MLSpec.steps``: ONE ordered list of table steps (preprocessors and
+  feature selectors, freely interleaved) whose list order is the execution
+  order. Step names resolve across both registries; the two vocabularies are
+  disjoint, and an ambiguous or unknown name is an explicit error rather than
+  a skipped step. See
+  ``config/machine_learning/config_machine_learning_steps_v1.yaml`` for a
+  runnable native-v1 document.
+- ``habit.domain.assembly.build_table_step``: builds one ``MLSpec.steps``
+  entry by resolving its name across the table-preprocessor and
+  feature-selector registries.
+- ``keep_at_least_one`` on the ``variance`` selector and the
+  ``variance_filter`` preprocessor, making the historical
+  "never empty the feature block" fallback selectable from either name.
 
 - ``habit.domain.sklearn_interop``: the table-level scikit-learn interop
   adapters, lifted out of the frozen ``habit.compat`` layer into L3.

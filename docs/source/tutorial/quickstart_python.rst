@@ -103,13 +103,14 @@ Habitat features (or radiomics, or clinical variables) form a
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
-   # Variance on the raw table; after z-score every feature variance is ~1.
+   # steps runs in list order. Variance goes first, on the raw table: after
+   # z-score every feature variance is ~1, so it would select nothing useful.
    spec = MLSpec(
        name="demo",
-       pre_preprocessing_feature_selectors=(
+       steps=(
            Spec("variance", {"threshold": 0.01}),
+           Spec("zscore"),
        ),
-       table_preprocessors=(Spec("zscore"),),
        classifier=Spec("LogisticRegression", {"max_iter": 500}),
        metrics=(Spec("accuracy"), Spec("auc")),
    )

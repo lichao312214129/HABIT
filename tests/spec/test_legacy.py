@@ -589,6 +589,12 @@ def _discover_cli_configs() -> list:
         subdir = path.parent.name
         if subdir == "habitat":
             continue  # covered by the dedicated habitat sweep
+        if path.name.endswith("_v1.yaml") or path.name.endswith("_v1.yml"):
+            # Native v1 documents (filename convention *_v1.yaml) have
+            # nothing to translate -- this sweep checks the v0 -> v1
+            # translation, so feeding it a document that is already v1 tests
+            # the adapter against input it never receives.
+            continue
         if subdir not in _CROSS_WORKFLOW_DIR_RULES:
             continue
         workflow = _CROSS_WORKFLOW_DIR_RULES[subdir]

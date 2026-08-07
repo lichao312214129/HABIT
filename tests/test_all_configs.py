@@ -118,6 +118,15 @@ def _infer_spec(path: Path) -> Optional[PipelineConfigSpec]:
     name = path.name
     subdir = path.parent.name
 
+    # Native v1 documents (version/workflow/spec) are exercised by
+    # habit.recipes.run_from_yaml, not by the v0.1 CLI schemas -- a v1
+    # document validated against a v0 schema fails on the layout, not on
+    # anything wrong with it. Filename convention: *_v1.yaml. The rule is
+    # workflow-independent, so it is applied before the per-directory
+    # dispatch rather than repeated inside each branch.
+    if name.endswith("_v1.yaml") or name.endswith("_v1.yml"):
+        return None
+
     skip_wsl = "_wsl" in name
     skip_reason_wsl = "WSL-only config (uses ~/habit_data paths)" if skip_wsl else ""
 
@@ -136,11 +145,6 @@ def _infer_spec(path: Path) -> Optional[PipelineConfigSpec]:
 
     if subdir == "habitat":
         if not name.startswith("config_habitat"):
-            return None
-        # Native v1 documents (version/workflow/spec) are exercised by
-        # habit.recipes.run_from_yaml / cloud_coverage, not by the v0.1
-        # get-habitat CLI schema. Filename convention: *_v1.yaml.
-        if name.endswith("_v1.yaml") or name.endswith("_v1.yml"):
             return None
         return PipelineConfigSpec(
             rel_path=rel,

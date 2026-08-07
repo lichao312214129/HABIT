@@ -33,10 +33,11 @@ from habit.contracts import BinaryOutcome, FeatureTable
 from habit.domain.assembly import build_table_pipeline
 from habit.domain.classification import LogisticRegressionClassifier, RandomForestClassifier
 from habit.domain.evaluation import AccuracyMetric, AucMetric, HosmerLemeshowPValueMetric
-from habit.domain.feature_selection import IccSelector, VarianceSelector
+from habit.domain.feature_selection import FeatureSelectorRegistry, IccSelector, VarianceSelector
 from habit.domain.pipeline import TablePipeline
 from habit.domain.sklearn_interop import FrameToTable, as_transformer
-from habit.domain.table_preprocessing import ZScorePreprocessor
+from habit.domain.table_preprocessing import TablePreprocessorRegistry, ZScorePreprocessor
+from habit.exceptions import ComponentNotFoundError
 from habit.spec import MLSpec, Spec
 
 from .conftest import make_feature_table
@@ -303,6 +304,104 @@ def test_build_table_pipeline_orders_stages_as_declared() -> None:
         "zscore",
         "correlation",
         "model",
+    ]
+
+
+@pytest.mark.unit
+def test_build_table_pipeline_reads_the_single_ordered_step_list() -> None:
+    """
+    An ``MLSpec.steps`` chain assembles in list order, whatever the kinds.
+
+    This is what the deprecated three-slot layout could not express: two
+    preprocessors with a selector between them. Names resolve across both
+    registries, which is why one list can hold either kind.
+    """
+    spec = MLSpec(
+        name="interleaved",
+        classifier=Spec(name="LogisticRegression"),
+        steps=(
+            Spec(name="zscore"),
+            Spec(name="variance", params={"threshold": 0.0}),
+            Spec(name="minmax"),
+            Spec(name="correlation"),
+        ),
+    )
+    pipeline = build_table_pipeline(spec)
+    assert [component.spec.name for component in pipeline.components] == [
+        "zscore",
+        "variance",
+        "minmax",
+        "correlation",
+    ]
+
+
+@pytest.mark.unit
+def test_build_table_pipeline_rejects_an_unknown_step_name() -> None:
+    """
+    A misspelled step is a loud failure, never a skipped step.
+
+    The message has to name both vocabularies: a user reading it does not
+    necessarily know whether they meant a preprocessor or a selector.
+    """
+    spec = MLSpec(
+        name="typo",
+        classifier=Spec(name="LogisticRegression"),
+        steps=(Spec(name="z_score"),),
+    )
+    with pytest.raises(ComponentNotFoundError) as excinfo:
+        build_table_pipeline(spec)
+    assert "table preprocessor" in str(excinfo.value)
+    assert "feature selector" in str(excinfo.value)
+
+
+@pytest.mark.unit
+def test_the_two_step_registries_share_no_names() -> None:
+    """
+    Name-only resolution is sound because the vocabularies are disjoint.
+
+    ``build_table_step`` refuses to guess on an overlap, so this test is the
+    early warning: a future registration that collides breaks the ordered
+    step list, and it should break here rather than in someone's run.
+    """
+    assert not (
+        set(TablePreprocessorRegistry.available())
+        & set(FeatureSelectorRegistry.available())
+    )
+
+
+@pytest.mark.unit
+def test_the_deprecated_layout_assembles_through_the_same_path() -> None:
+    """
+    Both layouts produce the same pipeline for the same order.
+
+    ``MLSpec`` folds the chains into ``steps`` and ``build_table_pipeline``
+    reads only ``steps``, so there is one assembly path and the two layouts
+    cannot drift apart.
+    """
+    ordered = build_table_pipeline(
+        MLSpec(
+            name="ordered",
+            classifier=Spec(name="LogisticRegression"),
+            steps=(
+                Spec(name="variance", params={"threshold": 0.0}),
+                Spec(name="zscore"),
+                Spec(name="correlation"),
+            ),
+        )
+    )
+    legacy = build_table_pipeline(
+        MLSpec(
+            name="legacy",
+            classifier=Spec(name="LogisticRegression"),
+            pre_preprocessing_feature_selectors=(
+                Spec(name="variance", params={"threshold": 0.0}),
+            ),
+            table_preprocessors=(Spec(name="zscore"),),
+            feature_selectors=(Spec(name="correlation"),),
+        )
+    )
+    assert [component.spec.to_dict() for component in ordered.components] == [
+        component.spec.to_dict() for component in legacy.components
     ]
 
 

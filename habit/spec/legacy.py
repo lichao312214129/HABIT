@@ -1212,6 +1212,16 @@ class LegacyConfigAdapter:
             "version": self.SCHEMA_VERSION,
             # Key order mirrors execution order: pre-preprocessing selection,
             # preprocessing, post-preprocessing selection.
+            #
+            # These are the DEPRECATED MLSpec chain keys, and the translation
+            # keeps emitting them on purpose. ``MLSpec`` folds them into its
+            # ordered ``steps`` list in exactly this order, so ``before_z_score``
+            # does now decide a POSITION rather than a bucket -- but the
+            # translated document itself stays byte-identical, and so does the
+            # MLSpec fingerprint every published v0.1 result was recorded
+            # under. Emitting ``steps`` here instead would move that
+            # fingerprint for every legacy config in existence, which the
+            # golden baselines correctly treat as a regression.
             "pre_preprocessing_feature_selectors": pre_selectors,
             "table_preprocessors": self._translate_ml_normalization(
                 payload.get("normalization"), warnings, unmapped

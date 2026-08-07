@@ -179,6 +179,162 @@ def test_run_from_yaml_ml_train_on_synthetic_table(tmp_path: Path) -> None:
     assert result.train_metrics
 
 
+def _ml_v1_steps_document(csv_path: Path, out_dir: Path) -> str:
+    """
+    Render a native v1 ML document declaring an interleaved ``steps`` chain.
+
+    The order ``zscore -> variance -> minmax`` is the point: a preprocessor,
+    a selector, then a SECOND preprocessor is unrepresentable in the
+    deprecated three-slot layout, which offers a selector only the two
+    positions "before all preprocessing" and "after all of it".
+
+    Args:
+        csv_path: Feature table written by the caller.
+        out_dir: Output directory (unused unless ``save=True``).
+
+    Returns:
+        str: The YAML document text.
+    """
+    return f"""version: '1.0'
+workflow: model
+mode: train
+spec:
+  name: ml_model
+  steps:
+    - name: zscore
+      params: {{}}
+    - name: variance
+      params:
+        threshold: 0.0
+    - name: minmax
+      params: {{}}
+  classifier:
+    name: LogisticRegression
+    params:
+      max_iter: 500
+  metrics: []
+  random_seed: 0
+data:
+  input:
+    - path: "{csv_path.as_posix()}"
+      subject_id_col: subject
+      label_col: label
+output:
+  out_dir: "{out_dir.as_posix()}"
+  is_save_model: false
+"""
+
+
+@pytest.mark.unit
+def test_run_from_yaml_v1_ml_document_with_ordered_steps(tmp_path: Path) -> None:
+    """A v1 ML document declaring ``spec.steps`` runs end to end."""
+    from habit.datasets.synthetic import make_synthetic_feature_table
+    from habit.recipes.modeling import ModelResult
+
+    table = make_synthetic_feature_table(n_rows=24, n_features=6, rng=0)
+    csv_path = tmp_path / "features.csv"
+    table.frame.to_csv(csv_path, index=False)
+
+    config_path = tmp_path / "config_machine_learning_steps_v1.yaml"
+    config_path.write_text(
+        _ml_v1_steps_document(csv_path, tmp_path / "ml_out"),
+        encoding="utf-8",
+    )
+
+    result = run_from_yaml(config_path, workflow="model")
+
+    assert isinstance(result, ModelResult)
+    assert [
+        component.spec.name for component in result.pipeline.components
+    ] == ["zscore", "variance", "minmax"]
+    # The ordered layout reaches the manifest, so the run is traceable back
+    # to the document that produced it.
+    assert "steps" in result.manifest.spec_payload
+    assert [
+        entry["name"] for entry in result.manifest.spec_payload["steps"]
+    ] == ["zscore", "variance", "minmax"]
+
+
+@pytest.mark.unit
+def test_shipped_steps_example_declares_an_interleaved_pipeline() -> None:
+    """
+    The example config under ``config/`` assembles the pipeline it advertises.
+
+    A demo config that no test builds is a demo config that rots; this one
+    needs no data, so the assembly is checkable even where ``demo_data/`` is
+    absent.
+    """
+    import yaml
+
+    from habit.domain.assembly import build_table_pipeline
+    from habit.spec.legacy import validate_v1_document
+    from habit.spec.specs import MLSpec
+
+    config_path = (
+        Path(__file__).resolve().parents[2]
+        / "config"
+        / "machine_learning"
+        / "config_machine_learning_steps_v1.yaml"
+    )
+    document = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    validate_v1_document(document, workflow="cv")
+    spec = MLSpec.from_dict(document["spec"])
+    pipeline = build_table_pipeline(spec)
+    assert [component.spec.name for component in pipeline.components] == [
+        "variance",
+        "zscore",
+        "correlation",
+        "minmax",
+        "lasso",
+    ]
+
+
+@pytest.mark.unit
+def test_v1_reverse_translation_reads_before_z_score_off_the_step_position() -> None:
+    """
+    ``steps`` positions map back onto v0's single ``before_z_score`` boolean.
+
+    v0 had no ordered list, only that flag; a selector is
+    ``before_z_score`` exactly when no preprocessor precedes it. The v0
+    payload is what loads the feature table, so it has to stay derivable
+    from either layout.
+    """
+    from habit.recipes.yaml_runner import _v0_selection_methods_from_spec
+
+    methods = _v0_selection_methods_from_spec(
+        {
+            "steps": [
+                {"name": "variance", "params": {"top_k": 5}},
+                {"name": "zscore", "params": {}},
+                {"name": "correlation", "params": {"threshold": 0.9}},
+            ]
+        }
+    )
+    assert methods == [
+        {"method": "variance", "params": {"top_k": 5, "before_z_score": True}},
+        {"method": "correlation", "params": {"threshold": 0.9}},
+    ]
+
+
+@pytest.mark.unit
+def test_v1_reverse_translation_still_reads_the_deprecated_chains() -> None:
+    """The deprecated layout keeps its verbatim reverse translation."""
+    from habit.recipes.yaml_runner import _v0_selection_methods_from_spec
+
+    methods = _v0_selection_methods_from_spec(
+        {
+            "pre_preprocessing_feature_selectors": [
+                {"name": "variance", "params": {"top_k": 5}}
+            ],
+            "feature_selectors": [{"name": "correlation", "params": {}}],
+        }
+    )
+    assert methods == [
+        {"method": "variance", "params": {"top_k": 5, "before_z_score": True}},
+        {"method": "correlation", "params": {}},
+    ]
+
+
 @pytest.mark.unit
 def test_run_from_yaml_rejects_unsupported_workflow(tmp_path: Path) -> None:
     """Workflows outside the check-config set raise NotImplementedError."""

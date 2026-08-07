@@ -50,7 +50,7 @@ from habit.domain.trees import (
     build_voxel_extractor,
 )
 from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
-from habit.exceptions import ComponentNotFoundError
+from habit.exceptions import ComponentNotFoundError, HABITAPIError
 from habit.registry.core import ComponentRegistry
 from habit.spec.specs import HabitatSpec, MLSpec, Spec
 
@@ -58,6 +58,7 @@ __all__ = [
     "HabitatComponents",
     "build_habitat_components",
     "build_subject_chain",
+    "build_table_step",
     "build_table_pipeline",
     "build_ml_metrics",
     "validate_habitat_spec_registry",
@@ -301,39 +302,94 @@ def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
         _require_registered_tree(feature_spec, HabitatFeatureExtractorRegistry)
 
 
+#: Registries a name in ``MLSpec.steps`` may resolve against, in lookup
+#: order. The two vocabularies are disjoint by construction (``variance``
+#: versus ``variance_filter``, ``correlation`` versus
+#: ``correlation_filter``), so the order is documentation rather than
+#: precedence -- and :func:`build_table_step` refuses to guess if that ever
+#: stops being true.
+_TABLE_STEP_REGISTRIES: Tuple[Tuple[str, ComponentRegistry], ...] = (
+    ("table_preprocessor", TablePreprocessorRegistry),
+    ("feature_selector", FeatureSelectorRegistry),
+)
+
+
+def build_table_step(entry: Spec) -> Any:
+    """
+    Build one step of ``MLSpec.steps`` by resolving its name.
+
+    An ordered step list carries no per-entry "kind" tag, because the tag
+    would be a second source of truth for something the registries already
+    know. The name alone therefore has to identify the component, which it
+    does: the preprocessor and selector vocabularies do not overlap.
+
+    Args:
+        entry: One step spec from :attr:`habit.spec.specs.MLSpec.steps`.
+
+    Returns:
+        Any: The constructed table preprocessor or feature selector. Both
+        satisfy the fit/transform contract ``TablePipeline`` needs, which is
+        precisely why one ordered list can hold either.
+
+    Raises:
+        ComponentNotFoundError: If no registry knows the name. The message
+            names both vocabularies, since a user reading it does not
+            necessarily know which one their step belongs to.
+        HABITAPIError: If BOTH registries know the name. Silently preferring
+            one would run a different algorithm than the other reading of
+            the same YAML, so the ambiguity is reported instead.
+    """
+    matches = [
+        (kind, registry)
+        for kind, registry in _TABLE_STEP_REGISTRIES
+        if entry.name in registry.available()
+    ]
+    if len(matches) > 1:
+        raise HABITAPIError(
+            f"Table step {entry.name!r} is registered as "
+            f"{[kind for kind, _ in matches]}. An ordered step list "
+            "identifies a component by name alone, so an ambiguous name "
+            "cannot be resolved; rename one of the registrations."
+        )
+    if not matches:
+        raise ComponentNotFoundError(
+            f"No table preprocessor or feature selector named "
+            f"{entry.name!r}. Registered table preprocessors: "
+            f"{sorted(TablePreprocessorRegistry.available())}; registered "
+            f"feature selectors: {sorted(FeatureSelectorRegistry.available())}."
+        )
+    _, registry = matches[0]
+    return registry.create(entry.name, **entry.params)
+
+
 def build_table_pipeline(spec: MLSpec) -> TablePipeline:
     """
     Instantiate the tabular modelling pipeline declared by ``spec``.
+
+    Reads :attr:`~habit.spec.specs.MLSpec.steps`, the single ordered step
+    list. A spec declared through the deprecated three-chain fields has
+    already been folded into that list by ``MLSpec`` itself, in the
+    documented order (pre-preprocessing selection, preprocessing,
+    post-preprocessing selection), so both layouts assemble through this one
+    path and cannot drift.
 
     Args:
         spec: The modelling declaration, with any caller overrides already
             folded in.
 
     Returns:
-        The pipeline: pre-preprocessing selectors first (fitted on the raw
-        training table, the v0.1 ``before_z_score: true`` stage), then the
-        preprocessing chain, then the post-preprocessing selectors, then the
+        The pipeline: every declared step in ``spec.steps`` order, then the
         terminal classifier -- seeded from ``spec.random_seed`` when it is
         set. ``TablePipeline.fit`` runs steps in this order on the training
         rows only, so every selector's statistics come from the training
-        split regardless of stage.
+        split regardless of where in the chain it sits.
 
     Raises:
         ComponentNotFoundError: If a spec names an unregistered component.
+        HABITAPIError: If a step name is ambiguous across the two registries.
         ConfigurationError: If a component's parameters fail validation.
     """
-    steps = [
-        FeatureSelectorRegistry.create(entry.name, **entry.params)
-        for entry in spec.pre_preprocessing_feature_selectors
-    ]
-    steps.extend(
-        TablePreprocessorRegistry.create(entry.name, **entry.params)
-        for entry in spec.table_preprocessors
-    )
-    steps.extend(
-        FeatureSelectorRegistry.create(entry.name, **entry.params)
-        for entry in spec.feature_selectors
-    )
+    steps = [build_table_step(entry) for entry in spec.steps]
     model = ClassifierRegistry.create(spec.classifier.name, **spec.classifier.params)
     pipeline = TablePipeline(steps=steps, model=model)
     if spec.random_seed is not None:
