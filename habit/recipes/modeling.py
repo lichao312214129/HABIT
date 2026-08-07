@@ -267,7 +267,7 @@ def train_model(
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
         ...     name="demo",
-        ...     table_preprocessors=(Spec("zscore"),),
+        ...     steps=(Spec("zscore"),),
         ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
         ...     metrics=(Spec("accuracy"), Spec("auc")),
         ... )
@@ -366,7 +366,7 @@ def predict_model(pipeline: TablePipeline, table: FeatureTable) -> PredictionRes
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
         ...     name="demo",
-        ...     table_preprocessors=(Spec("zscore"),),
+        ...     steps=(Spec("zscore"),),
         ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
         ...     metrics=(Spec("accuracy"),),
         ... )
@@ -457,7 +457,7 @@ def cross_validate(
         >>> table = make_synthetic_feature_table(n_rows=60, n_features=8, rng=42)
         >>> spec = MLSpec(
         ...     name="demo",
-        ...     table_preprocessors=(Spec("zscore"),),
+        ...     steps=(Spec("zscore"),),
         ...     classifier=Spec("LogisticRegression", {"max_iter": 500}),
         ...     metrics=(Spec("accuracy"), Spec("auc")),
         ... )
