@@ -59,6 +59,6 @@ Notes
 
 - Do not put path-like tokens in ``f`` that HABIT would treat as file paths;
   the loader intentionally skips path resolution for the ``-f`` pattern.
-- On Windows lightweight installs, ``tools/bin/dcm2niix.exe`` is the usual
-  bundled binary.
+- When present in a source checkout, ``tools/bin/dcm2niix.exe`` is a common
+  Windows location for the bundled binary.
 - Command walkthrough: :doc:`../how_to/preprocess`.

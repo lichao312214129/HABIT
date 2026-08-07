@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../_static/documentation_options.js?v=baaebd52"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.0.2
+                1.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,34 +53,16 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#which-path-should-i-choose">Which path should I choose?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#path-a-windows-lightweight-installer-recommended-for-clinicians">Path A — Windows lightweight installer (recommended for clinicians)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#step-by-step">Step-by-step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#optional-add-ons-only-if-you-need-them">Optional add-ons (only if you need them)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-installer-does-for-your-it-department">What the installer does (for your IT department)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#path-b-pip-conda-install-developers-and-cross-platform">Path B — pip / Conda install (developers and cross-platform)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#b1-create-an-isolated-environment-strongly-recommended">B1. Create an isolated environment (strongly recommended)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#b2-install-habit-with-pip">B2. Install HABIT with pip</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#option-1-windows-prebuilt-wheel-from-github-releases-recommended">Option 1 — Windows: prebuilt wheel from GitHub Releases (recommended)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#option-2-conda-forge-preferred-on-macos-linux">Option 2 — Conda-forge (preferred on macOS / Linux)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-extras-programmers">Optional extras (programmers)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#clinician-on-windows-path-a">Clinician on Windows (Path A)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#developer-on-any-os-minimal-library">Developer on any OS (minimal library)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#developer-who-needs-radiomics-ml">Developer who needs radiomics + ML</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#from-github-source">From GitHub source</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-extras">Optional extras</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#common-problems">Common problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-steps">Next steps</a></li>
 </ul>
@@ -1462,41 +1444,30 @@
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
 <p><strong>``habit`` not found</strong></p>
 <ul class="simple">
-<li><p>Windows lightweight installer: double-click <code class="docutils literal notranslate"><span class="pre">launchers/启动HABIT命令行.bat</span></code>
-(after <code class="docutils literal notranslate"><span class="pre">launchers/一键安装HABIT.bat</span></code> succeeds).</p></li>
-<li><p>pip / Conda: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> then <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code>.</p></li>
+<li><p>Activate your environment (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> or the venv you used),
+then <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code>.</p></li>
 <li><p>Full step-by-step: <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>.</p></li>
 </ul>
-<p><strong>Installer path rejected</strong></p>
-<p>Use a short local path with ASCII characters only and no spaces
-(for example <code class="docutils literal notranslate"><span class="pre">D:\HABIT</span></code>). Avoid Desktop paths that contain Chinese
-characters or spaces.</p>
-<p><strong>CUDA False</strong></p>
-<p>Normal for the default CPU environment. After <code class="docutils literal notranslate"><span class="pre">launchers/一键启用HABIT-GPU.bat</span></code>,
-check NVIDIA drivers; see <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> .</p>
 <p><strong>``Parquet export requires pyarrow``</strong></p>
-<p>Current default installs include <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code>. Rebuild or re-run
-<code class="docutils literal notranslate"><span class="pre">launchers/一键安装HABIT.bat</span></code> so the environment picks up the updated runtime
-lock. Temporary workaround: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyarrow==20.0.0</span></code> inside the HABIT
-command-line session.</p>
+<p>Current default installs include <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code>. Reinstall / upgrade
+<code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code> in the same environment. Temporary workaround:
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;pyarrow&gt;=15,&lt;22&quot;</span></code> (or <code class="docutils literal notranslate"><span class="pre">pyarrow&gt;=22,&lt;23</span></code> on Python 3.14).</p>
 <p><strong>``pip install habitat-analysis`` / ``pip install pyradiomics`` fails</strong></p>
-<p>Follow <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a> (Path B + Install PyRadiomics). Short version:</p>
+<p>Follow <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>. Short version:</p>
 <ul>
 <li><p>Base <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> does <strong>not</strong> need PyRadiomics.</p></li>
 <li><p>PyPI has <strong>no usable PyRadiomics Windows binaries</strong>: bare
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyradiomics</span></code> pulls the broken <strong>3.1.0 sdist</strong>, and 3.0.1
-has no Windows wheels either. On Windows install the prebuilt 3.1.0 wheel
-(cp310–cp314) from the HABIT GitHub Release first, then:</p>
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyradiomics</span></code> pulls the broken <strong>3.1.0 sdist</strong>. Use:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;habitat-analysis[radiomics]&quot;</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">habit</span><span class="o">.</span><span class="n">install_radiomics</span>
 </pre></div>
 </div>
+<p>On Windows the helper installs the prebuilt 3.1.0 wheel (cp310–cp314)
+from the HABIT GitHub Release. On macOS / Linux it installs from PyPI.</p>
 </li>
-<li><p>On <strong>macOS / Linux</strong>, <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">pyradiomics</span></code> is fine
-when Conda can reach conda-forge (or a working mirror). On <strong>Windows</strong> do
-not treat Conda as the primary path: mirror / <code class="docutils literal notranslate"><span class="pre">repodata</span></code> timeouts and
-unsatisfiable solves are common; use the Release wheel above instead.</p></li>
-<li><p>habitat-analysis ≥ 1.0.2 extras allow <code class="docutils literal notranslate"><span class="pre">pyradiomics&gt;=3.0.1,&lt;3.2</span></code> and
-support Python 3.10–3.14 with numpy 1.26 or 2.x.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">all</span></code> extra uses the same platform marker so Windows is never
+forced to compile PyRadiomics from sdist.</p></li>
+<li><p>habitat-analysis ≥ 1.0.3 supports Python 3.10–3.14 with numpy 1.26 or 2.x.</p></li>
 </ul>
 </section>
 <section id="runtime">
