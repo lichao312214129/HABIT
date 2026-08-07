@@ -21,17 +21,17 @@ Current default installs include ``pyarrow``. Reinstall / upgrade
 Follow :doc:`../tutorial/installation`. Short version:
 
 - Base ``pip install habitat-analysis`` does **not** need PyRadiomics.
+- Install PyRadiomics **separately** (HABIT extras never pull it).
 - PyPI has **no usable PyRadiomics Windows binaries**: bare
-  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**. Use::
+  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**. On Windows
+  install the matching prebuilt wheel from Release ``v1.0.2``, for example
+  (Python 3.10)::
 
-     pip install "habitat-analysis[radiomics]"
-     python -m habit.install_radiomics
+     pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
 
-  On Windows the helper installs the prebuilt 3.1.0 wheel (cp310–cp314)
-  from the HABIT GitHub Release. On macOS / Linux it installs from PyPI.
-- The ``all`` extra uses the same platform marker so Windows is never
-  forced to compile PyRadiomics from sdist.
-- habitat-analysis ≥ 1.0.3 supports Python 3.10–3.14 with numpy 1.26 or 2.x.
+  On macOS / Linux: ``pip install "pyradiomics>=3.0.1,<3.2"`` or
+  ``conda install -c conda-forge pyradiomics``.
+- habitat-analysis ≥ 1.0.4 supports Python 3.10–3.14 with numpy 1.26 or 2.x.
 
 Runtime
 -------
