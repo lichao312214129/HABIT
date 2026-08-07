@@ -314,6 +314,42 @@ v1.1 起 `MLSpec.steps: Tuple[Spec, ...]` 是**唯一**的表步骤表达：**�
 
 ---
 
+## 11. v1.1：超参搜索 recipe 与 nested CV 的命名与契约
+
+新增公开符号：`recipes.search_hyperparameters` / `recipes.SearchResult`，以及 `cross_validate` 的 `inner_cv` / `param_grid` / `strategy` / `n_iter` / `objective` 关键字参数与 `CVResult.fold_best_params` 字段。全部为**纯增量**：既有 `cross_validate(table, spec, n_splits=..., seed=...)` 调用逐值不变（`tests/recipes/test_hyperparameter_search.py::test_plain_cross_validation_reports_no_tuning`）。
+
+### 11.1 为什么最优参数写回 `MLSpec` 而不是返回 `best_estimator_`
+
+调好参的模型是一个**定义**，不只是一个拟合好的对象。写回 spec 之后它照旧有指纹、能 `to_dict()` 回 YAML、能被别人重跑；只返回 `best_estimator_` 会让溯源链**断在选参那一刻**——论文里"我们网格搜索了 C"这句话再也对不上任何可复现的记录。
+
+写回时保留原 spec 的**字段布局**（三桶 vs 单一 `steps`），理由同 §9.2：`MLSpec.to_dict()` 的两种形状不同，若调参顺手把布局迁移了，同一分析在调参前后指纹会因与调参无关的原因而变化。这一条不能用 `dataclasses.replace` 实现——它会同时重填派生的 `steps` 与三桶，只改一边正是 `MLSpec` 要拒绝的情形，所以有 `_spec_with_layout`。
+
+### 11.2 网格键为什么是 `"<step>__component__<param>"`
+
+沿用 sklearn 自己的嵌套寻址语法，不另造 HABIT 方言：`TablePipeline` 现在就是 `sklearn.pipeline.Pipeline`（§8），`component` 段就是适配器里包着的 HABIT 组件。终端模型的步名恒为 `"model"`，其余步名 = 组件注册名（重名时加 `_2` 后缀）。
+
+**键在搜索开始前就解析**，无法写回 spec 的键直接报错。理由：跑完一轮长搜索才发现结果无处可记，比不搜更糟。
+
+### 11.3 `objective` 而不是 `scoring`
+
+参数收的是**已注册的 HABIT 度量名**（`auc` / `f1_score` / ...），不是 sklearn 的 scorer 字符串——沿用领域已有词汇，不造同义词。方向由度量自己的 `greater_is_better` 决定，调用方不需要手动取负；sklearn 恒定最大化，符号翻转封在 `_objective_scorer` 里，`SearchResult.best_score` 与 `trials[*]["mean_score"]` 一律是度量本身的数。
+
+打分走 `TablePipeline.evaluate`，所以搜索优化的就是最终报告打印的那个量，四种 endpoint 家族的分派复用既有实现。目标度量的**解析**目前只查分类度量注册表，因为 `MLSpec.classifier` 经 `ClassifierRegistry` 装配，L4 recipe 能表达的终端模型只有分类器；等 `MLSpec` 长出回归/生存终端时，`_objective_metric` 是唯一要跟着改的地方。
+
+### 11.4 折的来源是 HABIT 而不是 sklearn 的 splitter
+
+搜索的 cv 传的是 `habit.domain.split.kfold_indices` 生成的显式 `(train, val)` 索引对，不是 `cv=5`。这样同 `n_splits` + 同 seed 下，搜索与 `cross_validate` 的划分**逐行一致**，划分逻辑只有一个源头。
+
+### 11.5 `inner_cv` 与 `param_grid` 必须成对出现
+
+只给一个都是静默错误，所以两个都报错：给了网格没给 `inner_cv`，调参只能发生在外层验证行上（泄漏，且表现为一个偏好的分数）；给了 `inner_cv` 没给网格，则是对空集搜索。嵌套运行的 manifest 记录的是**未调参的 spec**——外层每折各自选了不同参数，把其中之一记成"那个 spec"会把报告的指标错误归因给一个只见过部分数据的定义。
+
+### 11.6 不引入 Optuna
+
+`strategy` 只有 `"grid"` / `"random"`，未知值直接报错。贝叶斯/进化后端是新的硬依赖，按依赖政策它得走可选依赖 + `OptionalDependencyError`；本次不留半成品扩展口。
+
+---
+
 ## 附：prototype 与文档 07 已收敛的矛盾
 
 以下曾在 prototype 与 07 文档间互相矛盾，**以本定案为准**：

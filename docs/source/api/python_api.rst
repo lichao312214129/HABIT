@@ -360,6 +360,74 @@ are folded into ``steps`` in that documented order and raise a
 ``DeprecationWarning``; a spec declaring both layouts with different content
 is rejected rather than resolved by precedence.
 
+Hyperparameter search and nested cross-validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:func:`~habit.recipes.search_hyperparameters` tunes a spec with scikit-learn's
+``GridSearchCV`` / ``RandomizedSearchCV`` and writes the winners **back into
+the** :class:`~habit.spec.specs.MLSpec`. That is the point of the recipe: a
+tuned model is a *definition*, so it keeps a fingerprint, serialises to YAML
+and can be re-run by a reader — a search that returned only a fitted object
+would end the provenance chain where the parameters were chosen.
+
+Grid keys address one HABIT component parameter through the pipeline's step
+names, ``"<step>__component__<parameter>"``. The terminal model's step is
+``"model"``; every other step is named after its registered spec name:
+
+.. code-block:: python
+
+   tuned = recipes.search_hyperparameters(
+       table,
+       spec,
+       {
+           "model__component__C": [0.01, 0.1, 1.0, 10.0],
+           "variance__component__threshold": [0.0, 0.01],
+       },
+       n_splits=5,
+       seed=42,
+       objective="auc",          # a registered HABIT metric, not a scorer string
+   )
+   print(tuned.best_params, tuned.best_score)
+   print(tuned.spec.classifier.params["C"])   # written back into the spec
+   fitted = tuned.model.pipeline                # refitted with the tuned spec
+
+The folds come from :func:`habit.domain.split.kfold_indices`, so a search
+partitions the rows exactly as :func:`~habit.recipes.cross_validate` does for
+the same ``n_splits`` and seed, and every candidate is fitted on training rows
+only — preprocessing statistics and feature selection included, because they
+are pipeline steps that get cloned per fold. ``strategy="random"`` switches to
+a sampled search with an ``n_iter`` budget. The objective's own
+``greater_is_better`` sets the direction, so a "lower is better" metric is
+minimised without the caller negating anything; omitted, the objective is the
+first metric of ``spec.metrics``, and ``auc`` for a spec with no panel.
+
+Tuning once on all the rows and cross-validating afterwards reports an
+optimistically biased number, because the validation rows took part in the
+selection. Passing ``inner_cv`` together with ``param_grid`` makes
+:func:`~habit.recipes.cross_validate` nested instead: each outer fold re-tunes
+on its own training rows and is scored on rows neither the tuning nor the fit
+has seen.
+
+.. code-block:: python
+
+   nested = recipes.cross_validate(
+       table,
+       spec,
+       n_splits=5,
+       inner_cv=3,
+       param_grid={"model__component__C": [0.01, 1.0, 100.0]},
+       seed=42,
+   )
+   print(nested.mean_metrics)        # estimate of the whole tuning procedure
+   print(nested.fold_best_params)    # one winner per outer fold
+
+Report ``fold_best_params`` alongside the panel: parameters that change from
+fold to fold say the search is fitting noise. The two arguments are required
+together — a grid without ``inner_cv`` has nowhere to tune except the outer
+validation rows, and ``inner_cv`` without a grid searches over nothing. There
+is deliberately no Bayesian/Optuna backend, which would be a new hard
+dependency.
+
 The older configuration-object entry points (``run_ml``, ``run_kfold``,
 ``run_model_comparison`` from ``habit.api.machine_learning``) remain
 available for YAML-parity workflows; the CLI commands ``habit model`` /

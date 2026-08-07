@@ -61,6 +61,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- ``habit.recipes.search_hyperparameters`` and ``habit.recipes.SearchResult``:
+  hyperparameter tuning as a recipe. It drives scikit-learn's
+  ``GridSearchCV`` / ``RandomizedSearchCV`` (``strategy="grid"`` /
+  ``"random"``) over a ``TablePipeline``, on folds produced by
+  ``habit.domain.split.kfold_indices`` so a search partitions the rows exactly
+  as ``cross_validate`` does for the same ``n_splits`` and seed, and **writes
+  the winning parameters back into the ``MLSpec``** — the tuned definition
+  fingerprints, serialises to YAML and re-runs, so tuning does not end the
+  provenance chain. Grid keys read ``"<step>__component__<parameter>"``
+  (``"model__component__C"``, ``"variance__component__threshold"``); a key
+  that cannot be written back into the spec is rejected before the search
+  starts. The objective is a registered HABIT metric name whose own
+  ``greater_is_better`` sets the direction, defaulting to the spec's first
+  declared metric and then to ``auc``. No new dependency: there is
+  deliberately no Bayesian/Optuna backend.
+- ``cross_validate(..., inner_cv=..., param_grid=...)``: nested
+  cross-validation. The hyperparameters are re-tuned inside every outer fold's
+  training rows and scored on the untouched validation rows, so the reported
+  panel estimates the whole tuning procedure. Each fold's winner is returned
+  in the new ``CVResult.fold_best_params``. Passing only one of the two
+  arguments is an error, because a grid without ``inner_cv`` would tune on the
+  rows it scores. Plain ``cross_validate`` calls are unaffected.
 - ``MLSpec.steps``: ONE ordered list of table steps (preprocessors and
   feature selectors, freely interleaved) whose list order is the execution
   order. Step names resolve across both registries; the two vocabularies are
