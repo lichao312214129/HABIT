@@ -26,10 +26,13 @@ import habit.recipes as recipes
 logging.basicConfig(level=logging.WARNING)
 
 table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
+# Variance on the raw table (pre_preprocessing_*); z-score afterwards.
 spec = MLSpec(
     name="ml_api_demo",
+    pre_preprocessing_feature_selectors=(
+        Spec("variance", {"threshold": 0.01}),
+    ),
     table_preprocessors=(Spec("zscore"),),
-    feature_selectors=(Spec("variance", {"threshold": 0.01}),),
     classifier=Spec("LogisticRegression", {"max_iter": 500}),
     metrics=(Spec("accuracy"), Spec("auc")),
 )

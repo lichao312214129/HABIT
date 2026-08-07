@@ -30,10 +30,15 @@ table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
 print(f"Table: {table.frame.shape[0]} rows x "
       f"{len(table.feature_columns)} features, outcome={table.outcome.task}")
 
+# Variance MUST run before z-score (raw scale). After z-scoring every
+# feature has variance ~1, so putting variance in feature_selectors is a no-op.
+# Post-preprocessing selectors (ANOVA, LASSO, ...) go in feature_selectors.
 spec = MLSpec(
     name="demo",
+    pre_preprocessing_feature_selectors=(
+        Spec("variance", {"threshold": 0.01}),
+    ),
     table_preprocessors=(Spec("zscore"),),
-    feature_selectors=(Spec("variance", {"threshold": 0.01}),),
     classifier=Spec("LogisticRegression", {"max_iter": 500}),
     metrics=(Spec("accuracy"), Spec("auc")),
 )
