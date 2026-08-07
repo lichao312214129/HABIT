@@ -163,6 +163,96 @@ def test_full_v01_cohort_chain_reproduces_v01_fit_and_transform() -> None:
     pd.testing.assert_frame_equal(v1_test, v0_test, check_dtype=False)
 
 
+def _block_float32(rows: int = 80, columns: int = 6, seed: int = 11) -> pd.DataFrame:
+    """
+    Build a float32 unit-by-feature matrix like voxel radiomics tables.
+
+    Args:
+        rows: Number of clustering units.
+        columns: Number of features.
+        seed: Generator seed.
+
+    Returns:
+        A float32 matrix. v0.1 writes radiomics features as float32
+        (``output_float32=True``); promoting them before cohort z-score is
+        exactly the ck3 drift mode that rtol=1e-6 parity rejects.
+    """
+    rng = np.random.default_rng(seed)
+    data = rng.normal(loc=5.0, scale=2.0, size=(rows, columns)).astype(np.float32)
+    data[:, 0] *= 100.0
+    data[0, 1] = float(data[:, 1].max() * 25.0)
+    return pd.DataFrame(data, columns=[f"f{index}" for index in range(columns)])
+
+
+@pytest.mark.unit
+def test_float32_cohort_zscore_matches_v01_within_rtol_1e_6() -> None:
+    """
+    Cohort z-score on float32 input matches v0.1 within rtol=1e-6.
+
+    This is the voxel-radiomics ck3 failure mode: raw float32 features enter
+    a group-level ``variance_filter`` + ``zscore`` chain (no prior winsorize
+    that would have promoted both paths to float64). v1 used to promote via
+    ``apply_impute`` and float64 statistic Series, shifting means/stds enough
+    that the matrix entering k-means exceeded rtol=1e-6 while labels still
+    agreed.
+    """
+    train = _block_float32()
+    v0_chain = [
+        {"method": "variance_filter", "variance_threshold": 0.01},
+        {"method": "zscore"},
+    ]
+    v0_train, _, _ = apply_preprocessing_pipeline(train.copy(), v0_chain, fit=True)
+    v1_train = CohortPreprocessingChain(
+        [_v1_method(case) for case in v0_chain]
+    ).fit_transform(train)
+
+    assert list(v1_train.columns) == list(v0_train.columns)
+    assert v1_train.dtypes.equals(v0_train.dtypes)
+    expected = v0_train.to_numpy(dtype=np.float64)
+    actual = v1_train.to_numpy(dtype=np.float64)
+    np.testing.assert_allclose(actual, expected, rtol=1e-6, atol=0.0)
+    pd.testing.assert_frame_equal(v1_train, v0_train, check_dtype=True)
+
+
+@pytest.mark.unit
+def test_float32_subject_minmax_then_cohort_zscore_matches_v01() -> None:
+    """
+    Subject minmax (float32-preserving) then cohort z-score matches v0.1.
+
+    Winsorize is deliberately omitted: it promotes both stacks to float64 via
+    quantile bounds and hides the dtype bug. minmax keeps float32 in v0.1, so
+    the cohort z-score must see the same dtype and reduction order in v1.
+    """
+    voxels = _block_float32(rows=200, columns=5, seed=3)
+    subject_chain = [{"method": "minmax"}]
+    cohort_chain = [
+        {"method": "variance_filter", "variance_threshold": 0.01},
+        {"method": "zscore"},
+    ]
+
+    v0_subject, _, _ = apply_preprocessing_pipeline(
+        voxels.copy(), subject_chain, fit=True
+    )
+    v1_subject = SubjectPreprocessingChain(
+        [_v1_method(case) for case in subject_chain]
+    )(voxels)
+    pd.testing.assert_frame_equal(v1_subject, v0_subject, check_dtype=True)
+
+    v0_cohort, _, _ = apply_preprocessing_pipeline(
+        v0_subject.copy(), cohort_chain, fit=True
+    )
+    v1_cohort = CohortPreprocessingChain(
+        [_v1_method(case) for case in cohort_chain]
+    ).fit_transform(v1_subject)
+    np.testing.assert_allclose(
+        v1_cohort.to_numpy(dtype=np.float64),
+        v0_cohort.to_numpy(dtype=np.float64),
+        rtol=1e-6,
+        atol=0.0,
+    )
+    pd.testing.assert_frame_equal(v1_cohort, v0_cohort, check_dtype=True)
+
+
 @pytest.mark.unit
 def test_subject_chain_is_stateless_across_calls() -> None:
     """Each call recomputes statistics, so call order cannot leak."""

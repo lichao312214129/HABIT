@@ -51,11 +51,22 @@ stores bin edges rather than a fitted ``KBinsDiscretizer``. This is a hard
 requirement, not tidiness -- a cohort chain's state travels inside
 ``HabitatModel``, and that artefact is deliberately not a bare pickle so it
 stays readable across HABIT and scikit-learn versions.
+
+Float32 tables (the v0.1 default for voxel radiomics via ``output_float32``)
+must stay float32 through fit/apply when v0.1 did. Promoting them to float64
+before a cohort ``zscore`` changes pandas' column means/stds (float32
+reductions use lower-precision accumulators) and drifts the matrix that
+enters k-means by ~1e-5 relative -- enough to fail a rtol=1e-6 parity check
+even when chosen k and habitat labels still agree. ``apply_impute`` therefore
+copies without dtype promotion, and ``apply_zscore`` / ``apply_minmax`` /
+``apply_log`` rebuild mean/min-style statistics in the block's floating
+dtype. Quantile-based steps (winsorize, robust) keep float64 statistics
+because v0.1's ``DataFrame.quantile`` already returned float64 and promoted.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -133,6 +144,71 @@ def _as_series(state: Mapping[str, Any], columns: Sequence[Any]) -> pd.Series:
     )
 
 
+def _feature_float_dtype(block: pd.DataFrame) -> Optional[np.dtype]:
+    """
+    Return the floating dtype shared by ``block``'s columns, if any.
+
+    Args:
+        block: Feature matrix being transformed.
+
+    Returns:
+        A numpy floating dtype when every column shares one (the radiomics
+        float32 case), otherwise ``None`` so callers keep float64 stats.
+    """
+    if block.empty or block.shape[1] == 0:
+        return None
+    dtypes = {np.dtype(dtype) for dtype in block.dtypes}
+    if len(dtypes) != 1:
+        return None
+    dtype = next(iter(dtypes))
+    if not np.issubdtype(dtype, np.floating):
+        return None
+    return dtype
+
+
+def _as_series_matching(
+    state: Mapping[str, Any],
+    columns: Sequence[Any],
+    block: pd.DataFrame,
+) -> pd.Series:
+    """
+    Rebuild per-column statistics in ``block``'s floating dtype.
+
+    Args:
+        state: Mapping produced by :func:`_as_state`.
+        columns: Columns of the block being transformed, in order.
+        block: Matrix that will receive the statistics, whose dtype is
+            mirrored so ``float32`` tables are not promoted by arithmetic
+            against a float64 Series (v0.1 kept Series stats in-table dtype).
+
+    Returns:
+        A Series indexed by ``columns``.
+    """
+    series = _as_series(state, columns)
+    dtype = _feature_float_dtype(block)
+    if dtype is None or dtype == np.dtype(np.float64):
+        return series
+    return series.astype(dtype, copy=False)
+
+
+def _scalar_matching(value: float, block: pd.DataFrame) -> Union[float, np.floating]:
+    """
+    Cast a pooled statistic to ``block``'s floating dtype when needed.
+
+    Args:
+        value: Serialised scalar from fit state.
+        block: Matrix that will receive the scalar.
+
+    Returns:
+        ``value`` unchanged for float64/mixed blocks, otherwise a numpy
+        scalar of ``block``'s dtype.
+    """
+    dtype = _feature_float_dtype(block)
+    if dtype is None or dtype == np.dtype(np.float64):
+        return float(value)
+    return dtype.type(value)
+
+
 # ---------------------------------------------------------------------------
 # Non-finite imputation
 # ---------------------------------------------------------------------------
@@ -182,10 +258,19 @@ def apply_impute(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
 
     Returns:
         A matrix with no NaN and no infinity, index and columns preserved.
+        The input floating dtype is preserved: a clean float32 radiomics
+        table is copied as float32, matching v0.1's
+        ``handle_extreme_values`` which never promoted before z-scoring.
     """
     if block.empty:
         return block.copy()
-    values = block.to_numpy(dtype=np.float64, copy=True)
+    # Keep the native dtype and rebuild from the ndarray. Two traps matter for
+    # float32 radiomics tables (v0.1 ``output_float32``):
+    # 1) Forcing float64 here made cohort z-score learn different means/stds.
+    # 2) ``DataFrame.copy()`` can look value-identical yet change float32
+    #    ``mean()``/``std()`` (pandas manager layout), disagreeing with v0.1's
+    #    ``_prepare_feature_block`` which always rebuilds from ``.values``.
+    values = block.to_numpy(copy=True)
     non_finite = ~np.isfinite(values)
     if non_finite.any():
         fills = state["fills"]
@@ -239,12 +324,16 @@ def apply_minmax(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
         column to 0 instead of NaN.
     """
     if state["across_features"]:
-        span = state["max"] - state["min"]
-        denominator = span if span != 0 else 1.0
-        return (block - state["min"]) / denominator
+        min_value = _scalar_matching(state["min"], block)
+        max_value = _scalar_matching(state["max"], block)
+        span = max_value - min_value
+        denominator = span if span != 0 else _scalar_matching(1.0, block)
+        return (block - min_value) / denominator
     columns = list(block.columns)
-    mins = _as_series(state["mins"], columns)
-    denominator = (_as_series(state["maxs"], columns) - mins).replace(0, 1.0)
+    mins = _as_series_matching(state["mins"], columns, block)
+    denominator = (
+        _as_series_matching(state["maxs"], columns, block) - mins
+    ).replace(0, 1.0)
     return (block - mins) / denominator
 
 
@@ -283,13 +372,17 @@ def apply_zscore(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
         state: State from :func:`fit_zscore`.
 
     Returns:
-        The standardised matrix.
+        The standardised matrix. Statistics are applied in ``block``'s
+        floating dtype so a float32 cohort table is not silently promoted
+        (v0.1 ``ZScorePreprocessing`` kept mean/std as in-table Series).
     """
     if state["across_features"]:
-        return (block - state["mean"]) / state["std"]
+        mean = _scalar_matching(state["mean"], block)
+        std = _scalar_matching(state["std"], block)
+        return (block - mean) / std
     columns = list(block.columns)
-    return (block - _as_series(state["means"], columns)) / _as_series(
-        state["stds"], columns
+    return (block - _as_series_matching(state["means"], columns, block)) / (
+        _as_series_matching(state["stds"], columns, block)
     )
 
 
@@ -330,6 +423,11 @@ def apply_robust(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
 
     Returns:
         The robust-scaled matrix; a zero IQR divides by 1.0.
+
+    Note:
+        Quantile statistics are applied as float64, matching v0.1 where
+        ``DataFrame.quantile`` already returns float64 even for float32
+        inputs and therefore promotes the clipped/scaled frame.
     """
     if state["across_features"]:
         spread = state["q3"] - state["q1"]
@@ -387,6 +485,11 @@ def apply_winsorize(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFra
 
     Returns:
         The clipped matrix.
+
+    Note:
+        Bounds are applied as float64 Series, matching v0.1 where
+        ``quantile`` produced float64 limits and ``clip`` promoted float32
+        radiomics tables. Casting bounds back to float32 would disagree.
     """
     if state["across_features"]:
         return block.clip(lower=state["lower"], upper=state["upper"])
@@ -518,7 +621,9 @@ def apply_log(block: pd.DataFrame, state: Mapping[str, Any]) -> pd.DataFrame:
     if state["across_features"]:
         shifted = block.to_numpy() - state["offset"] + 1.0
     else:
-        offsets = _as_series(state["offsets"], list(block.columns)).to_numpy()
+        offsets = _as_series_matching(
+            state["offsets"], list(block.columns), block
+        ).to_numpy()
         shifted = block.to_numpy() - offsets + 1.0
     return pd.DataFrame(
         np.log(shifted), columns=block.columns, index=block.index
