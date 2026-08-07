@@ -18,12 +18,34 @@ Prepare data
 
    ``D:\habit`` is an example project root — use your clone or working directory.
 
-1. Download and extract to the project root (repo root that contains ``config/``):
+1. Obtain demo images (pick **one** path):
 
-   ``demo_data.rar`` (required)
+   **A. Packaged DCE demo** (Baidu Netdisk; matches the YAML commands below)::
+
+      demo_data.rar → extract at the project root (folder that contains ``config/``)
 
    - |download_demo_data|
    - Code: |demo_data_code|
+
+   Modalities in that pack are ``delay2`` / ``delay3`` / ``delay5``.
+
+   **B. Public MSD BrainTumour mini-demo** (international HTTPS; no Baidu)::
+
+      python scripts/download_msd_brain_demo.py --n 5
+
+   This pulls Medical Segmentation Decathlon Task01 (BraTS-like) cases via
+   plain HTTPS, splits the 4D volumes with SimpleITK, and writes HABIT's
+   ``images/`` + ``masks/`` layout under
+   ``demo_data/preprocessed/processed_images/``. Modalities are
+   ``t1ce`` / ``t1`` / ``t2`` / ``flair``; ROI folder is ``tumor``.
+   Then run the matching config instead of the delay* demo::
+
+      habit check-config -c config/habitat/config_habitat_msd_demo.yaml
+      habit get-habitat  -c config/habitat/config_habitat_msd_demo.yaml
+
+   Cite MSD / BraTS when publishing; data license CC-BY-SA 4.0
+   (see ``medicaldecathlon.com``). Details:
+   :doc:`../how_to/prepare_data`.
 
    ``config/`` is already included in the source checkout.
 
@@ -32,7 +54,7 @@ Prepare data
    - |download_tests_pack|
    - Code: |tests_pack_code|
 
-2. Verify ``habit --version`` prints ``1.0.0``.
+2. Verify ``habit --version`` prints a ``1.0.x`` version.
 
 Run the demo
 ------------

@@ -1,0 +1,80 @@
+# =============================================================================
+# MSD Task01 BrainTumour mini-demo (two-step habitat)
+# -----------------------------------------------------------------------------
+# Prepare data first (from the repository root):
+#   python scripts/download_msd_brain_demo.py --n 5
+#
+# Then:
+#   habit check-config -c config/habitat/config_habitat_msd_demo.yaml
+#   habit get-habitat  -c config/habitat/config_habitat_msd_demo.yaml
+#
+# This replaces the Baidu ``demo_data.rar`` DCE phases (delay2/3/5) with public
+# MSD modalities: t1ce / t1 / t2 / flair. ROI folder: tumor (whole-tumor).
+# The download script also copies the same mask under each modality folder so
+# the CLI can resolve ROI as the first modality key (current v1.0 behaviour).
+#
+# YAML safety: spaces only; one space after each colon; lowercase true/false.
+# Relative paths resolve against THIS file's directory.
+# =============================================================================
+
+run_mode: train
+# ★ Input root produced by scripts/download_msd_brain_demo.py
+data_dir: ../../demo_data/preprocessed/processed_images
+# ★ Output directory for habitat maps / tables / model archive
+out_dir: ../../demo_data/results/habitat_msd_demo
+
+feature_construction:
+  # Modality keys must match folder names under images/<subject>/.
+  # MSD Task01 channel order in the 4D NIfTI is flair, t1, t1ce, t2; any
+  # analysis order is fine here as long as the folder names match.
+  voxel_level:
+    method: concat(raw(t1ce), raw(t1), raw(t2), raw(flair))
+    params: {}
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {}
+  preprocessing_for_subject_level:
+    methods:
+      - method: winsorize
+        winsor_limits: [0.05, 0.05]
+        global_normalize: false
+      - method: minmax
+        global_normalize: false
+  preprocessing_for_group_level:
+    methods:
+      - method: binning
+        n_bins: 10
+        bin_strategy: uniform
+        global_normalize: false
+
+habitat_segmentation:
+  clustering_mode: two_step
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 50
+    max_iter: 300
+    n_init: 10
+    one_step_settings:
+      min_clusters: 2
+      max_clusters: 10
+      fixed_n_clusters:
+      selection_method: elbow
+      plot_validation_curves: true
+  habitat:
+    algorithm: kmeans
+    max_clusters: 10
+    habitat_cluster_selection_method:
+      - elbow
+    fixed_n_clusters:
+    max_iter: 300
+    n_init: 10
+
+# Keep light for a 5-case laptop demo.
+processes: 2
+plot_curves: true
+save_images: true
+save_results_csv: true
+random_state: 42
+resume: true
+debug: false
