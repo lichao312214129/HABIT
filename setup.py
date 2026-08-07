@@ -147,6 +147,15 @@ class _OptionalBuildExt(build_ext):
             "(habit.kernels.radiomics.cext). Install a C compiler to enable "
             "the native acceleration path.\n\n"
         )
+        # Drop the failed extension from the build list. Editable / inplace
+        # installs call copy_extensions_to_source() after build_extensions();
+        # if the skipped .so is still listed, setuptools raises
+        # "can't copy ... doesn't exist" and the whole install fails — which
+        # defeats the optional-extension contract.
+        try:
+            self.extensions.remove(ext)
+        except ValueError:
+            pass
 
 
 def _extension_modules() -> Sequence[Extension]:
