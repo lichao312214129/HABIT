@@ -210,9 +210,7 @@ def test_run_feature_extraction_passes_plugin_configs() -> None:
     import habit
 
     plugins = {"graph": MagicMock()}
-    with patch(
-        "habit.recipes.features.extract_habitat_features"
-    ) as mock_run:
+    with patch("habit.recipes.features.extract_habitat_features") as mock_run:
         mock_run.return_value = MagicMock(run_id="extract-run")
         habit.run_feature_extraction(
             {
