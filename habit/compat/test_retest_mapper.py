@@ -67,7 +67,6 @@ import SimpleITK as sitk
 import yaml
 import argparse
 import codecs
-import locale
 import sys
 import logging
 import glob
@@ -350,9 +349,17 @@ def detect_file_encoding(file_path: str) -> Optional[str]:
     (utf-8 / gbk / gb2312 / gb18030 / big5), so statistical detection is only
     a first guess that shortens the retry loop -- never the sole answer. When
     chardet happens to be installed (it is a common transitive dependency) it
-    is used; otherwise the platform's preferred encoding from
-    :func:`locale.getpreferredencoding` becomes the first candidate, and the
-    behaviour of the retry loop is unchanged.
+    is still consulted, so installations that have it behave exactly as before.
+
+    Without chardet this returns ``None`` rather than guessing, which hands the
+    decision to the caller's deterministic candidate list. Guessing from
+    :func:`locale.getpreferredencoding` was measured to be actively harmful
+    here: on a Windows machine with a Chinese locale it reports ``cp936``, and
+    because cp936 decodes most UTF-8 byte sequences without raising, a UTF-8
+    config -- the common case -- would be silently decoded into mojibake with
+    no ``UnicodeDecodeError`` for the retry loop to catch. Trying utf-8 first
+    and falling back on failure is both platform-independent and correct for
+    every encoding in the candidate list.
 
     Args:
         file_path: Path to the file whose encoding should be guessed.
@@ -373,10 +380,11 @@ def detect_file_encoding(file_path: str) -> Optional[str]:
     try:
         import chardet
     except ImportError:
-        # Standard-library fallback: the platform default is the single most
-        # likely encoding for a locally authored config file, and a wrong
-        # guess costs nothing because the caller retries.
-        return locale.getpreferredencoding(False)
+        # No guess at all: the caller's candidate list starts with utf-8, which
+        # raises UnicodeDecodeError on non-UTF-8 input and therefore lets the
+        # loop advance to the correct codec. See the docstring for why a
+        # locale-derived guess is worse than no guess.
+        return None
 
     result = chardet.detect(raw_data)
     return result['encoding']
