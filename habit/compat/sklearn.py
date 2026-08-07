@@ -40,14 +40,19 @@ Typical use::
                           scoring="roc_auc", cv=5)
     search.fit(cohort, labels)   # cohort: a Sequence of habit Subject
 
-The table-ML adapters keep ``FeatureTable`` semantics inside an sklearn
-pipeline::
+The TABLE-level adapters moved up to the domain layer in
+:mod:`habit.domain.sklearn_interop`, because
+:class:`~habit.domain.pipeline.TablePipeline` is now itself an
+``sklearn.pipeline.Pipeline`` built out of them and this module is a frozen
+compatibility surface that must not grow new capability. The four names this
+module used to own stay importable here as thin deprecated aliases for all of
+v1.x::
 
-    from habit.compat.sklearn import as_classifier, as_transformer
+    from habit.domain.sklearn_interop import as_classifier, as_transformer
 
     pipe = Pipeline([
         ("scale", as_transformer(ZScorePreprocessor())),
-        ("select", as_transformer(AnovaSelector(top_n=20))),
+        ("select", as_transformer(AnovaSelector(n_features_to_select=20))),
         ("model", as_classifier(LogisticRegressionClassifier())),
     ])
     pipe.fit(train_table)          # outcome rides inside the FeatureTable
@@ -56,29 +61,34 @@ pipeline::
 Note on cross-validation splits: sklearn's ``_safe_indexing`` handles any
 sequence of subjects (including :class:`~habit.contracts.subject.Cohort`), so
 ``GridSearchCV`` works directly on cohorts. A bare ``FeatureTable`` is NOT
-row-indexable by design, so CV drivers over tables should split the frame
-first (or use ``habit.recipes.cross_validate`` when it lands).
+row-indexable by design; a CV driver over tables passes the FRAME as ``X``
+and rebuilds the table in a
+:class:`~habit.domain.sklearn_interop.FrameToTable` head step (which is what
+``TablePipeline`` does), or uses ``habit.recipes.cross_validate``.
 """
 
 from __future__ import annotations
 
-import copy
 import dataclasses
+import warnings
 from typing import Any, Iterator, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
 
 from habit.exceptions import HABITAPIError
-from habit.contracts.outcome import BinaryOutcome, MulticlassOutcome, Outcome
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
 from habit.domain.assembly import HabitatComponents, build_habitat_components
-from habit.domain.outcome_access import outcome_series
 from habit.domain.protocols import Seedable
-from habit.domain.table_protocols import Classifier, FeatureSelector, TablePreprocessor
+from habit.domain.sklearn_interop import (
+    TableClassifierEstimator as _TableClassifierEstimator,
+    TableTransformerEstimator as _TableTransformerEstimator,
+    as_classifier as _as_classifier,
+    as_transformer as _as_transformer,
+)
 from habit.spec.specs import HabitatSpec
 from habit.utils.progress_utils import CustomTqdm
 
@@ -90,6 +100,64 @@ __all__ = [
     "as_transformer",
     "as_classifier",
 ]
+
+#: Text appended to every deprecation message of this module, so a user who
+#: sees one knows both where the symbol went and how long the alias lives.
+_MOVED_NOTE = (
+    "It moved to habit.domain.sklearn_interop when TablePipeline became an "
+    "sklearn Pipeline subclass; the alias here is kept for all of v1.x."
+)
+
+
+def _warn_moved(old: str, new: str) -> None:
+    """
+    Emit the module's standard "symbol moved" deprecation warning.
+
+    Args:
+        old: Fully-qualified old name, as written in user code.
+        new: Fully-qualified replacement to import instead.
+    """
+    warnings.warn(
+        f"{old} is deprecated; use {new}. {_MOVED_NOTE}",
+        DeprecationWarning,
+        stacklevel=3,
+    )
+
+
+class TableTransformerEstimator(_TableTransformerEstimator):
+    """
+    Deprecated alias of
+    :class:`habit.domain.sklearn_interop.TableTransformerEstimator`.
+
+    Subclassing rather than re-binding keeps ``isinstance`` checks written
+    against either name true, so existing code that tests the type keeps
+    working while the warning points at the new import path. Kept through
+    v1.x.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        _warn_moved(
+            "habit.compat.sklearn.TableTransformerEstimator",
+            "habit.domain.sklearn_interop.TableTransformerEstimator",
+        )
+        super().__init__(*args, **kwargs)
+
+
+class TableClassifierEstimator(_TableClassifierEstimator):
+    """
+    Deprecated alias of
+    :class:`habit.domain.sklearn_interop.TableClassifierEstimator`.
+
+    Kept through v1.x; see :class:`TableTransformerEstimator` for why this is
+    a subclass rather than a re-binding.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        _warn_moved(
+            "habit.compat.sklearn.TableClassifierEstimator",
+            "habit.domain.sklearn_interop.TableClassifierEstimator",
+        )
+        super().__init__(*args, **kwargs)
 
 
 def _iter_with_progress(
@@ -511,247 +579,40 @@ def as_estimator(spec: HabitatSpec, **overrides: Any) -> HabitatFeaturesEstimato
     return HabitatFeaturesEstimator(spec, **overrides)
 
 
-def _require_table(X: Any) -> FeatureTable:
-    """Validate that a pipeline step received a ``FeatureTable``."""
-    if not isinstance(X, FeatureTable):
-        raise HABITAPIError(
-            "Table adapters operate on habit FeatureTable objects; got "
-            f"{type(X).__name__}. Chain them with other table-aware steps."
-        )
-    return X
 
-
-class TableTransformerEstimator(TransformerMixin, BaseEstimator):
+def as_transformer(component: Any, **options: Any) -> _TableTransformerEstimator:
     """
-    Adapt a HABIT table transformation to the sklearn transformer API.
-
-    ``X`` is a :class:`~habit.contracts.table.FeatureTable` in and out, so the
-    adapter composes with other table-aware steps inside an sklearn
-    ``Pipeline`` while the fitted state (training statistics, selected
-    columns) follows sklearn's clone/fit lifecycle. The wrapped component is
-    deep-copied at fit time, so the instance the user passed is never mutated.
-
-    Args:
-        component: A :class:`~habit.domain.table_protocols.TablePreprocessor`
-            or :class:`~habit.domain.table_protocols.FeatureSelector`
-            implementation.
-    """
-
-    def __init__(self, component: Any) -> None:
-        self.component = component
-
-    def fit(self, X: Any, y: Any = None, **fit_params: Any) -> "TableTransformerEstimator":
-        """
-        Fit the wrapped component on a training table.
-
-        Args:
-            X: Training ``FeatureTable``.
-            y: Ignored (supervised selectors read the table's outcome
-                column); accepted for sklearn compatibility.
-            **fit_params: Forwarded to the component's ``fit`` (e.g.
-                ``repeat_tables=`` for ICC-driven selectors).
-
-        Returns:
-            ``self``, fitted.
-        """
-        table = _require_table(X)
-        if not isinstance(self.component, (TablePreprocessor, FeatureSelector)):
-            raise HABITAPIError(
-                "TableTransformerEstimator wraps a TablePreprocessor or "
-                f"FeatureSelector; got {type(self.component).__name__}."
-            )
-        self.component_ = copy.deepcopy(self.component)
-        self.component_.fit(table, **fit_params)
-        return self
-
-    def transform(self, X: Any) -> FeatureTable:
-        """
-        Apply the fitted transformation.
-
-        Args:
-            X: Table carrying the fit-time feature columns.
-
-        Returns:
-            The transformed ``FeatureTable``.
-
-        Raises:
-            NotFittedError: If called before :meth:`fit`.
-        """
-        if not hasattr(self, "component_"):
-            raise NotFittedError(
-                "This TableTransformerEstimator is not fitted yet; call fit first."
-            )
-        return self.component_.transform(_require_table(X))
-
-
-class TableClassifierEstimator(ClassifierMixin, BaseEstimator):
-    """
-    Adapt a HABIT :class:`~habit.domain.table_protocols.Classifier` to sklearn.
-
-    The outcome rides inside the ``FeatureTable`` (the leakage-safe HABIT
-    convention); a separate ``y`` is only used to fill a missing outcome
-    column, and is cross-checked against an existing one so a misaligned
-    ``y`` fails loudly instead of silently training on the wrong labels.
-
-    Args:
-        component: A HABIT ``Classifier`` implementation.
-    """
-
-    def __init__(self, component: Any) -> None:
-        self.component = component
-
-    def fit(self, X: Any, y: Any = None) -> "TableClassifierEstimator":
-        """
-        Train the wrapped classifier.
-
-        Args:
-            X: Training ``FeatureTable`` with an outcome column (or pass
-                ``y`` to attach one).
-            y: Optional outcome values. When the table already carries an
-                outcome, ``y`` must agree with it exactly.
-
-        Returns:
-            ``self``, fitted.
-
-        Raises:
-            HABITAPIError: On missing outcome or a ``y``/outcome mismatch.
-        """
-        table = _require_table(X)
-        if not isinstance(self.component, Classifier):
-            raise HABITAPIError(
-                "TableClassifierEstimator wraps a HABIT Classifier; got "
-                f"{type(self.component).__name__}."
-            )
-        if table.outcome is not None and y is not None:
-            outcome = outcome_series(
-                table, owner="TableClassifierEstimator.fit"
-            ).to_numpy()
-            if not np.array_equal(np.asarray(y), outcome):
-                raise HABITAPIError(
-                    "y disagrees with the table's outcome column; refusing "
-                    "to train on ambiguous labels."
-                )
-        if table.outcome is None:
-            if y is None:
-                raise HABITAPIError(
-                    "Training table has no outcome column and no y was given."
-                )
-            table = self._attach_outcome(table, y)
-        self.component_ = copy.deepcopy(self.component)
-        self.component_.fit(table)
-        # HABIT classifiers label probability columns by class (e.g. "0"/"1");
-        # capturing the labels from the fitted classifier itself guarantees
-        # predict_proba stays column-aligned without private-state access.
-        probe = dataclasses.replace(table, frame=table.frame.head(1))
-        self.classes_ = np.asarray(self.component_.predict_proba(probe).columns)
-        return self
-
-    def predict(self, X: Any) -> np.ndarray:
-        """Predict class labels for a table's rows."""
-        self._check_fitted()
-        return self.component_.predict(_require_table(X)).to_numpy()
-
-    def predict_proba(self, X: Any) -> np.ndarray:
-        """Predict class probabilities, columns aligned to ``classes_``."""
-        self._check_fitted()
-        proba = self.component_.predict_proba(_require_table(X))
-        aligned = proba.reindex(columns=list(self.classes_))
-        if aligned.isna().any().any():
-            raise HABITAPIError(
-                "Classifier probability columns do not cover the classes "
-                "seen at fit time."
-            )
-        return aligned.to_numpy(dtype=float)
-
-    def score(self, X: Any, y: Any = None, sample_weight: Any = None) -> float:
-        """
-        Return accuracy on a table.
-
-        Differs from ``ClassifierMixin.score`` in one deliberate way: when
-        ``y`` is omitted the table's own outcome column supplies the truth,
-        which is the natural call inside a FeatureTable-carrying pipeline.
-
-        Args:
-            X: ``FeatureTable`` to score.
-            y: True labels; falls back to the table's outcome column.
-            sample_weight: Optional per-row weights.
-
-        Returns:
-            Mean accuracy.
-        """
-        from sklearn.metrics import accuracy_score
-
-        if y is None:
-            table = _require_table(X)
-            if table.outcome is None:
-                raise HABITAPIError(
-                    "score needs y or a table carrying an outcome column."
-                )
-            y = outcome_series(
-                table, owner="TableClassifierEstimator.score"
-            ).to_numpy()
-        return accuracy_score(y, self.predict(X), sample_weight=sample_weight)
-
-    @staticmethod
-    def _attach_outcome(table: FeatureTable, y: Any) -> FeatureTable:
-        """Return a copy of ``table`` with ``y`` attached as outcome column."""
-        values = np.asarray(y)
-        if values.shape[0] != len(table.frame):
-            raise HABITAPIError(
-                f"y has {values.shape[0]} entries but the table has "
-                f"{len(table.frame)} rows."
-            )
-        column = "outcome"
-        while column in table.frame.columns:
-            column = f"habit_{column}"
-        frame = table.frame.copy()
-        frame[column] = values
-        # sklearn passes bare labels, so the endpoint family is inferred from
-        # them; the positive class follows sklearn's own convention that the
-        # greater of two labels is positive.
-        labels = np.unique(values)
-        outcome: Outcome
-        if labels.size <= 2:
-            outcome = BinaryOutcome(column, positive_label=labels[-1])
-        else:
-            outcome = MulticlassOutcome(column, classes=tuple(labels))
-        return FeatureTable(
-            frame=frame,
-            id_columns=table.id_columns,
-            feature_columns=table.feature_columns,
-            outcome=outcome,
-            provenance=table.provenance,
-        )
-
-    def _check_fitted(self) -> None:
-        """Guard sklearn's "no prediction before fitting" contract."""
-        if not hasattr(self, "component_"):
-            raise NotFittedError(
-                "This TableClassifierEstimator is not fitted yet; call fit first."
-            )
-
-
-def as_transformer(component: Any) -> TableTransformerEstimator:
-    """
-    Wrap a HABIT table preprocessor/selector as a sklearn transformer.
+    Deprecated alias of
+    :func:`habit.domain.sklearn_interop.as_transformer` (kept through v1.x).
 
     Args:
         component: ``TablePreprocessor`` or ``FeatureSelector`` implementation.
+        **options: Forwarded verbatim to the domain-layer factory.
 
     Returns:
-        The configured adapter.
+        The configured adapter, of the domain-layer type.
     """
-    return TableTransformerEstimator(component)
+    _warn_moved(
+        "habit.compat.sklearn.as_transformer()",
+        "habit.domain.sklearn_interop.as_transformer()",
+    )
+    return _as_transformer(component, **options)
 
 
-def as_classifier(component: Any) -> TableClassifierEstimator:
+def as_classifier(component: Any, **options: Any) -> _TableClassifierEstimator:
     """
-    Wrap a HABIT classifier as a sklearn classifier.
+    Deprecated alias of
+    :func:`habit.domain.sklearn_interop.as_classifier` (kept through v1.x).
 
     Args:
         component: ``Classifier`` implementation.
+        **options: Forwarded verbatim to the domain-layer factory.
 
     Returns:
-        The configured adapter.
+        The configured adapter, of the domain-layer type.
     """
-    return TableClassifierEstimator(component)
+    _warn_moved(
+        "habit.compat.sklearn.as_classifier()",
+        "habit.domain.sklearn_interop.as_classifier()",
+    )
+    return _as_classifier(component, **options)
