@@ -457,6 +457,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1911,56 +1912,64 @@ discovery); the only layer that touches the filesystem for reads.</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code></p></td>
 <td><p><strong>L4</strong>: the standard study designs — <code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> /
 <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code>, <code class="docutils literal notranslate"><span class="pre">train_model</span></code> / <code class="docutils literal notranslate"><span class="pre">cross_validate</span></code> /
-<code class="docutils literal notranslate"><span class="pre">predict_model</span></code>, <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_habitat_model</span></code>.</p></td>
+<code class="docutils literal notranslate"><span class="pre">predict_model</span></code>, <code class="docutils literal notranslate"><span class="pre">extract_habitat_features</span></code> /
+<code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">compare_models</span></code>, <code class="docutils literal notranslate"><span class="pre">run_from_yaml</span></code>,
+<code class="docutils literal notranslate"><span class="pre">apply_habitat_model</span></code>. ML/compare disk figures go through
+<code class="docutils literal notranslate"><span class="pre">ml_reporting.py</span></code> / <code class="docutils literal notranslate"><span class="pre">comparison_reporting.py</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/viz/</span></code></p></td>
+<td><p>Publication figures (<code class="docutils literal notranslate"><span class="pre">Figure</span></code> in, no filesystem). Classification
+curves and SHAP helpers used by ML and compare reporting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code></p></td>
 <td><p><strong>L5</strong>: Click command group and command implementations. Commands
 validate YAML, translate via <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> when needed, and
 delegate to L4 recipes. Shared helpers are in <code class="docutils literal notranslate"><span class="pre">commands/common.py</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/spec/</span></code></p></td>
 <td><p>Spec objects (<code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>, <code class="docutils literal notranslate"><span class="pre">MLSpec</span></code>, <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code>) and
 <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code> for v0.1 → v1 translation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/execution/</span></code></p></td>
 <td><p>Execution backends (serial / multiprocessing) and checkpoint stores.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/datasets/</span></code></p></td>
 <td><p>Synthetic cohorts and feature tables for examples and tests.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/plugins/</span></code></p></td>
 <td><p>Plugin discovery and <code class="docutils literal notranslate"><span class="pre">list_plugins</span></code> introspection.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/api/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/api/</span></code></p></td>
 <td><p>v0.1 configuration-object facade (<code class="docutils literal notranslate"><span class="pre">run_ml</span></code>, <code class="docutils literal notranslate"><span class="pre">run_kfold</span></code>,
 <code class="docutils literal notranslate"><span class="pre">run_preprocess</span></code>, …), kept for YAML parity.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/schemas/</span></code></p></td>
 <td><p>Pydantic configuration models for workflows, step parameters, parameter
 registration, validation, and GUI reflection (v1.0 canonical location).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/registry/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/registry/</span></code></p></td>
 <td><p>Shared registry base (<code class="xref py py-class docutils literal notranslate"><span class="pre">ClassRegistry</span></code>) used
 by plugin factories across engines.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/preprocessing/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/preprocessing/</span></code></p></td>
 <td><p>Batch image preprocessing: <code class="docutils literal notranslate"><span class="pre">BatchProcessor</span></code>,
 <code class="docutils literal notranslate"><span class="pre">BasePreprocessor</span></code>, <code class="docutils literal notranslate"><span class="pre">PreprocessorFactory</span></code>, and step implementations
 (v0.1 engine, retained for YAML/CLI parity).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/habitat_analysis/</span></code></p></td>
 <td><p>Habitat segmentation, clustering features, post-segmentation feature
 extraction, and traditional radiomics (see <a class="reference internal" href="subsystems.html"><span class="doc">Subsystems</span></a>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code></p></td>
-<td><p>Tabular machine learning: data assembly, feature selection, modeling,
-evaluation, reporting, visualization, and statistical tests.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code></p></td>
+<td><p>Legacy tabular ML engine (holdout/K-fold workflows, pickle pipelines).
+CLI train/cv/compare prefer v1 recipes + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>; this tree is
+retained for YAML parity and opaque v0.1 pipeline loads.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/dicom_sort_runner.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/compat/dicom_sort_runner.py</span></code></p></td>
 <td><p>Standalone DICOM sorting based on dcm2niix; invoked from
 <code class="docutils literal notranslate"><span class="pre">habit.recipes.sort_dicom</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code></p></td>
 <td><p>Shared utilities used across subsystems (see below).</p></td>
 </tr>
 </tbody>
@@ -2027,6 +2036,8 @@ run the contract tests when adding a factory or orchestrator:</p>
 
   ORC[&quot;recipes/habitat.py&lt;br/&gt;two_step / one_step / direct_pooling&quot;] --&gt; DOM[&quot;habit/domain/&lt;br/&gt;component registries&quot;]
   ORC2[&quot;recipes/modeling.py&lt;br/&gt;train_model / cross_validate / predict_model&quot;] --&gt; TP[&quot;TablePipeline&quot;]
+  ORC3[&quot;recipes/comparison.py&lt;br/&gt;compare_models&quot;] --&gt; EV[&quot;domain/evaluation/comparison&quot;]
+  ORC3 --&gt; VIZ[&quot;habit.viz&quot;]
 
   TST[&quot;tests/test_architecture_contracts.py&quot;] -.-&gt; REG
   TST -.-&gt; ORC
@@ -2070,14 +2081,20 @@ run the contract tests when adding a factory or orchestrator:</p>
 </tr>
 <tr class="row-even"><td><p>Change the ML training or prediction flow</p></td>
 <td><p>v1: <code class="docutils literal notranslate"><span class="pre">habit/recipes/modeling.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> components;
+figures: <code class="docutils literal notranslate"><span class="pre">recipes/ml_reporting.py</span></code> + <code class="docutils literal notranslate"><span class="pre">habit/viz/</span></code>;
 v0.1 engine: <code class="docutils literal notranslate"><span class="pre">compat/engines/machine_learning/workflows/</span></code> and
 <code class="docutils literal notranslate"><span class="pre">runners/</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Add a class-based factory</p></td>
+<tr class="row-odd"><td><p>Change multi-model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">habit/recipes/comparison.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">habit/domain/evaluation/comparison.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">habit/recipes/comparison_reporting.py</span></code>, <code class="docutils literal notranslate"><span class="pre">habit/viz/</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Add a class-based factory</p></td>
 <td><p>Subclass <code class="docutils literal notranslate"><span class="pre">ClassRegistry</span></code> from <code class="docutils literal notranslate"><span class="pre">habit/registry/base.py</span></code>;
 follow an existing factory in the same domain.</p></td>
 </tr>
-<tr class="row-even"><td><p>Add a top-level orchestrator for a new CLI pipeline</p></td>
+<tr class="row-odd"><td><p>Add a top-level orchestrator for a new CLI pipeline</p></td>
 <td><p>Implement the recipe in <code class="docutils literal notranslate"><span class="pre">habit/recipes/</span></code> and wire the CLI command.
 <code class="docutils literal notranslate"><span class="pre">tests/test_architecture_contracts.py</span></code> validates layer dependencies.</p></td>
 </tr>

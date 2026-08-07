@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1528,7 +1529,7 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
             <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;oracle&quot;</span><span class="p">,</span>
             <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span>
             <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prediction_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="p">{</span>
@@ -1536,7 +1537,7 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
             <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;noisy&quot;</span><span class="p">,</span>
             <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span>
             <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prediction_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
             <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">],</span>
@@ -1549,7 +1550,14 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="w"> </span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">float</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ML evaluation figures (ROC, calibration) are written under output_dir/plots/&quot;</span><span class="p">)</span>
+<span class="c1"># compare_models writes multi-model curves at output_dir root (or per-split</span>
+<span class="c1"># subdirs when split.enabled). Single-model train/CV figures from habit model /</span>
+<span class="c1"># habit cv use &lt;output&gt;/visualizations/ with train_ / test_ / cv_ prefixes.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">compare_result</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">compare_models artefacts (ROC/DCA/calibration/PR, metrics/metrics.json) &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;under </span><span class="si">{</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1562,7 +1570,10 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
 <span class="n">Test</span> <span class="n">metrics</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 
 <span class="o">---</span> <span class="n">compare_models</span> <span class="n">output</span><span class="p">:</span> <span class="o">.../</span><span class="n">comparison</span> <span class="o">---</span>
-<span class="n">ML</span> <span class="n">evaluation</span> <span class="n">figures</span> <span class="p">(</span><span class="n">ROC</span><span class="p">,</span> <span class="n">calibration</span><span class="p">)</span> <span class="n">are</span> <span class="n">written</span> <span class="n">under</span> <span class="n">output_dir</span><span class="o">/</span><span class="n">plots</span><span class="o">/</span>
+<span class="n">Multi</span><span class="o">-</span><span class="n">model</span> <span class="n">figures</span> <span class="p">(</span><span class="n">ROC</span><span class="p">,</span> <span class="n">DCA</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">PR</span><span class="p">)</span> <span class="ow">and</span> <span class="n">metrics</span> <span class="n">land</span> <span class="n">under</span>
+<span class="n">output_dir</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">roc_curves</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">metrics</span><span class="o">/</span><span class="n">metrics</span><span class="o">.</span><span class="n">json</span><span class="p">)</span><span class="o">.</span> <span class="n">Train</span><span class="o">/</span><span class="n">CV</span>
+<span class="n">single</span><span class="o">-</span><span class="n">model</span> <span class="n">figures</span> <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span> <span class="n">model</span> <span class="o">/</span> <span class="n">habit</span> <span class="n">cv</span> <span class="n">use</span>
+<span class="n">output</span><span class="o">/</span><span class="n">visualizations</span><span class="o">/</span> <span class="k">with</span> <span class="n">train_</span> <span class="o">/</span> <span class="n">test_</span> <span class="o">/</span> <span class="n">cv_</span> <span class="n">prefixes</span><span class="o">.</span>
 </pre></div>
 </div>
 </section>

@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=71272d9f"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -413,7 +413,11 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +454,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -2153,7 +2158,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">_ml_config_shim_from_v1</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-            <span class="n">_save_cv_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">_save_cv_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">random_seed</span><span class="p">)</span>
@@ -2385,7 +2390,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">seed</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
-            <span class="n">_save_cv_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+            <span class="n">_save_cv_result</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span>
             <span class="n">table</span><span class="p">,</span>
@@ -2892,6 +2897,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved fitted pipeline to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pipeline_path</span><span class="p">)</span>
 
     <span class="n">_write_all_prediction_results</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+    <span class="n">_write_ml_figures</span><span class="p">(</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;holdout&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_all_prediction_results</span><span class="p">(</span>
@@ -2956,6 +2964,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">result</span><span class="p">:</span> <span class="n">CVResult</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write cross-validation artefacts with v0.1-friendly filenames.&quot;&quot;&quot;</span>
@@ -2982,16 +2991,47 @@ window.runMermaid = runMermaid;</script>
         <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">legacy_payload</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
     <span class="p">)</span>
 
+    <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">is_save_model</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">pipelines</span><span class="p">:</span>
         <span class="n">model_dir</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span>
         <span class="n">model_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">fold_index</span><span class="p">,</span> <span class="n">pipeline</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pipelines</span><span class="p">):</span>
             <span class="n">destination</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">model_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">_fold</span><span class="si">{</span><span class="n">fold_index</span><span class="si">}</span><span class="s2">_pipeline.habitpipeline&quot;</span>
             <span class="p">)</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saved fold </span><span class="si">%d</span><span class="s2"> pipeline to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fold_index</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_write_ml_figures</span><span class="p">(</span>
+            <span class="n">result</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cv&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_ml_figures</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ModelResult</span><span class="p">,</span> <span class="n">CVResult</span><span class="p">],</span>
+    <span class="n">table</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist v1 ML figures under ``out_dir/visualizations`` when enabled.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes.ml_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_ml_figures_from_config</span>
+
+    <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">figure_dir</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s2">&quot;visualizations&quot;</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">write_ml_figures_from_config</span><span class="p">(</span>
+        <span class="n">result</span><span class="p">,</span>
+        <span class="n">table</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">destination</span><span class="o">=</span><span class="n">figure_dir</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wrote </span><span class="si">%d</span><span class="s2"> ML figure(s) under </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">),</span> <span class="n">figure_dir</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_v1_model_archive</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1448,6 +1449,11 @@
 <p>This page documents <strong>model comparison</strong> YAML used by <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>.
 Schema: <code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code>. Demo:
 <code class="docutils literal notranslate"><span class="pre">config/model_comparison/config_model_comparison_demo.yaml</span></code>.</p>
+<p>Runtime path: <a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a>
+(<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison</span></code>) →
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.domain.evaluation.comparison</span></code> →
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison_reporting</span></code> + <code class="docutils literal notranslate"><span class="pre">habit.viz.classification</span></code>.
+The v0.1 ML comparison engine is not on this path.</p>
 <p>Command usage: <a class="reference internal" href="../how_to/compare_models.html"><span class="doc">Model comparison</span></a>. Python API:
 <a class="reference internal" href="../api/python_api.html"><span class="doc">Python API guide (v1.0)</span></a> and <a class="reference internal" href="../api/domain_table.html"><span class="doc">Table ML domain API</span></a>.</p>
 <p><strong>Example configuration:</strong></p>
@@ -1583,13 +1589,14 @@ Relative paths resolve from the YAML file directory.</p></li>
 <p><strong>split</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> (bool, default <code class="docutils literal notranslate"><span class="pre">false</span></code>): when <code class="docutils literal notranslate"><span class="pre">true</span></code>, generate per-split
-analyses using <code class="docutils literal notranslate"><span class="pre">split_col</span></code> in each prediction file</p></li>
+analyses using <code class="docutils literal notranslate"><span class="pre">split_col</span></code> in each prediction file. Figures and DeLong
+JSON are written under <code class="docutils literal notranslate"><span class="pre">&lt;output_dir&gt;/&lt;split_name&gt;/</span></code>.</p></li>
 </ul>
 <p><strong>visualization</strong></p>
 <p>Sub-blocks <code class="docutils literal notranslate"><span class="pre">roc</span></code>, <code class="docutils literal notranslate"><span class="pre">dca</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration</span></code>, and <code class="docutils literal notranslate"><span class="pre">pr_curve</span></code> each accept:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> (bool, default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">save_name</span></code> (output filename under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_name</span></code> (output filename under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> or the split subdirectory)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> (plot title, English)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n_bins</span></code> (calibration only; number of probability bins)</p></li>
 </ul>
@@ -1609,11 +1616,22 @@ points (each target value must be in <code class="docutils literal notranslate">
 </section>
 <section id="typical-outputs-under-output-dir">
 <h2>Typical outputs under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code><a class="headerlink" href="#typical-outputs-under-output-dir" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">roc_curves.pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">decision_curves.pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration_curves.pdf</span></code>,
-<code class="docutils literal notranslate"><span class="pre">precision_recall_curves.pdf</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">delong_results.json</span></code></p></li>
+<ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">combined_predictions.csv</span></code> (when merge is enabled)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics/metrics.json</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit_run_manifest.json</span></code></p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">split.enabled:</span> <span class="pre">true</span></code> (demo layout):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">train</span><span class="o">/</span><span class="n">roc_curves</span><span class="o">.</span><span class="n">pdf</span>
+<span class="n">train</span><span class="o">/</span><span class="n">decision_curves</span><span class="o">.</span><span class="n">pdf</span>
+<span class="n">train</span><span class="o">/</span><span class="n">calibration_curves</span><span class="o">.</span><span class="n">pdf</span>
+<span class="n">train</span><span class="o">/</span><span class="n">precision_recall_curves</span><span class="o">.</span><span class="n">pdf</span>
+<span class="n">train</span><span class="o">/</span><span class="n">delong_results</span><span class="o">.</span><span class="n">json</span>
+<span class="n">test</span><span class="o">/...</span>   <span class="p">(</span><span class="n">same</span> <span class="n">filenames</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">split.enabled:</span> <span class="pre">false</span></code>, the curve PDFs and <code class="docutils literal notranslate"><span class="pre">delong_results.json</span></code>
+sit directly under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p></li>
 </ul>
 <p>Related machine-learning training fields remain on
 <a class="reference internal" href="machine_learning.html"><span class="doc">Machine Learning Configuration</span></a>.</p>

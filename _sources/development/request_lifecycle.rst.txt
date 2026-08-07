@@ -110,10 +110,21 @@ metrics, and plots are written to the configured output directory. Plot text
 is English by project convention.
 
 The same lifecycle shape applies to the other pipeline commands — validate,
-translate if v0.1, call a recipe, write artifacts. Two variations worth
-knowing: ``habit model`` / ``habit cv`` **predict** mode routes by artifact
-format (a v1 ``.habitpipeline`` goes to :func:`~habit.recipes.predict_model`;
-an opaque v0.1 ``*_final_pipeline.pkl`` stays on the v0.1 engine, the only
-loader that understands it), and ``habit extract`` / ``habit radiomics`` /
-``habit compare`` call L4 recipes that wrap the v0.1 engines because those
-workflows have no domain-native equivalent yet.
+translate if v0.1, call a recipe, write artifacts. Variations worth knowing:
+
+* ``habit model`` / ``habit cv`` **predict** mode routes by artifact format
+  (a v1 ``.habitpipeline`` goes to :func:`~habit.recipes.predict_model`;
+  an opaque v0.1 ``*_final_pipeline.pkl`` stays on the v0.1 engine, the only
+  loader that understands it).
+* Train / CV figure reporting is L4 + ``habit.viz``:
+  :mod:`habit.recipes.ml_reporting` writes under ``output/visualizations/``
+  with filename prefixes ``train_`` / ``test_`` / ``cv_``.
+* ``habit compare`` calls :func:`~habit.recipes.compare_models`
+  (:mod:`habit.recipes.comparison` + :mod:`habit.domain.evaluation.comparison`
+  + :mod:`habit.recipes.comparison_reporting` + ``habit.viz`` multi-model
+  curves). It does **not** use the v0.1 comparison engine.
+* ``habit extract`` calls :func:`~habit.recipes.extract_habitat_features`
+  (domain extractors for built-in feature types; optional unregistered plugins
+  may still fall back to the compat ``HabitatMapAnalyzer``).
+* ``habit radiomics`` calls :func:`~habit.recipes.traditional_radiomics`
+  (recipe facade over the radiomics workflow helper).

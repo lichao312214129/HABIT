@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1492,9 +1493,18 @@
 
 <span class="nt">visualization</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="c1"># Allowed: roc, dca, calibration, pr, confusion,</span>
+<span class="w">  </span><span class="c1">#          shap, shap_dependence, shap_waterfall, permutation</span>
 <span class="w">  </span><span class="nt">plot_types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">roc</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dca</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">calibration</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pr</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">confusion</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">shap</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">dpi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
 <span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pdf</span>
+<span class="w">  </span><span class="c1"># Optional knobs for shap_dependence / shap_waterfall / permutation:</span>
+<span class="w">  </span><span class="c1"># explainability:</span>
+<span class="w">  </span><span class="c1">#   shap_dependence_top_k: 3</span>
+<span class="w">  </span><span class="c1">#   shap_waterfall_samples: 3</span>
+<span class="w">  </span><span class="c1">#   permutation_repeats: 10</span>
+<span class="w">  </span><span class="c1">#   permutation_scoring: roc_auc</span>
+<span class="w">  </span><span class="c1">#   permutation_top_k: 20</span>
 </pre></div>
 </div>
 <p><strong>Prediction mode YAML example</strong> (<code class="docutils literal notranslate"><span class="pre">run_mode:</span> <span class="pre">predict</span></code>):</p>
@@ -2012,11 +2022,23 @@ integer &gt;= 1 = absolute count, value in (0, 1) = ratio of candidate features 
 <li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
 </ul>
 <p><strong>visualization</strong>: visualization settings (<code class="docutils literal notranslate"><span class="pre">VisualizationConfig</span></code>)</p>
+<p>CLI train / CV write figures under <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;/visualizations/</span></code> through
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code> and <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> (not a legacy
+<code class="docutils literal notranslate"><span class="pre">plots/</span></code> directory). Filename prefixes: <code class="docutils literal notranslate"><span class="pre">train_</span></code> / <code class="docutils literal notranslate"><span class="pre">test_</span></code> (hold-out)
+or <code class="docutils literal notranslate"><span class="pre">cv_</span></code> (pooled out-of-fold).</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">plot_types</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">[roc,</span> <span class="pre">dca,</span> <span class="pre">calibration,</span> <span class="pre">pr,</span> <span class="pre">confusion,</span> <span class="pre">shap]</span></code>; values match listed type names</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_types</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">[roc,</span> <span class="pre">dca,</span> <span class="pre">calibration,</span> <span class="pre">pr,</span> <span class="pre">confusion,</span> <span class="pre">shap]</span></code>.
+Allowed values: <code class="docutils literal notranslate"><span class="pre">roc</span></code>, <code class="docutils literal notranslate"><span class="pre">dca</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration</span></code>, <code class="docutils literal notranslate"><span class="pre">pr</span></code>, <code class="docutils literal notranslate"><span class="pre">confusion</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_dependence</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_waterfall</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation</span></code>.
+Unknown names fail validation.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dpi</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">600</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">format</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">pdf</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">explainability</span></code> (optional): tuning for explanation figures when those
+<code class="docutils literal notranslate"><span class="pre">plot_types</span></code> are enabled — <code class="docutils literal notranslate"><span class="pre">shap_dependence_top_k</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap_waterfall_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation_repeats</span></code>,
+<code class="docutils literal notranslate"><span class="pre">permutation_scoring</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation_top_k</span></code>,
+<code class="docutils literal notranslate"><span class="pre">permutation_random_state</span></code></p></li>
 </ul>
 <p><strong>is_save_model</strong>: save trained pipeline to <code class="docutils literal notranslate"><span class="pre">output</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>).</p>
 <p><strong>Predict-mode-only fields</strong> (when <code class="docutils literal notranslate"><span class="pre">run_mode:</span> <span class="pre">predict</span></code>)</p>
@@ -2031,7 +2053,9 @@ integer &gt;= 1 = absolute count, value in (0, 1) = ratio of candidate features 
 <section id="model-comparison-habit-compare">
 <h2>Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)<a class="headerlink" href="#model-comparison-habit-compare" title="Link to this heading"></a></h2>
 <p>Multi-model ROC / DCA / DeLong comparison uses a separate schema
-(<code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code>). Full field reference:
+(<code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code>) and the v1 recipe
+<a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a> (domain evaluation +
+<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> multi-model figures). Full field reference:
 <a class="reference internal" href="model_comparison.html"><span class="doc">Model Comparison Configuration</span></a>.</p>
 </section>
 </section>

@@ -457,6 +457,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1959,14 +1960,18 @@ object. Configurators live with their engines under <code class="docutils litera
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MLConfigurator</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">compat/engines/machine_learning/configurator.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">HoldoutWorkflow</span></code>, <code class="docutils literal notranslate"><span class="pre">KFoldWorkflow</span></code>, or <code class="docutils literal notranslate"><span class="pre">ModelComparison</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HoldoutWorkflow</span></code> or <code class="docutils literal notranslate"><span class="pre">KFoldWorkflow</span></code> (legacy engine path)</p></td>
 </tr>
 </tbody>
 </table>
 <p>On the v1 path this assembly role is played by the recipes themselves: a
 recipe resolves <code class="docutils literal notranslate"><span class="pre">Spec(&quot;name&quot;,</span> <span class="pre">params)</span></code> component references through the
 <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> registries and wires them into a <code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code> or
-<code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> directly — no separate configurator object is involved.</p>
+<code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code> directly — no separate configurator object is involved.
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code> use <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.modeling</span></code>;
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> uses <a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a> with a
+validated <code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code> (schema only — not a
+<code class="docutils literal notranslate"><span class="pre">ModelComparison</span></code> runtime class from the v0.1 engine).</p>
 </section>
 <section id="summary">
 <h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>

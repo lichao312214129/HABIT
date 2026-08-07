@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=71272d9f"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -413,7 +413,11 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +454,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -2003,10 +2008,15 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract habitat-map features from a validated config object.</span>
 
+<span class="sd">    Delegates to :func:`habit.recipes.features.extract_habitat_features`, the</span>
+<span class="sd">    domain-native recipe used by ``habit extract``. Optional plugins that are</span>
+<span class="sd">    not registered in the domain registry still fall back to the compat</span>
+<span class="sd">    analyzer inside the recipe.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        config: Validated config or dictionary accepted by</span>
 <span class="sd">            :class:`~habit.schemas.workflows.habitat.FeatureExtractionConfig`.</span>
-<span class="sd">        logger: Optional logger passed to the core runner.</span>
+<span class="sd">        logger: Optional logger passed to the recipe.</span>
 <span class="sd">        plugin_configs: Optional settings returned by</span>
 <span class="sd">            :func:`load_feature_extraction_config` or</span>
 <span class="sd">            :func:`build_feature_extraction_config` for plugin-backed features.</span>
@@ -2014,42 +2024,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        A result with the feature output directory in ``artifacts``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.compat.legacy_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_feature_extraction_from_config</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.schemas.workflows.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureExtractionConfig</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_habitat_features</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
-        <span class="n">validated_config</span><span class="p">,</span> <span class="n">inferred_plugin_configs</span> <span class="o">=</span> <span class="n">build_feature_extraction_config</span><span class="p">(</span>
-            <span class="n">config</span>
-        <span class="p">)</span>
-        <span class="n">resolved_plugin_configs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">inferred_plugin_configs</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">validated_config</span> <span class="o">=</span> <span class="n">coerce_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">FeatureExtractionConfig</span><span class="p">)</span>
-        <span class="n">resolved_plugin_configs</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span> <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
-    <span class="n">run_feature_extraction_from_config</span><span class="p">(</span>
-        <span class="n">validated_config</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">extract_habitat_features</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">plugin_configs</span><span class="o">=</span><span class="n">plugin_configs</span><span class="p">,</span>
         <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-        <span class="n">plugin_configs</span><span class="o">=</span><span class="n">resolved_plugin_configs</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">manifest</span> <span class="o">=</span> <span class="n">create_run_manifest</span><span class="p">(</span>
-        <span class="s2">&quot;feature_extraction&quot;</span><span class="p">,</span>
-        <span class="n">validated_config</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">resolved_plugin_configs</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">keys</span><span class="p">())},</span>
-    <span class="p">)</span>
-    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">write_run_manifest</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">validated_config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">WorkflowResult</span><span class="p">(</span>
-        <span class="n">output_dir</span><span class="o">=</span><span class="n">validated_config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
-        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;config_hash&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">config_hash</span><span class="p">,</span>
-            <span class="s2">&quot;habit_version&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">habit_version</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">run_id</span><span class="o">=</span><span class="n">manifest</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
-        <span class="n">manifest_path</span><span class="o">=</span><span class="n">manifest_path</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

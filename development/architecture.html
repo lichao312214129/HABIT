@@ -457,6 +457,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1831,7 +1832,7 @@ hard-coded into workflow logic.</p></li>
     CLI[&quot;CLI commands&quot;]
     YAML[&quot;YAML documents&quot;]
   end
-  L4[&quot;L4 — recipes (habit/recipes/)&lt;br/&gt;two_step · one_step · direct_pooling&lt;br/&gt;train_model · cross_validate · predict_model&lt;br/&gt;run_from_yaml · apply_habitat_model&quot;]
+  L4[&quot;L4 — recipes (habit/recipes/)&lt;br/&gt;two_step · one_step · direct_pooling&lt;br/&gt;train_model · cross_validate · predict_model&lt;br/&gt;extract · radiomics · compare_models&lt;br/&gt;run_from_yaml · apply_habitat_model&quot;]
   L3[&quot;L3 — domain (habit/domain/)&lt;br/&gt;protocols + component registries&lt;br/&gt;SubjectPipeline · TablePipeline&quot;]
   L2[&quot;L2 — contracts (habit/contracts/)&lt;br/&gt;Subject · Cohort · FeatureTable&lt;br/&gt;HabitatModel · RunManifest&quot;]
   L1[&quot;L1 — adapters (habit/adapters/)&lt;br/&gt;DirectoryDataSource · sinks&lt;br/&gt;(the only layer that reads files)&quot;]
@@ -1914,9 +1915,11 @@ components. Fitted state is persisted as a self-describing
 <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a>, <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a>)
 run a <a class="reference internal" href="../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline" title="habit.domain.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>, which keeps preprocessing,
 feature selection, and the classifier inside one fitted object to prevent
-data leakage. The v0.1 engine (<code class="docutils literal notranslate"><span class="pre">workflows/</span></code> + <code class="docutils literal notranslate"><span class="pre">runners/</span></code> under
-<code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code>) powers the configuration-object
-API in <code class="docutils literal notranslate"><span class="pre">habit.api.machine_learning</span></code>.</p>
+data leakage. Figures go through <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code> and
+<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>. Multi-model comparison is
+<a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a>. The v0.1 engine (<code class="docutils literal notranslate"><span class="pre">workflows/</span></code> +
+<code class="docutils literal notranslate"><span class="pre">runners/</span></code> under <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code>) remains for
+legacy configuration-object callers and opaque pickle pipeline loads.</p>
 </section>
 <section id="cli-to-core-mapping">
 <h2>CLI-to-core mapping<a class="headerlink" href="#cli-to-core-mapping" title="Link to this heading"></a></h2>
@@ -1946,23 +1949,25 @@ layer.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">FeatureExtractionConfig</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.extract_habitat_features()</span></code></a> (wraps the v0.1 engine)</p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.extract_habitat_features()</span></code></a> (domain extractors;
+compat fallback only for unregistered plugins)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radiomics</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">RadiomicsConfig</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics" title="habit.recipes.traditional_radiomics"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.traditional_radiomics()</span></code></a> (wraps the v0.1 engine)</p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics" title="habit.recipes.traditional_radiomics"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.traditional_radiomics()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">MLConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.train_model()</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.train_model()</span></code></a> (+ <code class="docutils literal notranslate"><span class="pre">ml_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cv</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">MLConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.cross_validate()</span></code></a></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.cross_validate()</span></code></a> (+ <code class="docutils literal notranslate"><span class="pre">ml_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">compare</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">ModelComparisonConfig</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.compare_models()</span></code></a> (delegates to the v0.1 engine)</p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.compare_models()</span></code></a> (domain evaluation +
+<code class="docutils literal notranslate"><span class="pre">comparison_reporting</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</p></td>
 </tr>
 </tbody>
 </table>

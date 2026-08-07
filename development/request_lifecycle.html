@@ -457,6 +457,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1893,13 +1894,25 @@ enforced, now carried by the fitted <code class="docutils literal notranslate"><
 metrics, and plots are written to the configured output directory. Plot text
 is English by project convention.</p>
 <p>The same lifecycle shape applies to the other pipeline commands — validate,
-translate if v0.1, call a recipe, write artifacts. Two variations worth
-knowing: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code> <strong>predict</strong> mode routes by artifact
-format (a v1 <code class="docutils literal notranslate"><span class="pre">.habitpipeline</span></code> goes to <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a>;
+translate if v0.1, call a recipe, write artifacts. Variations worth knowing:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code> <strong>predict</strong> mode routes by artifact format
+(a v1 <code class="docutils literal notranslate"><span class="pre">.habitpipeline</span></code> goes to <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a>;
 an opaque v0.1 <code class="docutils literal notranslate"><span class="pre">*_final_pipeline.pkl</span></code> stays on the v0.1 engine, the only
-loader that understands it), and <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> /
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> call L4 recipes that wrap the v0.1 engines because those
-workflows have no domain-native equivalent yet.</p>
+loader that understands it).</p></li>
+<li><p>Train / CV figure reporting is L4 + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>:
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code> writes under <code class="docutils literal notranslate"><span class="pre">output/visualizations/</span></code>
+with filename prefixes <code class="docutils literal notranslate"><span class="pre">train_</span></code> / <code class="docutils literal notranslate"><span class="pre">test_</span></code> / <code class="docutils literal notranslate"><span class="pre">cv_</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a>
+(<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison</span></code> + <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.domain.evaluation.comparison</span></code>
++ <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison_reporting</span></code> + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> multi-model
+curves). It does <strong>not</strong> use the v0.1 comparison engine.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_habitat_features()</span></code></a>
+(domain extractors for built-in feature types; optional unregistered plugins
+may still fall back to the compat <code class="docutils literal notranslate"><span class="pre">HabitatMapAnalyzer</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics" title="habit.recipes.traditional_radiomics"><code class="xref py py-func docutils literal notranslate"><span class="pre">traditional_radiomics()</span></code></a>
+(recipe facade over the radiomics workflow helper).</p></li>
+</ul>
 </section>
 </section>
 

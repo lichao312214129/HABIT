@@ -457,6 +457,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1806,17 +1807,25 @@ habitat analysis and machine learning. Preprocessing and DICOM sorting use
 simpler structures; see <a class="reference internal" href="repo_layout.html"><span class="doc">Code Map</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>v1.0 framing.</strong> User-facing orchestration moved to the v1 recipes
-(<a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a>): habitat studies run through
-<code class="docutils literal notranslate"><span class="pre">habit.recipes.two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> over the
-<code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> component registries, and tabular ML runs through
-<code class="docutils literal notranslate"><span class="pre">habit.recipes.train_model</span></code> / <code class="docutils literal notranslate"><span class="pre">cross_validate</span></code> / <code class="docutils literal notranslate"><span class="pre">predict_model</span></code>
-over <a class="reference internal" href="../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline" title="habit.domain.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>. What follows are the internals
-of the <strong>v0.1 engines</strong> under <code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code>, which remain the
-execution core behind the configuration-object API
-(<code class="docutils literal notranslate"><span class="pre">habit.api.machine_learning</span></code>) and the <code class="docutils literal notranslate"><span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">radiomics</span></code> /
-<code class="docutils literal notranslate"><span class="pre">compare</span></code> workflows. Read this page when changing engine internals;
-read <a class="reference internal" href="architecture.html"><span class="doc">Architecture</span></a> for the v1 layering.</p>
+<p><strong>v1.0 framing.</strong> User-facing orchestration lives in the v1 recipes
+(<a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a>):</p>
+<ul class="simple">
+<li><p>Habitat studies: <code class="docutils literal notranslate"><span class="pre">habit.recipes.two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> /
+<code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> over <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> registries.</p></li>
+<li><p>Tabular ML: <code class="docutils literal notranslate"><span class="pre">habit.recipes.train_model</span></code> / <code class="docutils literal notranslate"><span class="pre">cross_validate</span></code> /
+<code class="docutils literal notranslate"><span class="pre">predict_model</span></code> over <a class="reference internal" href="../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline" title="habit.domain.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>, with
+figures via <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code> + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>.</p></li>
+<li><p>Feature extract / radiomics: <code class="docutils literal notranslate"><span class="pre">extract_habitat_features</span></code> /
+<code class="docutils literal notranslate"><span class="pre">traditional_radiomics</span></code> in <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.features</span></code> (parallel
+L4 recipes; built-in extract is domain-native).</p></li>
+<li><p>Model comparison: <a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a> in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison</span></code> (domain evaluation +
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison_reporting</span></code> + <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>).</p></li>
+</ul>
+<p>What follows are the internals of the <strong>v0.1 engines</strong> under
+<code class="docutils literal notranslate"><span class="pre">habit/compat/engines/</span></code>, retained for YAML/CLI parity and residual
+fallbacks. Read this page when changing engine internals; read
+<a class="reference internal" href="architecture.html"><span class="doc">Architecture</span></a> for the v1 layering.</p>
 </div>
 <section id="habitat-analysis">
 <h2>Habitat analysis<a class="headerlink" href="#habitat-analysis" title="Link to this heading"></a></h2>
@@ -1880,19 +1889,29 @@ clustering operation.</p></li>
 new subjects with the same fitted state.</p></li>
 <li><p><strong>Resume</strong> uses subject-level checkpoints for interrupted large cohorts.</p></li>
 </ul>
-<p>After habitat maps are generated, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> uses
-<code class="docutils literal notranslate"><span class="pre">HabitatMapAnalyzer</span></code> for downstream features and <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> uses
-<code class="docutils literal notranslate"><span class="pre">TraditionalRadiomicsExtractor</span></code>.</p>
+<p>After habitat maps are generated, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> runs
+<a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_habitat_features()</span></code></a> (domain
+<code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractor</span></code> components for built-in types; compat
+<code class="docutils literal notranslate"><span class="pre">HabitatMapAnalyzer</span></code> only when YAML requests an unregistered plugin).
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> runs <a class="reference internal" href="../api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics" title="habit.recipes.traditional_radiomics"><code class="xref py py-func docutils literal notranslate"><span class="pre">traditional_radiomics()</span></code></a>.</p>
 </section>
 </section>
 <section id="machine-learning">
 <h2>Machine learning<a class="headerlink" href="#machine-learning" title="Link to this heading"></a></h2>
-<p>The v0.1 machine-learning engine
-(<code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code>; modules below are relative to
-it) assembles feature tables, splits data, builds an sklearn pipeline,
-trains and evaluates models, and writes reports. The v1 recipes reuse the
-same ideas through <code class="docutils literal notranslate"><span class="pre">habit/domain/</span></code> components instead of this module
-tree.</p>
+<p><strong>v1 path (CLI / recipes).</strong> <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> and <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code> call
+<a class="reference internal" href="../api/generated/habit.recipes.train_model.html#habit.recipes.train_model" title="habit.recipes.train_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">train_model()</span></code></a> / <a class="reference internal" href="../api/generated/habit.recipes.cross_validate.html#habit.recipes.cross_validate" title="habit.recipes.cross_validate"><code class="xref py py-func docutils literal notranslate"><span class="pre">cross_validate()</span></code></a>.
+Reporting writes <code class="docutils literal notranslate"><span class="pre">metrics.json</span></code>, prediction tables, and — when
+visualization is enabled — figures under <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;/visualizations/</span></code> via
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code> and <code class="docutils literal notranslate"><span class="pre">habit.viz.classification</span></code>
+(prefixes <code class="docutils literal notranslate"><span class="pre">train_</span></code> / <code class="docutils literal notranslate"><span class="pre">test_</span></code> / <code class="docutils literal notranslate"><span class="pre">cv_</span></code>). <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> is a separate
+recipe (<a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a>); it merges prediction CSVs,
+computes metrics / DeLong in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.domain.evaluation.comparison</span></code>, and writes multi-model curves
+through <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison_reporting</span></code>.</p>
+<p><strong>v0.1 engine (compat).</strong> The modules below live under
+<code class="docutils literal notranslate"><span class="pre">habit/compat/engines/machine_learning/</span></code>. They remain available for
+legacy configuration-object callers and opaque <code class="docutils literal notranslate"><span class="pre">*_final_pipeline.pkl</span></code>
+predict loads. New work should target the v1 recipes and <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>.</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 30.0%" />
@@ -1917,7 +1936,9 @@ tree.</p>
 <td><p>Registered selectors and ICC/retest analysis.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">workflows/</span></code></p></td>
-<td><p>High-level holdout, K-fold, and model-comparison workflows.</p></td>
+<td><p>High-level holdout and K-fold workflows (legacy). Multi-model
+comparison for <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> is v1
+(<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison</span></code>), not this tree.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">runners/</span></code></p></td>
 <td><p>Concrete training and inference execution.</p></td>

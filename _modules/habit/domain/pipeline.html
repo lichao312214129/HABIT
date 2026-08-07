@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=71272d9f"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -413,7 +413,11 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +454,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1848,8 +1853,29 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_habit_version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.log_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_module_logger</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SubjectPipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;TablePipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;voxel_units&quot;</span><span class="p">]</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_feature_selector_step</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return True when ``step`` is a registered feature selector.</span>
+
+<span class="sd">    ``FeatureSelector`` and ``TablePreprocessor`` are structurally similar</span>
+<span class="sd">    ``@runtime_checkable`` protocols, so ``isinstance(..., FeatureSelector)``</span>
+<span class="sd">    is not reliable. Registry membership on ``step.spec.name`` is the</span>
+<span class="sd">    definitive check used by assembly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.feature_selection.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureSelectorRegistry</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># type: ignore[attr-defined]</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">FeatureSelectorRegistry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">voxel_units</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">VoxelFeatureField</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Supervoxelization</span><span class="p">:</span>
@@ -2318,12 +2344,34 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            ``self``, fitted.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">current</span> <span class="o">=</span> <span class="n">table</span>
+        <span class="n">selector_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">takes_repeats</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_takes_repeats</span><span class="p">):</span>
+            <span class="n">is_selector</span> <span class="o">=</span> <span class="n">_is_feature_selector_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+            <span class="n">n_before</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_selector</span><span class="p">:</span>
+                <span class="n">selector_step</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">method_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Step </span><span class="si">%s</span><span class="s2">: Applying &#39;</span><span class="si">%s</span><span class="s2">&#39; feature selection&quot;</span><span class="p">,</span>
+                    <span class="n">selector_step</span><span class="p">,</span>
+                    <span class="n">method_name</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Parameters: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">params</span><span class="p">))</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Features before this step: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_before</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">takes_repeats</span><span class="p">:</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">repeat_tables</span><span class="o">=</span><span class="n">repeat_tables</span><span class="p">)</span>  <span class="c1"># type: ignore[call-arg]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">step</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
             <span class="n">current</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">is_selector</span><span class="p">:</span>
+                <span class="n">n_after</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
+                <span class="n">n_removed</span> <span class="o">=</span> <span class="n">n_before</span> <span class="o">-</span> <span class="n">n_after</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Features after this step: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_after</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Number of features removed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_removed</span><span class="p">)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fit_output_columns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span>

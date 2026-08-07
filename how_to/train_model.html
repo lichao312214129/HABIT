@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1450,7 +1451,25 @@
 </div>
 <p>K-fold: <code class="docutils literal notranslate"><span class="pre">config/machine_learning/config_machine_learning_kfold_demo.yaml</span></code> + <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code> .</p>
 <p><strong>Input</strong>: CSV / Excel feature tables (paths and column names in YAML).</p>
-<p><strong>Output</strong>: model files, <code class="docutils literal notranslate"><span class="pre">all_prediction_results.csv</span></code> , ROC / calibration plots.</p>
+<p><strong>Output</strong> (under the YAML <code class="docutils literal notranslate"><span class="pre">output</span></code> directory):</p>
+<ul>
+<li><p>Fitted pipelines (when <code class="docutils literal notranslate"><span class="pre">is_save_model</span></code> is true) and prediction tables
+(e.g. <code class="docutils literal notranslate"><span class="pre">all_prediction_results.csv</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics.json</span></code> — train / test (hold-out) or fold-aggregated (CV) metrics.</p></li>
+<li><p>Evaluation figures under <code class="docutils literal notranslate"><span class="pre">output/visualizations/</span></code> when visualization is
+enabled. Filenames use a split prefix:</p>
+<ul class="simple">
+<li><p>hold-out train: <code class="docutils literal notranslate"><span class="pre">train_*</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">train_roc_curve.pdf</span></code>)</p></li>
+<li><p>hold-out test: <code class="docutils literal notranslate"><span class="pre">test_*</span></code></p></li>
+<li><p>cross-validation (pooled OOF): <code class="docutils literal notranslate"><span class="pre">cv_*</span></code></p></li>
+</ul>
+<p>Curve types follow <code class="docutils literal notranslate"><span class="pre">visualization.plot_types</span></code> (<code class="docutils literal notranslate"><span class="pre">roc</span></code>, <code class="docutils literal notranslate"><span class="pre">dca</span></code>,
+<code class="docutils literal notranslate"><span class="pre">calibration</span></code>, <code class="docutils literal notranslate"><span class="pre">pr</span></code>, <code class="docutils literal notranslate"><span class="pre">confusion</span></code>, plus optional <code class="docutils literal notranslate"><span class="pre">shap</span></code> /
+<code class="docutils literal notranslate"><span class="pre">shap_dependence</span></code> / <code class="docutils literal notranslate"><span class="pre">shap_waterfall</span></code> / <code class="docutils literal notranslate"><span class="pre">permutation</span></code>). Figures are
+drawn by <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> and written through
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.ml_reporting</span></code>.</p>
+</li>
+</ul>
 <p><strong>Configuration</strong>: <a class="reference internal" href="../configuration/machine_learning.html"><span class="doc">Machine Learning Configuration</span></a></p>
 </section>
 

@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1449,9 +1450,26 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>habit<span class="w"> </span>compare<span class="w"> </span>--config<span class="w"> </span>config/model_comparison/config_model_comparison_demo.yaml
 </pre></div>
 </div>
-<p><strong>Output</strong> (under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>): <code class="docutils literal notranslate"><span class="pre">roc_curves.pdf</span></code> , <code class="docutils literal notranslate"><span class="pre">decision_curves.pdf</span></code> ,
-<code class="docutils literal notranslate"><span class="pre">calibration_curves.pdf</span></code> , <code class="docutils literal notranslate"><span class="pre">precision_recall_curves.pdf</span></code> , <code class="docutils literal notranslate"><span class="pre">delong_results.json</span></code> ,
-<code class="docutils literal notranslate"><span class="pre">combined_predictions.csv</span></code> .</p>
+<p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code> calls <a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a>
+(<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison</span></code>): domain merge / metrics / DeLong in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.domain.evaluation.comparison</span></code>, then multi-model figures via
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes.comparison_reporting</span></code> and <code class="docutils literal notranslate"><span class="pre">habit.viz.classification</span></code>.</p>
+<p><strong>Output</strong> (under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">combined_predictions.csv</span></code> — merged prediction table (when merge is enabled)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics/metrics.json</span></code> — per-model metric panels</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">split.enabled</span></code> is true (and each file has <code class="docutils literal notranslate"><span class="pre">split_col</span></code>), curves and
+DeLong land in per-split subdirectories (e.g. <code class="docutils literal notranslate"><span class="pre">train/</span></code>, <code class="docutils literal notranslate"><span class="pre">test/</span></code>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">roc_curves.pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">decision_curves.pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration_curves.pdf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">precision_recall_curves.pdf</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delong_results.json</span></code></p></li>
+</ul>
+</li>
+<li><p>When split is disabled, the same figure / DeLong filenames sit directly under
+<code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit_run_manifest.json</span></code> — run provenance</p></li>
+</ul>
 <p><strong>Configuration</strong>: <a class="reference internal" href="../configuration/model_comparison.html"><span class="doc">Model Comparison Configuration</span></a></p>
 </section>
 

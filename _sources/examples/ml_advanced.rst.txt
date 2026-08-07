@@ -30,7 +30,10 @@ Output
    Test metrics:  {'accuracy': 1.0, 'auc': 1.0}
 
    --- compare_models output: .../comparison ---
-   ML evaluation figures (ROC, calibration) are written under output_dir/plots/
+   Multi-model figures (ROC, DCA, calibration, PR) and metrics land under
+   output_dir (e.g. roc_curves.pdf, metrics/metrics.json). Train/CV
+   single-model figures from habit model / habit cv use
+   output/visualizations/ with train_ / test_ / cv_ prefixes.
 
 What to read next
 -----------------

@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=baaebd52"></script>
+        <script src="../../../_static/documentation_options.js?v=71272d9f"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.0.3
+                1.0.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -413,7 +413,11 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-extras">Optional extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#common-problems">Common problems</a></li>
@@ -450,6 +454,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -1806,26 +1811,445 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;L4 feature-extraction recipes (thin assembly).</span>
+<span class="sd">&quot;&quot;&quot;L4 feature-extraction recipes.</span>
 
-<span class="sd">Stage-4 scope: wire the ``extract`` and ``radiomics`` CLI commands through</span>
-<span class="sd">recipes instead of importing ``habit.core`` directly. A full domain-native</span>
-<span class="sd">orchestrator -- cohort assembly from habitat maps, per-subject</span>
-<span class="sd">:class:`~habit.domain.protocols.HabitatFeatureExtractor` dispatch, and</span>
-<span class="sd">parallel execution through :class:`~habit.contracts.ops.ExecutionBackend`</span>
-<span class="sd">-- is deferred until the v0.1 ``HabitatMapAnalyzer`` batch loop is</span>
-<span class="sd">replaced. Until then these recipes delegate to the public</span>
-<span class="sd">``habit.api.habitat`` workflow helpers (which still execute the v0.1</span>
-<span class="sd">engine internally), keeping ``habit.recipes`` free of direct</span>
-<span class="sd">``habit.core`` imports per the architecture gate.</span>
+<span class="sd">``extract_habitat_features`` is the domain-native path for ``habit extract``:</span>
+<span class="sd">per-subject :class:`~habit.domain.protocols.HabitatFeatureExtractor` calls</span>
+<span class="sd">over :class:`~habit.contracts.subject.Subject` +</span>
+<span class="sd">:class:`~habit.contracts.habitat.HabitatMap`, with optional parallelism via</span>
+<span class="sd">:class:`~habit.contracts.ops.ExecutionBackend`. Filesystem discovery and CSV</span>
+<span class="sd">layout live in L1 adapters; this module only assembles them.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkflowResult</span><span class="p">,</span> <span class="n">coerce_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_run_manifest</span><span class="p">,</span> <span class="n">write_run_manifest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionBackend</span><span class="p">,</span> <span class="n">SubjectResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Subject</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span><span class="p">,</span> <span class="n">ProcessingError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.log_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_module_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.parallel_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_process_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.progress_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomTqdm</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extract_habitat_features&quot;</span><span class="p">,</span> <span class="s2">&quot;traditional_radiomics&quot;</span><span class="p">]</span>
+
+<span class="n">_LOG</span> <span class="o">=</span> <span class="n">get_module_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Built-in feature families that have domain extractors. Anything else</span>
+<span class="c1">#: (e.g. optional ``graph`` plugins) falls back to the compat analyzer.</span>
+<span class="n">_DOMAIN_FEATURE_TYPES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;msi&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;non_radiomics&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;traditional&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;whole_habitat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;each_habitat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ExtractItem</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Picklable per-subject payload for the execution backend.&quot;&quot;&quot;</span>
+
+    <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span>
+    <span class="n">habitat_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expose subject id for ExecutionBackend result / progress keys.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_SubjectHabitatExtractOp</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subject-level operator: load the habitat map, run all extractors, return</span>
+<span class="sd">    a mapping of feature family name -&gt; one-row FeatureTable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">extractors</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">extractors</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">_ExtractItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract every requested family for one subject.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            item: Subject plus habitat map path and canonical habitat ids.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Mapping of feature type name to that subject&#39;s feature table.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters.extract_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_habitat_map</span>
+
+        <span class="n">habitat_map</span> <span class="o">=</span> <span class="n">read_habitat_map</span><span class="p">(</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">habitat_path</span><span class="p">,</span>
+            <span class="n">subject_id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">habitat_ids</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">extractor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">extractor</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tables</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_error_summary</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format one subject failure for logging.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_backend_for_processes</span><span class="p">(</span><span class="n">n_processes</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExecutionBackend</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build an execution backend from the v0.1 ``n_processes`` knob.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_processes: Requested worker count (resolved to &gt;= 1).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Process-pool backend when ``n_processes &gt; 1``, otherwise serial.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.backends</span><span class="w"> </span><span class="kn">import</span> <span class="n">SerialBackend</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.process_pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolBackend</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
+
+    <span class="n">workers</span> <span class="o">=</span> <span class="n">resolve_process_count</span><span class="p">(</span><span class="n">n_processes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">workers</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SerialBackend</span><span class="p">(</span><span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">)</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
+        <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">on_subject_failure</span><span class="o">=</span><span class="s2">&quot;continue&quot;</span><span class="p">,</span>
+        <span class="c1"># Feature extraction has no per-subject timeout in the v0.1 YAML;</span>
+        <span class="c1"># disable so long radiomics subjects are not killed.</span>
+        <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">subject_spawn_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ProcessPoolBackend</span><span class="o">.</span><span class="n">from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_domain_extractors</span><span class="p">(</span>
+    <span class="n">feature_types</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">params_file_of_non_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">params_file_of_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">use_torch_radiomics</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">torch_device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">torch_dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiate domain extractors for the requested built-in feature types.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feature_types: Names from the YAML ``feature_types`` list.</span>
+<span class="sd">        params_file_of_non_habitat: PyRadiomics params for raw-image families.</span>
+<span class="sd">        params_file_of_habitat: PyRadiomics params for whole-habitat radiomics.</span>
+<span class="sd">        use_torch_radiomics: TorchRadiomics backend switch (scientific</span>
+<span class="sd">            defaults unchanged; only the compute path may switch).</span>
+<span class="sd">        torch_device: Torch device string or ``&quot;auto&quot;``.</span>
+<span class="sd">        torch_dtype: Torch dtype name for the torch path.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Mapping of feature type name to extractor instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure built-in extractors are registered.</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">habit.domain.habitat_features</span>  <span class="c1"># noqa: F401</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.habitat_features</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatFeatureExtractorRegistry</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.radiomics_preset_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_params_file</span>
+
+    <span class="n">roi_params</span> <span class="o">=</span> <span class="n">resolve_params_file</span><span class="p">(</span><span class="n">params_file_of_non_habitat</span><span class="p">,</span> <span class="n">preset</span><span class="o">=</span><span class="s2">&quot;roi&quot;</span><span class="p">)</span>
+    <span class="n">habitat_params</span> <span class="o">=</span> <span class="n">resolve_params_file</span><span class="p">(</span><span class="n">params_file_of_habitat</span><span class="p">,</span> <span class="n">preset</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
+
+    <span class="n">extractors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">feature_types</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_DOMAIN_FEATURE_TYPES</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;traditional&quot;</span><span class="p">:</span>
+            <span class="n">extractors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">params_file</span><span class="o">=</span><span class="n">roi_params</span><span class="p">,</span>
+                <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="n">use_torch_radiomics</span><span class="p">,</span>
+                <span class="n">torch_device</span><span class="o">=</span><span class="n">torch_device</span><span class="p">,</span>
+                <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch_dtype</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;each_habitat&quot;</span><span class="p">:</span>
+            <span class="n">extractors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">params_file</span><span class="o">=</span><span class="n">roi_params</span><span class="p">,</span>
+                <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="n">use_torch_radiomics</span><span class="p">,</span>
+                <span class="n">torch_device</span><span class="o">=</span><span class="n">torch_device</span><span class="p">,</span>
+                <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch_dtype</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;whole_habitat&quot;</span><span class="p">:</span>
+            <span class="n">extractors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">params_file</span><span class="o">=</span><span class="n">habitat_params</span><span class="p">,</span>
+                <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="n">use_torch_radiomics</span><span class="p">,</span>
+                <span class="n">torch_device</span><span class="o">=</span><span class="n">torch_device</span><span class="p">,</span>
+                <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch_dtype</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">extractors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">extractors</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_map_extract_items</span><span class="p">(</span>
+    <span class="n">items</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">_ExtractItem</span><span class="p">],</span>
+    <span class="n">op</span><span class="p">:</span> <span class="n">_SubjectHabitatExtractOp</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">ExecutionBackend</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">]],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply the extract operator with soft failure (continue on subject error).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        items: Per-subject payloads.</span>
+<span class="sd">        op: Extract operator.</span>
+<span class="sd">        backend: Execution backend.</span>
+<span class="sd">        logger: Run logger.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(successful_tables_in_item_order, failures)``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ProcessingError: If every subject failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting Features&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_progress</span><span class="p">(</span><span class="n">completed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">expected</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="n">expected</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">completed</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">slots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">SubjectResult</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">backend</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">_progress</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">failures</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">values_by_id</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">slot</span> <span class="ow">in</span> <span class="n">slots</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">slot</span><span class="o">.</span><span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">summary</span> <span class="o">=</span> <span class="n">_error_summary</span><span class="p">(</span><span class="n">slot</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+            <span class="n">failures</span><span class="p">[</span><span class="n">slot</span><span class="o">.</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;[extract] subject </span><span class="si">%s</span><span class="s2"> failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">slot</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <span class="n">summary</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">slot</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">values_by_id</span><span class="p">[</span><span class="n">slot</span><span class="o">.</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">values_by_id</span><span class="p">:</span>
+        <span class="n">detail</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sid</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">sid</span><span class="p">,</span> <span class="n">msg</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">failures</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">ProcessingError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;All </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span><span class="si">}</span><span class="s2"> subject(s) failed in feature extraction: </span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Preserve discovery order for CSV row stability.</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">values_by_id</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span>
+        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span> <span class="ow">in</span> <span class="n">values_by_id</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ordered</span><span class="p">,</span> <span class="n">failures</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_domain_extract</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkflowResult</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Domain-native extract path for built-in feature families.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Validated :class:`FeatureExtractionConfig`.</span>
+<span class="sd">        logger: Run logger.</span>
+<span class="sd">        backend: Optional caller-supplied backend; when omitted, derived from</span>
+<span class="sd">            ``config.n_processes``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Workflow result with output directory metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters.extract_io</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">discover_habitat_map_paths</span><span class="p">,</span>
+        <span class="n">load_extract_cohort</span><span class="p">,</span>
+        <span class="n">resolve_n_habitats</span><span class="p">,</span>
+        <span class="n">write_extract_feature_csvs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span>
+    <span class="n">out_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">n_habitats</span> <span class="o">=</span> <span class="n">resolve_n_habitats</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">habitats_map_folder</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">n_habitats</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using habitat count: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">n_habitats</span><span class="p">)</span>
+    <span class="n">habitat_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_habitats</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">cohort</span> <span class="o">=</span> <span class="n">load_extract_cohort</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">raw_img_folder</span><span class="p">)</span>
+    <span class="n">habitat_paths</span> <span class="o">=</span> <span class="n">discover_habitat_map_paths</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">habitats_map_folder</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">habitat_pattern</span>
+    <span class="p">)</span>
+    <span class="n">matched_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">sid</span> <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span> <span class="k">if</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">habitat_paths</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matched_ids</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;No matching subjects found between raw images and habitat maps &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(images=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;habitats=</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">habitat_paths</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cohort</span><span class="p">):</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">matched_ids</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Skipping </span><span class="si">%d</span><span class="s2"> subject(s) without habitat maps: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">subjects_by_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span> <span class="n">subject</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">cohort</span><span class="p">}</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_ExtractItem</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="n">subjects_by_id</span><span class="p">[</span><span class="n">sid</span><span class="p">],</span>
+            <span class="n">habitat_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">habitat_paths</span><span class="p">[</span><span class="n">sid</span><span class="p">]),</span>
+            <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="n">matched_ids</span>
+    <span class="p">]</span>
+
+    <span class="n">use_torch</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;use_torch_radiomics&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">torch_device</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;torch_device&quot;</span><span class="p">,</span> <span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+    <span class="n">torch_dtype</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;torch_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">extractors</span> <span class="o">=</span> <span class="n">_build_domain_extractors</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">,</span>
+        <span class="n">params_file_of_non_habitat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">params_file_of_non_habitat</span><span class="p">,</span>
+        <span class="n">params_file_of_habitat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">params_file_of_habitat</span><span class="p">,</span>
+        <span class="n">use_torch_radiomics</span><span class="o">=</span><span class="n">use_torch</span><span class="p">,</span>
+        <span class="n">torch_device</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">torch_device</span><span class="p">),</span>
+        <span class="n">torch_dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">torch_dtype</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">extractors</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;No domain extractors constructed for feature_types=&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">runner</span> <span class="o">=</span> <span class="n">backend</span> <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_backend_for_processes</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">n_processes</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Starting domain feature extraction for </span><span class="si">%s</span><span class="s2"> subjects (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span>
+        <span class="nb">type</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">per_subject</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="n">_map_extract_items</span><span class="p">(</span>
+        <span class="n">items</span><span class="p">,</span> <span class="n">_SubjectHabitatExtractOp</span><span class="p">(</span><span class="n">extractors</span><span class="p">),</span> <span class="n">backend</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Feature extraction finished with </span><span class="si">%d</span><span class="s2"> subject failure(s).&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">family_tables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">extractors</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">subject_tables</span> <span class="ow">in</span> <span class="n">per_subject</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">subject_tables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">family_tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="n">write_extract_feature_csvs</span><span class="p">(</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">family_tables</span><span class="p">,</span>
+        <span class="n">n_habitats</span><span class="o">=</span><span class="n">n_habitats</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">create_run_manifest</span><span class="p">(</span>
+        <span class="s2">&quot;feature_extraction&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;domain&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;feature_types&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">),</span>
+            <span class="s2">&quot;n_subjects&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">per_subject</span><span class="p">),</span>
+            <span class="s2">&quot;n_failures&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">write_run_manifest</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">WorkflowResult</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;config_hash&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">config_hash</span><span class="p">,</span>
+            <span class="s2">&quot;habit_version&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">habit_version</span><span class="p">,</span>
+            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;domain&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">run_id</span><span class="o">=</span><span class="n">manifest</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+        <span class="n">manifest_path</span><span class="o">=</span><span class="n">manifest_path</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_compat_extract</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">plugin_configs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkflowResult</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compat fallback for optional plugins (e.g. ``graph``) not in domain.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config: Validated feature-extraction config.</span>
+<span class="sd">        plugin_configs: Optional plugin settings.</span>
+<span class="sd">        logger: Run logger.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Workflow result with output directory metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.compat.legacy_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_feature_extraction_from_config</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Using compat HabitatMapAnalyzer for feature_types requiring plugins: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">run_feature_extraction_from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+        <span class="n">plugin_configs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span> <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">create_run_manifest</span><span class="p">(</span>
+        <span class="s2">&quot;feature_extraction&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;compat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">plugin_configs</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">write_run_manifest</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">WorkflowResult</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;config_hash&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">config_hash</span><span class="p">,</span>
+            <span class="s2">&quot;habit_version&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">habit_version</span><span class="p">,</span>
+            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;compat&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">run_id</span><span class="o">=</span><span class="n">manifest</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+        <span class="n">manifest_path</span><span class="o">=</span><span class="n">manifest_path</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="extract_habitat_features">
@@ -1835,29 +2259,56 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">plugin_configs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkflowResult</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract features from pre-computed habitat maps (``habit extract`` recipe).</span>
 
+<span class="sd">    Built-in families run through domain</span>
+<span class="sd">    :class:`~habit.domain.protocols.HabitatFeatureExtractor` instances and an</span>
+<span class="sd">    optional :class:`~habit.contracts.ops.ExecutionBackend`. Optional plugins</span>
+<span class="sd">    that are not registered in the domain registry fall back to the compat</span>
+<span class="sd">    ``HabitatMapAnalyzer`` so CLI YAML that requests them keeps working.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        config: Validated feature-extraction configuration (v0.1 schema object</span>
-<span class="sd">            or mapping accepted by</span>
+<span class="sd">        config: Validated feature-extraction configuration (schema object or</span>
+<span class="sd">            mapping accepted by</span>
 <span class="sd">            :func:`habit.api.habitat.build_feature_extraction_config`).</span>
-<span class="sd">        plugin_configs: Optional plugin settings (e.g. ``graph``) returned</span>
-<span class="sd">            alongside the shared config by</span>
-<span class="sd">            :func:`habit.api.habitat.load_feature_extraction_config`.</span>
-<span class="sd">        logger: Optional run logger forwarded to the workflow helper.</span>
+<span class="sd">        plugin_configs: Optional plugin settings (e.g. ``graph``).</span>
+<span class="sd">        logger: Optional run logger.</span>
+<span class="sd">        backend: Optional execution backend. When omitted, ``n_processes`` from</span>
+<span class="sd">            the config selects serial vs process-pool.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        :class:`~habit.api.contracts.WorkflowResult` with output directory</span>
 <span class="sd">        metadata and a run manifest path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_feature_extraction</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.api.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_feature_extraction_config</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.schemas.workflows.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureExtractionConfig</span>
 
-    <span class="k">return</span> <span class="n">run_feature_extraction</span><span class="p">(</span>
-        <span class="n">config</span><span class="p">,</span>
-        <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-        <span class="n">plugin_configs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span> <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">_LOG</span>
+    <span class="n">resolved_plugins</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="n">validated_config</span><span class="p">,</span> <span class="n">inferred</span> <span class="o">=</span> <span class="n">build_feature_extraction_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">resolved_plugins</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span> <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inferred</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">validated_config</span> <span class="o">=</span> <span class="n">coerce_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">FeatureExtractionConfig</span><span class="p">)</span>
+        <span class="n">resolved_plugins</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">plugin_configs</span><span class="p">)</span> <span class="k">if</span> <span class="n">plugin_configs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+    <span class="n">feature_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">validated_config</span><span class="o">.</span><span class="n">feature_types</span><span class="p">)</span>
+    <span class="n">needs_compat</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_DOMAIN_FEATURE_TYPES</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">feature_types</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">needs_compat</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_run_compat_extract</span><span class="p">(</span>
+            <span class="n">validated_config</span><span class="p">,</span>
+            <span class="n">plugin_configs</span><span class="o">=</span><span class="n">resolved_plugins</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_run_domain_extract</span><span class="p">(</span>
+        <span class="n">validated_config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">log</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
     <span class="p">)</span></div>
 
 

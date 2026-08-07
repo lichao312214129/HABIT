@@ -143,12 +143,16 @@ object. Configurators live with their engines under ``habit/compat/engines/``:
      - ``HabitatAnalysis``, ``HabitatMapAnalyzer``, or radiomics services
    * - ``MLConfigurator``
      - ``compat/engines/machine_learning/configurator.py``
-     - ``HoldoutWorkflow``, ``KFoldWorkflow``, or ``ModelComparison``
+     - ``HoldoutWorkflow`` or ``KFoldWorkflow`` (legacy engine path)
 
 On the v1 path this assembly role is played by the recipes themselves: a
 recipe resolves ``Spec("name", params)`` component references through the
 ``habit/domain/`` registries and wires them into a ``SubjectPipeline`` or
 ``TablePipeline`` directly — no separate configurator object is involved.
+``habit model`` / ``habit cv`` use :mod:`habit.recipes.modeling`;
+``habit compare`` uses :func:`~habit.recipes.compare_models` with a
+validated ``ModelComparisonConfig`` (schema only — not a
+``ModelComparison`` runtime class from the v0.1 engine).
 
 Summary
 -------

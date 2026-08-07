@@ -33,7 +33,7 @@ The six layers
        CLI["CLI commands"]
        YAML["YAML documents"]
      end
-     L4["L4 — recipes (habit/recipes/)<br/>two_step · one_step · direct_pooling<br/>train_model · cross_validate · predict_model<br/>run_from_yaml · apply_habitat_model"]
+     L4["L4 — recipes (habit/recipes/)<br/>two_step · one_step · direct_pooling<br/>train_model · cross_validate · predict_model<br/>extract · radiomics · compare_models<br/>run_from_yaml · apply_habitat_model"]
      L3["L3 — domain (habit/domain/)<br/>protocols + component registries<br/>SubjectPipeline · TablePipeline"]
      L2["L2 — contracts (habit/contracts/)<br/>Subject · Cohort · FeatureTable<br/>HabitatModel · RunManifest"]
      L1["L1 — adapters (habit/adapters/)<br/>DirectoryDataSource · sinks<br/>(the only layer that reads files)"]
@@ -125,9 +125,11 @@ components. Fitted state is persisted as a self-describing
 :func:`~habit.recipes.cross_validate`, :func:`~habit.recipes.predict_model`)
 run a :class:`~habit.domain.TablePipeline`, which keeps preprocessing,
 feature selection, and the classifier inside one fitted object to prevent
-data leakage. The v0.1 engine (``workflows/`` + ``runners/`` under
-``habit/compat/engines/machine_learning/``) powers the configuration-object
-API in ``habit.api.machine_learning``.
+data leakage. Figures go through :mod:`habit.recipes.ml_reporting` and
+``habit.viz``. Multi-model comparison is
+:func:`~habit.recipes.compare_models`. The v0.1 engine (``workflows/`` +
+``runners/`` under ``habit/compat/engines/machine_learning/``) remains for
+legacy configuration-object callers and opaque pickle pipeline loads.
 
 CLI-to-core mapping
 -------------------
@@ -151,18 +153,20 @@ layer.
      - :func:`habit.recipes.two_step` / ``one_step`` / ``direct_pooling``
    * - ``extract``
      - ``FeatureExtractionConfig``
-     - :func:`habit.recipes.extract_habitat_features` (wraps the v0.1 engine)
+     - :func:`habit.recipes.extract_habitat_features` (domain extractors;
+       compat fallback only for unregistered plugins)
    * - ``radiomics``
      - ``RadiomicsConfig``
-     - :func:`habit.recipes.traditional_radiomics` (wraps the v0.1 engine)
+     - :func:`habit.recipes.traditional_radiomics`
    * - ``model``
      - ``MLConfig`` → ``LegacyConfigAdapter``
-     - :func:`habit.recipes.train_model`
+     - :func:`habit.recipes.train_model` (+ ``ml_reporting`` / ``habit.viz``)
    * - ``cv``
      - ``MLConfig`` → ``LegacyConfigAdapter``
-     - :func:`habit.recipes.cross_validate`
+     - :func:`habit.recipes.cross_validate` (+ ``ml_reporting`` / ``habit.viz``)
    * - ``compare``
      - ``ModelComparisonConfig``
-     - :func:`habit.recipes.compare_models` (delegates to the v0.1 engine)
+     - :func:`habit.recipes.compare_models` (domain evaluation +
+       ``comparison_reporting`` / ``habit.viz``)
 
 See :doc:`invariants` for the contracts enforced by architecture tests.
