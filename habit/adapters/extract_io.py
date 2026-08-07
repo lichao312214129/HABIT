@@ -441,8 +441,10 @@ def write_extract_feature_csvs(
             continue
         frames = [_frame_with_subject_index(table) for table in tables]
         result = pd.concat(frames, axis=0)
-        path = destination / f"{family}_features.csv"
-        result.to_csv(path, index=True)
-        log.info("Feature family %s saved to %s", family, path)
-        written.append(str(path))
+        # Distinct name from the ``Optional[str]`` above: this branch builds a
+        # Path, and reusing ``path`` would conflate the two types.
+        family_path = destination / f"{family}_features.csv"
+        result.to_csv(family_path, index=True)
+        log.info("Feature family %s saved to %s", family, family_path)
+        written.append(str(family_path))
     return written

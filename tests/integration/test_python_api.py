@@ -216,7 +216,7 @@ class TestRadiomicsAndAnalysisAPI:
         self,
         cwd_repo_root: None,
     ) -> None:
-        """Top-level ``habit.run_model_comparison`` delegates to the core runner."""
+        """Top-level ``habit.run_model_comparison`` delegates to the v1 recipe."""
         import habit
 
         cfg_path = _require_config(
@@ -224,14 +224,16 @@ class TestRadiomicsAndAnalysisAPI:
         )
         config = habit.ModelComparisonConfig.from_file(str(cfg_path))
 
-        with patch(
-            "habit.compat.engines.machine_learning.run.run_model_comparison_from_config"
-        ) as mock_run:
+        # The delegate is habit.recipes.comparison.compare_models, not the v0.1
+        # ModelComparison engine; habit.api.machine_learning imports it inside
+        # the function body, so patching the recipe module is what intercepts
+        # the call.
+        with patch("habit.recipes.comparison.compare_models") as mock_run:
             habit.run_model_comparison(config)
             mock_run.assert_called_once_with(
                 config,
                 logger=None,
-                output_dir=config.output_dir,
+                output_dir=None,
             )
 
     def test_icc_config_from_demo_yaml(self, cwd_repo_root: None) -> None:
