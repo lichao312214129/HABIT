@@ -481,6 +481,59 @@ def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
         )
 
 
+def test_meta_extras_are_self_references_that_resolve() -> None:
+    """
+    ``all`` and ``full`` must aggregate other extras instead of restating them.
+
+    A hand-copied package list in a meta-extra is guaranteed to drift the next
+    time a group changes -- exactly what the old ``all`` array risked. Writing
+    them as self-references makes drift impossible by construction, and pip
+    resolves them (setuptools records the requirement verbatim, and
+    ``Requires-Dist: habitat-analysis[all]; extra == "full"`` is a normal
+    dependency edge for the resolver).
+
+    ``full`` is also the documented migration target for pre-1.1.0 users, so it
+    must transitively contain every package that used to be a REQUIRED
+    dependency and is now optional.
+    """
+    text = PYPROJECT_FILE.read_text(encoding="utf-8")
+    section_match = re.search(
+        r"(?ms)^\[project\.optional-dependencies\]\s*(.*?)(?=^\[|\Z)",
+        text,
+    )
+    assert section_match is not None
+    arrays = dict(
+        re.findall(r"(?ms)^([A-Za-z0-9_-]+)\s*=\s*(\[.*?\])\s*$", section_match.group(1))
+    )
+
+    for meta_extra in ("all", "full"):
+        entries = ast.literal_eval(arrays[meta_extra])
+        assert entries, f"extra {meta_extra!r} must not be empty"
+        for entry in entries:
+            assert _self_referenced_extras(entry) is not None, (
+                f"extra {meta_extra!r} restates the requirement {entry!r} "
+                "instead of referencing the extra that owns it."
+            )
+
+    extras = _optional_dependency_ranges()
+    # Everything demoted from required to optional in 1.1.0. `chardet` is
+    # absent on purpose: it was removed outright, not moved to an extra.
+    demoted = {
+        "matplotlib",
+        "seaborn",
+        "scikit-image",
+        "pydicom",
+        "pyarrow",
+        "openpyxl",
+    }
+    missing = sorted(demoted - set(extras["full"]))
+    assert not missing, (
+        f"extra 'full' does not restore {missing}, so it is not a valid "
+        "migration path for a pre-1.1.0 bare install."
+    )
+    assert set(extras["all"]) <= set(extras["full"])
+
+
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:
     """
     The default lock installs every declared dependency it must resolve online.
