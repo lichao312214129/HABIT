@@ -1,0 +1,178 @@
+/* HABIT documentation — layout and typography inspired by PyRadiomics RTD style */
+
+:root {
+    --habit-primary: #2980b9;
+    --habit-primary-dark: #1f6391;
+    --habit-accent: #27ae60;
+    --habit-border: #e1e4e5;
+    --habit-bg: #fcfcfc;
+    --habit-table-head: #2980b9;
+}
+
+/* Content area */
+.wy-nav-content-wrap {
+    background: var(--habit-bg);
+}
+
+.wy-nav-content {
+    max-width: 960px;
+    padding: 1.5em 2em;
+}
+
+/* Headings — clear hierarchy like PyRadiomics feature pages */
+.rst-content h1 {
+    border-bottom: 2px solid var(--habit-primary);
+    padding-bottom: 0.35em;
+    margin-bottom: 0.8em;
+    font-weight: 600;
+}
+
+.rst-content h2 {
+    border-bottom: 1px solid var(--habit-border);
+    padding-bottom: 0.25em;
+    margin-top: 1.6em;
+    color: #2c3e50;
+}
+
+.rst-content h3 {
+    margin-top: 1.3em;
+    color: var(--habit-primary-dark);
+}
+
+.rst-content h4,
+.rst-content h5,
+.rst-content h6 {
+    color: #34495e;
+}
+
+/* Sidebar */
+.wy-side-nav-search {
+    background-color: var(--habit-primary);
+}
+
+.wy-side-nav-search > a {
+    color: #fff;
+    font-weight: 600;
+}
+
+.wy-menu-vertical a:hover {
+    background: rgba(41, 128, 185, 0.08);
+}
+
+.wy-menu-vertical li.current > a {
+    border-left: 3px solid var(--habit-accent);
+}
+
+/* Tables — readable feature reference tables */
+.wy-table-responsive {
+    margin-bottom: 1.2em;
+}
+
+.wy-table-responsive table.docutils {
+    border: 1px solid var(--habit-border);
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.wy-table-responsive table.docutils th {
+    background: var(--habit-table-head);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.55em 0.75em;
+    border: 1px solid var(--habit-primary-dark);
+}
+
+.wy-table-responsive table.docutils td {
+    padding: 0.5em 0.75em;
+    border: 1px solid var(--habit-border);
+    vertical-align: top;
+}
+
+.wy-table-responsive table.docutils tbody tr:nth-child(even) {
+    background: #f7f9fb;
+}
+
+/* Math blocks */
+.rst-content .math,
+.rst-content div.math {
+    overflow-x: auto;
+    padding: 0.4em 0;
+    margin: 0.6em 0;
+}
+
+/* Code blocks */
+.rst-content pre.literal-block,
+.rst-content div[class^="highlight"] {
+    border: 1px solid var(--habit-border);
+    border-radius: 3px;
+}
+
+/* Admonitions — PyRadiomics-style callouts */
+.rst-content .admonition {
+    border-radius: 3px;
+    margin: 1.1em 0;
+    padding: 0.6em 1em;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.rst-content .admonition-title {
+    font-weight: 600;
+    margin-bottom: 0.35em;
+}
+
+.rst-content .admonition.note {
+    border-left: 4px solid var(--habit-primary);
+    background: #eef6fc;
+}
+
+.rst-content .admonition.warning {
+    border-left: 4px solid #e67e22;
+    background: #fef9f3;
+}
+
+.rst-content .admonition.tip {
+    border-left: 4px solid var(--habit-accent);
+    background: #f0faf4;
+}
+
+.rst-content .admonition.important {
+    border-left: 4px solid #8e44ad;
+    background: #f9f3fc;
+}
+
+/* Local table of contents inside long pages */
+.rst-content .contents.local {
+    background: #f7f9fb;
+    border: 1px solid var(--habit-border);
+    border-radius: 3px;
+    padding: 0.8em 1.2em;
+    margin: 1em 0 1.5em;
+}
+
+.rst-content .contents.local ul {
+    margin-bottom: 0;
+}
+
+/* Feature-type summary cards on landing pages */
+.feature-overview-table td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Inline literals in tables */
+.wy-table-responsive code.literal {
+    font-size: 0.88em;
+    background: #eef2f5;
+    border: none;
+    padding: 0.1em 0.35em;
+}
+
+/* Reference page section labels */
+.rst-content .section h2 {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.wy-breadcrumbs {
+    margin-bottom: 0.5em;
+}

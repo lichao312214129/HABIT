@@ -1,0 +1,1273 @@
+Habitat Segmentation Configuration
+==================================
+
+Habitat Analysis Configuration Parameters
+-----------------------------------------
+
+This section covers **habitat analysis** configuration. CLI: ``habit get-habitat -c <yaml>``. Demo training: ``config/habitat/config_habitat_two_step.yaml``; prediction: ``config/habitat/config_habitat_two_step_predict.yaml``; SLIC supervoxel example: ``config/habitat/config_habitat_two_step_supervoxel_slic.yaml`` (parameter details in **"habitat_segmentation.supervoxel — SLIC Superpixel Configuration"** below).
+
+**Example configuration file:**
+
+.. code-block:: yaml
+
+   run_mode: train
+   pipeline_path: ./results/habitat_pipeline.pkl
+   data_dir: ./file_habitat.yaml
+   out_dir: ./results/habitat/train
+
+   feature_construction:
+     voxel_level:
+       method: concat(raw(delay2), raw(delay3), raw(delay5))
+
+     supervoxel_level:
+       supervoxel_file_keyword: '*_supervoxel.nrrd'
+       method: mean_voxel_features()
+
+     preprocessing_for_subject_level:
+       methods:
+         - method: winsorize
+           winsor_limits: [0.05, 0.05]
+           global_normalize: true
+         - method: minmax
+           global_normalize: true
+
+     preprocessing_for_group_level:
+       methods:
+         - method: binning
+           n_bins: 10
+           bin_strategy: uniform
+           global_normalize: false
+
+   habitat_segmentation:
+     clustering_mode: two_step
+
+     supervoxel:
+       algorithm: kmeans
+       n_clusters: 50
+       random_state: 42
+       max_iter: 300
+       n_init: 10
+
+     habitat:
+       algorithm: kmeans
+       max_clusters: 10
+       habitat_cluster_selection_method:
+         - inertia
+         - silhouette
+       fixed_n_clusters: null
+       random_state: 42
+       max_iter: 300
+       n_init: 10
+
+   processes: 2
+   cap_processes_to_gpu_pool: false
+   individual_subject_timeout_sec: 900
+   individual_subject_spawn_timeout_sec: 120
+   individual_subject_graceful_shutdown_sec: 15
+   on_subject_failure: continue
+   oom_backoff: true
+   oom_reduce_workers_by: 1
+   resume: true
+   strict_checkpoint_hash: false
+   checkpoint_dir: null
+   force_rerun_subjects: []
+   retry_failed_subjects: false
+   individual_subject_auto_retry_rounds: 2
+   individual_subject_parallel_mode: persistent
+   persistent_worker_max_consecutive_failures: 1
+   persistent_worker_recycle_after_tasks: 0
+   clear_checkpoint_on_success: false
+   plot_curves: true
+   save_images: true
+   save_results_csv: true
+   random_state: 42
+   verbose: true
+   debug: false
+
+**run_mode**: Run mode
+
+- **Type**: string
+- **Required**: no
+- **Default**: ``train``
+- **Allowed values**: ``train``, ``predict``
+- **Description**: ``train`` trains a new model; ``predict`` runs inference with a pretrained pipeline.
+- **Example**: ``train``
+
+**pipeline_path**: Pipeline file path
+
+- **Type**: string
+- **Required**: no (required in ``predict`` mode)
+- **Default**: ``null``
+- **Description**: Path to the trained pipeline file.
+- **Example**: ``./results/habitat_pipeline.pkl``
+
+**data_dir**/**out_dir** (habitat analysis top level)
+
+- **Type**: string
+- **Required**: yes
+- **Default**: none (required)
+- **Description**: ``data_dir`` may be a directory or a manifest such as ``file_habitat.yaml``; ``out_dir`` is the default parent directory for results and checkpoints.
+
+**feature_construction**: Feature extraction settings
+
+- **Type**: object
+- **Required**: required in ``train``; may be omitted in ``predict``
+- **Default**: ``null``
+- **Description**: If unset, validation rejects the config or errors according to run mode. Sub-blocks ``voxel_level`` / ``supervoxel_level`` / ``preprocessing_*`` are documented below.
+
+**YAML field naming in this workflow** (avoid confusing ``method`` / ``methods`` / ``algorithm``):
+
+- ``feature_construction.*.method`` (singular): one **functional expression** string (``concat(voxel_radiomics(T2))``).
+- ``preprocessing_for_* .methods`` (plural): an **ordered list** of preprocessing steps; each item has its own ``method: winsorize`` step type.
+- ``habitat_segmentation.*.algorithm``: **clustering backend** (``kmeans``, ``gmm``, ``slic``), not a feature extractor.
+- ``habitat_cluster_selection_method`` / ``selection_method``: cluster-count validation metric (``elbow``, ``silhouette``, …).
+
+**voxel_level**: Voxel-level feature extraction
+
+- ``method``: Feature extraction method expression
+
+  - **Type**: string
+  - **Required**: yes
+  - **Default**: none (required)
+  - **Description**: Supports functional syntax to combine multiple extractors.
+  - **Expression conventions** (shared by ``voxel_level`` / ``supervoxel_level``):
+
+    - When extracting per modality (``raw``, ``voxel_radiomics``, ``supervoxel_radiomics``, etc.), **even for a single modality** wrap with an outer combiner such as ``concat(...)``; inner expressions are per-modality sub-expressions; the outer layer merges results across modalities.
+    - Comma-separated tokens inside parentheses are **parameter name placeholders** or **image modality names** (matching ``images/<subject>/<modality>/`` subdirectories), **not** Python keyword arguments; actual paths and numeric values go in a sibling ``params`` dict.
+    - **Binding rule**: a parameter binds to function ``F`` only when its name appears inside ``F(...)`` parentheses (modality names excepted). Keys in ``params`` that are not listed in any function's parentheses trigger a deprecation warning.
+    - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/compat/engines/habitat_analysis/clustering_features/``).
+    - **Bundled ``params_file``**: for ``voxel_radiomics`` / ``supervoxel_radiomics``, ``params_file`` is optional. When omitted, HABIT uses bundled presets shipped in ``habit/resources/radiomics/`` (CT R3B12 voxel preset; full-set supervoxel preset). The resolved absolute path is logged at runtime.
+    - Recommended minimal form: ``concat(voxel_radiomics(T2))`` with ``params: {}`` — uses bundled CT R3B12 ``params_file``, ``kernel_radius: 3``, ``voxel_batch: 1000``, ``use_torch_radiomics: auto``. List a name in parentheses only when overriding (e.g. ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` for MRI).
+    - **Strict quoted form (v1 feature trees)**: when the expression contains **quoted** modality strings, it is parsed by the strict v1 parser (:func:`~habit.spec.parse_feature_expression`) into a feature Spec tree instead of the permissive v0.1 mini-language. Rules: modalities are quoted (``raw("T1")``), parameters are explicit ``key=value`` (``local_entropy("T2", kernel_size=5)``), combiner children are nested calls (a bare quoted string among children is an implicit ``raw`` leaf), and ``as_="label"`` renames a single-column node's output. Ambiguous input fails loudly instead of being guessed. Available combiners: ``concat``, ``weighted_concat`` (``weights=[...]``), ``average``, ``ratio`` / ``difference`` (two children), ``kinetic``, ``expression``. Example: ``concat(raw("delay2"), ratio(raw("delay2"), raw("delay3"), as_="d2_over_d3"))``.
+
+- ``params``: Voxel-level extractor parameter dictionary
+
+  - **Type**: dict
+  - **Required**: no
+  - **Default**: ``{}``
+  - **Description**: Key-value pairs passed to extractors referenced in ``method`` (e.g. ``params_file`` for ``voxel_radiomics`` may live in ``params`` depending on resolver behavior). Omit the entire ``params`` block when there are no extra parameters (defaults to empty dict).
+  - **Available methods and parameters**:
+
+**raw(image_name)**:
+
+      - **Description**: Extract raw image voxel values (most basic feature)
+      - **Parameters**: none
+      - **Example**: ``raw(delay2)``
+
+**concat(...)**:
+
+      - **Description**: Concatenate multiple feature vectors
+      - **Parameters**: accepts multiple feature extraction expressions
+      - **Example**: ``concat(raw(delay2), raw(delay3), raw(delay5))``
+
+**kinetic(...)**:
+
+      - **Description**: Extract kinetic features (wash-in/wash-out slopes, etc.)
+      - **Parameters**:
+
+        - ``timestamps`` (str, required): path to timestamps file
+        - accepts multiple ``raw(image_name)`` expressions
+
+      - **Example**: ``kinetic(raw(LAP), raw(PVP), raw(delay_3min), timestamps=...)``
+      - **Extracted features**:
+
+        - ``wash_in_slope``: wash-in slope
+        - ``wash_out_slope_lap_pvp``: wash-out slope from LAP to PVP
+        - ``wash_out_slope_pvp_dp``: wash-out slope from PVP to delay phase
+
+**local_entropy(...)**:
+
+      - **Description**: Compute local entropy (local texture complexity)
+      - **Parameters**:
+
+        - ``kernel_size`` (int, default: ``3``): local neighborhood size
+        - ``bins`` (int, default: ``32``): histogram bin count
+
+      - **Example**: ``local_entropy(raw(delay2), kernel_size=5, bins=32)``
+
+**voxel_radiomics(...)**:
+
+      - **Description**: Extract voxel-level radiomics features
+      - **Parameters**:
+
+        - ``params_file`` (str, optional): PyRadiomics parameter file path; omit for bundled CT R3B12 preset
+        - ``kernel_radius`` (int, default: ``3`` for CT R3B12 bundled preset; ``1`` = 3×3×3, ``3`` = 7×7×7): local neighborhood radius
+        - ``voxel_batch`` (int, default: ``1000``): voxel batch size; ``-1`` processes all ROI voxels at once (native PyRadiomics, no batching). Positive values limit memory (GPU or large ROI: ``512``–``1000`` recommended)
+        - ``use_torch_radiomics`` (str, default: ``auto``): ``auto`` uses TorchRadiomics when torch is installed and CUDA is available, otherwise CPU PyRadiomics; ``true`` forces torch; ``false`` always CPU
+        - ``torch_device`` (str, default: ``auto``): single GPU device when ``torch_gpus`` is unset
+        - ``torch_gpus`` (list/int/str): allowed GPU indices, e.g. ``[0, 1, 2]`` or ``"0,1,2"``; overrides ``torch_device`` when set
+        - ``torch_gpu_count`` (int, optional): use first N GPUs from ``torch_gpus``
+        - ``torch_dtype`` (str, default: ``float32``): Torch compute dtype (``float32`` or ``float64``; ``float64`` closer to CPU PyRadiomics)
+
+      - **Voxel GLCM note**: Use ``config/radiomics/params_voxel_radiomics.yaml`` (explicit list of 21 stable GLCM features).
+        If ``params_file`` lists only ``glcm:`` without feature names, PyRadiomics computes all 24 GLCM features; in
+        small neighborhoods with many uniform voxels, GLCM degenerates to 1×1 matrices and **MCC / Imc1 / Imc2**
+        feature values or mutual information can crash or produce NaN on CUDA/MKL. HABIT auto-replaces with the
+        21 stable features and logs a warning when GLCM is unrestricted; if features are explicitly listed in
+        ``params_file``, user configuration is respected.
+
+      - **CT voxel texture (R3B12)**: Literature recommends ``kernel_radius: 3`` and ``binWidth: 12`` HU
+        (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
+        Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
+        Reference: Prior O, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
+
+      - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
+
+  - **Full examples**:
+
+    .. code-block:: yaml
+
+       # Simple concatenation of raw images
+       voxel_level:
+         method: concat(raw(delay2), raw(delay3), raw(delay5))
+
+       # Kinetic features
+       voxel_level:
+         method: kinetic(raw(LAP), raw(PVP), raw(delay_3min))
+         params:
+           timestamps: ./timestamps.txt
+       
+       # Combine local entropy and raw values
+       voxel_level:
+         method: concat(raw(delay2), local_entropy(raw(delay2)))
+         params:
+           kernel_size: 5
+           bins: 32
+
+       # Voxel-level radiomics (texture features, slower; single modality still needs concat)
+       voxel_level:
+         method: concat(voxel_radiomics(T2))
+         params: {}
+
+- ``params``: Global parameters
+
+  - **Type**: dict
+  - **Required**: no
+  - **Default**: ``{}``
+  - **Description**: Shared parameters for all extractors. ``voxel_radiomics``-specific keys (``voxel_batch``, ``use_torch_radiomics``, etc.) belong in ``params`` and **need not** appear in the ``method`` expression string; keys not listed in the expression are auto-merged and forwarded.
+  - **Common parameters**:
+
+    - ``timestamps`` (str): timestamps file path (for kinetic)
+    - ``kernel_size`` (int): local neighborhood size (for local_entropy)
+    - ``bins`` (int): histogram bin count (for local_entropy)
+    - ``params_file`` (str): PyRadiomics parameter file (for voxel_radiomics)
+    - ``kernel_radius`` (int): voxel radiomics neighborhood radius (for voxel_radiomics)
+    - ``voxel_batch`` (int): voxel radiomics batch size (for voxel_radiomics; default ``1000``; ``-1`` = no batching)
+    - ``use_torch_radiomics`` (str): TorchRadiomics acceleration (``auto`` / ``true`` / ``false``)
+    - ``torch_device`` (str): single GPU device (when ``torch_gpus`` unset)
+    - ``torch_gpus`` (list/int/str): allowed GPU list
+    - ``torch_gpu_count`` (int): cap on GPUs actually used
+    - ``torch_dtype`` (str): Torch dtype (voxel_radiomics torch backend)
+
+**supervoxel_level**: Superpixel-level feature extraction (optional)
+
+- **Block default**: ``null`` (omit = no supervoxel block; ``two_step`` training usually requires it)
+
+- ``supervoxel_file_keyword``: Superpixel file glob pattern
+
+  - **Type**: string
+  - **Required**: no (when ``supervoxel_level`` is configured)
+  - **Default**: ``*_supervoxel.nrrd``
+  - **Description**: Matches existing supervoxel segmentation files (from two_step mode).
+  - **Example**: ``"*_supervoxel.nrrd"``
+
+- ``method``: Feature aggregation/extraction method
+
+  - **Type**: string
+  - **Required**: no (recommended when ``supervoxel_level`` is configured)
+  - **Default**: ``mean_voxel_features()``
+  - **Description**: Defines how voxel features aggregate to supervoxels, or direct supervoxel extraction. For multi-modality extractors such as ``supervoxel_radiomics``, expression conventions match ``voxel_level`` (single modality still needs outer ``concat(...)`` etc.; see "Expression conventions" above).
+  - **Available methods and parameters**:
+
+**mean_voxel_features()**:
+
+      - **Description**: Mean of voxel features within each supervoxel (most common)
+      - **Parameters**: none
+      - **Use case**: Aggregate voxel-level features (from ``voxel_level``) to supervoxel level
+      - **Example**: ``mean_voxel_features()``
+
+**mean("<modality>") / std("<modality>") / percentile("<modality>", q=...)** (strict quoted form only):
+
+      - **Description**: Single-modality region statistics — aggregate one modality's voxel **image signal** (not the ``voxel_level`` features) per supervoxel: mean, standard deviation, or the ``q``-th percentile
+      - **Parameters**: ``q`` (int/float, percentile only); ``source: "working" | "original"`` selects the post- vs pre-preprocessing signal; ``as_="label"`` renames the output column
+      - **Use case**: Compose per-modality statistics with combiners, e.g. ``concat(mean("T1"), std("T1", as_="t1_spread"), percentile("T2", q=90))``
+
+**concat(supervoxel_radiomics(<modality>, params_file), ...)**:
+
+      - **Description**: Per supervoxel label, extract **whole-ROI** radiomics texture (not voxel kernel neighborhoods). Must sit inside ``concat(...)`` (or another outer combiner); single-modality example: ``concat(supervoxel_radiomics(T2, params_file))``.
+      - **Discretization**: One PyRadiomics ``_applyBinning`` on the union mask of all supervoxels (``sv_map > 0``), then per-label ``cMatrices``
+      - **Matrix backend**: ``use_supervoxel_cext`` default ``auto``: use C extension batch matrix build when ``supervoxel_cext`` is compiled (``pip install -e .``); otherwise fallback Torch/PyRadiomics stacked matrix path. ``false`` **forces** Torch/PyRadiomics stacked matrices (``matrix_backend=torch_cmatrices``) even if C extension exists
+      - **Feature backend**: When ``use_torch_radiomics`` resolves to torch, TorchRadiomics (GPU/CPU torch); else CPU PyRadiomics (same semantics)
+      - **Parameters** (in ``feature_construction.supervoxel_level.params``; may inherit torch keys from ``voxel_level.params``):
+
+        - ``params_file`` (str, optional): PyRadiomics parameter YAML; omit for bundled full-set preset
+        - ``supervoxel_batch`` (int): batch group size, default ``64`` (not kernel radius)
+        - ``supervoxel_union_bbox_crop`` (bool): crop to union bbox, default ``true``
+        - ``use_supervoxel_cext`` (str | bool): ``auto`` / ``true`` / ``false``, default ``auto``; must be in ``supervoxel_level.params`` (not in ``params_file``)
+        - ``use_torch_radiomics`` (str): ``auto`` / ``true`` / ``false``
+        - ``torch_gpus`` / ``torch_gpu_count`` / ``torch_device`` / ``torch_dtype``: same as voxel level
+
+      - **Note**: ``kernel_radius`` is for ``voxel_radiomics`` only; ``supervoxel_radiomics`` does not use it
+      - **Use case**: Texture radiomics directly from supervoxel regions without ``voxel_level`` features
+      - **Example**: ``concat(supervoxel_radiomics(T2))`` with ``params: {}`` (bundled preset)
+
+  - **Method comparison**:
+
+    - ``mean_voxel_features()``: depends on ``voxel_level`` features; fast; suitable for most cases
+    - ``concat(supervoxel_radiomics(...), ...)``: standalone ROI radiomics; union-mask bin once + per-label extract; feature values **differ** from legacy per-label ``execute`` (per-label bin)
+
+  - **Full examples**:
+
+    .. code-block:: yaml
+
+       # Scenario 1: aggregate voxel features (recommended)
+       supervoxel_level:
+         supervoxel_file_keyword: '*_supervoxel.nrrd'
+         method: mean_voxel_features()
+
+       # Scenario 2: direct radiomics (single modality still needs concat; replace T2 with modality under data_dir)
+       supervoxel_level:
+         supervoxel_file_keyword: '*_supervoxel.nrrd'
+         method: concat(supervoxel_radiomics(T2))
+         params: {}
+
+       # Scenario 2b: multi-modality supervoxel radiomics
+       supervoxel_level:
+         supervoxel_file_keyword: '*_supervoxel.nrrd'
+         method: concat(
+           supervoxel_radiomics(T1),
+           supervoxel_radiomics(T2))
+         params: {}
+
+- ``params``: Parameters
+
+  - **Type**: dict
+  - **Required**: no
+  - **Default**: ``{}``
+  - **Description**: Parameters for extractors. Omit ``params`` for parameterless methods like ``mean_voxel_features()``. Common ``supervoxel_radiomics`` keys:
+    ``params_file``, ``supervoxel_batch``, ``supervoxel_union_bbox_crop``, ``use_supervoxel_cext``,
+    ``use_torch_radiomics``, ``torch_gpus``, ``torch_gpu_count``, ``torch_dtype`` (torch keys may inherit from
+    ``voxel_level.params``).
+
+**preprocessing_for_subject_level**: Subject-level preprocessing (optional)
+
+- ``methods``: Preprocessing method list
+
+  - **Type**: list
+  - **Required**: no
+  - **Default**: ``[]``
+  - **Description**: Preprocess features per subject to reduce within-subject outliers and scale differences. Dispatched by
+    ``PreprocessingMethodFactory`` with DataFrame in/out (see "Habitat feature preprocessing implementation and extension" below).
+  - **Note**: In ``two_step`` and ``direct_pooling``, subject level must not use column-dropping methods (``variance_filter``, ``correlation_filter``), or concatenated subjects will have inconsistent columns; ``two_step`` rejects such configs at validation. ``one_step`` may use column-dropping methods at subject level (per-subject clustering).
+  - **Supported methods and parameters**:
+
+**winsorize (winsorization)**:
+
+      - ``winsor_limits`` (list, default: ``[0.05, 0.05]``): lower and upper tail truncation fractions
+      - ``global_normalize`` (bool, default: ``false``): global normalization across all features
+
+**minmax (min-max normalization)**:
+
+      - ``global_normalize`` (bool, default: ``false``): global normalization
+
+**zscore (Z-score standardization)**:
+
+      - ``global_normalize`` (bool, default: ``false``): global standardization
+
+**robust (robust standardization)**:
+
+      - ``global_normalize`` (bool, default: ``false``): global normalization
+      - Scales using interquartile range (IQR); robust to outliers
+
+**log (log transform)**:
+
+      - ``global_normalize`` (bool, default: ``false``): global transform
+      - Handles negative values (shift then log)
+
+**variance_filter (low-variance filter)**:
+
+      - ``variance_threshold`` (float, default: ``0.0``): keep features with variance above threshold
+      - Note: drops feature columns
+
+**correlation_filter (high-correlation filter)**:
+
+      - ``corr_threshold`` (float, default: ``0.95``): drop redundant features when the absolute correlation exceeds the threshold
+      - ``corr_method`` (str, default: ``spearman``): ``pearson`` / ``spearman`` / ``kendall``
+      - Note: drops feature columns
+
+  - **Examples**:
+
+    .. code-block:: yaml
+
+       # Winsorize then normalize
+       - method: winsorize
+         winsor_limits: [0.05, 0.05]
+         global_normalize: true
+       - method: minmax
+         global_normalize: true
+       
+       # Z-score standardization
+       - method: zscore
+         global_normalize: false
+
+**preprocessing_for_group_level**: Group-level preprocessing (optional)
+
+- ``methods``: Preprocessing method list
+
+  - **Type**: list
+  - **Required**: no
+  - **Default**: ``[]``
+  - **Description**: Preprocess features at cohort level; often used for discretization to stabilize clustering.
+  - **Applicable modes**: ``two_step`` and ``direct_pooling`` only; ``one_step`` pipeline has no group step—configured group preprocessing has no effect.
+  - **Supported methods and parameters**:
+
+**binning (feature discretization / binning)**:
+
+      - ``n_bins`` (int, default: ``10``): number of bins
+      - ``bin_strategy`` (str, default: ``uniform``): binning strategy:
+
+        - ``uniform``: equal-width bins
+        - ``quantile``: quantile (equal-frequency) bins
+        - ``kmeans``: K-means cluster binning
+
+      - ``global_normalize`` (bool, default: ``false``): global binning across features
+
+**winsorize (winsorization)**:
+
+      - ``winsor_limits`` (list, default: ``[0.05, 0.05]``): lower and upper tail truncation fractions
+      - ``global_normalize`` (bool, default: ``false``): global normalization
+
+**minmax / zscore / robust / log**:
+
+      - Same as ``preprocessing_for_subject_level``, applied after group aggregation
+
+**variance_filter / correlation_filter (recommended at group level)**:
+
+      - Column dropping for unsupervised feature selection; reduces noise and redundancy
+      - ``variance_filter`` parameter: ``variance_threshold``
+      - ``correlation_filter`` parameters: ``corr_threshold``, ``corr_method``
+      - Recommendation: fit column set during training; reuse same columns at prediction
+
+  - **Examples**:
+
+    .. code-block:: yaml
+
+       # Uniform binning (recommended for habitat analysis)
+       - method: binning
+         n_bins: 10
+         bin_strategy: uniform
+         global_normalize: false
+       
+       # Quantile binning (equal frequency)
+       - method: binning
+         n_bins: 20
+         bin_strategy: quantile
+         global_normalize: false
+
+**YAML structure essentials**
+
+``preprocessing_for_*_level`` must contain a **single** ``methods:`` key whose value is a **list**; do not duplicate ``methods:`` or place list items outside the ``methods:`` block:
+
+.. code-block:: yaml
+
+   # Correct
+   preprocessing_for_group_level:
+     methods:
+       - method: winsorize
+         winsor_limits: [0.05, 0.05]
+       - method: variance_filter
+         variance_threshold: 0.0
+
+   # Wrong: duplicate methods key; variance_filter not in list
+   preprocessing_for_group_level:
+     methods:
+       - method: winsorize
+     methods:
+       - method: variance_filter
+
+**Preprocessing activation matrix by clustering_mode**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 18 18 18
+
+   * - Preprocessing block
+     - one_step
+     - two_step
+     - direct_pooling
+   * - ``preprocessing_for_subject_level``
+     - active
+     - active (``variance_filter`` / ``correlation_filter`` forbidden)
+     - active
+   * - ``preprocessing_for_group_level``
+     - **inactive**
+     - active (Stage 2 group level)
+     - active (after pooling, group level)
+
+**Recommended pipeline (train → predict reuse)**
+
+- **two_step / direct_pooling (train)**: subject-level ``winsorize`` + ``minmax`` (or ``zscore``) → group-level ``binning`` (discretization aids clustering) → optional ``variance_filter`` / ``correlation_filter`` (column-dropping; ``fit`` caches column set during training).
+- **two_step / direct_pooling (predict)**: same ``methods`` order as training; ``PreprocessingState`` loaded from ``habitat_pipeline.pkl``—**do not change thresholds** on column-dropping methods to avoid column mismatch.
+- **one_step**: configure ``preprocessing_for_subject_level`` only; group block is ignored.
+
+**Habitat feature preprocessing implementation and extension**
+
+- **Unified interface**: Built-in and custom methods implement ``BaseFeaturePreprocessing``,
+  registered via ``@PreprocessingMethodFactory.register``.
+- **Execution path**: ``preprocessing_for_subject_level`` → stateless subject-level
+  ``apply_stateless_preprocessing``; ``preprocessing_for_group_level`` →
+  ``PreprocessingState.fit/transform`` (training caches ``baseline`` and per-step
+  ``step_states``; prediction reuses).
+- **Column-dropping methods**: ``variance_filter``, ``correlation_filter`` set
+  ``changes_columns=True``; ``two_step`` forbids them at subject level (see note above).
+- **Adding a method**:
+
+  1. See ``habit/compat/engines/habitat_analysis/feature_preprocessing/custom_preprocessing_template.py``
+  2. Register the method name in ``habit/schemas/workflows/habitat.py`` (``PreprocessingMethod.method`` Literal) or rely on schema extension hooks documented in :doc:`../development/extension_points`
+  3. If column-dropping, update ``DROPPING_PREPROCESSING_METHODS``
+  4. Ensure module import so registration decorator runs
+
+- **Compatibility**: YAML format unchanged; legacy ``habitat_pipeline.pkl`` with pre-refactor
+  ``PreprocessingState`` requires re-train.
+
+**habitat_segmentation**: Habitat segmentation settings
+
+- **Type**: object
+- **Required**: required in ``train``; recommended in ``predict`` (at least ``clustering_mode``)
+- **Default**: ``null`` (if fully omitted, Pydantic uses ``HabitatSegmentationConfig`` default sub-blocks; see table below)
+
+- ``clustering_mode``: Clustering strategy
+
+  - **Type**: string
+  - **Required**: no
+  - **Default**: ``two_step``
+  - **Allowed values**:
+
+    - ``one_step``: cluster voxels directly.
+    - ``two_step``: build supervoxels first, then cluster supervoxels into habitats.
+    - ``direct_pooling``: pool voxels across all subjects then cluster (compute-heavy).
+
+  - **Example**: ``two_step``
+
+**supervoxel**: Supervoxel clustering settings
+
+- **Applicable modes**:
+
+  - ``two_step``: this block configures **per-subject** voxel → supervoxel clustering (``algorithm``, ``n_clusters``, etc.).
+  - ``one_step``: ``algorithm`` and ``one_step_settings`` for **per-subject** voxel → habitat; ``n_clusters`` overridden when auto-selecting k.
+  - ``direct_pooling``: supervoxel block not used for clustering (schema defaults may remain).
+
+- ``algorithm``: Clustering or segmentation algorithm
+
+  - **Type**: string
+  - **Default**: ``kmeans``
+  - **Allowed values** (aligned with ``SupervoxelClusteringConfig``):
+
+    - ``kmeans``: K-means; clusters by feature vectors only—supervoxels may be spatially scattered.
+    - ``gmm``: Gaussian mixture; underlying default ``covariance_type='full'``; ``SupervoxelClusteringConfig`` **does not** expose this field—YAML may ignore it.
+    - ``slic``: SLIC superpixels; joint multi-channel features and 3D coordinates for spatially compact supervoxels. **Dedicated parameters** (``compactness`` / ``sigma`` / ``enforce_connectivity`` and tuning) see :ref:`habitat_slic_config` below.
+
+- ``n_clusters``: Supervoxel count (or SLIC ``n_segments``)
+
+  - **Type**: integer
+  - **Default**: ``50``
+  - **Description**:
+
+    - ``two_step``: fixed supervoxel count per subject; must be less than ROI voxel count. Typical **30–100**; small ROI **20–30**.
+    - ``one_step`` with empty ``fixed_n_clusters``: upper bound for auto k search (see ``one_step_settings.max_clusters``), not the final fixed value.
+
+- ``random_state``: Random seed
+
+  - **Type**: integer or ``null``
+  - **Default**: ``null`` (inherits ``HabitatAnalysisConfig.random_state``)
+
+- ``max_iter``: Maximum iterations
+
+  - **Type**: integer
+  - **Default**: ``300``
+  - **Description**: ``kmeans`` / ``gmm``: sklearn max iterations; ``slic`` differs—see :ref:`habitat_slic_config`.
+
+- ``n_init``: Number of initializations
+
+  - **Type**: integer
+  - **Default**: ``10``
+  - **Description**: ``kmeans`` / ``gmm``: sklearn ``n_init``; ``slic``: only in ``one_step`` auto k—see :ref:`habitat_slic_config`.
+
+- ``compactness`` / ``sigma`` / ``enforce_connectivity``: active only when ``algorithm: slic``—see :ref:`habitat_slic_config`.
+
+- ``one_step_settings``: Nested one-step auto cluster count (see **one_step_settings** below). **Not used for per-subject supervoxel clustering in ``two_step``** (two-step always uses fixed ``n_clusters``).
+
+- **Full example** (K-Means supervoxels):
+
+  .. code-block:: yaml
+
+     supervoxel:
+       algorithm: kmeans
+       n_clusters: 50
+       random_state: 42
+       max_iter: 300
+       n_init: 10
+
+.. _habitat_slic_config:
+
+habitat_segmentation.supervoxel — SLIC Superpixel Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When ``habitat_segmentation.supervoxel.algorithm: slic``, habit calls
+``skimage.segmentation.slic`` inside the ROI, jointly segmenting **multi-channel voxel features**
+(last dimension = feature channel) with **3D spatial coordinates** into ``n_clusters`` supervoxels. Anisotropic voxel spacing ``spacing``
+is **read automatically** from the mask NIfTI header—**no** YAML entry required.
+
+**Use cases**
+
+- Recommended for ``two_step`` stage 1: supervoxels are more spatially compact than pure K-Means supervoxels.
+- ``one_step`` may also use ``slic`` with ``one_step_settings`` for per-subject auto k.
+- High-dimensional ``voxel_radiomics`` features incur much higher compute and memory than ``raw`` / ``mean_voxel_features`` (builds ``[Z, Y, X, n_features]`` feature volume in ROI bbox).
+
+**YAML path**: keys under ``habitat_segmentation.supervoxel``; repo template
+``config/habitat/config_habitat_two_step_supervoxel_slic.yaml``.
+
+**Parameter reference**
+
+- ``n_clusters``: Target supervoxel count (``n_segments``)
+
+  - **Default**: ``50`` (shared with ``supervoxel`` block)
+  - **Tuning**: small ROI **20–30**; finer texture **60–100**; must be **less than** total ROI voxels.
+
+- ``compactness``: Balance between feature similarity and spatial compactness
+
+  - **Type**: float
+  - **Default**: ``0.1``
+  - **Description**: Passed to ``skimage.segmentation.slic``. Features are usually winsorized / minmax-normalized before SLIC, so **0.1** is a reasonable start (different scale from large compactness values common on RGB images).
+  - **Tuning**:
+
+    - **Increase** (``0.15``–``0.3``): more spatial grouping, smoother boundaries, fewer fragments.
+    - **Decrease** (``0.05``): follows feature differences more closely; boundaries track intensity/texture change but may fragment.
+
+- ``sigma``: Gaussian smoothing width before SLIC
+
+  - **Type**: float
+  - **Default**: ``0.0`` (no smoothing)
+  - **Description**: Gaussian smooth on **multi-channel feature volume** inside ROI before segmentation; units are **voxels** (with auto ``spacing`` for anisotropy). Suppresses high-frequency noise in voxel/texture features; **does not** replace winsorize etc. in ``preprocessing_for_subject_level``.
+  - **Tuning**:
+
+    - ``0.0``: sharpest boundaries; use when preprocessing is already strong.
+    - ``0.3``–``0.5``: mild denoising; try first for **voxel radiomics** (e.g. ``0.5``).
+    - ``> 1.0``: may blur real small structures—generally not recommended.
+
+- ``enforce_connectivity``: Enforce spatial connectivity
+
+  - **Type**: bool
+  - **Default**: ``true``
+  - **Description**: When ``true``, merges isolated small regions to avoid "floating" supervoxels; **keep true** for medical ROIs.
+
+- ``max_iter``: SLIC iteration count
+
+  - **Type**: integer
+  - **Schema default**: ``300`` (shared field name with kmeans; **do not use 300 for SLIC**)
+  - **Recommended**: ``10`` (maps to ``max_num_iter``); ``15``–``20`` possible with diminishing returns.
+
+- ``n_init``: Number of initializations
+
+  - **Type**: integer
+  - **Default**: ``10``
+  - **Description**: **Only** for embedded KMeans in ``find_optimal_clusters`` under ``one_step``; **no effect** on SLIC ``fit`` in ``two_step``.
+
+- ``random_state``: Random seed
+
+  - **Default**: ``null`` (inherits top-level ``random_state``); explicit ``42`` recommended for reproducibility.
+
+**Comparison with K-Means supervoxels**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 38 40
+
+   * - Algorithm
+     - Advantages
+     - Caveats
+   * - ``kmeans``
+     - Fast; simple
+     - No spatial adjacency constraint; supervoxels may scatter
+   * - ``slic``
+     - Spatially compact supervoxels; good two-step local units
+     - Slower, more memory with high-dim radiomics; needs mask / coordinates
+
+**Recommended example** (``two_step`` supervoxel stage):
+
+.. code-block:: yaml
+
+   habitat_segmentation:
+     clustering_mode: two_step
+     supervoxel:
+       algorithm: slic
+       n_clusters: 50
+       compactness: 0.1
+       sigma: 0.5
+       enforce_connectivity: true
+       max_iter: 10
+       random_state: 42
+
+**one_step_settings note**: Nested block is ``one_step`` only; under ``two_step``, SLIC supervoxel count is fixed by ``n_clusters``—**do not** rely on ``one_step_settings`` for k selection.
+
+**one_step_settings**: One-step mode settings (``one_step`` only)
+
+- ``min_clusters``: Minimum cluster count
+
+  - **Type**: integer
+  - **Default**: ``2``
+  - **Description**: Lower bound for automatic selection
+
+- ``max_clusters``: Maximum cluster count
+
+  - **Type**: integer
+  - **Default**: ``10``
+  - **Description**: Upper bound for automatic selection
+
+- ``fixed_n_clusters``: Fixed cluster count
+
+  - **Type**: integer or null
+  - **Default**: ``null``
+  - **Description**: If set, skips auto selection and uses this value.
+
+- ``selection_method``: Auto-selection metric
+
+  - **Type**: string
+  - **Default**: ``elbow``
+  - **Allowed values and meaning**:
+
+    - ``elbow``: knee of the inertia curve, detected by the Kneedle rule (default)
+    - ``silhouette``: silhouette coefficient (-1 to 1; closer to 1 = tighter clusters)
+    - ``calinski_harabasz``: Calinski-Harabasz index (higher = better)
+    - ``davies_bouldin``: Davies-Bouldin index (lower = better)
+    - ``inertia``: within-cluster sum of squares (lower = tighter; Kneedle elbow internally)
+    - ``kneedle``: Kneedle on normalized inertia curve (max deviation point)
+    - ``gap``: gap statistic
+    - ``aic`` / ``bic``: information criteria (gmm-oriented)
+
+  - **Recommendation**: ``elbow`` (schema default) or ``silhouette`` for interpretability
+
+  .. warning::
+
+     **Breaking change in v1.0**: ``elbow`` and ``kneedle`` are now the same
+     rule. Up to v0.1.x, ``elbow`` used a second-difference (discrete
+     curvature) criterion while ``kneedle`` used the normalised
+     maximum-deviation criterion, and the two could select different cluster
+     counts on the same curve. Both keys now resolve to the Kneedle rule
+     implemented in :func:`habit.kernels.cluster_selection.knee_index`, so a
+     v0.1 configuration written with ``elbow`` remains valid but may select a
+     different cluster count than it did before. Studies that must reproduce a
+     published habitat count should set ``fixed_n_clusters`` to that count.
+
+- ``plot_validation_curves``: Plot validation curves
+
+  - **Type**: bool
+  - **Default**: ``true``
+  - **Description**: Plots metrics vs cluster count to interpret auto selection
+
+**habitat**: Habitat clustering settings
+
+- ``algorithm``: Clustering algorithm
+
+  - **Type**: string
+  - **Default**: ``kmeans``
+  - **Allowed values**:
+
+    - ``kmeans``: K-means clustering
+    - ``gmm``: Gaussian mixture model
+
+- ``max_clusters``: Maximum habitat count
+
+  - **Type**: integer
+  - **Required**: no
+  - **Default**: ``10``
+  - **Description**: Upper bound when auto-selecting habitat count. Recommended: 5–10.
+  - **Example**: ``10``
+
+- ``min_clusters``: Minimum habitat count
+
+  - **Type**: integer
+  - **Default**: ``2``
+  - **Description**: Lower bound when auto-selecting habitat count.
+
+- ``habitat_cluster_selection_method``: Auto-selection metrics
+
+  - **Type**: list or string
+  - **Default**: ``elbow`` (YAML may use string or single-element list)
+  - **Allowed values and meaning**:
+
+    - ``elbow`` / ``kneedle``: knee of the inertia curve (the same rule since
+      v1.0; see the warning under ``selection_method`` above)
+    - ``inertia``: within-cluster SS (lower better for kmeans; Kneedle internally)
+    - ``silhouette``: silhouette (-1 to 1; closer to 1 better)
+    - ``calinski_harabasz``: Calinski-Harabasz (higher better)
+    - ``davies_bouldin``: Davies-Bouldin (lower better)
+    - ``gap``: gap statistic (higher better)
+    - ``aic``: Akaike information criterion (lower better; gmm only)
+    - ``bic``: Bayesian information criterion (lower better; gmm only)
+
+  - **Description**: Multiple metrics may be specified; system combines them to pick best habitat count.
+  - **Example**: ``[inertia, silhouette]``
+
+- ``fixed_n_clusters``: Fixed habitat count
+
+  - **Type**: integer or null
+  - **Default**: ``null``
+  - **Description**: If set to a number, skips auto selection and uses that habitat count.
+
+- ``random_state``: Random seed
+
+  - **Type**: integer or ``null``
+  - **Default**: ``null`` (inherits ``HabitatAnalysisConfig.random_state``)
+  - **Description**: **direct_pooling / two_step** group habitat clustering; **one_step** per-subject voxel→habitat (overrides ``supervoxel.random_state`` when set explicitly).
+
+- ``max_iter``: Maximum iterations
+
+  - **Type**: integer
+  - **Default**: ``300`` (both ``kmeans`` and ``gmm`` in ``HabitatClusteringConfig``)
+
+- ``n_init``: Number of initializations
+
+  - **Type**: integer
+  - **Default**: ``10`` (both ``kmeans`` and ``gmm``)
+
+- **Full examples**:
+
+  .. code-block:: yaml
+
+     # Auto-select habitat count (recommended)
+     habitat:
+       algorithm: kmeans
+       max_clusters: 10
+       min_clusters: 2
+       habitat_cluster_selection_method:
+         - inertia
+         - silhouette
+       fixed_n_clusters: null
+       random_state: 42
+     
+     # Fixed habitat count
+     habitat:
+       algorithm: kmeans
+       fixed_n_clusters: 5
+       random_state: 42
+
+**postprocess_supervoxel / postprocess_habitat**: Connected-component postprocessing
+
+- **Type**: dict
+- **Required**: no
+- **Default**: ``enabled: false``
+- **Description**:
+
+  - ``postprocess_supervoxel`` applies to supervoxel label maps (mainly two_step stage).
+  - ``postprocess_habitat`` applies to final habitat label maps (one_step/two_step/direct_pooling).
+  - Current implementation uses SimpleITK fast path: remove small components per label, then reassign by nearest seed label.
+  - Reduces fragmentation while preserving ROI voxel coverage.
+
+- **Sub-parameters** (aligned with ``ConnectedComponentPostprocessConfig``):
+
+  - ``enabled`` (bool, default: ``false``)
+  - ``min_component_size`` (int, default: ``30``, ≥1)
+  - ``connectivity`` (1 / 2 / 3): 6/18/26-neighbor
+  - ``reassign_method``: currently only ``neighbor_vote`` (placeholder)
+  - ``max_iterations`` (int, default ``3``, ≥1): cleanup iteration cap
+
+- **Example**:
+
+  .. code-block:: yaml
+
+     habitat_segmentation:
+       postprocess_supervoxel:
+         enabled: false
+         min_component_size: 30
+         connectivity: 1
+         reassign_method: neighbor_vote
+         max_iterations: 3
+
+       postprocess_habitat:
+         enabled: true
+         min_component_size: 30
+         connectivity: 1
+         reassign_method: neighbor_vote
+         max_iterations: 3
+
+**plot_curves**: Generate and save plots
+
+- **Type**: bool
+- **Default**: ``true``
+- **Description**: During group clustering auto k search, if a logger is passed, logs ``Trying N cluster(s) [i/total]`` and ``Cluster search finished: selected k=...`` for progress (forced off in ``predict`` mode).
+
+Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These fields sit at the **top level** of a **v0.1** habitat YAML (same level as
+``data_dir``). Both ``train`` and ``predict`` use ``processes``, checkpoint
+paths, and ``resume`` where applicable (predict checkpoints default to
+``<out_dir>/.habitat_predict_checkpoint``). CLI: ``habit get-habitat --resume``.
+
+**Dual track (v0.1 top-level vs v1 ``policy:``).** A native v1 document
+(``version: "1.0"``) puts the same knobs under a top-level ``policy:`` block
+using :class:`~habit.spec.RunPolicy` field names (``workers``,
+``subject_timeout_sec``, ``parallel_mode``, …). A v0.1 document keeps the
+``individual_*`` / ``processes`` names at the top level; the CLI and
+:func:`~habit.recipes.run_from_yaml` translate them into ``policy`` via
+:class:`~habit.spec.legacy.LegacyConfigAdapter` before building the backend.
+Full rename table and defaults: :doc:`../api/spec` (``RunPolicy`` YAML
+mapping) and :doc:`../api/execution`. Annotated v1 example:
+``config/habitat/config_habitat_two_step_v1.yaml``.
+
+**v1 backend selection (CLI / recipe reality).** After translation,
+``cmd_habitat`` / ``yaml_runner`` call
+:func:`~habit.execution.backend_from_policy` (v0.1 spawn-rule parity):
+
+* ``backend == "process"`` →
+  :class:`~habit.execution.ProcessPoolBackend`
+* **or** ``subject_timeout_sec`` / ``individual_subject_timeout_sec`` is
+  positive → ProcessPoolBackend even when ``workers == 1`` / ``processes: 1``
+* otherwise → :class:`~habit.execution.SerialBackend`
+
+On :class:`~habit.execution.SerialBackend`, timeout / OOM / ``parallel_mode``
+/ ``auto_retry_rounds`` knobs do not apply. Serial still honours
+``on_subject_failure``, ``resume``, ``retry_failed_subjects``,
+``force_rerun_subjects``, and ``clear_checkpoint_on_success``. To force
+true in-process serial, set the per-subject timeout to ``null``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 12 12 14 36
+
+   * - Field
+     - Type
+     - Default
+     - config_hash
+     - Summary
+   * - ``processes``
+     - int
+     - ``2``
+     - no
+     - Stage 1 max parallel workers (→ ``RunPolicy.workers``); peak memory ≈ ``processes × per-subject memory``. With a positive timeout, ``processes: 1`` still uses ProcessPoolBackend
+   * - ``cap_processes_to_gpu_pool``
+     - bool
+     - ``false``
+     - no
+     - Torch CUDA radiomics: ``true`` caps workers to ``len(torch_gpus)``; ``false`` keeps ``processes`` and shares GPUs across workers
+   * - ``individual_subject_timeout_sec``
+     - float / ``null``
+     - ``900``
+     - no
+     - Per-subject wall-clock cap (seconds); ``null`` disables. ProcessPoolBackend only
+   * - ``individual_subject_graceful_shutdown_sec``
+     - float
+     - ``15``
+     - no
+     - Seconds to wait after ``terminate()`` before ``kill()`` on timeout. ProcessPoolBackend only
+   * - ``individual_subject_spawn_timeout_sec``
+     - float / ``null``
+     - ``120``
+     - no
+     - Spawn-phase cap; ``null`` disables (avoids parent stuck on import). ProcessPoolBackend only
+   * - ``on_subject_failure``
+     - str
+     - ``continue``
+     - no
+     - ``continue`` log failure and proceed; ``fail_fast`` abort on first failure (Serial + ProcessPool)
+   * - ``oom_backoff``
+     - bool
+     - ``true``
+     - no
+     - After ``MemoryError``, reduce workers by ``oom_reduce_workers_by`` (not native crashes). ProcessPoolBackend only
+   * - ``oom_reduce_workers_by``
+     - int
+     - ``1``
+     - no
+     - Workers removed per OOM event. ProcessPoolBackend only
+   * - ``resume``
+     - bool
+     - ``true``
+     - —
+     - Skip completed subjects from checkpoint; ``train`` and ``predict``
+   * - ``checkpoint_dir``
+     - str / ``null``
+     - ``null``
+     - no
+     - Default ``<out_dir>/.habitat_checkpoint`` (resolved by CLI/recipe, not by ``from_policy``)
+   * - ``force_rerun_subjects``
+     - list[str]
+     - ``[]``
+     - no
+     - Subject IDs to force rerun on resume
+   * - ``retry_failed_subjects``
+     - bool
+     - ``false``
+     - no
+     - On **next** ``resume``, rerun all ``failed_subjects`` in the store
+   * - ``individual_subject_auto_retry_rounds``
+     - int
+     - ``2``
+     - no
+     - In-run Stage 1 auto-retry rounds; ``0`` disables. ProcessPoolBackend only
+   * - ``individual_subject_parallel_mode``
+     - str
+     - ``persistent``
+     - no
+     - ``persistent`` long-lived workers; ``isolated`` spawn per subject. ProcessPoolBackend only
+   * - ``persistent_worker_max_consecutive_failures``
+     - int
+     - ``1``
+     - no
+     - → ``RunPolicy``; restart persistent worker after N consecutive fatal failures
+   * - ``persistent_worker_recycle_after_tasks``
+     - int
+     - ``0``
+     - no
+     - → ``RunPolicy``; restart persistent worker after N successes (``0`` disables)
+   * - ``clear_checkpoint_on_success``
+     - bool
+     - ``false``
+     - no
+     - Delete checkpoint dir after full train success
+   * - ``strict_checkpoint_hash``
+     - bool
+     - ``false``
+     - no
+     - ``true`` raises ``CompatibilityError`` on fingerprint / legacy-layout mismatch
+
+**processes** (habitat analysis top level): Parallel workers for per-subject steps
+
+- **Type**: integer
+- **Default**: ``2`` (must be ``> 0``)
+- **Description**: See table above; interacts with ``cap_processes_to_gpu_pool`` and ``torch_gpus`` in ``feature_construction.*.params``.
+
+**cap_processes_to_gpu_pool** (habitat analysis top level): Cap Stage 1 workers to GPU pool size
+
+- **Type**: bool
+- **Default**: ``false`` (schema ``HabitatAnalysisConfig`` and ``RunPolicy.cap_workers_to_gpu_pool``)
+- **Description**: When ``use_torch_radiomics`` uses CUDA (``true`` or ``auto`` with CUDA detected):
+
+  - ``true``: effective workers ``min(processes, len(torch_gpus))``, one GPU per slot (``gpu_slot_index``), less VRAM contention;
+  - ``false`` (default): full ``processes``; workers share GPUs via ``gpu_slot_index % len(torch_gpus)``—good for "single GPU, many CPU" parallel non-GPU steps, but GPU radiomics may OOM on same card.
+
+- **Not in config_hash**; may change on resume.
+- **No effect** on CPU-only (``use_torch_radiomics: false`` or no CUDA), or when the v1 path selects :class:`~habit.execution.SerialBackend`.
+
+**individual_subject_timeout_sec** (habitat analysis top level): Per-subject wall-clock cap in parallel Stage 1
+
+- **Type**: float / int (seconds) or ``null``
+- **Default**: ``900`` (15 minutes); omit in YAML to use default.
+- **Description**: On timeout, skip subject (record failure) and continue; ``null`` disables per-subject timeout. Child processes may still run in background until they exit. **v1 path**: only applied when ``ProcessPoolBackend`` is selected (``processes > 1`` and translated ``backend: process``); ignored under ``SerialBackend``.
+
+**individual_subject_graceful_shutdown_sec** (habitat analysis top level): Grace period after timeout before kill
+
+- **Type**: float (seconds)
+- **Default**: ``15``
+- **Description**: After ``individual_subject_timeout_sec``, parent calls ``terminate()``, waits this many seconds, then ``kill()`` on the child. ProcessPoolBackend only (ignored on SerialBackend).
+
+**individual_subject_spawn_timeout_sec** (habitat analysis top level): Spawn-phase wall-clock cap
+
+- **Type**: float / int (seconds) or ``null``
+- **Default**: ``120``
+- **Description**: Cap from dispatch to subject processing start; on timeout, mark subject failed and continue—avoids parent blocked forever on spawn/import. ``null`` = no spawn time limit. ProcessPoolBackend only (ignored on SerialBackend).
+
+**on_subject_failure** (habitat analysis top level): Failure policy for parallel per-subject Stage 1
+
+- **Type**: string
+- **Default**: ``continue``
+- **Allowed values**:
+
+  - ``continue``: record failed subjects; continue to Stage 2 if any succeeded
+  - ``fail_fast``: abort entire run on first failure or timeout
+
+Python API twin: :class:`~habit.spec.RunPolicy` /
+:doc:`../api/execution`. Soft-failure patterns (geometry, batch
+``fail_fast``, ``Cohort.map`` aggregation): :doc:`../examples/fault_tolerance`.
+
+**oom_backoff** (habitat analysis top level): Reduce parallelism after memory errors
+
+- **Type**: bool
+- **Default**: ``true`` (built-in default); repo ``config/habitat/*.yaml`` examples often use ``false``—tune for your RAM
+- **Description**: When ``true``, isolated child ``MemoryError`` reduces worker count for pending subjects by ``oom_reduce_workers_by`` (minimum 1). **Does not handle** native crashes (e.g. Windows exit ``3221225477`` / ``0xC0000005``). ProcessPoolBackend only (ignored on SerialBackend).
+
+**oom_reduce_workers_by** (habitat analysis top level): Workers removed per OOM
+
+- **Type**: integer
+- **Default**: ``1``
+- **Description**: Only when ``oom_backoff: true`` and ProcessPoolBackend is active.
+
+**resume** (habitat analysis top level): Stage 1 checkpoint resume
+
+- **Type**: bool
+- **Default**: ``true``
+- **Description**: When ``true``, reuse checkpointed subject successes. On the **v1** CLI/recipe path the store is :class:`~habit.execution.CheckpointStore` under ``checkpoint_dir`` (default ``<out_dir>/.habitat_checkpoint`` for train, ``<out_dir>/.habitat_predict_checkpoint`` for predict); cache keys embed the spec fingerprint. Subjects recorded as failed are **not auto-retried on next** ``resume`` unless ``retry_failed_subjects: true`` or listed in ``force_rerun_subjects``. **Within the same** ProcessPool run, ``individual_subject_auto_retry_rounds`` retries failures by default. Applies to both ``train`` and ``predict``.
+- **CLI**: ``habit get-habitat --resume`` equivalent to ``resume: true``.
+- **See also**: checkpoint / ``resume`` fields on this page; :doc:`../api/execution`.
+
+**strict_checkpoint_hash** (habitat analysis top level): Checkpoint hash mismatch policy
+
+- **Type**: bool
+- **Default**: ``false``
+- **Description**:
+
+  - **v0.1 Stage-1 engine** (legacy): with ``resume: true``, ``true`` raises ``CheckpointConfigHashError`` on ``manifest.json`` ``config_hash`` / ``run_mode`` mismatch; ``false`` warns and discards the checkpoint for a fresh run. Legacy Stage-2-only hash migration may still resume.
+  - **v1 CLI / recipe path** (``cmd_habitat`` / ``yaml_runner``): a legacy v0.1 ``manifest.json`` / ``subjects/`` tree is auto-migrated on open (see below), then resume continues. ``strict_checkpoint_hash=True`` raises :class:`~habit.exceptions.CompatibilityError` when the on-disk ``run_fingerprint.json`` mismatches the current spec fingerprint, or when the legacy manifest is corrupt/unreadable. With ``strict=False``, fingerprint mismatches are warned and left unreachable (cache keys also embed the fingerprint).
+
+- **Not in config_hash**; may change on resume.
+
+**checkpoint_dir** (habitat analysis top level): Checkpoint root directory
+
+- **Type**: string or ``null``
+- **Default**: ``null`` (``train`` → ``<out_dir>/.habitat_checkpoint``; ``predict`` → ``<out_dir>/.habitat_predict_checkpoint``)
+- **Description**: Must match previous run for resume; may differ from ``out_dir`` when set explicitly.
+
+**force_rerun_subjects** (habitat analysis top level): Subject IDs to force rerun
+
+- **Type**: list of strings
+- **Default**: ``[]``
+- **Description**: With ``resume: true``, still reprocess listed subjects (removed from completed/failed and rerun).
+
+**retry_failed_subjects** (habitat analysis top level): Rerun all failed subjects from checkpoint
+
+- **Type**: bool
+- **Default**: ``false``
+- **Description**: With ``resume: true``, enqueue all ``failed_subjects`` from ``manifest.json`` for Stage 1 rerun. Successful subjects still skipped unless also in ``force_rerun_subjects``.
+
+**individual_subject_auto_retry_rounds** (habitat analysis top level): In-run auto-retry for failed subjects
+
+- **Type**: integer
+- **Default**: ``2``
+- **Description**: After first Stage 1 parallel pass, if failed subjects remain, rerun up to this many rounds in the same process (failed only). ``0`` disables. Unlike ``retry_failed_subjects`` (next **resume** only), this applies in the **current** ``get-habitat`` call when ProcessPoolBackend is active. With ``on_subject_failure: fail_fast``, error only after all retry rounds exhausted. **Ignored** under SerialBackend (``processes <= 1`` on the v1 path).
+
+**individual_subject_parallel_mode** (habitat analysis top level): Stage 1 parallel execution strategy
+
+- **Type**: string
+- **Default**: ``persistent``
+- **Allowed values**: ``isolated``, ``persistent``
+- **Description**: ``persistent`` (default): one long-lived child per worker slot, reused within the same run (including auto-retry rounds), amortizing import/spawn. ``isolated``: spawn per subject (stronger isolation; unpickleable pipeline or spawn debugging). Single GPU persistent is still serial—main benefit is startup cost. Used in both ``train`` and ``predict`` individual-level stages when ProcessPoolBackend is selected.
+
+  .. important::
+
+     On the **v1** CLI/recipe path, a positive
+     ``individual_subject_timeout_sec`` selects ProcessPoolBackend even when
+     ``processes: 1`` (v0.1 spawn-rule parity). True in-process serial requires
+     ``individual_subject_timeout_sec: null``.
+
+**persistent_worker_max_consecutive_failures** (habitat analysis top level): Persistent worker restart threshold
+
+- **Type**: integer
+- **Default**: ``1``
+- **Description**: Maps to ``RunPolicy.persistent_worker_max_consecutive_failures``. Under ``parallel_mode: persistent``, restart a worker slot after this many consecutive fatal-class failures.
+
+**persistent_worker_recycle_after_tasks** (habitat analysis top level): Periodic persistent worker recycle
+
+- **Type**: integer
+- **Default**: ``0``
+- **Description**: Maps to ``RunPolicy.persistent_worker_recycle_after_tasks``. Under ``parallel_mode: persistent``, restart a worker after this many successful tasks (``0`` disables).
+
+**clear_checkpoint_on_success** (habitat analysis top level): Delete checkpoint after successful train
+
+- **Type**: bool
+- **Default**: ``false``
+- **Description**: When ``true``, deletes entire checkpoint directory after Stage 1 + Stage 2 complete successfully.
+
+**config_hash and resume compatibility**
+
+- **v1 path**: :class:`~habit.execution.CheckpointStore` keys embed the
+  :class:`~habit.spec.HabitatSpec` fingerprint, and the store writes
+  ``run_fingerprint.json``. Changing scientific knobs yields new keys.
+  With ``strict_checkpoint_hash: true``, an incompatible fingerprint raises
+  :class:`~habit.exceptions.CompatibilityError`. A readable v0.1 layout is
+  migrated automatically (not refused). Scheduling-only knobs
+  (``processes``, timeouts, OOM, …) are outside the fingerprint.
+- **v0.1 Stage-1 engine** (legacy ``manifest.json`` layout):
+
+  - **In hash** (Stage 1 per-subject; change clears checkpoint): ``data_dir``,
+    ``feature_construction.voxel_level`` / ``preprocessing_for_subject_level`` /
+    ``supervoxel_level``, ``habitat_segmentation.clustering_mode``,
+    per-subject clustering block (``two_step`` → ``supervoxel``; ``one_step`` →
+    ``supervoxel`` + ``habitat``).
+  - **Not in hash** (may ``resume: true``): ``preprocessing_for_group_level``,
+    group ``habitat.*`` for ``two_step``/``direct_pooling``, ``processes``,
+    ``cap_processes_to_gpu_pool``, ``strict_checkpoint_hash``, timeout / OOM /
+    retry / parallel-mode knobs, ``persistent_worker_*``, ``force_rerun_subjects``,
+    ``out_dir``, plot/save switches, etc.
+  - ``manifest.json`` also stores ``individual_config_hash``; legacy
+    full-hash-only manifests migrate hash on Stage-2-only changes and keep pkls.
+  - On ``resume: true`` startup with hash mismatch: default
+    (``strict_checkpoint_hash: false``) warns and deletes checkpoint;
+    ``true`` raises ``CheckpointConfigHashError``.
+
+**Checkpoint directory layout**
+
+v0.1 Stage-1 layout (legacy). On the v1 CLI/recipe path these markers trigger
+an automatic migration (:func:`~habit.execution.migrate_v01_checkpoint_if_needed`)
+that writes v1 store entries, archives the tree under
+``.v01_legacy_archive/``, and logs what could / could not be scientifically
+reused::
+
+   <checkpoint_dir>/
+   ├── manifest.json      # completed_subjects, failed_subjects, config_hash, individual_config_hash, stage
+   └── subjects/
+       └── {subject_id}.pkl
+
+v1 :class:`~habit.execution.CheckpointStore` uses its own per-key files under
+the same ``checkpoint_dir`` root (see :doc:`../api/execution`).
+
+**Checkpoint boundaries by clustering_mode**
+
+- ``two_step`` / ``one_step``: saved after ``merge_supervoxel_features`` (``supervoxel_df``)
+- ``direct_pooling``: saved after ``individual_preprocessing`` (voxel-level ``features``; larger pkls)
+- Stage 2 (combine / concat / group clustering) has **no** checkpoint
+
+**save_results_csv**: Save habitat results table
+
+- **Type**: bool
+- **Default**: ``true``
+- **Description**: When ``true``, writes ``habitats.parquet`` (default) or ``habitats.csv`` per ``habitats_results_format``.
+
+**habitats_results_format**: Habitat results table file format
+
+- **Type**: string
+- **Default**: ``parquet``
+- **Allowed values**: ``parquet``, ``csv``
+- **Description**: ``parquet`` smaller and faster—good for large ``direct_pooling`` voxel tables; ``csv`` opens in Excel. Output filename is ``habitats.parquet`` or ``habitats.csv``.
+- **Example**:
+
+  .. code-block:: yaml
+
+     save_results_csv: true
+     habitats_results_format: parquet
+
+**random_state** (habitat analysis top level)
+
+- **Type**: integer
+- **Default**: ``42``
+
+**debug** (habitat analysis top level)
+
+- **Type**: bool
+- **Default**: ``false``
+
+**habitat_pipeline.pkl** (training artifact at ``<out_dir>/habitat_pipeline.pkl``)
+
+- **Contents**: joblib-serialized fitted ``HabitatPipeline`` (group clustering model, ``PreprocessingState``, config, etc.).
+- **Auto slimming on save** (``HabitatPipeline.save()`` calls ``prepare_pipeline_for_save``):
+
+  - Removes training ``labels_`` (prediction needs centers/model params only)
+  - **Does not write** ``mask_info_cache`` (NRRD write loads mask from ``data_dir`` on demand via ``FeatureService.load_mask_info``)
+  - Does not write ``_train_checkpoint`` (checkpoints remain in ``checkpoint_dir``)
+
+- **Size**:
+
+  - No longer inflated by ``save_images: true``: mask volume decoupled from pkl; ``direct_pooling`` large queues typically **tens to hundreds of MB** (mainly feature dimension and model params vs subject count)
+  - Legacy pkls embedding ``mask_array`` need **re-train and save** to shrink
+
+**save_images**: Save image outputs from the run (``*_habitats.nrrd``, etc.)
+
+- **Type**: bool
+- **Default**: ``true``
+- **Description**: Maps to ``HabitatAnalysisConfig.save_images``. When ``true``, train/predict write habitat label maps; masks load from ``config.data_dir`` at write time—**not** stored in ``habitat_pipeline.pkl``. When ``false``, downstream analysis via ``habitats.parquet`` / ``habitats.csv`` without NRRD output.
+
+**verbose**: Verbose run logging
+
+- **Type**: bool
+- **Default**: ``true``
+

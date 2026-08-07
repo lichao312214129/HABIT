@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HabitatModelFitter &mdash; HABIT Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=39329a72" />
+
+  
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.domain.HabitatModelFitter.html" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="HabitatAssigner" href="habit.domain.HabitatAssigner.html" />
+    <link rel="prev" title="SupervoxelFeatureExtractor" href="habit.domain.SupervoxelFeatureExtractor.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            HABIT
+          </a>
+              <div class="version">
+                1.0.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#which-path-should-i-choose">Which path should I choose?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#path-a-windows-lightweight-installer-recommended-for-clinicians">Path A — Windows lightweight installer (recommended for clinicians)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#step-by-step">Step-by-step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#optional-add-ons-only-if-you-need-them">Optional add-ons (only if you need them)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#what-the-installer-does-for-your-it-department">What the installer does (for your IT department)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#path-b-pip-conda-install-developers-and-cross-platform">Path B — pip / Conda install (developers and cross-platform)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#b1-create-an-isolated-environment-strongly-recommended">B1. Create an isolated environment (strongly recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#b2-install-habit-with-pip">B2. Install HABIT with pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#verify-the-install">Verify the install</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#option-1-windows-prebuilt-wheel-from-github-releases-recommended">Option 1 — Windows: prebuilt wheel from GitHub Releases (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#option-2-conda-forge-preferred-on-macos-linux">Option 2 — Conda-forge (preferred on macOS / Linux)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#optional-extras-programmers">Optional extras (programmers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#clinician-on-windows-path-a">Clinician on Windows (Path A)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#developer-on-any-os-minimal-library">Developer on any OS (minimal library)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#developer-who-needs-radiomics-ml">Developer who needs radiomics + ML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorial/installation.html#from-github-source">From GitHub source</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#common-problems">Common problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/installation.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart.html">Quickstart: YAML + CLI (no programming)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#prepare-data">Prepare data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#the-two-config-formats-v0-1-and-v1">The two config formats (v0.1 and v1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart_python.html">Quickstart: Python API (5 minutes)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#the-two-objects-you-will-always-meet">The two objects you will always meet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#your-first-habitat-analysis">Your first habitat analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#save-the-model-apply-it-later">Save the model, apply it later</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#your-first-tabular-model">Your first tabular model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#where-to-go-next">Where to go next</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Web GUI</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../gui/index.html">Web GUI (under development)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../gui/index.html#planned-scope">Planned scope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../gui/index.html#early-preview-developers">Early preview (developers)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/index.html">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/prepare_data.html">Prepare data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/prepare_data.html#project-root">Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/prepare_data.html#data-specification">Data specification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/preprocess.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/segment_habitat.html">Habitat segmentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/segment_habitat.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/segment_habitat.html#cli">CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/extract_features.html">Feature extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/radiomics.html">Traditional radiomics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/train_model.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/compare_models.html">Model comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_to/auxiliary_tools.html">Auxiliary tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/auxiliary_tools.html#icc-feature-reproducibility">ICC (feature reproducibility)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/auxiliary_tools.html#test-retest-habitat-mapping">Test-retest habitat mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/auxiliary_tools.html#dicom-metadata-export">DICOM metadata export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/auxiliary_tools.html#merge-tables">Merge tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/auxiliary_tools.html#dice-between-mask-batches">Dice between mask batches</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#embedding-habit">Embedding HABIT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#coverage-map-aligned-with-demo-data-results-api-run-api-coverage-py">Coverage map (aligned with <code class="docutils literal notranslate"><span class="pre">demo_data/results/api/run_api_coverage.py</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/two_step_habitat.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/one_step_habitat.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/one_step_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/one_step_habitat.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing.html#design-rules">Design rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_feature_routes.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_feature_routes.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/custom_voxel_features.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/custom_voxel_features.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/apply_saved_model.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/apply_saved_model.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/apply_saved_model.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing.html">Batch image preprocessing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing.html#entry-points">Entry points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_extraction.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html">Advanced tabular ML: staged selection and model comparison</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/visualization.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html">Persisting study artefacts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/persistence.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/persistence.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/persistence.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html">Parallel execution with RunPolicy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html#yaml-two-tracks">YAML: two tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html#failure-policy-note">Failure policy note</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/fault_tolerance.html">Fault tolerance patterns</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/fault_tolerance.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/fault_tolerance.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/fault_tolerance.html#key-contracts">Key contracts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/fault_tolerance.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/run_from_yaml.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/run_from_yaml.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/run_from_yaml.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#path-semantics">Path semantics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#validate-and-migrate-configs">Validate and migrate configs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#dicom-tools">DICOM tools</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#image-preprocessing">Image preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#habitat-analysis-train-predict">Habitat analysis (train / predict)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#traditional-radiomics-and-feature-extraction">Traditional radiomics and feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#machine-learning-and-model-comparison">Machine learning and model comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#utilities-dice-and-merge-csv">Utilities: dice and merge-csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html">Cohort assembly, plugins, and auxiliary utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#cohort-and-plugins">Cohort and plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#auxiliary-recipes">Auxiliary recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#config-tooling-programmatic-twins-of-cli">Config tooling (programmatic twins of CLI)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_recipes_api.html">Habitat recipes API (three modes + apply + persistence)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_recipes_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_recipes_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_recipes_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/features_radiomics_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/features_radiomics_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#script">Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#coverage">Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#why-not-sphinx-gallery">Why not sphinx-gallery</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/recipe_catalog.html">Configuration recipe catalog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#by-workflow">By workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#starter-demos">Starter demos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/recipe_catalog.html#field-reference-pages">Field reference pages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/preprocessing.html">Preprocessing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/preprocessing.html#preprocessing-configuration-parameters">Preprocessing configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/preprocessing.html#dicom-sort-configuration-habit-sort-dicom">DICOM sort configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">sort-dicom</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/dicom_sort.html">DICOM Sort Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/dicom_sort.html#top-level-fields">Top-level fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/dicom_sort.html#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/habitat.html">Habitat Segmentation Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/habitat.html#habitat-analysis-configuration-parameters">Habitat Analysis Configuration Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration/habitat.html#habitat-segmentation-supervoxel-slic-superpixel-configuration">habitat_segmentation.supervoxel — SLIC Superpixel Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration/habitat.html#habitat-stage-1-parallelism-and-checkpoint-resume-top-level-field-reference">Habitat Stage-1 Parallelism and Checkpoint Resume (Top-Level Field Reference)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/feature_extraction.html">Feature Extraction Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/radiomics.html">Traditional Radiomics Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#paths"><code class="docutils literal notranslate"><span class="pre">paths</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#processing"><code class="docutils literal notranslate"><span class="pre">processing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#export"><code class="docutils literal notranslate"><span class="pre">export</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#logging"><code class="docutils literal notranslate"><span class="pre">logging</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#backward-compatible-flat-keys">Backward-compatible flat keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/radiomics.html#pyradiomics-parameter-yaml">PyRadiomics parameter YAML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/machine_learning.html">Machine Learning Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/machine_learning.html#machine-learning-configuration-parameters">Machine learning configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/machine_learning.html#model-comparison-habit-compare">Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/model_comparison.html">Model Comparison Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/model_comparison.html#top-level-fields">Top-level fields</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration/model_comparison.html#each-files-config-item">Each <code class="docutils literal notranslate"><span class="pre">files_config</span></code> item</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/model_comparison.html#typical-outputs-under-output-dir">Typical outputs under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../configuration/auxiliary.html">Auxiliary Tools and Data Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#data-configuration-parameters">Data configuration parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#icc-analysis-configuration-habit-icc">ICC analysis configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#test-retest-configuration-habit-retest">Test-Retest configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">retest</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#traditional-radiomics-cli-configuration-habit-radiomics">Traditional radiomics CLI configuration (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#repository-configuration-template-index">Repository configuration template index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#configuration-file-validation">Configuration file validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration/auxiliary.html#faq">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Feature reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/features/index.html">Feature reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/traditional.html">Traditional Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/non_radiomics.html">Non-radiomics Morphology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/non_radiomics.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#output-columns">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id1">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id2">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id4">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/msi.html">MSI Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/msi.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/ith_score.html">ITH Score</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#notes">Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Command reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/cli.html">Command reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/cli.html#errors-exit-codes-and-validation">Errors, exit codes, and validation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/auxiliary.html">Auxiliary commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/auxiliary.html#habit-dicom-info">habit dicom-info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/auxiliary.html#habit-icc">habit icc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/auxiliary.html#habit-retest">habit retest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/auxiliary.html#habit-merge-csv">habit merge-csv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/auxiliary.html#habit-dice">habit dice</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQ</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/faq.html">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#runtime">Runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#gui-under-development">GUI (under development)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../troubleshooting/faq.html#data">Data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Background</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../explanation/concepts.html">Habitats and clustering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../explanation/concepts.html#clustering-strategies">Clustering strategies</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.two_step.html">two_step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.one_step.html">one_step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.direct_pooling.html">direct_pooling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.two_step_habitat.html">two_step_habitat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.one_step_habitat.html">one_step_habitat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.direct_pooling_habitat.html">direct_pooling_habitat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.apply_habitat_model.html">apply_habitat_model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#machine-learning">Machine learning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.train_model.html">train_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.cross_validate.html">cross_validate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.predict_model.html">predict_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.compare_models.html">compare_models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.pairwise_delong_test.html">pairwise_delong_test</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#feature-extraction-config-driven">Feature extraction (config-driven)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.extract_habitat_features.html">extract_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.traditional_radiomics.html">traditional_radiomics</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#study-utilities">Study utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.run_from_yaml.html">run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.preprocess_images.html">preprocess_images</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.icc_analysis.html">icc_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.test_retest_analysis.html">test_retest_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.sort_dicom.html">sort_dicom</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.dice.html">dice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.dicom_info.html">dicom_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.merge_tables.html">merge_tables</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#recipe-result-types">Recipe result types</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.Study.html">Study</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.StudyResult.html">StudyResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.ModelResult.html">ModelResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.CVResult.html">CVResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.PredictionResult.html">PredictionResult</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#data-contracts-habit-contracts">Data contracts (<code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#imaging">Imaging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Geometry.html">Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ImageRef.html">ImageRef</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ArrayImageRef.html">ArrayImageRef</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ImageVolume.html">ImageVolume</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.MaskVolume.html">MaskVolume</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Subject.html">Subject</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Cohort.html">Cohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.CohortFingerprint.html">CohortFingerprint</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.cohort_from_directory.html">cohort_from_directory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#provenance">Provenance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Provenance.html">Provenance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.RunManifest.html">RunManifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.software_fingerprint.html">software_fingerprint</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-artefacts">Habitat artefacts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.VoxelFeatureField.html">VoxelFeatureField</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Supervoxelization.html">Supervoxelization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.HabitatMap.html">HabitatMap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.HabitatModel.html">HabitatModel</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#tables-and-outcomes">Tables and outcomes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.FeatureTable.html">FeatureTable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.Outcome.html">Outcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.BinaryOutcome.html">BinaryOutcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.MulticlassOutcome.html">MulticlassOutcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ContinuousOutcome.html">ContinuousOutcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.SurvivalOutcome.html">SurvivalOutcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.outcome_from_dict.html">outcome_from_dict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.outcome_to_dict.html">outcome_to_dict</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#operator-protocols">Operator protocols</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.SubjectOperator.html">SubjectOperator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.CohortOperator.html">CohortOperator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.SubjectResult.html">SubjectResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ExecutionBackend.html">ExecutionBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.DataSource.html">DataSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.contracts.ResultWriter.html">ResultWriter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.spec.Spec.html">Spec</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec"><code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.spec.MLSpec.html">MLSpec</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.MLSpec.html#habit.spec.MLSpec"><code class="docutils literal notranslate"><span class="pre">MLSpec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.spec.RunPolicy.html">RunPolicy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.RunPolicy.html#habit.spec.RunPolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#serialisation">Serialisation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_spec.html">load_habitat_spec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_run_policy.html">load_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.save_run_policy.html">save_run_policy</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.LegacyConfigAdapter.html">LegacyConfigAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.LegacyTranslation.html">LegacyTranslation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.MigrationReport.html">MigrationReport</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.detect_yaml_version.html">detect_yaml_version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.migrate_yaml.html">migrate_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.validate_v1_document.html">validate_v1_document</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#domain-components-habit-domain">Domain components (<code class="docutils literal notranslate"><span class="pre">habit.domain</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#pipelines">Pipelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SubjectPipeline.html">SubjectPipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TablePipeline.html">TablePipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-protocols">Habitat protocols</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VoxelFeatureExtractor.html">VoxelFeatureExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Supervoxelizer.html">Supervoxelizer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SupervoxelFeatureExtractor.html">SupervoxelFeatureExtractor</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">HabitatModelFitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatAssigner.html">HabitatAssigner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatFeatureExtractor.html">HabitatFeatureExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Seedable.html">Seedable</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#voxel-feature-extractors">Voxel feature extractors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RawVoxelFeatures.html">RawVoxelFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RawVoxelFeaturesParams.html">RawVoxelFeaturesParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#supervoxelizers">Supervoxelizers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SlicSupervoxelizer.html">SlicSupervoxelizer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SlicSupervoxelizerParams.html">SlicSupervoxelizerParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KMeansSupervoxelizer.html">KMeansSupervoxelizer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KMeansSupervoxelizerParams.html">KMeansSupervoxelizerParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GmmSupervoxelizer.html">GmmSupervoxelizer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GmmSupervoxelizerParams.html">GmmSupervoxelizerParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#supervoxel-feature-extractors">Supervoxel feature extractors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MeanVoxelFeatures.html">MeanVoxelFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MeanVoxelFeaturesParams.html">MeanVoxelFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SupervoxelRadiomicsFeatures.html">SupervoxelRadiomicsFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SupervoxelRadiomicsFeaturesParams.html">SupervoxelRadiomicsFeaturesParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-model-fitters">Habitat model fitters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KMeansHabitatModelFitter.html">KMeansHabitatModelFitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KMeansHabitatModelFitterParams.html">KMeansHabitatModelFitterParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GmmHabitatModelFitter.html">GmmHabitatModelFitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GmmHabitatModelFitterParams.html">GmmHabitatModelFitterParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-assigners">Habitat assigners</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NearestCentroidAssigner.html">NearestCentroidAssigner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NearestCentroidAssignerParams.html">NearestCentroidAssignerParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-feature-extractors">Habitat feature extractors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatVolumeFeatures.html">HabitatVolumeFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatVolumeFeaturesParams.html">HabitatVolumeFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.IthHabitatFeatures.html">IthHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.IthHabitatFeaturesParams.html">IthHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MsiHabitatFeaturesParams.html">MsiHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TraditionalRadiomicsHabitatFeaturesParams.html">TraditionalRadiomicsHabitatFeaturesParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#voxel-feature-preprocessing">Voxel-feature preprocessing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SubjectFeaturePreprocessor.html">SubjectFeaturePreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CohortFeaturePreprocessor.html">CohortFeaturePreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SubjectPreprocessingChain.html">SubjectPreprocessingChain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CohortPreprocessingChain.html">CohortPreprocessingChain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.build_methods.html">build_methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ZScoreScaling.html">ZScoreScaling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ZScoreScalingParams.html">ZScoreScalingParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MinMaxScaling.html">MinMaxScaling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MinMaxScalingParams.html">MinMaxScalingParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RobustScaling.html">RobustScaling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RobustScalingParams.html">RobustScalingParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Winsorizing.html">Winsorizing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.WinsorizingParams.html">WinsorizingParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogTransform.html">LogTransform</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogTransformParams.html">LogTransformParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Binning.html">Binning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.BinningParams.html">BinningParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Impute.html">Impute</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ImputeParams.html">ImputeParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceFilter.html">VarianceFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceFilterParams.html">VarianceFilterParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationFilter.html">CorrelationFilter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationFilterParams.html">CorrelationFilterParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureWhitelist.html">FeatureWhitelist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureWhitelistParams.html">FeatureWhitelistParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#id1">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ImagePerturbation.html">ImagePerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbation.html">GaussianNoisePerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbationParams.html">GaussianNoisePerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TranslationPerturbation.html">TranslationPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TranslationPerturbationParams.html">TranslationPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbation.html">RotationPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.PerturbationChain.html">PerturbationChain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.aggregate_panels.html">aggregate_panels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.habitat_stability.html">habitat_stability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#table-protocols">Table protocols</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TablePreprocessor.html">TablePreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureSelector.html">FeatureSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Classifier.html">Classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Metric.html">Metric</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#table-preprocessors">Table preprocessors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ZScorePreprocessor.html">ZScorePreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ZScorePreprocessorParams.html">ZScorePreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MinMaxPreprocessor.html">MinMaxPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MinMaxPreprocessorParams.html">MinMaxPreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RobustPreprocessor.html">RobustPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RobustPreprocessorParams.html">RobustPreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.WinsorizePreprocessor.html">WinsorizePreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.WinsorizePreprocessorParams.html">WinsorizePreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogPreprocessor.html">LogPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogPreprocessorParams.html">LogPreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.BinningPreprocessor.html">BinningPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.BinningPreprocessorParams.html">BinningPreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceFilterPreprocessor.html">VarianceFilterPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceFilterPreprocessorParams.html">VarianceFilterPreprocessorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationFilterPreprocessor.html">CorrelationFilterPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationFilterPreprocessorParams.html">CorrelationFilterPreprocessorParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#feature-selectors">Feature selectors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceSelector.html">VarianceSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VarianceSelectorParams.html">VarianceSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationSelector.html">CorrelationSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CorrelationSelectorParams.html">CorrelationSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AnovaSelector.html">AnovaSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AnovaSelectorParams.html">AnovaSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Chi2Selector.html">Chi2Selector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.Chi2SelectorParams.html">Chi2SelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.IccSelector.html">IccSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.IccSelectorParams.html">IccSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LassoSelector.html">LassoSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LassoSelectorParams.html">LassoSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MrmrSelector.html">MrmrSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MrmrSelectorParams.html">MrmrSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RfecvSelector.html">RfecvSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RfecvSelectorParams.html">RfecvSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.StatisticalTestSelector.html">StatisticalTestSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.StatisticalTestSelectorParams.html">StatisticalTestSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.StepwiseSelector.html">StepwiseSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.StepwiseSelectorParams.html">StepwiseSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.UnivariateLogisticSelector.html">UnivariateLogisticSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.UnivariateLogisticSelectorParams.html">UnivariateLogisticSelectorParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VifSelector.html">VifSelector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VifSelectorParams.html">VifSelectorParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#classifiers">Classifiers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogisticRegressionClassifier.html">LogisticRegressionClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.LogisticRegressionClassifierParams.html">LogisticRegressionClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SvmClassifier.html">SvmClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SvmClassifierParams.html">SvmClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SvcClassifier.html">SvcClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SvcClassifierParams.html">SvcClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RandomForestClassifier.html">RandomForestClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.RandomForestClassifierParams.html">RandomForestClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientBoostingClassifier.html">GradientBoostingClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientBoostingClassifierParams.html">GradientBoostingClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AdaboostClassifier.html">AdaboostClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AdaboostClassifierParams.html">AdaboostClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.DecisionTreeClassifier.html">DecisionTreeClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.DecisionTreeClassifierParams.html">DecisionTreeClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KnnClassifier.html">KnnClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.KnnClassifierParams.html">KnnClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MlpClassifier.html">MlpClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MlpClassifierParams.html">MlpClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNbClassifier.html">GaussianNbClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNbClassifierParams.html">GaussianNbClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.BernoulliNbClassifier.html">BernoulliNbClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.BernoulliNbClassifierParams.html">BernoulliNbClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MultinomialNbClassifier.html">MultinomialNbClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MultinomialNbClassifierParams.html">MultinomialNbClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.XgboostClassifier.html">XgboostClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.XgboostClassifierParams.html">XgboostClassifierParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AutogluonTabularClassifier.html">AutogluonTabularClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AutogluonTabularClassifierParams.html">AutogluonTabularClassifierParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#metrics">Metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AccuracyMetric.html">AccuracyMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AccuracyMetricParams.html">AccuracyMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AucMetric.html">AucMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AucMetricParams.html">AucMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.F1ScoreMetric.html">F1ScoreMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.F1ScoreMetricParams.html">F1ScoreMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SensitivityMetric.html">SensitivityMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SensitivityMetricParams.html">SensitivityMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SpecificityMetric.html">SpecificityMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SpecificityMetricParams.html">SpecificityMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.PpvMetric.html">PpvMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.PpvMetricParams.html">PpvMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NpvMetric.html">NpvMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.NpvMetricParams.html">NpvMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HosmerLemeshowPValueMetric.html">HosmerLemeshowPValueMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HosmerLemeshowPValueMetricParams.html">HosmerLemeshowPValueMetricParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SpiegelhalterZPValueMetric.html">SpiegelhalterZPValueMetric</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SpiegelhalterZPValueMetricParams.html">SpiegelhalterZPValueMetricParams</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#evaluation-statistics">Evaluation statistics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.auc_confidence_interval.html">auc_confidence_interval</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.calibration_tests.html">calibration_tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.delong_test.html">delong_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.icc_analysis.html">icc_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.repeat_measurement_matrix.html">repeat_measurement_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.AucConfidenceInterval.html">AucConfidenceInterval</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.CalibrationResult.html">CalibrationResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.DelongResult.html">DelongResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#component-registries">Component registries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.VoxelFeatureExtractorRegistry.html">VoxelFeatureExtractorRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SupervoxelizerRegistry.html">SupervoxelizerRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SupervoxelFeatureExtractorRegistry.html">SupervoxelFeatureExtractorRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatModelFitterRegistry.html">HabitatModelFitterRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatAssignerRegistry.html">HabitatAssignerRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.HabitatFeatureExtractorRegistry.html">HabitatFeatureExtractorRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.FeaturePreprocessingMethodRegistry.html">FeaturePreprocessingMethodRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ImagePerturbationRegistry.html">ImagePerturbationRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.TablePreprocessorRegistry.html">TablePreprocessorRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureSelectorRegistry.html">FeatureSelectorRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.ClassifierRegistry.html">ClassifierRegistry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MetricRegistry.html">MetricRegistry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#execution-habit-execution">Execution (<code class="docutils literal notranslate"><span class="pre">habit.execution</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.execution.SerialBackend.html">SerialBackend</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.execution.SerialBackend.html#habit.execution.SerialBackend"><code class="docutils literal notranslate"><span class="pre">SerialBackend</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.execution.ProcessPoolBackend.html">ProcessPoolBackend</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend"><code class="docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.execution.SubjectTimeoutError.html">SubjectTimeoutError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.execution.SubjectTimeoutError.html#habit.execution.SubjectTimeoutError"><code class="docutils literal notranslate"><span class="pre">SubjectTimeoutError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.execution.CheckpointStore.html">CheckpointStore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.execution.CheckpointStore.html#habit.execution.CheckpointStore"><code class="docutils literal notranslate"><span class="pre">CheckpointStore</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#adapters-habit-adapters">Adapters (<code class="docutils literal notranslate"><span class="pre">habit.adapters</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.adapters.DirectoryDataSource.html">DirectoryDataSource</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.adapters.DirectoryDataSource.html#habit.adapters.DirectoryDataSource"><code class="docutils literal notranslate"><span class="pre">DirectoryDataSource</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.adapters.DirectoryResultWriter.html">DirectoryResultWriter</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter"><code class="docutils literal notranslate"><span class="pre">DirectoryResultWriter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.adapters.FileImageRef.html">FileImageRef</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.adapters.FileImageRef.html#habit.adapters.FileImageRef"><code class="docutils literal notranslate"><span class="pre">FileImageRef</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#datasets-habit-datasets">Datasets (<code class="docutils literal notranslate"><span class="pre">habit.datasets</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.datasets.make_synthetic_cohort.html">make_synthetic_cohort</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.datasets.make_synthetic_cohort.html#habit.datasets.make_synthetic_cohort"><code class="docutils literal notranslate"><span class="pre">make_synthetic_cohort()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.datasets.make_synthetic_feature_table.html">make_synthetic_feature_table</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.datasets.make_synthetic_feature_table.html#habit.datasets.make_synthetic_feature_table"><code class="docutils literal notranslate"><span class="pre">make_synthetic_feature_table()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#component-registry-habit-registry">Component registry (<code class="docutils literal notranslate"><span class="pre">habit.registry</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.registry.ComponentRegistry.html">ComponentRegistry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry"><code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#numeric-kernels-habit-kernels">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#model-selection">Model selection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.score_direction.html">score_direction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.knee_index.html">knee_index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.best_index.html">best_index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.vote_best_index.html">vote_best_index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.gap_statistic.html">gap_statistic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.SCORE_DIRECTIONS.html">habit.kernels.cluster_selection.SCORE_DIRECTIONS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.MAXIMIZE.html">habit.kernels.cluster_selection.MAXIMIZE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.MINIMIZE.html">habit.kernels.cluster_selection.MINIMIZE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.KNEE.html">habit.kernels.cluster_selection.KNEE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-metrics">Habitat metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.local_entropy_map.html">local_entropy_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.spatial_interaction_matrix.html">spatial_interaction_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.ith_score.html">ith_score</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#classification-and-agreement-statistics">Classification and agreement statistics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.compute_midrank.html">compute_midrank</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.fast_delong.html">fast_delong</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.delong_roc_variance.html">delong_roc_variance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.delong_roc_test.html">delong_roc_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.delong_roc_ci.html">delong_roc_ci</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.hosmer_lemeshow_test.html">hosmer_lemeshow_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.spiegelhalter_z_test.html">spiegelhalter_z_test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.two_way_mean_squares.html">two_way_mean_squares</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3_1.html">icc3_1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc2_1.html">icc2_1</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#image-perturbation-and-voxel-reliability">Image perturbation and voxel reliability</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.estimate_noise_sigma.html">estimate_noise_sigma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.add_gaussian_noise.html">add_gaussian_noise</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.translate_image.html">translate_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.rotate_image.html">rotate_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3a_1.html">icc3a_1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3c_1.html">icc3c_1</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#ecosystem-compatibility-habit-compat">Ecosystem compatibility (<code class="docutils literal notranslate"><span class="pre">habit.compat</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#scikit-learn">scikit-learn</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.as_estimator.html">as_estimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.as_transformer.html">as_transformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.as_classifier.html">as_classifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.HabitatFeaturesEstimator.html">HabitatFeaturesEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.TableClassifierEstimator.html">TableClassifierEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.sklearn.TableTransformerEstimator.html">TableTransformerEstimator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#monai">MONAI</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.monai.to_monai_dict.html">to_monai_dict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.monai.from_monai_dict.html">from_monai_dict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.monai.AsMonaiDict.html">AsMonaiDict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.monai.FromMonaiDict.html">FromMonaiDict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.monai.AsDictTransform.html">AsDictTransform</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#nnu-net">nnU-Net</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.compat.nnunet.NnUNetDataSource.html">NnUNetDataSource</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#styles">Styles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.StyleSpec.html">StyleSpec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.use_style.html">use_style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.get_style.html">get_style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.register_style.html">register_style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.available_styles.html">available_styles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.sanitize_label.html">sanitize_label</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#survival">Survival</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_kaplan_meier.html">plot_kaplan_meier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_risk_triptych.html">plot_risk_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_time_dependent_auc.html">plot_time_dependent_auc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_survival_calibration.html">plot_survival_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_brier_curve.html">plot_brier_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_cox_forest.html">plot_cox_forest</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#regression-and-classification">Regression and classification</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_predicted_vs_observed.html">plot_predicted_vs_observed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_residuals.html">plot_residuals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-clustering">Habitat clustering</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#exceptions-habit-exceptions">Exceptions (<code class="docutils literal notranslate"><span class="pre">habit.exceptions</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.HabitError.html">HabitError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.HabitError.html#habit.exceptions.HabitError"><code class="docutils literal notranslate"><span class="pre">HabitError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.HABITAPIError.html">HABITAPIError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError"><code class="docutils literal notranslate"><span class="pre">HABITAPIError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.ConfigurationError.html">ConfigurationError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.ConfigurationError.html#habit.exceptions.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.DataFormatError.html">DataFormatError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.DataFormatError.html#habit.exceptions.DataFormatError"><code class="docutils literal notranslate"><span class="pre">DataFormatError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.GeometryError.html">GeometryError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.GeometryError.html#habit.exceptions.GeometryError"><code class="docutils literal notranslate"><span class="pre">GeometryError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html">OptionalDependencyError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError"><code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.ComponentNotFoundError.html">ComponentNotFoundError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.ComponentNotFoundError.html#habit.exceptions.ComponentNotFoundError"><code class="docutils literal notranslate"><span class="pre">ComponentNotFoundError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.CompatibilityError.html">CompatibilityError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.CompatibilityError.html#habit.exceptions.CompatibilityError"><code class="docutils literal notranslate"><span class="pre">CompatibilityError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.ProcessingError.html">ProcessingError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.ProcessingError.html#habit.exceptions.ProcessingError"><code class="docutils literal notranslate"><span class="pre">ProcessingError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habit.exceptions.NotFittedError.html">NotFittedError</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.exceptions.NotFittedError.html#habit.exceptions.NotFittedError"><code class="docutils literal notranslate"><span class="pre">NotFittedError</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#v0-1-configuration-object-api-habit-api">v0.1 configuration-object API (<code class="docutils literal notranslate"><span class="pre">habit.api.*</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#image-and-geometry">Image and geometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.GeometryPolicy.html">GeometryPolicy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.GeometryReport.html">GeometryReport</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.ImageVolume.html">ImageVolume</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.MaskVolume.html">MaskVolume</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.ImageMaskPair.html">ImageMaskPair</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.read_image.html">read_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.read_mask.html">read_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.validate_geometry.html">validate_geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.image.align_image_mask.html">align_image_mask</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#radiomics">Radiomics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.radiomics.FeatureResult.html">FeatureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.radiomics.FeatureTableResult.html">FeatureTableResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.radiomics.extract_features.html">extract_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.radiomics.extract_batch.html">extract_batch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#clinical-facade">Clinical facade</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.ClinicalCohort.html">ClinicalCohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.PreparedCohort.html">PreparedCohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.HabitatResult.html">HabitatResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.ClinicalPreprocessor.html">ClinicalPreprocessor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.HabitatSegmenter.html">HabitatSegmenter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-and-feature-extraction-workflows">Habitat and feature-extraction workflows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.HabitatAnalysisConfig.html">HabitatAnalysisConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.FeatureExtractionConfig.html">FeatureExtractionConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.RadiomicsConfig.html">RadiomicsConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.run_habitat_analysis.html">run_habitat_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.run_feature_extraction.html">run_feature_extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.run_radiomics.html">run_radiomics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.apply_habitat_cli_overrides.html">apply_habitat_cli_overrides</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.build_feature_extraction_config.html">build_feature_extraction_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.load_feature_extraction_config.html">load_feature_extraction_config</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#machine-learning-workflows">Machine-learning workflows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.MLConfig.html">MLConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.ModelComparisonConfig.html">ModelComparisonConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.run_ml.html">run_ml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.run_kfold.html">run_kfold</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.run_model_comparison.html">run_model_comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.machine_learning.apply_ml_mode_override.html">apply_ml_mode_override</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#analysis-workflows">Analysis workflows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.analysis.ICCConfig.html">ICCConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.analysis.TestRetestConfig.html">TestRetestConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.analysis.run_icc_analysis.html">run_icc_analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.analysis.run_test_retest_analysis.html">run_test_retest_analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#preprocessing-and-dicom-utilities">Preprocessing and DICOM utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.preprocessing.PreprocessingConfig.html">PreprocessingConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.preprocessing.run_preprocess.html">run_preprocess</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.dicom_sort.DicomSortConfig.html">DicomSortConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.dicom_sort.run_dicom_sort.html">run_dicom_sort</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#estimators">Estimators</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.EstimatorPersistenceMixin.html">EstimatorPersistenceMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.HabitatClusterer.html">HabitatClusterer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.HabitClassifier.html">HabitClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.OutcomeClassifier.html">OutcomeClassifier</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.SubjectFeatureAggregator.html">SubjectFeatureAggregator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#provenance-and-workflow-results">Provenance and workflow results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.provenance.RunManifest.html">RunManifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.provenance.create_run_manifest.html">create_run_manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.provenance.write_run_manifest.html">write_run_manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.contracts.WorkflowResult.html">WorkflowResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../index.html#plugins-and-utilities">Plugins and utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.list_plugins.html">list_plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.plugins.load_plugins.html">load_plugins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.utils.setup_logger.html">setup_logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.utils.is_available.html">is_available</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.utils.show_versions.html">show_versions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.api.utils.check_component.html">check_component</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#api-guides">API guides</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../python_api.html">Python API guide (v1.0)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#mental-model">Mental model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#common-workflows">Common workflows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#where-to-go-next">Where to go next</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#tabular-machine-learning">Tabular machine learning</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../data_model.html">Data model (<code class="docutils literal notranslate"><span class="pre">habit.contracts</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#geometry">Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#image-references-and-volumes">Image references and volumes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#subject-and-cohort">Subject and Cohort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#habitat-artefacts">Habitat artefacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#featuretable">FeatureTable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#outcome">Outcome</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#provenance">Provenance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#runmanifest-and-studyresult">RunManifest and StudyResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../data_model.html#operator-protocols">Operator protocols</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../adapters.html">Adapters (<code class="docutils literal notranslate"><span class="pre">habit.adapters</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../adapters.html#directorydatasource">DirectoryDataSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adapters.html#fileimageref">FileImageRef</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adapters.html#directoryresultwriter">DirectoryResultWriter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../adapters.html#nnu-net-layout">NnU-Net layout</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../domain.html">Domain protocols and registries</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#import-style">Import style</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#single-subject-operators">Single-subject operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#five-habitat-protocols">Five habitat protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#composing-features-trees-combiners-and-statistics">Composing features: trees, combiners, and statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#precision-screen-perturbations-and-precise-features">Precision screen: perturbations and precise features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#randomness-seedable">Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#built-in-registry-domains">Built-in registry domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../domain_habitat.html">Habitat domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#protocols">Protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#registry-pattern-all-domains">Registry pattern (all domains)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#image-preprocessing-domain">Image preprocessing domain</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../domain_table.html">Table ML domain API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#table-preprocessors">Table preprocessors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#feature-selectors">Feature selectors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#classifiers">Classifiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#metrics">Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#statistical-helpers">Statistical helpers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_table.html#tablepipeline"><code class="docutils literal notranslate"><span class="pre">TablePipeline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#run-the-translated-spec-with-a-recipe">Run the translated spec with a recipe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#cli">CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../execution.html">Execution backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../execution.html#backend-selection-from-cli-and-run-from-yaml">Backend selection from CLI and run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../execution.html#serialbackend">SerialBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../execution.html#failure-policy-continue-vs-fail-fast">Failure policy: <code class="docutils literal notranslate"><span class="pre">continue</span></code> vs <code class="docutils literal notranslate"><span class="pre">fail_fast</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../execution.html#processpoolbackend">ProcessPoolBackend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../execution.html#checkpointstore">CheckpointStore</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#habitat-metrics">Habitat metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#icc-kernels">ICC kernels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#image-perturbation">Image perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#classification-statistics">Classification statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#stability">Stability</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../compat.html">Ecosystem adapters (<code class="docutils literal notranslate"><span class="pre">habit.compat</span></code>)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../compat.html#scikit-learn-habit-compat-sklearn">scikit-learn (<code class="docutils literal notranslate"><span class="pre">habit.compat.sklearn</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../compat.html#monai-habit-compat-monai">MONAI (<code class="docutils literal notranslate"><span class="pre">habit.compat.monai</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../compat.html#nnu-net-habit-compat-nnunet">nnU-Net (<code class="docutils literal notranslate"><span class="pre">habit.compat.nnunet</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins.html">Plugin introspection API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins.html#types">Types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../registry.html">Component registry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../image_io.html">Low-level image I/O helpers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../image_io.html#geometrypolicy-modes">GeometryPolicy modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../image_io.html#low-level-radiomics-extraction">Low-level radiomics extraction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../exceptions.html">Errors and optional dependencies</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../exceptions.html#when-each-exception-is-raised">When each exception is raised</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../exceptions.html#soft-failure-switches-not-exceptions">Soft-failure switches (not exceptions)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developer</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development/index.html">Developer Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../development/philosophy.html">Design Philosophy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#trade-offs">Trade-offs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/mental_model.html">Core Concepts and Mental Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/mental_model.html#global-mental-model">Global mental model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/mental_model.html#domain-concepts">Domain concepts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/mental_model.html#engineering-roles">Engineering roles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/mental_model.html#workflow-and-runner">Workflow and Runner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/mental_model.html#configuration-to-execution">Configuration to execution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/architecture.html">Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#design-principles">Design principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#the-six-layers">The six layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#two-execution-paths">Two execution paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#key-components">Key components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#subsystems">Subsystems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/architecture.html#cli-to-core-mapping">CLI-to-core mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/request_lifecycle.html">Complete Request Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#seven-stages">Seven stages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-1-cli-entry">Stage 1: CLI entry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-2-command-layer">Stage 2: command layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-3-loading-and-validation">Stage 3: loading and validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-4-translation">Stage 4: translation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-5-assembly">Stage 5: assembly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-6-execution">Stage 6: execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/request_lifecycle.html#stage-7-artifacts">Stage 7: artifacts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/repo_layout.html">Code Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#repository-root">Repository root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#habit-package-structure"><code class="docutils literal notranslate"><span class="pre">habit/</span></code> package structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#top-level-package-responsibilities">Top-level package responsibilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#shared-utilities-habit-utils">Shared utilities: <code class="docutils literal notranslate"><span class="pre">habit/utils/</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#cross-subsystem-contract-files">Cross-subsystem contract files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/repo_layout.html#where-to-start-when-changing-x">Where to start when changing X</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/configuration_system.html">Configuration System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#loading-and-path-resolution">Loading and path resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#schema-layers">Schema layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#parameter-registry-and-validation">Parameter registry and validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#domain-configurators">Domain configurators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/configuration_system.html#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/subsystems.html">Subsystems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/subsystems.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../development/subsystems.html#clustering-strategies">Clustering strategies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development/subsystems.html#training-and-prediction">Training and prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/subsystems.html#machine-learning">Machine learning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../development/subsystems.html#execution-flow">Execution flow</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/extension_points.html">Extension and Plugin Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/extension_points.html#core-extension-contracts">Core extension contracts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/extension_points.html#example-1-custom-preprocessing-step-classregistry">Example 1: Custom preprocessing step (ClassRegistry)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/extension_points.html#example-2-custom-feature-selector-callableregistry">Example 2: Custom feature selector (CallableRegistry)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/extension_points.html#example-3-custom-machine-learning-model-modelfactory">Example 3: Custom machine-learning model (ModelFactory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/extension_points.html#extension-point-reference">Extension point reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/invariants.html">Invariants and Architecture Contracts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#scientific-correctness">Scientific correctness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#configuration-rules">Configuration rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#registry-contracts">Registry contracts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#orchestrator-contracts">Orchestrator contracts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#engineering-conventions">Engineering conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/invariants.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/dev_workflow.html">Contributor Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#environment-setup">Environment setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#code-conventions">Code conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#testing">Testing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../development/dev_workflow.html#architecture-contract-tests">Architecture contract tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development/dev_workflow.html#demo-data-flow">Demo data flow</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#scenario-1-add-a-cli-command">Scenario 1: Add a CLI command</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#scenario-2-add-a-configuration-step-schema">Scenario 2: Add a configuration-step schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/dev_workflow.html#scenario-3-web-gui-and-bridge">Scenario 3: Web GUI and bridge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/contributing.html">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#how-to-contribute">How to contribute</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../development/contributing.html#report-bugs">Report bugs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development/contributing.html#submit-code">Submit code</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#code-style">Code style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#development-setup">Development setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#pull-requests">Pull requests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/contributing.html#code-of-conduct">Code of conduct</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../development/index.html#recommended-reading-order">Recommended reading order</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../customization/index.html">Customization and Extension Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#v1-custom-voxel-feature-extractors">v1 custom voxel feature extractors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#extension-principles">Extension principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#custom-preprocessors">Custom preprocessors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#custom-feature-extractors">Custom feature extractors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#custom-clustering-algorithms">Custom clustering algorithms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#custom-models">Custom models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#custom-feature-selectors">Custom feature selectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#best-practices">Best practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#faq">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../customization/index.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/upstream_libraries.html">Upstream Dependencies and Documentation Links</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#image-preprocessing-habit-preprocess">Image preprocessing (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#habitat-segmentation-habit-get-habitat">Habitat segmentation (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#habitat-features-and-traditional-radiomics-habit-extract-habit-radiomics">Habitat features and traditional radiomics (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#machine-learning-habit-model-habit-cv">Machine learning (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#model-comparison-habit-compare">Model comparison (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#icc-testretest-other">ICC / Test–retest / other</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/upstream_libraries.html#roi-delineation-external-tools">ROI delineation (external tools)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#configuration-improvements">Configuration Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#workflow-enhancements">Workflow Enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-x">Version 1.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#future-roadmap">Future Roadmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgments.html">Acknowledgments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#core-developers">Core developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#future-developers">Future developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#clinical-collaborators">Clinical collaborators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#special-thanks">Special thanks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#open-source-community">Open source community</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#how-to-contribute">How to contribute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../acknowledgments.html#contact">Contact</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">HABIT</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">HabitatModelFitter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/generated/habit.domain.HabitatModelFitter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="habitatmodelfitter">
+<h1>HabitatModelFitter<a class="headerlink" href="#habitatmodelfitter" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="habit.domain.HabitatModelFitter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HabitatModelFitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/domain/protocols.html#HabitatModelFitter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.HabitatModelFitter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></a></p>
+<p>Fit the population-level habitat definition. THIS IS THE COHORT-LEVEL STEP.</p>
+<p>This is the only place in HABIT where information crosses subject
+boundaries, and it is what makes habitat labels comparable between
+patients and between cohorts. Its output, <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code>, is the
+artefact a study should publish so that other groups can reproduce the
+same habitat definition on their own data.</p>
+<p>Named <code class="docutils literal notranslate"><span class="pre">*Fitter</span></code> (lifelines / statsmodels convention), NOT
+<code class="docutils literal notranslate"><span class="pre">*Estimator</span></code>: sklearn reserves “estimator” for objects whose <code class="docutils literal notranslate"><span class="pre">fit</span></code>
+returns <code class="docutils literal notranslate"><span class="pre">self</span></code> and that are <code class="docutils literal notranslate"><span class="pre">clone()</span></code>-able, whereas this <code class="docutils literal notranslate"><span class="pre">fit</span></code>
+returns a NEW <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code> artefact.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="habit.domain.HabitatModelFitter.spec">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><span class="pre">Spec</span></a></em><a class="headerlink" href="#habit.domain.HabitatModelFitter.spec" title="Link to this definition"></a></dt>
+<dd><p>Return the algorithm specification.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.domain.HabitatModelFitter.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="habit.contracts.Supervoxelization.html#habit.contracts.Supervoxelization" title="habit.contracts.habitat.Supervoxelization"><span class="pre">Supervoxelization</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cohort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.subject.Cohort"><span class="pre">Cohort</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><span class="pre">HabitatModel</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/protocols.html#HabitatModelFitter.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.HabitatModelFitter.fit" title="Link to this definition"></a></dt>
+<dd><p>Learn the shared habitat definition from all subjects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>units</strong> – Supervoxelizations in a defined, reproducible order.
+Order is part of the contract because clustering can be
+order-sensitive.</p></li>
+<li><p><strong>cohort</strong> – Cohort the units came from, used only to record a
+non-identifiable fingerprint inside the model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A self-contained habitat model applicable to unseen subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="habit.domain.HabitatModelFitter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#habit.domain.HabitatModelFitter.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="habit.domain.SupervoxelFeatureExtractor.html" class="btn btn-neutral float-left" title="SupervoxelFeatureExtractor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.domain.HabitatAssigner.html" class="btn btn-neutral float-right" title="HabitatAssigner" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, HABIT Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
