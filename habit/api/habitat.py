@@ -213,10 +213,15 @@ def run_feature_extraction(
     """
     from habit.recipes.features import extract_habitat_features
 
-    return extract_habitat_features(
-        config,
-        plugin_configs=plugin_configs,
-        logger=logger,
+    # ``follow_imports = "skip"`` makes the recipe's return type Any to mypy,
+    # so restate it here rather than letting warn_return_any fire.
+    return cast(
+        WorkflowResult[None],
+        extract_habitat_features(
+            config,
+            plugin_configs=plugin_configs,
+            logger=logger,
+        ),
     )
 
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Mapping, Optional, Union, cast
 
 from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
@@ -189,4 +189,9 @@ def run_model_comparison(
     """
     from habit.recipes.comparison import compare_models
 
-    return compare_models(config, logger=logger, output_dir=output_dir)
+    # ``follow_imports = "skip"`` makes the recipe's return type Any to mypy,
+    # so restate it here rather than letting warn_return_any fire.
+    return cast(
+        WorkflowResult[Mapping[str, Any]],
+        compare_models(config, logger=logger, output_dir=output_dir),
+    )
