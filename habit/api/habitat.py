@@ -213,10 +213,15 @@ def run_feature_extraction(
     """
     from habit.recipes.features import extract_habitat_features
 
-    return extract_habitat_features(
-        config,
-        plugin_configs=plugin_configs,
-        logger=logger,
+    # Recipes are outside the CI mypy paths (follow_imports=skip), so their
+    # return type is Any; cast preserves the public API contract here.
+    return cast(
+        WorkflowResult[None],
+        extract_habitat_features(
+            config,
+            plugin_configs=plugin_configs,
+            logger=logger,
+        ),
     )
 
 

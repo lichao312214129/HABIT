@@ -160,14 +160,10 @@ def load_extract_cohort(
                 subject_dir,
             )
             continue
-        subjects.append(
-            Subject(subject_id=subject_dir.name, images=images, masks={})
-        )
+        subjects.append(Subject(subject_id=subject_dir.name, images=images, masks={}))
 
     if not subjects:
-        raise DataFormatError(
-            f"No subjects with images found under {images_root}."
-        )
+        raise DataFormatError(f"No subjects with images found under {images_root}.")
     return Cohort(subjects, name=name)
 
 
@@ -191,9 +187,7 @@ def discover_habitat_map_paths(
     """
     folder = Path(habitats_map_folder)
     if not folder.is_dir():
-        raise DataFormatError(
-            f"Habitat map folder not found: {folder}."
-        )
+        raise DataFormatError(f"Habitat map folder not found: {folder}.")
     suffix = habitat_pattern.replace("*", "")
     paths: Dict[str, Path] = {}
     for path in sorted(folder.glob(habitat_pattern)):
@@ -430,9 +424,7 @@ def write_extract_feature_csvs(
             )
             continue
         if family in _FAMILY_CSV_STEM:
-            path = _write_simple_family(
-                destination, family, list(tables), logger=log
-            )
+            path = _write_simple_family(destination, family, list(tables), logger=log)
             if path is not None:
                 written.append(path)
             continue
@@ -441,8 +433,10 @@ def write_extract_feature_csvs(
             continue
         frames = [_frame_with_subject_index(table) for table in tables]
         result = pd.concat(frames, axis=0)
-        path = destination / f"{family}_features.csv"
-        result.to_csv(path, index=True)
-        log.info("Feature family %s saved to %s", family, path)
-        written.append(str(path))
+        # Use a distinct name: `path` above is Optional[str] from
+        # `_write_simple_family`, and mypy keeps that type across the loop.
+        csv_path = destination / f"{family}_features.csv"
+        result.to_csv(csv_path, index=True)
+        log.info("Feature family %s saved to %s", family, csv_path)
+        written.append(str(csv_path))
     return written

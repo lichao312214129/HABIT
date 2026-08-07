@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Mapping, Optional, Union, cast
 
 from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
@@ -189,4 +189,9 @@ def run_model_comparison(
     """
     from habit.recipes.comparison import compare_models
 
-    return compare_models(config, logger=logger, output_dir=output_dir)
+    # Recipes are outside the CI mypy paths (follow_imports=skip), so their
+    # return type is Any; cast preserves the public API contract here.
+    return cast(
+        WorkflowResult[Mapping[str, Any]],
+        compare_models(config, logger=logger, output_dir=output_dir),
+    )
