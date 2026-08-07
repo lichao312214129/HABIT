@@ -68,6 +68,37 @@
   # 开发常用：pip install -e .
   ```
 
+默认安装只包含生境内核跑不起来就不行的 11 个包（numpy / scipy / pandas / scikit-learn / SimpleITK / pydantic / PyYAML / click / tqdm / joblib / kneed）：实测 CPython 3.10 / Linux 下 20 个 wheel、129 MB 下载、635 MB 安装体积。生境分析全流程（体素特征 → 超体素 → 队列生境拟合 → 生境指派 → 生境特征 → CSV 结果表）不需要任何 extra。
+
+其余能力按需装 extra，装漏了不会静默降级：HABIT 会抛 `OptionalDependencyError`，消息里直接给出可复制的 `pip install` 命令。
+
+| Extra | 用途 |
+| --- | --- |
+| `viz` | 全部出图（`habit.viz`、ML 报告图、聚类图、KM 曲线） |
+| `tables` | 读写 `.parquet`（`habitats_results_format` 的默认值）与 `.xlsx` |
+| `dicom` | `habit dicom-info` / `habit sort-dicom`；NIfTI / NRRD 输入不需要 |
+| `slic` | SLIC 超体素后端；默认的 `kmeans` / `gmm` 后端不需要 |
+| `ml` | XGBoost、SMOTE、mRMR / VIF / 逐步回归特征筛选（含 `viz`、`tables`） |
+| `analysis` | SHAP、Plotly、ICC、生存分析（含 `viz`、`tables`） |
+| `registration` | 预处理里的 ANTs 配准后端 |
+| `automl` | AutoGluon Tabular |
+| `torch` | TorchRadiomics / GPU 纹理后端 |
+| `gui` | Web GUI 服务端（预览） |
+| `all` | 除 `torch` 与 PyRadiomics 外的全部可选能力 |
+| `full` | 1.0.x 用户的迁移别名，见下 |
+
+```bash
+pip install "habitat-analysis[ml,analysis]"
+```
+
+**从 1.0.x 升级**：1.1.0 把 `matplotlib`、`seaborn`、`scikit-image`、`pydicom`、`pyarrow`、`openpyxl` 从必装下放到 extras（`chardet` 直接移除，已无处使用），默认安装从 212 MB 下载 / 931 MB 安装 / 43 个包降到 129 MB / 635 MB / 23 个包。Python API 的公开符号与签名**没有任何变化**，变的只是 `pip install habitat-analysis` 会装到什么。一条命令恢复旧行为：
+
+```bash
+pip install -U "habitat-analysis[full]"
+```
+
+注意 `habitats_results_format` **仍然默认 parquet**（不改默认值，避免输出文件名从 `habitats.parquet` 悄悄变成 `habitats.csv`）。缺 pyarrow 时会报错并同时给出两条出路：装 `[tables]`，或在 YAML 里设 `habitats_results_format: csv`。
+
 PyRadiomics **不是**默认依赖，也**不会**由 HABIT extras 拉取——需要组学特征时请**单独安装**：
 
 - **Windows**：从 [Release v1.0.2](https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2) 安装对应 CPython 的预编译 wheel（勿用裸 `pip install pyradiomics`，PyPI sdist 会编译失败），例如 Python 3.10：
@@ -76,7 +107,7 @@ PyRadiomics **不是**默认依赖，也**不会**由 HABIT extras 拉取——�
   ```
 - **macOS / Linux**：`pip install "pyradiomics>=3.0.1,<3.2"`，或 `conda install -c conda-forge pyradiomics`
 
-完整 wheel 对照表见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。
+完整 wheel 对照表与 extras 矩阵见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。
 
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT)
 - **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码 — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)

@@ -6,6 +6,99 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-07
+
+### Changed — BREAKING (packaging only; the public Python API is unchanged)
+
+- **Seven packages moved out of the required dependency set.** A bare
+  ``pip install habitat-analysis`` now installs 11 packages instead of 20:
+  ``numpy``, ``scipy``, ``pandas``, ``scikit-learn``, ``SimpleITK``,
+  ``pydantic``, ``PyYAML``, ``click``, ``tqdm``, ``joblib``, ``kneed``. Measured
+  on CPython 3.10 / Linux, that is **212 MB → 129 MB of wheel downloads**
+  (39 wheels → 20) and **931 MB → 635 MB of installed ``site-packages``**,
+  i.e. 43 → 23 distributions on disk.
+
+  No public symbol was added, removed or resigned. What changed is what
+  ``pip install`` gives you:
+
+  | Package | New extra | Why it could move |
+  | --- | --- | --- |
+  | ``pyarrow`` | ``tables`` | 83 MB wheel, **zero** direct imports in ``habit/**`` — only the pandas parquet engine |
+  | ``scikit-image`` | ``slic`` | 44 MB for one function, ``skimage.segmentation.slic``. The kernel contract is the ``Supervoxelizer`` *protocol*; the default ``kmeans`` / ``gmm`` backends need nothing extra |
+  | ``matplotlib`` | ``viz`` | 58 MB incl. its transitive tail. ``habit.viz`` already imported it lazily per function |
+  | ``pydicom`` | ``dicom`` | 21 MB used by exactly one module; NIfTI / NRRD input needs only SimpleITK |
+  | ``seaborn`` | ``viz`` | Plotting only |
+  | ``openpyxl`` | ``tables`` | **Zero** direct imports — the pandas ``.xlsx`` engine |
+  | ``chardet`` | *removed* | One encoding-probe call site whose caller already retries a fixed candidate list |
+
+- **Migration is one command**: ``pip install -U "habitat-analysis[full]"``
+  reproduces everything a pre-1.1.0 bare install plus ``[all]`` provided.
+  ``[all]`` now also aggregates the four new groups, so existing ``[all]``
+  users lose nothing. Both meta-extras are written as self-referencing extras
+  so they cannot drift from the groups they aggregate.
+- ``ml`` and ``analysis`` now pull ``viz`` and ``tables``: their selectors draw
+  diagnostic figures and read feature tables from ``.xlsx`` / ``.parquet``.
+- ``chardet`` is no longer declared anywhere.
+  ``habit.compat.test_retest_mapper.detect_file_encoding`` still consults
+  chardet when it happens to be installed, and otherwise returns no guess so
+  that the caller's existing candidate list (utf-8 → gbk → gb2312 → gb18030 →
+  big5) decides, with a new UTF-8 BOM shortcut in front. A locale-derived guess
+  was measured and rejected: on a Chinese Windows install
+  ``locale.getpreferredencoding()`` reports ``cp936``, which decodes most UTF-8
+  byte sequences without raising and would therefore turn the commonest case
+  into silent mojibake instead of a ``UnicodeDecodeError`` the retry loop can
+  act on.
+
+### Fixed
+
+- Test-retest config files written in GBK were decoded into mojibake. chardet
+  guessed ``Windows-1250`` from the 1000-byte sample, and single-byte codecs
+  decode any byte sequence without raising, so the reader's fallback loop never
+  got a chance to reach the correct codec. Dropping the statistical guess makes
+  the deterministic candidate list authoritative and the result correct;
+  ``tests/commands/test_cmd_test_retest_recipes.py`` now covers ascii / utf-8 /
+  utf-8-sig / gbk under both a UTF-8 and a ``cp936`` locale.
+
+### Unchanged on purpose
+
+- ``habitats_results_format`` still defaults to ``parquet``. Missing pyarrow
+  raises ``OptionalDependencyError`` listing **both** exits — install
+  ``[tables]``, or set ``habitats_results_format: csv`` — and never silently
+  writes ``habitats.csv`` where ``habitats.parquet`` was expected. No optional
+  dependency anywhere in HABIT degrades silently.
+
+### Added
+
+- ``habit.utils.optional_deps.require(module, *, extra, purpose)``: the generic
+  import gate every optional backend now goes through. It raises
+  ``OptionalDependencyError`` carrying a copy-pasteable
+  ``pip install "habitat-analysis[<extra>]"`` and a one-line statement of what
+  the package was needed for, instead of a bare ``ModuleNotFoundError``.
+  Companions: ``install_command``, ``optional_dependency_hint``,
+  ``require_excel_backend``, ``require_parquet_backend``, and
+  ``OPTIONAL_EXTRA_MODULES`` (the machine-readable extras matrix).
+  ``require_pyradiomics()`` is kept as the documented specialization — its
+  platform-dependent Windows Release-wheel hint cannot be templated from an
+  extra name.
+- ``habit.utils.dicom_utils.is_pydicom_available()``. The legacy
+  ``PYDICOM_AVAILABLE`` module attribute still resolves, but lazily (PEP 562),
+  so importing the module no longer imports pydicom or warns when it is absent.
+- Two packaging gates in ``tests/test_packaging_contracts.py``: an equality
+  assertion on an explicit required-dependency whitelist (so adding a required
+  dependency turns the suite red and forces a decision), and a bare-install
+  smoke contract that trains a habitat model with all seven optional packages
+  hidden behind a ``sys.meta_path`` blocker.
+- A ``bare-install`` job in ``.github/workflows/tests.yml`` that installs the
+  built distribution with **no** extras (a real resolve, not ``-e .`` and not
+  ``--no-deps``) and runs that smoke contract.
+
+### Fixed
+
+- ``habit/compat/engines/habitat_analysis/clustering/base_clustering.py``
+  imported ``matplotlib.pyplot`` twice and never used it. Removing the dead
+  imports frees the whole compat clustering factory from the ``viz`` extra.
+- ``vif_selector.py`` imported ``seaborn`` without using it.
+
 ## [1.0.4] - 2026-08-07
 
 ### Changed

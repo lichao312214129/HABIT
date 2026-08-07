@@ -36,7 +36,7 @@ matplotlib
 # bare-install smoke test in tests/test_packaging_contracts.py.
 #
 # `chardet` is deliberately absent: it is no longer declared anywhere. The
-# test-retest encoding probe falls back to locale.getpreferredencoding().
+# test-retest encoding probe now lets its existing candidate list decide.
 kneed>=0.8,<1
 # extra [slic]
 scikit-image>=0.23,<0.27
