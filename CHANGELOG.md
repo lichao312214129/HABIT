@@ -6,7 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-08-07
+
+### Changed
+
+- **PyRadiomics is installed separately**: removed
+  ``python -m habit.install_radiomics`` and the Windows auto-install path in
+  ``require_pyradiomics()``. HABIT extras no longer declare ``pyradiomics``
+  (the empty ``radiomics`` extra remains as a documented alias). On Windows,
+  install the matching prebuilt wheel from GitHub Release ``v1.0.2``; on
+  macOS / Linux use PyPI (``pyradiomics>=3.0.1,<3.2``) or conda-forge. See
+  the Installation tutorial for the wheel URL table.
+
 ### Added
+
 
 - Stable top-level namespace: ``import habit`` exposes pipeline runners, config
   classes, and utilities via lazy loading (see ``habit.api.registry``).

@@ -3,18 +3,16 @@
 # The literal name "HABIT" is prohibited on PyPI (admin block / name policy),
 # so we publish as ``habitat-analysis``: pip install habitat-analysis
 name = "habitat-analysis"
-version = "1.0.3"
+version = "1.0.4"
 description = "Habitat Analysis: Biomedical Imaging Toolkit (HABIT)"
 # PyPI long description must be English by default. Keep README.md (Chinese) in
 # the repository and sdist for bilingual readers; language switcher links use
 # absolute GitHub URLs because relative paths break on pypi.org.
 readme = "README_en.md"
 # HABIT supports CPython 3.10–3.14 (verified on Windows: full check suite on
-# 3.10, install + smoke on 3.13/3.14). The optional ``radiomics`` extra cannot
-# declare Windows wheel URLs in uploaded metadata (PyPI rejects PEP 508 direct
-# references). Non-Windows gets ``pyradiomics`` from PyPI; Windows uses
-# ``python -m habit.install_radiomics`` (GitHub Release win_amd64 wheels).
-# See docs/tutorial/installation.rst.
+# 3.10, install + smoke on 3.13/3.14). PyRadiomics is never declared as a pip
+# dependency (Windows PyPI sdists are broken; PyPI rejects direct wheel URLs
+# in uploaded metadata). Install it separately — see docs/tutorial/installation.rst.
 requires-python = ">=3.10,<3.15"
 authors = [
     { name = "Li Chao", email = "lichao19870617@163.com" },
@@ -78,21 +76,14 @@ habit = "habit.cli:cli"
 # in docs/source/api/plugins.rst.
 
 [project.optional-dependencies]
-# PyRadiomics is optional. PyPI ships NO usable Windows binaries for cp310+:
-# the 3.1.0 sdist is broken, and 3.0.1 has no Windows wheels. HABIT publishes
-# self-built 3.1.0 win_amd64 wheels (cp310–cp314) on GitHub Releases.
-#
-# PyPI rejects PEP 508 direct URL references in uploaded Requires-Dist, so we
-# cannot put those wheel URLs here. Instead:
-#   * non-Windows: declare the PyPI range below
-#   * Windows: omit pyradiomics from extras (avoids the broken sdist) and
-#     install via ``python -m habit.install_radiomics`` (also auto-tried from
-#     require_pyradiomics on first use)
-# The ``all`` extra duplicates the same platform-marked radiomics line so
-# Windows users are never forced into an sdist compile.
-radiomics = [
-    "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'",
-]
+# PyRadiomics is installed separately (never pulled by HABIT extras):
+#   * Windows: pip-install the matching win_amd64 wheel from the HABIT GitHub
+#     Release v1.0.2 (see docs/tutorial/installation.rst)
+#   * macOS / Linux: ``pip install "pyradiomics>=3.0.1,<3.2"`` or conda-forge
+# The empty ``radiomics`` extra is kept as a documented alias so existing
+# ``pip install "habitat-analysis[radiomics]"`` commands stay valid; it does
+# not install PyRadiomics.
+radiomics = []
 gui = [
     "fastapi>=0.100",
     "uvicorn[standard]>=0.22",
@@ -127,10 +118,9 @@ automl = [
     "autogluon.tabular[lightgbm,catboost]>=1.2,<2",
 ]
 # Convenience meta-extra: every optional workflow dependency at once.
-# PEP 621 does not support recursive self-extras; keep the radiomics line in
-# sync with the ``radiomics`` extra above.
+# PEP 621 does not support recursive self-extras. PyRadiomics is intentionally
+# omitted (install separately; see docs/tutorial/installation.rst).
 all = [
-    "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'",
     "xgboost>=2.1,<4",
     "imbalanced-learn>=0.12,<1",
     "mrmr-selection>=0.2.8,<1",

@@ -391,15 +391,18 @@ def test_project_dependencies_are_range_bounded_and_feature_scoped() -> None:
     # (missing numpy build dep / Python 3.12+ versioneer breakage).
     assert "pyradiomics" not in project_dependencies
     extras = _optional_dependency_ranges()
-    assert "pyradiomics" in extras["radiomics"]
-    assert "pyradiomics" in extras["all"]
-    # Windows must not resolve pyradiomics from PyPI via the extras (broken
-    # sdist). The win_amd64 wheels come from ``python -m habit.install_radiomics``.
-    pyproject_text = PYPROJECT_FILE.read_text(encoding="utf-8")
-    assert "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'" in pyproject_text
-    assert pyproject_text.count(
-        "pyradiomics>=3.0.1,<3.2; sys_platform != 'win32'"
-    ) >= 2
+    # PyRadiomics is installed separately (Windows Release wheel / PyPI /
+    # conda-forge). The ``radiomics`` extra is an empty documented alias;
+    # ``all`` must not pull pyradiomics either (broken Windows sdist).
+    assert "radiomics" in extras
+    assert extras["radiomics"] == {}
+    assert "pyradiomics" not in extras["radiomics"]
+    assert "pyradiomics" not in extras["all"]
+    # Comments may mention the separate-install recipe; extras must not list it.
+    for group_name, group in extras.items():
+        assert "pyradiomics" not in group, (
+            f"extra {group_name!r} must not declare pyradiomics"
+        )
 
 
 def test_cpu_network_lock_covers_every_network_direct_dependency() -> None:

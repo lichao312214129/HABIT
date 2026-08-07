@@ -23,17 +23,21 @@ import pytest
 
 from habit.exceptions import OptionalDependencyError
 from habit.utils.optional_deps import (
+    INSTALLATION_DOCS_URL,
     pyradiomics_install_hint,
     require_pyradiomics,
+    windows_pyradiomics_wheel_url,
 )
 
 
-def test_pyradiomics_hint_mentions_habitat_analysis_and_helper() -> None:
-    """The public install recipe must point at the radiomics helper."""
+def test_pyradiomics_hint_points_at_separate_install() -> None:
+    """The public install recipe must document separate PyRadiomics install."""
     hint = pyradiomics_install_hint(python_version=(3, 10))
-    assert "habitat-analysis[radiomics]" in hint
-    assert "python -m habit.install_radiomics" in hint
     assert "pip install pyradiomics" in hint
+    assert "conda-forge" in hint
+    assert INSTALLATION_DOCS_URL in hint
+    assert "habit.install_radiomics" not in hint
+    assert "v1.0.2" in hint
 
 
 def test_pyradiomics_hint_warns_on_unsupported_windows_python() -> None:
@@ -42,6 +46,31 @@ def test_pyradiomics_hint_warns_on_unsupported_windows_python() -> None:
         hint = pyradiomics_install_hint(python_version=(3, 9))
     assert "3.9" in hint
     assert "prebuilt PyRadiomics wheels" in hint
+
+
+def test_pyradiomics_hint_includes_matching_windows_wheel() -> None:
+    """Supported Windows CPython hints include the concrete Release wheel URL."""
+    with mock.patch("habit.utils.optional_deps.sys.platform", "win32"):
+        hint = pyradiomics_install_hint(python_version=(3, 12))
+    expected = windows_pyradiomics_wheel_url(python_version=(3, 12))
+    assert expected in hint
+
+
+@pytest.mark.parametrize("minor", [10, 11, 12, 13, 14])
+def test_windows_wheel_url_maps_supported_cpython(minor: int) -> None:
+    """Each supported CPython minor must map to the matching Release asset."""
+    url = windows_pyradiomics_wheel_url(python_version=(3, minor))
+    tag = f"cp3{minor}"
+    assert url.startswith(
+        "https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/"
+    )
+    assert f"pyradiomics-3.1.0-{tag}-{tag}-win_amd64.whl" in url
+
+
+def test_windows_wheel_url_rejects_unsupported_python() -> None:
+    """Unsupported interpreters must fail loudly instead of inventing a URL."""
+    with pytest.raises(ValueError, match="No HABIT prebuilt PyRadiomics wheel"):
+        windows_pyradiomics_wheel_url(python_version=(3, 9))
 
 
 def test_require_pyradiomics_raises_optional_dependency_error() -> None:
@@ -55,34 +84,24 @@ def test_require_pyradiomics_raises_optional_dependency_error() -> None:
     ):
         with pytest.raises(OptionalDependencyError) as exc_info:
             require_pyradiomics()
-    assert "habitat-analysis[radiomics]" in str(exc_info.value)
-    assert "python -m habit.install_radiomics" in str(exc_info.value)
+    message = str(exc_info.value)
+    assert INSTALLATION_DOCS_URL in message
+    assert "habit.install_radiomics" not in message
 
 
-def test_require_pyradiomics_auto_installs_windows_wheel() -> None:
-    """On Windows, one automatic wheel install is attempted before failing."""
-    fake_module = ModuleType("radiomics")
-    import_calls = {"n": 0}
-
-    def _import(name: str) -> ModuleType:
-        import_calls["n"] += 1
-        if import_calls["n"] == 1:
-            raise ModuleNotFoundError(name="radiomics")
-        return fake_module
-
+def test_require_pyradiomics_does_not_auto_install_on_windows() -> None:
+    """On Windows, a missing install must raise immediately (no auto-download)."""
     with mock.patch(
         "habit.utils.optional_deps.importlib.import_module",
-        side_effect=_import,
+        side_effect=ModuleNotFoundError(name="radiomics"),
     ), mock.patch(
         "habit.utils.optional_deps.sys.platform",
         "win32",
-    ), mock.patch(
-        "habit.install_radiomics.try_install_windows_wheel",
-        return_value=True,
-    ) as auto_install:
-        module = require_pyradiomics()
-    auto_install.assert_called_once_with()
-    assert module is fake_module
+    ):
+        with pytest.raises(OptionalDependencyError) as exc_info:
+            require_pyradiomics()
+    assert "win_amd64" in str(exc_info.value)
+    assert "habit.install_radiomics" not in str(exc_info.value)
 
 
 def test_require_pyradiomics_returns_module_when_available() -> None:

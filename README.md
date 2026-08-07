@@ -68,13 +68,15 @@
   # 开发常用：pip install -e .
   ```
 
-PyRadiomics **不是**默认依赖。需要组学特征时：
-```bash
-pip install "habitat-analysis[radiomics]"
-python -m habit.install_radiomics
-python -c "import radiomics; print(radiomics.__version__)"
-```
-Windows 上该命令会自动安装 HABIT GitHub Release 中对应 CPython 的预编译 wheel（避免 PyPI sdist 编译失败）；macOS / Linux 则从 PyPI 安装。其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。
+PyRadiomics **不是**默认依赖，也**不会**由 HABIT extras 拉取——需要组学特征时请**单独安装**：
+
+- **Windows**：从 [Release v1.0.2](https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2) 安装对应 CPython 的预编译 wheel（勿用裸 `pip install pyradiomics`，PyPI sdist 会编译失败），例如 Python 3.10：
+  ```bash
+  pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+  ```
+- **macOS / Linux**：`pip install "pyradiomics>=3.0.1,<3.2"`，或 `conda install -c conda-forge pyradiomics`
+
+完整 wheel 对照表见[安装指南](https://lichao312214129.github.io/HABIT/tutorial/installation.html)。其它可选能力：`pip install "habitat-analysis[ml,analysis,registration]"`。
 
 - **源码**：[GitHub 仓库](https://github.com/lichao312214129/HABIT)
 - **演示数据 / 测试**：[`demo_data.rar`](https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9)（**9ws9**）；可选 [`tests.zip` 打包目录](https://pan.baidu.com/s/1EAcC2s4qIKGp1h08UtbApA?pwd=vv2c)（**vv2c**）。`config/` 已内置于源码 — 见 [Demo 教程](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)

@@ -67,13 +67,15 @@ Two supported install methods (full steps: [Installation](https://lichao31221412
   # editable: pip install -e .
   ```
 
-PyRadiomics is **not** a default dependency. When you need radiomics features:
-```bash
-pip install "habitat-analysis[radiomics]"
-python -m habit.install_radiomics
-python -c "import radiomics; print(radiomics.__version__)"
-```
-On Windows this installs the matching prebuilt wheel from the HABIT GitHub Release (avoids the broken PyPI sdist). On macOS / Linux it installs `pyradiomics` from PyPI. Other extras: `pip install "habitat-analysis[ml,analysis,registration]"`.
+PyRadiomics is **not** a default dependency and is **not** pulled by HABIT extras — install it **separately** when you need radiomics features:
+
+- **Windows**: install the matching prebuilt wheel from [Release v1.0.2](https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2) (do **not** use bare `pip install pyradiomics` — the PyPI sdist fails to build). Example for Python 3.10:
+  ```bash
+  pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+  ```
+- **macOS / Linux**: `pip install "pyradiomics>=3.0.1,<3.2"`, or `conda install -c conda-forge pyradiomics`
+
+Full wheel table: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html). Other extras: `pip install "habitat-analysis[ml,analysis,registration]"`.
 
 - **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
 - **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)

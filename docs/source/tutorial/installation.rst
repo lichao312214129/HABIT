@@ -99,35 +99,66 @@ You need PyRadiomics when your YAML / API uses:
 If you only use intensity ``raw`` / ``concat`` habitat features, you can skip
 this section.
 
+**Install PyRadiomics separately.** HABIT extras do **not** pull
+``pyradiomics`` (PyPI rejects direct wheel URLs in uploaded metadata, and the
+Windows PyPI sdist is broken).
+
 Upstream PyPI has **no usable PyRadiomics Windows binaries** for any
 supported Python (3.10–3.14): bare ``pip install pyradiomics`` downloads a
-broken **3.1.0 sdist**. HABIT therefore:
+broken **3.1.0 sdist**. HABIT publishes self-built **PyRadiomics 3.1.0**
+``win_amd64`` wheels (CPython 3.10–3.14) as assets of GitHub Release
+`v1.0.2 <https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2>`_.
 
-* declares ``pyradiomics>=3.0.1,<3.2`` in the ``radiomics`` / ``all`` extras
-  **only on non-Windows** (so Windows is never forced to compile from sdist);
-* publishes self-built **PyRadiomics 3.1.0** ``win_amd64`` wheels
-  (CPython 3.10–3.14) as assets of the GitHub Release
-  https://github.com/lichao312214129/HABIT/releases ;
-* installs the matching Windows wheel through
-  ``python -m habit.install_radiomics``.
+Windows — prebuilt wheel (pick your Python)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Recommended recipe (all platforms)::
+::
 
-   pip install "habitat-analysis[radiomics]"
-   python -m habit.install_radiomics
+   # Python 3.10
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+
+   # Python 3.11
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp311-cp311-win_amd64.whl
+
+   # Python 3.12
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp312-cp312-win_amd64.whl
+
+   # Python 3.13
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp313-cp313-win_amd64.whl
+
+   # Python 3.14
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp314-cp314-win_amd64.whl
+
    python -c "import radiomics; print(radiomics.__version__)"
 
-* On **Windows**, the helper installs the Release wheel for your CPython
-  tag (``cp310`` … ``cp314``). First radiomics use also auto-tries this
-  install when PyRadiomics is missing.
-* On **macOS / Linux**, the helper (and the ``radiomics`` extra) install
-  ``pyradiomics`` from PyPI. You may also obtain it from conda-forge if you
-  prefer; that is an alternate way to get the *same* dependency, not a
-  third HABIT install method.
+.. list-table:: Windows wheel URLs (Release ``v1.0.2``)
+   :header-rows: 1
+   :widths: 18 82
 
-If your Windows Python version has no published wheel, the helper fails with
-a clear error — use Python 3.10–3.14, or see
-:class:`~habit.exceptions.OptionalDependencyError` guidance.
+   * - Python
+     - Wheel URL
+   * - 3.10
+     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+   * - 3.11
+     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp311-cp311-win_amd64.whl
+   * - 3.12
+     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp312-cp312-win_amd64.whl
+   * - 3.13
+     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp313-cp313-win_amd64.whl
+   * - 3.14
+     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp314-cp314-win_amd64.whl
+
+macOS / Linux
+~~~~~~~~~~~~~
+
+::
+
+   pip install "pyradiomics>=3.0.1,<3.2"
+   python -c "import radiomics; print(radiomics.__version__)"
+
+Or from conda-forge if you prefer::
+
+   conda install -c conda-forge pyradiomics
 
 
 Optional extras
@@ -145,9 +176,10 @@ Install only what your workflow needs. Missing extras raise
      - Needed for
    * - ``radiomics``
      - ``pip install "habitat-analysis[radiomics]"``
-       then ``python -m habit.install_radiomics``
-       (required on Windows for the prebuilt wheel)
-     - Voxel / supervoxel / traditional PyRadiomics
+       (empty alias; still install PyRadiomics
+       separately as above)
+     - Documented alias only — does **not** install
+       PyRadiomics
    * - ``ml``
      - ``pip install "habitat-analysis[ml]"``
      - XGBoost, SMOTE, mRMR / VIF / stepwise selectors
@@ -168,9 +200,8 @@ Install only what your workflow needs. Missing extras raise
      - Web GUI server dependencies (preview)
    * - ``all``
      - ``pip install "habitat-analysis[all]"``
-       then ``python -m habit.install_radiomics`` on Windows
-     - Everything above (large download; Windows still avoids
-       the broken PyRadiomics sdist)
+     - Every optional workflow dep **except**
+       PyRadiomics (install that separately)
 
 Combine extras::
 
@@ -192,13 +223,23 @@ Minimal library (any OS)::
    pip install habitat-analysis
    habit --version
 
-Radiomics + ML::
+Radiomics + ML (Windows, Python 3.10 example)::
 
    conda create -n habit python=3.10 -y
    conda activate habit
    pip install -U pip
-   pip install "habitat-analysis[ml,analysis,radiomics]"
-   python -m habit.install_radiomics
+   pip install "habitat-analysis[ml,analysis]"
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
+   habit --version
+   python -c "import radiomics; print(radiomics.__version__)"
+
+Radiomics + ML (macOS / Linux)::
+
+   conda create -n habit python=3.10 -y
+   conda activate habit
+   pip install -U pip
+   pip install "habitat-analysis[ml,analysis]"
+   pip install "pyradiomics>=3.0.1,<3.2"
    habit --version
    python -c "import radiomics; print(radiomics.__version__)"
 
@@ -210,8 +251,8 @@ From GitHub source::
    conda activate habit
    pip install -U pip
    pip install .
-   pip install -e ".[ml,radiomics]"
-   python -m habit.install_radiomics
+   pip install -e ".[ml,analysis]"
+   # then install PyRadiomics separately (Windows wheel URL or PyPI / conda-forge)
 
 
 Common problems
@@ -230,10 +271,7 @@ Base HABIT does not require PyRadiomics. Install without extras first::
 
 **``pip install pyradiomics`` fails on Windows**
 
-Expected. Use::
-
-   python -m habit.install_radiomics
-
+Expected. Use the matching GitHub Release wheel URL from the table above
 instead of bare ``pip install pyradiomics``.
 
 **Permission / SSL / mirror errors at hospital networks**
