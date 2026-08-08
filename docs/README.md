@@ -8,7 +8,12 @@ Entry point: `source/index.rst` (English).
 
 Published site: https://lichao312214129.github.io/HABIT/
 
-Deploy only via a **git worktree** on branch `gh-pages` (never `git switch gh-pages` in the source tree). Copy `docs/build/html/*` into the worktree and copy `docs/gh-pages.gitignore` to the worktree root as `.gitignore`. Do not commit source trees (`habit/`, `docs/`, `tests/`, …) to `gh-pages`. Full agent checklist: `.cursor/rules/docs-gh-pages-deploy.mdc`.
+Deploy only via a **temporary git worktree** on branch `gh-pages` (never
+`git switch gh-pages` inside the HABIT working tree). Copy
+`docs/build/html/*` into the worktree; copy `docs/gh-pages.gitignore` to the
+worktree root as `.gitignore`; remove the worktree when done. Do not commit
+source trees (`habit/`, `docs/`, `tests/`, …) to `gh-pages`. Full agent
+checklist: `.cursor/rules/docs-gh-pages-deploy.mdc`.
 
 Demo pack download links / extract codes live in `source/conf.py`
 (`NETDISK_SHARES`):
