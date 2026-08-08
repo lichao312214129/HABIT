@@ -17,7 +17,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
    feature_construction:
      voxel_level:
-       method: concat(raw(delay2), raw(delay3), raw(delay5))
+       method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
 
      supervoxel_level:
        supervoxel_file_keyword: '*_supervoxel.nrrd'
@@ -106,7 +106,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Type**: string
 - **Required**: yes
 - **Default**: none (required)
-- **Description**: ``data_dir`` may be a directory or a manifest such as ``file_habitat.yaml``; ``out_dir`` is the default parent directory for results and checkpoints.
+- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`../how_to/prepare_data`.
 
 **feature_construction**: Feature extraction settings
 
@@ -138,7 +138,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     - **Defaults**: optional parameters omitted from both parentheses and ``params`` receive built-in defaults from each method's ``method_param_spec`` (see extractor classes under ``habit/compat/engines/habitat_analysis/clustering_features/``).
     - **Bundled ``params_file``**: for ``voxel_radiomics`` / ``supervoxel_radiomics``, ``params_file`` is optional. When omitted, HABIT uses bundled presets shipped in ``habit/resources/radiomics/`` (CT R3B12 voxel preset; full-set supervoxel preset). The resolved absolute path is logged at runtime.
     - Recommended minimal form: ``concat(voxel_radiomics(T2))`` with ``params: {}`` — uses bundled CT R3B12 ``params_file``, ``kernel_radius: 3``, ``voxel_batch: 1000``, ``use_torch_radiomics: auto``. List a name in parentheses only when overriding (e.g. ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` for MRI).
-    - **Strict quoted form (v1 feature trees)**: when the expression contains **quoted** modality strings, it is parsed by the strict v1 parser (:func:`~habit.spec.parse_feature_expression`) into a feature Spec tree instead of the permissive v0.1 mini-language. Rules: modalities are quoted (``raw("T1")``), parameters are explicit ``key=value`` (``local_entropy("T2", kernel_size=5)``), combiner children are nested calls (a bare quoted string among children is an implicit ``raw`` leaf), and ``as_="label"`` renames a single-column node's output. Ambiguous input fails loudly instead of being guessed. Available combiners: ``concat``, ``weighted_concat`` (``weights=[...]``), ``average``, ``ratio`` / ``difference`` (two children), ``kinetic``, ``expression``. Example: ``concat(raw("delay2"), ratio(raw("delay2"), raw("delay3"), as_="d2_over_d3"))``.
+    - **Strict quoted form (v1 feature trees)**: when the expression contains **quoted** modality strings, it is parsed by the strict v1 parser (:func:`~habit.spec.parse_feature_expression`) into a feature Spec tree instead of the permissive v0.1 mini-language. Rules: modalities are quoted (``raw("T1")``), parameters are explicit ``key=value`` (``local_entropy("T2", kernel_size=5)``), combiner children are nested calls (a bare quoted string among children is an implicit ``raw`` leaf), and ``as_="label"`` renames a single-column node's output. Ambiguous input fails loudly instead of being guessed. Available combiners: ``concat``, ``weighted_concat`` (``weights=[...]``), ``average``, ``ratio`` / ``difference`` (two children), ``kinetic``, ``expression``. Example: ``concat(raw("LAP"), ratio(raw("LAP"), raw("PVP"), as_="lap_over_pvp"))``.
 
 - ``params``: Voxel-level extractor parameter dictionary
 
@@ -152,13 +152,13 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
       - **Description**: Extract raw image voxel values (most basic feature)
       - **Parameters**: none
-      - **Example**: ``raw(delay2)``
+      - **Example**: ``raw(LAP)``
 
 **concat(...)**:
 
       - **Description**: Concatenate multiple feature vectors
       - **Parameters**: accepts multiple feature extraction expressions
-      - **Example**: ``concat(raw(delay2), raw(delay3), raw(delay5))``
+      - **Example**: ``concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))``
 
 **kinetic(...)**:
 
@@ -183,7 +183,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         - ``kernel_size`` (int, default: ``3``): local neighborhood size
         - ``bins`` (int, default: ``32``): histogram bin count
 
-      - **Example**: ``local_entropy(raw(delay2), kernel_size=5, bins=32)``
+      - **Example**: ``local_entropy(raw(LAP), kernel_size=5, bins=32)``
 
 **voxel_radiomics(...)**:
 
@@ -219,7 +219,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
        # Simple concatenation of raw images
        voxel_level:
-         method: concat(raw(delay2), raw(delay3), raw(delay5))
+         method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
 
        # Kinetic features
        voxel_level:
@@ -229,7 +229,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
        
        # Combine local entropy and raw values
        voxel_level:
-         method: concat(raw(delay2), local_entropy(raw(delay2)))
+         method: concat(raw(LAP), local_entropy(raw(LAP)))
          params:
            kernel_size: 5
            bins: 32
@@ -861,6 +861,11 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
   - ``postprocess_supervoxel`` applies to supervoxel label maps (mainly two_step stage).
   - ``postprocess_habitat`` applies to final habitat label maps (one_step/two_step/direct_pooling).
+  - In the v1 path these settings land on ``HabitatSpec.postprocess_*`` and run
+    inside :class:`~habit.domain.pipeline.SubjectPipeline` (after
+    supervoxelization / after habitat assignment, before feature extraction).
+    :class:`~habit.adapters.writers.DirectoryResultWriter` writes the already
+    cleaned in-memory maps and does not re-run cleanup.
   - Current implementation uses SimpleITK fast path: remove small components per label, then reassign by nearest seed label.
   - Reduces fragmentation while preserving ROI voxel coverage.
 
@@ -1240,6 +1245,24 @@ the same ``checkpoint_dir`` root (see :doc:`../api/execution`).
 
 - **Type**: integer
 - **Default**: ``42``
+
+**on_geometry_mismatch** (habitat analysis top level, optional)
+
+- **Type**: string
+- **Default**: ``resample_mask``
+- **Allowed values**: ``resample_mask``, ``strict``
+- **Description**: When an ROI mask and the reference image disagree on voxel-grid
+  metadata (origin / direction / spacing / size), HABIT by default aligns the
+  mask onto the image grid before Stage-1: same-shaped arrays keep voxels and
+  adopt the image header; different shapes use nearest-neighbour resampling.
+  Set ``strict`` to raise ``GeometryError`` instead (opt-in). On a native v1
+  document the same key may sit under ``spec:`` as
+  ``HabitatSpec.on_geometry_mismatch``.
+- **Example**:
+
+  .. code-block:: yaml
+
+     on_geometry_mismatch: strict
 
 **debug** (habitat analysis top level)
 

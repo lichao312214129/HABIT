@@ -46,7 +46,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 # ★ 输出根目录（不存在会自动创建）
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
@@ -73,10 +73,10 @@ preprocessing:
   # EN: `resample` is a setting for this module; retain the example default initially and document any change.
   # --- 2.1 resample ---
   resample:
-    # ★ 要处理的模态名（必须与 images 下文件夹名一致，如 delay2）
+    # ★ 要处理的模态名（必须与 images 下文件夹名一致，如 LAP）
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # 目标体素间距 [x, y, z]，单位通常为 mm
     target_spacing: [3.0, 3.0, 3.0]
     # 影像插值：bilinear（常用）/ nearest 等
@@ -92,11 +92,11 @@ preprocessing:
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # ★ 固定影像（参考模态），其他模态往它对齐
     # 中文：★【必须检查】配准参考模态；必须是 images 列表中的一个有效模态键。
     # EN: ★ REVIEW: Registration reference modality; it must be a valid key in the images list.
-    fixed_image: delay2
+    fixed_image: LAP
     # 是否使用 mask 辅助配准（有 masks 时建议 true）
     use_mask: true
     # 配准后端：ants（推荐）或 elastix（需额外环境）
@@ -116,7 +116,7 @@ preprocessing:
   zscore_normalization:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # true=仅在 mask 内计算均值方差；false=整幅影像
     only_inmask: false
     # 标准化后裁剪到该范围，抑制极端值；不需要可删此行

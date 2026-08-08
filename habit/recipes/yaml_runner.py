@@ -1016,9 +1016,14 @@ def _cohort_from_manifest(
         if mask_file is None:
             skipped.append(f"{subject_id} (missing mask for roi={roi!r})")
             continue
-        mask_ref = FileImageRef(mask_file, is_mask=True, role_name=roi)
         subjects.append(
-            Subject(subject_id=str(subject_id), images=refs, mask=mask_ref)
+            Subject(
+                subject_id=str(subject_id),
+                images=refs,
+                # Subject stores ROI handles under ``masks`` (mapping), not a
+                # singular ``mask=`` kwarg — keep this aligned with cmd_habitat.
+                masks={roi: FileImageRef(mask_file, is_mask=True, role_name=roi)},
+            )
         )
 
     if skipped:

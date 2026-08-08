@@ -160,8 +160,6 @@ cython_debug/
 .DS_Store
 
 # HABIT specific
-# Next-gen GUI (temporarily excluded from version control)
-habit-gui/
 
 # General file types to ignore (Global rules)
 *.nii.gz
@@ -187,6 +185,9 @@ habit-gui/
 # refactor. They must be versioned, so they override the blanket *.json rule.
 !tests/golden/baseline/*.json
 !tests/golden/baseline/fast/*.json
+
+# Sphinx / quickstart screenshots (override blanket *.png).
+!docs/source/_static/images/*.png
 
 # Specific directories to ignore
 demo_data/results/

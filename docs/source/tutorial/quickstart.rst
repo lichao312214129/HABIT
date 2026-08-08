@@ -1,114 +1,109 @@
-Quickstart: YAML + CLI (no programming)
-=======================================
+Quickstart: run the demo (YAML + CLI)
+=====================================
 
-This is the clinician / no-programming quickstart: you edit a YAML file and
-run ``habit`` commands; you never write Python. (In v1.0 the CLI is a thin
-shell over the Python API — same specs, same results. Developers should use
-the parallel :doc:`quickstart_python` instead.)
+No Python required. Install HABIT first (:doc:`installation`).
 
-End-to-end pipeline: preprocessing → habitat segmentation → feature
-extraction → machine learning → model comparison.
-
-Prerequisites: :doc:`installation` .
-
-Prepare data
-------------
-
-.. note::
-
-   ``D:\habit`` is an example project root — use your clone or working directory.
-
-1. Obtain demo images (pick **one** path):
-
-   **A. Packaged DCE demo** (Baidu Netdisk; matches the YAML commands below)::
-
-      demo_data.rar → extract at the project root (folder that contains ``config/``)
-
-   - |download_demo_data|
-   - Code: |demo_data_code|
-
-   Modalities in that pack are ``delay2`` / ``delay3`` / ``delay5``.
-
-   **B. Public MSD BrainTumour mini-demo** (international HTTPS; no Baidu)::
-
-      python scripts/download_msd_brain_demo.py --n 5
-
-   This pulls Medical Segmentation Decathlon Task01 (BraTS-like) cases via
-   plain HTTPS, splits the 4D volumes with SimpleITK, and writes HABIT's
-   ``images/`` + ``masks/`` layout under
-   ``demo_data/preprocessed/processed_images/``. Modalities are
-   ``t1ce`` / ``t1`` / ``t2`` / ``flair``; ROI folder is ``tumor``.
-   Then run the matching config instead of the delay* demo::
-
-      habit check-config -c config/habitat/config_habitat_msd_demo.yaml
-      habit get-habitat  -c config/habitat/config_habitat_msd_demo.yaml
-
-   Cite MSD / BraTS when publishing; data license CC-BY-SA 4.0
-   (see ``medicaldecathlon.com``). Details:
-   :doc:`../how_to/prepare_data`.
-
-   ``config/`` is already included in the source checkout.
-
-   ``tests.zip`` (optional)
-
-   - |download_tests_pack|
-   - Code: |tests_pack_code|
-
-2. Verify ``habit --version`` prints a ``1.0.x`` version.
-
-Run the demo
-------------
-
-Demo includes preprocessed data — **start at step 2** on first run.
-
-0. *(Recommended)* Validate a config before running it — this catches YAML
-   typos and unknown keys without starting any computation:
-
-   .. code-block:: bash
-
-      habit check-config --config config/habitat/config_habitat_two_step.yaml
-
-1. Run the pipeline (each command reads one YAML and writes under
-   ``demo_data/results/``):
-
-   .. code-block:: bash
-
-      cd /d D:\habit-cpu
-
-      habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
-      habit get-habitat --config config/habitat/config_habitat_two_step.yaml
-      habit extract --config config/feature_extraction/config_extract_features_demo.yaml
-      habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
-      habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
-      habit compare --config config/model_comparison/config_model_comparison_demo.yaml
-
-Outputs under ``demo_data/results/`` . Your own data → :doc:`../how_to/index` .
-
-The two config formats (v0.1 and v1)
-------------------------------------
-
-``config/`` ships both generations of YAML:
-
-* **v0.1** (most files, e.g. ``config_habitat_two_step.yaml``) — the
-  long-standing layout; the CLI translates it internally before running.
-* **v1** (``*_v1.yaml``, e.g. ``config_habitat_two_step_v1.yaml``) — the
-  native v1.0 layout whose ``spec:`` section mirrors the Python
-  :class:`~habit.spec.HabitatSpec` field for field.
-
-Both run through the same ``habit`` commands. To upgrade your own v0.1
-config to v1:
-
-.. code-block:: bash
-
-   habit migrate-config --config config/habitat/config_habitat_two_step.yaml
-
-See :doc:`../configuration/index` for the full field reference and
-:doc:`../api/spec` for how the two formats relate.
-
-Where to go next
+1. Get demo data
 ----------------
 
-* :doc:`../how_to/index` — step-by-step guides with your own data
-* :doc:`../reference/cli` — all 16 subcommands
-* :doc:`../configuration/index` — every YAML field, by workflow
-* :doc:`quickstart_python` — the same analyses from Python
+Demo packs are **split**. Habitat / imaging steps need only the imaging
+pack; download the ML pack only if you run ``habit model`` / ``habit cv``.
+
+**Imaging** — |download_demo_data| — extract code: |demo_data_code|
+
+Download ``preprocessed.zip``, then extract at the project root (the folder
+that contains ``config/``)::
+
+   <project_root>/
+   ├── config/
+   └── demo_data/
+       └── preprocessed/
+           ├── images/
+           └── masks/
+
+There is **no** nested ``processed_images`` layer under ``preprocessed/``.
+
+* If the zip top level is a ``preprocessed/`` folder, extract into
+  ``demo_data/`` (result: ``demo_data/preprocessed/...``).
+* If the zip top level is ``images/`` and ``masks/``, put them under
+  ``demo_data/preprocessed/``.
+
+Modalities: ``pre_contrast`` / ``LAP`` / ``PVP`` / ``delay_3min``.
+Preprocessed images are already included — you can skip preprocess on the
+first run.
+
+**Tabular ML** (optional) — |download_ml_data| — extract code: |ml_data_code|
+
+Download ``ml_data.zip`` and extract so ``demo_data/ml_data/`` sits next to
+``demo_data/preprocessed/`` (CSV tables such as
+``breast_cancer_dataset.csv``). If the zip top level is ``ml_data/``,
+extract into ``demo_data/``.
+
+2. Open a terminal at the project root
+--------------------------------------
+
+::
+
+   # Windows
+   cd /d D:\habit
+   conda activate habit
+
+   # macOS / Linux
+   cd ~/habit
+   conda activate habit
+
+   habit --version
+
+3. Run
+------
+
+::
+
+   habit check-config --config config/habitat/config_habitat_two_step.yaml
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml
+
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
+
+   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
+
+The last command needs the **ML pack** (``ml_data.zip``)::
+
+   habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
+
+``habit view`` opens napari if installed (see :doc:`installation`); otherwise
+it falls back to a PNG. In napari, select the habitats Labels layer
+(Contour ``0`` = filled regions).
+
+**Demo pack tip:** ROIs in ``demo_data`` were drawn mainly on the **basal**
+slices. After opening the viewer, drag the **axial** slider near the bottom
+of the window to about **slice 110** — the habitat overlay appears there.
+On the default mid-volume slice the labels can look empty.
+
+For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
+together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
+(label overlay / segmentation), not only the napari 2D slice slider.
+
+.. list-table::
+   :widths: 50 50
+   :align: center
+
+   * - .. figure:: ../_static/images/habitat_view_napari_region.png
+          :alt: napari habitat view with filled region labels
+          :width: 100%
+
+          Filled labels.
+
+     - .. figure:: ../_static/images/habitat_view_napari_contour.png
+          :alt: napari habitat view with contour outlines
+          :width: 100%
+
+          Contour outlines.
+
+Outputs land under ``demo_data/results/``.
+
+Next
+----
+
+* Your own data: :doc:`../how_to/prepare_data` then :doc:`../how_to/index`
+* Python API: :doc:`quickstart_python`
+* All commands: :doc:`../reference/cli`

@@ -27,10 +27,3 @@ prune developer
 prune .github
 prune build
 prune dist
-
-# Next-generation web GUI (API bridge, presets, built frontend).
-recursive-include habit-gui/bridge *.py
-recursive-include habit-gui/api *.py
-recursive-include habit-gui/presets *.yaml
-recursive-include habit-gui/web/dist *
-prune habit-gui/web/node_modules

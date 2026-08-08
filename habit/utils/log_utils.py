@@ -65,6 +65,28 @@ def _file_formatter() -> logging.Formatter:
     )
 
 
+class _ConsoleSuppressFilter(logging.Filter):
+    """
+    Drop records marked for file-only delivery from the console handler.
+
+    Call sites set ``extra={"habit_console_suppress": True}`` when a notice
+    should remain in the log file (progress / audit) but must not clutter the
+    terminal (for example default geometry auto-alignment).
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return not bool(getattr(record, "habit_console_suppress", False))
+
+
+def _make_console_handler(level: int) -> logging.Handler:
+    """Build the stdout handler with console-only suppress filter attached."""
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(_console_formatter())
+    console_handler.addFilter(_ConsoleSuppressFilter())
+    return console_handler
+
+
 class LoggerManager:
     """
     Centralized logger manager for the HABIT project.
@@ -155,9 +177,7 @@ class LoggerManager:
                 file_handler.setLevel(level)
                 file_handler.setFormatter(_file_formatter())
 
-                console_handler = logging.StreamHandler(sys.stdout)
-                console_handler.setLevel(resolved_console_level)
-                console_handler.setFormatter(_console_formatter())
+                console_handler = _make_console_handler(resolved_console_level)
 
                 self._queue_listener = QueueListener(
                     self._log_queue,
@@ -188,18 +208,14 @@ class LoggerManager:
                 file_handler.setFormatter(_file_formatter())
                 root_logger.addHandler(file_handler)
 
-                console_handler = logging.StreamHandler(sys.stdout)
-                console_handler.setLevel(resolved_console_level)
-                console_handler.setFormatter(_console_formatter())
+                console_handler = _make_console_handler(resolved_console_level)
                 root_logger.addHandler(console_handler)
 
                 self._log_file = log_file
                 self._log_level = level
                 self._log_queue = None
             else:
-                console_handler = logging.StreamHandler(sys.stdout)
-                console_handler.setLevel(resolved_console_level)
-                console_handler.setFormatter(_console_formatter())
+                console_handler = _make_console_handler(resolved_console_level)
                 root_logger.addHandler(console_handler)
 
                 self._log_file = None

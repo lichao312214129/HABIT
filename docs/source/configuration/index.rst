@@ -1,16 +1,12 @@
-Configuration Reference
-========================
+Configuration reference
+=======================
 
-HABIT uses **YAML** to control each pipeline step. Example templates live under
-the repository ``config/`` directory (catalog: :doc:`recipe_catalog`).
+Copy a template from ``config/`` → edit ★ fields (usually data + output paths)
+→ run the matching ``habit`` command.
 
-Usage: copy a template → edit ``data_dir`` / ``out_dir`` in the ``#%%====`` blocks → run the corresponding ``habit`` command.
+Catalog of templates: :doc:`recipe_catalog`.
 
-Omitted keys use program defaults (listed on each page below). Example values in templates are for reference only.
-
-.. note::
-
-   If you only ``pip install habit`` without the ``config/`` directory, obtain the full source tree from |link_github_repo|.
+Operator how-tos (shorter): :doc:`../how_to/index`.
 
 .. toctree::
    :maxdepth: 2

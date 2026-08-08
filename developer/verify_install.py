@@ -273,11 +273,6 @@ CLI_SUBCOMMANDS: Tuple[Dict[str, Any], ...] = (
         "optional_options": ("--index-col", "--separator", "--encoding", "--join"),
         "positional": "two or more input CSV/Excel files",
     },
-    {
-        "name": "gui",
-        "required_options": (),
-        "optional_options": ("--host", "--port", "--no-browser"),
-    },
 )
 
 
@@ -400,17 +395,6 @@ def _build_optional_probes() -> Tuple[OptionalExtraProbe, ...]:
 
     _probe("torch", "torch", "Torch tensor conversion (torch extra)", _trigger_torch)
 
-    # gui extra — the command's real dependency preflight ----------------------
-    def _trigger_gui() -> None:
-        import importlib
-
-        module = importlib.import_module("habit.commands.cmd_gui")
-        # Importing the module alone does not touch fastapi/uvicorn; the
-        # absence path only fires when the command runs its preflight check.
-        module._require_gui_dependencies()
-
-    _probe("gui", "fastapi", "Web GUI server deps (gui extra)", _trigger_gui)
-
     return tuple(probes)
 
 
@@ -462,10 +446,10 @@ def _verify_public_symbol(symbol: str) -> None:
 # ---------------------------------------------------------------------------
 
 #: DCE-MRI modality keys in the bundled demo cohort.
-_DEMO_MODALITIES: Tuple[str, ...] = ("delay2", "delay3", "delay5")
+_DEMO_MODALITIES: Tuple[str, ...] = ("pre_contrast", "LAP", "PVP", "delay_3min")
 
-#: ROI mask key in the demo layout (one mask per subject).
-_DEMO_ROI: str = "delay2"
+#: ROI mask key in the demo layout (prefer arterial phase for overlay/ROI).
+_DEMO_ROI: str = "LAP"
 
 #: Fixed habitat count for fast, deterministic full-level habitat runs.
 _FULL_N_HABITATS: int = 3
@@ -494,8 +478,8 @@ def resolve_demo_data(explicit: Optional[str]) -> Optional[Path]:
 
     script_root = Path(__file__).resolve().parent.parent
     bundled = script_root / "demo_data"
-    imaging = bundled / "preprocessed" / "processed_images"
-    if bundled.is_dir() and imaging.is_dir():
+    imaging = bundled / "preprocessed"
+    if bundled.is_dir() and (imaging / "images").is_dir():
         return bundled
     return None
 
@@ -524,7 +508,7 @@ def resolve_config_root(demo_root: Optional[Path]) -> Optional[Path]:
 
 def demo_imaging_root(demo_root: Path) -> Path:
     """Return the preprocessed imaging root inside demo data."""
-    return demo_root / "preprocessed" / "processed_images"
+    return demo_root / "preprocessed"
 
 
 def demo_ml_csv(demo_root: Path) -> Path:
@@ -534,7 +518,7 @@ def demo_ml_csv(demo_root: Path) -> Path:
 
 def _load_demo_cohort(demo_root: Path) -> Any:
     """
-    Build the two-subject demo cohort through the public API.
+    Build the bundled demo cohort through the public API.
 
     Args:
         demo_root: Demo-data root directory.
@@ -1011,7 +995,7 @@ def run_full_cli_pipeline(
     imaging = demo_imaging_root(demo_root)
     # Replace relative demo paths with absolute ones (Windows-safe forward slashes).
     text = text.replace(
-        "../../demo_data/preprocessed/processed_images",
+        "../../demo_data/preprocessed",
         imaging.as_posix(),
     )
     text = text.replace(

@@ -1,9 +1,9 @@
 run_mode: train
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 out_dir: C:\Users\dongm\AppData\Local\Temp\pytest-of-dms\pytest-92\test_case_reproduces_baseline_1\habitat_one_step
 feature_construction:
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     params: {}
   preprocessing_for_subject_level:
     methods:

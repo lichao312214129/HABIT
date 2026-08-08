@@ -1,9 +1,9 @@
 API Reference
 =============
 
-HABIT v1.0 is **API-first**: the Python API is the product, and the CLI,
-YAML configuration files, and GUI are thin shells over the objects documented
-here. The layered core is:
+HABIT v1.0 is **API-first**: the Python API is the product, and the CLI and
+YAML configuration files are thin shells over the objects documented here.
+The layered core is:
 
 ``kernels`` → ``contracts`` → ``domain`` → ``spec`` / ``execution`` /
 ``adapters`` → ``recipes``
@@ -749,6 +749,12 @@ Publication figures. ``matplotlib`` is imported lazily inside each function,
 so importing ``habit`` never pulls a plotting backend. All figure labels are
 English-only.
 
+Interactive habitat overlay (optional ``[view]`` extra; default
+``habit view``): :func:`~habit.viz.view_habitat_napari`. Without napari the
+CLI falls back to a PNG. Static PNG overlays:
+:func:`~habit.viz.plot_habitat_overlay` (``habit view --backend matplotlib``;
+panel aspect follows voxel spacing).
+
 Styles
 ~~~~~~
 
@@ -787,8 +793,8 @@ Regression and classification
    habit.viz.plot_bland_altman
    habit.viz.plot_coefficient_forest
 
-Habitat clustering
-~~~~~~~~~~~~~~~~~~
+Habitat clustering and overlay
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated
@@ -796,6 +802,8 @@ Habitat clustering
    habit.viz.plot_habitat_clustering_pca_2d
    habit.viz.plot_habitat_clustering_pca_3d
    habit.viz.plot_habitat_clustering_pca_3d_interactive
+   habit.viz.plot_habitat_overlay
+   habit.viz.view_habitat_napari
 
 .. _api-exceptions:
 

@@ -1,19 +1,21 @@
 Traditional radiomics
 =====================
 
-Extract whole-ROI PyRadiomics features (no habitat segmentation):
+Goal: whole-ROI PyRadiomics **without** habitat maps. For habitat features use
+:doc:`extract_features`.
 
-.. code-block:: bash
+Run the demo
+------------
 
+::
+
+   habit check-config --config config/radiomics/config_traditional_radiomics.yaml
    habit radiomics --config config/radiomics/config_traditional_radiomics.yaml
 
-**Input**: a folder with ``images/<subject>/<modality>/`` and matching
-``masks/<subject>/<modality>/``.
+Your data
+---------
 
-**Output**: feature tables under ``paths.out_dir`` (per-modality and/or combined,
-depending on ``export``).
+★ Edit ``paths.images_folder`` (folder with ``images/`` + ``masks/``),
+``paths.out_dir``, and ``processing.process_image_types`` (modality names).
 
-**Configuration**: :doc:`../configuration/radiomics`.
-
-For habitat-aware features use ``habit extract``
-(:doc:`extract_features`) instead.
+Success: feature tables under ``paths.out_dir``.

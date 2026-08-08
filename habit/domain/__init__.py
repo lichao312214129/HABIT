@@ -43,6 +43,10 @@ from habit.domain.table_protocols import (
     TablePreprocessor,
 )
 from habit.domain.pipeline import SubjectPipeline, TablePipeline
+from habit.domain.postprocess import (
+    ConnectedComponentPostprocess,
+    build_connected_component_postprocess,
+)
 from habit.domain.voxel_features import (
     RawVoxelFeatures,
     RawVoxelFeaturesParams,
@@ -316,6 +320,9 @@ __all__ = [
     # Composition.
     "SubjectPipeline",
     "TablePipeline",
+    # Label-map post-processing (not a registry protocol).
+    "ConnectedComponentPostprocess",
+    "build_connected_component_postprocess",
     # Built-in voxel feature extractors.
     "RawVoxelFeatures",
     "RawVoxelFeaturesParams",

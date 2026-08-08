@@ -281,7 +281,7 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
         adapter and the recipe layer cannot drift apart.
         """
         components = build_habitat_components(effective)
-        if not components.extractors:
+        if not components.habitat_features:
             raise HABITAPIError(
                 "HabitatSpec.habitat_features is empty; the estimator's whole "
                 "purpose is producing a feature matrix, so declare at least "
@@ -414,7 +414,7 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
                 subjects, enabled=self.verbose, desc="Fit: voxel->units"
             )
         ]
-        cohort_chain = components.cohort_chain
+        cohort_chain = components.cohort_feature_preprocessor
         fit_units: List[Any] = list(raw_units)
         if cohort_chain is not None:
             # Cohort-level statistics come from the pooled TRAINING units and
@@ -433,7 +433,9 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
                 )
                 for unit in raw_units
             ]
-        model = fitter_model = components.fitter.fit(fit_units, cohort=cohort)
+        model = fitter_model = components.habitat_model_fitter.fit(
+            fit_units, cohort=cohort
+        )
         if cohort_chain is not None:
             # The centroids only mean something in the preprocessed feature
             # space, so the space travels with the model.
@@ -449,7 +451,7 @@ class HabitatFeaturesEstimator(TransformerMixin, BaseEstimator):
         self.spec_ = effective
         self._components = components
         self._assigner = assigner
-        self._extractors = components.extractors
+        self._extractors = components.habitat_features
         return raw_units
 
     def _fitted_pipeline(self) -> Any:

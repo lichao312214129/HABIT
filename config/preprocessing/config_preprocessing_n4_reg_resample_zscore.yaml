@@ -23,7 +23,7 @@
 # CLI:
 #   habit preprocess -c config/preprocessing/config_preprocessing_n4_reg_resample_zscore.yaml
 #
-# Input : demo_data/preprocessed/processed_images (delay2 / delay3 / delay5)
+# Input : demo_data/preprocessed (pre_contrast / LAP / PVP / delay_3min)
 # Output: demo_data/results/preprocessed_n4_reg_resample_zscore
 # Path convention: relative paths resolve from this YAML file's directory.
 
@@ -36,7 +36,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/preprocessed_n4_reg_resample_zscore
@@ -57,7 +57,7 @@ preprocessing:
   n4_correction:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     num_fitting_levels: 4
 
   # 2) Registration (required): align other modalities to the fixed reference
@@ -68,10 +68,10 @@ preprocessing:
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # 中文：★【必须检查】配准参考模态；必须是 images 列表中的一个有效模态键。
     # EN: ★ REVIEW: Registration reference modality; it must be a valid key in the images list.
-    fixed_image: delay2
+    fixed_image: LAP
     use_mask: true
     backend: ants
     # 中文：配准变换类型；Rigid 适合刚体对齐，复杂变换需额外验证形变合理性。
@@ -89,7 +89,7 @@ preprocessing:
   resample:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     target_spacing: [1.0, 1.0, 1.0]
     img_mode: bilinear
 
@@ -101,7 +101,7 @@ preprocessing:
   zscore_normalization:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     only_inmask: false
     clip_values: [-3, 3]
 # =============================================================================

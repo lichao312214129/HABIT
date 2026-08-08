@@ -41,7 +41,7 @@ Output (abbreviated)
 ::
 
    cohort_from_directory (batch): 2 subjects from demo_data
-   atomic slice cohort[0]: subj001, modalities=['delay2', 'delay3', 'delay5']
+   atomic slice cohort[0]: subj001, modalities=['pre_contrast', 'LAP', 'PVP', 'delay_3min']
    list_plugins('voxel_feature_extractor'): 5 registered — concat, kinetic, ...
 
    dice(): 2 pairwise rows, mean Dice=0.888

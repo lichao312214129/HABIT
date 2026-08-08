@@ -33,7 +33,16 @@ spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"), Spec("msi")),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=99,
 )
 
@@ -63,3 +72,9 @@ with tempfile.TemporaryDirectory(prefix="habit_persist_") as tmp:
 
     prediction = recipes.apply_habitat_model(cohort, spec, model)
     print(f"Apply round-trip maps: {len(prediction.habitat_maps)}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)

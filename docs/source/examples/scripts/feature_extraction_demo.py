@@ -31,15 +31,15 @@ from habit import HabitatSpec, Spec, cohort_from_directory, make_synthetic_cohor
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 
 
 def _load_cohort() -> Tuple[object, Sequence[str]]:
     """Load demo or synthetic cohort."""
     if IMAGING_ROOT.is_dir():
-        modalities = ("delay2", "delay3", "delay5")
+        modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
         return (
-            cohort_from_directory(IMAGING_ROOT, modalities=modalities, roi="delay2"),
+            cohort_from_directory(IMAGING_ROOT, modalities=modalities, roi="LAP"),
             modalities,
         )
     return make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=11), ("T1", "T2")
@@ -67,13 +67,28 @@ def main() -> None:
             {"min_habitats": 2, "max_habitats": 4, "validation": "elbow", "n_init": 3},
         ),
         habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(Spec("volume"),),
+        habitat_features=(
+            Spec("volume"),
+            Spec("msi"),
+            Spec("ith_score"),
+            Spec("non_radiomics"),
+            # Heavy PyRadiomics families (opt-in; require pyradiomics):
+            # Spec("traditional"),
+            # Spec("whole_habitat"),
+            # Spec("each_habitat"),
+        ),
         random_seed=11,
     )
 
     train_result = recipes.two_step(cohort, spec)
     print(f"Trained: {train_result.habitat_model.n_habitats} habitats, "
           f"{len(train_result.habitat_maps)} maps")
+
+    # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _habitat_eye_check import eye_check_study
+    eye_check_study(cohort, train_result)
 
     work_dir = Path(tempfile.mkdtemp(prefix="habit_extract_demo_"))
     maps_dir = work_dir / "habitat_maps"
@@ -104,15 +119,19 @@ def main() -> None:
                 sitk.WriteImage(mask_image, str(folder / f"{subject.subject_id}_mask.nrrd"))
         raw_img_folder = str(images_dir)
 
+    # Light families on by default; heavy radiomics stay commented / opt-in.
     feature_types: List[str] = [
-        "non_radiomics",
-        "whole_habitat",
-        "each_habitat",
+        "volume",
         "msi",
         "ith_score",
+        "non_radiomics",
+        # "traditional",
+        # "whole_habitat",
+        # "each_habitat",
     ]
-    if IMAGING_ROOT.is_dir():
-        feature_types.insert(0, "traditional")
+    # Uncomment to also run traditional radiomics when a real imaging root exists:
+    # if IMAGING_ROOT.is_dir():
+    #     feature_types.insert(0, "traditional")
 
     config: Dict[str, Any] = {
         "raw_img_folder": raw_img_folder,

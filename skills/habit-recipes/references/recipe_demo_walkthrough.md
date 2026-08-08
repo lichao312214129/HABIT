@@ -6,8 +6,8 @@ dataset (download from the project README link).
 
 ## Prerequisite
 
-User must have downloaded `demo_data.rar` from the link in `README.md` and
-extracted it into the project root, so the layout looks like:
+User must have downloaded the demo packs from `README.md` and extracted them
+so the layout looks like:
 
 ```
 HABIT/
@@ -18,13 +18,19 @@ HABIT/
 │   ├── machine_learning/
 │   └── ...
 ├── demo_data/
-│   ├── preprocessed/      (already preprocessed, ready)
-│   ├── ml_data/           (clinical CSV for ML)
-│   └── ...
+│   ├── preprocessed/      (from preprocessed.zip — images/ + masks/; no processed_images/)
+│   │   ├── images/
+│   │   └── masks/
+│   └── ml_data/           (from ml_data.zip — only needed for habit model / cv)
 ```
 
-If `demo_data/` is missing, redirect user to README Step 2 for the download
-link.
+- Imaging: `preprocessed.zip` (code `9bi3`). If zip top level is
+  `preprocessed/`, extract into `demo_data/`; if `images/`+`masks/`, put under
+  `demo_data/preprocessed/`.
+- ML tables: `ml_data.zip` (code `atnp`) → `demo_data/ml_data/`. Habitat-only
+  walkthroughs need only imaging.
+
+If `demo_data/preprocessed/` is missing, redirect user to `README.md`.
 
 ## CLI sequence — verbatim
 
@@ -61,7 +67,7 @@ After step 5, the user should open these to verify success:
 
 | File | What it shows |
 |---|---|
-| `demo_data/results/habitat_two_step/subj001_habitats.nrrd` | ITK-SNAP overlay on `demo_data/preprocessed/processed_images/images/subj001/delay2/*.nii.gz` |
+| `demo_data/results/habitat_two_step/subj001_habitats.nrrd` | ITK-SNAP overlay on `demo_data/preprocessed/images/subj001/LAP/*.nrrd` |
 | `demo_data/results/ml/radiomics/roc_curve.pdf` | per-model ROC |
 | `demo_data/results/model_comparison/roc_curves.pdf` | radiomics vs clinical comparison |
 | `demo_data/results/model_comparison/delong_results.json` | DeLong p-value |

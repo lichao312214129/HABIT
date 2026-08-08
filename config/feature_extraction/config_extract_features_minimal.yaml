@@ -27,7 +27,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-raw_img_folder: ../../demo_data/preprocessed/processed_images      # ★ 影像
+raw_img_folder: ../../demo_data/preprocessed      # ★ 影像
 # 中文：★【必须修改】生境分割输出目录，内应有 *_habitats.nrrd 文件。
 # EN: ★ MUST EDIT: Habitat output folder containing *_habitats.nrrd files.
 habitats_map_folder: ../../demo_data/results/habitat_two_step      # ★ 生境图
@@ -39,10 +39,11 @@ out_dir: ../../demo_data/results/features                          # ★ 输出
 # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
 n_processes: 2
 habitat_pattern: '*_habitats.nrrd'
-# Default: light families only. Uncomment heavy radiomics when needed.
+# Default: all light families. Uncomment heavy radiomics when needed.
 # See config_extract_features_demo.yaml for traditional / whole_habitat / each_habitat
 # and optional use_torch_radiomics (cext is a get-habitat supervoxel setting).
 feature_types:
+  - volume
   - msi
   - ith_score
   - non_radiomics

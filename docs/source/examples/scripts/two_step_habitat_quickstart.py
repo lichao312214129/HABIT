@@ -16,7 +16,7 @@ from habit import HabitatSpec, Spec, make_synthetic_cohort
 import habit.recipes as recipes
 
 # 1. Cohort: six synthetic subjects, two modalities, one ROI each. Replace
-#    with cohort_from_directory("processed_images", modalities=..., roi=...)
+#    with cohort_from_directory("demo_data/preprocessed", modalities=..., roi=...)
 #    for real data; everything downstream is identical.
 cohort = make_synthetic_cohort(
     n_subjects=6,
@@ -45,7 +45,16 @@ spec = HabitatSpec(
     # 4. Assignment: each supervoxel takes the habitat of its nearest centroid.
     habitat_assigner=Spec("nearest_centroid"),
     # 5. Habitat feature families, computed after assignment.
-    habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=42,
 )
 print(f"Spec fingerprint: {spec.fingerprint()}")
@@ -76,3 +85,10 @@ print(result.manifest.describe_methods())
 #    result.save("out/two_step_demo") writes <subject>_habitats.nrrd,
 #    habitat_model.habitatmodel, habitat_features.csv and run_manifest.json.
 print("\nTo persist everything: result.save('out/two_step_demo')")
+
+# 6. Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)

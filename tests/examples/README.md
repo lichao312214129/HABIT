@@ -40,7 +40,7 @@ overwrite CLI golden artefacts.
 
 ## Prerequisites
 
-- **Imaging workflows**: ``demo_data/preprocessed/processed_images/``
+- **Imaging workflows**: ``demo_data/preprocessed/``
 - **Tabular workflows**: ``demo_data/ml_data/``
 - **DICOM sort**: ``demo_data/dicom/`` and ``tools/bin/dcm2niix.exe``
 - Some scripts depend on prior outputs (noted below)

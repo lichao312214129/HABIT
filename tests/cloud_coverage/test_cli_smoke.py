@@ -18,8 +18,7 @@ Coverage matrix: CLI smoke tests for every ``habit`` subcommand.
 Every subcommand is at minimum invoked with ``--help`` and must exit 0.
 Subcommands with cheap real runs get one here (check-config,
 migrate-config, merge-csv, dice); the heavier ones are covered end-to-end
-by their dedicated matrix modules. ``gui`` launches a web server, so it is
-exercised help-only plus an import check of its command module.
+by their dedicated matrix modules.
 """
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ from habit.cli import cli
 from tests.cloud_coverage.conftest import RenderedConfig, run_cli
 from tests.fixtures.synthetic_data import SyntheticTree
 
-#: All 16 v1.0.0 subcommands.
+#: Documented CLI subcommands registered on the root ``cli`` group.
 SUBCOMMANDS = (
     "check-config",
     "compare",
@@ -44,8 +43,8 @@ SUBCOMMANDS = (
     "dicom-info",
     "extract",
     "get-habitat",
-    "gui",
     "icc",
+    "list-components",
     "merge-csv",
     "migrate-config",
     "model",
@@ -53,6 +52,7 @@ SUBCOMMANDS = (
     "radiomics",
     "retest",
     "sort-dicom",
+    "view",
 )
 
 
@@ -65,20 +65,11 @@ def test_subcommand_help_exits_zero(subcommand: str) -> None:
 
 
 @pytest.mark.unit
-def test_cli_lists_all_sixteen_subcommands() -> None:
+def test_cli_lists_all_subcommands() -> None:
     """The top-level group registers exactly the documented subcommands."""
     result = run_cli(CliRunner(), ["--help"])
     for subcommand in SUBCOMMANDS:
         assert subcommand in result.output, f"{subcommand} missing from habit --help"
-
-
-@pytest.mark.unit
-def test_gui_command_module_importable() -> None:
-    """The gui command module imports (the server itself is not started)."""
-    import importlib
-
-    module = importlib.import_module("habit.commands.cmd_gui")
-    assert hasattr(module, "run_next_gui_server")
 
 
 @pytest.mark.integration

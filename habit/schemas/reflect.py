@@ -13,9 +13,9 @@
 # limitations under the License.
 #
 """
-Reflect Pydantic param models into JSON field descriptors for GUI APIs.
+Reflect Pydantic param models into JSON field descriptors.
 
-Single export path used by ``habit-gui/bridge`` schema reflection.
+Single export path for schema introspection (forms, agents, tooling).
 """
 
 from __future__ import annotations

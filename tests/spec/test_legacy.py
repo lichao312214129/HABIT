@@ -271,6 +271,45 @@ def test_per_component_seed_preserved_with_warning() -> None:
 
 
 @pytest.mark.unit
+def test_enabled_postprocess_maps_into_habitat_spec_slots() -> None:
+    """Enabled connected-component blocks land on HabitatSpec, not legacy."""
+    payload = _load_config("config_habitat_two_step.yaml")
+    payload["habitat_segmentation"]["postprocess_habitat"] = {
+        "enabled": True,
+        "min_component_size": 40,
+        "connectivity": 1,
+        "reassign_method": "neighbor_vote",
+        "max_iterations": 3,
+    }
+    payload["habitat_segmentation"]["postprocess_supervoxel"] = {
+        "enabled": True,
+        "min_component_size": 20,
+        "connectivity": 2,
+    }
+    translation = LegacyConfigAdapter().translate(payload, "habitat")
+    spec = translation.document["spec"]
+    assert spec["postprocess_habitat"]["name"] == "connected_components"
+    assert spec["postprocess_habitat"]["params"]["min_component_size"] == 40
+    assert spec["postprocess_supervoxel"]["name"] == "connected_components"
+    assert spec["postprocess_supervoxel"]["params"]["min_component_size"] == 20
+    legacy_seg = translation.document.get("legacy", {}).get("habitat_segmentation", {})
+    assert "postprocess_habitat" not in legacy_seg
+    assert "postprocess_supervoxel" not in legacy_seg
+
+
+@pytest.mark.unit
+def test_disabled_postprocess_omitted_from_spec() -> None:
+    """``enabled: false`` does not create a HabitatSpec postprocess slot."""
+    payload = _load_config("config_habitat_two_step.yaml")
+    payload["habitat_segmentation"]["postprocess_habitat"] = {
+        "enabled": False,
+        "min_component_size": 30,
+    }
+    translation = LegacyConfigAdapter().translate(payload, "habitat")
+    assert "postprocess_habitat" not in translation.document["spec"]
+
+
+@pytest.mark.unit
 def test_multiple_selection_methods_vote_as_in_v0() -> None:
     """A selection-method list is preserved whole: the v1 fitters vote.
 

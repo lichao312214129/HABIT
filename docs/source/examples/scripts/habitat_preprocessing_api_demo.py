@@ -17,10 +17,11 @@ Accompanies ``docs/source/examples/habitat_preprocessing_api.rst``.
 from __future__ import annotations
 
 from habit import HabitatSpec, Spec, make_synthetic_cohort
-from habit.domain.assembly import build_subject_chain
+from habit.domain.assembly import build_habitat_components, build_subject_chain
 import habit.recipes as recipes
 
 cohort = make_synthetic_cohort(n_subjects=3, shape=(14, 14, 14), rng=5)
+subject = cohort[0]
 
 # Keyword order follows the runtime pipeline (not HabitatSpec field order).
 spec = HabitatSpec(
@@ -39,7 +40,16 @@ spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=5,
 )
 
@@ -47,14 +57,48 @@ print("=== Spec declares both preprocessor levels ===")
 print(f"  voxel steps:  {[s.name for s in spec.voxel_feature_preprocessors]}")
 print(f"  cohort steps: {[s.name for s in spec.cohort_feature_preprocessors]}")
 
+# HabitatComponents uses the same names as HabitatSpec / SubjectPipeline
+# (no abbreviated voxel_extractor / cohort_chain / fitter / …).
+components = build_habitat_components(spec)
+assert components.voxel_feature_extractor is not None
+assert components.voxel_feature_preprocessor is not None
+assert components.cohort_feature_preprocessor is not None
+assert components.habitat_model_fitter is not None
+print("=== HabitatComponents names align with Spec ===")
+print(f"  voxel_feature_extractor: {type(components.voxel_feature_extractor).__name__}")
+print(
+    f"  voxel_feature_preprocessor steps: "
+    f"{len(components.voxel_feature_preprocessor.methods)}"
+)
+
 result = recipes.two_step(cohort, spec)
 assert result.habitat_model is not None
 print(f"=== two_step with feature chains: habitats={result.habitat_model.n_habitats} ===")
 
-# Atomic subject-level chain (no cohort / recipe required).
+# Atomic subject-level chain on a voxel feature matrix (not on result.units).
 chain = build_subject_chain(list(spec.voxel_feature_preprocessors))
 assert chain is not None
-units = result.units[0]
-transformed = chain(units.features)
-print("=== Atomic SubjectPreprocessingChain ===")
-print(f"  in={units.features.shape}, out={transformed.shape}")
+raw_voxel = components.voxel_feature_extractor(subject).feature_frame()
+transformed = chain(raw_voxel)
+print("=== Atomic SubjectPreprocessingChain (on raw voxel features) ===")
+print(f"  in={raw_voxel.shape}, out={transformed.shape}")
+
+# Raw supervoxel units: omit preprocessor fields, then pipeline.units(...).
+bare = HabitatSpec(
+    name="bare_units",
+    voxel_feature_extractor=spec.voxel_feature_extractor,
+    supervoxelizer=spec.supervoxelizer,
+    habitat_model_fitter=spec.habitat_model_fitter,
+    habitat_assigner=spec.habitat_assigner,
+    random_seed=spec.random_seed,
+)
+raw_units = build_habitat_components(bare).pipeline(assigner=None).units(subject)
+print("=== Raw supervoxel units (no feature preprocessing) ===")
+print(f"  features={raw_units.features.shape}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)

@@ -93,8 +93,49 @@ def test_habitat_spec_roundtrip_and_component_specs() -> None:
     }
     restored = HabitatSpec.from_dict(payload)
     assert restored == spec
+    assert restored.on_geometry_mismatch == "resample_mask"
+    assert "on_geometry_mismatch" not in payload
     assert restored.component_specs()["supervoxelizer"].name == "slic"
     assert [s.name for s in restored.habitat_features] == ["msi", "ith_score"]
+
+
+@pytest.mark.unit
+def test_habitat_spec_strict_geometry_policy_roundtrips_and_fingerprints() -> None:
+    """Opting into strict geometry changes the fingerprint; default stays omitted."""
+    base = _habitat_spec()
+    strict = HabitatSpec.from_dict(
+        {**base.to_dict(), "on_geometry_mismatch": "strict"}
+    )
+    assert strict.on_geometry_mismatch == "strict"
+    assert strict.to_dict()["on_geometry_mismatch"] == "strict"
+    assert strict.fingerprint() != base.fingerprint()
+    assert HabitatSpec.from_dict(strict.to_dict()) == strict
+
+
+@pytest.mark.unit
+def test_habitat_spec_postprocess_slots_roundtrip_and_fingerprint() -> None:
+    """Enabled postprocess Specs round-trip; defaults stay omitted from payload."""
+    base = _habitat_spec()
+    assert "postprocess_habitat" not in base.to_dict()
+    assert "postprocess_supervoxel" not in base.to_dict()
+    with_pp = HabitatSpec(
+        name=base.name,
+        voxel_feature_extractor=base.voxel_feature_extractor,
+        supervoxelizer=base.supervoxelizer,
+        habitat_model_fitter=base.habitat_model_fitter,
+        habitat_assigner=base.habitat_assigner,
+        habitat_features=base.habitat_features,
+        postprocess_habitat=Spec(
+            name="connected_components",
+            params={"min_component_size": 30, "connectivity": 1},
+        ),
+    )
+    payload = with_pp.to_dict()
+    assert payload["postprocess_habitat"]["name"] == "connected_components"
+    assert "postprocess_supervoxel" not in payload
+    restored = HabitatSpec.from_dict(payload)
+    assert restored == with_pp
+    assert restored.fingerprint() != base.fingerprint()
 
 
 @pytest.mark.unit
@@ -204,8 +245,9 @@ def test_habitat_spec_describe_methods_states_every_configured_step() -> None:
     assert "n_supervoxels=50" in text
     assert "n_habitats=3" in text
     assert "modalities=['T1']" in text
+    assert "aligned onto the image grid" in text
     # No seed was configured, so none is promised.
-    assert "seed" not in text.lower()
+    assert "random seed" not in text.lower()
 
 
 @pytest.mark.unit

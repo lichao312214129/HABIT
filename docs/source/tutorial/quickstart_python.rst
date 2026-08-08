@@ -1,33 +1,10 @@
-Quickstart: Python API (5 minutes)
-==================================
+Quickstart: Python API
+========================
 
-This is the developer quickstart for the v1.0 **API-first** HABIT: the
-Python API is the product, and the CLI/YAML/GUI are thin shells over it.
-Prefer clicking through a config file? See the parallel
-:doc:`quickstart` (YAML + CLI, no programming).
+Install first (:doc:`installation`). YAML users: :doc:`quickstart`.
 
-Prerequisites: :doc:`installation` (``pip install -e .``), Python 3.10.
-
-The two objects you will always meet
-------------------------------------
-
-Everything in v1.0 is one of two things:
-
-* a **contract** — plain data (:class:`~habit.contracts.Cohort`,
-  :class:`~habit.contracts.HabitatModel`,
-  :class:`~habit.contracts.FeatureTable`), and
-* a **recipe** — a named study design taking a contract plus a **spec**
-  (:class:`~habit.spec.HabitatSpec`, :class:`~habit.spec.MLSpec`) and
-  returning a typed result.
-
-Specs are frozen value objects; the same document written as YAML is read by
-the CLI. Nothing below touches disk until you say so.
-
-Your first habitat analysis
----------------------------
-
-Fifteen lines, fully deterministic, no files needed — a synthetic cohort
-stands in for real images:
+1. Habitat analysis (no files)
+-------------------------------
 
 .. code-block:: python
 
@@ -35,7 +12,6 @@ stands in for real images:
    import habit.recipes as recipes
 
    cohort = make_synthetic_cohort(n_subjects=6, shape=(24, 24, 24), rng=42)
-
    spec = HabitatSpec(
        name="habitat_two_step",
        voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
@@ -45,57 +21,63 @@ stands in for real images:
            {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 5},
        ),
        habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"),),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Spec("traditional"), Spec("whole_habitat"), Spec("each_habitat"),
+       ),
        random_seed=42,
    )
-
    result = recipes.two_step(cohort, spec)
    print(result.habitat_model.summary())
+   result.save("out/study")   # optional: write maps + CSV + model
 
-Real output::
-
-   HabitatModel kmeans-1f45d79eaaa3d7b5
-     habitats           : 3
-     features (2)    : T1, T2
-     defining cohort    : n=6, name=synthetic
-     modalities         : T1, T2
-     cohort digest      : 9e5093ef0a362899...
-     produced by        : habitat_model_fitter.kmeans
-     habit version      : 1.0.0
-     random seed        : 42
-     preprocessing state: inertia, selection_report, validation
-
-``result`` holds everything in memory: ``result.habitat_model`` (the fitted
-definition), ``result.habitat_maps`` (one label map per subject),
-``result.features`` (the habitat feature table), and ``result.manifest``
-(provenance, including an auto-generated methods paragraph). Persist with
-``result.save("out/study")``.
-
-On real data, only the first line changes::
+Real data folder (demo pack)::
 
    from habit import cohort_from_directory
-   cohort = cohort_from_directory("processed_images", modalities=["T1", "T2"], roi="T1")
+   cohort = cohort_from_directory(
+       "demo_data/preprocessed",
+       modalities=["pre_contrast", "LAP", "PVP", "delay_3min"],
+       roi="LAP",
+   )
 
-Save the model, apply it later
-------------------------------
+Or a path-list YAML via :doc:`../how_to/prepare_data` +
+``habit.recipes.run_from_yaml(...)``.
+
+2. View
+-------
+
+.. code-block:: python
+
+   from habit.viz import view_habitat_napari
+
+   volume = cohort[0].image("T1")
+   view_habitat_napari(
+       volume.data,
+       result.habitat_maps[0].label_array,
+       spacing=volume.spacing,
+       direction=volume.direction,
+   )
+
+Needs napari (:doc:`installation`). Blocks until you close the window.
+For fuller 3D review, also open the source volume and ``*_habitats.nrrd``
+in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer.
+
+3. Apply a saved model
+----------------------
 
 .. code-block:: python
 
    from habit import HabitatModel
 
-   result.habitat_model.save("out/habitat_model.habitatmodel")   # self-describing archive
-   model = HabitatModel.load("out/habitat_model.habitatmodel")   # later / elsewhere
+   result.habitat_model.save("out/habitat_model.habitatmodel")
+   model = HabitatModel.load("out/habitat_model.habitatmodel")
    prediction = recipes.apply_habitat_model(new_cohort, spec, model)
 
-No refitting happens: the model replays its stored preprocessing state, so
-train and predict stay consistent. Full walkthrough:
-:doc:`../examples/apply_saved_model`.
-
-Your first tabular model
-------------------------
-
-Habitat features (or radiomics, or clinical variables) form a
-:class:`~habit.contracts.FeatureTable`; the ML recipes model it directly:
+4. Tabular ML
+-------------
 
 .. code-block:: python
 
@@ -103,52 +85,13 @@ Habitat features (or radiomics, or clinical variables) form a
    import habit.recipes as recipes
 
    table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
-   # steps runs in list order. Variance goes first, on the raw table: after
-   # z-score every feature variance is ~1, so it would select nothing useful.
    spec = MLSpec(
        name="demo",
-       steps=(
-           Spec("variance", {"threshold": 0.01}),
-           Spec("zscore"),
-       ),
+       steps=(Spec("variance", {"threshold": 0.01}), Spec("zscore")),
        classifier=Spec("LogisticRegression", {"max_iter": 500}),
        metrics=(Spec("accuracy"), Spec("auc")),
    )
-
    result = recipes.train_model(table, spec, test_size=0.25, seed=42)
-   print("Test:", {k: round(v, 3) for k, v in result.test_metrics.items()})
-   cv = recipes.cross_validate(table, spec, n_splits=5, seed=42)
-   print("CV mean:", {k: round(v, 3) for k, v in cv.mean_metrics.items()})
+   print(result.test_metrics)
 
-Real output (the synthetic table has one informative feature, so scores are
-near-perfect by construction)::
-
-   Test: {'accuracy': 1.0, 'auc': 1.0}
-   CV mean: {'accuracy': 0.988, 'auc': 1.0}
-
-Under a split or a fold the pipeline sees the training rows **only** —
-preprocessing and selection can never leak.
-
-Where to go next
-----------------
-
-.. list-table::
-   :header-rows: 1
-   :widths: 34 66
-
-   * - I want to…
-     - Read
-   * - Run the same thing from a config file (no code)
-     - :doc:`quickstart` (YAML + CLI)
-   * - Staged selection (variance before z-score, ANOVA after)
-     - :doc:`../examples/ml_advanced`
-   * - See full runnable studies with output
-     - :doc:`../examples/index`
-   * - Load my own images / tables
-     - :doc:`../api/data_model` · :doc:`../api/adapters`
-   * - Understand specs and migrate v0.1 YAML
-     - :doc:`../api/spec`
-   * - Look up a class or function
-     - :doc:`../api/index` (API Reference)
-   * - Tune every YAML field
-     - :doc:`../configuration/index`
+Next: :doc:`../examples/index` · :doc:`../api/index` · :doc:`../how_to/prepare_data`

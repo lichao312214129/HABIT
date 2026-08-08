@@ -69,7 +69,7 @@ n_processes: 3
 # EN: `habitat_pattern` is a setting for this module; retain the example default initially and document any change.
 habitat_pattern: '*_habitats_remapped.nrrd'
 # Feature types to extract.
-# Light (recommended default): msi, ith_score, non_radiomics
+# Light (recommended default): volume, msi, ith_score, non_radiomics
 # Heavy radiomics (opt-in): traditional, whole_habitat, each_habitat
 # Optional backend (habitat radiomics only; does not change bin width):
 #   use_torch_radiomics: false | auto | true
@@ -77,6 +77,7 @@ habitat_pattern: '*_habitats_remapped.nrrd'
 # 中文：`feature_types` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `feature_types` is a setting for this module; retain the example default initially and document any change.
 feature_types:
+- volume
 - msi
 - ith_score
 - non_radiomics
@@ -94,11 +95,12 @@ debug: false
 # Output Files Generated
 #
 # Based on feature_types selected:
-# - raw_image_radiomics.csv (traditional)
-# - habitat_basic_features.csv (non_radiomics)
-# - whole_habitat_radiomics.csv (whole_habitat)
-# - habitat_{k}_radiomics.csv + habitat_count.csv (each_habitat)
+# - volume_features.csv (volume)
 # - msi_features.csv (msi)
 # - ith_scores.csv (ith_score)
+# - habitat_basic_features.csv (non_radiomics)
+# - raw_image_radiomics.csv (traditional)
+# - whole_habitat_radiomics.csv (whole_habitat)
+# - habitat_{k}_radiomics.csv + habitat_count.csv (each_habitat)
 #
 # =============================================================================

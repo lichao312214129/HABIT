@@ -309,7 +309,9 @@ DICOM-SEG / BIDS 留待后续——接口上不设障碍，新增一个 `DataSou
 - [x] **B2 `StudyResult.save()` 写生境图**：`habit/recipes/result.py::save()` → `DirectoryResultWriter`；含 `subjXXX_habitats.nrrd`、two-step 的 `subjXXX_supervoxel.nrrd`、`habitats.parquet`
 - [x] **B3 可视化（partial）**：2D/3D PCA 与 plotly HTML 在 `habit.viz` + `StudyResult.save()`；**CLI `plot_curves` 已接线**到 `write_cluster_plots_3d` / `write_interactive_cluster_plots`（`cmd_habitat` + `yaml_runner`）；v0.1 per-subject `cluster_validation.png` 未迁
 - [ ] **B4 输出目录结构对齐**：`subjXXX_habitats.nrrd` / `habitats.parquet` ✅；`visualizations/<mode>/...` 仍缺，或明确声明为"允许改善"并写进迁移指南
-- [ ] **B5 后处理**：`remove_small_connected_components` 等写图前的后处理在 v0.1 的 image writer 里，需决定归属（L0 kernel 还是 Writer 选项）
+- [x] **B5 后处理**：数值核在 `habit/kernels/label_postprocess.py`；内存算子
+  `ConnectedComponentPostprocess` 挂在 `SubjectPipeline`（`HabitatSpec.postprocess_*`）；
+  Writer 只写已清理结果，不做二次清理
 
 #### C. 接线与验收
 
@@ -505,7 +507,7 @@ rg "habit\.core\.(habitat_analysis|machine_learning|preprocessing)" habit/kernel
 #### 3.5 尚未关闭的非 import 项
 
 - [x] **C2** full demo baseline 逐体素验收（`tests/golden -m slow`，需本地 `demo_data/`）— **2026-08-05 v1.0 基线**：已移除 v0.1 pickle 兼容层，slow golden 对 `tests/golden/baseline/` 按 v1 产物布局（``habitat_model.habitatmodel``、``run_manifest.json`` 等）重新归档并验收
-- [ ] **B4/B5** 输出目录 `visualizations/<mode>/` 与 `remove_small_connected_components` 归属
+- [ ] **B4** 输出目录 `visualizations/<mode>/` 对齐（B5 后处理归属已完成）
 - [ ] v0.1 per-subject `cluster_validation.png` 迁到 `habit.viz`（图上英文）
 
 ---

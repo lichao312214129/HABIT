@@ -3,7 +3,7 @@
 Standalone traditional radiomics via ``habit.recipes.traditional_radiomics``.
 
 Assembles the v0.1-style config dict in Python (no YAML). Requires
-``demo_data/preprocessed/processed_images/`` and PyRadiomics; pass
+``demo_data/preprocessed/`` and PyRadiomics; pass
 ``--dry-run`` to validate the config without running extraction.
 
 This script accompanies ``docs/source/examples/feature_extraction.rst``.
@@ -24,8 +24,8 @@ from habit.recipes import traditional_radiomics
 
 # Repository root: docs/source/examples/scripts/<this file> -> parents[4]
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
-MODALITIES: Tuple[str, ...] = ("delay2", "delay3", "delay5")
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
+MODALITIES: Tuple[str, ...] = ("pre_contrast", "LAP", "PVP", "delay_3min")
 OUT_DIR: Path = REPO_ROOT / "demo_data" / "results" / "examples" / "traditional_radiomics_docs"
 
 DRY_RUN: bool = "--dry-run" in sys.argv

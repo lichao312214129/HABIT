@@ -28,25 +28,28 @@ Script
 Output
 ------
 
-Real output of the script above::
+Real output of the script above (abridged; the feature table also includes
+``msi``, ``ith_score``, and ``non_radiomics`` columns)::
 
    Trained on 5 subjects: 3 habitats
-   Saved habitat_model.habitatmodel (1523 bytes)
-   Reloaded model kmeans-f4b52b2c3273c825 (3 habitats, features ['T1', 'T2'])
+   Saved habitat_model.habitatmodel (1531 bytes)
+   Reloaded model kmeans-c8e4410e018281c1 (3 habitats, features ['T1', 'T2'])
 
-   New cohort: ['subj001', 'subj002', 'subj003']
-     subj001: voxels per habitat {1: 345, 2: 729, 3: 345}
-     subj002: voxels per habitat {1: 345, 2: 729, 3: 345}
-     subj003: voxels per habitat {1: 345, 2: 729, 3: 345}
+   New cohort (batch apply): ['subj001', 'subj002', 'subj003']
+     subj001: voxels per habitat {1: 513, 2: 394, 3: 563}
+     subj002: voxels per habitat {1: 421, 2: 295, 3: 470}
+     subj003: voxels per habitat {1: 279, 2: 222, 3: 395}
 
-   Per-subject habitat features:
-   subject  habitat_1_voxel_count  habitat_1_volume_fraction  habitat_2_voxel_count  habitat_2_volume_fraction  habitat_3_voxel_count  habitat_3_volume_fraction
-   subj001                  345.0                   0.243129                  729.0                   0.513742                  345.0                   0.243129
-   subj002                  345.0                   0.243129                  729.0                   0.513742                  345.0                   0.243129
-   subj003                  345.0                   0.243129                  729.0                   0.513742                  345.0                   0.243129
+   Per-subject habitat features (first volume columns shown):
+   subject  habitat_1_voxel_count  habitat_1_volume_fraction  ...  ith_score  ...  1_volume_ratio
+   subj001                  513.0                   0.348980  ...        0.0  ...       0.348980
+   subj002                  421.0                   0.354975  ...        0.0  ...       0.354975
+   subj003                  279.0                   0.311384  ...        0.0  ...       0.311384
 
-The synthetic generator produces near-identical subjects, hence the repeated
-voxel counts; on real data each subject's habitat composition differs.
+On real data each subject's habitat composition and feature values differ.
+
+The script ends with a **napari eye-check** on the applied habitats.
+``HABIT_NO_VIEW=1`` skips it.
 
 What to read next
 -----------------

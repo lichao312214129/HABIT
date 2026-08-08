@@ -25,6 +25,8 @@ Coverage
 * Viz: ``08_viz``
 * Extras: ``09_extras``
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

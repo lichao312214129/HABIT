@@ -16,7 +16,7 @@
 # Habitat - DEMO: two-step clustering with GMM supervoxels + kmeans habitats
 # CLI:  habit get-habitat --config config/habitat/config_habitat_two_step_supervoxel_gmm_train.yaml
 #
-# Input:  demo_data/preprocessed/processed_images
+# Input:  demo_data/preprocessed
 # Output: demo_data/results/habitat_two_step_supervoxel_gmm
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
@@ -31,7 +31,7 @@
 run_mode: train
 # 中文：★【必须修改】输入数据根目录；填写文件夹或指定的清单 YAML，不要填写单个影像文件。
 # EN: ★ MUST EDIT: Input root directory or manifest YAML; do not enter one image file.
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/habitat_two_step_supervoxel_gmm
@@ -50,7 +50,7 @@ feature_construction:
   voxel_level:
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params: {}

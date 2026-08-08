@@ -63,9 +63,11 @@ _METHODS_STYLES: Tuple[str, ...] = ("radiology", "nature")
 _COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
     ("voxel_feature_extractor", "voxel feature extraction"),
     ("supervoxelizer", "supervoxelization"),
+    ("postprocess_supervoxel", "supervoxel connected-component postprocessing"),
     ("supervoxel_feature_extractor", "supervoxel feature extraction"),
     ("habitat_model_fitter", "habitat model fitting"),
     ("habitat_assigner", "habitat assignment"),
+    ("postprocess_habitat", "habitat connected-component postprocessing"),
 )
 
 #: Preprocessing chains, keyed by field name, with the prose each renders as.
@@ -312,6 +314,18 @@ class HabitatSpec:
             :class:`~habit.domain.protocols.Seedable` component. Seeds
             change the scientific result, so they live in the spec (and its
             fingerprint), not in the run policy.
+        on_geometry_mismatch: How to handle image/mask voxel-grid disagreements
+            before Stage-1 extraction. ``"resample_mask"`` (default)
+            nearest-neighbour resamples each ROI onto the reference image
+            grid; ``"strict"`` raises :class:`~habit.exceptions.GeometryError`.
+            The default is omitted from :meth:`to_dict` so historical
+            fingerprints stay stable when the policy is unchanged.
+        postprocess_supervoxel: Optional Spec for connected-component cleanup
+            of supervoxel label maps (two-step). ``None`` skips cleanup and is
+            omitted from :meth:`to_dict` so historical fingerprints stay stable.
+        postprocess_habitat: Optional Spec for connected-component cleanup of
+            final habitat label maps. ``None`` skips cleanup and is omitted
+            from :meth:`to_dict`.
         version: Specification schema version.
 
     Examples:
@@ -352,12 +366,23 @@ class HabitatSpec:
     supervoxel_feature_preprocessors: Tuple[Spec, ...] = ()
     cohort_feature_preprocessors: Tuple[Spec, ...] = ()
     random_seed: Optional[int] = None
+    on_geometry_mismatch: str = "resample_mask"
+    postprocess_supervoxel: Optional[Spec] = None
+    postprocess_habitat: Optional[Spec] = None
     version: str = "1.0"
 
     def __post_init__(self) -> None:
         """Coerce component payloads into Spec instances and tuples."""
         if not isinstance(self.name, str) or not self.name.strip():
             raise HABITAPIError("HabitatSpec.name must be a non-empty string.")
+        # Validate here (not via habit.domain) so habit.spec stays below L3.
+        geometry_policy = str(self.on_geometry_mismatch).strip().lower()
+        if geometry_policy not in ("resample_mask", "strict"):
+            raise HABITAPIError(
+                "HabitatSpec.on_geometry_mismatch must be 'resample_mask' or "
+                f"'strict'; got {self.on_geometry_mismatch!r}."
+            )
+        object.__setattr__(self, "on_geometry_mismatch", geometry_policy)
         for domain in _COMPONENT_DOMAINS:
             value = getattr(self, domain)
             if value is None:
@@ -370,6 +395,19 @@ class HabitatSpec:
                 raise HABITAPIError(
                     f"HabitatSpec.{domain} must be a Spec; got {type(value).__name__}."
                 )
+        for field_name in ("postprocess_supervoxel", "postprocess_habitat"):
+            value = getattr(self, field_name)
+            if value is None:
+                continue
+            if isinstance(value, Spec):
+                continue
+            coerced = coerce_spec(value)
+            if coerced is None or not isinstance(coerced, Spec):
+                raise HABITAPIError(
+                    f"HabitatSpec.{field_name} must be a Spec; "
+                    f"got {type(value).__name__}."
+                )
+            object.__setattr__(self, field_name, coerced)
         for chain_field in (
             "habitat_features",
             *(key for key, _ in _PREPROCESSING_CHAINS),
@@ -433,6 +471,18 @@ class HabitatSpec:
                 f"Random seed {self.random_seed} is fixed for every "
                 "stochastic component."
             )
+        if self.on_geometry_mismatch == "strict":
+            body.append(
+                "Image and ROI mask geometries must match exactly; "
+                "mismatches raise an error."
+            )
+        else:
+            body.append(
+                "When an ROI mask and the reference image disagree on voxel "
+                "grid metadata, the mask is aligned onto the image grid "
+                "(adopt image geometry when shapes match; otherwise "
+                "nearest-neighbour resample)."
+            )
         if style == "nature":
             closing = "The analysis was designed with HABIT."
             return " ".join([*body, closing])
@@ -461,6 +511,16 @@ class HabitatSpec:
                 entry.to_dict() for entry in getattr(self, chain_key)
             ]
         payload["random_seed"] = self.random_seed
+        # Omit the default so historical HabitatSpec fingerprints stay stable
+        # for analyses that never opted into strict geometry checks.
+        if self.on_geometry_mismatch != "resample_mask":
+            payload["on_geometry_mismatch"] = self.on_geometry_mismatch
+        # Omit unset postprocess slots so analyses that never enable cleanup
+        # keep their historical fingerprints.
+        if self.postprocess_supervoxel is not None:
+            payload["postprocess_supervoxel"] = self.postprocess_supervoxel.to_dict()
+        if self.postprocess_habitat is not None:
+            payload["postprocess_habitat"] = self.postprocess_habitat.to_dict()
         return payload
 
     @classmethod
@@ -504,6 +564,11 @@ class HabitatSpec:
             habitat_assigner=cast(Spec, components["habitat_assigner"]),
             habitat_features=features,
             random_seed=payload.get("random_seed"),
+            on_geometry_mismatch=str(
+                payload.get("on_geometry_mismatch", "resample_mask")
+            ),
+            postprocess_supervoxel=coerce_spec(payload.get("postprocess_supervoxel")),
+            postprocess_habitat=coerce_spec(payload.get("postprocess_habitat")),
             version=str(payload.get("version", "1.0")),
             **chains,
         )

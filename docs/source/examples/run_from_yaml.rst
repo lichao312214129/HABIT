@@ -66,6 +66,8 @@ Running a v0.1 document instead is the same call —
 ``recipes.run_from_yaml("config/habitat/config_habitat_two_step.yaml")`` —
 with translation handled transparently.
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

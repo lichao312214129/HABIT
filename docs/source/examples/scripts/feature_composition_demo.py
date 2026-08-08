@@ -81,7 +81,16 @@ spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "inertia", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=7,
 )
 pipeline = build_habitat_components(spec).pipeline(assigner=None)
@@ -98,7 +107,15 @@ via_expression = HabitatSpec.from_dict(
         "supervoxelizer": {"name": "kmeans", "params": {"n_supervoxels": 6}},
         "habitat_model_fitter": {"name": "kmeans", "params": {"max_habitats": 3}},
         "habitat_assigner": {"name": "nearest_centroid"},
-        "habitat_features": [{"name": "volume"}],
+        "habitat_features": [
+            {"name": "volume"},
+            {"name": "msi"},
+            {"name": "ith_score"},
+            {"name": "non_radiomics"},
+            # {"name": "traditional"},
+            # {"name": "whole_habitat"},
+            # {"name": "each_habitat"},
+        ],
     }
 )
 via_structured = HabitatSpec.from_dict(
@@ -116,7 +133,15 @@ via_structured = HabitatSpec.from_dict(
         "supervoxelizer": {"name": "kmeans", "params": {"n_supervoxels": 6}},
         "habitat_model_fitter": {"name": "kmeans", "params": {"max_habitats": 3}},
         "habitat_assigner": {"name": "nearest_centroid"},
-        "habitat_features": [{"name": "volume"}],
+        "habitat_features": [
+            {"name": "volume"},
+            {"name": "msi"},
+            {"name": "ith_score"},
+            {"name": "non_radiomics"},
+            # {"name": "traditional"},
+            # {"name": "whole_habitat"},
+            # {"name": "each_habitat"},
+        ],
     }
 )
 print("\n=== YAML dual form ===")

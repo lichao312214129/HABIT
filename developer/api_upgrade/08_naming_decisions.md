@@ -178,6 +178,7 @@ HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。�
 - 注意与 `table_preprocessor` 域的区别：那个域预处理**建模表**（一行一受试者，通往结局模型），这个域预处理**聚类输入**（一行一体素/超体素，通往生境定义）。两者数值实现相同而行语义不同，是两个域。
 - 构造/注册/自省 API：`<Registry>.create(name, **params)`、`@<Registry>.register("name")`、顶层 `list_plugins(domain)` / `get_plugin_info(name, domain)` / `get_param_schema(name, domain)` / `load_plugins()`。注册表基类 `ComponentRegistry`，`domain: ClassVar[str]`。
 - `HabitatSpec` 的字段名与 domain 逐字一致，避免第四套词汇。
+- **`HabitatComponents` 属性名也与 Spec / `SubjectPipeline` 对齐**（不另造缩写）。装配袋里不得再出现 `voxel_extractor` / `supervoxel_extractor` / `voxel_chain` / `supervoxel_chain` / `cohort_chain` / `fitter` / `extractors`；对应为 `voxel_feature_extractor` / `supervoxel_feature_extractor` / `voxel_feature_preprocessor` / `supervoxel_feature_preprocessor` / `cohort_feature_preprocessor` / `habitat_model_fitter` / `habitat_features`。Spec 上预处理字段仍用复数（`*_preprocessors`，一步列表），装配后的链用单数（与 pipeline 参数一致）。工厂函数 `build_voxel_extractor` 等是树节点构造器，不是 Components 属性名。
 
 ---
 

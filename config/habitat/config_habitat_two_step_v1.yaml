@@ -27,12 +27,12 @@ mode: train
 # the recipe. Parameters match the golden demo baseline.
 spec:
   name: habitat_two_step
-  # Voxel level: concatenate raw intensities of the three DCE phases.
+  # Voxel level: concatenate raw intensities of the four DCE phases.
   # Modality names must match the folder names under images/<subject>/.
   voxel_feature_extractor:
     name: raw
     params:
-      modalities: [delay2, delay3, delay5]
+      modalities: [pre_contrast, LAP, PVP, delay_3min]
   # Supervoxel level: per-subject k-means over voxel features.
   supervoxelizer:
     name: kmeans
@@ -57,12 +57,21 @@ spec:
   # Habitat feature families, computed after assignment (they enrich the
   # feature table; they do not change the habitat maps or the model).
   habitat_features:
-    - name: volume      # voxel counts and volume fractions per habitat
+    - name: volume          # voxel counts and volume fractions per habitat
       params: {}
-    - name: msi         # multiregional spatial interaction features
+    - name: msi             # multiregional spatial interaction features
       params: {}
-    - name: ith_score   # ITH score and per-habitat fragmentation
+    - name: ith_score       # ITH score and per-habitat fragmentation
       params: {}
+    - name: non_radiomics   # region counts / volume ratios (light)
+      params: {}
+    # Heavy PyRadiomics families (opt-in; require pyradiomics):
+    # - name: traditional
+    #   params: {}
+    # - name: whole_habitat
+    #   params: {}
+    # - name: each_habitat
+    #   params: {}
   # Per-subject chain, applied before supervoxelization.
   voxel_feature_preprocessors:
     - name: winsorize
@@ -85,10 +94,14 @@ spec:
 
 # --- Where the cohort lives -------------------------------------------------
 data:
-  # Conventional layout root: <source>/images/<subject>/<modality>/ and
-  # <source>/masks/<subject>/<roi>/. Resolved against the CURRENT WORKING
-  # DIRECTORY (v1 semantics) — run from the repository root.
-  source: demo_data/preprocessed/processed_images
+  # Either a conventional layout root:
+  #   <source>/images/<subject>/<modality>/ and <source>/masks/<subject>/<roi>/
+  # or a manifest YAML that lists image/mask file paths (recommended when
+  # modalities are already registered and you keep one ROI per subject):
+  #   source: config/habitat/file_habitat_registered_single_roi.yaml
+  # Folder roots resolve against the CURRENT WORKING DIRECTORY (v1 semantics);
+  # relative paths inside a manifest resolve from that manifest's directory.
+  source: demo_data/preprocessed
 
 # --- How to execute (mirrors habit.RunPolicy; every key optional) -----------
 policy:

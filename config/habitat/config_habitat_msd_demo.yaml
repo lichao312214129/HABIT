@@ -8,7 +8,7 @@
 #   habit check-config -c config/habitat/config_habitat_msd_demo.yaml
 #   habit get-habitat  -c config/habitat/config_habitat_msd_demo.yaml
 #
-# This replaces the Baidu ``demo_data.rar`` DCE phases (delay2/3/5) with public
+# This replaces the Baidu ``preprocessed.zip`` DCE phases (delay2/3/5) with public
 # MSD modalities: t1ce / t1 / t2 / flair. ROI folder: tumor (whole-tumor).
 # The download script also copies the same mask under each modality folder so
 # the CLI can resolve ROI as the first modality key (current v1.0 behaviour).

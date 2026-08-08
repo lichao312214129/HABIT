@@ -12,15 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Publication figures for HABIT results.
+"""Publication figures and image overlays for HABIT results.
 
-Every function in this package is PURE: it takes contract objects (or plain
-arrays), draws on a matplotlib ``Figure``, and returns that figure. Nothing
-here touches the filesystem -- there is no ``savefig``, no ``show``, no
-output-directory parameter anywhere in the package. Where a figure ends up is
-entirely the caller's decision, which is what makes the same function usable
-from a notebook (``fig`` is shown and can be restyled), from a script
-(``fig.savefig(...)``), and from the CLI's sink (which owns persistence).
+This package is the home for HABIT visualization: ROC / survival / regression
+panels, habitat-clustering scatters, and habitat-on-image overlays
+(:func:`plot_habitat_overlay`) and the optional napari viewer
+(:func:`view_habitat_napari`). New drawing / viewing code should land here
+rather than in CLI or ``habit.api`` helpers.
+
+Most functions in this package are PURE matplotlib helpers: they take contract
+objects (or plain arrays), draw on a ``Figure``, and return that figure.
+Nothing here touches the filesystem -- there is no ``savefig``, no output-
+directory parameter. Where a figure ends up is entirely the caller's
+decision. The optional napari helper is the one exception that may open a Qt
+window; it still takes arrays only and never reads or writes image files.
 
 Two consequences of that rule:
 
@@ -69,6 +74,8 @@ from habit.viz.habitat_clustering import (
     plot_habitat_clustering_pca_3d,
     plot_habitat_clustering_pca_3d_interactive,
 )
+from habit.viz.habitat_overlay import plot_habitat_overlay
+from habit.viz.habitat_napari import view_habitat_napari
 from habit.viz.survival import (
     plot_brier_curve,
     plot_cox_forest,
@@ -115,4 +122,8 @@ __all__ = [
     "plot_habitat_clustering_pca_2d",
     "plot_habitat_clustering_pca_3d",
     "plot_habitat_clustering_pca_3d_interactive",
+    # habitat overlay on source image
+    "plot_habitat_overlay",
+    # optional interactive napari viewer (requires [view] extra)
+    "view_habitat_napari",
 ]

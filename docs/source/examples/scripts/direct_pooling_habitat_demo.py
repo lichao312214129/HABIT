@@ -50,7 +50,16 @@ spec = HabitatSpec(
     # 6. Paint each unit with the nearest habitat centroid.
     habitat_assigner=Spec("nearest_centroid"),
     # 7. Describe habitats after assignment.
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=42,
 )
 
@@ -69,3 +78,10 @@ out_dir = result.save("out/direct_pooling_demo", map_format="nii.gz")
 print(f"\nSaved study to {out_dir}")
 for path in sorted(out_dir.glob("*_habitats.nii.gz")):
     print(f"  {path.name}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)

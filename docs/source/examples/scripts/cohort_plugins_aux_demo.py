@@ -36,7 +36,7 @@ from habit.commands.cmd_migrate_config import run_migrate_config
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 ML_DATA: Path = REPO_ROOT / "demo_data" / "ml_data"
 V0_HABITAT_YAML: Path = REPO_ROOT / "config" / "habitat" / "config_habitat_two_step.yaml"
 HABITAT_MAPS: Path = REPO_ROOT / "demo_data" / "results" / "api" / "02_habitat_two_step"
@@ -45,8 +45,8 @@ HABITAT_MAPS: Path = REPO_ROOT / "demo_data" / "results" / "api" / "02_habitat_t
 if IMAGING_ROOT.is_dir():
     cohort = cohort_from_directory(
         IMAGING_ROOT,
-        modalities=("delay2", "delay3", "delay5"),
-        roi="delay2",
+        modalities=("pre_contrast", "LAP", "PVP", "delay_3min"),
+        roi="LAP",
     )
     print(f"cohort_from_directory (batch): {len(cohort)} subjects from demo_data")
     one = cohort[0]
@@ -115,7 +115,7 @@ if HABITAT_MAPS.is_dir() and list(HABITAT_MAPS.glob("*_habitats.nrrd")):
         "habitats_map_folder": str(HABITAT_MAPS),
         "out_dir": str(work_dir / "test_retest"),
         "habitat_pattern": "*_habitats.nrrd",
-        "feature_columns": ["count", "delay2", "delay3"],
+        "feature_columns": ["count", "LAP", "PVP"],
     }
     try:
         retest_result = recipes.test_retest_analysis(retest_config)

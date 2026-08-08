@@ -55,7 +55,16 @@ def _spec(name: str, *, supervoxelizer: bool) -> HabitatSpec:
             },
         ),
         habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(Spec("volume"),),
+        habitat_features=(
+            Spec("volume"),
+            Spec("msi"),
+            Spec("ith_score"),
+            Spec("non_radiomics"),
+            # Heavy PyRadiomics families (opt-in; require pyradiomics):
+            # Spec("traditional"),
+            # Spec("whole_habitat"),
+            # Spec("each_habitat"),
+        ),
         random_seed=11,
     )
 
@@ -95,3 +104,9 @@ print("=== direct_pooling ===")
 pool = recipes.direct_pooling(cohort, _spec("direct_pooling", supervoxelizer=False))
 assert pool.habitat_model is not None
 print(f"  habitats={pool.habitat_model.n_habitats}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, two)

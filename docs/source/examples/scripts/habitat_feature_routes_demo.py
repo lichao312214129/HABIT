@@ -30,7 +30,7 @@ from habit.domain.assembly import build_habitat_components
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 PARAMS_VOXEL: Path = (
     REPO_ROOT / "habit" / "resources" / "radiomics" / "params_voxel_radiomics.yaml"
 )
@@ -42,11 +42,11 @@ PARAMS_SV: Path = (
 def _load_cohort() -> Tuple[object, Sequence[str]]:
     """Return a cohort and modality list (demo or synthetic)."""
     if IMAGING_ROOT.is_dir():
-        modalities = ("delay2", "delay3", "delay5")
+        modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
         cohort = cohort_from_directory(
             IMAGING_ROOT,
             modalities=modalities,
-            roi="delay2",
+            roi="LAP",
         )
         print(f"Cohort: {len(cohort)} subjects from demo_data ({modalities})")
         return cohort, modalities
@@ -79,7 +79,16 @@ raw_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=11,
 )
 print("\n=== raw(modalities) ===")
@@ -87,6 +96,13 @@ print(f"  atomic n_features: {_atomic_units(raw_spec, subject)}")
 raw_result = recipes.two_step(cohort, raw_spec)
 print(f"  batch: {len(raw_result.habitat_maps)} maps, "
       f"{raw_result.habitat_model.n_habitats} habitats")
+
+# Eye-check first route (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, raw_result)
 
 # --- concat(raw(m0), raw(m1)) — heterogeneous join ---------------------------
 concat_spec = HabitatSpec(
@@ -106,7 +122,16 @@ concat_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=11,
 )
 print("\n=== concat(raw, raw) per modality ===")
@@ -124,7 +149,16 @@ slic_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=11,
 )
 print("\n=== supervoxelizer: slic ===")
@@ -151,7 +185,16 @@ if IMAGING_ROOT.is_dir() and PARAMS_VOXEL.is_file() and PARAMS_SV.is_file():
             {"min_habitats": 2, "max_habitats": 4, "validation": "elbow", "n_init": 3},
         ),
         habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(Spec("volume"),),
+        habitat_features=(
+            Spec("volume"),
+            Spec("msi"),
+            Spec("ith_score"),
+            Spec("non_radiomics"),
+            # Heavy PyRadiomics families (opt-in; require pyradiomics):
+            # Spec("traditional"),
+            # Spec("whole_habitat"),
+            # Spec("each_habitat"),
+        ),
         random_seed=11,
     )
     single = cohort[0:1]
@@ -177,7 +220,16 @@ if IMAGING_ROOT.is_dir() and PARAMS_VOXEL.is_file() and PARAMS_SV.is_file():
             {"min_habitats": 2, "max_habitats": 4, "validation": "elbow", "n_init": 3},
         ),
         habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(Spec("volume"),),
+        habitat_features=(
+            Spec("volume"),
+            Spec("msi"),
+            Spec("ith_score"),
+            Spec("non_radiomics"),
+            # Heavy PyRadiomics families (opt-in; require pyradiomics):
+            # Spec("traditional"),
+            # Spec("whole_habitat"),
+            # Spec("each_habitat"),
+        ),
         random_seed=11,
     )
     try:
@@ -189,6 +241,6 @@ if IMAGING_ROOT.is_dir() and PARAMS_VOXEL.is_file() and PARAMS_SV.is_file():
         print(f"  supervoxel_radiomics skipped: {exc}")
 else:
     print("\n=== voxel_radiomics / supervoxel_radiomics ===")
-    print("  skipped (need demo_data/preprocessed/processed_images/ and PyRadiomics)")
+    print("  skipped (need demo_data/preprocessed/ and PyRadiomics)")
 
 print("\nYAML equivalents: config/habitat/config_habitat_two_step_voxel_radiomics_*.yaml")

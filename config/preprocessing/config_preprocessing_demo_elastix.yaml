@@ -19,7 +19,7 @@
 # CLI:  habit preprocess --config config/preprocessing/config_preprocessing_demo_elastix.yaml
 #
 # Purpose:
-#   Optional elastix registration on demo_data/preprocessed/processed_images (delay2/3/5).
+#   Optional elastix registration on demo_data/preprocessed (pre_contrast/LAP/PVP/delay_3min).
 #
 # Data layout:
 #   Same as config_preprocessing_demo.yaml; requires elastix + transformix on PATH.
@@ -41,7 +41,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/preprocessed
@@ -76,10 +76,10 @@ preprocessing:
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # 中文：★【必须检查】配准参考模态；必须是 images 列表中的一个有效模态键。
     # EN: ★ REVIEW: Registration reference modality; it must be a valid key in the images list.
-    fixed_image: delay2
+    fixed_image: LAP
     use_mask: true
     backend: elastix  # ants (default) | simpleitk | elastix — see docs/source/user_guide/image_preprocessing_zh.rst
     # type_of_transform / metric / optimizer are ignored when backend: elastix

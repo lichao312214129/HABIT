@@ -157,6 +157,103 @@ def test_run_from_yaml_habitat_train_on_synthetic(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
+def test_run_from_yaml_registered_single_roi_manifest_nii_gz(tmp_path: Path) -> None:
+    """
+    Direct ``.nii.gz`` paths in a manifest with ``auto_select_first_file: false``
+    (already-registered multi-modal + one shared ROI) load and train.
+    """
+    import yaml
+
+    data_root = tmp_path / "registered"
+    for index, subject_id in enumerate(_SUBJECT_IDS):
+        image, mask = _synthetic_volumes(seed=200 + index)
+        subject_dir = data_root / subject_id
+        subject_dir.mkdir(parents=True)
+        # Two modalities share one ROI file (registered single-mask layout).
+        sitk.WriteImage(
+            sitk.GetImageFromArray(image), str(subject_dir / "T1.nii.gz")
+        )
+        sitk.WriteImage(
+            sitk.GetImageFromArray(image + 10.0), str(subject_dir / "T2.nii.gz")
+        )
+        sitk.WriteImage(
+            sitk.GetImageFromArray(mask), str(subject_dir / "roi.nii.gz")
+        )
+
+    manifest = {
+        "auto_select_first_file": False,
+        "images": {
+            sid: {
+                "T1": str((data_root / sid / "T1.nii.gz").as_posix()),
+                "T2": str((data_root / sid / "T2.nii.gz").as_posix()),
+            }
+            for sid in _SUBJECT_IDS
+        },
+        "masks": {
+            sid: {"T1": str((data_root / sid / "roi.nii.gz").as_posix())}
+            for sid in _SUBJECT_IDS
+        },
+    }
+    manifest_path = tmp_path / "file_registered_single_roi.yaml"
+    manifest_path.write_text(
+        yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8"
+    )
+
+    out_dir = tmp_path / "out"
+    config_path = tmp_path / "config_habitat.yaml"
+    config_path.write_text(
+        f"""run_mode: train
+data_dir: "{manifest_path.as_posix()}"
+out_dir: "{out_dir.as_posix()}"
+processes: 1
+plot_curves: false
+save_images: true
+save_results_csv: true
+habitats_results_format: csv
+random_state: 42
+feature_construction:
+  voxel_level:
+    method: concat(raw(T1), raw(T2))
+    params: {{}}
+  supervoxel_level:
+    supervoxel_file_keyword: '*_supervoxel.nrrd'
+    method: mean_voxel_features()
+    params: {{}}
+habitat_segmentation:
+  clustering_mode: two_step
+  supervoxel:
+    algorithm: kmeans
+    n_clusters: 4
+    max_iter: 50
+    n_init: 5
+  individual_level:
+    algorithm: kmeans
+    max_clusters: 3
+    habitat_cluster_selection_method:
+      - silhouette
+    max_iter: 50
+    n_init: 5
+  group_level:
+    algorithm: kmeans
+    max_clusters: 3
+    habitat_cluster_selection_method:
+      - silhouette
+    fixed_n_clusters: 2
+    max_iter: 50
+    n_init: 5
+""",
+        encoding="utf-8",
+    )
+
+    result = run_from_yaml(config_path, workflow="habitat", save=True)
+
+    assert isinstance(result, StudyResult)
+    assert result.habitat_model is not None
+    assert len(result.habitat_maps) == len(_SUBJECT_IDS)
+    assert (out_dir / f"{_SUBJECT_IDS[0]}_habitats.nrrd").is_file()
+
+
+@pytest.mark.unit
 def test_run_from_yaml_ml_train_on_synthetic_table(tmp_path: Path) -> None:
     """ML hold-out YAML returns a ModelResult without touching disk by default."""
     from habit.datasets.synthetic import make_synthetic_feature_table

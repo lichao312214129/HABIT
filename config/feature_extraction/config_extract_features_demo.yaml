@@ -38,7 +38,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-raw_img_folder: ../../demo_data/preprocessed/processed_images
+raw_img_folder: ../../demo_data/preprocessed
 # ★ 生境图目录（get-habitat 的 out_dir，内含 *_habitats.nrrd）
 # 中文：★【必须修改】生境分割输出目录，内应有 *_habitats.nrrd 文件。
 # EN: ★ MUST EDIT: Habitat output folder containing *_habitats.nrrd files.
@@ -60,18 +60,20 @@ n_processes: 2
 # 生境图文件名匹配模式（一般勿改）
 habitat_pattern: '*_habitats.nrrd'
 
-# Default feature_types: lightweight families (fast demo / first run).
-# 中文：默认只开轻量特征（msi / ith_score / non_radiomics），适合首次试跑。
-# EN: Defaults emphasise light families; enable heavy radiomics only when needed.
+# Default feature_types: all light families (fast demo / first run).
+# 中文：默认开启全部轻量特征（volume / msi / ith_score / non_radiomics）。
+# EN: Defaults enable every light family; uncomment heavy radiomics when needed.
 #
 # Available names:
+#   volume        : voxel counts / volume fractions per habitat (light)
 #   msi           : multiregional spatial interaction (light)
 #   ith_score     : intratumoral heterogeneity score (light)
-#   non_radiomics : region count / volume fraction (light)
+#   non_radiomics : region count / volume ratio (light)
 #   traditional   : PyRadiomics on raw image within whole ROI (heavy — opt-in)
 #   whole_habitat : PyRadiomics on the habitat label map (heavy — opt-in)
 #   each_habitat  : per-habitat PyRadiomics on raw image (heavy — opt-in)
 feature_types:
+  - volume
   - msi
   - ith_score
   - non_radiomics

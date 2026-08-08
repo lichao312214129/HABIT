@@ -1,95 +1,52 @@
 FAQ
 ===
 
-Installation
-------------
-
-**``habit`` not found**
-
-- Activate your environment (``conda activate habit`` or the venv you used),
-  then ``habit --version``.
-- Full step-by-step: :doc:`../tutorial/installation`.
-
-**``Parquet export requires pyarrow``**
-
-Current default installs include ``pyarrow``. Reinstall / upgrade
-``habitat-analysis`` in the same environment. Temporary workaround:
-``pip install "pyarrow>=15,<22"`` (or ``pyarrow>=22,<23`` on Python 3.14).
-
-**``pip install habitat-analysis`` / ``pip install pyradiomics`` fails**
-
-Follow :doc:`../tutorial/installation`. Short version:
-
-- Base ``pip install habitat-analysis`` does **not** need PyRadiomics.
-- Install PyRadiomics **separately** (HABIT extras never pull it).
-- PyPI has **no usable PyRadiomics Windows binaries**: bare
-  ``pip install pyradiomics`` pulls the broken **3.1.0 sdist**. On Windows
-  install the matching prebuilt wheel from Release ``v1.0.2``, for example
-  (Python 3.10)::
-
-     pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-
-  On macOS / Linux: ``pip install "pyradiomics>=3.0.1,<3.2"`` or
-  ``conda install -c conda-forge pyradiomics``.
-- habitat-analysis ≥ 1.0.4 supports Python 3.10–3.14 with numpy 1.26 or 2.x.
-
-Runtime
+Install
 -------
 
-**Path / file errors**
+**``habit`` not found** — activate the env (``conda activate habit``), then
+``habit --version``. See :doc:`../tutorial/installation`.
 
-- Run from project root (contains ``config/`` ).
-- Check ``data_dir`` / ``out_dir`` in YAML.
-- Relative paths are resolved from the YAML file directory.
+**``pip install`` fails / mirror missing package** — use official PyPI::
 
-**Command failed**
+   pip install habitat-analysis -i https://pypi.org/simple
 
-1. ``habit <subcommand> --help``
-2. Check ``processing.log`` in the output folder.
-3. ``habit get-habitat ... --debug`` for habitat jobs.
-4. Validate YAML first: ``habit check-config -c <yaml> -w <workflow>``
-   (exit code 1, no traceback on user errors — see :doc:`../reference/cli`).
+**PyRadiomics on Windows** — do **not** use bare ``pip install pyradiomics``
+(broken sdist). Install the wheel from Release ``v1.0.2`` matching your
+Python, e.g. 3.10::
 
-**Subject failed but others finished**
+   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
 
-Habitat YAML ``on_subject_failure: continue`` (default) isolates per-subject
-errors; recipes / CLI proceed with successful subjects and record exclusions
-on the run manifest. In the Python API, default ``cohort.map`` still raises
-``ProcessingError``; pass ``raise_on_failure=False`` (or call ``backend.map``)
-for soft failure — see :doc:`../examples/fault_tolerance` and
-:doc:`../api/execution`.
+**napari / ``PluginManifest`` / pydantic errors**::
 
-**Timeout / OOM / parallel_mode seem ignored**
+   pip install "pydantic>=2.12,<3"
+   pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
 
-On the v1 CLI / ``run_from_yaml`` path those knobs apply when
-``ProcessPoolBackend`` is selected (``backend: process`` **or** a positive
-per-subject timeout, including ``processes: 1``). True in-process serial
-requires ``individual_subject_timeout_sec: null``. See :doc:`../api/execution`
-and the mapping table in :doc:`../api/spec`.
+**napari window flashes then closes** — keep ``show=True`` (default); the
+call blocks until you close the window.
 
-**strict_checkpoint_hash raises on mismatch**
+**``OptionalDependencyError``** — the message includes the
+``pip install ...`` command for the missing extra.
 
-With ``strict_checkpoint_hash: true``, an incompatible ``run_fingerprint.json``
-raises :class:`~habit.exceptions.CompatibilityError`. A readable v0.1
-``manifest.json`` / ``subjects/`` checkpoint is auto-migrated then resumed;
-only a corrupt/unreadable legacy manifest raises. Details:
-:doc:`../configuration/habitat`.
+**Parquet / pyarrow** — either ``pip install "habitat-analysis[tables]"``
+or set ``habitats_results_format: csv`` in YAML.
 
-**YAML changes ignored**
+Run
+---
 
-Confirm you edit the file passed with ``-c`` ; ``--mode`` on CLI overrides ``run_mode`` in YAML.
+**Path / file errors** — run from the project root (folder that contains
+``config/``). Check ``data_dir`` / ``out_dir`` (and absolute paths if unsure).
 
-GUI (under development)
------------------------
+**Command failed** — ``habit <cmd> --help``; read ``processing.log`` in the
+output folder; validate with ``habit check-config -c <yaml>``.
 
-The Web GUI is not yet recommended for routine use. Prefer the CLI and YAML
-configs; see :doc:`../gui/index` for the planned scope and developer preview.
+**YAML changes ignored** — confirm the file passed with ``-c``; CLI
+``--mode`` overrides YAML ``run_mode``.
 
 Data
 ----
 
-**ROI format**: NIfTI aligned with images (ITK-SNAP / 3D Slicer).
-
-**Folder layout**: :doc:`../how_to/prepare_data` .
+ROI: NIfTI aligned with images. Layout / path-list YAML:
+:doc:`../how_to/prepare_data`.
 
 Support: |link_github_issues| · lichao19870617@163.com

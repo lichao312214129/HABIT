@@ -50,7 +50,7 @@ paths:
   #   正确：.../processed_images    错误：写成某个 .nii.gz 文件
   # 中文：★【必须修改】影像根目录，通常应同时包含 images/ 与 masks/ 子目录。
   # EN: ★ MUST EDIT: Image root, usually containing both images/ and masks/ folders.
-  images_folder: ../../demo_data/preprocessed/processed_images
+  images_folder: ../../demo_data/preprocessed
   # ★ 输出目录（自动创建）
   # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
   # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
@@ -78,9 +78,10 @@ processing:
   # EN: ★ MUST EDIT: Modalities for extraction; they must match directories under images.
   # --- 2.1 待处理模态 / process_image_types ---
   process_image_types:
-    - delay2
-    - delay3
-    - delay5
+    - pre_contrast
+    - LAP
+    - PVP
+    - delay_3min
 # 中文：`export` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
 # EN: `export` is a setting for this module; retain the example default initially and document any change.
 # 中文：导出设置只改变结果文件的组织方式，不改变已计算的特征值。为保证下游建模可追溯，

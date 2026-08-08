@@ -41,7 +41,7 @@ from habit.domain.assembly import build_habitat_components
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 
 # --- v0.1 -> v1 chain mapping (for readers migrating YAML) -----------------
 V0_V1_CHAIN_MAP: Tuple[Tuple[str, str], ...] = (
@@ -57,11 +57,11 @@ for v0_name, v1_name in V0_V1_CHAIN_MAP:
 if IMAGING_ROOT.is_dir():
     cohort = cohort_from_directory(
         IMAGING_ROOT,
-        modalities=("delay2", "delay3", "delay5"),
-        roi="delay2",
+        modalities=("pre_contrast", "LAP", "PVP", "delay_3min"),
+        roi="LAP",
         name="demo_dce",
     )
-    modalities = ("delay2", "delay3", "delay5")
+    modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
     print(f"\nCohort (batch): {len(cohort)} subjects from demo_data")
 else:
     cohort = make_synthetic_cohort(n_subjects=4, shape=(16, 16, 16), rng=7)
@@ -95,7 +95,16 @@ two_step_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=7,
 )
 
@@ -110,7 +119,16 @@ direct_pooling_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=7,
 )
 
@@ -124,7 +142,16 @@ one_step_spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"),),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=7,
 )
 
@@ -202,4 +229,10 @@ finally:
 
 print("\nMethods paragraph (two-step chains rendered):")
 print(two_step_result.manifest.describe_methods()[:500], "...")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, two_step_result)
 

@@ -1,17 +1,34 @@
 Preprocessing
 =============
 
-.. code-block:: bash
+Goal: turn images (or DICOM) into a preprocessed ``images/`` + ``masks/`` tree.
 
+**First demo run:** skip this page — the demo pack already has
+``demo_data/preprocessed/``. Go to :doc:`segment_habitat`.
+
+Run
+---
+
+::
+
+   habit check-config --config config/preprocessing/config_preprocessing_demo.yaml
    habit preprocess --config config/preprocessing/config_preprocessing_demo.yaml
 
-DICOM sort only (no NIfTI conversion):
+Faster smoke::
 
-.. code-block:: bash
+   habit preprocess --config config/preprocessing/config_preprocessing_minimal.yaml
 
+DICOM helpers::
+
+   habit dicom-info -i demo_data/dicom -o demo_data/results/htg_dicom_info.csv --one-file-per-folder
    habit sort-dicom --config config/dicom_sort/config_sort_dicom.yaml
 
-**Output**: ``out_dir/processed_images/`` ; log ``<out_dir>/processing.log`` .
+Your data
+---------
 
-**Configuration**: :doc:`../configuration/preprocessing` · DICOM sort fields:
-:doc:`../configuration/dicom_sort`
+Edit ★ in a copied YAML: ``data_dir`` (folder or path-list YAML), ``out_dir``,
+and modality names. Then ``habit check-config`` + ``habit preprocess``.
+
+Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
+
+Next: :doc:`segment_habitat`.

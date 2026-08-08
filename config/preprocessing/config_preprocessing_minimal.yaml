@@ -28,7 +28,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-data_dir: ../../demo_data/preprocessed/processed_images   # ★ 输入根目录（含 images/）
+data_dir: ../../demo_data/preprocessed   # ★ 输入根目录（含 images/）
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/preprocessed             # ★ 输出目录
@@ -47,7 +47,7 @@ preprocessing:
   resample:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]   # ★ 模态名=文件夹名
+    images: [pre_contrast, LAP, PVP, delay_3min]   # ★ 模态名=文件夹名
     target_spacing: [3.0, 3.0, 3.0]
     img_mode: bilinear
   # 中文：`registration` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
@@ -57,10 +57,10 @@ preprocessing:
   registration:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     # 中文：★【必须检查】配准参考模态；必须是 images 列表中的一个有效模态键。
     # EN: ★ REVIEW: Registration reference modality; it must be a valid key in the images list.
-    fixed_image: delay2               # ★ 参考模态
+    fixed_image: LAP               # ★ 参考模态
     use_mask: true
     backend: ants
     # 中文：配准变换类型；Rigid 适合刚体对齐，复杂变换需额外验证形变合理性。
@@ -73,7 +73,7 @@ preprocessing:
   zscore_normalization:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]
+    images: [pre_contrast, LAP, PVP, delay_3min]
     only_inmask: false
     clip_values: [-3, 3]
 

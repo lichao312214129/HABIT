@@ -21,7 +21,7 @@
 run_mode: train
 # ★ Input root with images/ and masks/ in the conventional layout.
 # ★ 输入数据根目录（含 images/ 与 masks/）。
-data_dir: ../../demo_data/preprocessed/processed_images
+data_dir: ../../demo_data/preprocessed
 # ★ Output directory for habitat maps, tables, model archive and manifest.
 # ★ 输出目录（生境图、特征表、模型文件、运行清单）。
 out_dir: ../../demo_data/results/habitat_two_step_cli
@@ -31,7 +31,7 @@ feature_construction:
   # Modality names must match folder names under images/<subject>/.
   # 体素级特征：拼接三个 DCE 期相的原始强度；模态名须与数据文件夹一致。
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     params: {}
   # Supervoxel level: average voxel features within each supervoxel.
   # 超体素级：对每个超体素内的体素特征取均值。

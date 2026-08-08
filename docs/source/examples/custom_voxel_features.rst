@@ -29,6 +29,8 @@ Script
 .. literalinclude:: scripts/custom_voxel_feature_demo.py
    :language: python
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 See also
 --------
 

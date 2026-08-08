@@ -77,6 +77,7 @@ BLOCKED_OPTIONAL_MODULES: tuple[str, ...] = (
     "openpyxl",
     "skimage",
     "radiomics",
+    "napari",
 )
 
 

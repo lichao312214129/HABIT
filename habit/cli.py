@@ -197,6 +197,113 @@ def get_habitat(
     run_habitat(config, debug, mode, pipeline, resume)
 
 
+@cli.command('view')
+@click.argument('paths', nargs=-1, type=click.Path(exists=True))
+@click.option(
+    '--image', 'images_opt',
+    type=click.Path(exists=True),
+    multiple=True,
+    help='Source image path (repeatable). Combined with positional IMAGE(s). '
+         'For multi-sequence napari, pass several --image and --habitat.',
+)
+@click.option(
+    '--habitat', 'habitat_opt',
+    type=click.Path(exists=True),
+    default=None,
+    help='Habitat map path. Required when using multiple --image, or when '
+         'all positionals are source images (no trailing HABITAT).',
+)
+@click.option(
+    '--output', '-o',
+    type=click.Path(),
+    default=None,
+    help='PNG destination for the matplotlib path '
+         '(default: <habitat_stem>_overlay.png next to the map)',
+)
+@click.option(
+    '--no-open',
+    is_flag=True,
+    help='Matplotlib: write PNG without opening the system viewer. '
+         'Napari: build layers with show=False and exit',
+)
+@click.option(
+    '--alpha',
+    type=float,
+    default=0.45,
+    show_default=True,
+    help='Opacity of habitat colours / napari labels layer (0-1]',
+)
+@click.option(
+    '--backend',
+    type=click.Choice(['auto', 'napari', 'matplotlib'], case_sensitive=False),
+    default='auto',
+    show_default=True,
+    help='auto (default) / napari: prefer interactive napari, fall back to '
+         'PNG if [view] is missing; matplotlib: force static PNG '
+         '(needs [viz]; first image only)',
+)
+def view(
+    paths: tuple,
+    images_opt: tuple,
+    habitat_opt: Optional[str],
+    output: Optional[str],
+    no_open: bool,
+    alpha: float,
+    backend: str,
+) -> None:
+    """Overlay a habitat map on source image(s) (napari by default, PNG fallback).
+
+    \b
+    habit view IMAGE HABITAT
+    habit view --image IMAGE --habitat HABITAT
+    habit view img1 img2 img3 HABITAT
+    habit view --image T1.nii.gz --image T2.nii.gz --habitat map.nrrd
+    habit view --backend matplotlib IMAGE HABITAT -o overlay.png
+
+    When --habitat is set, every positional PATH is a source image.
+    Otherwise the last positional is the habitat map and earlier ones are images.
+    Napari loads all series; matplotlib uses the first image only.
+    """
+    from habit.commands.cmd_view import run_view
+
+    positional = list(paths)
+    flag_images = list(images_opt)
+    habitat_path: Optional[str] = habitat_opt
+    image_paths: list
+
+    if habitat_path is not None:
+        # Explicit habitat: all positionals + --image are source series.
+        image_paths = positional + flag_images
+    elif len(positional) >= 2:
+        # Classic / multi-positional: last path is habitat, rest are images.
+        habitat_path = positional[-1]
+        image_paths = positional[:-1] + flag_images
+    elif len(positional) == 1 and flag_images:
+        # habit view --image T1 --image T2 map_habitats.nrrd
+        habitat_path = positional[0]
+        image_paths = list(flag_images)
+    else:
+        image_paths = positional + flag_images
+
+    if not image_paths or not habitat_path:
+        raise click.UsageError(
+            "Provide at least one IMAGE and a HABITAT map, e.g.\n"
+            "  habit view path/to/image.nii.gz path/to/subj_habitats.nrrd\n"
+            "  habit view --image path/to/image.nii.gz --habitat path/to/subj_habitats.nrrd\n"
+            "  habit view --image T1.nii.gz --image T2.nii.gz "
+            "--habitat path/to/subj_habitats.nrrd\n"
+            "  habit view T1.nii.gz T2.nii.gz path/to/subj_habitats.nrrd"
+        )
+    run_view(
+        image_paths,
+        habitat_path,
+        output=output,
+        no_open=no_open,
+        alpha=alpha,
+        backend=backend,
+    )
+
+
 @cli.command('extract')
 @config_option()
 def extract(config):
@@ -471,16 +578,6 @@ def merge_csv(input_files, output, index_col, separator, encoding, join_type):
         encoding=encoding,
         join_type=join_type
     )
-
-
-@cli.command('gui')
-@click.option('--host', default='127.0.0.1', show_default=True, help='Host to bind the Web GUI server to')
-@click.option('--port', '-p', default=8501, show_default=True, help='Local port for the Web GUI')
-@click.option('--no-browser', is_flag=True, help='Do not open a browser tab automatically')
-def gui(host, port, no_browser):
-    """Launch the HABIT Web GUI (under development; CLI/YAML recommended for now)"""
-    from habit.commands.cmd_gui import run_next_gui_server
-    run_next_gui_server(host=host, port=port, open_browser=not no_browser)
 
 
 if __name__ == '__main__':

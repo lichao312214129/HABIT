@@ -242,6 +242,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "Metric",
         "SubjectPipeline",
         "TablePipeline",
+        "ConnectedComponentPostprocess",
         # Precision screen (Prior et al. 2024): the perturbation protocol and
         # its built-ins, the analysis functions, and the resulting artifact.
         "ImagePerturbation",
@@ -293,6 +294,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "ICCEstimate",
         "icc3a_1",
         "icc3c_1",
+        "remove_small_connected_components",
     ),
     # Table-level scikit-learn interop (L3). The factories are top-level; the
     # adapter classes stay namespaced under ``habit.domain.sklearn_interop``.
@@ -356,6 +358,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_habitat_clustering_pca_2d",
         "plot_habitat_clustering_pca_3d",
         "plot_habitat_clustering_pca_3d_interactive",
+        "plot_habitat_overlay",
+        "view_habitat_napari",
     ),
 }
 

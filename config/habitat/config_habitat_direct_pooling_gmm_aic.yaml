@@ -54,7 +54,7 @@ feature_construction:
   voxel_level:
     # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
     # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
-    method: concat(voxel_radiomics(delay2), voxel_radiomics(delay3), voxel_radiomics(delay5))
+    method: concat(voxel_radiomics(pre_contrast), voxel_radiomics(LAP), voxel_radiomics(PVP), voxel_radiomics(delay_3min))
     # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
     # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
     params: {}

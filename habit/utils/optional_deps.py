@@ -68,6 +68,7 @@ DISTRIBUTION_NAME: str = "habitat-analysis"
 #: users, never as the target of a single missing-module hint.
 OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     "viz": ("matplotlib", "seaborn"),
+    "view": ("napari",),
     "dicom": ("pydicom",),
     "tables": ("pyarrow", "openpyxl"),
     "slic": ("skimage",),
@@ -82,7 +83,6 @@ OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     ),
     "automl": ("autogluon",),
     "registration": ("ants",),
-    "gui": ("fastapi", "uvicorn"),
     "torch": ("torch",),
     "radiomics": ("radiomics",),
 }

@@ -28,7 +28,10 @@ Output
      subj004: 3 habitats, id=kmeans-...
 
    Habitat maps: 4
-   Feature table: 4 rows x 28 columns
+   Feature table: 4 rows x 47 columns
+
+The script ends with a **napari eye-check**. Close the window to finish;
+``HABIT_NO_VIEW=1`` skips it. Prefer ITK-SNAP / 3D Slicer / SimpleITK for 3D.
 
 What to read next
 -----------------

@@ -18,9 +18,8 @@ Local build: `cd docs && make html` → `docs/build/html/index.html`
 |------|--------|------|
 | 1 | Install HABIT | [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html) |
 | 2 | Demo workflow | [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html) |
-| 3 | Web GUI (under development) | [Web GUI](https://lichao312214129.github.io/HABIT/gui/index.html) |
-| 4 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/HABIT/how_to/index.html) |
-| 5 | YAML parameters | [Configuration](https://lichao312214129.github.io/HABIT/configuration/index.html) |
+| 3 | Step-by-step how-to | [How-to index](https://lichao312214129.github.io/HABIT/how_to/index.html) |
+| 4 | YAML parameters | [Configuration](https://lichao312214129.github.io/HABIT/configuration/index.html) |
 
 ### Workflow chapters
 
@@ -51,81 +50,31 @@ After cloning or unpacking the repo, use the **`config/`** folder at the **proje
 
 ## Install & demo data
 
-Two supported install methods (full steps: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html)). Python **3.10–3.14** (numpy 1.26 and 2.x).
+Python **3.10–3.14**. Full steps: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html).
 
-- **(A) pip** (Miniconda / venv / etc.)
-  ```bash
-  pip install habitat-analysis
-  habit --version
-  # import name remains: import habit
-  ```
-- **(B) from Git source**
-  ```bash
-  git clone https://github.com/lichao312214129/HABIT.git
-  cd HABIT
-  pip install .
-  # editable: pip install -e .
-  ```
+```bash
+conda create -n habit python=3.10 -y
+conda activate habit
+pip install -U pip
+pip install habitat-analysis -i https://pypi.org/simple
+habit --version
+# import name: import habit
+```
 
-The default install carries only the 11 packages the habitat kernel cannot run
-without (numpy, scipy, pandas, scikit-learn, SimpleITK, pydantic, PyYAML,
-click, tqdm, joblib, kneed) — measured on CPython 3.10 / Linux: 20 wheels,
-129 MB downloaded, 635 MB of `site-packages`.
-The whole habitat pipeline (voxel features → supervoxels → cohort habitat
-fitting → assignment → habitat features → CSV result table) needs no extra.
-
-Everything else is an extra. Nothing degrades silently: when a workflow reaches
-for a package you have not installed, HABIT raises `OptionalDependencyError`
-containing the exact `pip install` command.
-
-| Extra | Needed for |
-| --- | --- |
-| `viz` | Every figure (`habit.viz`, ML report plots, clustering plots, KM curves) |
-| `tables` | Reading/writing `.parquet` (the default `habitats_results_format`) and `.xlsx` |
-| `dicom` | `habit dicom-info` / `habit sort-dicom`; NIfTI / NRRD input needs nothing |
-| `slic` | The SLIC supervoxel backend; the default `kmeans` / `gmm` backends need nothing |
-| `ml` | XGBoost, SMOTE, mRMR / VIF / stepwise selectors (includes `viz`, `tables`) |
-| `analysis` | SHAP, Plotly, ICC, survival analysis (includes `viz`, `tables`) |
-| `registration` | ANTs registration backend in preprocessing |
-| `automl` | AutoGluon Tabular |
-| `torch` | TorchRadiomics / GPU texture backends |
-| `gui` | Web GUI server (preview) |
-| `all` | Every optional capability except `torch` and PyRadiomics |
-| `full` | Migration alias for 1.0.x users, see below |
+Optional: napari for `habit view` (see Installation). PyRadiomics is separate
+when you need radiomics. Other capabilities are extras — missing ones raise
+`OptionalDependencyError` with the exact `pip install` command, e.g.:
 
 ```bash
 pip install "habitat-analysis[ml,analysis]"
 ```
 
-**Upgrading from 1.0.x**: 1.1.0 moved `matplotlib`, `seaborn`, `scikit-image`,
-`pydicom`, `pyarrow` and `openpyxl` out of the required set into extras
-(`chardet` was removed outright — nothing needs it any more). A default install
-went from 212 MB downloaded / 931 MB installed / 43 distributions to 129 MB /
-635 MB / 23. No public Python API symbol or signature changed; only what
-`pip install habitat-analysis` installs did. To restore the old behaviour in
-one command:
+- **Source**: [GitHub](https://github.com/lichao312214129/HABIT) (dev: `pip install -e .`)
+- **Demo data (two packs)**:
+  1. **Imaging** (habitat / preprocess / feature extract): [`preprocessed.zip`](https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3) (code **9bi3**). After extract you must have `demo_data/preprocessed/images/` and `demo_data/preprocessed/masks/` next to `config/` (no nested `processed_images`). If zip top level is `preprocessed/`, extract into `demo_data/`; if `images/`+`masks/`, put under `demo_data/preprocessed/`.
+  2. **Tabular ML** (`habit model` / `habit cv`): [`ml_data.zip`](https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp) (code **atnp**). Extract at project root to get `demo_data/ml_data/` (e.g. `breast_cancer_dataset.csv`). If zip top level is `ml_data/`, extract into `demo_data/`.
 
-```bash
-pip install -U "habitat-analysis[full]"
-```
-
-Note `habitats_results_format` **still defaults to parquet** — the default was
-deliberately left alone so output filenames never change silently from
-`habitats.parquet` to `habitats.csv`. Without pyarrow the run fails with both
-exits spelled out: install `[tables]`, or set `habitats_results_format: csv`.
-
-PyRadiomics is **not** a default dependency and is **not** pulled by HABIT extras — install it **separately** when you need radiomics features:
-
-- **Windows**: install the matching prebuilt wheel from [Release v1.0.2](https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2) (do **not** use bare `pip install pyradiomics` — the PyPI sdist fails to build). Example for Python 3.10:
-  ```bash
-  pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-  ```
-- **macOS / Linux**: `pip install "pyradiomics>=3.0.1,<3.2"`, or `conda install -c conda-forge pyradiomics`
-
-Full wheel table and the complete extras matrix: [Installation](https://lichao312214129.github.io/HABIT/tutorial/installation.html).
-
-- **Source**: [GitHub](https://github.com/lichao312214129/HABIT)
-- **Demo data**: [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
+  Habitat-only demos need pack 1; add pack 2 only for ML demos. See [Quickstart](https://lichao312214129.github.io/HABIT/tutorial/quickstart.html)
 
 ---
 

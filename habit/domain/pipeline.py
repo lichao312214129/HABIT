@@ -30,7 +30,13 @@ from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatMap, Supervoxelization, VoxelFeatureField
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
+from habit.domain.geometry_align import (
+    ON_GEOMETRY_MISMATCH_DEFAULT,
+    align_subject_masks,
+    coerce_on_geometry_mismatch,
+)
 from habit.domain.outcome_access import outcome_series, survival_target
+from habit.domain.postprocess import ConnectedComponentPostprocess
 from habit.domain.protocols import (
     CohortFeaturePreprocessor,
     HabitatAssigner,
@@ -169,6 +175,15 @@ class SubjectPipeline:
             omitting it would feed the assigner a feature space different
             from the one the model was defined in, and it would still return
             plausible-looking labels.
+        on_geometry_mismatch: How to handle image/mask grid disagreements
+            before Stage-1. ``"resample_mask"`` (default) nearest-neighbour
+            resamples each ROI onto the first image modality; ``"strict"``
+            raises :class:`~habit.exceptions.GeometryError`.
+        postprocess_supervoxel: Optional connected-component cleanup applied
+            immediately after supervoxelization and before supervoxel feature
+            extraction. Ignored when ``supervoxelizer`` is ``None``.
+        postprocess_habitat: Optional connected-component cleanup applied
+            immediately after habitat assignment and before habitat features.
     """
 
     def __init__(
@@ -180,6 +195,9 @@ class SubjectPipeline:
         voxel_feature_preprocessor: Optional[SubjectFeaturePreprocessor] = None,
         supervoxel_feature_preprocessor: Optional[SubjectFeaturePreprocessor] = None,
         cohort_feature_preprocessor: Optional[CohortFeaturePreprocessor] = None,
+        on_geometry_mismatch: str = ON_GEOMETRY_MISMATCH_DEFAULT,
+        postprocess_supervoxel: Optional[ConnectedComponentPostprocess] = None,
+        postprocess_habitat: Optional[ConnectedComponentPostprocess] = None,
     ) -> None:
         if voxel_feature_extractor is None:
             raise HABITAPIError(
@@ -200,6 +218,13 @@ class SubjectPipeline:
                 "feature matrix to preprocess; pass it as "
                 "voxel_feature_preprocessor instead."
             )
+        if postprocess_supervoxel is not None and supervoxelizer is None:
+            _logger.warning(
+                "SubjectPipeline received postprocess_supervoxel but no "
+                "supervoxelizer; supervoxel cleanup is ignored for direct "
+                "voxel clustering designs."
+            )
+            postprocess_supervoxel = None
         self.voxel_feature_extractor = voxel_feature_extractor
         self.supervoxelizer = supervoxelizer
         self.habitat_assigner = habitat_assigner
@@ -207,6 +232,9 @@ class SubjectPipeline:
         self.voxel_feature_preprocessor = voxel_feature_preprocessor
         self.supervoxel_feature_preprocessor = supervoxel_feature_preprocessor
         self.cohort_feature_preprocessor = cohort_feature_preprocessor
+        self.on_geometry_mismatch = coerce_on_geometry_mismatch(on_geometry_mismatch)
+        self.postprocess_supervoxel = postprocess_supervoxel
+        self.postprocess_habitat = postprocess_habitat
 
     @property
     def spec(self) -> Spec:
@@ -230,8 +258,27 @@ class SubjectPipeline:
                 self.cohort_feature_preprocessor
             ),
             "habitat_assigner": _optional(self.habitat_assigner),
+            "on_geometry_mismatch": self.on_geometry_mismatch,
+            "postprocess_supervoxel": _optional(self.postprocess_supervoxel),
+            "postprocess_habitat": _optional(self.postprocess_habitat),
         }
         return Spec(name="subject_pipeline", params=stage_specs)
+
+    def _prepare_subject(self, subject: Subject) -> Subject:
+        """
+        Align ROI masks onto the reference image grid when needed.
+
+        Args:
+            subject: Incoming subject, possibly with drifted mask geometry.
+
+        Returns:
+            A subject whose masks share the reference image voxel grid under
+            the configured ``on_geometry_mismatch`` policy.
+        """
+        return align_subject_masks(
+            subject,
+            on_geometry_mismatch=self.on_geometry_mismatch,
+        )
 
     def units(self, subject: Subject) -> Supervoxelization:
         """
@@ -250,6 +297,7 @@ class SubjectPipeline:
             The subject's clustering units. Every ROI voxel is its own unit
             when no supervoxelizer is configured.
         """
+        subject = self._prepare_subject(subject)
         field = self.voxel_feature_extractor(subject)
         # Keep the pre-preprocessing field: statistical supervoxel
         # extractors with ``source="original"`` aggregate exactly this
@@ -265,6 +313,12 @@ class SubjectPipeline:
         if self.supervoxelizer is None:
             return voxel_units(field)
         units = self.supervoxelizer(field)
+        if self.postprocess_supervoxel is not None:
+            # Clean fragments before describing regions so features and the
+            # label map stay aligned for cohort fitting / assignment.
+            units = self.postprocess_supervoxel.apply_to_supervoxelization(
+                units, field
+            )
         if self.supervoxel_feature_extractor is not None:
             # Statistical extractors (``mean`` / ``std`` / ``percentile``,
             # standalone or inside a tree) recompute their statistic from
@@ -320,7 +374,10 @@ class SubjectPipeline:
                 produced_by="feature_preprocessing.cohort",
                 spec_fingerprint=chain.spec.fingerprint(),
             )
-        return self.habitat_assigner(working), working
+        habitat_map = self.habitat_assigner(working)
+        if self.postprocess_habitat is not None:
+            habitat_map = self.postprocess_habitat.apply_to_habitat_map(habitat_map)
+        return habitat_map, working
 
     def __call__(self, subject: Subject) -> HabitatMap:
         """

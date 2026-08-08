@@ -1,30 +1,65 @@
 Habitat segmentation
 ====================
 
-Python API
-----------
+Goal: get ``*_habitats.nrrd`` maps, then view them.
 
-For in-memory runs without the CLI, see the **Common workflows** section in
-:doc:`../api/python_api` (synthetic cohort, three habitat designs, YAML
-translation, and ``StudyResult.save``). The CLI examples below use the same
-recipes internally.
+Before you start
+----------------
 
-CLI
----
+* :doc:`before_you_start` (terminal at project root)
+* Data ready (:doc:`prepare_data`). Demo::
 
-.. code-block:: bash
+     demo_data/preprocessed/
 
+Run the demo
+------------
+
+::
+
+   habit check-config --config config/habitat/config_habitat_two_step.yaml
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
-Other strategies (swap config file):
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
-- One-step: ``config/habitat/config_habitat_one_step_raw_concat_train.yaml``
-- Direct pooling: ``config/habitat/config_habitat_direct_pooling.yaml``
+**Demo pack tip:** ROIs were drawn mainly on the **basal** slices. In the
+viewer, drag the **axial** slider (bottom of the window) to about
+**slice 110** to see the habitat overlay. The default mid-volume slice may
+show no labels.
 
-Options: ``--mode train|predict`` , ``--pipeline`` (predict: override saved pipeline path) , ``--debug`` , ``--resume`` .
+For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
+together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
+(label overlay / segmentation).
 
-**Output**: ``*_habitats.nrrd`` ; overlay in ITK-SNAP / 3D Slicer.
+Other strategies (same command, different YAML)::
 
-**Strategy choice**: :doc:`../explanation/concepts`
+   habit get-habitat --config config/habitat/config_habitat_one_step_raw_concat_train.yaml
+   habit get-habitat --config config/habitat/config_habitat_direct_pooling.yaml
 
-**Configuration**: :doc:`../configuration/habitat`
+Use your own data
+-----------------
+
+Copy ``config/habitat/config_habitat_two_step.yaml`` (or
+``config_habitat_two_step_minimal.yaml``) and edit:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 32 68
+
+   * - ★ Field
+     - What to put
+   * - ``data_dir`` / ``data.source``
+     - Path-list YAML or folder root (:doc:`prepare_data`)
+   * - ``out_dir``
+     - Output folder
+   * - modality names in ``feature_construction``
+     - Must match your data keys (``T1`` / ``T2`` / …)
+
+Then::
+
+   habit check-config --config path/to/your_habitat.yaml
+   habit get-habitat --config path/to/your_habitat.yaml
+   habit view path/to/image.nii.gz path/to/subj001_habitats.nrrd
+
+Success: ``*_habitats.nrrd`` under ``out_dir``.
+
+Next: :doc:`extract_features`. Config details: :doc:`../configuration/habitat`.

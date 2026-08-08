@@ -46,7 +46,16 @@ spec = HabitatSpec(
     # 5. Assign labels from that subject-local definition.
     habitat_assigner=Spec("nearest_centroid"),
     # 6. Describe habitats after assignment.
-    habitat_features=(Spec("volume"), Spec("msi")),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=42,
 )
 
@@ -60,3 +69,10 @@ for subject_id, model in sorted(result.subject_models.items()):
 print(f"\nHabitat maps: {len(result.habitat_maps)}")
 print(f"Feature table: {result.features.frame.shape[0]} rows x "
       f"{len(result.features.feature_columns)} columns")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)

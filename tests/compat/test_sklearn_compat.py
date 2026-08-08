@@ -263,9 +263,12 @@ def test_habitat_estimator_builds_the_supervoxel_feature_extractor(
     estimator = as_estimator(spec)
     estimator.fit(_cohort())
     components = estimator._components
-    assert components.supervoxel_chain is not None
+    assert components.supervoxel_feature_preprocessor is not None
     pipeline = components.pipeline(assigner=estimator._assigner)
-    assert pipeline.supervoxel_feature_preprocessor is components.supervoxel_chain
+    assert (
+        pipeline.supervoxel_feature_preprocessor
+        is components.supervoxel_feature_preprocessor
+    )
 
 
 @pytest.mark.unit

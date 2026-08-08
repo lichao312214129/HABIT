@@ -26,9 +26,14 @@ optional preprocessor chains appear later because they have defaults.
        habitat_model_fitter=Spec(name="kmeans", params={"n_habitats": 4}),
        habitat_assigner=Spec(name="nearest_centroid"),
        habitat_features=(
-           Spec(name="msi"),
-           Spec(name="ith_score"),
-           Spec(name="volume"),
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
        ),
        random_seed=42,
    )
@@ -50,7 +55,16 @@ Direct (no-supervoxel) design — set ``supervoxelizer=None``::
        supervoxelizer=None,
        habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
        habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"),),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
+       ),
    )
 
 Feature trees and the expression form

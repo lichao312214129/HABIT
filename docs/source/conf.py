@@ -234,9 +234,14 @@ todo_include_todos = True
 # (see _build_rst_epilog).
 NETDISK_SHARES = {
     "demo_data": {
-        "url": "https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9",
-        "code": "9ws9",
-        "link_label": "Download demo_data.rar",
+        "url": "https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3",
+        "code": "9bi3",
+        "link_label": "Download preprocessed.zip",
+    },
+    "ml_data": {
+        "url": "https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp",
+        "code": "atnp",
+        "link_label": "Download ml_data.zip",
     },
     "config_pack": {
         "url": "https://pan.baidu.com/s/1zk-UCZVMudMvbtC8M3xdgA?pwd=kbg5",

@@ -46,6 +46,7 @@ from habit.kernels.image_perturbation import (
     rotate_image,
     translate_image,
 )
+from habit.kernels.label_postprocess import remove_small_connected_components
 from habit.kernels.voxel_icc import ICCEstimate, icc3a_1, icc3c_1
 from habit.kernels.voxel_texture import local_entropy_map
 from habit.kernels.statistics import (
@@ -91,4 +92,5 @@ __all__ = [
     "ICCEstimate",
     "icc3a_1",
     "icc3c_1",
+    "remove_small_connected_components",
 ]

@@ -35,7 +35,7 @@ import SimpleITK as sitk
 from habit.recipes import preprocess_images
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
-IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 
 
 def _synthetic_dataset(data_root: Path, n_subjects: int = 3) -> List[str]:
@@ -107,7 +107,7 @@ _run_preprocess(data_root, out_dir, modalities, resample_spacing=[1.0, 1.0, 1.0]
 if IMAGING_ROOT.is_dir():
     print("\n=== Batch: demo_data DCE-MRI (resample only, mirrors API 01_preprocess) ===")
     demo_out = work_dir / "demo_resample"
-    demo_modalities = ["delay2", "delay3", "delay5"]
+    demo_modalities = ["pre_contrast", "LAP", "PVP", "delay_3min"]
     _run_preprocess(
         IMAGING_ROOT,
         demo_out,

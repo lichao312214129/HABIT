@@ -3,7 +3,7 @@
 # The literal name "HABIT" is prohibited on PyPI (admin block / name policy),
 # so we publish as ``habitat-analysis``: pip install habitat-analysis
 name = "habitat-analysis"
-version = "1.1.0"
+version = "1.1.1"
 description = "Habitat Analysis: Biomedical Imaging Toolkit (HABIT)"
 # PyPI long description must be English by default. Keep README.md (Chinese) in
 # the repository and sdist for bilingual readers; language switcher links use
@@ -62,7 +62,11 @@ dependencies = [
     "scipy>=1.11,<2",
     "pandas>=2.1,<3",
     "scikit-learn>=1.4,<2",
-    "pydantic>=2.7,<3",
+    # Exclude pydantic 2.11.x: npe2 (pulled by optional [view]/napari)
+    # cannot build PluginManifest there (Draft06JsonSchema / model_rebuild;
+    # npe2 declares pydantic!=2.11.*,>=2.8). HABIT itself is fine on 2.7–2.10
+    # and on 2.12+.
+    "pydantic>=2.7,!=2.11.*,<3",
     "PyYAML>=6.0,<7",
     "click>=8.1,<9",
     "tqdm>=4.66,<5",
@@ -94,9 +98,17 @@ habit = "habit.cli:cli"
 # ``pip install "habitat-analysis[radiomics]"`` commands stay valid; it does
 # not install PyRadiomics.
 radiomics = []
-gui = [
-    "fastapi>=0.100",
-    "uvicorn[standard]>=0.22",
+# Interactive napari viewer for habitat maps (`habit view --backend napari`).
+# Medium weight: full `napari[pyqt5]` wheel set is ~177 MB download; on a
+# typical HABIT env the net new install is ~80–120 MB (dominated by PyQt5
+# ~55 MB + vispy / dask / napari-console). Default `habit view` stays on
+# matplotlib via the `viz` extra and needs no Qt. Not pulled into `[all]`.
+# Reinforce pydantic!=2.11.* so `pip install ...[view]` cannot leave a broken
+# npe2/PluginManifest stack when an older env already had pydantic 2.11.
+view = [
+    "napari[pyqt5]>=0.4.19,<0.8",
+    "npe2>=0.8.2",
+    "pydantic!=2.11.*,>=2.8,<3",
 ]
 # Every figure HABIT can draw. ~57.8 MB installed, of which ~31.4 MB is
 # matplotlib's own transitive tail (pillow, fonttools, kiwisolver, contourpy).
@@ -180,7 +192,7 @@ automl = [
 # library metadata must not dictate. PyRadiomics stays out too (install
 # separately; see docs/tutorial/installation.rst).
 all = [
-    "habitat-analysis[analysis,automl,dicom,gui,ml,registration,slic,tables,viz]",
+    "habitat-analysis[analysis,automl,dicom,ml,registration,slic,tables,viz]",
 ]
 # Migration alias for anyone upgrading from <=1.0.4, where matplotlib, seaborn,
 # scikit-image, pydicom, pyarrow and openpyxl were REQUIRED dependencies.

@@ -39,6 +39,10 @@ from habit.domain.feature_selection import FeatureSelectorRegistry
 from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
 from habit.domain.habitat_model import HabitatModelFitterRegistry
 from habit.domain.pipeline import SubjectPipeline, TablePipeline
+from habit.domain.postprocess import (
+    ConnectedComponentPostprocess,
+    build_connected_component_postprocess,
+)
 from habit.domain.protocols import Seedable
 from habit.domain.supervoxel import SupervoxelizerRegistry
 from habit.domain.supervoxel_features import SupervoxelFeatureExtractorRegistry
@@ -53,6 +57,9 @@ from habit.domain.voxel_features import VoxelFeatureExtractorRegistry
 from habit.exceptions import ComponentNotFoundError, HABITAPIError
 from habit.registry.core import ComponentRegistry
 from habit.spec.specs import HabitatSpec, MLSpec, Spec
+from habit.utils.log_utils import get_module_logger
+
+_logger = get_module_logger(__name__)
 
 __all__ = [
     "HabitatComponents",
@@ -93,30 +100,46 @@ class HabitatComponents:
     the point: fit and predict must assemble the SAME stages in the SAME
     order, differing only in whether an assigner is attached.
 
+    Attribute names match :class:`~habit.spec.specs.HabitatSpec` fields and
+    :class:`~habit.domain.pipeline.SubjectPipeline` parameters (assembled
+    preprocessor chains use the singular form, as on the pipeline).
+
     Attributes:
-        voxel_extractor: Produces the per-voxel feature field.
+        voxel_feature_extractor: Produces the per-voxel feature field.
         supervoxelizer: Groups voxels into supervoxels; ``None`` means the
             design clusters voxels directly.
-        supervoxel_extractor: Describes each supervoxel; ``None`` when the
-            supervoxel's own feature means are used.
-        voxel_chain: Per-subject preprocessing of voxel features.
-        supervoxel_chain: Per-subject preprocessing of supervoxel features.
-        cohort_chain: Cohort-level preprocessing; the only leakage-sensitive
-            step in habitat definition.
-        fitter: Learns the habitat definition from clustering units.
-        extractors: Habitat feature families to compute after assignment.
-            May be empty: defining habitats and describing them are separate
-            acts, and the v0.1 ``habitat`` command performs only the first.
+        supervoxel_feature_extractor: Describes each supervoxel; ``None``
+            when the supervoxelizer's own feature means are used.
+        voxel_feature_preprocessor: Per-subject preprocessing of voxel
+            features (assembled chain), or ``None``.
+        supervoxel_feature_preprocessor: Per-subject preprocessing of
+            supervoxel features, or ``None``.
+        cohort_feature_preprocessor: Cohort-level preprocessing; the only
+            leakage-sensitive step in habitat definition.
+        habitat_model_fitter: Learns the habitat definition from clustering
+            units.
+        habitat_features: Habitat feature families to compute after
+            assignment. May be empty: defining habitats and describing them
+            are separate acts, and the v0.1 ``habitat`` command performs
+            only the first.
+        on_geometry_mismatch: Image/mask geometry policy forwarded to
+            :class:`~habit.domain.pipeline.SubjectPipeline` (default
+            ``"resample_mask"``).
+        postprocess_supervoxel: Optional supervoxel label cleanup.
+        postprocess_habitat: Optional final habitat label cleanup.
     """
 
-    voxel_extractor: Any
+    voxel_feature_extractor: Any
     supervoxelizer: Optional[Any]
-    supervoxel_extractor: Optional[Any]
-    voxel_chain: Optional[SubjectPreprocessingChain]
-    supervoxel_chain: Optional[SubjectPreprocessingChain]
-    cohort_chain: Optional[CohortPreprocessingChain]
-    fitter: Any
-    extractors: Tuple[Any, ...]
+    supervoxel_feature_extractor: Optional[Any]
+    voxel_feature_preprocessor: Optional[SubjectPreprocessingChain]
+    supervoxel_feature_preprocessor: Optional[SubjectPreprocessingChain]
+    cohort_feature_preprocessor: Optional[CohortPreprocessingChain]
+    habitat_model_fitter: Any
+    habitat_features: Tuple[Any, ...]
+    on_geometry_mismatch: str = "resample_mask"
+    postprocess_supervoxel: Optional[ConnectedComponentPostprocess] = None
+    postprocess_habitat: Optional[ConnectedComponentPostprocess] = None
 
     def pipeline(self, *, assigner: Optional[Any]) -> SubjectPipeline:
         """
@@ -132,15 +155,18 @@ class HabitatComponents:
             predict time it must run before assignment.
         """
         return SubjectPipeline(
-            voxel_feature_extractor=self.voxel_extractor,
+            voxel_feature_extractor=self.voxel_feature_extractor,
             supervoxelizer=self.supervoxelizer,
             habitat_assigner=assigner,
-            supervoxel_feature_extractor=self.supervoxel_extractor,
-            voxel_feature_preprocessor=self.voxel_chain,
-            supervoxel_feature_preprocessor=self.supervoxel_chain,
+            supervoxel_feature_extractor=self.supervoxel_feature_extractor,
+            voxel_feature_preprocessor=self.voxel_feature_preprocessor,
+            supervoxel_feature_preprocessor=self.supervoxel_feature_preprocessor,
             cohort_feature_preprocessor=(
-                self.cohort_chain if assigner is not None else None
+                self.cohort_feature_preprocessor if assigner is not None else None
             ),
+            on_geometry_mismatch=self.on_geometry_mismatch,
+            postprocess_supervoxel=self.postprocess_supervoxel,
+            postprocess_habitat=self.postprocess_habitat,
         )
 
 
@@ -160,41 +186,57 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
         ComponentNotFoundError: If a spec names an unregistered component.
         ConfigurationError: If a component's parameters fail validation.
     """
-    voxel_extractor = build_voxel_extractor(spec.voxel_feature_extractor)
+    voxel_feature_extractor = build_voxel_extractor(spec.voxel_feature_extractor)
     supervoxelizer = None
     if spec.supervoxelizer is not None:
         supervoxelizer = SupervoxelizerRegistry.create(
             spec.supervoxelizer.name, **spec.supervoxelizer.params
         )
-    supervoxel_extractor = None
+    supervoxel_feature_extractor = None
     if spec.supervoxel_feature_extractor is not None:
-        supervoxel_extractor = build_supervoxel_extractor(
+        supervoxel_feature_extractor = build_supervoxel_extractor(
             spec.supervoxel_feature_extractor
         )
-    voxel_chain = build_subject_chain(spec.voxel_feature_preprocessors)
-    supervoxel_chain = build_subject_chain(spec.supervoxel_feature_preprocessors)
-    cohort_chain = None
+    voxel_feature_preprocessor = build_subject_chain(
+        spec.voxel_feature_preprocessors
+    )
+    supervoxel_feature_preprocessor = build_subject_chain(
+        spec.supervoxel_feature_preprocessors
+    )
+    cohort_feature_preprocessor = None
     if spec.cohort_feature_preprocessors:
-        cohort_chain = CohortPreprocessingChain(
+        cohort_feature_preprocessor = CohortPreprocessingChain(
             build_methods(list(spec.cohort_feature_preprocessors))
         )
-    fitter = HabitatModelFitterRegistry.create(
+    habitat_model_fitter = HabitatModelFitterRegistry.create(
         spec.habitat_model_fitter.name, **spec.habitat_model_fitter.params
     )
-    extractors = tuple(
+    habitat_features = tuple(
         build_habitat_extractor(feature_spec)
         for feature_spec in spec.habitat_features
     )
+    postprocess_supervoxel = build_connected_component_postprocess(
+        spec.postprocess_supervoxel
+    )
+    postprocess_habitat = build_connected_component_postprocess(
+        spec.postprocess_habitat
+    )
+    if postprocess_supervoxel is not None and supervoxelizer is None:
+        _logger.warning(
+            "HabitatSpec.postprocess_supervoxel is set but no supervoxelizer "
+            "is configured; supervoxel cleanup is ignored."
+        )
+        postprocess_supervoxel = None
     if spec.random_seed is not None:
         for component in (
-            voxel_extractor,
+            voxel_feature_extractor,
             supervoxelizer,
-            supervoxel_extractor,
-            voxel_chain,
-            supervoxel_chain,
-            cohort_chain,
-            fitter,
-            *extractors,
+            supervoxel_feature_extractor,
+            voxel_feature_preprocessor,
+            supervoxel_feature_preprocessor,
+            cohort_feature_preprocessor,
+            habitat_model_fitter,
+            *habitat_features,
         ):
             if component is None:
                 continue
@@ -202,14 +244,17 @@ def build_habitat_components(spec: HabitatSpec) -> HabitatComponents:
             if isinstance(component, Seedable) or callable(setter):
                 component.set_random_state(spec.random_seed)
     return HabitatComponents(
-        voxel_extractor=voxel_extractor,
+        voxel_feature_extractor=voxel_feature_extractor,
         supervoxelizer=supervoxelizer,
-        supervoxel_extractor=supervoxel_extractor,
-        voxel_chain=voxel_chain,
-        supervoxel_chain=supervoxel_chain,
-        cohort_chain=cohort_chain,
-        fitter=fitter,
-        extractors=extractors,
+        supervoxel_feature_extractor=supervoxel_feature_extractor,
+        voxel_feature_preprocessor=voxel_feature_preprocessor,
+        supervoxel_feature_preprocessor=supervoxel_feature_preprocessor,
+        cohort_feature_preprocessor=cohort_feature_preprocessor,
+        habitat_model_fitter=habitat_model_fitter,
+        habitat_features=habitat_features,
+        on_geometry_mismatch=spec.on_geometry_mismatch,
+        postprocess_supervoxel=postprocess_supervoxel,
+        postprocess_habitat=postprocess_habitat,
     )
 
 
@@ -300,6 +345,15 @@ def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
     _require_registered_name(spec.habitat_assigner, HabitatAssignerRegistry)
     for feature_spec in spec.habitat_features:
         _require_registered_tree(feature_spec, HabitatFeatureExtractorRegistry)
+    for field_name in ("postprocess_supervoxel", "postprocess_habitat"):
+        entry = getattr(spec, field_name)
+        if entry is None:
+            continue
+        if entry.name != "connected_components":
+            raise ComponentNotFoundError(
+                f"HabitatSpec.{field_name} must be named 'connected_components'; "
+                f"got {entry.name!r}."
+            )
 
 
 #: Registries a name in ``MLSpec.steps`` may resolve against, in lookup

@@ -21,7 +21,16 @@ scikit-learn (``habit.compat.sklearn``)
        supervoxelizer=None,
        habitat_model_fitter=Spec("kmeans", {"n_habitats": 2}),
        habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"),),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
+       ),
        random_seed=0,
    )
 

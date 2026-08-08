@@ -13,9 +13,9 @@
 #   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
 #   - 修改后先运行：habit check-config -c <本文件.yaml> --syntax-only（清单/参数预设仅做 YAML 语法检查）
 
-# Preprocessing manifest — DEMO: demo_data/preprocessed/processed_images
+# Preprocessing manifest — DEMO: demo_data/preprocessed
 # Referenced when preprocessing YAML sets data_dir to this file.
-# Modality keys (delay2, delay3, delay5) must match Preprocessing steps.
+# Modality keys (pre_contrast, LAP, PVP, delay_3min) must match Preprocessing steps.
 # Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
 # not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
 # 中文：同一受试者/模态有多个文件时是否自动选第一个；DICOM 文件夹输入通常应为 false。
@@ -36,13 +36,16 @@ images:
   subj001:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj001/delay2
+    pre_contrast: ../../demo_data/preprocessed/images/subj001/pre_contrast
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj001/delay3
+    LAP: ../../demo_data/preprocessed/images/subj001/LAP
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj001/delay5
+    PVP: ../../demo_data/preprocessed/images/subj001/PVP
+    # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
+    # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
+    delay_3min: ../../demo_data/preprocessed/images/subj001/delay_3min
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
 
@@ -50,13 +53,16 @@ images:
   subj002:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay2: ../../demo_data/preprocessed/processed_images/images/subj002/delay2
+    pre_contrast: ../../demo_data/preprocessed/images/subj002/pre_contrast
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay3: ../../demo_data/preprocessed/processed_images/images/subj002/delay3
+    LAP: ../../demo_data/preprocessed/images/subj002/LAP
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay5: ../../demo_data/preprocessed/processed_images/images/subj002/delay5
+    PVP: ../../demo_data/preprocessed/images/subj002/PVP
+    # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
+    # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
+    delay_3min: ../../demo_data/preprocessed/images/subj002/delay_3min
 # 中文：★【必须检查】分割 mask 清单；受试者和模态键应与 images 完全对应。
 # EN: ★ REVIEW: Segmentation-mask manifest; subject and modality keys must match images exactly.
 masks:
@@ -67,13 +73,16 @@ masks:
   subj001:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj001/delay2
+    pre_contrast: ../../demo_data/preprocessed/masks/subj001/pre_contrast
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj001/delay3
+    LAP: ../../demo_data/preprocessed/masks/subj001/LAP
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj001/delay5
+    PVP: ../../demo_data/preprocessed/masks/subj001/PVP
+    # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
+    # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
+    delay_3min: ../../demo_data/preprocessed/masks/subj001/delay_3min
   # 中文：★【必须修改】受试者 ID；替换为真实唯一 ID，并确保 images 与 masks 两处一致。
   # EN: ★ MUST EDIT: Subject ID; replace with a real unique ID and match images/masks.
 
@@ -81,11 +90,14 @@ masks:
   subj002:
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay2: ../../demo_data/preprocessed/processed_images/masks/subj002/delay2
+    pre_contrast: ../../demo_data/preprocessed/masks/subj002/pre_contrast
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay3: ../../demo_data/preprocessed/processed_images/masks/subj002/delay3
+    LAP: ../../demo_data/preprocessed/masks/subj002/LAP
     # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
     # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
-    delay5: ../../demo_data/preprocessed/processed_images/masks/subj002/delay5
+    PVP: ../../demo_data/preprocessed/masks/subj002/PVP
+    # 中文：★【必须修改】该受试者该模态的文件或文件夹路径；模态键须与主配置一致。
+    # EN: ★ MUST EDIT: File/folder path for this subject and modality; keep the modality key consistent.
+    delay_3min: ../../demo_data/preprocessed/masks/subj002/delay_3min
 # =============================================================================

@@ -1,30 +1,41 @@
 Machine learning
 ================
 
-.. code-block:: bash
+Goal: train / CV models on feature CSVs.
 
-   habit model --config config/machine_learning/config_machine_learning_radiomics.yaml --mode train
+Demo tabular data
+-----------------
 
-K-fold: ``config/machine_learning/config_machine_learning_kfold_demo.yaml`` + ``habit cv`` .
+ML demos read CSVs under ``demo_data/ml_data/`` (separate from imaging).
+Download |download_ml_data| (extract code: |ml_data_code|) and extract so
+you have e.g. ``demo_data/ml_data/breast_cancer_dataset.csv`` next to
+``config/``. If the zip top level is ``ml_data/``, extract into
+``demo_data/``. Habitat imaging (``preprocessed.zip``) is **not** required
+for these tabular ML demos.
 
-**Input**: CSV / Excel feature tables (paths and column names in YAML).
+See also :doc:`before_you_start`.
 
-**Output** (under the YAML ``output`` directory):
+Run (fast demo)
+---------------
 
-* Fitted pipelines (when ``is_save_model`` is true) and prediction tables
-  (e.g. ``all_prediction_results.csv``).
-* ``metrics.json`` — train / test (hold-out) or fold-aggregated (CV) metrics.
-* Evaluation figures under ``output/visualizations/`` when visualization is
-  enabled. Filenames use a split prefix:
+::
 
-  * hold-out train: ``train_*`` (e.g. ``train_roc_curve.pdf``)
-  * hold-out test: ``test_*``
-  * cross-validation (pooled OOF): ``cv_*``
+   habit check-config --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml
+   habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
 
-  Curve types follow ``visualization.plot_types`` (``roc``, ``dca``,
-  ``calibration``, ``pr``, ``confusion``, plus optional ``shap`` /
-  ``shap_dependence`` / ``shap_waterfall`` / ``permutation``). Figures are
-  drawn by ``habit.viz`` and written through
-  :mod:`habit.recipes.ml_reporting`.
+Other useful commands::
 
-**Configuration**: :doc:`../configuration/machine_learning`
+   habit model --config config/machine_learning/config_machine_learning_clinical.yaml --mode train
+   habit cv --config config/machine_learning/config_machine_learning_kfold_demo.yaml
+   habit model --config config/machine_learning/config_machine_learning_predict.yaml --mode predict
+
+Your data
+---------
+
+★ Edit ``input[*].path``, subject-ID / label columns, and ``output``. Prefer
+``*_minimal.yaml`` until a first train succeeds (full configs may enable slow
+SHAP plots).
+
+Success: metrics / predictions under the YAML output folder.
+
+Next: :doc:`compare_models`.

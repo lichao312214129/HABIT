@@ -18,7 +18,7 @@ from habit import HabitatSpec, Spec, make_synthetic_cohort
 import habit.recipes as recipes
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-IMAGING = REPO_ROOT / "demo_data" / "preprocessed" / "processed_images"
+IMAGING = REPO_ROOT / "demo_data" / "preprocessed"
 HABITAT_MAPS = REPO_ROOT / "demo_data" / "results" / "api" / "02_habitat_two_step"
 
 print("=== In-memory: habitat_features on two_step ===")
@@ -32,13 +32,28 @@ spec = HabitatSpec(
         {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 2},
     ),
     habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),
+    habitat_features=(
+        Spec("volume"),
+        Spec("msi"),
+        Spec("ith_score"),
+        Spec("non_radiomics"),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Spec("traditional"),
+        # Spec("whole_habitat"),
+        # Spec("each_habitat"),
+    ),
     random_seed=3,
 )
 result = recipes.two_step(cohort, spec)
 print(f"  feature columns ({len(result.features.feature_columns)}):")
 for name in result.features.feature_columns:
     print(f"    - {name}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _habitat_eye_check import eye_check_study
+eye_check_study(cohort, result)
 
 maps_ok = HABITAT_MAPS.is_dir() and any(HABITAT_MAPS.glob("*_habitats.nrrd"))
 print("=== Directory recipes (call pattern; full run in coverage) ===")
@@ -48,7 +63,8 @@ print(
 )
 print(
     "  extract_habitat_features({raw_img_folder, habitats_map_folder, "
-    "out_dir, feature_types:[traditional, msi, ith_score, ...]})"
+    "out_dir, feature_types:[volume, msi, ith_score, non_radiomics, "
+    "# traditional, # whole_habitat, # each_habitat]})"
 )
 print(
     "  traditional_radiomics({paths.images_folder, paths.out_dir, "

@@ -201,7 +201,7 @@ def _run_cohort_design(
     )
     pio.write_table(pd.concat([pooled_ids, pooled], axis=1), leg_dir / pio.CK2_COHORT)
 
-    chain = components.cohort_chain
+    chain = components.cohort_feature_preprocessor
     working = list(units_list)
     if chain is not None:
         chain.fit(pooled)
@@ -221,7 +221,7 @@ def _run_cohort_design(
     )
 
     fit_cohort = Cohort(subjects=tuple(ok_subjects), name=cohort.name)
-    model = components.fitter.fit(working, cohort=fit_cohort)
+    model = components.habitat_model_fitter.fit(working, cohort=fit_cohort)
     if chain is not None:
         model = model.with_cohort_preprocessing(chain.state, chain.spec.to_dict())
     pio.write_model(
@@ -313,7 +313,7 @@ def _run_one_step_design(
     chosen_k_by_subject: Dict[str, int] = {}
 
     for subject, units in zip(ok_subjects, units_list):
-        model = components.fitter.fit([units])
+        model = components.habitat_model_fitter.fit([units])
         chosen_k_by_subject[subject.subject_id] = int(model.n_habitats)
         assigner = model.assigner(
             spec.habitat_assigner.name, **spec.habitat_assigner.params

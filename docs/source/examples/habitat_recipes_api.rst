@@ -36,6 +36,8 @@ Coverage
 ``demo_data/results/api/`` steps ``02_habitat_two_step``,
 ``03_habitat_one_step``, ``04_habitat_direct_pooling``.
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

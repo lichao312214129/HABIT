@@ -149,6 +149,8 @@ _HABITAT_CONSUMED_TOP_KEYS: frozenset = frozenset(
         "feature_construction",
         "habitat_segmentation",
         "random_state",
+        # Optional Stage-1 geometry policy (HabitatSpec.on_geometry_mismatch).
+        "on_geometry_mismatch",
     }
     | set(_HABITAT_POLICY_KEY_MAP)
     | set(_HABITAT_OUTPUT_KEYS)
@@ -437,9 +439,10 @@ class LegacyConfigAdapter:
         Every feature-construction and habitat-segmentation block lands in
         its typed :class:`HabitatSpec` slot; execution keys become a
         :class:`RunPolicy` payload; data/output keys form their own
-        sections. Settings with no v1 slot yet (connected-component
-        post-processing, per-component seeds, plotting switches inside
-        clustering blocks) are preserved under ``legacy``.
+        sections. Enabled connected-component post-processing maps into
+        ``HabitatSpec.postprocess_*``. Remaining settings with no v1 slot
+        yet (per-component seeds, plotting switches inside clustering
+        blocks) are preserved under ``legacy``.
 
         Args:
             payload: v0 habitat YAML mapping.
@@ -475,16 +478,6 @@ class LegacyConfigAdapter:
             "output": self._translate_habitat_output(payload),
             "legacy": {},
         }
-
-        # Connected-component post-processing has no v1 slot yet; preserve it.
-        for block in ("postprocess_supervoxel", "postprocess_habitat"):
-            value = segmentation.get(block)
-            if value:
-                unmapped.setdefault("habitat_segmentation", {})[block] = value
-                warnings.append(
-                    f"habitat_segmentation.{block} has no v1 slot yet; "
-                    "preserved verbatim under 'legacy'."
-                )
 
         # Preserve every unrecognised top-level key verbatim.
         for key, value in payload.items():
@@ -578,7 +571,71 @@ class LegacyConfigAdapter:
             ),
             "random_seed": payload.get("random_state"),
         }
+        # Optional top-level key; omit when unset so the HabitatSpec default
+        # (resample_mask) applies without changing historical fingerprints.
+        if payload.get("on_geometry_mismatch") is not None:
+            spec_payload["on_geometry_mismatch"] = payload.get("on_geometry_mismatch")
+        for slot, block_name in (
+            ("postprocess_supervoxel", "postprocess_supervoxel"),
+            ("postprocess_habitat", "postprocess_habitat"),
+        ):
+            translated = self._translate_connected_component_postprocess(
+                segmentation.get(block_name),
+                block_name=block_name,
+                clustering_mode=clustering_mode,
+                warnings=warnings,
+            )
+            if translated is not None:
+                spec_payload[slot] = translated
         return spec_payload
+
+    def _translate_connected_component_postprocess(
+        self,
+        block: Any,
+        *,
+        block_name: str,
+        clustering_mode: str,
+        warnings: List[str],
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Translate a v0 connected-component postprocess block into a Spec.
+
+        ``enabled: false`` / missing / empty become ``None`` (slot omitted).
+        ``enabled: true`` becomes ``Spec(name="connected_components", ...)``.
+
+        Args:
+            block: v0 ``postprocess_supervoxel`` or ``postprocess_habitat``
+                mapping, or ``None``.
+            block_name: YAML key name, for warnings.
+            clustering_mode: Assembly strategy; supervoxel cleanup is ignored
+                outside ``two_step``.
+            warnings: Warning sink.
+
+        Returns:
+            A ``Spec.to_dict()`` payload, or ``None`` when cleanup is off.
+        """
+        if not isinstance(block, Mapping):
+            return None
+        if not bool(block.get("enabled", False)):
+            return None
+        if (
+            block_name == "postprocess_supervoxel"
+            and clustering_mode != "two_step"
+        ):
+            warnings.append(
+                f"habitat_segmentation.{block_name} is enabled but "
+                f"clustering_mode '{clustering_mode}' has no supervoxel "
+                "stage; the setting is ignored (habitat cleanup still applies "
+                "via postprocess_habitat when enabled)."
+            )
+            return None
+        params: Dict[str, Any] = {
+            "min_component_size": int(block.get("min_component_size", 30)),
+            "connectivity": int(block.get("connectivity", 1)),
+            "reassign_method": str(block.get("reassign_method", "neighbor_vote")),
+            "max_iterations": int(block.get("max_iterations", 3)),
+        }
+        return {"name": "connected_components", "params": params}
 
     def _translate_voxel_extractor(
         self, voxel_level: Mapping[str, Any], warnings: List[str]

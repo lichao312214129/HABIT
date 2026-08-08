@@ -294,7 +294,7 @@ class _DefineAndLabelWithinSubject:
         """
         # Stage-1 once: units, then fit/assign/describe without re-extraction.
         units = self.components.pipeline(assigner=None).units(subject)
-        model = self.components.fitter.fit([units])
+        model = self.components.habitat_model_fitter.fit([units])
         assigner = model.assigner(self.assigner_name, **dict(self.assigner_params))
         if self.seed is not None and isinstance(assigner, Seedable):
             assigner.set_random_state(self.seed)
@@ -323,7 +323,7 @@ def _fit_cohort_model(
         declared, its fitted state travels INSIDE the model: centroids only
         mean something in the space they were computed in.
     """
-    chain = components.cohort_chain
+    chain = components.cohort_feature_preprocessor
     if chain is not None:
         # Cohort statistics come from the pooled TRAINING units and nothing
         # else; this is the one leakage-sensitive step in habitat definition.
@@ -337,7 +337,7 @@ def _fit_cohort_model(
             )
             for unit in units
         ]
-    model = components.fitter.fit(units, cohort=cohort)
+    model = components.habitat_model_fitter.fit(units, cohort=cohort)
     if chain is not None:
         model = model.with_cohort_preprocessing(chain.state, chain.spec.to_dict())
     return model
@@ -672,7 +672,7 @@ def _fit_cohort_design(
             ],
             _AssignPrecomputedUnits(
                 components.pipeline(assigner=assigner),
-                components.extractors,
+                components.habitat_features,
                 _label_key_prefix(model),
             ),
             checkpoint=checkpoint,
@@ -881,7 +881,7 @@ def one_step(
                 components=components,
                 assigner_name=effective.habitat_assigner.name,
                 assigner_params=tuple(effective.habitat_assigner.params.items()),
-                extractors=components.extractors,
+                extractors=components.habitat_features,
                 seed=effective.random_seed,
                 key_prefix=_one_step_key_prefix(effective),
             ),
@@ -992,7 +992,7 @@ def apply_habitat_model(
             cohort,
             _LabelAndDescribe(
                 components.pipeline(assigner=assigner),
-                components.extractors,
+                components.habitat_features,
                 _label_key_prefix(model),
             ),
             backend=backend,
@@ -1048,5 +1048,6 @@ def _with_model_preprocessing(
     if state is None:
         return components
     return dataclasses.replace(
-        components, cohort_chain=CohortPreprocessingChain.from_state(state)
+        components,
+        cohort_feature_preprocessor=CohortPreprocessingChain.from_state(state),
     )

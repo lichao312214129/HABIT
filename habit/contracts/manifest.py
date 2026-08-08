@@ -51,8 +51,10 @@ _METHODS_STYLES = ("radiology", "nature")
 _COMPONENT_PHRASES: Tuple[Tuple[str, str], ...] = (
     ("voxel_feature_extractor", "voxel feature extraction"),
     ("supervoxelizer", "supervoxelization"),
+    ("postprocess_supervoxel", "supervoxel connected-component postprocessing"),
     ("habitat_model_fitter", "habitat model fitting"),
     ("habitat_assigner", "habitat assignment"),
+    ("postprocess_habitat", "habitat connected-component postprocessing"),
 )
 
 

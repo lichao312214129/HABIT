@@ -1,25 +1,21 @@
 HABIT Documentation
 =====================
 
-**HABIT** (Habitat Analysis: Biomedical Imaging Toolkit) — preprocessing → habitat segmentation → feature extraction → machine learning.
+**HABIT** — preprocess → habitat maps → features → ML.
 
 .. warning::
 
-   For research and education only. Not for clinical diagnosis or treatment.
+   Research / education only. Not for clinical diagnosis.
 
-Learning path
--------------
+Start here
+----------
 
-1. :doc:`tutorial/installation` — **Install**
-2. :doc:`tutorial/quickstart` — Run the demo
-3. :doc:`examples/index` — **Runnable v1.0 API examples** (synthetic data, real output)
-4. :doc:`gui/index` — Web GUI (under development; CLI recommended)
-5. :doc:`how_to/index` — Step-by-step with your data
-6. :doc:`api/python_api` — **Python API (v1.0)** usage guide
-7. :doc:`api/index` — **API Reference** (every public symbol)
-8. :doc:`configuration/index` — YAML reference
-9. :doc:`reference/features/index` — Feature definitions (papers)
-10. Issues → :doc:`troubleshooting/faq`
+1. :doc:`tutorial/installation` — install
+2. :doc:`tutorial/quickstart` — **run the demo** (YAML + CLI)
+3. :doc:`how_to/prepare_data` — point HABIT at **your** images
+4. :doc:`how_to/index` — each pipeline step (copy command → edit ★ → run)
+
+Python users: :doc:`tutorial/quickstart_python`. Stuck: :doc:`troubleshooting/faq`.
 
 .. toctree::
    :maxdepth: 2
@@ -28,12 +24,6 @@ Learning path
    tutorial/installation
    tutorial/quickstart
    tutorial/quickstart_python
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Web GUI
-
-   gui/index
 
 .. toctree::
    :maxdepth: 1

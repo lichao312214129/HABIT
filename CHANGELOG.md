@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-08
+
+### Added
+
+- ``habit view`` CLI and ``habit.viz.view_habitat_napari`` / overlay helpers:
+  open habitat label maps on anatomy in napari (optional ``[view]`` extra),
+  with a PNG fallback when napari is unavailable. Replaces the old GUI entry.
+- Connected-component habitat/supervoxel cleanup on the v1 path:
+  ``HabitatSpec.postprocess_habitat`` / ``postprocess_supervoxel``,
+  ``ConnectedComponentPostprocess``, L0 kernel
+  ``remove_small_connected_components``, wired through ``SubjectPipeline``
+  (in-memory cleanup before features; writers do not re-run it). YAML
+  ``enabled: true`` maps into Spec slots (default remains off).
+- Image/mask geometry alignment policy on ``HabitatSpec`` /
+  ``SubjectPipeline`` (``on_geometry_mismatch``).
+- Quickstart napari screenshots refreshed for the demo ``subj001`` view
+  path; docs note basal-slice tip for ``demo_data``.
+
+### Changed
+
+- Docs and example scripts updated for the view / napari eye-check flow and
+  habitat configuration notes for v1 postprocess ownership (B5 closed).
+
+## [1.1.0] - 2026-08-07
+
 ### Changed
 
 - **BREAKING (behaviour): ``TablePipeline`` now inherits
@@ -114,8 +139,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   ``get_params`` / ``set_params`` / ``clone`` protocol, sourced from the same
   single mapping ``spec.params`` is built from, so a searched value cannot
   disagree with the recorded fingerprint.
-
-## [1.1.0] - 2026-08-07
 
 ### Changed — BREAKING (packaging only; the public Python API is unchanged)
 

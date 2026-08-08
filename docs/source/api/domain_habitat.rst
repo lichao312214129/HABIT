@@ -201,6 +201,13 @@ Domain: ``habitat_feature_extractor``
    table = pipe.extract_features(subject, [msi, ith, vol])
    maps = cohort.map(pipe)
 
+Prefer :func:`~habit.domain.assembly.build_habitat_components` when starting
+from a :class:`~habit.spec.HabitatSpec`: attribute names on
+``HabitatComponents`` match Spec / pipeline fields
+(``voxel_feature_extractor``, ``supervoxel_feature_extractor``,
+``habitat_model_fitter``, ``habitat_features``, and the singular
+``*_feature_preprocessor`` chains). See :doc:`domain`.
+
 Direct (no-supervoxel) designs use ``voxel_units``:
 
 .. code-block:: python

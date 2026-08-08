@@ -2,9 +2,9 @@ Contributor Workflow
 ====================
 
 This page provides practical contribution guidance: environment setup, the
-test system, and three common implementation scenarios—adding a CLI command,
-adding a configuration-step schema, and using the Web GUI bridge. See
-:doc:`contributing` for general pull-request and commit conventions.
+test system, and two common implementation scenarios—adding a CLI command and
+adding a configuration-step schema. See :doc:`contributing` for general
+pull-request and commit conventions.
 
 Environment setup
 -----------------
@@ -146,7 +146,7 @@ Scenario 2: Add a configuration-step schema
 -------------------------------------------
 
 If a new algorithm has configurable ``params``, define and register a
-parameter schema to obtain **type validation** and **GUI form generation**.
+parameter schema to obtain **type validation** for YAML and API specs.
 
 **1. Define the parameter model** under ``habit/schemas/steps/``:
 
@@ -155,7 +155,7 @@ parameter schema to obtain **type validation** and **GUI form generation**.
    from pydantic import BaseModel, Field
 
    class MyStepParams(BaseModel):
-       # Each field: type + default + constraint gives validation + GUI widget.
+       # Each field: type + default + constraint drives YAML validation.
        n_clusters: int = Field(3, ge=2, description="Number of clusters")
        metric: str = Field("euclidean", description="Distance metric")
 
@@ -167,38 +167,12 @@ in ``schemas/registry.py``):
    ParamSchemaRegistry.register("habitat", "my_step", MyStepParams)
 
 **3. Result**: ``validate_step_params()`` validates the step ``params`` while
-loading configuration, and the GUI reflects the corresponding form fields from
-``schemas/reflect.py``. See :doc:`configuration_system` for details.
+loading configuration. See :doc:`configuration_system` for details.
 
 .. tip::
 
    ``BaseConfig`` uses ``extra='forbid'``. Declare every new field in the
    schema; otherwise the configuration will report an unknown field.
-
-Scenario 3: Web GUI and bridge
-------------------------------
-
-``habit-gui/`` is an optional, separate Web GUI (not checked out by default;
-see :doc:`repo_layout`). It reuses the core through two channels and **does
-not duplicate business logic**:
-
-.. mermaid::
-
-   flowchart LR
-     WEB["React UI (habit-gui/web)"] -->|HTTP| API["FastAPI (habit-gui/api)"]
-     API -->|subprocess| CLI["habit CLI (habit &lt;cmd&gt; --config)"]
-     API -->|bridge worker| BR["habit-gui/bridge"]
-     BR -->|import| SCH["habit.schemas (reflect)"]
-
-- **Execution channel**: The GUI generates YAML configuration and invokes the
-  ``habit`` CLI in a **subprocess**, producing the same behavior as the CLI.
-- **Schema channel**: ``habit-gui/bridge`` reflects parameter models from
-  ``habit.schemas`` and sends field descriptors to the frontend for
-  dynamic form rendering. **Form fields therefore remain aligned with the
-  CLI YAML schema.**
-
-This design means that adding a core component and parameter schema usually
-adds the corresponding GUI inputs without frontend changes.
 
 .. seealso::
 

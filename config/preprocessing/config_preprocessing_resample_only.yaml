@@ -26,10 +26,10 @@
 #   这是最基础、最常用的一步（不同扫描仪/序列的 spacing 往往不同）。
 #
 # 输入数据 / Input:
-#   demo_data/preprocessed/processed_images
+#   demo_data/preprocessed
 #     images/<subject>/<modality>/<file>.nii.gz
 #     masks/<subject>/<modality>/<file>.nii.gz
-#   本 DEMO 的模态键是 delay2 / delay3 / delay5（增强延迟 2/3/5 分钟），
+#   本 DEMO 的模态键是 pre_contrast / LAP / PVP / delay_3min（增强延迟 2/3/5 分钟），
 #   注意：这里不是 T1/T2！模态键必须与数据文件夹名一致。
 #
 # 路径约定 / Path convention:
@@ -44,7 +44,7 @@
 # =============================================================================
 # 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
 # EN: Data, paths and run entry
-data_dir: ../../demo_data/preprocessed/processed_images        # 输入根目录（含 images/ 与 masks/）
+data_dir: ../../demo_data/preprocessed        # 输入根目录（含 images/ 与 masks/）
 # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
 # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
 out_dir: ../../demo_data/results/preprocessing_resample_only   # 输出目录（自动创建）
@@ -71,7 +71,7 @@ preprocessing:
   resample:
     # 中文：★【必须检查】影像模态或影像清单；模态键必须与实际文件夹及后续配置完全一致。
     # EN: ★ REVIEW: Image modalities/manifest; modality keys must match folders and downstream config.
-    images: [delay2, delay3, delay5]   # 要处理的模态键（必须与数据文件夹名一致）
+    images: [pre_contrast, LAP, PVP, delay_3min]   # 要处理的模态键（必须与数据文件夹名一致）
     target_spacing: [3.0, 3.0, 3.0]    # 目标体素间距 [x, y, z]，单位 mm（越大越粗糙、越快）
     img_mode: bilinear                 # 图像插值方式：bilinear=线性(连续灰度图) / nearest=最近邻(标签图)
 # =============================================================================

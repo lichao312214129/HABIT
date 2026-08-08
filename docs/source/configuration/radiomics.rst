@@ -18,16 +18,17 @@ Command usage: :doc:`../how_to/radiomics`.
    paths:
      # params_file optional: omit to use the bundled ROI preset
      # params_file: ./parameter.yaml
-     images_folder: ../../demo_data/preprocessed/processed_images
+     images_folder: ../../demo_data/preprocessed
      out_dir: ../../demo_data/results/radiomics_traditional
 
    processing:
      n_processes: 2
      save_every_n_files: 5
      process_image_types:
-       - delay2
-       - delay3
-       - delay5
+       - pre_contrast
+       - LAP
+       - PVP
+       - delay_3min
 
    export:
      export_by_image_type: true

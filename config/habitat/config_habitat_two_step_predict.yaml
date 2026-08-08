@@ -43,7 +43,7 @@ out_dir: ../../demo_data/results/habitat_two_step/predict
 
 feature_construction:
   voxel_level:
-    method: concat(raw(delay2), raw(delay3), raw(delay5))
+    method: concat(raw(pre_contrast), raw(LAP), raw(PVP), raw(delay_3min))
     params: {}
   supervoxel_level:
     supervoxel_file_keyword: '*_supervoxel.nrrd'

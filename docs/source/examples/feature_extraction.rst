@@ -19,6 +19,9 @@ from ``habitats.parquet`` / ``habitats.csv``.
 .. literalinclude:: scripts/feature_extraction_demo.py
    :language: python
 
+The habitat half of the script ends with a **napari eye-check**.
+``HABIT_NO_VIEW=1`` skips it.
+
 Output (abbreviated)::
 
    Trained: 3 habitats, 3 maps
@@ -32,7 +35,7 @@ Output (abbreviated)::
 Traditional radiomics example
 -----------------------------
 
-Requires ``demo_data/preprocessed/processed_images/`` and PyRadiomics.
+Requires ``demo_data/preprocessed/`` and PyRadiomics.
 Use ``--dry-run`` to validate the config dict without running extraction.
 
 .. literalinclude:: scripts/traditional_radiomics_demo.py

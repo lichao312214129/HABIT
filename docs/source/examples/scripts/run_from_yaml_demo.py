@@ -79,6 +79,19 @@ spec:
   habitat_features:
     - name: volume
       params: {{}}
+    - name: msi
+      params: {{}}
+    - name: ith_score
+      params: {{}}
+    - name: non_radiomics
+      params: {{}}
+    # Heavy PyRadiomics families (opt-in; require pyradiomics):
+    # - name: traditional
+    #   params: {{}}
+    # - name: whole_habitat
+    #   params: {{}}
+    # - name: each_habitat
+    #   params: {{}}
   random_seed: 42
 
 data:
@@ -106,3 +119,11 @@ print(f"\nArtefacts under {out_dir}:")
 for path in sorted(out_dir.rglob("*")):
     if path.is_file() and not path.name.endswith(".pkl"):  # checkpoints omitted
         print(f"  {path.relative_to(out_dir)}")
+
+# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from habit.adapters import DirectoryDataSource
+from _habitat_eye_check import eye_check_study
+cohort = DirectoryDataSource(data_root, modalities=("T1", "T2"), roi="T1").load()
+eye_check_study(cohort, result)

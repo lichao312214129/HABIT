@@ -71,15 +71,30 @@ def test_raw_features_missing_modality_raises_key_error() -> None:
 
 
 @pytest.mark.unit
-def test_raw_features_geometry_mismatch_raises() -> None:
-    """Modalities on a different grid than the mask cannot be combined."""
+def test_raw_features_geometry_mismatch_resamples_by_default() -> None:
+    """Default policy resamples the ROI onto the modality grid instead of failing."""
+    subject = make_subject("P1")
+    mismatched = Geometry.from_array((4, 4, 4))
+    subject.images["T1"] = ArrayImageRef(
+        array=np.zeros((4, 4, 4)), geometry=mismatched
+    )
+    # Mask stays on the original 6^3 grid; roi_voxels resamples it onto T1.
+    field = RawVoxelFeatures(modalities=["T1"])(subject)
+    assert field.geometry.is_compatible_with(mismatched)
+
+
+@pytest.mark.unit
+def test_raw_features_geometry_mismatch_strict_raises() -> None:
+    """Strict alignment at the roi_voxels boundary still raises GeometryError."""
+    from habit.domain.voxel_features._base import roi_voxels
+
     subject = make_subject("P1")
     mismatched = Geometry.from_array((4, 4, 4))
     subject.images["T1"] = ArrayImageRef(
         array=np.zeros((4, 4, 4)), geometry=mismatched
     )
     with pytest.raises(GeometryError):
-        RawVoxelFeatures(modalities=["T1"])(subject)
+        roi_voxels(subject, "tumor", on_geometry_mismatch="strict")
 
 
 @pytest.mark.unit
