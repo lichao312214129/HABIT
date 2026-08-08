@@ -1558,8 +1558,11 @@ it falls back to a PNG. In napari, select the habitats Labels layer
 (Contour <code class="docutils literal notranslate"><span class="pre">0</span></code> = filled regions).</p>
 <p><strong>Demo pack tip:</strong> ROIs in <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> were drawn mainly on the <strong>basal</strong>
 slices. After opening the viewer, drag the <strong>axial</strong> slider near the bottom
-of the window to about <strong>slice 110</strong> — the habitat overlay appears there.
-On the default mid-volume slice the labels can look empty.</p>
+of the window to about <strong>slice 110</strong> (file / ITK-SNAP index order; HABIT
+keeps axial indices unflipped) — the habitat overlay appears there.
+On the default mid-volume slice the labels can look empty.
+Display defaults to radiological orientation
+(<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span> <span class="pre">--convention</span> <span class="pre">radiological</span></code>).</p>
 <p>For fuller 3D inspection, load the source image and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
 together in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer
 (label overlay / segmentation), not only the napari 2D slice slider.</p>

@@ -23,8 +23,10 @@ Run the demo
 
 **Demo pack tip:** ROIs were drawn mainly on the **basal** slices. In the
 viewer, drag the **axial** slider (bottom of the window) to about
-**slice 110** to see the habitat overlay. The default mid-volume slice may
-show no labels.
+**slice 110** (file / ITK-SNAP index order; HABIT keeps axial indices
+unflipped) to see the habitat overlay. The default mid-volume slice may
+show no labels. Use ``habit view --convention radiological`` (default) for
+clinical A-P / L-R layout.
 
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer

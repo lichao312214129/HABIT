@@ -53,11 +53,12 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#need-more-later">Need more later?</a></li>
@@ -1466,8 +1467,10 @@
 </div>
 <p><strong>Demo pack tip:</strong> ROIs were drawn mainly on the <strong>basal</strong> slices. In the
 viewer, drag the <strong>axial</strong> slider (bottom of the window) to about
-<strong>slice 110</strong> to see the habitat overlay. The default mid-volume slice may
-show no labels.</p>
+<strong>slice 110</strong> (file / ITK-SNAP index order; HABIT keeps axial indices
+unflipped) to see the habitat overlay. The default mid-volume slice may
+show no labels. Use <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span> <span class="pre">--convention</span> <span class="pre">radiological</span></code> (default) for
+clinical A-P / L-R layout.</p>
 <p>For fuller 3D inspection, load the source image and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
 together in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer
 (label overlay / segmentation).</p>

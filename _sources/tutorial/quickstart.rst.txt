@@ -125,8 +125,11 @@ it falls back to a PNG. In napari, select the habitats Labels layer
 
 **Demo pack tip:** ROIs in ``demo_data`` were drawn mainly on the **basal**
 slices. After opening the viewer, drag the **axial** slider near the bottom
-of the window to about **slice 110** — the habitat overlay appears there.
+of the window to about **slice 110** (file / ITK-SNAP index order; HABIT
+keeps axial indices unflipped) — the habitat overlay appears there.
 On the default mid-volume slice the labels can look empty.
+Display defaults to radiological orientation
+(``habit view --convention radiological``).
 
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
