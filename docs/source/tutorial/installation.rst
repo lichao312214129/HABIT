@@ -88,6 +88,16 @@ Install
 If ``pip`` cannot find the package on a local mirror, keep
 ``-i https://pypi.org/simple``.
 
+After install you do **not** need a git clone for the demo YAML templates.
+Create any work folder, then::
+
+   mkdir D:\my_habit_work
+   cd /d D:\my_habit_work
+   habit copy-demo-config --dest .
+
+That writes ``config/`` into your folder. Download ``demo_data/`` next to it
+(see :doc:`quickstart`); imaging packs are **not** inside the wheel.
+
 
 Optional: napari (``habit view``)
 ---------------------------------

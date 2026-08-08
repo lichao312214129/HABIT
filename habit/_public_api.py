@@ -96,6 +96,12 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "show_versions",
         "check_component",
     ),
+    # Materialize bundled demo YAML (wheel ships config/, not demo_data/).
+    "api.demo_config": (
+        "copy_demo_config",
+        "demo_config_root",
+        "iter_demo_config_files",
+    ),
     "api.preprocessing": (
         "PreprocessingConfig",
         "run_preprocess",

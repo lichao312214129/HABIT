@@ -13,11 +13,27 @@
 # limitations under the License.
 #
 """
-Bundled, importable resource data shipped inside the HABIT package.
+Public API for materializing bundled demo YAML configs.
 
-* ``habit/resources/radiomics`` — default PyRadiomics parameter presets so
-  ``params_file`` can be omitted (see :mod:`habit.utils.radiomics_preset_utils`).
-* ``habit/resources/demo_config`` — mirror of the repository ``config/`` demo
-  YAML tree for ``habit.copy_demo_config`` / ``habit copy-demo-config``
-  (see :mod:`habit.utils.demo_config_utils`). ``demo_data/`` is never packaged.
+Thin facade over :mod:`habit.utils.demo_config_utils` so third parties can::
+
+    from habit import copy_demo_config
+    copy_demo_config(r"D:/my_habit_work")
+
+without depending on CLI or a repository clone. ``demo_data/`` is never part
+of the wheel; download it into the same work directory separately.
 """
+
+from __future__ import annotations
+
+from habit.utils.demo_config_utils import (
+    copy_demo_config,
+    demo_config_root,
+    iter_demo_config_files,
+)
+
+__all__ = [
+    "copy_demo_config",
+    "demo_config_root",
+    "iter_demo_config_files",
+]

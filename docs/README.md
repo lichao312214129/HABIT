@@ -26,6 +26,15 @@ Demo pack download links / extract codes live in `source/conf.py`
 User-facing unpack steps: `tutorial/quickstart.rst`,
 `how_to/before_you_start.rst`, `how_to/train_model.rst`.
 
+Demo **YAML** templates ship inside the wheel under
+`habit/resources/demo_config/` (mirror of repo-root `config/`). After editing
+files under repo `config/`, refresh the package tree before release::
+
+    python scripts/sync_demo_config.py
+
+Users materialize them with `habit copy-demo-config` / `habit.copy_demo_config`.
+Never package `demo_data/` into the wheel.
+
 ## Structure
 
 | Section | Path |

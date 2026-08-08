@@ -1,0 +1,262 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：本文件在一张或多张特征表上进行 K 折交叉验证。每一折独立执行特征处理、
+#      模型训练和评估，因此验证折不会参与该折任何步骤的拟合。
+# EN: This template performs K-fold cross-validation. Feature processing, model
+#     fitting, and evaluation are isolated within each fold.
+#
+# 运行 / Run: habit model -c <配置文件.yaml> 或 habit cv -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 中文：在特征表上做 K 折交叉验证建模与评估（ROC/DCA 等）。
+# EN:   K-fold CV training/evaluation on a feature CSV.
+#
+# 运行 / Run:
+#   habit cv -c config/machine_learning/config_machine_learning_kfold_demo.yaml
+#
+# 【你只需要改标了 ★ 的项】
+#   ★ 1. input.path / subject_id_col / label_col
+#   ★ 2. output
+#   ★ 3.（研究方案确认）n_splits、特征处理和 models；不要在查看结果后临时修改
+#
+# 【YAML 注意】
+#   - 空格缩进；冒号后有空格；true/false/null 小写
+#   - 路径一般不用引号；仅含空格或特殊字符时加引号，如 "D:/my data/file.csv"
+#   - Windows 推荐正斜杠；相对路径相对本 YAML 目录解析
+
+# 修改顺序：先完成第 1 区的数据与结局，再在分析前锁定第 2、3 区的方法学设置，最后选择结果输出。
+# EN: Edit data first, lock study-design settings before analysis, then choose output deliverables.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、结局与输出
+# EN: Data, outcome, and output
+input:
+  - # ★ 特征表 CSV 路径
+    # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+    # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
+    path: ../../demo_data/ml_data/breast_cancer_dataset.csv
+    # 多表合并时给本表特征加前缀，避免重名；单表可留 radiomics_ 或改为 ""
+    name: radiomics_
+    # ★ 受试者 ID 列名（每行唯一）
+    # 中文：★【必须修改】CSV 中唯一受试者 ID 的列名；必须与实际表头完全一致。
+    # EN: ★ MUST EDIT: Unique subject-ID column in the CSV; must exactly match its header.
+    subject_id_col: subject_id
+    # ★ 标签列名（二分类通常为 0/1）
+    # 中文：★【必须修改】真实结局/标签列名；二分类通常使用 0 和 1。
+    # EN: ★ MUST EDIT: True outcome/label column; binary classification normally uses 0 and 1.
+    label_col: label
+    # 留空=使用除 ID/标签外的全部特征；也可写成 [feat1, feat2]
+    # 中文：特征列限制；留空/null 通常表示自动使用可用特征，指定列表时必须与表头一致。
+    # EN: Feature-column restriction; empty/null usually auto-selects available features; named columns must match headers.
+    features:
+
+# ★ 结果输出目录
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
+output: ../../demo_data/results/ml/kfold
+
+# =============================================================================
+
+# =============================================================================
+# 2. ★【按研究方案确认】验证设计与特征处理 / Study design and feature processing
+# EN: Lock these settings before inspecting results because they affect estimated performance and feature definitions.
+# --- 2.1 Cross-validation design / 交叉验证设计 ---
+# 折数。正整数，常用 5 或 10；每个结局类别必须有足够受试者分配到每一折。
+# Why: 更多折通常提高每折的训练样本比例，但会增加运行时间，也可能使小队列的估计更不稳定。
+# EN: Number of folds. More folds increase per-fold training data but cost time and can destabilize small cohorts.
+n_splits: 5
+# 是否按结局分层。true 使每折阳性/阴性比例尽量接近全队列，类别不平衡时通常应保持 true。
+# Why: 不分层可能使个别折事件过少，从而无法稳定评估敏感度、AUC 或校准。
+# EN: Preserve outcome proportions across folds. true is normally appropriate for imbalanced outcomes.
+stratified: true
+
+# 全局随机种子。整数；控制折分，并由未单独设定种子的随机模块继承。
+# Why: 固定种子使同一方案可复现；修改种子应作为预先声明的敏感性分析，而不是为了选择更好结果。
+# EN: Global integer seed. Change it only for a prespecified sensitivity analysis, never to optimize observed results.
+random_state: 42
+
+# --- 2.2 Feature scaling / 特征标准化 ---
+# 中文：标准化在每个训练折上拟合，验证折只应用训练折得到的统计量，避免信息泄漏。
+# EN: Scaling is fitted on each training fold only, then applied to that fold's validation data.
+normalization:
+  # 标准化方法。z_score 将特征变为均值 0、标准差 1，避免量纲大的特征主导距离或正则化模型。
+  # Values: z_score, min_max, robust, max_abs, normalizer, quantile, power.
+  # EN: Scaling method. z_score is a robust default for mixed-unit clinical and radiomics predictors.
+  method: z_score
+
+# 重采样仅在训练折内拟合；验证/测试不会改变行数
+# ⚠ enabled: true 需要 imbalanced-learn；类别极不平衡时再开
+# 中文：类别不平衡重采样设置；仅在训练数据内执行，开启前确认研究方案。
+# EN: Class-imbalance resampling; it runs only on training data. Confirm it in the study protocol.
+# --- 2.3 类别不平衡处理 / resampling ---
+resampling:
+  # 中文：功能开关；false 表示不执行该模块，true 表示使用其下方设置。
+  # EN: Feature switch; false skips this module and true uses its nested settings.
+  enabled: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  method: random_over   # random_over / random_under / smote
+  # 重采样插入位置：before_feature_selection、before_normalization、after_normalization 或 before_model。
+  # Why: 位置决定特征筛选和标准化看到的数据分布，因而会改变最终模型。
+  # EN: Pipeline insertion point; it changes the distribution seen by selectors and scalers.
+  position: before_model
+  # 目标少数类/多数类比例，必须大于 0；1.0 表示希望训练折两类数量相同。
+  # EN: Target minority-to-majority ratio (> 0). 1.0 requests balanced training-fold class counts.
+  ratio: 1.0
+  # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+  # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+  random_state: 42
+
+# 特征选择在每一折内进行，避免泄露
+# 中文：特征选择步骤，按列表顺序依次执行；应只在训练折内拟合以避免信息泄露。
+# EN: Feature-selection steps run in list order and must be fitted inside training folds to avoid leakage.
+# --- 2.4 特征筛选 / feature_selection_methods ---
+feature_selection_methods:
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  - method: correlation
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 两个特征绝对相关性达到该阈值时视为冗余。常用范围 0–1；0.80 是教学示例。
+      # EN: Absolute-correlation cutoff (usually 0–1); 0.80 is an example, not a universal optimum.
+      threshold: 0.80
+      # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+      # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+      # 相关性指标。spearman 适合单调但不一定线性的关系，也较少受极端值影响。
+      # EN: Correlation metric. Spearman suits monotonic, potentially non-linear relationships.
+      method: spearman
+      # 是否输出相关性诊断图；它只用于审阅筛选过程，不改变筛选规则。
+      # EN: Export a diagnostic plot; it documents but does not alter selection.
+      visualize: true
+      # false 表示在 z-score 后执行本步骤；顺序会影响结果，须在研究方案中固定。
+      # EN: false runs this step after z-score; lock this order in the study protocol.
+      before_z_score: false
+  # 中文：所选方法名称；可选值受所在模块限制，修改前请查阅该模块的完整说明。
+  # EN: Selected method; allowed values depend on this module. Read its full documentation before changing.
+  - method: variance
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # true 表示在 z-score 前计算方差，避免标准化后各特征方差趋同而失去筛选意义。
+      # EN: Compute variance before z-score so scaling does not make variances artificially similar.
+      before_z_score: true
+      # 保留方差最高的特征数。正整数，必须小于训练折中可用特征数。
+      # EN: Number of highest-variance features to retain; it must be below available training-fold features.
+      top_k: 20
+      # 中文：是否输出特征方差图；用于检查低方差筛选，不改变入选规则。
+      # EN: Whether to export a feature-variance plot for checking; it does not alter selection.
+      plot_variances: true
+
+# =============================================================================
+
+# =============================================================================
+# 3. ★【按研究方案确认】候选模型 / Candidate models
+# 中文：所有列出的模型都在相同交叉验证折上训练和评估。建议只纳入有临床或方法学依据的候选模型，
+#      避免因反复比较大量模型而高估性能。
+# EN: All listed models use identical folds. Include only clinically or
+# methodologically justified candidates to avoid selection bias from many comparisons.
+models:
+  # --- 3.1 Logistic regression / 逻辑回归 ---
+  # 线性、可解释的二分类基线模型；适合特征数已控制且需要报告方向和比值比的研究。
+  # EN: Interpretable linear baseline for binary outcomes after dimensionality control.
+  LogisticRegression:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 整数随机种子；控制随机化求解过程。保持固定以便复现实验。
+      # EN: Integer seed for stochastic solver behavior; retain it for reproducibility.
+      random_state: 42
+
+      # 最大优化迭代次数。仅在日志提示不收敛时增大；增大它不等于增加模型复杂度。
+      # EN: Maximum optimizer iterations. Increase only after a convergence warning.
+      max_iter: 1000
+
+      # 正则化强度的倒数，必须为正；值越小，正则化越强，可降低过拟合但可能欠拟合。
+      # EN: Inverse regularization strength (> 0). Smaller values apply stronger regularization.
+      C: 1.0
+      # 中文：`penalty` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `penalty` is a setting for this module; retain the example default initially and document any change.
+      # 正则化类型。l2 通常稳定；可用取值受 solver 限制，修改前必须确认二者兼容。
+      # EN: Penalty type. l2 is a stable default; verify compatibility with the chosen solver.
+      penalty: "l2"
+      # 中文：`solver` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `solver` is a setting for this module; retain the example default initially and document any change.
+      # 优化器。lbfgs 支持此处的 l2 设置；不同优化器支持的 penalty 不同。
+      # EN: Optimizer. lbfgs supports this l2 setup; permitted penalties vary by solver.
+      solver: "lbfgs"
+  # 中文：`RandomForest` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `RandomForest` is a setting for this module; retain the example default initially and document any change.
+  # --- 3.2 Random forest / 随机森林 ---
+  RandomForest:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      n_estimators: 100
+      max_depth: null
+      # 中文：`max_features` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+      # EN: `max_features` is a setting for this module; retain the example default initially and document any change.
+      max_features: "sqrt"
+  # 中文：`XGBoost` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `XGBoost` is a setting for this module; retain the example default initially and document any change.
+  # --- 3.3 XGBoost / 梯度提升树 ---
+  XGBoost:
+    # 中文：该方法的参数集合；首次使用应保持当前默认值，修改前请记录研究依据。
+    # EN: Parameter set for this method; keep defaults initially and document any study-driven change.
+    params:
+      # 中文：随机种子；保持固定可复现结果，除非研究设计明确要求改变。
+      # EN: Random seed; keep it fixed for reproducibility unless the study design requires otherwise.
+      random_state: 42
+      n_estimators: 100
+      max_depth: 3
+      # 中文：迭代模型的学习率；较小通常需更多迭代，保持示例值作为起点。
+      # EN: Learning rate for iterative models; smaller values usually need more iterations. Keep the example as a start.
+      learning_rate: 0.1
+  # 更多模型示例（需要时取消注释）:
+  # KNN:
+  #   params:
+  #     n_neighbors: 5
+  #     weights: "uniform"
+
+# =============================================================================
+# 4. 结果保存与可视化 / Results, saved models, and visualization
+# =============================================================================
+# 中文：本区故意放在最后，便于在数据、研究方案和模型都确认后，再集中决定需要交付与核查的结果。
+# EN: This final section collects deliverables after data, study design, and models have been confirmed.
+
+# 是否生成评价图。true 时按 visualization.plot_types 输出图形；不影响模型训练或折分。
+# EN: Generate evaluation figures. true uses visualization.plot_types and does not alter fitting or folds.
+is_visualize: true
+
+# 是否保存每一折训练出的模型。K 折会产生多个模型并增加磁盘占用；仅在复核或明确部署需要时开启。
+# EN: Save each fold model. This consumes disk space; enable only for review or a defined deployment purpose.
+is_save_model: false
+
+visualization:
+  # 可视化总开关。false 时不输出下方图形，即使 is_visualize 为 true。
+  # EN: Master visualization switch. false suppresses listed figures even when is_visualize is true.
+  enabled: true
+
+  # 输出图类型。roc 评估区分度；calibration 检查预测概率与实际风险的一致性；
+  # confusion 展示指定阈值的分类错误；dca 评估不同临床阈值下的净获益。
+  # Why: 图形应由预先定义的临床问题决定，不应依据图形外观临时增删。
+  # EN: Select figures for prespecified clinical questions, not according to their post-hoc appearance.
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap

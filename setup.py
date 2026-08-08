@@ -187,6 +187,9 @@ setup(
         # Bundled PyRadiomics parameter presets (default params_file fallbacks).
         "habit": ["py.typed"],
         "habit.resources.radiomics": ["*.yaml"],
+        # Demo YAML tree mirrored from repo ``config/`` (not demo_data).
+        # Nested paths are also covered by MANIFEST.in + include_package_data.
+        "habit.resources.demo_config": ["**/*"],
     },
     cmdclass={"build_ext": _OptionalBuildExt},
     ext_modules=list(_extension_modules()),

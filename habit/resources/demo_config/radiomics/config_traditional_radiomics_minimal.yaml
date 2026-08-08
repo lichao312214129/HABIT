@@ -1,0 +1,69 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit radiomics -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# 0. 最小可运行配置 / Minimal — 传统影像组学
+# 完整说明见 config_traditional_radiomics.yaml
+# 运行: habit radiomics -c config/radiomics/config_traditional_radiomics_minimal.yaml
+#
+# 【YAML】路径一般不用引号；有空格时才加，如 "D:/my data"
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
+# 中文：`paths` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `paths` is a setting for this module; retain the example default initially and document any change.
+paths:
+  # 中文：★【必须修改】影像根目录，通常应同时包含 images/ 与 masks/ 子目录。
+  # EN: ★ MUST EDIT: Image root, usually containing both images/ and masks/ folders.
+  images_folder: ../../demo_data/preprocessed  # ★ 含 images/ 与 masks/
+  # 中文：★【必须修改】结果输出目录；不存在时会自动创建，请确保有写入权限。
+  # EN: ★ MUST EDIT: Output directory. It is created when absent; ensure write permission.
+  out_dir: ../../demo_data/results/radiomics_traditional         # ★ 输出
+# =============================================================================
+
+# =============================================================================
+# 2. 常用流程与研究设置 / Common workflow and study settings
+# EN: Common workflow and study settings
+# 中文：`processing` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `processing` is a setting for this module; retain the example default initially and document any change.
+processing:
+  # 中文：并行进程数；数值过大可能耗尽内存。普通电脑建议从 1–2 开始。
+  # EN: Parallel process count; too large can exhaust memory. Start with 1–2 on ordinary PCs.
+  n_processes: 2
+  # 中文：★【必须修改】要提取特征的模态名列表；必须与 images 下的目录名一致。
+  # EN: ★ MUST EDIT: Modalities for extraction; they must match directories under images.
+  # --- 2.1 process_image_types ---
+  process_image_types:   # ★ 模态名=文件夹名
+    - pre_contrast
+    - LAP
+    - PVP
+    - delay_3min
+# 中文：`export` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `export` is a setting for this module; retain the example default initially and document any change.
+export:
+  # 中文：`export_by_image_type` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_by_image_type` is a setting for this module; retain the example default initially and document any change.
+  export_by_image_type: true
+  # 中文：`export_combined` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_combined` is a setting for this module; retain the example default initially and document any change.
+  export_combined: true
+  # 中文：`export_format` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `export_format` is a setting for this module; retain the example default initially and document any change.
+  export_format: csv
+  # 中文：`add_timestamp` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+  # EN: `add_timestamp` is a setting for this module; retain the example default initially and document any change.
+  add_timestamp: false
+# =============================================================================

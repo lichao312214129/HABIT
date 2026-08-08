@@ -155,6 +155,25 @@ def migrate_config(
     run_migrate_config(config, output, dry_run, workflow)
 
 
+@cli.command('copy-demo-config')
+@click.option(
+    '--dest', '-d',
+    type=click.Path(file_okay=False),
+    default='.',
+    show_default=True,
+    help='Work directory that will receive a config/ subdirectory',
+)
+@click.option(
+    '--overwrite',
+    is_flag=True,
+    help='Overwrite files under an existing config/ directory',
+)
+def copy_demo_config_cmd(dest: str, overwrite: bool) -> None:
+    """Copy bundled demo YAML configs into <dest>/config/ (no demo_data)"""
+    from habit.commands.cmd_copy_demo_config import run_copy_demo_config
+    run_copy_demo_config(dest, overwrite=overwrite)
+
+
 @cli.command('preprocess')
 @config_option()
 def preprocess(config):

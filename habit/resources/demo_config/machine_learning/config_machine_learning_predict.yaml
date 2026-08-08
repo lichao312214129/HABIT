@@ -1,0 +1,93 @@
+# =============================================================================
+# 0. 文件说明 / Overview
+# 中文：首次使用时，只修改带 ★【必须修改】的字段；其余参数先保持默认。
+# EN: For a first run, edit only fields marked ★ MUST EDIT and keep other defaults.
+#
+# 运行 / Run: habit model -c <配置文件.yaml> 或 habit cv -c <配置文件.yaml>
+#
+# 【YAML 防错 / YAML safety】
+#   - 仅用空格缩进，不用 Tab；冒号后必须有一个空格：key: value
+#   - true / false / null 必须小写
+#   - 路径通常无需引号；含空格或 # : * 等特殊字符时才使用双引号
+#       D:/data/images 可以；"D:/my data/images" 必须加引号
+#   - Windows 路径推荐使用正斜杠 /；相对路径以本 YAML 文件夹为起点
+#   - 修改后先运行：habit check-config -c <本文件.yaml>
+
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# Path convention: relative paths (../, ../../) resolve from this YAML file's directory,
+# not the shell cwd. Example: ../../demo_data/... => repository demo_data/.
+# Machine Learning Configuration — Prediction (MLConfig)
+#
+# Usage:
+#   habit model -c config/machine_learning/config_machine_learning_predict.yaml
+#   # Optional override: habit model -c ... --mode predict
+#
+# Requires a pipeline saved by train mode, e.g.:
+#   .../models/LogisticRegression_final_pipeline.pkl
+#
+# Train first with config_machine_learning_clinical.yaml (or config_machine_learning.yaml).
+
+# 中文：运行模式：train 用当前数据训练；predict 使用已保存的 pipeline 推断。
+# EN: Run mode: train fits a model; predict uses an existing pipeline.
+# =============================================================================
+
+# =============================================================================
+# 1. ★【必须修改 / MUST EDIT】数据、路径与运行入口
+# EN: Data, paths and run entry
+run_mode: predict
+# Path to saved pipeline (*_final_pipeline.pkl); resolved relative to this YAML file
+# 中文：★【必须修改】已训练 pipeline 的 .pkl 路径；仅 predict 模式需要。
+# EN: ★ MUST EDIT: Path to the trained .pkl pipeline; required only for predict mode.
+pipeline_path: ../../demo_data/results/ml/clinical/models/LogisticRegression_final_pipeline.pkl
+# Predict mode uses input[0] only
+# 中文：★【必须检查】输入数据配置；多表时每一项都要填写路径、ID 列和标签列。
+# EN: ★ REVIEW: Input-data configuration; for multiple tables, complete path, ID and label in each item.
+input:
+  # 中文：★【必须修改】文件或目录路径；相对路径以本 YAML 所在文件夹为起点解析。
+  # EN: ★ MUST EDIT: File or directory path; relative paths resolve from this YAML file.
+  - path: ../../demo_data/ml_data/clinical_feature.csv
+    name: clinical_
+    # 中文：★【必须修改】CSV 中唯一受试者 ID 的列名；必须与实际表头完全一致。
+    # EN: ★ MUST EDIT: Unique subject-ID column in the CSV; must exactly match its header.
+    subject_id_col: subject_id
+    # 中文：★【必须修改】真实结局/标签列名；二分类通常使用 0 和 1。
+    # EN: ★ MUST EDIT: True outcome/label column; binary classification normally uses 0 and 1.
+    label_col: label
+# 中文：★【必须修改】本流程的结果输出目录；与 input 数据目录分开保存。
+# EN: ★ MUST EDIT: Workflow output directory, kept separate from input data.
+output: ../../demo_data/results/ml/clinical/predictions
+# Optional: compute metrics when label_col is present in the data file
+evaluate: true
+# 中文：`output_label_col` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `output_label_col` is a setting for this module; retain the example default initially and document any change.
+output_label_col: predicted_label
+# 中文：`output_prob_col` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `output_prob_col` is a setting for this module; retain the example default initially and document any change.
+output_prob_col: predicted_probability
+# probability_class_index: null
+# binary_positive_class_index: 1
+# =============================================================================
+# 4. 结果可视化 / Results visualization (predict)
+# 中文：predict 模式下，评价图仅在 evaluate=true 且输入含真实标签时生成。
+# EN: In predict mode, evaluation figures are written only when evaluate=true
+#     and the input table contains ground-truth labels.
+# =============================================================================
+# 中文：是否生成评价图；无标签时即使为 true 也不会出 ROC/校准等图。
+# EN: Whether to generate evaluation figures; without labels, ROC/calibration stay off.
+is_visualize: true
+# 中文：`is_save_model` 是当前模块的配置项；首次运行请保留示例默认值，修改后记录原因。
+# EN: `is_save_model` is a setting for this module; retain the example default initially and document any change.
+is_save_model: true
+# 中文：图形输出设置；图中的语言保持英文，便于论文与跨团队交流。
+# EN: Plot-output settings; plot text remains English for publication and cross-team use.
+visualization:
+  # EN: Enable every implemented evaluation figure, including the slower SHAP explanation plot.
+  plot_types:
+    - roc
+    - dca
+    - calibration
+    - pr
+    - confusion
+    - shap
+# =============================================================================
