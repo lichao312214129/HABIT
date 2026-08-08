@@ -1,0 +1,45 @@
+# Copied to the gh-pages worktree root as `.gitignore` during deploy.
+# Protects against accidentally committing the source tree when someone
+# checks out `gh-pages` inside the HABIT repo working directory.
+
+# Source / tooling (must never appear on GitHub Pages)
+/habit/
+/tests/
+/config/
+/scripts/
+/demo_data/
+/docs/
+/.cursor/
+/.github/
+/.vscode/
+/.idea/
+
+# Python / packaging clutter
+/.pytest_cache/
+/.mypy_cache/
+/.ruff_cache/
+/.tox/
+/.venv/
+/venv/
+/env/
+/__pycache__/
+/*.egg-info/
+/dist/
+/build/
+/wheelhouse/
+/pyproject.toml
+/setup.py
+/setup.cfg
+/MANIFEST.in
+/requirements*.txt
+/environment*.yml
+/Makefile
+/LICENSE*
+/NOTICE*
+/*.py
+/*.sh
+/*.bat
+/*.ps1
+
+# Keep Pages markers (explicit; Sphinx HTML is otherwise unignored)
+!.nojekyll

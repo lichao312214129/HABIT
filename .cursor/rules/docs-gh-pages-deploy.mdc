@@ -1,56 +1,98 @@
 ---
-description: After every local git commit, rebuild Sphinx HTML (py310) and deploy to gh-pages
+description: After agent commits that change docs (especially when pushing main), rebuild Sphinx HTML with py310 and deploy to gh-pages via a temporary worktree
 alwaysApply: true
 ---
 
-# Docs → GitHub Pages（提交后必部署）
+# Docs → GitHub Pages（权威部署清单）
 
 站址：https://lichao312214129.github.io/HABIT/  
 Pages 源：分支 `gh-pages` / 根目录。
 
-用户固定偏好：**本仓库中凡由 agent 创建的 git commit（尤其推到 main），提交完成后必须本地重建 Sphinx HTML 并推送到 `gh-pages`。** 即使用户说的是「每次提交都要」——也按此执行，不要假设「小改动不影响文档」而跳过。发布/发版时同样执行。
+本文件是 **alwaysApply** 权威 checklist。agent 改动文档并提交（尤其推到 `main`）后，必须按此本地构建并推送 `gh-pages`。**不以** `.github/workflows/docs.yml` 或其它 CI 代替本次本地推送。
 
-权威路径是**本地 deploy**；`.github/workflows/docs.yml` 可能仍存在，但**不以 Actions 代替**本次本地推送。
+安装 UX 截图等源素材放在 **main** 的 `docs/source/_static/images/`，不要放进 `gh-pages` 源树。
+
+## 何时必须部署
+
+- agent 创建/推送的 commit 改动了 `docs/source/**`、文档相关规则，或用户明确要求发布文档。
+- 即使用户说「每次提交都要」——也执行；不要假设「小改动不影响站点」而跳过。
+- 发布/发版时同样执行。
+- 若本次只改 `.cursor/rules` / `docs/gh-pages.gitignore` / `docs/README.md` 指针且不改 Sphinx 源，**不必**全站 redeploy（本规则文件自身的提交即属此类）。
 
 ## 硬约束
 
-1. **禁止**把 `docs/build/html` 或任何生成 HTML 提交进 `main`。
-2. 构建必须用 `py310`（见 `runtime-environment.mdc`）；勿用 PATH 上的 base `sphinx-build`。
-3. 部署用 **git worktree** 指向 `gh-pages`，勿在 `main` 工作树里 checkout 该分支污染状态。
-4. **Never force-push** `gh-pages` 或 `main`。
-5. 勿把无关脏文件一并提交；deploy 只动 gh-pages worktree。
+1. `gh-pages` = **仅**已发布的 Sphinx HTML 站点 + `.nojekyll`（及 worktree 根 `.gitignore`）。**禁止**提交 `habit/`、`docs/source/`、`docs/`、`config/`、`demo_data/`、`tests/`、`scripts/`、`developer/`、`.cursor/`、`.github/`、`pyproject.toml` 等源码/工程树。
+2. **Never force-push** `gh-pages` 或 `main`。
+3. **禁止**长期保留 `F:/work/habit_main`、永久 `habit_gh-pages` 等第二工作区。只用**临时** git worktree，结束后立刻 `git worktree remove`。
+4. **禁止**在 `F:/work/habit_project` 主工作树里 `git switch gh-pages` / `git checkout gh-pages`（未跟踪的 `habit/` 等会叠进站点分支，极易误提交）。保持主树在 `main`；worktree 用例如 `F:/work/habit_gh-pages`。
+5. 构建只用 py310：`E:\conda\mconda\envs\py310\python.exe -m sphinx ...`。勿用 PATH 上的 base `sphinx-build`。
+6. 文档变更提交后必须本地 build + push `gh-pages`；CI **不是**替代。
+7. 尽量不要把用户的 Cursor 工作区根留在 `gh-pages` 上；deploy 完回到 `main` 工作树并删掉临时 worktree。
 
-## 流程（PowerShell）
+## gh-pages 内容边界
+
+**允许（allowlist）**：`index.html`、其它 Sphinx `*.html`、`searchindex.js`、`objects.inv`、`.buildinfo`、`.nojekyll`、`_static/`、`_images/`、`_sources/`、`_modules/`、文档章节目录（`api/`、`tutorial/`、`how_to/`、`configuration/`、`reference/`、`development/` 等）、由 `docs/gh-pages.gitignore` 复制来的根 `.gitignore`。
+
+**禁止（denylist）**：上列硬约束中的源码/数据/工具路径。`git status` 一旦出现 denylist → **中止提交**，清理后再推。
+
+防护文件：`docs/gh-pages.gitignore`（在 main 上维护）→ deploy 时复制为 worktree 根 `.gitignore`。
+
+## 推荐流程（PowerShell）
+
+前置：`F:/work/habit_project` 在 `main`，文档改动已 commit。
 
 ```powershell
-# 1) Build (from docs/)
-cd f:\work\habit_project\docs
-$env:PYTHONPATH = "f:\work\habit_project"   # if autodoc needs habit
+# 0) Stay on main in the HABIT working tree
+cd F:\work\habit_project
+git status -sb   # expect main; do NOT checkout gh-pages here
+
+# 1) Build with py310 (use -E only when incremental build is stale; full -E can take several minutes)
+cd docs
+$env:PYTHONPATH = "F:\work\habit_project"
 & "E:\conda\mconda\envs\py310\python.exe" -m sphinx -M html source build
-# Expected: 0 errors, 0 warnings. Output: docs/build/html
+# Expected: 0 errors, 0 warnings → docs/build/html
+# If Sphinx says "no targets out of date" after .rst edits:
+#   Remove-Item -Recurse -Force build\doctrees
+#   or rebuild with -E, or touch the changed source files
 
-# Or: $env:SPHINXBUILD = "E:\conda\mconda\envs\py310\Scripts\sphinx-build.exe"
-#     cmd /c "make.bat html"
+# 2) Spot-check key pages/images under docs/build/html (index, changed how-tos, _static/images)
 
-# 2) Worktree + copy (repo root)
-cd f:\work\habit_project
+# 3) Temporary worktree (NOT a long-lived F:\work\habit_main)
+cd F:\work\habit_project
 git fetch origin gh-pages
-git worktree add ..\habit_gh-pages gh-pages
-# Clear old site files in worktree root (keep .git); then:
-Copy-Item -Path "docs\build\html\*" -Destination "..\habit_gh-pages\" -Recurse -Force
-# Ensure GitHub Pages serves without Jekyll:
-New-Item -ItemType File -Path "..\habit_gh-pages\.nojekyll" -Force | Out-Null
+git worktree add F:\work\habit_gh-pages gh-pages
+# Clear old site files in worktree root (keep .git), then:
+Get-ChildItem F:\work\habit_gh-pages -Force |
+  Where-Object { $_.Name -ne '.git' } |
+  Remove-Item -Recurse -Force
+Copy-Item -Path "docs\build\html\*" -Destination "F:\work\habit_gh-pages\" -Recurse -Force
+if (Test-Path "docs\gh-pages.gitignore") {
+  Copy-Item -Path "docs\gh-pages.gitignore" -Destination "F:\work\habit_gh-pages\.gitignore" -Force
+}
+New-Item -ItemType File -Path "F:\work\habit_gh-pages\.nojekyll" -Force | Out-Null
 
-# 3) Commit + push gh-pages
-cd ..\habit_gh-pages
-git add -A
-git status
-git commit -m "docs: publish Sphinx HTML to GitHub Pages"
-git push origin gh-pages
+# 4) Commit + push HTML only
+git -C F:\work\habit_gh-pages add -A
+git -C F:\work\habit_gh-pages status
+# MUST show only HTML/site paths — abort if habit/, docs/, tests/, config/, etc. appear
+git -C F:\work\habit_gh-pages commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" -m "docs: publish Sphinx HTML to GitHub Pages"
+git -C F:\work\habit_gh-pages push origin gh-pages
 
-# 4) Cleanup
-cd f:\work\habit_project
-git worktree remove ..\habit_gh-pages
+# 5) Remove temp worktree (mandatory)
+cd F:\work\habit_project
+git worktree remove F:\work\habit_gh-pages
+
+# 6) Push main if ahead
+git push origin main
+
+# 7) Tell user to hard-refresh https://lichao312214129.github.io/HABIT/
 ```
 
-若 worktree 路径已占用，先 `git worktree list` 清理或换目录名。推送后站点通常数分钟内更新。
+若 `F:\work\habit_gh-pages` 已占用：`git worktree list` 后 `git worktree remove` 或换临时目录名。
+
+## 排障
+
+- **增量未更新**：删 `docs/build/doctrees`，或 `sphinx -E`，或 touch 已改 `.rst`。
+- **git push SSL_ERROR_SYSCALL / 网络失败**：常见于 VPN；关掉 VPN 后重试 push（勿 force-push）。
+- **误在主树 checkout 了 gh-pages**：不要 `git add -A`；切回 `main`，改用临时 worktree 流程。
+- **`docs/gh-pages.gitignore` 在 main 缺失**：从已知内容恢复/补回 main（deploy 防护的一部分）；不要依赖可能被删的 `origin/cursor/*` 云分支。
