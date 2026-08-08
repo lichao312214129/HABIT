@@ -1,5 +1,5 @@
 Quickstart: run the demo (YAML + CLI)
-=====================================
+======================================
 
 No Python required. Install HABIT first (:doc:`installation`).
 You do **not** need a git clone: ``pip install habitat-analysis`` is enough.
@@ -64,7 +64,7 @@ Download ``ml_data.zip`` and extract so ``demo_data/ml_data/`` sits next to
 extract into ``demo_data/``.
 
 3. Open a conda terminal in ``<work_dir>``
------------------------------------------
+------------------------------------------
 
 HABIT must run inside the activated conda env. Full guide:
 :doc:`installation`.
