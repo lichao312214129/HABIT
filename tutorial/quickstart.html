@@ -1549,7 +1549,11 @@ results and clustering curves):</p>
 <span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">feature_extraction</span><span class="o">/</span><span class="n">config_extract_features_demo</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>The last command needs the <strong>ML pack</strong> (<code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code>):</p>
+<p>The last command needs the <strong>ML pack</strong> (<code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code>). If you
+skipped it in step 2: <a class="reference external" href="https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp">Download ml_data.zip</a> — extract code: atnp.
+Extract so <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> sits next to <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/</span></code>
+under <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> (if the zip top level is <code class="docutils literal notranslate"><span class="pre">ml_data/</span></code>, extract into
+<code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">model</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">machine_learning</span><span class="o">/</span><span class="n">config_machine_learning_radiomics_minimal</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">mode</span> <span class="n">train</span>
 </pre></div>
 </div>
