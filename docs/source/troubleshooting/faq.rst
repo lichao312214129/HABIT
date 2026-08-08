@@ -4,8 +4,10 @@ FAQ
 Install
 -------
 
-**``habit`` not found** — activate the env (``conda activate habit``), then
-``habit --version``. See :doc:`../tutorial/installation`.
+**``habit`` not found** — you are not in the conda env. On Windows open
+**Anaconda Prompt** (not plain CMD), run ``conda activate habit`` until
+the prompt shows ``(habit)``, then ``habit --version``.
+See :doc:`../tutorial/installation`.
 
 **``pip install`` fails / mirror missing package** — use official PyPI::
 

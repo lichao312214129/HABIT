@@ -1,6 +1,41 @@
 ﻿Installation
 ============
 
+Run HABIT inside a conda env
+----------------------------
+
+HABIT must run in a **conda-activated** terminal. Plain CMD / PowerShell /
+system Python (without ``conda activate``) often fails with
+``habit: command not found`` or uses the wrong interpreter.
+
+**Windows** — open **Anaconda Prompt** (or Miniconda Prompt) from the
+Start Menu, not a plain Command Prompt::
+
+   Start Menu
+        |
+        v
+   Anaconda Prompt  (or Miniconda Prompt)
+        |
+        |  conda activate habit
+        v
+   (habit) C:\...>          <-- prompt must show (habit)
+        |
+        |  habit --version
+        v
+   OK
+
+   Wrong: plain CMD / PowerShell without conda activate
+          -> "habit" not found, or wrong Python
+
+**macOS / Linux** — any terminal where ``conda`` works::
+
+   $ conda activate habit
+   (habit) $ habit --version
+
+Every new terminal session: run ``conda activate habit`` again and check
+that the prompt shows ``(habit)`` before any ``habit ...`` command.
+
+
 Install
 -------
 
@@ -14,6 +49,7 @@ Install
 
 * Package on PyPI: **``habitat-analysis``** (code: ``import habit``)
 * Python: **3.10–3.14**
+* Env name in these docs: **``habit``** (any name is fine if you activate it)
 * Next: :doc:`quickstart`
 
 If ``pip`` cannot find the package on a local mirror, keep
