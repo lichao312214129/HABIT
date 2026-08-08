@@ -42,16 +42,24 @@ extract into ``demo_data/``.
 2. Open a conda terminal at the project root
 --------------------------------------------
 
-HABIT must run inside the activated conda env (see :doc:`installation`).
-On Windows, prefer **Anaconda Prompt**.
+HABIT must run inside the activated conda env. Full guide (how to find the
+app): :doc:`installation`.
 
-::
+**Find the conda terminal (Windows):**
+
+1. Press the **Windows** key → type ``Anaconda Prompt`` (or
+   ``Miniconda Prompt``).
+2. Open that app — **not** plain Command Prompt / PowerShell.
+3. Confirm the window title is Anaconda/Miniconda Prompt.
+
+Then activate, ``cd`` to the project root (folder with ``config/``), and
+check::
 
    # Windows — Anaconda Prompt (not plain CMD)
    conda activate habit          # prompt must show (habit)
    cd /d D:\path\to\project_root # folder that contains config/
 
-   # macOS / Linux
+   # macOS / Linux — Terminal with conda available
    conda activate habit
    cd ~/path/to/project_root
 
