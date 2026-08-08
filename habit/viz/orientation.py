@@ -49,9 +49,8 @@ Napari vs matplotlib (axial index)
 Matplotlib orients each 2D extract independently, so coronal/sagittal panels
 can flip superior/inferior **within the panel** without remapping axial slice
 indices. Napari applies whole-volume flips; by default axis 0 (``z``) is
-**not** flipped so the axial slider keeps file / ITK-SNAP index semantics
-(demo basal tip ~slice 110 stays usable). In-plane A-P / L-R still follow
-the same convention as matplotlib.
+**not** flipped so the axial slider keeps file / ITK-SNAP index semantics.
+In-plane A-P / L-R still follow the same convention as matplotlib.
 """
 
 from __future__ import annotations

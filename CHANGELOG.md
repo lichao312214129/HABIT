@@ -6,13 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
+  immediately before ``habit model``; remove outdated demo basal-slice tip.
+
 ## [1.1.3] - 2026-08-09
+
+**vs 1.1.2:** same demo-config packaging (``copy-demo-config``); this release
+fixes habitat **display orientation** in viewers / ``habit view``. Upgrade with
+``pip install -U "habitat-analysis[tables,viz]"`` (install docs stay unpinned).
 
 ### Fixed
 
-- Habitat display orientation aligned across backends: default LPS convention,
-  napari no longer flips the z axis, and ``habit view --convention`` /
-  ``view_habitat_napari(..., convention=...)`` for RAS/LPS selection.
+- Habitat display orientation aligned across backends: omit-direction default is
+  LPS identity (was RAS); napari no longer flips the axial (z) axis so slice
+  indices match file / ITK-SNAP order; default display convention is
+  radiological, with ``habit view --convention`` /
+  ``view_habitat_napari(..., convention=...)`` for radiological / neurological /
+  native.
 
 ### Changed
 
@@ -56,7 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Image/mask geometry alignment policy on ``HabitatSpec`` /
   ``SubjectPipeline`` (``on_geometry_mismatch``).
 - Quickstart napari screenshots refreshed for the demo ``subj001`` view
-  path; docs note basal-slice tip for ``demo_data``.
+  path.
 
 ### Changed
 

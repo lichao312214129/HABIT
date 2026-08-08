@@ -303,8 +303,8 @@ def napari_radiological_flips(
     """
     Radiological flips for napari (alias of :func:`napari_display_flips`).
 
-    Preserves axial index by default so demo basal tips stay on file-order
-    slice numbers.
+    Preserves axial index by default so the axial slider keeps file /
+    ITK-SNAP slice numbers.
     """
     return napari_display_flips(
         direction,
