@@ -28,9 +28,10 @@ With ``show=True`` (default), :func:`view_habitat_napari` calls
 the user closes it. Without that, the process exits and the window appears to
 flash then close.
 
-Orientation matches the matplotlib overlay: SimpleITK ``direction`` drives
-radiological flips (axial anterior-up, patient-right on viewer's left) so
-RAS demo volumes do not appear AP-flipped in the napari canvas.
+Orientation matches the matplotlib overlay for in-plane A-P / L-R via
+:mod:`habit.viz.orientation`. Default convention is radiological. Whole-volume
+``z`` is not flipped by default so axial slider indices match file order /
+ITK-SNAP / matplotlib axis-0 indices.
 """
 
 from __future__ import annotations
@@ -47,12 +48,14 @@ from habit.utils.optional_deps import (
 )
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
+    DEFAULT_DISPLAY_CONVENTION,
+    DisplayConvention,
     apply_radiological_flips,
-    direction_matrix,
-    radiological_array_axis_flips,
+    normalize_display_convention,
+    volume_display_flips,
 )
 
-__all__ = ["view_habitat_napari", "napari_radiological_flips"]
+__all__ = ["view_habitat_napari", "napari_radiological_flips", "napari_display_flips"]
 
 #: What habit.viz needs napari for.
 _VIEW_PURPOSE = "interactive habitat viewing (image + labels layers)"
@@ -254,32 +257,61 @@ def _napari_scale(
     return tuple(reversed(physical))
 
 
+def napari_display_flips(
+    direction: Optional[Sequence[float]],
+    *,
+    ndim: int,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+    preserve_axial_index: bool = True,
+) -> Tuple[bool, ...]:
+    """
+    Compute display-axis flips for napari layers (testable without Qt).
+
+    Args:
+        direction: SimpleITK flattened 3x3 direction, or ``None`` (LPS identity
+            for 3D, matching :func:`~habit.viz.plot_habitat_overlay`).
+        ndim: Array dimensionality (2 or 3).
+        convention: ``\"radiological\"`` (default), ``\"neurological\"``, or
+            ``\"native\"``.
+        preserve_axial_index: When ``True`` (default), do not flip ``z`` so
+            axial slider indices match file / ITK-SNAP order.
+
+    Returns:
+        Booleans for each array axis. For typical RAS volumes under
+        radiological + preserve, this is ``(False, True, True)`` — in-plane
+        A/P and L/R only. LPS identity needs no in-plane flips:
+        ``(False, False, False)``.
+    """
+    try:
+        convention_key = normalize_display_convention(convention)
+        return volume_display_flips(
+            direction,
+            ndim=ndim,
+            convention=convention_key,
+            preserve_axial_index=preserve_axial_index,
+        )
+    except HABITAPIError as exc:
+        raise HABITAPIError(f"view_habitat_napari: {exc}") from exc
+
+
 def napari_radiological_flips(
     direction: Optional[Sequence[float]],
     *,
     ndim: int,
+    preserve_axial_index: bool = True,
 ) -> Tuple[bool, ...]:
     """
-    Compute radiological axis flips for napari layers (testable without Qt).
+    Radiological flips for napari (alias of :func:`napari_display_flips`).
 
-    Args:
-        direction: SimpleITK flattened 3x3 direction, or ``None`` (assume RAS
-            for 3D, matching :func:`~habit.viz.plot_habitat_overlay`).
-        ndim: Array dimensionality (2 or 3).
-
-    Returns:
-        Booleans for each array axis. For typical RAS ``(z, y, x)`` volumes
-        this is ``(True, True, True)`` — flip S/I, A/P, and L/R so napari's
-        image coordinates match radiological axial / coronal / sagittal.
+    Preserves axial index by default so demo basal tips stay on file-order
+    slice numbers.
     """
-    try:
-        matrix = direction_matrix(direction, ndim=ndim)
-    except HABITAPIError as exc:
-        raise HABITAPIError(f"view_habitat_napari: {exc}") from exc
-    if matrix is None:
-        return tuple(False for _ in range(ndim))
-    flips = radiological_array_axis_flips(matrix)
-    return flips[:ndim]
+    return napari_display_flips(
+        direction,
+        ndim=ndim,
+        convention="radiological",
+        preserve_axial_index=preserve_axial_index,
+    )
 
 
 def _resolve_image_names(
@@ -361,6 +393,7 @@ def view_habitat_napari(
     image_names: Optional[Sequence[str]] = None,
     spacing: Optional[Sequence[float]] = None,
     direction: Optional[Sequence[float]] = None,
+    display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> Any:
     """
     Open (or populate) a napari viewer with image layer(s) + habitat labels.
@@ -370,10 +403,12 @@ def view_habitat_napari(
     volume is an *image* layer underneath (multi-sequence studies can pass
     several arrays).
 
-    Volumes are flipped for radiological viewing using ``direction`` (the same
-    convention as :func:`~habit.viz.plot_habitat_overlay`). Image and habitat
-    layers share the same flip + ``scale`` so they stay aligned. When
-    ``direction`` is omitted for 3D data, RAS is assumed.
+    Volumes are oriented using ``direction`` and ``display_convention`` (same
+    policy as :func:`~habit.viz.plot_habitat_overlay` for in-plane A-P / L-R).
+    Image and habitat layers share the same flip + ``scale`` so they stay
+    aligned. When ``direction`` is omitted for 3D data, LPS identity is
+    assumed (not RAS). Axial ``z`` is not flipped by default so slider indices
+    match file order.
 
     Args:
         images: Greyscale source volume (2D or 3D; NumPy ``(z, y, x)`` order
@@ -396,7 +431,9 @@ def view_habitat_napari(
             so anisotropic voxels display correctly.
         direction: Optional SimpleITK direction cosines (9 floats for 3D).
             Same layout as ``ImageVolume.direction``. Controls
-            anterior/posterior, superior/inferior, and left/right flips.
+            anterior/posterior and left/right in-plane flips.
+        display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
+            or ``\"native\"``. See :mod:`habit.viz.orientation`.
 
     Returns:
         The napari ``Viewer`` instance. With ``show=True`` this returns only
@@ -427,8 +464,13 @@ def view_habitat_napari(
             )
 
     safe_title = sanitize_label(title) or "HABIT habitat"
-    flips = napari_radiological_flips(direction, ndim=label_vol.ndim)
-    # Apply the same radiological flips to every layer so overlays stay registered.
+    flips = napari_display_flips(
+        direction,
+        ndim=label_vol.ndim,
+        convention=display_convention,
+        preserve_axial_index=True,
+    )
+    # Apply the same flips to every layer so overlays stay registered.
     image_vols = [
         np.ascontiguousarray(
             apply_radiological_flips(image_vol, flips), dtype=np.float32

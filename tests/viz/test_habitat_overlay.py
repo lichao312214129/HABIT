@@ -161,13 +161,16 @@ def test_plot_habitat_overlay_ras_coronal_and_sagittal_flips() -> None:
 
 
 def test_plot_habitat_overlay_lps_identity_keeps_axial_unflipped() -> None:
-    """LPS identity axial already matches radiology; no AP/LR flip needed."""
+    """LPS identity axial: no in-plane AP/LR flip (coronal/sagittal still flip S-I)."""
     from habit.viz.habitat_overlay import _orient_slice_for_display
+    from habit.viz.orientation import radiological_array_axis_flips
 
     lps = np.eye(3, dtype=np.float64)
     slice_2d = np.arange(100, dtype=np.float32).reshape(10, 10)
     oriented = _orient_slice_for_display(slice_2d, slice_axis=0, direction=lps)
     np.testing.assert_array_equal(oriented, slice_2d)
+    # Full-volume radiological remap still flips z for orthogonal S-up panels.
+    assert radiological_array_axis_flips(lps) == (True, False, False)
 
 
 def test_imshow_aspect_uses_physical_spacing() -> None:

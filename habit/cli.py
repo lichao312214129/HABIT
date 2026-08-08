@@ -261,6 +261,18 @@ def get_habitat(
          'PNG if [view] is missing; matplotlib: force static PNG '
          '(needs [viz]; first image only)',
 )
+@click.option(
+    '--convention',
+    type=click.Choice(
+        ['radiological', 'neurological', 'native'],
+        case_sensitive=False,
+    ),
+    default='radiological',
+    show_default=True,
+    help='Display orientation: radiological (default; anterior up, '
+         "patient's right on viewer's left), neurological (L/R reversed), "
+         'or native (no display flips)',
+)
 def view(
     paths: tuple,
     images_opt: tuple,
@@ -269,6 +281,7 @@ def view(
     no_open: bool,
     alpha: float,
     backend: str,
+    convention: str,
 ) -> None:
     """Overlay a habitat map on source image(s) (napari by default, PNG fallback).
 
@@ -320,6 +333,7 @@ def view(
         no_open=no_open,
         alpha=alpha,
         backend=backend,
+        convention=convention,
     )
 
 

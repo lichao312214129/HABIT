@@ -30,10 +30,14 @@ from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
+    DEFAULT_DISPLAY_CONVENTION,
+    DEFAULT_NATIVE_DIRECTION,
     DEFAULT_RAS_DIRECTION,
+    DisplayConvention,
     array_axis_lps_direction,
     desired_screen_directions,
     direction_matrix as _parse_direction_matrix,
+    normalize_display_convention,
     orient_slice_for_display,
     slice_row_col_axes,
 )
@@ -45,6 +49,7 @@ __all__ = ["plot_habitat_overlay"]
 
 # Re-export under the historical private names so existing unit tests keep working.
 _DEFAULT_RAS_DIRECTION = DEFAULT_RAS_DIRECTION
+_DEFAULT_NATIVE_DIRECTION = DEFAULT_NATIVE_DIRECTION
 
 
 #: What habit.viz needs matplotlib for.
@@ -373,9 +378,13 @@ def _imshow_physical_extent(
     )
 
 
-def _desired_screen_directions(slice_axis: int) -> Tuple[np.ndarray, np.ndarray]:
-    """Radiological screen ``(up, left)`` LPS directions (see orientation)."""
-    return desired_screen_directions(slice_axis)
+def _desired_screen_directions(
+    slice_axis: int,
+    *,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Screen ``(up, left)`` LPS directions for ``convention`` (see orientation)."""
+    return desired_screen_directions(slice_axis, convention=convention)
 
 
 def _orient_slice_for_display(
@@ -383,10 +392,14 @@ def _orient_slice_for_display(
     *,
     slice_axis: int,
     direction: Optional[np.ndarray],
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> np.ndarray:
-    """Flip a 2D slice for matplotlib ``imshow`` radiological layout."""
+    """Flip a 2D slice for matplotlib ``imshow`` under ``convention``."""
     return orient_slice_for_display(
-        slice_2d, slice_axis=slice_axis, direction=direction
+        slice_2d,
+        slice_axis=slice_axis,
+        direction=direction,
+        convention=convention,
     )
 
 
@@ -398,12 +411,17 @@ def _prepare_overlay_slice(
     slice_index: int,
     alpha: float,
     direction: Optional[np.ndarray],
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> np.ndarray:
     """Normalize, orient, and blend one orthogonal slice to RGB."""
     grey = _normalize_grey(_take_slice(image_vol, axis_id, slice_index))
     labs = _take_slice(label_int, axis_id, slice_index)
-    grey = _orient_slice_for_display(grey, slice_axis=axis_id, direction=direction)
-    labs = _orient_slice_for_display(labs, slice_axis=axis_id, direction=direction)
+    grey = _orient_slice_for_display(
+        grey, slice_axis=axis_id, direction=direction, convention=convention
+    )
+    labs = _orient_slice_for_display(
+        labs, slice_axis=axis_id, direction=direction, convention=convention
+    )
     return _blend_overlay(grey, labs, alpha=float(alpha), colors=_HABITAT_COLORS)
 
 
@@ -417,6 +435,7 @@ def plot_habitat_overlay(
     index: Optional[int] = None,
     direction: Optional[Sequence[float]] = None,
     spacing: Optional[Sequence[float]] = None,
+    display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> "Figure":
     """
     Draw habitat labels as a translucent colour overlay on the source image.
@@ -428,9 +447,10 @@ def plot_habitat_overlay(
     pin a specific slice. Label ``0`` is treated as background and is not
     coloured.
 
-    Slices are flipped for radiological viewing using ``direction`` (SimpleITK
-    flattened 3x3). When omitted, RAS is assumed — the usual orientation of
-    NIfTI volumes loaded through SimpleITK / :class:`~habit.api.image.ImageVolume`.
+    Slices are oriented using ``direction`` (SimpleITK flattened 3x3) and
+    ``display_convention`` (default ``\"radiological\"``). When ``direction``
+    is omitted, LPS identity is assumed — the same default as
+    :class:`~habit.api.image.ImageVolume` — not RAS.
 
     Panel aspect ratios follow ``spacing`` (SimpleITK ``(x, y, z)``) so thick
     slices are not squashed into square pixels on coronal / sagittal views.
@@ -448,6 +468,9 @@ def plot_habitat_overlay(
         spacing: Optional SimpleITK voxel spacing ``(x, y[, z])`` in mm. Same
             layout as ``ImageVolume.spacing``. Controls true physical aspect
             per panel; defaults to isotropic ``1.0`` when omitted.
+        display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
+            or ``\"native\"`` (no display flips). See
+            :mod:`habit.viz.orientation`.
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -460,6 +483,11 @@ def plot_habitat_overlay(
         raise HABITAPIError(
             f"plot_habitat_overlay: alpha must be in (0, 1]; got {alpha!r}."
         )
+
+    try:
+        convention = normalize_display_convention(display_convention)
+    except HABITAPIError as exc:
+        raise HABITAPIError(f"plot_habitat_overlay: {exc}") from exc
 
     image_vol = _as_volume(image, "image")
     label_vol = _as_volume(labels, "labels")
@@ -488,6 +516,7 @@ def plot_habitat_overlay(
             slice_index=slice_index,
             alpha=float(alpha),
             direction=direction_matrix,
+            convention=convention,
         )
         extent = _imshow_physical_extent(
             (int(rgb.shape[0]), int(rgb.shape[1])),
@@ -536,6 +565,7 @@ def plot_habitat_overlay(
             slice_index=slice_index,
             alpha=float(alpha),
             direction=direction_matrix,
+            convention=convention,
         )
         extent = _imshow_physical_extent(
             (int(rgb.shape[0]), int(rgb.shape[1])),

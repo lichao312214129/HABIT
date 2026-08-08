@@ -91,6 +91,7 @@ def _run_view_matplotlib(
     output: Optional[str],
     no_open: bool,
     alpha: float,
+    display_convention: str = "radiological",
 ) -> Path:
     """
     Write a PNG overlay via :func:`habit.viz.plot_habitat_overlay`.
@@ -126,6 +127,7 @@ def _run_view_matplotlib(
         title=f"Habitat overlay — {habitat_path.name}",
         direction=getattr(image_vol, "direction", None),
         spacing=getattr(image_vol, "spacing", None),
+        display_convention=display_convention,  # type: ignore[arg-type]
     )
     png_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(png_path, dpi=150, bbox_inches="tight")
@@ -148,6 +150,7 @@ def _run_view_napari(
     *,
     no_open: bool,
     alpha: float,
+    display_convention: str = "radiological",
 ) -> None:
     """
     Launch napari with one or more image layers + habitat labels.
@@ -178,6 +181,7 @@ def _run_view_napari(
         image_names=names,
         spacing=spacing,
         direction=direction,
+        display_convention=display_convention,  # type: ignore[arg-type]
     )
     if no_open:
         # Headless / smoke path: construct layers then tear down immediately.
@@ -194,6 +198,7 @@ def _try_napari_then_matplotlib(
     output: Optional[str],
     no_open: bool,
     alpha: float,
+    display_convention: str = "radiological",
 ) -> Tuple[str, Optional[Path]]:
     """
     Prefer napari; on missing ``[view]`` extra, fall back to a matplotlib PNG.
@@ -204,6 +209,7 @@ def _try_napari_then_matplotlib(
         output: Optional PNG destination used only on the matplotlib path.
         no_open: Passed through to both backends.
         alpha: Overlay / labels opacity.
+        display_convention: Radiological / neurological / native.
 
     Returns:
         ``(effective_backend, png_path)`` where ``effective_backend`` is
@@ -218,6 +224,7 @@ def _try_napari_then_matplotlib(
             habitat_path,
             no_open=no_open,
             alpha=alpha,
+            display_convention=display_convention,
         )
         return "napari", None
     except OptionalDependencyError as exc:
@@ -235,6 +242,7 @@ def _try_napari_then_matplotlib(
             output=output,
             no_open=no_open,
             alpha=alpha,
+            display_convention=display_convention,
         )
         return "matplotlib", png_path
 
@@ -247,6 +255,7 @@ def run_view(
     no_open: bool = False,
     alpha: float = 0.45,
     backend: str = "auto",
+    convention: str = "radiological",
 ) -> None:
     """
     Overlay a habitat map on one or more source images (napari or PNG).
@@ -264,8 +273,11 @@ def run_view(
         backend: ``"auto"`` (default, prefer napari then fall back to PNG),
             ``"napari"`` (same fallback when ``[view]`` is missing), or
             ``"matplotlib"`` (force static PNG; needs ``[viz]``).
+        convention: Display orientation ``\"radiological\"`` (default),
+            ``\"neurological\"``, or ``\"native\"``.
     """
     from habit.exceptions import HABITAPIError, OptionalDependencyError
+    from habit.viz.orientation import normalize_display_convention
 
     if isinstance(image, (str, Path)):
         image_paths: List[Path] = [Path(image)]
@@ -292,6 +304,12 @@ def run_view(
         )
         raise SystemExit(1)
 
+    try:
+        display_convention = normalize_display_convention(convention)
+    except HABITAPIError as exc:
+        echo_error(f"Error: {exc}")
+        raise SystemExit(1) from exc
+
     fell_back_from_napari = False
     try:
         if backend_key in ("auto", "napari"):
@@ -301,6 +319,7 @@ def run_view(
                 output=output,
                 no_open=no_open,
                 alpha=alpha,
+                display_convention=display_convention,
             )
             fell_back_from_napari = effective_backend == "matplotlib"
         else:
@@ -311,6 +330,7 @@ def run_view(
                 output=output,
                 no_open=no_open,
                 alpha=alpha,
+                display_convention=display_convention,
             )
     except FileNotFoundError as exc:
         echo_error(f"Error: {exc}")

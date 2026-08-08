@@ -108,15 +108,18 @@ class _FakeViewer:
         self.closed = True
 
 
-def test_napari_radiological_flips_ras_flips_all_axes() -> None:
-    """RAS direction needs flips on z, y, and x for radiological napari display."""
-    assert napari_radiological_flips(_RAS, ndim=3) == (True, True, True)
-    # Omitted direction defaults to RAS for 3D (same as matplotlib overlay).
-    assert napari_radiological_flips(None, ndim=3) == (True, True, True)
-    # LPS identity: axial needs no in-plane flip, but coronal/sagittal still
-    # flip z so superior is up under image coordinates.
+def test_napari_radiological_flips_ras_in_plane_preserves_z() -> None:
+    """RAS: napari flips y/x for radiological A-P/L-R but keeps axial index."""
+    assert napari_radiological_flips(_RAS, ndim=3) == (False, True, True)
+    # Omitted direction defaults to LPS identity (same as ImageVolume / overlay).
+    assert napari_radiological_flips(None, ndim=3) == (False, False, False)
+    # LPS identity: no in-plane flips; z also preserved (slider = file order).
+    # Full-volume radiological remap would flip z; napari opts out by default.
     lps = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
-    assert napari_radiological_flips(lps, ndim=3) == (True, False, False)
+    assert napari_radiological_flips(lps, ndim=3) == (False, False, False)
+    assert napari_radiological_flips(
+        lps, ndim=3, preserve_axial_index=False
+    ) == (True, False, False)
     assert napari_radiological_flips(None, ndim=2) == (False, False)
 
 
@@ -128,8 +131,8 @@ def test_napari_ras_volume_flip_matches_overlay_axial() -> None:
     volume[2, 5, -1] = 2.0  # patient-right marker (max x)
 
     flips = napari_radiological_flips(_RAS, ndim=3)
-    assert flips == (True, True, True)
-    # z-flip only reorders slices; AP/LR come from y/x flips (same as overlay).
+    assert flips == (False, True, True)
+    # AP/LR come from y/x flips (same as overlay); z index unchanged.
     axial = apply_radiological_flips(volume[2], (flips[1], flips[2]))
 
     expected = orient_slice_for_display(
@@ -161,18 +164,17 @@ def test_view_habitat_napari_applies_ras_flips_to_layers(monkeypatch) -> None:
         show=False,
         direction=_RAS,
     )
-    assert viewer._habit_radiological_flips == (True, True, True)
+    assert viewer._habit_radiological_flips == (False, True, True)
     expected_image = np.ascontiguousarray(
-        apply_radiological_flips(image, (True, True, True)), dtype=np.float32
+        apply_radiological_flips(image, (False, True, True)), dtype=np.float32
     )
     expected_labels = np.ascontiguousarray(
-        apply_radiological_flips(labels, (True, True, True)), dtype=np.int32
+        apply_radiological_flips(labels, (False, True, True)), dtype=np.int32
     )
     np.testing.assert_array_equal(viewer.layers[0].data, expected_image)
     np.testing.assert_array_equal(viewer.layers[1].data, expected_labels)
-    # After flip on all axes, label at [1,-1,-1] lands at [2,0,0] for shape (4,6,6):
-    # flip z: 1 → 4-1-1=2; flip y: -1 → 0; flip x: -1 → 0.
-    assert viewer.layers[1].data[2, 0, 0] == 3
+    # z preserved; flip y/x only: label at [1,-1,-1] → [1,0,0] for shape (4,6,6).
+    assert viewer.layers[1].data[1, 0, 0] == 3
 
 
 def test_view_habitat_napari_builds_image_and_labels_layers(monkeypatch) -> None:
@@ -187,7 +189,7 @@ def test_view_habitat_napari_builds_image_and_labels_layers(monkeypatch) -> None
     labels = np.zeros((4, 6, 6), dtype=np.int32)
     labels[1:3, 2:5, 2:5] = 2
 
-    # LPS identity: no radiological flips, so layer data matches input order.
+    # LPS identity + preserve axial index: no volume flips; data order unchanged.
     lps = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
     viewer = view_habitat_napari(
         image, labels, opacity=0.4, show=False, title="demo", direction=lps
@@ -197,6 +199,9 @@ def test_view_habitat_napari_builds_image_and_labels_layers(monkeypatch) -> None
     assert [layer.name for layer in viewer.layers] == ["image", "habitats"]
     assert viewer.layers[1].opacity == pytest.approx(0.4)
     assert viewer.layers[1].data.dtype == np.int32
+    assert viewer._habit_radiological_flips == (False, False, False)
+    np.testing.assert_array_equal(viewer.layers[0].data, image)
+    np.testing.assert_array_equal(viewer.layers[1].data, labels)
 
 
 def test_view_habitat_napari_show_true_calls_napari_run(monkeypatch) -> None:
@@ -340,7 +345,7 @@ def test_view_habitat_napari_real_viewer_show_false() -> None:
         names = [layer.name for layer in viewer.layers]
         assert names == ["image", "habitats"]
         assert viewer.layers["habitats"].opacity == pytest.approx(0.45)
-        assert viewer._habit_radiological_flips == (True, True, True)
+        assert viewer._habit_radiological_flips == (False, True, True)
     finally:
         viewer.close()
 
@@ -383,7 +388,7 @@ def test_view_habitat_napari_demo_paths_smoke() -> None:
     try:
         assert len(viewer.layers) == 2
         assert viewer.layers[0].data.shape == viewer.layers[1].data.shape
-        # Demo NIfTI via SimpleITK is RAS → expect full radiological flips.
-        assert viewer._habit_radiological_flips == (True, True, True)
+        # Demo NIfTI via SimpleITK is RAS → in-plane flips; z index preserved.
+        assert viewer._habit_radiological_flips == (False, True, True)
     finally:
         viewer.close()
