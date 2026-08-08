@@ -53,7 +53,10 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#from-source-developers">From source (developers)</a></li>
@@ -1473,13 +1476,31 @@ extract into <code class="docutils literal notranslate"><span class="pre">demo_d
 </section>
 <section id="open-a-conda-terminal-at-the-project-root">
 <h2>2. Open a conda terminal at the project root<a class="headerlink" href="#open-a-conda-terminal-at-the-project-root" title="Link to this heading"></a></h2>
-<p>HABIT must run inside the activated conda env (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>).
-On Windows, prefer <strong>Anaconda Prompt</strong>.</p>
+<p>HABIT must run inside the activated conda env. Full guide:
+<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</p>
+<p><strong>Find the conda terminal (Windows):</strong></p>
+<ol class="arabic simple">
+<li><p>Click <strong>Start</strong> (Windows logo) or press the Windows key.
+Win10: often <strong>bottom-left</strong>; Win11: often <strong>bottom-center</strong>.</p></li>
+<li><p>Start → <strong>Anaconda3</strong> → <strong>Anaconda Prompt</strong> (or <strong>Anaconda PowerShell
+Prompt</strong> / Miniconda Prompt). Or search <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code>.</p></li>
+<li><p>Do <strong>not</strong> use plain Command Prompt / PowerShell.</p></li>
+</ol>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/open_anaconda_prompt_windows.png"><img alt="Windows Start menu: open Anaconda Prompt" src="../_images/open_anaconda_prompt_windows.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Open <strong>Anaconda Prompt</strong> from the Start menu (Win11 Start icon may be
+centered). Details: <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Then activate, <code class="docutils literal notranslate"><span class="pre">cd</span></code> to the project root (folder with <code class="docutils literal notranslate"><span class="pre">config/</span></code>), and
+check:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows — Anaconda Prompt (not plain CMD)</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>          <span class="c1"># prompt must show (habit)</span>
 <span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">path</span>\<span class="n">to</span>\<span class="n">project_root</span> <span class="c1"># folder that contains config/</span>
 
-<span class="c1"># macOS / Linux</span>
+<span class="c1"># macOS / Linux — Terminal with conda available</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
 <span class="n">cd</span> <span class="o">~/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project_root</span>
 
@@ -1517,19 +1538,19 @@ together in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>
 <col style="width: 50.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><figure class="align-default" id="id1">
+<tr class="row-odd"><td><figure class="align-default" id="id2">
 <a class="reference internal image-reference" href="../_images/habitat_view_napari_region.png"><img alt="napari habitat view with filled region labels" src="../_images/habitat_view_napari_region.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Filled labels.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Filled labels.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </td>
-<td><figure class="align-default" id="id2">
+<td><figure class="align-default" id="id3">
 <a class="reference internal image-reference" href="../_images/habitat_view_napari_contour.png"><img alt="napari habitat view with contour outlines" src="../_images/habitat_view_napari_contour.png" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Contour outlines.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Contour outlines.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </td>

@@ -13,22 +13,38 @@ How to open the conda terminal
 
 **Windows** (Anaconda / Miniconda installed):
 
-1. Click the **Start** button (or press the Windows key).
-2. Type ``Anaconda Prompt`` (or ``Miniconda Prompt`` if you use Miniconda).
-3. Open the app named **Anaconda Prompt** — not "Command Prompt", not
-   "Windows PowerShell", and not "Terminal" unless conda is already set up
-   there.
-4. Optional: open **Anaconda Navigator** → Environments → open terminal
-   for the ``habit`` env.
+1. Click the **Start** button (Windows logo), or press the Windows key.
+   On **Windows 10** the Start icon is usually at the **bottom-left**;
+   on **Windows 11** it is often at the **bottom-center** of the taskbar.
+2. Open the **Anaconda3** (or Miniconda) folder in the Start menu, then
+   click **Anaconda Prompt** or **Anaconda PowerShell Prompt**
+   (Miniconda: **Miniconda Prompt**).
+3. Or: with Start open, type ``Anaconda Prompt`` / ``Miniconda Prompt``
+   and open that app.
+4. Do **not** use plain "Command Prompt", "Windows PowerShell", or
+   "Terminal" unless conda is already initialized there.
+5. Optional: **Anaconda Navigator** → Environments → Open Terminal on
+   the ``habit`` env.
 
-Then activate and check::
+.. figure:: ../_static/images/open_anaconda_prompt_windows.png
+   :alt: Windows Start menu: open Anaconda Prompt
+   :width: 85%
 
-   Start
+   Start → Anaconda3 → **Anaconda Prompt** / **Anaconda PowerShell
+   Prompt** (example on Windows 10; on Windows 11 the Start icon may sit
+   at the bottom-center). Your folder name may differ (e.g. Miniconda).
+
+Then activate and check. After you open the Prompt you often see
+``(base)``; switch to the HABIT env (docs use the name ``habit``)::
+
+   Start (bottom-left on Win10; often bottom-center on Win11)
         |
-        |  search: Anaconda Prompt
+        |  Anaconda3 → Anaconda Prompt
+        |  (or search: Anaconda Prompt)
         v
    Anaconda Prompt  (or Miniconda Prompt)
         |
+        |  (base) C:\...>
         |  conda activate habit
         v
    (habit) C:\...>          <-- prompt must show (habit)

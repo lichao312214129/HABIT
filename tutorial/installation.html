@@ -53,7 +53,10 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#from-source-developers">From source (developers)</a></li>
@@ -1444,32 +1447,65 @@
 <p>HABIT must run in a <strong>conda-activated</strong> terminal. Plain CMD / PowerShell /
 system Python (without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>) often fails with
 <code class="docutils literal notranslate"><span class="pre">habit:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> or uses the wrong interpreter.</p>
-<p><strong>Windows</strong> — open <strong>Anaconda Prompt</strong> (or Miniconda Prompt) from the
-Start Menu, not a plain Command Prompt:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Start</span> <span class="n">Menu</span>
-     <span class="o">|</span>
-     <span class="n">v</span>
-<span class="n">Anaconda</span> <span class="n">Prompt</span>  <span class="p">(</span><span class="ow">or</span> <span class="n">Miniconda</span> <span class="n">Prompt</span><span class="p">)</span>
-     <span class="o">|</span>
-     <span class="o">|</span>  <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
-     <span class="n">v</span>
-<span class="p">(</span><span class="n">habit</span><span class="p">)</span> <span class="n">C</span><span class="p">:</span>\<span class="o">...&gt;</span>          <span class="o">&lt;--</span> <span class="n">prompt</span> <span class="n">must</span> <span class="n">show</span> <span class="p">(</span><span class="n">habit</span><span class="p">)</span>
-     <span class="o">|</span>
-     <span class="o">|</span>  <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
-     <span class="n">v</span>
-<span class="n">OK</span>
+<section id="how-to-open-the-conda-terminal">
+<h3>How to open the conda terminal<a class="headerlink" href="#how-to-open-the-conda-terminal" title="Link to this heading"></a></h3>
+<p><strong>Windows</strong> (Anaconda / Miniconda installed):</p>
+<ol class="arabic simple">
+<li><p>Click the <strong>Start</strong> button (Windows logo), or press the Windows key.
+On <strong>Windows 10</strong> the Start icon is usually at the <strong>bottom-left</strong>;
+on <strong>Windows 11</strong> it is often at the <strong>bottom-center</strong> of the taskbar.</p></li>
+<li><p>Open the <strong>Anaconda3</strong> (or Miniconda) folder in the Start menu, then
+click <strong>Anaconda Prompt</strong> or <strong>Anaconda PowerShell Prompt</strong>
+(Miniconda: <strong>Miniconda Prompt</strong>).</p></li>
+<li><p>Or: with Start open, type <code class="docutils literal notranslate"><span class="pre">Anaconda</span> <span class="pre">Prompt</span></code> / <code class="docutils literal notranslate"><span class="pre">Miniconda</span> <span class="pre">Prompt</span></code>
+and open that app.</p></li>
+<li><p>Do <strong>not</strong> use plain “Command Prompt”, “Windows PowerShell”, or
+“Terminal” unless conda is already initialized there.</p></li>
+<li><p>Optional: <strong>Anaconda Navigator</strong> → Environments → Open Terminal on
+the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env.</p></li>
+</ol>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/open_anaconda_prompt_windows.png"><img alt="Windows Start menu: open Anaconda Prompt" src="../_images/open_anaconda_prompt_windows.png" style="width: 85%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Start → Anaconda3 → <strong>Anaconda Prompt</strong> / <strong>Anaconda PowerShell
+Prompt</strong> (example on Windows 10; on Windows 11 the Start icon may sit
+at the bottom-center). Your folder name may differ (e.g. Miniconda).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Then activate and check. After you open the Prompt you often see
+<code class="docutils literal notranslate"><span class="pre">(base)</span></code>; switch to the HABIT env (docs use the name <code class="docutils literal notranslate"><span class="pre">habit</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Start (bottom-left on Win10; often bottom-center on Win11)
+     |
+     |  Anaconda3 → Anaconda Prompt
+     |  (or search: Anaconda Prompt)
+     v
+Anaconda Prompt  (or Miniconda Prompt)
+     |
+     |  (base) C:\...&gt;
+     |  conda activate habit
+     v
+(habit) C:\...&gt;          &lt;-- prompt must show (habit)
+     |
+     |  habit --version
+     v
+OK
 
-<span class="n">Wrong</span><span class="p">:</span> <span class="n">plain</span> <span class="n">CMD</span> <span class="o">/</span> <span class="n">PowerShell</span> <span class="n">without</span> <span class="n">conda</span> <span class="n">activate</span>
-       <span class="o">-&gt;</span> <span class="s2">&quot;habit&quot;</span> <span class="ow">not</span> <span class="n">found</span><span class="p">,</span> <span class="ow">or</span> <span class="n">wrong</span> <span class="n">Python</span>
+Wrong: plain CMD / PowerShell without conda activate
+       -&gt; &quot;habit&quot; not found, or wrong Python
 </pre></div>
 </div>
-<p><strong>macOS / Linux</strong> — any terminal where <code class="docutils literal notranslate"><span class="pre">conda</span></code> works:</p>
+<p><strong>macOS / Linux</strong> — open Terminal.app / your shell, then:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda activate habit
 (habit) $ habit --version
 </pre></div>
 </div>
+<p>If <code class="docutils literal notranslate"><span class="pre">conda</span></code> is not found, open the Anaconda/Miniconda shell from the
+installer menu, or run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> once for your shell and reopen the
+terminal.</p>
 <p>Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> again and check
 that the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">...</span></code> command.</p>
+</section>
 </section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
