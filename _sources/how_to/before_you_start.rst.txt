@@ -6,9 +6,13 @@ Do this once, then every how-to page is just copy → edit ★ → run.
 1. Terminal + env
 -----------------
 
+Open a **conda** terminal (Windows: **Anaconda Prompt**), activate the
+env, then confirm the CLI. Details and ASCII guide:
+:doc:`../tutorial/installation`.
+
 ::
 
-   conda activate habit
+   conda activate habit          # prompt must show (habit)
    habit --version
 
 2. Project root

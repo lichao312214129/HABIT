@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=fc837d61"></script>
+        <script src="../_static/documentation_options.js?v=58fbf978"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.0
+                1.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
@@ -63,7 +64,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-terminal-at-the-project-root">2. Open a terminal at the project root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">3. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -2417,6 +2418,11 @@ v1.0; see the warning under <code class="docutils literal notranslate"><span cla
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">postprocess_supervoxel</span></code> applies to supervoxel label maps (mainly two_step stage).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">postprocess_habitat</span></code> applies to final habitat label maps (one_step/two_step/direct_pooling).</p></li>
+<li><p>In the v1 path these settings land on <code class="docutils literal notranslate"><span class="pre">HabitatSpec.postprocess_*</span></code> and run
+inside <a class="reference internal" href="../api/generated/habit.domain.SubjectPipeline.html#habit.domain.SubjectPipeline" title="habit.domain.pipeline.SubjectPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a> (after
+supervoxelization / after habitat assignment, before feature extraction).
+<a class="reference internal" href="../api/generated/habit.adapters.DirectoryResultWriter.html#habit.adapters.DirectoryResultWriter" title="habit.adapters.writers.DirectoryResultWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirectoryResultWriter</span></code></a> writes the already
+cleaned in-memory maps and does not re-run cleanup.</p></li>
 <li><p>Current implementation uses SimpleITK fast path: remove small components per label, then reassign by nearest seed label.</p></li>
 <li><p>Reduces fragmentation while preserving ROI voxel coverage.</p></li>
 </ul>
@@ -2826,6 +2832,24 @@ the same <code class="docutils literal notranslate"><span class="pre">checkpoint
 <ul class="simple">
 <li><p><strong>Type</strong>: integer</p></li>
 <li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">42</span></code></p></li>
+</ul>
+<p><strong>on_geometry_mismatch</strong> (habitat analysis top level, optional)</p>
+<ul>
+<li><p><strong>Type</strong>: string</p></li>
+<li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">resample_mask</span></code></p></li>
+<li><p><strong>Allowed values</strong>: <code class="docutils literal notranslate"><span class="pre">resample_mask</span></code>, <code class="docutils literal notranslate"><span class="pre">strict</span></code></p></li>
+<li><p><strong>Description</strong>: When an ROI mask and the reference image disagree on voxel-grid
+metadata (origin / direction / spacing / size), HABIT by default aligns the
+mask onto the image grid before Stage-1: same-shaped arrays keep voxels and
+adopt the image header; different shapes use nearest-neighbour resampling.
+Set <code class="docutils literal notranslate"><span class="pre">strict</span></code> to raise <code class="docutils literal notranslate"><span class="pre">GeometryError</span></code> instead (opt-in). On a native v1
+document the same key may sit under <code class="docutils literal notranslate"><span class="pre">spec:</span></code> as
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec.on_geometry_mismatch</span></code>.</p></li>
+<li><p><strong>Example</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">on_geometry_mismatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">strict</span>
+</pre></div>
+</div>
+</li>
 </ul>
 <p><strong>debug</strong> (habitat analysis top level)</p>
 <ul class="simple">

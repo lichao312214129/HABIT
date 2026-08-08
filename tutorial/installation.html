@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=fc837d61"></script>
+        <script src="../_static/documentation_options.js?v=58fbf978"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.0
+                1.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#from-source-developers">From source (developers)</a></li>
@@ -63,7 +64,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#open-a-terminal-at-the-project-root">2. Open a terminal at the project root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#run">3. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#next">Next</a></li>
 </ul>
@@ -1438,6 +1439,38 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
+<section id="run-habit-inside-a-conda-env">
+<h2>Run HABIT inside a conda env<a class="headerlink" href="#run-habit-inside-a-conda-env" title="Link to this heading"></a></h2>
+<p>HABIT must run in a <strong>conda-activated</strong> terminal. Plain CMD / PowerShell /
+system Python (without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>) often fails with
+<code class="docutils literal notranslate"><span class="pre">habit:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> or uses the wrong interpreter.</p>
+<p><strong>Windows</strong> — open <strong>Anaconda Prompt</strong> (or Miniconda Prompt) from the
+Start Menu, not a plain Command Prompt:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Start</span> <span class="n">Menu</span>
+     <span class="o">|</span>
+     <span class="n">v</span>
+<span class="n">Anaconda</span> <span class="n">Prompt</span>  <span class="p">(</span><span class="ow">or</span> <span class="n">Miniconda</span> <span class="n">Prompt</span><span class="p">)</span>
+     <span class="o">|</span>
+     <span class="o">|</span>  <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
+     <span class="n">v</span>
+<span class="p">(</span><span class="n">habit</span><span class="p">)</span> <span class="n">C</span><span class="p">:</span>\<span class="o">...&gt;</span>          <span class="o">&lt;--</span> <span class="n">prompt</span> <span class="n">must</span> <span class="n">show</span> <span class="p">(</span><span class="n">habit</span><span class="p">)</span>
+     <span class="o">|</span>
+     <span class="o">|</span>  <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
+     <span class="n">v</span>
+<span class="n">OK</span>
+
+<span class="n">Wrong</span><span class="p">:</span> <span class="n">plain</span> <span class="n">CMD</span> <span class="o">/</span> <span class="n">PowerShell</span> <span class="n">without</span> <span class="n">conda</span> <span class="n">activate</span>
+       <span class="o">-&gt;</span> <span class="s2">&quot;habit&quot;</span> <span class="ow">not</span> <span class="n">found</span><span class="p">,</span> <span class="ow">or</span> <span class="n">wrong</span> <span class="n">Python</span>
+</pre></div>
+</div>
+<p><strong>macOS / Linux</strong> — any terminal where <code class="docutils literal notranslate"><span class="pre">conda</span></code> works:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda activate habit
+(habit) $ habit --version
+</pre></div>
+</div>
+<p>Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> again and check
+that the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">...</span></code> command.</p>
+</section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">habit</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span> <span class="o">-</span><span class="n">y</span>
@@ -1450,6 +1483,7 @@
 <ul class="simple">
 <li><p>Package on PyPI: <strong>``habitat-analysis``</strong> (code: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">habit</span></code>)</p></li>
 <li><p>Python: <strong>3.10–3.14</strong></p></li>
+<li><p>Env name in these docs: <strong>``habit``</strong> (any name is fine if you activate it)</p></li>
 <li><p>Next: <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a></p></li>
 </ul>
 <p>If <code class="docutils literal notranslate"><span class="pre">pip</span></code> cannot find the package on a local mirror, keep

@@ -17,7 +17,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=fc837d61"></script>
+        <script src="_static/documentation_options.js?v=58fbf978"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.1.0
+                1.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -406,6 +406,7 @@ window.runMermaid = runMermaid;</script>
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/installation.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/installation.html#from-source-developers">From source (developers)</a></li>
@@ -416,7 +417,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart.html#open-a-terminal-at-the-project-root">2. Open a terminal at the project root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart.html#run">3. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -3558,6 +3559,8 @@ window.runMermaid = runMermaid;</script>
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.on_geometry_mismatch">on_geometry_mismatch (HabitatSpec attribute)</a>
+</li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.on_subject_failure">on_subject_failure (RunPolicy attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.one_step.html#habit.recipes.one_step">one_step() (in module habit.recipes)</a>
@@ -3694,13 +3697,17 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.api.plugins.PluginLoadReport.html#habit.api.plugins.PluginLoadReport">PluginLoadReport (class in habit.api.plugins)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend.policy">policy (ProcessPoolBackend property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.BinaryOutcome.html#habit.contracts.BinaryOutcome.positive_label">positive_label (BinaryOutcome attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.BinaryOutcome.html#habit.contracts.BinaryOutcome.positive_mask">positive_mask() (BinaryOutcome method)</a>
+</li>
+      <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.postprocess_habitat">postprocess_habitat (HabitatSpec attribute)</a>
+</li>
+      <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.postprocess_supervoxel">postprocess_supervoxel (HabitatSpec attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.PpvMetric.html#habit.domain.PpvMetric">PpvMetric (class in habit.domain)</a>
 </li>

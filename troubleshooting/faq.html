@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=fc837d61"></script>
+        <script src="../_static/documentation_options.js?v=58fbf978"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.0
+                1.1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -53,6 +53,7 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
@@ -63,7 +64,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-terminal-at-the-project-root">2. Open a terminal at the project root</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">3. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
 </ul>
@@ -1440,8 +1441,10 @@
 <h1>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h1>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
-<p><strong>``habit`` not found</strong> — activate the env (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code>), then
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code>. See <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>.</p>
+<p><strong>``habit`` not found</strong> — you are not in the conda env. On Windows open
+<strong>Anaconda Prompt</strong> (not plain CMD), run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> until
+the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code>, then <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code>.
+See <a class="reference internal" href="../tutorial/installation.html"><span class="doc">Installation</span></a>.</p>
 <p><strong>``pip install`` fails / mirror missing package</strong> — use official PyPI:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">habitat</span><span class="o">-</span><span class="n">analysis</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
 </pre></div>
