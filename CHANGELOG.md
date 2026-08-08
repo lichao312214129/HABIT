@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
-  immediately before ``habit model``; remove outdated demo basal-slice tip.
+  immediately before ``habit model``.
 
 ## [1.1.3] - 2026-08-09
 
