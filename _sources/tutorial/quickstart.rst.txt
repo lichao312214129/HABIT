@@ -115,21 +115,17 @@ results and clustering curves)::
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-The last command needs the **ML pack** (``ml_data.zip``)::
+The last command needs the **ML pack** (``ml_data.zip``). If you
+skipped it in step 2: |download_ml_data| — extract code: |ml_data_code|.
+Extract so ``demo_data/ml_data/`` sits next to ``demo_data/preprocessed/``
+under ``<work_dir>`` (if the zip top level is ``ml_data/``, extract into
+``demo_data/``)::
 
    habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
 
 ``habit view`` opens napari if installed (see :doc:`installation`); otherwise
 it falls back to a PNG. In napari, select the habitats Labels layer
 (Contour ``0`` = filled regions).
-
-**Demo pack tip:** ROIs in ``demo_data`` were drawn mainly on the **basal**
-slices. After opening the viewer, drag the **axial** slider near the bottom
-of the window to about **slice 110** (file / ITK-SNAP index order; HABIT
-keeps axial indices unflipped) — the habitat overlay appears there.
-On the default mid-volume slice the labels can look empty.
-Display defaults to radiological orientation
-(``habit view --convention radiological``).
 
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer

@@ -36,7 +36,6 @@ Command checklist
    habit preprocess -c config/preprocessing/config_preprocessing_demo.yaml
    habit get-habitat -c config/habitat/config_habitat_two_step.yaml
    habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
-   # Demo ROI is basal: axial ~slice 110 (file index; radiological default)
    habit extract -c config/feature_extraction/config_extract_features_demo.yaml
    habit radiomics -c config/radiomics/config_traditional_radiomics.yaml
    habit model -c config/machine_learning/config_machine_learning_radiomics.yaml -m train

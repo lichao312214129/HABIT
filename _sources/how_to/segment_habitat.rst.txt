@@ -21,13 +21,6 @@ Run the demo
 
    habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
-**Demo pack tip:** ROIs were drawn mainly on the **basal** slices. In the
-viewer, drag the **axial** slider (bottom of the window) to about
-**slice 110** (file / ITK-SNAP index order; HABIT keeps axial indices
-unflipped) to see the habitat overlay. The default mid-volume slice may
-show no labels. Use ``habit view --convention radiological`` (default) for
-clinical A-P / L-R layout.
-
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
 (label overlay / segmentation).

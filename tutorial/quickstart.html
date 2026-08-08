@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=6f037312"></script>
+        <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.2
+                1.1.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -1556,13 +1556,6 @@ results and clustering curves):</p>
 <p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> opens napari if installed (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>); otherwise
 it falls back to a PNG. In napari, select the habitats Labels layer
 (Contour <code class="docutils literal notranslate"><span class="pre">0</span></code> = filled regions).</p>
-<p><strong>Demo pack tip:</strong> ROIs in <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> were drawn mainly on the <strong>basal</strong>
-slices. After opening the viewer, drag the <strong>axial</strong> slider near the bottom
-of the window to about <strong>slice 110</strong> (file / ITK-SNAP index order; HABIT
-keeps axial indices unflipped) — the habitat overlay appears there.
-On the default mid-volume slice the labels can look empty.
-Display defaults to radiological orientation
-(<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span> <span class="pre">--convention</span> <span class="pre">radiological</span></code>).</p>
 <p>For fuller 3D inspection, load the source image and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
 together in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer
 (label overlay / segmentation), not only the napari 2D slice slider.</p>
