@@ -53,11 +53,12 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-quickstart">6. Next: quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#need-more-later">Need more later?</a></li>
@@ -1443,13 +1444,24 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<section id="run-habit-inside-a-conda-env">
-<h2>Run HABIT inside a conda env<a class="headerlink" href="#run-habit-inside-a-conda-env" title="Link to this heading"></a></h2>
-<p>HABIT must run in a <strong>conda-activated</strong> terminal. Plain CMD / PowerShell /
-system Python (without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>) often fails with
+<p>This page is for absolute beginners on Windows (macOS / Linux notes where
+they differ). HABIT must run in a <strong>conda-activated</strong> terminal. Plain CMD /
+PowerShell / system Python (without <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span></code>) often fails with
 <code class="docutils literal notranslate"><span class="pre">habit:</span> <span class="pre">command</span> <span class="pre">not</span> <span class="pre">found</span></code> or uses the wrong interpreter.</p>
-<section id="how-to-open-the-conda-terminal">
-<h3>How to open the conda terminal<a class="headerlink" href="#how-to-open-the-conda-terminal" title="Link to this heading"></a></h3>
+<section id="install-miniconda">
+<h2>1. Install Miniconda<a class="headerlink" href="#install-miniconda" title="Link to this heading"></a></h2>
+<p>If you already have Anaconda or Miniconda, skip to step 2.</p>
+<ol class="arabic simple">
+<li><p>Open the official downloads page:
+<a class="reference external" href="https://docs.anaconda.com/miniconda">Miniconda</a>.</p></li>
+<li><p>Download the <strong>Windows 64-bit</strong> installer (<code class="docutils literal notranslate"><span class="pre">.exe</span></code>).</p></li>
+<li><p>Run the installer and accept the defaults (Next → Next → Install).
+When it finishes, Miniconda is ready.</p></li>
+</ol>
+<p>You do <strong>not</strong> need Visual Studio Code for the CLI demo.</p>
+</section>
+<section id="open-the-conda-terminal">
+<h2>2. Open the conda terminal<a class="headerlink" href="#open-the-conda-terminal" title="Link to this heading"></a></h2>
 <p><strong>Windows</strong> (Anaconda / Miniconda installed):</p>
 <ol class="arabic simple">
 <li><p>Click the <strong>Start</strong> button (Windows logo), or press the Windows key.
@@ -1474,8 +1486,11 @@ Prompt</strong> (example on Windows 10; on Windows 11 the Start icon may sit
 at the bottom-center). Your folder name may differ (e.g. Miniconda).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p>Then activate and check. After you open the Prompt you often see
-<code class="docutils literal notranslate"><span class="pre">(base)</span></code>; switch to the HABIT env (docs use the name <code class="docutils literal notranslate"><span class="pre">habit</span></code>):</p>
+<p>After you open the Prompt you often see <code class="docutils literal notranslate"><span class="pre">(base)</span></code>. That is normal — next
+you create and activate the HABIT env.</p>
+<p><strong>macOS / Linux</strong> — open Terminal.app / your shell. If <code class="docutils literal notranslate"><span class="pre">conda</span></code> is not
+found, open the Anaconda/Miniconda shell from the installer menu, or run
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> once for your shell and reopen the terminal.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Start (bottom-left on Win10; often bottom-center on Win11)
      |
      |  Anaconda3 → Anaconda Prompt
@@ -1484,35 +1499,44 @@ at the bottom-center). Your folder name may differ (e.g. Miniconda).</span><a cl
 Anaconda Prompt  (or Miniconda Prompt)
      |
      |  (base) C:\...&gt;
-     |  conda activate habit
      v
-(habit) C:\...&gt;          &lt;-- prompt must show (habit)
-     |
-     |  habit --version
-     v
-OK
+ready for step 3
 
-Wrong: plain CMD / PowerShell without conda activate
-       -&gt; &quot;habit&quot; not found, or wrong Python
+Wrong: plain CMD / PowerShell without conda
+       -&gt; &quot;conda&quot; / &quot;habit&quot; not found
 </pre></div>
 </div>
-<p><strong>macOS / Linux</strong> — open Terminal.app / your shell, then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda activate habit
-(habit) $ habit --version
-</pre></div>
-</div>
-<p>If <code class="docutils literal notranslate"><span class="pre">conda</span></code> is not found, open the Anaconda/Miniconda shell from the
-installer menu, or run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">init</span></code> once for your shell and reopen the
-terminal.</p>
-<p>Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> again and check
-that the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">...</span></code> command.</p>
 </section>
-</section>
-<section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Link to this heading"></a></h2>
+<section id="create-and-activate-the-habit-env">
+<h2>3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env<a class="headerlink" href="#create-and-activate-the-habit-env" title="Link to this heading"></a></h2>
+<p>In the conda terminal:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">habit</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span> <span class="o">-</span><span class="n">y</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span>
+</pre></div>
+</div>
+<p>Python <strong>3.10–3.14</strong> are supported; these docs use <strong>3.10</strong>. The env name
+in these docs is <strong>``habit``</strong> (any name is fine if you activate it).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">habit</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.10</span> <span class="o">-</span><span class="n">y</span>
+     <span class="o">|</span>
+     <span class="n">v</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
+     <span class="o">|</span>
+     <span class="n">v</span>
+<span class="p">(</span><span class="n">habit</span><span class="p">)</span> <span class="n">C</span><span class="p">:</span>\<span class="o">...&gt;</span>     <span class="o">&lt;--</span> <span class="n">prompt</span> <span class="n">must</span> <span class="n">show</span> <span class="p">(</span><span class="n">habit</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Every new terminal session: run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">habit</span></code> again and check
+that the prompt shows <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> before any <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">...</span></code> command.</p>
+<p><strong>macOS / Linux</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda activate habit
+(habit) $
+</pre></div>
+</div>
+</section>
+<section id="install-habit-from-official-pypi">
+<h2>4. Install HABIT from official PyPI<a class="headerlink" href="#install-habit-from-official-pypi" title="Link to this heading"></a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">(habit)</span></code> showing in the prompt:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span>
 <span class="c1"># Demo / quickstart path needs tables (parquet) + viz (clustering curves)</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;habitat-analysis[tables,viz]&quot;</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
 <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
@@ -1520,21 +1544,38 @@ that the prompt shows <code class="docutils literal notranslate"><span class="pr
 </div>
 <ul class="simple">
 <li><p>Package on PyPI: <strong>``habitat-analysis``</strong> (code: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">habit</span></code>)</p></li>
-<li><p>Python: <strong>3.10–3.14</strong></p></li>
-<li><p>Env name in these docs: <strong>``habit``</strong> (any name is fine if you activate it)</p></li>
-<li><p>Next: <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a></p></li>
+<li><p>Always use official PyPI for <strong>this</strong> package:
+<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">https://pypi.org/simple</span></code></p></li>
 </ul>
-<p>If <code class="docutils literal notranslate"><span class="pre">pip</span></code> cannot find the package on a local mirror, keep
-<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">https://pypi.org/simple</span></code>.</p>
-<p>After install you do <strong>not</strong> need a git clone for the demo YAML templates.
-Create any work folder, then:</p>
+<p><strong>Why not a China mirror for HABIT?</strong> Regional mirrors often lag or omit
+<code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code>. If <code class="docutils literal notranslate"><span class="pre">pip</span></code> cannot find the package, keep
+<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">https://pypi.org/simple</span></code> — do not switch the install of HABIT itself
+to a mirror.</p>
+</section>
+<section id="optional-china-mirrors-for-other-packages">
+<h2>5. Optional: China mirrors for <em>other</em> packages<a class="headerlink" href="#optional-china-mirrors-for-other-packages" title="Link to this heading"></a></h2>
+<p>If you only need to speed up <strong>unrelated</strong> dependencies (not HABIT), you
+may use a one-off mirror index for that single command, for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">some</span><span class="o">-</span><span class="n">other</span><span class="o">-</span><span class="n">package</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">tuna</span><span class="o">.</span><span class="n">tsinghua</span><span class="o">.</span><span class="n">edu</span><span class="o">.</span><span class="n">cn</span><span class="o">/</span><span class="n">simple</span>
+</pre></div>
+</div>
+<p>Do <strong>not</strong> set a permanent global default away from PyPI for HABIT work
+(e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">config</span> <span class="pre">set</span> <span class="pre">global.index-url</span> <span class="pre">...</span></code>). A global mirror can make
+<code class="docutils literal notranslate"><span class="pre">habitat-analysis</span></code> disappear from search results and break future installs
+or upgrades. Prefer one-off <code class="docutils literal notranslate"><span class="pre">-i</span></code> only when needed.</p>
+</section>
+<section id="next-quickstart">
+<h2>6. Next: quickstart<a class="headerlink" href="#next-quickstart" title="Link to this heading"></a></h2>
+<p>You do <strong>not</strong> need a git clone for the demo YAML templates. Create any
+work folder, then:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
 <span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
 <span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
 </pre></div>
 </div>
-<p>That writes <code class="docutils literal notranslate"><span class="pre">config/</span></code> into your folder. Download <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> next to it
-(see <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>); imaging packs are <strong>not</strong> inside the wheel.</p>
+<p>That writes <code class="docutils literal notranslate"><span class="pre">config/</span></code> into your folder. Download <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> next to
+it, then run the CLI commands in <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>. Imaging packs are
+<strong>not</strong> inside the wheel.</p>
 </section>
 <section id="optional-napari-habit-view">
 <h2>Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)<a class="headerlink" href="#optional-napari-habit-view" title="Link to this heading"></a></h2>

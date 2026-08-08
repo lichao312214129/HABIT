@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../../../_static/documentation_options.js?v=6f037312"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -406,11 +406,12 @@ window.runMermaid = runMermaid;</script>
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
@@ -419,9 +420,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
 </li>
@@ -438,7 +440,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/index.html">How-to guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/before_you_start.html">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -1826,10 +1828,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
+    <span class="n">DEFAULT_NATIVE_DIRECTION</span><span class="p">,</span>
     <span class="n">DEFAULT_RAS_DIRECTION</span><span class="p">,</span>
+    <span class="n">DisplayConvention</span><span class="p">,</span>
     <span class="n">array_axis_lps_direction</span><span class="p">,</span>
     <span class="n">desired_screen_directions</span><span class="p">,</span>
     <span class="n">direction_matrix</span> <span class="k">as</span> <span class="n">_parse_direction_matrix</span><span class="p">,</span>
+    <span class="n">normalize_display_convention</span><span class="p">,</span>
     <span class="n">orient_slice_for_display</span><span class="p">,</span>
     <span class="n">slice_row_col_axes</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1841,6 +1847,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="c1"># Re-export under the historical private names so existing unit tests keep working.</span>
 <span class="n">_DEFAULT_RAS_DIRECTION</span> <span class="o">=</span> <span class="n">DEFAULT_RAS_DIRECTION</span>
+<span class="n">_DEFAULT_NATIVE_DIRECTION</span> <span class="o">=</span> <span class="n">DEFAULT_NATIVE_DIRECTION</span>
 
 
 <span class="c1">#: What habit.viz needs matplotlib for.</span>
@@ -2169,9 +2176,13 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_desired_screen_directions</span><span class="p">(</span><span class="n">slice_axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Radiological screen ``(up, left)`` LPS directions (see orientation).&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">desired_screen_directions</span><span class="p">(</span><span class="n">slice_axis</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_desired_screen_directions</span><span class="p">(</span>
+    <span class="n">slice_axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Screen ``(up, left)`` LPS directions for ``convention`` (see orientation).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">desired_screen_directions</span><span class="p">(</span><span class="n">slice_axis</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_orient_slice_for_display</span><span class="p">(</span>
@@ -2179,10 +2190,14 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">slice_axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flip a 2D slice for matplotlib ``imshow`` radiological layout.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flip a 2D slice for matplotlib ``imshow`` under ``convention``.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
-        <span class="n">slice_2d</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">slice_axis</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span>
+        <span class="n">slice_2d</span><span class="p">,</span>
+        <span class="n">slice_axis</span><span class="o">=</span><span class="n">slice_axis</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -2194,12 +2209,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">slice_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize, orient, and blend one orthogonal slice to RGB.&quot;&quot;&quot;</span>
     <span class="n">grey</span> <span class="o">=</span> <span class="n">_normalize_grey</span><span class="p">(</span><span class="n">_take_slice</span><span class="p">(</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">))</span>
     <span class="n">labs</span> <span class="o">=</span> <span class="n">_take_slice</span><span class="p">(</span><span class="n">label_int</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)</span>
-    <span class="n">grey</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span><span class="n">grey</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
-    <span class="n">labs</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span><span class="n">labs</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">grey</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span>
+        <span class="n">grey</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span>
+    <span class="p">)</span>
+    <span class="n">labs</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span>
+        <span class="n">labs</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">_blend_overlay</span><span class="p">(</span><span class="n">grey</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="n">colors</span><span class="o">=</span><span class="n">_HABITAT_COLORS</span><span class="p">)</span>
 
 
@@ -2215,6 +2235,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">display_convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw habitat labels as a translucent colour overlay on the source image.</span>
@@ -2226,9 +2247,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    pin a specific slice. Label ``0`` is treated as background and is not</span>
 <span class="sd">    coloured.</span>
 
-<span class="sd">    Slices are flipped for radiological viewing using ``direction`` (SimpleITK</span>
-<span class="sd">    flattened 3x3). When omitted, RAS is assumed — the usual orientation of</span>
-<span class="sd">    NIfTI volumes loaded through SimpleITK / :class:`~habit.api.image.ImageVolume`.</span>
+<span class="sd">    Slices are oriented using ``direction`` (SimpleITK flattened 3x3) and</span>
+<span class="sd">    ``display_convention`` (default ``\&quot;radiological\&quot;``). When ``direction``</span>
+<span class="sd">    is omitted, LPS identity is assumed — the same default as</span>
+<span class="sd">    :class:`~habit.api.image.ImageVolume` — not RAS.</span>
 
 <span class="sd">    Panel aspect ratios follow ``spacing`` (SimpleITK ``(x, y, z)``) so thick</span>
 <span class="sd">    slices are not squashed into square pixels on coronal / sagittal views.</span>
@@ -2246,6 +2268,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        spacing: Optional SimpleITK voxel spacing ``(x, y[, z])`` in mm. Same</span>
 <span class="sd">            layout as ``ImageVolume.spacing``. Controls true physical aspect</span>
 <span class="sd">            per panel; defaults to isotropic ``1.0`` when omitted.</span>
+<span class="sd">        display_convention: ``\&quot;radiological\&quot;`` (default), ``\&quot;neurological\&quot;``,</span>
+<span class="sd">            or ``\&quot;native\&quot;`` (no display flips). See</span>
+<span class="sd">            :mod:`habit.viz.orientation`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``. The caller owns persistence / display.</span>
@@ -2258,6 +2283,11 @@ window.runMermaid = runMermaid;</script>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;plot_habitat_overlay: alpha must be in (0, 1]; got </span><span class="si">{</span><span class="n">alpha</span><span class="si">!r}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">convention</span> <span class="o">=</span> <span class="n">normalize_display_convention</span><span class="p">(</span><span class="n">display_convention</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HABITAPIError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot_habitat_overlay: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="n">image_vol</span> <span class="o">=</span> <span class="n">_as_volume</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span>
     <span class="n">label_vol</span> <span class="o">=</span> <span class="n">_as_volume</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="s2">&quot;labels&quot;</span><span class="p">)</span>
@@ -2286,6 +2316,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">slice_index</span><span class="o">=</span><span class="n">slice_index</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
             <span class="n">direction</span><span class="o">=</span><span class="n">direction_matrix</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">extent</span> <span class="o">=</span> <span class="n">_imshow_physical_extent</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
@@ -2334,6 +2365,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">slice_index</span><span class="o">=</span><span class="n">slice_index</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
             <span class="n">direction</span><span class="o">=</span><span class="n">direction_matrix</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">extent</span> <span class="o">=</span> <span class="n">_imshow_physical_extent</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>

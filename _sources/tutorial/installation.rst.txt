@@ -1,15 +1,28 @@
 ﻿Installation
 ============
 
-Run HABIT inside a conda env
-----------------------------
-
-HABIT must run in a **conda-activated** terminal. Plain CMD / PowerShell /
-system Python (without ``conda activate``) often fails with
+This page is for absolute beginners on Windows (macOS / Linux notes where
+they differ). HABIT must run in a **conda-activated** terminal. Plain CMD /
+PowerShell / system Python (without ``conda activate``) often fails with
 ``habit: command not found`` or uses the wrong interpreter.
 
-How to open the conda terminal
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Install Miniconda
+--------------------
+
+If you already have Anaconda or Miniconda, skip to step 2.
+
+1. Open the official downloads page:
+   `Miniconda <https://docs.anaconda.com/miniconda>`_.
+2. Download the **Windows 64-bit** installer (``.exe``).
+3. Run the installer and accept the defaults (Next → Next → Install).
+   When it finishes, Miniconda is ready.
+
+You do **not** need Visual Studio Code for the CLI demo.
+
+
+2. Open the conda terminal
+--------------------------
 
 **Windows** (Anaconda / Miniconda installed):
 
@@ -34,8 +47,14 @@ How to open the conda terminal
    Prompt** (example on Windows 10; on Windows 11 the Start icon may sit
    at the bottom-center). Your folder name may differ (e.g. Miniconda).
 
-Then activate and check. After you open the Prompt you often see
-``(base)``; switch to the HABIT env (docs use the name ``habit``)::
+After you open the Prompt you often see ``(base)``. That is normal — next
+you create and activate the HABIT env.
+
+**macOS / Linux** — open Terminal.app / your shell. If ``conda`` is not
+found, open the Anaconda/Miniconda shell from the installer menu, or run
+``conda init`` once for your shell and reopen the terminal.
+
+::
 
    Start (bottom-left on Win10; often bottom-center on Win11)
         |
@@ -45,59 +64,90 @@ Then activate and check. After you open the Prompt you often see
    Anaconda Prompt  (or Miniconda Prompt)
         |
         |  (base) C:\...>
-        |  conda activate habit
         v
-   (habit) C:\...>          <-- prompt must show (habit)
-        |
-        |  habit --version
-        v
-   OK
+   ready for step 3
 
-   Wrong: plain CMD / PowerShell without conda activate
-          -> "habit" not found, or wrong Python
-
-**macOS / Linux** — open Terminal.app / your shell, then::
-
-   $ conda activate habit
-   (habit) $ habit --version
-
-If ``conda`` is not found, open the Anaconda/Miniconda shell from the
-installer menu, or run ``conda init`` once for your shell and reopen the
-terminal.
-
-Every new terminal session: run ``conda activate habit`` again and check
-that the prompt shows ``(habit)`` before any ``habit ...`` command.
+   Wrong: plain CMD / PowerShell without conda
+          -> "conda" / "habit" not found
 
 
-Install
--------
+3. Create and activate the ``habit`` env
+----------------------------------------
+
+In the conda terminal::
+
+   conda create -n habit python=3.10 -y
+   conda activate habit
+
+Python **3.10–3.14** are supported; these docs use **3.10**. The env name
+in these docs is **``habit``** (any name is fine if you activate it).
 
 ::
 
    conda create -n habit python=3.10 -y
+        |
+        v
    conda activate habit
+        |
+        v
+   (habit) C:\...>     <-- prompt must show (habit)
+
+Every new terminal session: run ``conda activate habit`` again and check
+that the prompt shows ``(habit)`` before any ``habit ...`` command.
+
+**macOS / Linux**::
+
+   $ conda activate habit
+   (habit) $
+
+
+4. Install HABIT from official PyPI
+-----------------------------------
+
+With ``(habit)`` showing in the prompt::
+
    pip install -U pip
    # Demo / quickstart path needs tables (parquet) + viz (clustering curves)
    pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
    habit --version
 
 * Package on PyPI: **``habitat-analysis``** (code: ``import habit``)
-* Python: **3.10–3.14**
-* Env name in these docs: **``habit``** (any name is fine if you activate it)
-* Next: :doc:`quickstart`
+* Always use official PyPI for **this** package:
+  ``-i https://pypi.org/simple``
 
-If ``pip`` cannot find the package on a local mirror, keep
-``-i https://pypi.org/simple``.
+**Why not a China mirror for HABIT?** Regional mirrors often lag or omit
+``habitat-analysis``. If ``pip`` cannot find the package, keep
+``-i https://pypi.org/simple`` — do not switch the install of HABIT itself
+to a mirror.
 
-After install you do **not** need a git clone for the demo YAML templates.
-Create any work folder, then::
+
+5. Optional: China mirrors for *other* packages
+-----------------------------------------------
+
+If you only need to speed up **unrelated** dependencies (not HABIT), you
+may use a one-off mirror index for that single command, for example::
+
+   pip install some-other-package -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+Do **not** set a permanent global default away from PyPI for HABIT work
+(e.g. ``pip config set global.index-url ...``). A global mirror can make
+``habitat-analysis`` disappear from search results and break future installs
+or upgrades. Prefer one-off ``-i`` only when needed.
+
+
+6. Next: quickstart
+-------------------
+
+You do **not** need a git clone for the demo YAML templates. Create any
+work folder, then::
 
    mkdir D:\my_habit_work
    cd /d D:\my_habit_work
    habit copy-demo-config --dest .
 
-That writes ``config/`` into your folder. Download ``demo_data/`` next to it
-(see :doc:`quickstart`); imaging packs are **not** inside the wheel.
+That writes ``config/`` into your folder. Download ``demo_data/`` next to
+it, then run the CLI commands in :doc:`quickstart`. Imaging packs are
+**not** inside the wheel.
 
 
 Optional: napari (``habit view``)
