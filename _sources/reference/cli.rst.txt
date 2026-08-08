@@ -38,6 +38,9 @@ Every command is a thin shell over the Python API. Operator guides:
    * - ``habit check-config``
      - Validate YAML
      - :doc:`../how_to/before_you_start`
+   * - ``habit copy-demo-config``
+     - Materialize bundled demo ``config/`` into a work dir
+     - :doc:`../how_to/before_you_start`
    * - ``habit migrate-config``
      - v0.1 YAML → v1
      - :doc:`../api/spec`
@@ -48,4 +51,5 @@ Every command is a thin shell over the Python API. Operator guides:
      - Utilities
      - :doc:`../how_to/auxiliary_tools`
 
-Help: ``habit --help``, ``habit <cmd> --help``. Templates: ``config/``.
+Help: ``habit --help``, ``habit <cmd> --help``.
+Demo templates: ``habit copy-demo-config`` (or ``from habit import copy_demo_config``).

@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../_static/documentation_options.js?v=6f037312"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -66,9 +66,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
 </ul>
 </li>
@@ -85,7 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-to guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/before_you_start.html">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -1493,21 +1494,26 @@
 <td><p>Validate YAML</p></td>
 <td><p><a class="reference internal" href="../how_to/before_you_start.html"><span class="doc">Before you start</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">migrate-config</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">copy-demo-config</span></code></p></td>
+<td><p>Materialize bundled demo <code class="docutils literal notranslate"><span class="pre">config/</span></code> into a work dir</p></td>
+<td><p><a class="reference internal" href="../how_to/before_you_start.html"><span class="doc">Before you start</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">migrate-config</span></code></p></td>
 <td><p>v0.1 YAML → v1</p></td>
 <td><p><a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">list-components</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">list-components</span></code></p></td>
 <td><p>List plugins</p></td>
 <td><p><a class="reference internal" href="../api/plugins.html"><span class="doc">Plugin introspection API</span></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code> / <code class="docutils literal notranslate"><span class="pre">retest</span></code> / <code class="docutils literal notranslate"><span class="pre">dicom-info</span></code> / <code class="docutils literal notranslate"><span class="pre">merge-csv</span></code> / <code class="docutils literal notranslate"><span class="pre">dice</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code> / <code class="docutils literal notranslate"><span class="pre">retest</span></code> / <code class="docutils literal notranslate"><span class="pre">dicom-info</span></code> / <code class="docutils literal notranslate"><span class="pre">merge-csv</span></code> / <code class="docutils literal notranslate"><span class="pre">dice</span></code></p></td>
 <td><p>Utilities</p></td>
 <td><p><a class="reference internal" href="../how_to/auxiliary_tools.html"><span class="doc">Auxiliary tools</span></a></p></td>
 </tr>
 </tbody>
 </table>
-<p>Help: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">&lt;cmd&gt;</span> <span class="pre">--help</span></code>. Templates: <code class="docutils literal notranslate"><span class="pre">config/</span></code>.</p>
+<p>Help: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--help</span></code>, <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">&lt;cmd&gt;</span> <span class="pre">--help</span></code>.
+Demo templates: <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">copy-demo-config</span></code> (or <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">habit</span> <span class="pre">import</span> <span class="pre">copy_demo_config</span></code>).</p>
 </section>
 
 

@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../_static/documentation_options.js?v=6f037312"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -66,9 +66,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#next">Next</a></li>
 </ul>
 </li>
@@ -85,7 +86,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -1443,7 +1444,8 @@
              
   <section id="before-you-start">
 <h1>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h1>
-<p>Do this once, then every how-to page is just copy → edit ★ → run.</p>
+<p>Do this once, then every how-to page is just copy → edit ★ → run.
+A git clone is <strong>not</strong> required after <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code>.</p>
 <section id="terminal-env">
 <h2>1. Terminal + env<a class="headerlink" href="#terminal-env" title="Link to this heading"></a></h2>
 <p>Open a <strong>conda</strong> terminal first. On Windows: Start (Win10 often
@@ -1455,20 +1457,33 @@ Details and screenshots: <a class="reference internal" href="../tutorial/install
 </pre></div>
 </div>
 </section>
-<section id="project-root">
-<h2>2. Project root<a class="headerlink" href="#project-root" title="Link to this heading"></a></h2>
-<p>Commands run from the folder that contains <code class="docutils literal notranslate"><span class="pre">config/</span></code> (and <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>
-after you unpack the demo):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">habit</span>          <span class="c1"># Windows — use your path</span>
-<span class="n">cd</span> <span class="o">~/</span><span class="n">habit</span>              <span class="c1"># macOS / Linux</span>
-<span class="n">ls</span> <span class="n">config</span>               <span class="c1"># or: Test-Path config</span>
+<section id="work-directory-demo-configs">
+<h2>2. Work directory + demo configs<a class="headerlink" href="#work-directory-demo-configs" title="Link to this heading"></a></h2>
+<p>Pick any folder you own as <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code>. Materialize the bundled demo
+YAML tree (shipped inside the wheel; not <code class="docutils literal notranslate"><span class="pre">demo_data</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>        <span class="c1"># Windows — use your path</span>
+<span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
+<span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+
+<span class="c1"># macOS / Linux</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">~/</span><span class="n">my_habit_work</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="o">~/</span><span class="n">my_habit_work</span>
+<span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+
+<span class="n">ls</span> <span class="n">config</span>                     <span class="c1"># or: Test-Path config</span>
 </pre></div>
 </div>
+<p>Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_demo_config</span>
+<span class="n">copy_demo_config</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;D:/my_habit_work&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Commands below assume your shell <code class="docutils literal notranslate"><span class="pre">cwd</span></code> is this <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code>.</p>
 </section>
 <section id="demo-data-first-run">
 <h2>3. Demo data (first run)<a class="headerlink" href="#demo-data-first-run" title="Link to this heading"></a></h2>
 <p>Packs are <strong>split</strong> — habitat-only users need imaging; add ML only for
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>. Download into <strong>your</strong> <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code>
+(next to <code class="docutils literal notranslate"><span class="pre">config/</span></code>), not into the Python package directory.</p>
 <p><strong>Imaging</strong> (<code class="docutils literal notranslate"><span class="pre">preprocessed.zip</span></code>):</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3">Download preprocessed.zip</a> — extract code: 9bi3</p></li>
@@ -1497,7 +1512,7 @@ after you unpack the demo):</p>
 <li><p><strong>v0.1</strong> configs (most files): relative paths resolve from the <strong>YAML
 file’s directory</strong> (hence <code class="docutils literal notranslate"><span class="pre">../../demo_data/...</span></code>).</p></li>
 <li><p><strong>v1</strong> (<code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">'1.0'</span></code> / <code class="docutils literal notranslate"><span class="pre">*_v1.yaml</span></code>): paths as written; run from
-project root or use absolute paths.</p></li>
+<code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> or use absolute paths.</p></li>
 <li><p>Prefer <code class="docutils literal notranslate"><span class="pre">D:/data/...</span></code>; quote only if the path has spaces.</p></li>
 </ul>
 </section>

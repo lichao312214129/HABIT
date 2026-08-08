@@ -2,8 +2,33 @@ Quickstart: run the demo (YAML + CLI)
 =====================================
 
 No Python required. Install HABIT first (:doc:`installation`).
+You do **not** need a git clone: ``pip install habitat-analysis`` is enough.
 
-1. Get demo data
+1. Create a work directory and copy demo configs
+------------------------------------------------
+
+Pick any folder you own (called ``<work_dir>`` below). Activate conda, then
+materialize the bundled demo YAML tree into ``<work_dir>/config/``::
+
+   # Windows — Anaconda Prompt (not plain CMD)
+   conda activate habit          # prompt must show (habit)
+   mkdir D:\my_habit_work
+   cd /d D:\my_habit_work
+   habit copy-demo-config --dest .
+
+   # macOS / Linux
+   conda activate habit
+   mkdir -p ~/my_habit_work && cd ~/my_habit_work
+   habit copy-demo-config --dest .
+
+Python equivalent::
+
+   from habit import copy_demo_config
+   copy_demo_config(r"D:/my_habit_work")   # creates .../config/
+
+``demo_data/`` is **not** inside the wheel; download it next (step 2).
+
+2. Get demo data
 ----------------
 
 Demo packs are **split**. Habitat / imaging steps need only the imaging
@@ -11,11 +36,10 @@ pack; download the ML pack only if you run ``habit model`` / ``habit cv``.
 
 **Imaging** — |download_demo_data| — extract code: |demo_data_code|
 
-Download ``preprocessed.zip``, then extract at the project root (the folder
-that contains ``config/``)::
+Download ``preprocessed.zip``, then extract inside ``<work_dir>`` so you have::
 
-   <project_root>/
-   ├── config/
+   <work_dir>/
+   ├── config/                 # from habit copy-demo-config
    └── demo_data/
        └── preprocessed/
            ├── images/
@@ -39,8 +63,8 @@ Download ``ml_data.zip`` and extract so ``demo_data/ml_data/`` sits next to
 ``breast_cancer_dataset.csv``). If the zip top level is ``ml_data/``,
 extract into ``demo_data/``.
 
-2. Open a conda terminal at the project root
---------------------------------------------
+3. Open a conda terminal in ``<work_dir>``
+-----------------------------------------
 
 HABIT must run inside the activated conda env. Full guide:
 :doc:`installation`.
@@ -60,21 +84,27 @@ HABIT must run inside the activated conda env. Full guide:
    Open **Anaconda Prompt** from the Start menu (Win11 Start icon may be
    centered). Details: :doc:`installation`.
 
-Then activate, ``cd`` to the project root (folder with ``config/``), and
+Then activate, ``cd`` to your ``<work_dir>`` (folder with ``config/``), and
 check::
 
    # Windows — Anaconda Prompt (not plain CMD)
    conda activate habit          # prompt must show (habit)
-   cd /d D:\path\to\project_root # folder that contains config/
+   cd /d D:\my_habit_work        # your work_dir (has config/)
 
    # macOS / Linux — Terminal with conda available
    conda activate habit
-   cd ~/path/to/project_root
+   cd ~/my_habit_work
 
    habit --version
 
-3. Run
+4. Run
 ------
+
+If you followed :doc:`installation`, ``[tables,viz]`` is already installed.
+Otherwise install them before ``get-habitat`` (demo YAML defaults to parquet
+results and clustering curves)::
+
+   pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
 
 ::
 

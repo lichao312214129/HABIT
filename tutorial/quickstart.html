@@ -18,7 +18,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../_static/documentation_options.js?v=6f037312"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -40,7 +40,7 @@
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -66,9 +66,10 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
 </ul>
 </li>
@@ -85,7 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-to guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/before_you_start.html">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -1442,16 +1443,39 @@
              
   <section id="quickstart-run-the-demo-yaml-cli">
 <h1>Quickstart: run the demo (YAML + CLI)<a class="headerlink" href="#quickstart-run-the-demo-yaml-cli" title="Link to this heading"></a></h1>
-<p>No Python required. Install HABIT first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>).</p>
+<p>No Python required. Install HABIT first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>).
+You do <strong>not</strong> need a git clone: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habitat-analysis</span></code> is enough.</p>
+<section id="create-a-work-directory-and-copy-demo-configs">
+<h2>1. Create a work directory and copy demo configs<a class="headerlink" href="#create-a-work-directory-and-copy-demo-configs" title="Link to this heading"></a></h2>
+<p>Pick any folder you own (called <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> below). Activate conda, then
+materialize the bundled demo YAML tree into <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;/config/</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows — Anaconda Prompt (not plain CMD)</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>          <span class="c1"># prompt must show (habit)</span>
+<span class="n">mkdir</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
+<span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>
+<span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+
+<span class="c1"># macOS / Linux</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
+<span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">~/</span><span class="n">my_habit_work</span> <span class="o">&amp;&amp;</span> <span class="n">cd</span> <span class="o">~/</span><span class="n">my_habit_work</span>
+<span class="n">habit</span> <span class="n">copy</span><span class="o">-</span><span class="n">demo</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">dest</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Python equivalent:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy_demo_config</span>
+<span class="n">copy_demo_config</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;D:/my_habit_work&quot;</span><span class="p">)</span>   <span class="c1"># creates .../config/</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> is <strong>not</strong> inside the wheel; download it next (step 2).</p>
+</section>
 <section id="get-demo-data">
-<h2>1. Get demo data<a class="headerlink" href="#get-demo-data" title="Link to this heading"></a></h2>
+<h2>2. Get demo data<a class="headerlink" href="#get-demo-data" title="Link to this heading"></a></h2>
 <p>Demo packs are <strong>split</strong>. Habitat / imaging steps need only the imaging
 pack; download the ML pack only if you run <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>.</p>
 <p><strong>Imaging</strong> — <a class="reference external" href="https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3">Download preprocessed.zip</a> — extract code: 9bi3</p>
-<p>Download <code class="docutils literal notranslate"><span class="pre">preprocessed.zip</span></code>, then extract at the project root (the folder
-that contains <code class="docutils literal notranslate"><span class="pre">config/</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;project_root&gt;/
-├── config/
+<p>Download <code class="docutils literal notranslate"><span class="pre">preprocessed.zip</span></code>, then extract inside <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> so you have:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;work_dir&gt;/
+├── config/                 # from habit copy-demo-config
 └── demo_data/
     └── preprocessed/
         ├── images/
@@ -1474,8 +1498,8 @@ first run.</p>
 <code class="docutils literal notranslate"><span class="pre">breast_cancer_dataset.csv</span></code>). If the zip top level is <code class="docutils literal notranslate"><span class="pre">ml_data/</span></code>,
 extract into <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>.</p>
 </section>
-<section id="open-a-conda-terminal-at-the-project-root">
-<h2>2. Open a conda terminal at the project root<a class="headerlink" href="#open-a-conda-terminal-at-the-project-root" title="Link to this heading"></a></h2>
+<section id="open-a-conda-terminal-in-work-dir">
+<h2>3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code><a class="headerlink" href="#open-a-conda-terminal-in-work-dir" title="Link to this heading"></a></h2>
 <p>HABIT must run inside the activated conda env. Full guide:
 <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</p>
 <p><strong>Find the conda terminal (Windows):</strong></p>
@@ -1494,22 +1518,28 @@ Prompt</strong> / Miniconda Prompt). Or search <code class="docutils literal not
 centered). Details: <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p>Then activate, <code class="docutils literal notranslate"><span class="pre">cd</span></code> to the project root (folder with <code class="docutils literal notranslate"><span class="pre">config/</span></code>), and
+<p>Then activate, <code class="docutils literal notranslate"><span class="pre">cd</span></code> to your <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code> (folder with <code class="docutils literal notranslate"><span class="pre">config/</span></code>), and
 check:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows — Anaconda Prompt (not plain CMD)</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>          <span class="c1"># prompt must show (habit)</span>
-<span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">path</span>\<span class="n">to</span>\<span class="n">project_root</span> <span class="c1"># folder that contains config/</span>
+<span class="n">cd</span> <span class="o">/</span><span class="n">d</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>        <span class="c1"># your work_dir (has config/)</span>
 
 <span class="c1"># macOS / Linux — Terminal with conda available</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
-<span class="n">cd</span> <span class="o">~/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">project_root</span>
+<span class="n">cd</span> <span class="o">~/</span><span class="n">my_habit_work</span>
 
 <span class="n">habit</span> <span class="o">--</span><span class="n">version</span>
 </pre></div>
 </div>
 </section>
 <section id="run">
-<h2>3. Run<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
+<h2>4. Run<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
+<p>If you followed <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>, <code class="docutils literal notranslate"><span class="pre">[tables,viz]</span></code> is already installed.
+Otherwise install them before <code class="docutils literal notranslate"><span class="pre">get-habitat</span></code> (demo YAML defaults to parquet
+results and clustering curves):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;habitat-analysis[tables,viz]&quot;</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">simple</span>
+</pre></div>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 <span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 

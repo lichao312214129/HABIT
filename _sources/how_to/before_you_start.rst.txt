@@ -2,6 +2,7 @@ Before you start
 ================
 
 Do this once, then every how-to page is just copy → edit ★ → run.
+A git clone is **not** required after ``pip install habitat-analysis``.
 
 1. Terminal + env
 -----------------
@@ -16,21 +17,35 @@ Details and screenshots: :doc:`../tutorial/installation`.
    conda activate habit          # prompt must show (habit)
    habit --version
 
-2. Project root
----------------
+2. Work directory + demo configs
+--------------------------------
 
-Commands run from the folder that contains ``config/`` (and ``demo_data/``
-after you unpack the demo)::
+Pick any folder you own as ``<work_dir>``. Materialize the bundled demo
+YAML tree (shipped inside the wheel; not ``demo_data``)::
 
-   cd /d D:\habit          # Windows — use your path
-   cd ~/habit              # macOS / Linux
-   ls config               # or: Test-Path config
+   mkdir D:\my_habit_work        # Windows — use your path
+   cd /d D:\my_habit_work
+   habit copy-demo-config --dest .
+
+   # macOS / Linux
+   mkdir -p ~/my_habit_work && cd ~/my_habit_work
+   habit copy-demo-config --dest .
+
+   ls config                     # or: Test-Path config
+
+Python::
+
+   from habit import copy_demo_config
+   copy_demo_config(r"D:/my_habit_work")
+
+Commands below assume your shell ``cwd`` is this ``<work_dir>``.
 
 3. Demo data (first run)
 ------------------------
 
 Packs are **split** — habitat-only users need imaging; add ML only for
-``habit model`` / ``habit cv``.
+``habit model`` / ``habit cv``. Download into **your** ``<work_dir>``
+(next to ``config/``), not into the Python package directory.
 
 **Imaging** (``preprocessed.zip``):
 
@@ -58,7 +73,7 @@ Packs are **split** — habitat-only users need imaging; add ML only for
 * **v0.1** configs (most files): relative paths resolve from the **YAML
   file's directory** (hence ``../../demo_data/...``).
 * **v1** (``version: '1.0'`` / ``*_v1.yaml``): paths as written; run from
-  project root or use absolute paths.
+  ``<work_dir>`` or use absolute paths.
 * Prefer ``D:/data/...``; quote only if the path has spaces.
 
 5. Safe YAML edits
