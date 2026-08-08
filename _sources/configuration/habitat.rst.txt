@@ -861,6 +861,11 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
   - ``postprocess_supervoxel`` applies to supervoxel label maps (mainly two_step stage).
   - ``postprocess_habitat`` applies to final habitat label maps (one_step/two_step/direct_pooling).
+  - In the v1 path these settings land on ``HabitatSpec.postprocess_*`` and run
+    inside :class:`~habit.domain.pipeline.SubjectPipeline` (after
+    supervoxelization / after habitat assignment, before feature extraction).
+    :class:`~habit.adapters.writers.DirectoryResultWriter` writes the already
+    cleaned in-memory maps and does not re-run cleanup.
   - Current implementation uses SimpleITK fast path: remove small components per label, then reassign by nearest seed label.
   - Reduces fragmentation while preserving ROI voxel coverage.
 
@@ -1240,6 +1245,24 @@ the same ``checkpoint_dir`` root (see :doc:`../api/execution`).
 
 - **Type**: integer
 - **Default**: ``42``
+
+**on_geometry_mismatch** (habitat analysis top level, optional)
+
+- **Type**: string
+- **Default**: ``resample_mask``
+- **Allowed values**: ``resample_mask``, ``strict``
+- **Description**: When an ROI mask and the reference image disagree on voxel-grid
+  metadata (origin / direction / spacing / size), HABIT by default aligns the
+  mask onto the image grid before Stage-1: same-shaped arrays keep voxels and
+  adopt the image header; different shapes use nearest-neighbour resampling.
+  Set ``strict`` to raise ``GeometryError`` instead (opt-in). On a native v1
+  document the same key may sit under ``spec:`` as
+  ``HabitatSpec.on_geometry_mismatch``.
+- **Example**:
+
+  .. code-block:: yaml
+
+     on_geometry_mismatch: strict
 
 **debug** (habitat analysis top level)
 
