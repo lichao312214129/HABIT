@@ -100,13 +100,11 @@ check::
 4. Run
 ------
 
-The demo habitat YAML defaults to a parquet results table and draws
-clustering curves, so install the small extras once::
+If you followed :doc:`installation`, ``[tables,viz]`` is already installed.
+Otherwise install them before ``get-habitat`` (demo YAML defaults to parquet
+results and clustering curves)::
 
    pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
-
-(Alternatively set ``habitats_results_format: csv`` and
-``plot_curves: false`` in the YAML to stay on a bare install.)
 
 ::
 

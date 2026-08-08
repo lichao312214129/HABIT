@@ -77,7 +77,8 @@ Install
    conda create -n habit python=3.10 -y
    conda activate habit
    pip install -U pip
-   pip install habitat-analysis -i https://pypi.org/simple
+   # Demo / quickstart path needs tables (parquet) + viz (clustering curves)
+   pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
    habit --version
 
 * Package on PyPI: **``habitat-analysis``** (code: ``import habit``)
