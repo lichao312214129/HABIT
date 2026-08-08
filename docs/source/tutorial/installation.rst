@@ -98,6 +98,10 @@ Create any work folder, then::
 That writes ``config/`` into your folder. Download ``demo_data/`` next to it
 (see :doc:`quickstart`); imaging packs are **not** inside the wheel.
 
+For the default demo ``habit get-habitat`` path, also install::
+
+   pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
+
 
 Optional: napari (``habit view``)
 ---------------------------------

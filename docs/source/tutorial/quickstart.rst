@@ -100,6 +100,14 @@ check::
 4. Run
 ------
 
+The demo habitat YAML defaults to a parquet results table and draws
+clustering curves, so install the small extras once::
+
+   pip install "habitat-analysis[tables,viz]" -i https://pypi.org/simple
+
+(Alternatively set ``habitats_results_format: csv`` and
+``plot_curves: false`` in the YAML to stay on a bare install.)
+
 ::
 
    habit check-config --config config/habitat/config_habitat_two_step.yaml
