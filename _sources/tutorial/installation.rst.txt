@@ -1,8 +1,8 @@
 ﻿Installation
 ============
 
-Fast path
----------
+Install
+-------
 
 ::
 
@@ -12,483 +12,96 @@ Fast path
    pip install habitat-analysis -i https://pypi.org/simple
    habit --version
 
-Then run the demo: :doc:`quickstart`.
-
-* PyPI package name: **``habitat-analysis``** (import stays ``import habit``)
+* Package on PyPI: **``habitat-analysis``** (code: ``import habit``)
 * Python: **3.10–3.14**
-* Optional napari (for ``habit view``)::
+* Next: :doc:`quickstart`
 
-     pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-
-* From a git clone / local checkout::
-
-     pip install -e ".[view]"
-
-Details and extras below if something fails.
+If ``pip`` cannot find the package on a local mirror, keep
+``-i https://pypi.org/simple``.
 
 
-Method A — pip install
-----------------------
-
-Prerequisites
-~~~~~~~~~~~~~
-
-1. Install **Miniconda** / **Anaconda** (recommended), or a standalone
-   Python 3.10–3.14 from https://www.python.org .
-2. Open a terminal (Anaconda Prompt / PowerShell on Windows; Terminal on
-   macOS / Linux).
-3. Confirm Python::
-
-      python --version
-
-Create an isolated environment (strongly recommended)::
-
-   conda create -n habit python=3.10 -y
-   conda activate habit
-
-Install from PyPI (use the **official** index; see mirror note below)::
-
-   pip install -U pip
-   pip install habitat-analysis -i https://pypi.org/simple
-   habit --version
-
-**Interactive habitat viewing (napari)** — the ``[view]`` extra that pulls
-``napari[pyqt5]`` is declared in the **current source tree (1.1.x)**. The
-latest published wheel on PyPI as of this writing is **1.0.4**, which does
-**not** declare ``[view]``. Prefer one of:
-
-* **Clone / local checkout** (doctors developing against the repo)::
-
-     pip install -e ".[view]"
-
-* **PyPI base + napari stack** (works with published 1.0.x wheels)::
-
-     pip install habitat-analysis -i https://pypi.org/simple
-     pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-
-* After a future PyPI release that includes ``[view]``::
-
-     pip install "habitat-analysis[view]" -i https://pypi.org/simple
-
-Without napari, ``habit view`` falls back to a matplotlib PNG (needs
-``[viz]`` on 1.1.x). napari stays optional and is **not** a hard dependency.
-
-``[view]`` / npe2 need a pydantic release outside the broken ``2.11.x``
-series (``pydantic!=2.11.*,>=2.8``). If an older env still has pydantic 2.11,
-upgrade or pin before opening napari::
-
-   pip install "pydantic>=2.12,<3"
-   # or: pip install "pydantic>=2.8,<2.11"
-
-**China / hospital PyPI mirrors** — some mirrors (e.g. Tsinghua
-``pypi.tuna.tsinghua.edu.cn``) may not host ``habitat-analysis`` or even
-build tools such as ``setuptools`` even though official ``pypi.org`` does.
-If ``pip install habitat-analysis`` or ``pip install -e .`` reports
-*No matching distribution found*, point that install at official PyPI
-(``-i https://pypi.org/simple``). napari itself is usually on the same
-mirrors; if ``napari`` resolves to *versions: none*, install the napari
-line above from ``pypi.org`` as well.
-
-What the base install includes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The default ``pip install habitat-analysis`` is intentionally **light** — it
-installs only what the habitat kernel cannot run without:
-
-* Image I/O and geometry helpers (SimpleITK)
-* Image preprocessing recipes
-* Habitat analysis end to end: voxel features, supervoxels (kmeans / gmm
-  feature clustering), cohort habitat fitting, habitat assignment
-* Habitat feature extraction and the CSV result table
-* CLI entry point ``habit``
-
-The 11 required packages are ``numpy``, ``scipy``, ``pandas``,
-``scikit-learn``, ``SimpleITK``, ``pydantic``, ``PyYAML``, ``click``, ``tqdm``,
-``joblib`` and ``kneed``. Nothing else. Measured on CPython 3.10 / Linux:
-20 wheels, 129 MB downloaded, 635 MB of ``site-packages``.
-
-It does **not** pull PyRadiomics by default (see below), and since **1.1.0** it
-no longer pulls plotting, DICOM, parquet/xlsx or SLIC either — see
-:ref:`installation-optional-extras` and
-:ref:`installation-migrating-to-1-1-0`.
-
-.. _installation-migrating-to-1-1-0:
-
-Upgrading from 1.0.x
-~~~~~~~~~~~~~~~~~~~~
-
-HABIT 1.1.0 moved six packages out of the required set and into extras:
-``matplotlib``, ``seaborn``, ``scikit-image``, ``pydicom``, ``pyarrow`` and
-``openpyxl``. (``chardet`` was removed entirely; nothing needs it any more.)
-A bare install therefore dropped from 212 MB to 129 MB of downloads, from
-931 MB to 635 MB of ``site-packages``, and from 43 to 23 distributions
-(measured on CPython 3.10 / Linux).
-
-The Python API did not change: every public symbol keeps its name and
-signature. What changed is what ``pip install habitat-analysis`` gives you.
-
-**One-line migration** — reproduce everything a 1.0.x install plus ``[all]``
-used to provide::
-
-   pip install -U "habitat-analysis[full]"
-
-If you would rather install only what you actually use, pick from the table
-below. You do not have to guess: whenever a workflow reaches for a package that
-is not installed, HABIT raises ``OptionalDependencyError`` containing the exact
-``pip install`` command for the extra that provides it.
-
-Two consequences worth knowing before you upgrade:
-
-* **Figures.** Anything under ``habit.viz``, the ML report figures, and the
-  clustering plots need ``[viz]``.
-* **Result tables.** ``habitats_results_format`` still defaults to
-  ``parquet``, and the default was deliberately left alone so output filenames
-  never change silently. Writing parquet needs ``[tables]``. Without it the run
-  fails with a message offering both exits: install ``[tables]``, or set
-  ``habitats_results_format: csv`` in your YAML to write ``habitats.csv``
-  instead (CSV needs no optional package at all). HABIT never switches format
-  on your behalf.
-
-Verify the install
-~~~~~~~~~~~~~~~~~~
+Optional: napari (``habit view``)
+---------------------------------
 
 ::
 
-   habit --version
-   python -c "import habit; print(habit.__version__)"
-   python -c "import habit.recipes; print('recipes OK')"
+   pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
+
+From a git clone you can use ``pip install -e ".[view]"`` instead.
 
 
-Method B — install from Git source
-----------------------------------
+From source (developers)
+------------------------
 
-Use this when you develop HABIT or need an unreleased commit::
+::
 
    git clone https://github.com/lichao312214129/HABIT.git
    cd HABIT
    conda create -n habit python=3.10 -y
    conda activate habit
    pip install -U pip
-   pip install .
-   habit --version
-
-Editable install (you change HABIT source frequently)::
-
    pip install -e .
    habit --version
 
-A local source checkout can also be installed with ``pip install .`` /
-``pip install -e .`` without cloning from GitHub.
 
+Need more later?
+----------------
 
-Install PyRadiomics (only if you need radiomics features)
----------------------------------------------------------
+Missing optional packages raise ``OptionalDependencyError`` with the exact
+``pip install`` command. Install only what you use::
 
-You need PyRadiomics when your YAML / API uses:
-
-* ``voxel_radiomics`` / ``supervoxel_radiomics``
-* ``habit radiomics`` (traditional radiomics)
-* habitat feature extractors that call PyRadiomics textures
-
-If you only use intensity ``raw`` / ``concat`` habitat features, you can skip
-this section.
-
-**Install PyRadiomics separately.** HABIT extras do **not** pull
-``pyradiomics`` (PyPI rejects direct wheel URLs in uploaded metadata, and the
-Windows PyPI sdist is broken).
-
-Upstream PyPI has **no usable PyRadiomics Windows binaries** for any
-supported Python (3.10–3.14): bare ``pip install pyradiomics`` downloads a
-broken **3.1.0 sdist**. HABIT publishes self-built **PyRadiomics 3.1.0**
-``win_amd64`` wheels (CPython 3.10–3.14) as assets of GitHub Release
-`v1.0.2 <https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2>`_.
-
-Windows — prebuilt wheel (pick your Python)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-   # Python 3.10
-   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-
-   # Python 3.11
-   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp311-cp311-win_amd64.whl
-
-   # Python 3.12
-   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp312-cp312-win_amd64.whl
-
-   # Python 3.13
-   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp313-cp313-win_amd64.whl
-
-   # Python 3.14
-   pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp314-cp314-win_amd64.whl
-
-   python -c "import radiomics; print(radiomics.__version__)"
-
-.. list-table:: Windows wheel URLs (Release ``v1.0.2``)
-   :header-rows: 1
-   :widths: 18 82
-
-   * - Python
-     - Wheel URL
-   * - 3.10
-     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-   * - 3.11
-     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp311-cp311-win_amd64.whl
-   * - 3.12
-     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp312-cp312-win_amd64.whl
-   * - 3.13
-     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp313-cp313-win_amd64.whl
-   * - 3.14
-     - https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp314-cp314-win_amd64.whl
-
-macOS / Linux
-~~~~~~~~~~~~~
-
-::
-
-   pip install "pyradiomics>=3.0.1,<3.2"
-   python -c "import radiomics; print(radiomics.__version__)"
-
-Or from conda-forge if you prefer::
-
-   conda install -c conda-forge pyradiomics
-
-
-.. _installation-optional-extras:
-
-Optional extras
----------------
-
-Install only what your workflow needs. When a workflow reaches for a package
-that is missing, HABIT raises ``OptionalDependencyError`` naming the extra and
-printing the ``pip install`` command, so you never have to work out the mapping
-yourself.
-
-**Recommended** when you will inspect habitats after ``get-habitat``: install
-the napari stack so default ``habit view`` opens without a second trip to
-pip (medium-weight Qt stack; see the table row below). Prefer the **source**
-extra on a clone; on published 1.0.x wheels install napari directly::
-
-   # From a HABIT git clone / local checkout (1.1.x metadata):
-   pip install -e ".[view]"
-
-   # Or (works with PyPI 1.0.x wheels that lack [view]):
-   pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-
-Without napari, ``habit view`` prints an install hint and falls back to
-a matplotlib PNG (needs ``[viz]`` on 1.1.x). napari stays optional and is
-**not** a hard dependency.
+   pip install "habitat-analysis[ml,analysis]"
 
 .. list-table::
    :header-rows: 1
-   :widths: 16 34 34 16
+   :widths: 18 82
 
    * - Extra
-     - Command
      - Needed for
-     - Packages
    * - ``viz``
-     - ``pip install "habitat-analysis[viz]"``
-     - Every figure: ``habit.viz``, ML report plots,
-       clustering plots, KM curves
-     - matplotlib, seaborn
+     - Figures (``habit.viz``, ML / clustering plots)
    * - ``tables``
-     - ``pip install "habitat-analysis[tables]"``
-     - Reading/writing ``.parquet`` (the default
-       ``habitats_results_format``) and ``.xlsx``
-     - pyarrow, openpyxl
+     - ``.parquet`` / ``.xlsx`` (default habitats table is parquet)
    * - ``dicom``
-     - ``pip install "habitat-analysis[dicom]"``
-     - ``habit dicom-info`` / ``habit sort-dicom``.
-       NIfTI / NRRD input needs nothing extra
-     - pydicom
+     - ``habit dicom-info`` / ``habit sort-dicom``
    * - ``slic``
-     - ``pip install "habitat-analysis[slic]"``
-     - The SLIC supervoxel backend. The default
-       ``kmeans`` / ``gmm`` backends need nothing extra
-     - scikit-image
-   * - ``radiomics``
-     - ``pip install "habitat-analysis[radiomics]"``
-       (empty alias; still install PyRadiomics
-       separately as above)
-     - Documented alias only — does **not** install
-       PyRadiomics
-     - —
+     - SLIC supervoxels (default ``kmeans`` / ``gmm`` need nothing)
    * - ``ml``
-     - ``pip install "habitat-analysis[ml]"``
-     - XGBoost, SMOTE, mRMR / VIF / stepwise selectors
-     - + ``viz``, ``tables``
-   * - ``registration``
-     - ``pip install "habitat-analysis[registration]"``
-     - ANTs registration backend in preprocessing
-     - antspyx
+     - XGBoost, SMOTE, mRMR / VIF / stepwise (includes ``viz``, ``tables``)
    * - ``analysis``
-     - ``pip install "habitat-analysis[analysis]"``
-     - SHAP, Plotly, ICC (pingouin), survival tools
-     - + ``viz``, ``tables``
+     - SHAP, Plotly, ICC, survival (includes ``viz``, ``tables``)
+   * - ``registration``
+     - ANTs registration
    * - ``automl``
-     - ``pip install "habitat-analysis[automl]"``
      - AutoGluon Tabular
-     - autogluon.tabular
    * - ``torch``
-     - ``pip install "habitat-analysis[torch]"``
-     - TorchRadiomics / GPU texture backends
-     - torch
-   * - ``view``
-     - From clone: ``pip install -e ".[view]"``;
-       or direct ``napari[pyqt5]`` from
-       ``pypi.org`` (see above). PyPI 1.0.4
-       wheels do **not** declare this extra yet.
-     - Preferred interactive napari for default
-       ``habit view`` (~80–120 MB net; PyQt5 +
-       vispy). Without it, CLI falls back to
-       matplotlib PNG via ``viz``. Requires
-       ``pydantic!=2.11.*`` (npe2 PluginManifest)
-     - napari[pyqt5], npe2, pydantic constraint
+     - TorchRadiomics / GPU texture
    * - ``all``
-     - ``pip install "habitat-analysis[all]"``
-     - Every optional workflow dep **except** ``torch``
-       (CUDA index), PyRadiomics (install separately),
-       and ``view`` (napari/Qt; install on demand)
-     - all of the above except ``view``
-   * - ``full``
-     - ``pip install "habitat-analysis[full]"``
-     - Migration alias for 1.0.x users: everything a
-       pre-1.1.0 bare install plus ``[all]`` provided
-     - same as ``all``
-
-Combine extras::
-
-   pip install "habitat-analysis[ml,analysis]"
-
-From a source checkout (editable)::
-
-   pip install -e ".[ml,analysis]"
-
-Not sure which extras you need? Install none of them, run your workflow, and
-follow the ``pip install`` command in the first error you get.
+     - All of the above except ``torch`` and PyRadiomics
+   * - ``view``
+     - napari for ``habit view`` (clone: ``pip install -e ".[view]"``)
 
 
-Copy-paste recipes
-------------------
+PyRadiomics (only if you need radiomics)
+----------------------------------------
 
-Minimal library (any OS)::
+Not installed by default. Needed for ``voxel_radiomics`` /
+``supervoxel_radiomics``, ``habit radiomics``, and texture habitat features.
 
-   conda create -n habit python=3.10 -y
-   conda activate habit
-   pip install -U pip
-   pip install habitat-analysis -i https://pypi.org/simple
-   # Interactive habitat overlay (PyPI 1.0.x has no [view] extra yet):
-   pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-   habit --version
+**Windows** — use a prebuilt wheel from
+`Release v1.0.2 <https://github.com/lichao312214129/HABIT/releases/tag/v1.0.2>`_
+(do **not** use bare ``pip install pyradiomics``)::
 
-Radiomics + ML (Windows, Python 3.10 example)::
-
-   conda create -n habit python=3.10 -y
-   conda activate habit
-   pip install -U pip
-   pip install "habitat-analysis[ml,analysis]"
+   # Python 3.10 example — change cp310 for 3.11–3.14
    pip install https://github.com/lichao312214129/HABIT/releases/download/v1.0.2/pyradiomics-3.1.0-cp310-cp310-win_amd64.whl
-   habit --version
-   python -c "import radiomics; print(radiomics.__version__)"
 
-Radiomics + ML (macOS / Linux)::
+**macOS / Linux**::
 
-   conda create -n habit python=3.10 -y
-   conda activate habit
-   pip install -U pip
-   pip install "habitat-analysis[ml,analysis]"
    pip install "pyradiomics>=3.0.1,<3.2"
-   habit --version
-   python -c "import radiomics; print(radiomics.__version__)"
-
-From GitHub source (recommended when you need ``[view]`` / 1.1.x extras)::
-
-   git clone https://github.com/lichao312214129/HABIT.git
-   cd HABIT
-   conda create -n habit python=3.10 -y
-   conda activate habit
-   pip install -U pip
-   pip install -e .
-   # If your default mirror lacks habitat-analysis or build deps (setuptools):
-   #   pip install -e . -i https://pypi.org/simple
-   # Interactive napari viewer (declared on this tree; medium-weight Qt stack):
-   pip install -e ".[view]"
-   # If [view] or napari fails to resolve on your default mirror:
-   #   pip install -e ".[view]" -i https://pypi.org/simple
-   #   # or: pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-   pip install -e ".[ml,analysis]"
-   # then install PyRadiomics separately (Windows wheel URL or PyPI / conda-forge)
 
 
-Common problems
----------------
+Problems?
+---------
 
-**``habit`` is not recognized**
-
-Activate the environment (``conda activate habit``), then retry. Confirm with
-``where habit`` (Windows) or ``which habit`` (macOS/Linux).
-
-**``pip install habitat-analysis`` fails mentioning ``pyradiomics``**
-
-Base HABIT does not require PyRadiomics. Install without extras first::
-
-   pip install habitat-analysis
-
-**``pip install pyradiomics`` fails on Windows**
-
-Expected. Use the matching GitHub Release wheel URL from the table above
-instead of bare ``pip install pyradiomics``.
-
-**``OptionalDependencyError`` after upgrading from 1.0.x**
-
-Expected: 1.1.0 moved matplotlib, seaborn, scikit-image, pydicom, pyarrow and
-openpyxl into extras. The error message contains the ``pip install`` command
-for the extra you need. To restore everything at once::
-
-   pip install -U "habitat-analysis[full]"
-
-See :ref:`installation-migrating-to-1-1-0`.
-
-**My habitat run stops at "pyarrow is required for writing the habitats results
-table as parquet"**
-
-The result table defaults to parquet, which needs the ``tables`` extra. Either::
-
-   pip install "habitat-analysis[tables]"
-
-or write CSV instead, which needs no optional package — in your YAML::
-
-   habitats_results_format: csv
-
-HABIT will not switch format on its own, because that would change your output
-filename from ``habitats.parquet`` to ``habitats.csv`` without telling you.
-
-**Permission / SSL / mirror errors at hospital networks**
-
-Ask IT to allow access to ``pypi.org`` and GitHub Releases (Windows
-PyRadiomics wheels). If your default index is a China mirror and
-``habitat-analysis`` is missing there, install HABIT and/or napari with
-``-i https://pypi.org/simple`` (or clone the repo and ``pip install -e .``).
-
-**``AttributeError: module 'napari' has no attribute 'Viewer'``**
-
-Broken / partial napari install (empty namespace under ``site-packages``).
-Remove the leftover folder if needed, then reinstall::
-
-   pip install "napari[pyqt5]" "npe2>=0.8.2" "pydantic!=2.11.*,>=2.8,<3" -i https://pypi.org/simple
-
-From a clone you can instead run ``pip install -e ".[view]"``.
-
-**More FAQ**
-
-See :doc:`../troubleshooting/faq`.
-
-
-Next steps
-----------
-
-* YAML + CLI quickstart: :doc:`quickstart`
-* Python API quickstart: :doc:`quickstart_python`
-* Examples gallery: :doc:`../examples/index`
+See :doc:`../troubleshooting/faq`. Then :doc:`quickstart` or
+:doc:`quickstart_python`.

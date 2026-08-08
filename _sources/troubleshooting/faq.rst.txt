@@ -25,12 +25,17 @@ Python, e.g. 3.10::
 **napari window flashes then closes** — keep ``show=True`` (default); the
 call blocks until you close the window.
 
+**``OptionalDependencyError``** — the message includes the
+``pip install ...`` command for the missing extra.
+
+**Parquet / pyarrow** — either ``pip install "habitat-analysis[tables]"``
+or set ``habitats_results_format: csv`` in YAML.
+
 Run
 ---
 
-**Path / file errors** — run from the project root (contains ``config/``).
-Check ``data_dir`` / ``out_dir``. In v0.1 YAML, relative paths resolve from
-the **YAML file's directory**.
+**Path / file errors** — run from the project root (folder that contains
+``config/``). Check ``data_dir`` / ``out_dir`` (and absolute paths if unsure).
 
 **Command failed** — ``habit <cmd> --help``; read ``processing.log`` in the
 output folder; validate with ``habit check-config -c <yaml>``.

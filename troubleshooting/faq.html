@@ -53,24 +53,12 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#fast-path">Fast path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-extras">Optional extras</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#common-problems">Common problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-steps">Next steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#need-more-later">Need more later?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
@@ -1175,6 +1163,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#five-habitat-protocols">Five habitat protocols</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#habitatcomponents-spec-live-objects"><code class="docutils literal notranslate"><span class="pre">HabitatComponents</span></code> (spec → live objects)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#composing-features-trees-combiners-and-statistics">Composing features: trees, combiners, and statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#precision-screen-perturbations-and-precise-features">Precision screen: perturbations and precise features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#randomness-seedable">Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</a></li>
@@ -1469,12 +1458,15 @@ Python, e.g. 3.10:</p>
 </div>
 <p><strong>napari window flashes then closes</strong> — keep <code class="docutils literal notranslate"><span class="pre">show=True</span></code> (default); the
 call blocks until you close the window.</p>
+<p><strong>``OptionalDependencyError``</strong> — the message includes the
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">...</span></code> command for the missing extra.</p>
+<p><strong>Parquet / pyarrow</strong> — either <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[tables]&quot;</span></code>
+or set <code class="docutils literal notranslate"><span class="pre">habitats_results_format:</span> <span class="pre">csv</span></code> in YAML.</p>
 </section>
 <section id="run">
 <h2>Run<a class="headerlink" href="#run" title="Link to this heading"></a></h2>
-<p><strong>Path / file errors</strong> — run from the project root (contains <code class="docutils literal notranslate"><span class="pre">config/</span></code>).
-Check <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>. In v0.1 YAML, relative paths resolve from
-the <strong>YAML file’s directory</strong>.</p>
+<p><strong>Path / file errors</strong> — run from the project root (folder that contains
+<code class="docutils literal notranslate"><span class="pre">config/</span></code>). Check <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> (and absolute paths if unsure).</p>
 <p><strong>Command failed</strong> — <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">&lt;cmd&gt;</span> <span class="pre">--help</span></code>; read <code class="docutils literal notranslate"><span class="pre">processing.log</span></code> in the
 output folder; validate with <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span> <span class="pre">-c</span> <span class="pre">&lt;yaml&gt;</span></code>.</p>
 <p><strong>YAML changes ignored</strong> — confirm the file passed with <code class="docutils literal notranslate"><span class="pre">-c</span></code>; CLI
