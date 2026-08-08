@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-08-08
+
+### Added
+
+- Ship demo YAML templates with the wheel (baked at build time from
+  repository ``config/``). Users materialize them without a git clone via
+  ``habit copy-demo-config --dest <work_dir>`` or
+  ``habit.copy_demo_config(work_dir)``. ``demo_data/`` remains a separate
+  download and is never packaged.
+- Docs (installation / before_you_start / quickstart) walk through a user
+  ``work_dir``: conda terminal → copy demo config → download ``demo_data``
+  beside it → run CLI demos.
+
+### Changed
+
+- Single source of truth for demo YAML is repo-root ``config/``. Editable
+  installs read that tree live; ``setup.py`` ``build_py`` / ``sdist`` sync
+  into ``habit/resources/demo_config/`` for wheels (generated files are
+  gitignored).
+
 ## [1.1.1] - 2026-08-08
 
 ### Added

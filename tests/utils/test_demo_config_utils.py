@@ -103,3 +103,16 @@ def test_sync_script_mirrors_repo_config(tmp_path: Path) -> None:
     }
     synced_rels = {rel.as_posix() for rel in copied}
     assert synced_rels == live_rels
+
+
+@pytest.mark.unit
+def test_setup_py_build_hooks_sync_demo_config() -> None:
+    """Wheel/sdist packaging must auto-sync repo ``config/`` (no dual tree)."""
+    setup_text = (_PROJECT_ROOT / "setup.py").read_text(encoding="utf-8")
+    assert "class _BuildPy" in setup_text
+    assert "_sync_demo_config_for_build" in setup_text
+    assert '"build_py": _BuildPy' in setup_text
+    assert '"sdist": _Sdist' in setup_text
+    # Guard against regressing to a hand-maintained committed mirror.
+    gitignore = (_PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "habit/resources/demo_config/**" in gitignore
