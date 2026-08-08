@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-08-09
+
+### Fixed
+
+- Habitat display orientation aligned across backends: default LPS convention,
+  napari no longer flips the z axis, and ``habit view --convention`` /
+  ``view_habitat_napari(..., convention=...)`` for RAS/LPS selection.
+
+### Changed
+
+- Docs: beginner Miniconda-to-PyPI install flow; recommend
+  ``habitat-analysis[tables,viz]`` for quickstart; note extras for demo
+  ``get-habitat``.
+
 ## [1.1.2] - 2026-08-08
 
 ### Added
