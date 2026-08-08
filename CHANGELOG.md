@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
   immediately before ``habit model``.
+- Docs: Python API quickstart uses the same demo YAML as the CLI via
+  ``recipes.run_from_yaml`` (habitat / predict / extract / model), so API
+  and CLI results match on the demo pack.
 
 ## [1.1.3] - 2026-08-09
 

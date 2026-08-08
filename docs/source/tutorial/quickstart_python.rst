@@ -1,59 +1,67 @@
 Quickstart: Python API
 ========================
 
-Install first (:doc:`installation`). YAML users: :doc:`quickstart`.
+Install first (:doc:`installation`). This page is the **same demo** as
+:doc:`quickstart`, driven by the **same YAML files** through
+:func:`~habit.recipes.run_from_yaml` (the programmatic twin of the CLI).
 
-1. Habitat analysis (no files)
--------------------------------
+Work from a directory that already has ``config/`` and ``demo_data/``
+(see :doc:`quickstart` steps 1-2)::
+
+   # Windows - Anaconda Prompt
+   conda activate habit
+   cd /d D:\my_habit_work          # your work_dir (has config/ + demo_data/)
+
+Paths inside the demo YAML resolve from each YAML file's folder
+(``../../demo_data/...``), exactly as for ``habit get-habitat`` /
+``habit extract`` / ``habit model``.
+
+1. Habitat analysis (same YAML as CLI)
+--------------------------------------
+
+CLI twin::
+
+   habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, make_synthetic_cohort
    import habit.recipes as recipes
 
-   cohort = make_synthetic_cohort(n_subjects=6, shape=(24, 24, 24), rng=42)
-   spec = HabitatSpec(
-       name="habitat_two_step",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-       supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
-       habitat_model_fitter=Spec(
-           "kmeans",
-           {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 5},
-       ),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Spec("traditional"), Spec("whole_habitat"), Spec("each_habitat"),
-       ),
-       random_seed=42,
+   result = recipes.run_from_yaml(
+       "config/habitat/config_habitat_two_step.yaml",
+       workflow="habitat",
+       save=True,  # write maps / CSV / model under the YAML out_dir
    )
-   result = recipes.two_step(cohort, spec)
    print(result.habitat_model.summary())
-   result.save("out/study")   # optional: write maps + CSV + model
 
-Real data folder (demo pack)::
+Outputs land under ``demo_data/results/habitat_two_step/`` (including
+``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). With the same
+YAML, seed, and data, API and CLI habitat label maps match voxel-wise.
+
+In-memory recipes without YAML (synthetic cohorts, custom ``HabitatSpec``)
+live under :doc:`../examples/index` -- useful for notebooks, not for
+reproducing this demo's CLI numbers.
+
+2. View
+-------
+
+CLI twin::
+
+   habit view demo_data/preprocessed/images/subj001/LAP/...nrrd \
+              demo_data/results/habitat_two_step/subj001_habitats.nrrd
+
+.. code-block:: python
 
    from habit import cohort_from_directory
+   from habit.viz import view_habitat_napari
+
    cohort = cohort_from_directory(
        "demo_data/preprocessed",
        modalities=["pre_contrast", "LAP", "PVP", "delay_3min"],
        roi="LAP",
    )
-
-Or a path-list YAML via :doc:`../how_to/prepare_data` +
-``habit.recipes.run_from_yaml(...)``.
-
-2. View
--------
-
-.. code-block:: python
-
-   from habit.viz import view_habitat_napari
-
-   volume = cohort[0].image("T1")
+   # result.habitat_maps are in the same subject order as the YAML cohort
+   volume = cohort[0].image("LAP")
    view_habitat_napari(
        volume.data,
        result.habitat_maps[0].label_array,
@@ -65,33 +73,65 @@ Needs napari (:doc:`installation`). Blocks until you close the window.
 For fuller 3D review, also open the source volume and ``*_habitats.nrrd``
 in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer.
 
-3. Apply a saved model
-----------------------
+3. Apply a saved model (same YAML as CLI predict)
+-------------------------------------------------
+
+After step 1, the archive sits at
+``demo_data/results/habitat_two_step/habitat_model.habitatmodel``.
+CLI twin::
+
+   habit get-habitat --config config/habitat/config_habitat_two_step_predict.yaml -m predict
 
 .. code-block:: python
 
-   from habit import HabitatModel
-
-   result.habitat_model.save("out/habitat_model.habitatmodel")
-   model = HabitatModel.load("out/habitat_model.habitatmodel")
-   prediction = recipes.apply_habitat_model(new_cohort, spec, model)
-
-4. Tabular ML
--------------
-
-.. code-block:: python
-
-   from habit import MLSpec, Spec, make_synthetic_feature_table
    import habit.recipes as recipes
 
-   table = make_synthetic_feature_table(n_rows=80, n_features=8, rng=42)
-   spec = MLSpec(
-       name="demo",
-       steps=(Spec("variance", {"threshold": 0.01}), Spec("zscore")),
-       classifier=Spec("LogisticRegression", {"max_iter": 500}),
-       metrics=(Spec("accuracy"), Spec("auc")),
+   prediction = recipes.run_from_yaml(
+       "config/habitat/config_habitat_two_step_predict.yaml",
+       workflow="habitat",
+       save=True,
    )
-   result = recipes.train_model(table, spec, test_size=0.25, seed=42)
-   print(result.test_metrics)
+   print(len(prediction.habitat_maps), "subjects labelled")
 
-Next: :doc:`../examples/index` · :doc:`../api/index` · :doc:`../how_to/prepare_data`
+4. Extract habitat features (same YAML as CLI)
+----------------------------------------------
+
+CLI twin::
+
+   habit extract --config config/feature_extraction/config_extract_features_demo.yaml
+
+Needs step 1 outputs (``*_habitats.nrrd`` under the habitats folder named in
+that YAML).
+
+.. code-block:: python
+
+   import habit.recipes as recipes
+
+   extract_result = recipes.run_from_yaml(
+       "config/feature_extraction/config_extract_features_demo.yaml",
+       workflow="extract",
+   )
+   print(extract_result.output_dir)
+
+5. Tabular ML (same YAML as CLI)
+--------------------------------
+
+CLI twin::
+
+   habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
+
+Needs the **ML pack** under ``demo_data/ml_data/`` (see :doc:`quickstart`
+step 2 / the note before ``habit model``).
+
+.. code-block:: python
+
+   import habit.recipes as recipes
+
+   ml_result = recipes.run_from_yaml(
+       "config/machine_learning/config_machine_learning_radiomics_minimal.yaml",
+       workflow="model",
+       save=True,
+   )
+   print(ml_result.test_metrics)
+
+Next: :doc:`../examples/index` / :doc:`../api/index` / :doc:`../how_to/prepare_data`
