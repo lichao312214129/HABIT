@@ -53,24 +53,12 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#fast-path">Fast path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#method-a-pip-install">Method A — pip install</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#what-the-base-install-includes">What the base install includes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#verify-the-install">Verify the install</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#macos-linux">macOS / Linux</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#optional-extras">Optional extras</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#common-problems">Common problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#next-steps">Next steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#from-source-developers">From source (developers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#need-more-later">Need more later?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#problems">Problems?</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: run the demo (YAML + CLI)</a><ul>
@@ -129,6 +117,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/train_model.html">Machine learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#demo-tabular-data">Demo tabular data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#run-fast-demo">Run (fast demo)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#your-data">Your data</a></li>
 </ul>
@@ -1175,6 +1164,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#five-habitat-protocols">Five habitat protocols</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#hand-assembled-two-step-chain">Hand-assembled two-step chain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#subjectpipeline"><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain.html#habitatcomponents-spec-live-objects"><code class="docutils literal notranslate"><span class="pre">HabitatComponents</span></code> (spec → live objects)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#composing-features-trees-combiners-and-statistics">Composing features: trees, combiners, and statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#precision-screen-perturbations-and-precise-features">Precision screen: perturbations and precise features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain.html#randomness-seedable">Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</a></li>
@@ -1451,13 +1441,34 @@
 <p>No Python required. Install HABIT first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>).</p>
 <section id="get-demo-data">
 <h2>1. Get demo data<a class="headerlink" href="#get-demo-data" title="Link to this heading"></a></h2>
-<p>Extract <code class="docutils literal notranslate"><span class="pre">demo_data.rar</span></code> at the project root (the folder that contains
-<code class="docutils literal notranslate"><span class="pre">config/</span></code>):</p>
+<p>Demo packs are <strong>split</strong>. Habitat / imaging steps need only the imaging
+pack; download the ML pack only if you run <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">cv</span></code>.</p>
+<p><strong>Imaging</strong> — <a class="reference external" href="https://pan.baidu.com/s/1w8r0IUJ8YXVDrkFYCAOQWw?pwd=9bi3">Download preprocessed.zip</a> — extract code: 9bi3</p>
+<p>Download <code class="docutils literal notranslate"><span class="pre">preprocessed.zip</span></code>, then extract at the project root (the folder
+that contains <code class="docutils literal notranslate"><span class="pre">config/</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;project_root&gt;/
+├── config/
+└── demo_data/
+    └── preprocessed/
+        ├── images/
+        └── masks/
+</pre></div>
+</div>
+<p>There is <strong>no</strong> nested <code class="docutils literal notranslate"><span class="pre">processed_images</span></code> layer under <code class="docutils literal notranslate"><span class="pre">preprocessed/</span></code>.</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pan.baidu.com/s/1K1m8U47wUWV9CCUNahNZuw?pwd=9ws9">Download demo_data.rar</a> — code: 9ws9</p></li>
+<li><p>If the zip top level is a <code class="docutils literal notranslate"><span class="pre">preprocessed/</span></code> folder, extract into
+<code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> (result: <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/...</span></code>).</p></li>
+<li><p>If the zip top level is <code class="docutils literal notranslate"><span class="pre">images/</span></code> and <code class="docutils literal notranslate"><span class="pre">masks/</span></code>, put them under
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/</span></code>.</p></li>
 </ul>
-<p>Modalities in the pack: <code class="docutils literal notranslate"><span class="pre">delay2</span></code> / <code class="docutils literal notranslate"><span class="pre">delay3</span></code> / <code class="docutils literal notranslate"><span class="pre">delay5</span></code>. Preprocessed
-images are already included — you can skip preprocess on the first run.</p>
+<p>Modalities: <code class="docutils literal notranslate"><span class="pre">pre_contrast</span></code> / <code class="docutils literal notranslate"><span class="pre">LAP</span></code> / <code class="docutils literal notranslate"><span class="pre">PVP</span></code> / <code class="docutils literal notranslate"><span class="pre">delay_3min</span></code>.
+Preprocessed images are already included — you can skip preprocess on the
+first run.</p>
+<p><strong>Tabular ML</strong> (optional) — <a class="reference external" href="https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp">Download ml_data.zip</a> — extract code: atnp</p>
+<p>Download <code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code> and extract so <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> sits next to
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/</span></code> (CSV tables such as
+<code class="docutils literal notranslate"><span class="pre">breast_cancer_dataset.csv</span></code>). If the zip top level is <code class="docutils literal notranslate"><span class="pre">ml_data/</span></code>,
+extract into <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>.</p>
 </section>
 <section id="open-a-terminal-at-the-project-root">
 <h2>2. Open a terminal at the project root<a class="headerlink" href="#open-a-terminal-at-the-project-root" title="Link to this heading"></a></h2>
@@ -1478,10 +1489,13 @@ images are already included — you can skip preprocess on the first run.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 <span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 
-<span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">processed_images</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">delay2</span><span class="o">/</span><span class="n">delay2</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
+<span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
 
 <span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">feature_extraction</span><span class="o">/</span><span class="n">config_extract_features_demo</span><span class="o">.</span><span class="n">yaml</span>
-<span class="n">habit</span> <span class="n">model</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">machine_learning</span><span class="o">/</span><span class="n">config_machine_learning_radiomics_minimal</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">mode</span> <span class="n">train</span>
+</pre></div>
+</div>
+<p>The last command needs the <strong>ML pack</strong> (<code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">model</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">machine_learning</span><span class="o">/</span><span class="n">config_machine_learning_radiomics_minimal</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">mode</span> <span class="n">train</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code> opens napari if installed (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>); otherwise

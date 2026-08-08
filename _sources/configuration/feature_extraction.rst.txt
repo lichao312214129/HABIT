@@ -10,7 +10,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
    params_file_of_non_habitat: ./parameter.yaml
    params_file_of_habitat: ./parameter_habitat.yaml
 
-   raw_img_folder: ./demo_data/preprocessed/processed_images
+   raw_img_folder: ./demo_data/preprocessed
    habitats_map_folder: ./demo_data/results/habitat_two_step
    out_dir: ./demo_data/results/features
 
@@ -53,7 +53,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Required**: yes
 - **Default**: none (required)
 - **Description**: contains preprocessed images
-- **Example**: ``./preprocessed/processed_images``
+- **Example**: ``./demo_data/preprocessed``
 
 **habitats_map_folder**: root directory of habitat maps
 

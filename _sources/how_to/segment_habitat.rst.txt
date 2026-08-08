@@ -9,7 +9,7 @@ Before you start
 * :doc:`before_you_start` (terminal at project root)
 * Data ready (:doc:`prepare_data`). Demo::
 
-     demo_data/preprocessed/processed_images/
+     demo_data/preprocessed/
 
 Run the demo
 ------------
@@ -19,7 +19,7 @@ Run the demo
    habit check-config --config config/habitat/config_habitat_two_step.yaml
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
-   habit view demo_data/preprocessed/processed_images/images/subj001/delay2/delay2.nii.gz demo_data/results/habitat_two_step/subj001_habitats.nrrd
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
 **Demo pack tip:** ROIs were drawn mainly on the **basal** slices. In the
 viewer, drag the **axial** slider (bottom of the window) to about

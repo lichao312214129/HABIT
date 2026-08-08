@@ -4,7 +4,7 @@ Preprocessing
 Goal: turn images (or DICOM) into a preprocessed ``images/`` + ``masks/`` tree.
 
 **First demo run:** skip this page — the demo pack already has
-``demo_data/preprocessed/processed_images/``. Go to :doc:`segment_habitat`.
+``demo_data/preprocessed/``. Go to :doc:`segment_habitat`.
 
 Run
 ---

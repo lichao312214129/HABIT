@@ -3,6 +3,18 @@ Machine learning
 
 Goal: train / CV models on feature CSVs.
 
+Demo tabular data
+-----------------
+
+ML demos read CSVs under ``demo_data/ml_data/`` (separate from imaging).
+Download |download_ml_data| (extract code: |ml_data_code|) and extract so
+you have e.g. ``demo_data/ml_data/breast_cancer_dataset.csv`` next to
+``config/``. If the zip top level is ``ml_data/``, extract into
+``demo_data/``. Habitat imaging (``preprocessed.zip``) is **not** required
+for these tabular ML demos.
+
+See also :doc:`before_you_start`.
+
 Run (fast demo)
 ---------------
 

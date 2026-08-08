@@ -24,10 +24,28 @@ after you unpack the demo)::
 3. Demo data (first run)
 ------------------------
 
+Packs are **split** — habitat-only users need imaging; add ML only for
+``habit model`` / ``habit cv``.
+
+**Imaging** (``preprocessed.zip``):
+
 * |download_demo_data| — extract code: |demo_data_code|
-* Unpack at the project root → ``demo_data/`` next to ``config/``
-* Modalities: ``delay2`` / ``delay3`` / ``delay5``
+* Extract so you have ``demo_data/preprocessed/images/`` and
+  ``demo_data/preprocessed/masks/`` next to ``config/``
+* **No** nested ``processed_images`` under ``preprocessed/``
+* Zip layout tips:
+
+  - top-level ``preprocessed/`` → extract into ``demo_data/``
+  - top-level ``images/`` + ``masks/`` → put under ``demo_data/preprocessed/``
+
+* Modalities: ``pre_contrast`` / ``LAP`` / ``PVP`` / ``delay_3min``
 * Preprocessed tree is already there — skip preprocess the first time
+
+**Tabular ML** (``ml_data.zip``, optional):
+
+* |download_ml_data| — extract code: |ml_data_code|
+* Extract to ``demo_data/ml_data/`` (e.g. ``breast_cancer_dataset.csv``)
+* If zip top level is ``ml_data/``, extract into ``demo_data/``
 
 4. Paths in YAML
 ----------------

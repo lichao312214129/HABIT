@@ -92,20 +92,28 @@ Point ``data_dir`` / ``data.source`` at a directory with this layout::
            └── T1/                 # first modality used in the config
                └── roi.nii.gz
 
-Demo pack (after extracting ``demo_data.rar`` at the project root)::
+Demo pack (``preprocessed.zip`` — |download_demo_data|, code
+|demo_data_code|). After extract at the project root (no nested
+``processed_images``)::
 
-   demo_data/preprocessed/processed_images/
-   ├── images/subj001/delay2|delay3|delay5/...
-   └── masks/subj001/delay2|delay3|delay5/...
+   demo_data/preprocessed/
+   ├── images/subj001/pre_contrast|LAP|PVP|delay_3min/...
+   └── masks/subj001/pre_contrast|LAP|PVP|delay_3min/...
+
+If the zip top level is ``preprocessed/``, extract into ``demo_data/``; if
+it is ``images/`` + ``masks/``, put them under ``demo_data/preprocessed/``.
+
+Subjects in the pack: ``subj001`` … ``subj005``. Files are NRRD under each
+modality folder.
 
 Then in the workflow YAML::
 
    # v0.1
-   data_dir: ../../demo_data/preprocessed/processed_images
+   data_dir: ../../demo_data/preprocessed
 
    # v1
    data:
-     source: demo_data/preprocessed/processed_images
+     source: demo_data/preprocessed
 
 What success looks like
 -----------------------

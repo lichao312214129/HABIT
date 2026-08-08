@@ -34,10 +34,14 @@ Install first (:doc:`installation`). YAML users: :doc:`quickstart`.
    print(result.habitat_model.summary())
    result.save("out/study")   # optional: write maps + CSV + model
 
-Real data folder::
+Real data folder (demo pack)::
 
    from habit import cohort_from_directory
-   cohort = cohort_from_directory("processed_images", modalities=["T1", "T2"], roi="T1")
+   cohort = cohort_from_directory(
+       "demo_data/preprocessed",
+       modalities=["pre_contrast", "LAP", "PVP", "delay_3min"],
+       roi="LAP",
+   )
 
 Or a path-list YAML via :doc:`../how_to/prepare_data` +
 ``habit.recipes.run_from_yaml(...)``.

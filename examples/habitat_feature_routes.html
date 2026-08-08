@@ -53,24 +53,12 @@
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#fast-path">Fast path</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-a-pip-install">Method A — pip install</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#what-the-base-install-includes">What the base install includes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#upgrading-from-1-0-x">Upgrading from 1.0.x</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#verify-the-install">Verify the install</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#method-b-install-from-git-source">Method B — install from Git source</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install-pyradiomics-only-if-you-need-radiomics-features">Install PyRadiomics (only if you need radiomics features)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#windows-prebuilt-wheel-pick-your-python">Windows — prebuilt wheel (pick your Python)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../tutorial/installation.html#macos-linux">macOS / Linux</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-extras">Optional extras</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#copy-paste-recipes">Copy-paste recipes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#common-problems">Common problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#next-steps">Next steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#need-more-later">Need more later?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#pyradiomics-only-if-you-need-radiomics">PyRadiomics (only if you need radiomics)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/installation.html#problems">Problems?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
@@ -129,6 +117,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/train_model.html">Machine learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#demo-tabular-data">Demo tabular data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#run-fast-demo">Run (fast demo)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#your-data">Your data</a></li>
 </ul>
@@ -1525,7 +1514,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="n">REPO_ROOT</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-<span class="n">IMAGING_ROOT</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span> <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span> <span class="o">/</span> <span class="s2">&quot;processed_images&quot;</span>
+<span class="n">IMAGING_ROOT</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span> <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span>
 <span class="n">PARAMS_VOXEL</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;habit&quot;</span> <span class="o">/</span> <span class="s2">&quot;resources&quot;</span> <span class="o">/</span> <span class="s2">&quot;radiomics&quot;</span> <span class="o">/</span> <span class="s2">&quot;params_voxel_radiomics.yaml&quot;</span>
 <span class="p">)</span>
@@ -1537,11 +1526,11 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="k">def</span><span class="w"> </span><span class="nf">_load_cohort</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">object</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cohort and modality list (demo or synthetic).&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">IMAGING_ROOT</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-        <span class="n">modalities</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;delay2&quot;</span><span class="p">,</span> <span class="s2">&quot;delay3&quot;</span><span class="p">,</span> <span class="s2">&quot;delay5&quot;</span><span class="p">)</span>
+        <span class="n">modalities</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">)</span>
         <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span>
             <span class="n">IMAGING_ROOT</span><span class="p">,</span>
             <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
-            <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;delay2&quot;</span><span class="p">,</span>
+            <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span><span class="si">}</span><span class="s2"> subjects from demo_data (</span><span class="si">{</span><span class="n">modalities</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">modalities</span>
@@ -1736,7 +1725,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  supervoxel_radiomics skipped: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== voxel_radiomics / supervoxel_radiomics ===&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  skipped (need demo_data/preprocessed/processed_images/ and PyRadiomics)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  skipped (need demo_data/preprocessed/ and PyRadiomics)&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML equivalents: config/habitat/config_habitat_two_step_voxel_radiomics_*.yaml&quot;</span><span class="p">)</span>
 </pre></div>

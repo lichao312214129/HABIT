@@ -19,39 +19,39 @@ DICOM **sort-only** uses ``habit sort-dicom`` with a separate config; see
 
    preprocessing:
      dcm2nii:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        dcm2niix_path: ./dcm2niix.exe
        compress: true
        anonymize: false
 
      n4_correction:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        num_fitting_levels: 4
 
      resample:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        target_spacing: [1.0, 1.0, 1.0]
        img_mode: bilinear
 
      registration:
-       images: [delay2, delay3, delay5]
-       fixed_image: delay2
+       images: [pre_contrast, LAP, PVP, delay_3min]
+       fixed_image: LAP
        type_of_transform: SyNRA
        metric: MI
        use_mask: false
 
      histogram_standardization:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        target_min: 0.0
        target_max: 100.0
 
      zscore_normalization:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        only_inmask: false
        clip_values: [-3, 3]
 
      adaptive_histogram_equalization:
-       images: [delay2, delay3, delay5]
+       images: [pre_contrast, LAP, PVP, delay_3min]
        alpha: 0.3
        beta: 0.3
        radius: 5
