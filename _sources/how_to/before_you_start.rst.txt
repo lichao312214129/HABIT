@@ -6,9 +6,9 @@ Do this once, then every how-to page is just copy → edit ★ → run.
 1. Terminal + env
 -----------------
 
-Open a **conda** terminal (Windows: **Anaconda Prompt**), activate the
-env, then confirm the CLI. Details and ASCII guide:
-:doc:`../tutorial/installation`.
+Open a **conda** terminal first. On Windows: Start → search
+``Anaconda Prompt`` (or ``Miniconda Prompt``) → open that app — not plain
+CMD/PowerShell. Details: :doc:`../tutorial/installation`.
 
 ::
 

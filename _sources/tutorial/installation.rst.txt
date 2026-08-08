@@ -8,11 +8,24 @@ HABIT must run in a **conda-activated** terminal. Plain CMD / PowerShell /
 system Python (without ``conda activate``) often fails with
 ``habit: command not found`` or uses the wrong interpreter.
 
-**Windows** — open **Anaconda Prompt** (or Miniconda Prompt) from the
-Start Menu, not a plain Command Prompt::
+How to open the conda terminal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   Start Menu
+**Windows** (Anaconda / Miniconda installed):
+
+1. Click the **Start** button (or press the Windows key).
+2. Type ``Anaconda Prompt`` (or ``Miniconda Prompt`` if you use Miniconda).
+3. Open the app named **Anaconda Prompt** — not "Command Prompt", not
+   "Windows PowerShell", and not "Terminal" unless conda is already set up
+   there.
+4. Optional: open **Anaconda Navigator** → Environments → open terminal
+   for the ``habit`` env.
+
+Then activate and check::
+
+   Start
         |
+        |  search: Anaconda Prompt
         v
    Anaconda Prompt  (or Miniconda Prompt)
         |
@@ -27,10 +40,14 @@ Start Menu, not a plain Command Prompt::
    Wrong: plain CMD / PowerShell without conda activate
           -> "habit" not found, or wrong Python
 
-**macOS / Linux** — any terminal where ``conda`` works::
+**macOS / Linux** — open Terminal.app / your shell, then::
 
    $ conda activate habit
    (habit) $ habit --version
+
+If ``conda`` is not found, open the Anaconda/Miniconda shell from the
+installer menu, or run ``conda init`` once for your shell and reopen the
+terminal.
 
 Every new terminal session: run ``conda activate habit`` again and check
 that the prompt shows ``(habit)`` before any ``habit ...`` command.
