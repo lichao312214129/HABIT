@@ -41,5 +41,8 @@
 /*.bat
 /*.ps1
 
+# Sphinx build artifacts must never ship on Pages
+/.doctrees/
+
 # Keep Pages markers (explicit; Sphinx HTML is otherwise unignored)
 !.nojekyll
