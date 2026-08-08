@@ -18,12 +18,14 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
    habitat_pattern: '*_habitats.nrrd'
 
    feature_types:
-     - traditional
-     - non_radiomics
-     - whole_habitat
-     - each_habitat
+     - volume
      - msi
      - ith_score
+     - non_radiomics
+     # Heavy PyRadiomics families (opt-in; require pyradiomics):
+     # - traditional
+     # - whole_habitat
+     # - each_habitat
 
    n_habitats:
 
@@ -96,8 +98,8 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Required**: yes
 - **Default**: none (required; at least one item)
 - **Description**: types not in the list are not extracted
-- **Allowed values**: ``traditional``, ``non_radiomics``, ``whole_habitat``, ``each_habitat``, ``msi``, ``ith_score``
-- **Example**: ``[traditional, non_radiomics, whole_habitat]``
+- **Allowed values**: ``volume``, ``msi``, ``ith_score``, ``non_radiomics``, ``traditional``, ``whole_habitat``, ``each_habitat``
+- **Example**: ``[volume, msi, ith_score, non_radiomics]`` (uncomment heavy radiomics when needed)
 - **Meanings and references per type**: see :doc:`../reference/features/index`
 
 **n_habitats**: number of habitats

@@ -24,6 +24,8 @@ Coverage
 ``demo_data/results/api/05_extract_features`` and
 ``06_traditional_radiomics``.
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

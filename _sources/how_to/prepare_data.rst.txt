@@ -1,68 +1,121 @@
 Prepare data
 ============
 
-Project root
-------------
+Goal: tell HABIT where your images and ROI masks are. Modality names in the
+data must match the names used later in the habitat / radiomics config.
 
-Run commands from the **project root** (folder containing ``config/`` ):
+Before you start
+----------------
 
-- **Portable pack**: extract directory (same level as ``python.exe`` )
-- **Source**: GitHub repo root
+* HABIT installed; you can run ``habit --version``
+  (:doc:`before_you_start`).
+* Terminal open at the **project root** (folder that contains ``config/``).
+* Prefer **NIfTI** (``.nii`` / ``.nii.gz``). Draw ROIs in ITK-SNAP or
+  3D Slicer. DICOM → NIfTI: see :doc:`preprocess`.
 
-Paths in YAML are resolved **relative to the YAML file location** unless absolute.
+Two ways to provide data
+------------------------
 
-Folder layout
--------------
+**Recommended:** list every image / mask path in a small YAML file, then set
+that file as ``data_dir`` (v0.1) or ``data.source`` (v1) in your workflow
+config.
 
-.. code-block:: text
+**Alternative:** point ``data_dir`` / ``data.source`` at a folder that already
+follows the HABIT tree (shown below).
+
+Option A — path list YAML (recommended)
+---------------------------------------
+
+1. Copy the template::
+
+      config/habitat/file_habitat_registered_single_roi.yaml
+
+2. Edit **subject IDs**, **modality keys**, and **file paths** (fields marked
+   ★ in that file). Keep modality keys identical to your habitat config
+   (e.g. ``T1``, ``T2``).
+
+3. In the workflow config, point at this file (not at a single ``.nii.gz``)::
+
+      # v0.1 (habit get-habitat / preprocess YAML)
+      data_dir: ./file_habitat_registered_single_roi.yaml
+
+      # v1 habitat YAML
+      data:
+        source: config/habitat/file_habitat_registered_single_roi.yaml
+
+Example path list (absolute paths; relative paths are OK and resolve from
+**this YAML file's directory**)::
+
+   auto_select_first_file: false
+
+   images:
+     subj001:                                    # ★ subject ID
+       T1: D:/study/registered/subj001/T1.nii.gz # ★ image path
+       T2: D:/study/registered/subj001/T2.nii.gz # ★ image path
+     subj002:
+       T1: D:/study/registered/subj002/T1.nii.gz
+       T2: D:/study/registered/subj002/T2.nii.gz
+
+   masks:
+     # One ROI per subject is enough when modalities are already co-registered.
+     # Use the first modality key from your feature expression (here T1).
+     subj001:
+       T1: D:/study/registered/subj001/roi.nii.gz  # ★ mask path
+     subj002:
+       T1: D:/study/registered/subj002/roi.nii.gz
+
+Notes:
+
+* Direct ``.nii.gz`` paths → keep ``auto_select_first_file: false``.
+* Paths that point to a **folder** containing one NIfTI → set
+  ``auto_select_first_file: true`` (see ``file_habitat_demo.yaml``).
+* Mask grid must match the registered image (same size / spacing).
+
+Check syntax::
+
+   habit check-config --config config/habitat/file_habitat_registered_single_roi.yaml --syntax-only
+
+Option B — folder tree
+----------------------
+
+Point ``data_dir`` / ``data.source`` at a directory with this layout::
 
    data_root/
    ├── images/
-   │   └── subject001/
-   │       ├── T1/T1.nii.gz
-   │       └── T2/T2.nii.gz
+   │   └── subj001/
+   │       ├── T1/
+   │       │   └── T1.nii.gz
+   │       └── T2/
+   │           └── T2.nii.gz
    └── masks/
-       └── subject001/
-           ├── T1/mask.nii.gz
-           └── T2/mask.nii.gz
+       └── subj001/
+           └── T1/                 # first modality used in the config
+               └── roi.nii.gz
 
-See ``demo_data/preprocessed/processed_images/`` after extracting the demo.
+Demo pack (after extracting ``demo_data.rar`` at the project root)::
 
-Public MSD BrainTumour alternative
-----------------------------------
+   demo_data/preprocessed/processed_images/
+   ├── images/subj001/delay2|delay3|delay5/...
+   └── masks/subj001/delay2|delay3|delay5/...
 
-If you cannot download the Baidu ``demo_data.rar`` pack, fetch 5–10 public
-MSD Task01 BrainTumour (BraTS-like) cases with stdlib + SimpleITK only
-(no MONAI / torch)::
+Then in the workflow YAML::
 
-   python scripts/download_msd_brain_demo.py --n 5
+   # v0.1
+   data_dir: ../../demo_data/preprocessed/processed_images
 
-Layout written under ``demo_data/preprocessed/processed_images/``::
+   # v1
+   data:
+     source: demo_data/preprocessed/processed_images
 
-   images/<subj>/{flair,t1,t1ce,t2}/<subj>_<mod>.nii.gz
-   masks/<subj>/tumor/<subj>_tumor.nii.gz
+What success looks like
+-----------------------
 
-MSD stores modalities as one 4D volume in the order **flair, t1, t1ce, t2**.
-The script also copies the whole-tumor mask (``label > 0``) under each
-modality folder so ``habit get-habitat`` can load the tree with the current
-CLI ROI rule (first modality key in the feature expression).
+* ``data_dir`` / ``data.source`` is either a **path-list YAML** or a **folder
+  root** — never a bare ``.nii.gz``.
+* Subject IDs and modality keys match your habitat config.
+* Each subject has a usable ROI when the workflow needs masks.
+* ``habit check-config`` on the path-list YAML (``--syntax-only``) succeeds.
 
-Matching habitat config (replaces ``delay2`` / ``delay3`` / ``delay5``)::
+Next: :doc:`preprocess` (DICOM / raw) or :doc:`segment_habitat`.
 
-   habit check-config -c config/habitat/config_habitat_msd_demo.yaml
-   habit get-habitat  -c config/habitat/config_habitat_msd_demo.yaml
-
-Acknowledgement: Medical Segmentation Decathlon Task01 / BraTS 2016–2017;
-please cite MSD and BraTS when using these cases. License: CC-BY-SA 4.0
-(``https://medicaldecathlon.com/``). The large tarball is cached under
-``demo_data/_msd_cache/`` (gitignored).
-
-Data specification
-------------------
-
-1. **Folder**: ``data_dir`` points to a root with ``images/`` and ``masks/``
-2. **Manifest YAML** (recommended): ``data_dir`` points to e.g. ``config/habitat/file_habitat_demo.yaml``
-
-Draw ROIs in **ITK-SNAP** or **3D Slicer** ; export NIfTI masks.
-
-Templates: ``config/`` — see :doc:`../configuration/recipe_catalog`.
+Templates: ``config/`` — catalogue in :doc:`../configuration/recipe_catalog`.

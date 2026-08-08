@@ -2,7 +2,7 @@ Configuration System
 ====================
 
 Configuration is the center of HABIT's **v0.1 YAML contract** — the parsing
-layer the CLI and GUI still speak. This page explains how a YAML file or
+layer the CLI still speaks. This page explains how a YAML file or
 Python dictionary becomes a validated configuration object and, ultimately,
 an executable workflow. It covers loading, path resolution, schema layers,
 parameter registries, and domain configurators.
@@ -120,7 +120,8 @@ While parsing a workflow, ``validate_step_params()`` resolves each method name,
 validates its parameters, and raises ``ConfigValidationError`` before
 execution when the input is invalid.
 
-The same metadata can drive GUI forms, keeping CLI YAML and GUI fields aligned.
+The same metadata keeps YAML validation aligned with the Python ``Spec`` /
+params models used by the API.
 
 Domain configurators
 --------------------

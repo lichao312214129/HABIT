@@ -2,7 +2,7 @@ Architecture
 ============
 
 Since v1.0.0 HABIT is **API-first**: the Python API is the product, and the
-CLI, YAML configs, and GUI are thin shells over it. The codebase is organized
+CLI and YAML configs are thin shells over it. The codebase is organized
 as six layers, L0 at the bottom to L5 at the top. A layer may only import
 from the layers below it, which keeps the numeric core free of I/O and keeps
 configuration parsing out of the algorithms.
@@ -29,7 +29,7 @@ The six layers
 .. mermaid::
 
    flowchart TD
-     subgraph L5["L5 — interfaces (habit/cli.py, habit/commands/, GUI)"]
+     subgraph L5["L5 — interfaces (habit/cli.py, habit/commands/)"]
        CLI["CLI commands"]
        YAML["YAML documents"]
      end

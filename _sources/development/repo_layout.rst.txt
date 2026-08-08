@@ -29,10 +29,6 @@ Repository root
      - Pytest tests and executable demo scripts (see :doc:`dev_workflow`).
    * - ``docs/``
      - Documentation; Sphinx sources are under ``docs/source/``.
-   * - ``habit-gui/``
-     - Optional standalone Web GUI (FastAPI + React + bridge), not checked out
-       by default. See ``.gitignore``; ``habit gui`` searches for a sibling
-       ``habit-gui/`` or bundled ``habit/_gui_bundle``.
    * - ``pyproject.toml``
      - Build metadata and entry-point definitions
        (``habit = "habit.cli:cli"``).
@@ -42,7 +38,7 @@ Repository root
 
 The v1.0 package follows the six-layer architecture (see
 :doc:`architecture`): L0 kernels → L1 adapters → L2 contracts → L3 domain →
-L4 recipes → L5 cli/gui.
+L4 recipes → L5 cli.
 
 .. mermaid::
 
@@ -117,7 +113,7 @@ Top-level package responsibilities
        ``run_preprocess``, ...), kept for YAML parity.
    * - ``habit/schemas/``
      - Pydantic configuration models for workflows, step parameters, parameter
-       registration, validation, and GUI reflection (v1.0 canonical location).
+       registration, and validation (v1.0 canonical location).
    * - ``habit/registry/``
      - Shared registry base (:class:`~habit.registry.base.ClassRegistry`) used
        by plugin factories across engines.
@@ -168,7 +164,7 @@ bars must use** ``progress_utils.py``. Common modules include:
    * - ``radiomics_params_utils.py`` / ``torch_radiomics_utils.py``
      - Radiomics parameters and helpers.
    * - ``job_cancel.py``
-     - Cancellation detection for long-running tasks and the GUI.
+     - Cancellation detection for long-running tasks.
 
 Cross-subsystem contract files
 ------------------------------

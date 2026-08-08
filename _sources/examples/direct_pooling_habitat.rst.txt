@@ -27,8 +27,11 @@ Output
      preprocessing state: cohort_feature_preprocessor, inertia, ...
 
    Habitat maps: 5
-   Clustering units (voxel rows): 5105
-   Feature table: (5, 7)
+   Clustering units (voxel rows): 4148
+   Feature table: (5, 65)
+
+The script ends with a **napari eye-check**. Close the window to finish;
+``HABIT_NO_VIEW=1`` skips it. Prefer ITK-SNAP / 3D Slicer / SimpleITK for 3D.
 
 What to read next
 -----------------

@@ -24,6 +24,11 @@ v1 ``HabitatSpec`` exposes three ordered chains (v0.1 names in parentheses):
 Design rules
 ------------
 
+Assembled live objects use the same vocabulary on
+:class:`~habit.domain.assembly.HabitatComponents`
+(``voxel_feature_preprocessor``, ``cohort_feature_preprocessor``, …);
+see :doc:`habitat_preprocessing_api` and :doc:`../api/domain`.
+
 * **One-step** — ``voxel_feature_preprocessors`` only. No cohort chain at
   train: each subject clusters independently; frozen state lives in
   ``subject_models[*].preprocessing_state``.
@@ -70,6 +75,8 @@ Output (abbreviated)
    === Train freeze + apply replay (cohort preprocessing) ===
      apply batch: 2 maps
      apply atomic (1 subject): subj001
+
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
 What to read next
 -----------------

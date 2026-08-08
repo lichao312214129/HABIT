@@ -1,46 +1,12 @@
 Auxiliary tools
 ===============
 
-Standalone utilities. Full flag lists: ``habit <command> --help`` and
-:doc:`../reference/auxiliary`.
+Copy-paste demos. Flags: ``habit <cmd> --help``.
 
-ICC (feature reproducibility)
------------------------------
-
-.. code-block:: bash
+::
 
    habit icc --config config/auxiliary/config_icc_demo.yaml
-
-**Configuration**: :doc:`../configuration/auxiliary`.
-
-Test-retest habitat mapping
----------------------------
-
-.. code-block:: bash
-
    habit retest --config config/auxiliary/config_test_retest.yaml
-
-**Configuration**: :doc:`../configuration/auxiliary`.
-
-DICOM metadata export
----------------------
-
-.. code-block:: bash
-
-   habit dicom-info -i ./demo_data/dicom -o info.csv
-
-No YAML config; all options are CLI flags.
-
-Merge tables
-------------
-
-.. code-block:: bash
-
-   habit merge-csv file1.csv file2.csv -o merged.csv --index-col PatientID
-
-Dice between mask batches
--------------------------
-
-.. code-block:: bash
-
-   habit dice --input1 dir1 --input2 dir2 --output dice_results.csv
+   habit dicom-info -i demo_data/dicom -o demo_data/results/htg_dicom_info.csv --one-file-per-folder
+   habit merge-csv demo_data/ml_data/breast_cancer_dataset.csv demo_data/ml_data/clinical_feature.csv -o demo_data/results/htg_merged.csv --index-col subject_id
+   habit dice --input1 demo_data/preprocessed/processed_images --input2 demo_data/preprocessed/processed_images --output demo_data/results/htg_dice_results.csv

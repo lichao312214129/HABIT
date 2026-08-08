@@ -26,7 +26,11 @@ the route through ``HabitatSpec.voxel_feature_extractor`` (and optionally
      - Spatially coherent supervoxels instead of k-means over features
 
 Every route supports **batch** (``recipes.two_step(cohort, spec)``) and
-**atomic** (``SubjectPipeline.units(subject)``) inspection.
+**atomic** inspection via
+:func:`~habit.domain.assembly.build_habitat_components` — attribute names
+match the Spec (``components.voxel_feature_extractor``,
+``components.supervoxel_feature_extractor``, …) and
+``components.pipeline(assigner=None).units(subject)``.
 
 Script
 ------
@@ -53,6 +57,8 @@ Output (abbreviated)
    === voxel_radiomics (demo_data, may take ~30s) ===
      atomic n_features: 21
      batch (1 subject): 3 habitats
+
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
 What to read next
 -----------------

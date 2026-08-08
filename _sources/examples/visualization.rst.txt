@@ -1,6 +1,19 @@
 Publication figures with habit.viz
 ==================================
 
+Interactive napari
+(:func:`~habit.viz.view_habitat_napari` / default ``habit view``)
+is a convenient way to inspect habitat maps after ``get-habitat`` — see
+region vs contour screenshots in :doc:`../tutorial/quickstart`. It needs the
+optional ``[view]`` extra (recommended at :doc:`../tutorial/installation`);
+without it the CLI falls back to a matplotlib PNG. Force the static path with
+``habit view --backend matplotlib`` (:func:`~habit.viz.plot_habitat_overlay`,
+needs ``[viz]``).
+
+For fuller **3D** review, load the source image and ``*_habitats.nrrd``
+together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
+(label overlay / segmentation).
+
 Every function in :mod:`habit.viz` is **pure**: arrays or contract objects in,
 a matplotlib ``Figure`` out — no ``savefig`` inside the library. Callers choose
 where figures go. All text is English/ASCII via

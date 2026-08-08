@@ -53,7 +53,7 @@ When each exception is raised
    * - ``GeometryError``
      - Image/mask mismatch under ``GeometryPolicy.STRICT`` (API radiomics default)
    * - ``OptionalDependencyError``
-     - Missing ``radiomics`` / ``torch`` / GUI stacks; subclass of ``ImportError``
+     - Missing ``radiomics`` / ``torch`` / ``view`` stacks; subclass of ``ImportError``
    * - ``ComponentNotFoundError``
      - Unknown registry / plugin name for a domain
    * - ``CompatibilityError``

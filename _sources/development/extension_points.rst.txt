@@ -18,8 +18,7 @@ HABIT extensions follow three contracts:
 2. **Registration contract**: use the appropriate decorator, such as
    ``@PreprocessorFactory.register``, to register the component name globally.
 3. **Parameter contract**: define a Pydantic schema and register it with
-   ``ParamSchemaRegistry.register`` for strongly typed YAML validation and
-   automatic GUI form generation.
+   ``ParamSchemaRegistry.register`` for strongly typed YAML validation.
 
 .. important::
    

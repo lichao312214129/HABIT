@@ -27,8 +27,8 @@ Medical-image habitat analysis has five recurring engineering constraints:
        replaceable without rewriting the workflow.
    * - **Train/predict consistency**
      - Inference must reuse exactly the processing learned during training.
-   * - **CLI/GUI parity**
-     - The command line and graphical interfaces must use the same behavior.
+   * - **CLI/API parity**
+     - The command line and Python API must use the same behavior.
 
 HABIT addresses these constraints through five design pillars.
 
@@ -43,7 +43,7 @@ Five design pillars
      P2["Batch subjects"] --> S5["Thin command, thick core"]
      P3["Pluggable algorithms"] --> S3["Registry decoupling"]
      P4["Train = predict"] --> S4["Unified contracts"]
-     P5["CLI = GUI"] --> S5
+     P5["CLI = API"] --> S5
 
 1. **Configuration is the interface.** Workflow parameters are represented by
    a versionable configuration object. YAML files and Python dictionaries use
@@ -54,8 +54,8 @@ Five design pillars
    a workflow can select an implementation from configuration.
 4. **Contracts unify execution.** Factories and orchestrators expose stable
    interfaces such as ``run()`` or ``fit()``/``predict()``.
-5. **Commands remain thin.** CLI, GUI, and Python API entry points delegate to
-   the same core workflow implementation.
+5. **Commands remain thin.** CLI and Python API entry points delegate to the
+   same core workflow implementation.
 
 Trade-offs
 ----------

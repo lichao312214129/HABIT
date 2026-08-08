@@ -56,6 +56,8 @@ backend. Default :meth:`~habit.contracts.Cohort.map` still raises
 ``raise_on_failure=False`` so a partial cohort can finish. Soft failure and
 geometry / plugin / batch switches are covered in :doc:`fault_tolerance`.
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

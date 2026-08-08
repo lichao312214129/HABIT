@@ -102,6 +102,7 @@ Compose the subject-level chain into one callable (HABIT's typed Compose):
        HabitatVolumeFeatures,
        IthHabitatFeatures,
        MsiHabitatFeatures,
+       NonRadiomicsHabitatFeatures,
        SubjectPipeline,
    )
 
@@ -115,7 +116,16 @@ Compose the subject-level chain into one callable (HABIT's typed Compose):
    habitat_map = pipe(subject)
    table = pipe.extract_features(
        subject,
-       [MsiHabitatFeatures(), IthHabitatFeatures(), HabitatVolumeFeatures()],
+       [
+           HabitatVolumeFeatures(),
+           MsiHabitatFeatures(),
+           IthHabitatFeatures(),
+           NonRadiomicsHabitatFeatures(),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # TraditionalRadiomicsHabitatFeatures(),
+           # WholeHabitatRadiomicsFeatures(),
+           # EachHabitatRadiomicsFeatures(),
+       ],
    )
    maps = cohort.map(pipe)
 
@@ -124,6 +134,55 @@ Train / fit recipes that already hold clustering units should call
 ``pipe.assign(units)`` or ``pipe.label_and_describe(subject, units, extractors)``
 instead of ``pipe(subject)`` / ``extract_features``, so Stage-1 voxel features
 are not recomputed.
+
+
+``HabitatComponents`` (spec → live objects)
+-------------------------------------------
+
+:func:`~habit.domain.assembly.build_habitat_components` is the single
+construction site that turns a :class:`~habit.spec.HabitatSpec` into live
+operators. Attribute names on
+:class:`~habit.domain.assembly.HabitatComponents` match the corresponding
+``HabitatSpec`` fields and :class:`~habit.domain.pipeline.SubjectPipeline`
+parameters (assembled preprocessor chains use the singular form, as on the
+pipeline):
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - ``HabitatComponents`` attribute
+     - Spec / pipeline counterpart
+   * - ``voxel_feature_extractor``
+     - ``HabitatSpec.voxel_feature_extractor``
+   * - ``supervoxelizer``
+     - ``HabitatSpec.supervoxelizer``
+   * - ``supervoxel_feature_extractor``
+     - ``HabitatSpec.supervoxel_feature_extractor``
+   * - ``voxel_feature_preprocessor``
+     - assembled from ``voxel_feature_preprocessors``
+   * - ``supervoxel_feature_preprocessor``
+     - assembled from ``supervoxel_feature_preprocessors``
+   * - ``cohort_feature_preprocessor``
+     - assembled from ``cohort_feature_preprocessors``
+   * - ``habitat_model_fitter``
+     - ``HabitatSpec.habitat_model_fitter``
+   * - ``habitat_features``
+     - ``HabitatSpec.habitat_features``
+
+.. code-block:: python
+
+   from habit.domain.assembly import build_habitat_components
+
+   components = build_habitat_components(spec)
+   # Same name as on the Spec — the live VoxelFeatureExtractor instance:
+   field = components.voxel_feature_extractor(subject)
+   # Fit-time units (subject-level chains only; no assigner / cohort chain):
+   units = components.pipeline(assigner=None).units(subject)
+
+Factory helpers ``build_voxel_extractor`` / ``build_supervoxel_extractor`` /
+``build_habitat_extractor`` build a single tree node; they are not
+``HabitatComponents`` attributes.
 
 
 Composing features: trees, combiners, and statistics
@@ -267,7 +326,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - ``gaussian_noise``, ``translation``, ``rotation``
    * - ``HabitatFeatureExtractorRegistry``
      - ``habitat_feature_extractor``
-     - ``msi``, ``ith_score``, ``volume``, …
+     - ``volume``, ``msi``, ``ith_score``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)
    * - ``TablePreprocessorRegistry``
      - ``table_preprocessor``
      - ``zscore``, ``minmax``, ``binning``, …

@@ -60,6 +60,9 @@ returns a ``StudyResult``; nothing is written until you ask for it:
 cohort-level definition: ``result.habitat_model`` is ``None`` and the
 per-subject definitions are in ``result.subject_models``.
 
+To open habitat labels on anatomy right after the recipe (napari screenshots
+included), see **View the habitat maps** in :doc:`../tutorial/quickstart_python`.
+
 Common workflows
 ----------------
 
@@ -98,7 +101,16 @@ Synthetic cohort and three habitat designs
        voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
        habitat_model_fitter=Spec("kmeans", {"n_habitats": 3, "n_init": 5}),
        habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"), Spec("msi")),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
+       ),
        random_seed=42,
    )
 
@@ -145,7 +157,16 @@ The upstream ``HabitatSpec`` must match the stages used during fitting.
        supervoxelizer=Spec("slic", {"n_supervoxels": 30}),
        habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
        habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"),),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
+       ),
        random_seed=42,
    )
 
@@ -222,6 +243,7 @@ Canonical end-to-end example
        IthHabitatFeatures,
        KMeansHabitatModelFitter,
        MsiHabitatFeatures,
+       NonRadiomicsHabitatFeatures,
        RawVoxelFeatures,
        SlicSupervoxelizer,
        SubjectPipeline,
@@ -255,7 +277,16 @@ Canonical end-to-end example
    maps = cohort.map(pipe, backend=SerialBackend())
    table = pipe.extract_features(
        cohort[0],
-       [MsiHabitatFeatures(), IthHabitatFeatures(), HabitatVolumeFeatures()],
+       [
+           HabitatVolumeFeatures(),
+           MsiHabitatFeatures(),
+           IthHabitatFeatures(),
+           NonRadiomicsHabitatFeatures(),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # TraditionalRadiomicsHabitatFeatures(),
+           # WholeHabitatRadiomicsFeatures(),
+           # EachHabitatRadiomicsFeatures(),
+       ],
    )
 
    # 5) Optional: declare the same design as a HabitatSpec (YAML-isomorphic)
@@ -266,9 +297,14 @@ Canonical end-to-end example
        habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
        habitat_assigner=Spec("nearest_centroid"),
        habitat_features=(
+           Spec("volume"),
            Spec("msi"),
            Spec("ith_score"),
-           Spec("volume"),
+           Spec("non_radiomics"),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Spec("traditional"),
+           # Spec("whole_habitat"),
+           # Spec("each_habitat"),
        ),
        random_seed=42,
    )
@@ -287,7 +323,8 @@ Where to go next
      - :doc:`data_model`
    * - Directory / file image adapters
      - :doc:`adapters`
-   * - Habitat protocols, registries, ``SubjectPipeline``
+   * - Habitat protocols, registries, ``SubjectPipeline``,
+       ``HabitatComponents``
      - :doc:`domain_habitat`
    * - Table ML: preprocessors, selectors, classifiers, ``TablePipeline``
      - :doc:`domain_table`

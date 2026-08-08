@@ -106,7 +106,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 - **Type**: string
 - **Required**: yes
 - **Default**: none (required)
-- **Description**: ``data_dir`` may be a directory or a manifest such as ``file_habitat.yaml``; ``out_dir`` is the default parent directory for results and checkpoints.
+- **Description**: ``data_dir`` may be a directory **or** a manifest YAML (e.g. ``file_habitat.yaml``, or ``file_habitat_registered_single_roi.yaml`` when modalities are already co-registered and each subject has one ROI). Never a bare ``.nii.gz``. ``out_dir`` is the default parent directory for results and checkpoints. See :doc:`../how_to/prepare_data`.
 
 **feature_construction**: Feature extraction settings
 

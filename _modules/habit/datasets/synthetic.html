@@ -428,24 +428,20 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: YAML + CLI (no programming)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#prepare-data">Prepare data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#more-view-options">More view options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#the-two-config-formats-v0-1-and-v1">The two config formats (v0.1 and v1)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#where-to-go-next">Where to go next</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart_python.html">Quickstart: Python API (5 minutes)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#the-two-objects-you-will-always-meet">The two objects you will always meet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#your-first-habitat-analysis">Your first habitat analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#your-first-habitat-analysis">Your first habitat analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/quickstart_python.html#view-the-habitat-maps">View the habitat maps</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#save-the-model-apply-it-later">Save the model, apply it later</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#your-first-tabular-model">Your first tabular model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#where-to-go-next">Where to go next</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Web GUI</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../gui/index.html">Web GUI (under development)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../gui/index.html#planned-scope">Planned scope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../gui/index.html#early-preview-developers">Early preview (developers)</a></li>
 </ul>
 </li>
 </ul>
@@ -455,7 +451,6 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/prepare_data.html">Prepare data</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#project-root">Project root</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#folder-layout">Folder layout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/prepare_data.html#data-specification">Data specification</a></li>
 </ul>
 </li>
@@ -805,7 +800,6 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting/faq.html">FAQ</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/faq.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/faq.html#runtime">Runtime</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/faq.html#gui-under-development">GUI (under development)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../troubleshooting/faq.html#data">Data</a></li>
 </ul>
 </li>
@@ -1346,10 +1340,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#habitat-clustering">Habitat clustering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
 </ul>
@@ -1706,7 +1702,6 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../development/dev_workflow.html#scenario-1-add-a-cli-command">Scenario 1: Add a CLI command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../development/dev_workflow.html#scenario-2-add-a-configuration-step-schema">Scenario 2: Add a configuration-step schema</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../development/dev_workflow.html#scenario-3-web-gui-and-bridge">Scenario 3: Web GUI and bridge</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../development/contributing.html">Contributing</a><ul>
@@ -1813,15 +1808,16 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Deterministic synthetic cohort and feature-table builders for tests.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Deterministic synthetic cohort and feature-table builders for tests and demos.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedSequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">ndi</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Geometry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayImageRef</span>
@@ -1834,6 +1830,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="c1">#: Default ROI key used by the fast golden specs.</span>
 <span class="n">_DEFAULT_ROI</span> <span class="o">=</span> <span class="s2">&quot;tumor&quot;</span>
+
+<span class="c1">#: Realism presets for :func:`make_synthetic_cohort`.</span>
+<span class="n">RealismLevel</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="s2">&quot;legacy&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_seed_sequence</span><span class="p">(</span>
@@ -1908,15 +1907,116 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span><span class="n">normalised</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_shape</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crop or pad a volume so it matches ``shape`` exactly.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        field: Source array that may differ by a few voxels after zoom.</span>
+<span class="sd">        shape: Target shape ``(z, y, x)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Array with exactly ``shape``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">[</span><span class="n">slices</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_low_frequency_field</span><span class="p">(</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">coarseness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.22</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a smooth spatial field via coarse Gaussian noise + zoom.</span>
+
+<span class="sd">    Used for soft tissue background, lesion-boundary wobble, and weak</span>
+<span class="sd">    intra-lesion texture. Pure low-frequency content reads as &quot;MRI-like&quot;</span>
+<span class="sd">    shading in napari without looking like white noise.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: Output shape ``(z, y, x)``.</span>
+<span class="sd">        rng: Per-subject random generator.</span>
+<span class="sd">        scale: Standard deviation of the coarse noise before smoothing.</span>
+<span class="sd">        coarseness: Fraction of each axis used for the coarse grid</span>
+<span class="sd">            (smaller → smoother fields).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Float64 volume with mean near zero and amplitude near ``scale``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coarse_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dim</span> <span class="o">*</span> <span class="n">coarseness</span><span class="p">)))</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">)</span>
+    <span class="n">coarse</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">coarse_shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="c1"># Light blur on the coarse grid so zoom artefacts stay soft.</span>
+    <span class="n">coarse</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">coarse</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">coarse_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">coarse_dim</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">coarse_shape</span><span class="p">))</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">coarse</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_fit_shape</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_irregular_lesion_mask</span><span class="p">(</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">radii</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build a slightly irregular blob mask around an ellipsoid core.</span>
+
+<span class="sd">    A low-frequency field warps the ellipsoid iso-surface so the boundary</span>
+<span class="sd">    is not a perfect math ellipse, then a tiny binary close fills one-voxel</span>
+<span class="sd">    holes without erasing the irregularity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: Volume shape ``(z, y, x)``.</span>
+<span class="sd">        rng: Per-subject random generator.</span>
+<span class="sd">        center: Nominal ellipsoid centre ``(z, y, x)``.</span>
+<span class="sd">        radii: Nominal semi-axes ``(z, y, x)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``int32`` binary mask aligned with the synthetic lesion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grid_z</span><span class="p">,</span> <span class="n">grid_y</span><span class="p">,</span> <span class="n">grid_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span>
+        <span class="mi">0</span> <span class="p">:</span> <span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span> <span class="p">:</span> <span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span> <span class="p">:</span> <span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">cz</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cx</span> <span class="o">=</span> <span class="n">center</span>
+    <span class="n">rz</span><span class="p">,</span> <span class="n">ry</span><span class="p">,</span> <span class="n">rx</span> <span class="o">=</span> <span class="n">radii</span>
+    <span class="n">normalised</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">((</span><span class="n">grid_z</span> <span class="o">-</span> <span class="n">cz</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">rz</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="o">+</span> <span class="p">((</span><span class="n">grid_y</span> <span class="o">-</span> <span class="n">cy</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">ry</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="o">+</span> <span class="p">((</span><span class="n">grid_x</span> <span class="o">-</span> <span class="n">cx</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">rx</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="c1"># Surface wobble: stronger near the boundary, weak in the core.</span>
+    <span class="n">wobble</span> <span class="o">=</span> <span class="n">_low_frequency_field</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.18</span><span class="p">,</span> <span class="n">coarseness</span><span class="o">=</span><span class="mf">0.28</span><span class="p">)</span>
+    <span class="n">warped</span> <span class="o">=</span> <span class="n">normalised</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">wobble</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">warped</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Extremely unlucky seed: fall back to a clean ellipsoid.</span>
+        <span class="k">return</span> <span class="n">_ellipsoid_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">radii</span><span class="p">)</span>
+    <span class="c1"># Close 1-voxel gaps; keep the largest connected component as the lesion.</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">labeled</span><span class="p">,</span> <span class="n">n_components</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_components</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">labeled</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">labeled</span> <span class="o">==</span> <span class="n">keep</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_label_subregions</span><span class="p">(</span>
     <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Partition a binary mask into ``n_subregions`` contiguous bands.</span>
+<span class="sd">    Partition a binary mask into ``n_subregions`` contiguous z-bands.</span>
 
-<span class="sd">    Subregions are assigned along the z axis so that downstream clustering</span>
-<span class="sd">    sees three spatially separated intensity profiles inside the ROI.</span>
+<span class="sd">    Legacy path used by ``realism=&quot;legacy&quot;``. Subregions are assigned along</span>
+<span class="sd">    the z axis so clustering sees separated intensity profiles.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        mask: Binary ROI mask.</span>
@@ -1945,43 +2045,216 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">labels</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_subject_from_seed</span><span class="p">(</span>
-    <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">seed_seq</span><span class="p">:</span> <span class="n">SeedSequence</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_blob_subregions</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Partition a binary mask into organic Voronoi-like intensity blobs.</span>
+
+<span class="sd">    Seeds are sampled inside the ROI; each ROI voxel inherits the label of</span>
+<span class="sd">    the nearest seed. This keeps ``n_subregions`` separable habitats while</span>
+<span class="sd">    looking less artificial than pure z-bands in axial napari views.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask: Binary ROI mask.</span>
+<span class="sd">        n_subregions: Number of subregions to carve out.</span>
+<span class="sd">        rng: Per-subject random generator.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Label array with background ``0`` and subregion ids ``1..n_subregions``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_subregions</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_subregions must be positive; got </span><span class="si">{</span><span class="n">n_subregions</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">roi_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">roi_coords</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">labels</span>
+    <span class="n">n_roi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">roi_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">n_roi</span> <span class="o">&lt;=</span> <span class="n">n_subregions</span><span class="p">:</span>
+        <span class="c1"># Tiny ROIs: fall back to sequential labels on available voxels.</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">roi_coords</span><span class="p">):</span>
+            <span class="n">labels</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">coord</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">%</span> <span class="n">n_subregions</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">labels</span>
+
+    <span class="c1"># Spread seeds: pick far-apart voxels via greedy max-min sampling.</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_roi</span><span class="p">))</span>
+    <span class="n">seed_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">first</span><span class="p">]</span>
+    <span class="c1"># Squared distances from every ROI voxel to the chosen seeds.</span>
+    <span class="n">chosen</span> <span class="o">=</span> <span class="n">roi_coords</span><span class="p">[</span><span class="n">first</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">min_dist2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">roi_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">chosen</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_subregions</span><span class="p">):</span>
+        <span class="n">next_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">min_dist2</span><span class="p">))</span>
+        <span class="n">seed_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">next_index</span><span class="p">)</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">roi_coords</span><span class="p">[</span><span class="n">next_index</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">dist2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">roi_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">chosen</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">min_dist2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">min_dist2</span><span class="p">,</span> <span class="n">dist2</span><span class="p">)</span>
+
+    <span class="n">seeds</span> <span class="o">=</span> <span class="n">roi_coords</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">seed_indices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="c1"># Assign each ROI voxel to the nearest seed (Voronoi).</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">roi_coords</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">seeds</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">dist2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">delta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">nearest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dist2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">labels</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">roi_coords</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nearest</span>
+    <span class="k">return</span> <span class="n">labels</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_modality_weights</span><span class="p">(</span>
+    <span class="n">modality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">modality_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return ``(tissue, lesion, noise)`` mixing weights for one modality name.</span>
+
+<span class="sd">    T1-like volumes emphasise lesion brightness gradients; T2-like volumes</span>
+<span class="sd">    invert that contrast so the two channels are correlated but not copies.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        modality: Modality key (case-insensitive prefix match for T1/T2).</span>
+<span class="sd">        modality_index: Position in the modalities tuple (fallback weighting).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Triple of non-negative mixing weights.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;T2&quot;</span><span class="p">):</span>
+        <span class="c1"># Stronger tissue share so T2 is not a near-perfect invert of T1.</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.040</span><span class="p">)</span>
+    <span class="c1"># Unknown modality: mild tissue + lesion with a small index offset.</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.90</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">modality_index</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_demo_subject_arrays</span><span class="p">(</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">modalities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Build one synthetic subject from a dedicated child seed sequence.</span>
+<span class="sd">    Synthesise demo-realistic image arrays and an aligned lesion mask.</span>
+
+<span class="sd">    The volumes are *not* clinical anatomy — they are smooth tissue fields</span>
+<span class="sd">    with an irregular blob lesion and 2–3 intra-lesion intensity habitats so</span>
+<span class="sd">    clustering / napari demos look plausible.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        subject_id: Unique identifier within the cohort.</span>
-<span class="sd">        seed_seq: Child seed derived from the cohort master sequence.</span>
+<span class="sd">        rng: Per-subject random generator.</span>
 <span class="sd">        shape: Volume shape ``(z, y, x)``.</span>
 <span class="sd">        modalities: Modality names to populate.</span>
-<span class="sd">        n_subregions: Number of distinguishable subregions inside the ROI.</span>
+<span class="sd">        n_subregions: Number of distinguishable habitats inside the ROI.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A subject with in-memory image and mask references.</span>
+<span class="sd">        ``(images_dict, mask)`` where ``images_dict`` maps modality → float64</span>
+<span class="sd">        array and ``mask`` is the binary lesion mask.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed_seq</span><span class="p">)</span>
-    <span class="n">geometry</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># Slight per-subject jitter of lesion placement and size.</span>
+    <span class="n">centre</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.50</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">)))</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape</span>
+    <span class="p">)</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">max</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.28</span><span class="p">,</span> <span class="mf">0.38</span><span class="p">)))</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">shape</span>
+    <span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">_irregular_lesion_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">centre</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">radii</span><span class="p">)</span>
+    <span class="n">subregion_labels</span> <span class="o">=</span> <span class="n">_blob_subregions</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">n_subregions</span><span class="p">,</span> <span class="n">rng</span><span class="p">)</span>
+
+    <span class="c1"># Soft tissue background: slow spatial shading, never pure zeros.</span>
+    <span class="n">tissue</span> <span class="o">=</span> <span class="mf">0.45</span> <span class="o">+</span> <span class="mf">0.12</span> <span class="o">*</span> <span class="n">_low_frequency_field</span><span class="p">(</span>
+        <span class="n">shape</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">coarseness</span><span class="o">=</span><span class="mf">0.18</span>
+    <span class="p">)</span>
+    <span class="n">tissue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">)</span>
+
+    <span class="c1"># Per-modality region means: shared spatial habitats, different contrast</span>
+    <span class="c1"># weighting. Region 2 rises on both channels so T1/T2 are not mirrors.</span>
+    <span class="n">region_profiles</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">1.45</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.55</span><span class="p">,</span> <span class="mf">2.05</span><span class="p">),</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.25</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">texture</span> <span class="o">=</span> <span class="n">_low_frequency_field</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">coarseness</span><span class="o">=</span><span class="mf">0.35</span><span class="p">)</span>
+
+    <span class="c1"># Weak intensity falloff just outside the lesion (partial-volume halo).</span>
+    <span class="n">dist_out</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">halo_sigma</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.06</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">shape</span><span class="p">)))</span>
+    <span class="n">halo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">dist_out</span> <span class="o">/</span> <span class="n">halo_sigma</span><span class="p">)</span>
+
+    <span class="n">subject_offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.04</span><span class="p">))</span>
+    <span class="n">images</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">modality_index</span><span class="p">,</span> <span class="n">modality</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modalities</span><span class="p">):</span>
+        <span class="n">tissue_w</span><span class="p">,</span> <span class="n">_lesion_w</span><span class="p">,</span> <span class="n">noise_w</span> <span class="o">=</span> <span class="n">_modality_weights</span><span class="p">(</span><span class="n">modality</span><span class="p">,</span> <span class="n">modality_index</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">modality</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">use_t1</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;T2&quot;</span><span class="p">)</span>
+        <span class="n">tissue_term</span> <span class="o">=</span> <span class="n">tissue</span> <span class="o">*</span> <span class="n">tissue_w</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.0</span> <span class="k">if</span> <span class="n">use_t1</span> <span class="k">else</span> <span class="mf">0.08</span><span class="p">)</span>
+        <span class="n">halo_gain</span> <span class="o">=</span> <span class="mf">0.55</span> <span class="k">if</span> <span class="n">use_t1</span> <span class="k">else</span> <span class="mf">0.40</span>
+
+        <span class="n">lesion_term</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">region_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_subregions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">t1_base</span><span class="p">,</span> <span class="n">t2_base</span> <span class="o">=</span> <span class="n">region_profiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">region_id</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">region_id</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">-</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">region_id</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">t1_base</span> <span class="k">if</span> <span class="n">use_t1</span> <span class="k">else</span> <span class="n">t2_base</span>
+            <span class="n">region_mask</span> <span class="o">=</span> <span class="n">subregion_labels</span> <span class="o">==</span> <span class="n">region_id</span>
+            <span class="n">lesion_term</span><span class="p">[</span><span class="n">region_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">texture</span><span class="p">[</span><span class="n">region_mask</span><span class="p">]</span>
+
+        <span class="n">lesion_edge</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lesion_term</span><span class="p">[</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]))</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">else</span> <span class="mf">1.2</span>
+        <span class="p">)</span>
+        <span class="n">falloff</span> <span class="o">=</span> <span class="n">halo</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.35</span> <span class="o">*</span> <span class="n">lesion_edge</span><span class="p">)</span>
+
+        <span class="n">array</span> <span class="o">=</span> <span class="n">tissue_term</span> <span class="o">+</span> <span class="n">subject_offset</span> <span class="o">+</span> <span class="n">modality_index</span> <span class="o">*</span> <span class="mf">0.03</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">array</span> <span class="o">+</span> <span class="n">falloff</span> <span class="o">*</span> <span class="n">halo_gain</span>
+        <span class="c1"># Inside ROI: mostly habitat means + a little tissue shading.</span>
+        <span class="n">inside_tissue_mix</span> <span class="o">=</span> <span class="mf">0.22</span> <span class="k">if</span> <span class="n">use_t1</span> <span class="k">else</span> <span class="mf">0.35</span>
+        <span class="n">array</span><span class="p">[</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tissue_term</span><span class="p">[</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">inside_tissue_mix</span>
+            <span class="o">+</span> <span class="n">lesion_term</span><span class="p">[</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">subject_offset</span>
+            <span class="o">+</span> <span class="n">modality_index</span> <span class="o">*</span> <span class="mf">0.05</span>
+        <span class="p">)</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">array</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">noise_w</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">mask</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_legacy_subject_arrays</span><span class="p">(</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">modalities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reproduce the pre-demo synthetic volumes (flat ROI, zero background).</span>
+
+<span class="sd">    Kept so callers can opt into the old deterministic look via</span>
+<span class="sd">    ``realism=&quot;legacy&quot;`` without pinning demo aesthetics in tests that only</span>
+<span class="sd">    need separable habitats.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rng: Per-subject random generator.</span>
+<span class="sd">        shape: Volume shape ``(z, y, x)``.</span>
+<span class="sd">        modalities: Modality names to populate.</span>
+<span class="sd">        n_subregions: Number of z-band subregions inside the ROI.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(images_dict, mask)`` with the legacy intensity model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">centre</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">)</span>
     <span class="n">radii</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.35</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">_ellipsoid_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">centre</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="n">radii</span><span class="p">)</span>
     <span class="n">subregion_labels</span> <span class="o">=</span> <span class="n">_label_subregions</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">n_subregions</span><span class="p">)</span>
 
-    <span class="c1"># Per-subject baseline offsets keep subjects separable while preserving</span>
-    <span class="c1"># the three within-ROI intensity profiles that clustering relies on.</span>
     <span class="n">subject_offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
     <span class="n">region_profiles</span> <span class="o">=</span> <span class="p">{</span>
         <span class="mi">1</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">),</span>
         <span class="mi">2</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="mi">3</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span>
     <span class="p">}</span>
-    <span class="n">images</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">images</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">modality_index</span><span class="p">,</span> <span class="n">modality</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">modalities</span><span class="p">):</span>
         <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">region_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_subregions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
@@ -1993,8 +2266,59 @@ window.runMermaid = runMermaid;</script>
             <span class="n">array</span><span class="p">[</span><span class="n">region_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">base</span> <span class="o">+</span> <span class="n">subject_offset</span> <span class="o">+</span> <span class="n">modality_index</span> <span class="o">*</span> <span class="mf">0.15</span>
         <span class="n">array</span> <span class="o">+=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">array</span><span class="p">[</span><span class="n">mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">array</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span>
+    <span class="k">return</span> <span class="n">images</span><span class="p">,</span> <span class="n">mask</span>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_subject_from_seed</span><span class="p">(</span>
+    <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">seed_seq</span><span class="p">:</span> <span class="n">SeedSequence</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">modalities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">realism</span><span class="p">:</span> <span class="n">RealismLevel</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build one synthetic subject from a dedicated child seed sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subject_id: Unique identifier within the cohort.</span>
+<span class="sd">        seed_seq: Child seed derived from the cohort master sequence.</span>
+<span class="sd">        shape: Volume shape ``(z, y, x)``.</span>
+<span class="sd">        modalities: Modality names to populate.</span>
+<span class="sd">        n_subregions: Number of distinguishable subregions inside the ROI.</span>
+<span class="sd">        realism: ``&quot;demo&quot;`` for soft tissue + irregular lesion, or</span>
+<span class="sd">            ``&quot;legacy&quot;`` for the flat zero-background volumes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A subject with in-memory image and mask references.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed_seq</span><span class="p">)</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">realism</span> <span class="o">==</span> <span class="s2">&quot;legacy&quot;</span><span class="p">:</span>
+        <span class="n">arrays</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">_legacy_subject_arrays</span><span class="p">(</span>
+            <span class="n">rng</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
+            <span class="n">n_subregions</span><span class="o">=</span><span class="n">n_subregions</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">realism</span> <span class="o">==</span> <span class="s2">&quot;demo&quot;</span><span class="p">:</span>
+        <span class="n">arrays</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">_demo_subject_arrays</span><span class="p">(</span>
+            <span class="n">rng</span><span class="p">,</span>
+            <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
+            <span class="n">n_subregions</span><span class="o">=</span><span class="n">n_subregions</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported realism </span><span class="si">{</span><span class="n">realism</span><span class="si">!r}</span><span class="s2">; expected &#39;demo&#39; or &#39;legacy&#39;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">array</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">modality</span><span class="p">,</span> <span class="n">array</span> <span class="ow">in</span> <span class="n">arrays</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
     <span class="k">return</span> <span class="n">Subject</span><span class="p">(</span>
         <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
         <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
@@ -2010,14 +2334,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
     <span class="n">n_subregions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
     <span class="n">rng</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span> <span class="n">SeedSequence</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">realism</span><span class="p">:</span> <span class="n">RealismLevel</span> <span class="o">=</span> <span class="s2">&quot;demo&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Cohort</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Build a deterministic imaging cohort entirely in memory.</span>
 
 <span class="sd">    Each subject receives its own child seed from ``SeedSequence.spawn`` so</span>
 <span class="sd">    that per-subject noise differs while the cohort remains reproducible for</span>
-<span class="sd">    a fixed master seed. The ROI contains ``n_subregions`` z-bands with</span>
-<span class="sd">    distinct modality profiles to support three-habitat clustering tests.</span>
+<span class="sd">    a fixed master seed. The ROI contains ``n_subregions`` intensity blobs</span>
+<span class="sd">    with distinct modality profiles to support multi-habitat clustering.</span>
+
+<span class="sd">    With the default ``realism=&quot;demo&quot;``, volumes look like soft tissue plus</span>
+<span class="sd">    an irregular lesion blob (demo-realistic, **not** clinical anatomy).</span>
+<span class="sd">    Pass ``realism=&quot;legacy&quot;`` for the older flat ROI / zero-background look.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        n_subjects: Number of subjects to synthesise.</span>
@@ -2025,6 +2355,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        shape: Cubic grid shape ``(z, y, x)``.</span>
 <span class="sd">        n_subregions: Number of distinguishable subregions inside the ROI.</span>
 <span class="sd">        rng: Master seed controlling the entire cohort.</span>
+<span class="sd">        realism: ``&quot;demo&quot;`` (default) or ``&quot;legacy&quot;``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~habit.contracts.subject.Cohort` with subjects ``subj001``,</span>
@@ -2043,6 +2374,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n_subjects</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_subjects must be positive; got </span><span class="si">{</span><span class="n">n_subjects</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">realism</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="s2">&quot;legacy&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported realism </span><span class="si">{</span><span class="n">realism</span><span class="si">!r}</span><span class="s2">; expected &#39;demo&#39; or &#39;legacy&#39;.&quot;</span>
+        <span class="p">)</span>
     <span class="n">master</span> <span class="o">=</span> <span class="n">_coerce_seed_sequence</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
     <span class="n">child_seeds</span> <span class="o">=</span> <span class="n">master</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">n_subjects</span><span class="p">)</span>
     <span class="n">subjects</span> <span class="o">=</span> <span class="p">[</span>
@@ -2052,6 +2387,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">,</span>
             <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
             <span class="n">n_subregions</span><span class="o">=</span><span class="n">n_subregions</span><span class="p">,</span>
+            <span class="n">realism</span><span class="o">=</span><span class="n">realism</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_subjects</span><span class="p">)</span>
     <span class="p">]</span>

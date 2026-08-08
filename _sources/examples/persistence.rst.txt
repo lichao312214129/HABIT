@@ -41,6 +41,8 @@ Output
    Reloaded HabitatModel: kmeans-041200a8a981d09e, 3 habitats
    Apply round-trip maps: 4
 
+The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
 What to read next
 -----------------
 

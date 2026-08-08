@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Preprocessing" href="preprocess.html" />
-    <link rel="prev" title="How-to guides" href="index.html" /> 
+    <link rel="prev" title="Before you start" href="before_you_start.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -75,53 +75,105 @@
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart.html">Quickstart: YAML + CLI (no programming)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#prepare-data">Prepare data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#more-view-options">More view options</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#the-two-config-formats-v0-1-and-v1">The two config formats (v0.1 and v1)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart.html#where-to-go-next">Where to go next</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API (5 minutes)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#the-two-objects-you-will-always-meet">The two objects you will always meet</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#your-first-habitat-analysis">Your first habitat analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#your-first-habitat-analysis">Your first habitat analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/quickstart_python.html#view-the-habitat-maps">View the habitat maps</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#save-the-model-apply-it-later">Save the model, apply it later</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#your-first-tabular-model">Your first tabular model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#where-to-go-next">Where to go next</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Web GUI</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../gui/index.html">Web GUI (under development)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../gui/index.html#planned-scope">Planned scope</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../gui/index.html#early-preview-developers">Early preview (developers)</a></li>
-</ul>
-</li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="before_you_start.html">Before you start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#who-this-chapter-is-for">Who this chapter is for</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#goal-of-the-how-to-chapter">Goal of the How-to chapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#open-a-terminal">Open a terminal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#project-root">Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#demo-data-recommended-first-run">Demo data (recommended first run)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#how-paths-work-in-yaml">How paths work in YAML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#validate-before-a-long-run">Validate before a long run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#edit-yaml-safely">Edit YAML safely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#if-a-run-fails-with-permissionerror-on-processing-log">If a run fails with <code class="docutils literal notranslate"><span class="pre">PermissionError</span></code> on <code class="docutils literal notranslate"><span class="pre">processing.log</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#chapter-map">Chapter map</a></li>
+</ul>
+</li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Prepare data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#project-root">Project root</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#folder-layout">Folder layout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#public-msd-braintumour-alternative">Public MSD BrainTumour alternative</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#data-specification">Data specification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-ways-to-provide-data">Two ways to provide data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-a-path-list-yaml-recommended">Option A — path list YAML (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#option-b-folder-tree">Option B — folder tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-success-looks-like">What success looks like</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="preprocess.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#dicom-utilities">DICOM utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="segment_habitat.html">Habitat segmentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#cli">CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#run-the-demo-two-step">Run the demo (two-step)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#view-habitats">View habitats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#what-success-looks-like">What success looks like</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="extract_features.html">Feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="radiomics.html">Traditional radiomics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="train_model.html">Machine learning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="compare_models.html">Model comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_features.html">Feature extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="radiomics.html">Traditional radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="train_model.html">Machine learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#run-the-demo-hold-out-train">Run the demo (hold-out train)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="compare_models.html">Model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#data-layout-for-this-step">Data layout for this step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#what-success-looks-like">What success looks like</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="auxiliary_tools.html">Auxiliary tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#before-you-start">Before you start</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#icc-feature-reproducibility">ICC (feature reproducibility)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#test-retest-habitat-mapping">Test-retest habitat mapping</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#dicom-metadata-export">DICOM metadata export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#merge-tables">Merge tables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#dice-between-mask-batches">Dice between mask batches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="auxiliary_tools.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 </ul>
@@ -250,14 +302,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#path-semantics">Path semantics</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#validate-and-migrate-configs">Validate and migrate configs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#dicom-tools">DICOM tools</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#image-preprocessing">Image preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#habitat-analysis-train-predict">Habitat analysis (train / predict)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#traditional-radiomics-and-feature-extraction">Traditional radiomics and feature extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#machine-learning-and-model-comparison">Machine learning and model comparison</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#utilities-dice-and-merge-csv">Utilities: dice and merge-csv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#path-semantics-short">Path semantics (short)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#command-checklist">Command checklist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -452,7 +498,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting/faq.html">FAQ</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#runtime">Runtime</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#gui-under-development">GUI (under development)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../troubleshooting/faq.html#data">Data</a></li>
 </ul>
 </li>
@@ -993,10 +1038,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering">Habitat clustering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
 </ul>
@@ -1353,7 +1400,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../development/dev_workflow.html#scenario-1-add-a-cli-command">Scenario 1: Add a CLI command</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/dev_workflow.html#scenario-2-add-a-configuration-step-schema">Scenario 2: Add a configuration-step schema</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../development/dev_workflow.html#scenario-3-web-gui-and-bridge">Scenario 3: Web GUI and bridge</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../development/contributing.html">Contributing</a><ul>
@@ -1448,65 +1494,124 @@
              
   <section id="prepare-data">
 <h1>Prepare data<a class="headerlink" href="#prepare-data" title="Link to this heading"></a></h1>
-<section id="project-root">
-<h2>Project root<a class="headerlink" href="#project-root" title="Link to this heading"></a></h2>
-<p>Run commands from the <strong>project root</strong> (folder containing <code class="docutils literal notranslate"><span class="pre">config/</span></code> ):</p>
+<p>Goal: tell HABIT where your images and ROI masks are. Modality names in the
+data must match the names used later in the habitat / radiomics config.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Portable pack</strong>: extract directory (same level as <code class="docutils literal notranslate"><span class="pre">python.exe</span></code> )</p></li>
-<li><p><strong>Source</strong>: GitHub repo root</p></li>
+<li><p>HABIT installed; you can run <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">--version</span></code>
+(<a class="reference internal" href="before_you_start.html"><span class="doc">Before you start</span></a>).</p></li>
+<li><p>Terminal open at the <strong>project root</strong> (folder that contains <code class="docutils literal notranslate"><span class="pre">config/</span></code>).</p></li>
+<li><p>Prefer <strong>NIfTI</strong> (<code class="docutils literal notranslate"><span class="pre">.nii</span></code> / <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>). Draw ROIs in ITK-SNAP or
+3D Slicer. DICOM → NIfTI: see <a class="reference internal" href="preprocess.html"><span class="doc">Preprocessing</span></a>.</p></li>
 </ul>
-<p>Paths in YAML are resolved <strong>relative to the YAML file location</strong> unless absolute.</p>
 </section>
-<section id="folder-layout">
-<h2>Folder layout<a class="headerlink" href="#folder-layout" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>data_root/
-├── images/
-│   └── subject001/
-│       ├── T1/T1.nii.gz
-│       └── T2/T2.nii.gz
-└── masks/
-    └── subject001/
-        ├── T1/mask.nii.gz
-        └── T2/mask.nii.gz
-</pre></div>
-</div>
-<p>See <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/processed_images/</span></code> after extracting the demo.</p>
+<section id="two-ways-to-provide-data">
+<h2>Two ways to provide data<a class="headerlink" href="#two-ways-to-provide-data" title="Link to this heading"></a></h2>
+<p><strong>Recommended:</strong> list every image / mask path in a small YAML file, then set
+that file as <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> (v0.1) or <code class="docutils literal notranslate"><span class="pre">data.source</span></code> (v1) in your workflow
+config.</p>
+<p><strong>Alternative:</strong> point <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">data.source</span></code> at a folder that already
+follows the HABIT tree (shown below).</p>
 </section>
-<section id="public-msd-braintumour-alternative">
-<h2>Public MSD BrainTumour alternative<a class="headerlink" href="#public-msd-braintumour-alternative" title="Link to this heading"></a></h2>
-<p>If you cannot download the Baidu <code class="docutils literal notranslate"><span class="pre">demo_data.rar</span></code> pack, fetch 5–10 public
-MSD Task01 BrainTumour (BraTS-like) cases with stdlib + SimpleITK only
-(no MONAI / torch):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">scripts</span><span class="o">/</span><span class="n">download_msd_brain_demo</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">n</span> <span class="mi">5</span>
+<section id="option-a-path-list-yaml-recommended">
+<h2>Option A — path list YAML (recommended)<a class="headerlink" href="#option-a-path-list-yaml-recommended" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Copy the template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">file_habitat_registered_single_roi</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>Layout written under <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/processed_images/</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">images</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;/</span><span class="p">{</span><span class="n">flair</span><span class="p">,</span><span class="n">t1</span><span class="p">,</span><span class="n">t1ce</span><span class="p">,</span><span class="n">t2</span><span class="p">}</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">mod</span><span class="o">&gt;.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
-<span class="n">masks</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;/</span><span class="n">tumor</span><span class="o">/&lt;</span><span class="n">subj</span><span class="o">&gt;</span><span class="n">_tumor</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+</li>
+<li><p>Edit <strong>subject IDs</strong>, <strong>modality keys</strong>, and <strong>file paths</strong> (fields marked
+★ in that file). Keep modality keys identical to your habitat config
+(e.g. <code class="docutils literal notranslate"><span class="pre">T1</span></code>, <code class="docutils literal notranslate"><span class="pre">T2</span></code>).</p></li>
+<li><p>In the workflow config, point at this file (not at a single <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># v0.1 (habit get-habitat / preprocess YAML)</span>
+<span class="n">data_dir</span><span class="p">:</span> <span class="o">./</span><span class="n">file_habitat_registered_single_roi</span><span class="o">.</span><span class="n">yaml</span>
+
+<span class="c1"># v1 habitat YAML</span>
+<span class="n">data</span><span class="p">:</span>
+  <span class="n">source</span><span class="p">:</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">file_habitat_registered_single_roi</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>MSD stores modalities as one 4D volume in the order <strong>flair, t1, t1ce, t2</strong>.
-The script also copies the whole-tumor mask (<code class="docutils literal notranslate"><span class="pre">label</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>) under each
-modality folder so <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> can load the tree with the current
-CLI ROI rule (first modality key in the feature expression).</p>
-<p>Matching habitat config (replaces <code class="docutils literal notranslate"><span class="pre">delay2</span></code> / <code class="docutils literal notranslate"><span class="pre">delay3</span></code> / <code class="docutils literal notranslate"><span class="pre">delay5</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
-<span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span>  <span class="o">-</span><span class="n">c</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_msd_demo</span><span class="o">.</span><span class="n">yaml</span>
-</pre></div>
-</div>
-<p>Acknowledgement: Medical Segmentation Decathlon Task01 / BraTS 2016–2017;
-please cite MSD and BraTS when using these cases. License: CC-BY-SA 4.0
-(<code class="docutils literal notranslate"><span class="pre">https://medicaldecathlon.com/</span></code>). The large tarball is cached under
-<code class="docutils literal notranslate"><span class="pre">demo_data/_msd_cache/</span></code> (gitignored).</p>
-</section>
-<section id="data-specification">
-<h2>Data specification<a class="headerlink" href="#data-specification" title="Link to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p><strong>Folder</strong>: <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> points to a root with <code class="docutils literal notranslate"><span class="pre">images/</span></code> and <code class="docutils literal notranslate"><span class="pre">masks/</span></code></p></li>
-<li><p><strong>Manifest YAML</strong> (recommended): <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> points to e.g. <code class="docutils literal notranslate"><span class="pre">config/habitat/file_habitat_demo.yaml</span></code></p></li>
+</li>
 </ol>
-<p>Draw ROIs in <strong>ITK-SNAP</strong> or <strong>3D Slicer</strong> ; export NIfTI masks.</p>
-<p>Templates: <code class="docutils literal notranslate"><span class="pre">config/</span></code> — see <a class="reference internal" href="../configuration/recipe_catalog.html"><span class="doc">Configuration recipe catalog</span></a>.</p>
+<p>Example path list (absolute paths; relative paths are OK and resolve from
+<strong>this YAML file’s directory</strong>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">auto_select_first_file</span><span class="p">:</span> <span class="n">false</span>
+
+<span class="n">images</span><span class="p">:</span>
+  <span class="n">subj001</span><span class="p">:</span>                                    <span class="c1"># ★ subject ID</span>
+    <span class="n">T1</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">T1</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span> <span class="c1"># ★ image path</span>
+    <span class="n">T2</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">T2</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span> <span class="c1"># ★ image path</span>
+  <span class="n">subj002</span><span class="p">:</span>
+    <span class="n">T1</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj002</span><span class="o">/</span><span class="n">T1</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+    <span class="n">T2</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj002</span><span class="o">/</span><span class="n">T2</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+
+<span class="n">masks</span><span class="p">:</span>
+  <span class="c1"># One ROI per subject is enough when modalities are already co-registered.</span>
+  <span class="c1"># Use the first modality key from your feature expression (here T1).</span>
+  <span class="n">subj001</span><span class="p">:</span>
+    <span class="n">T1</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">roi</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>  <span class="c1"># ★ mask path</span>
+  <span class="n">subj002</span><span class="p">:</span>
+    <span class="n">T1</span><span class="p">:</span> <span class="n">D</span><span class="p">:</span><span class="o">/</span><span class="n">study</span><span class="o">/</span><span class="n">registered</span><span class="o">/</span><span class="n">subj002</span><span class="o">/</span><span class="n">roi</span><span class="o">.</span><span class="n">nii</span><span class="o">.</span><span class="n">gz</span>
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Direct <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code> paths → keep <code class="docutils literal notranslate"><span class="pre">auto_select_first_file:</span> <span class="pre">false</span></code>.</p></li>
+<li><p>Paths that point to a <strong>folder</strong> containing one NIfTI → set
+<code class="docutils literal notranslate"><span class="pre">auto_select_first_file:</span> <span class="pre">true</span></code> (see <code class="docutils literal notranslate"><span class="pre">file_habitat_demo.yaml</span></code>).</p></li>
+<li><p>Mask grid must match the registered image (same size / spacing).</p></li>
+</ul>
+<p>Check syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">check</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">file_habitat_registered_single_roi</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">syntax</span><span class="o">-</span><span class="n">only</span>
+</pre></div>
+</div>
+</section>
+<section id="option-b-folder-tree">
+<h2>Option B — folder tree<a class="headerlink" href="#option-b-folder-tree" title="Link to this heading"></a></h2>
+<p>Point <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">data.source</span></code> at a directory with this layout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>data_root/
+├── images/
+│   └── subj001/
+│       ├── T1/
+│       │   └── T1.nii.gz
+│       └── T2/
+│           └── T2.nii.gz
+└── masks/
+    └── subj001/
+        └── T1/                 # first modality used in the config
+            └── roi.nii.gz
+</pre></div>
+</div>
+<p>Demo pack (after extracting <code class="docutils literal notranslate"><span class="pre">demo_data.rar</span></code> at the project root):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>demo_data/preprocessed/processed_images/
+├── images/subj001/delay2|delay3|delay5/...
+└── masks/subj001/delay2|delay3|delay5/...
+</pre></div>
+</div>
+<p>Then in the workflow YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># v0.1</span>
+<span class="n">data_dir</span><span class="p">:</span> <span class="o">../../</span><span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">processed_images</span>
+
+<span class="c1"># v1</span>
+<span class="n">data</span><span class="p">:</span>
+  <span class="n">source</span><span class="p">:</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">processed_images</span>
+</pre></div>
+</div>
+</section>
+<section id="what-success-looks-like">
+<h2>What success looks like<a class="headerlink" href="#what-success-looks-like" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_dir</span></code> / <code class="docutils literal notranslate"><span class="pre">data.source</span></code> is either a <strong>path-list YAML</strong> or a <strong>folder
+root</strong> — never a bare <code class="docutils literal notranslate"><span class="pre">.nii.gz</span></code>.</p></li>
+<li><p>Subject IDs and modality keys match your habitat config.</p></li>
+<li><p>Each subject has a usable ROI when the workflow needs masks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span></code> on the path-list YAML (<code class="docutils literal notranslate"><span class="pre">--syntax-only</span></code>) succeeds.</p></li>
+</ul>
+<p>Next: <a class="reference internal" href="preprocess.html"><span class="doc">Preprocessing</span></a> (DICOM / raw) or <a class="reference internal" href="segment_habitat.html"><span class="doc">Habitat segmentation</span></a>.</p>
+<p>Templates: <code class="docutils literal notranslate"><span class="pre">config/</span></code> — catalogue in <a class="reference internal" href="../configuration/recipe_catalog.html"><span class="doc">Configuration recipe catalog</span></a>.</p>
 </section>
 </section>
 
@@ -1514,7 +1619,7 @@ please cite MSD and BraTS when using these cases. License: CC-BY-SA 4.0
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="How-to guides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="before_you_start.html" class="btn btn-neutral float-left" title="Before you start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="preprocess.html" class="btn btn-neutral float-right" title="Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
