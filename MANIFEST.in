@@ -15,8 +15,15 @@ recursive-include habit/kernels/radiomics/cext/src *.h
 # Bundled PyRadiomics parameter presets (default params_file fallbacks).
 recursive-include habit/resources/radiomics *.yaml
 
-# Demo YAML configs mirrored from repo ``config/`` (never demo_data/).
-# Kept in sync via ``python scripts/sync_demo_config.py``.
+# Canonical demo YAML (single source of truth). setup.py sdist/build_py syncs
+# this tree into habit/resources/demo_config/ for the installable package.
+# Never include demo_data/.
+recursive-include config *.yaml
+recursive-include config *.yml
+recursive-include config *.md
+include scripts/sync_demo_config.py
+include habit/resources/demo_config/__init__.py
+# Build-generated mirror (populated by setup.py before sdist/wheel).
 recursive-include habit/resources/demo_config *
 
 # PEP 561 marker for users of static type checkers.

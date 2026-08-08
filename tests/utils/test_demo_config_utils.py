@@ -12,27 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Tests for bundled demo-config packaging and ``copy_demo_config``."""
+"""Tests for demo-config single-source packaging and ``copy_demo_config``."""
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from habit.cli import cli
-from habit.utils.demo_config_utils import copy_demo_config, demo_config_root
+from habit.utils.demo_config_utils import (
+    copy_demo_config,
+    demo_config_root,
+    iter_demo_config_files,
+)
 
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_REPO_CONFIG = _PROJECT_ROOT / "config"
 _KEY_YAML = Path("habitat") / "config_habitat_two_step.yaml"
 
 
 @pytest.mark.unit
-def test_demo_config_root_contains_key_yaml() -> None:
-    """Bundled resource tree must include the primary habitat demo YAML."""
+def test_demo_config_root_uses_repo_config_in_checkout() -> None:
+    """Editable/source installs must read repo-root ``config/`` live."""
     root: Path = demo_config_root()
-    assert root.is_dir()
+    assert root.resolve() == _REPO_CONFIG.resolve()
     assert (root / _KEY_YAML).is_file()
 
 
@@ -73,3 +80,26 @@ def test_public_copy_demo_config_symbol() -> None:
     import habit
 
     assert callable(habit.copy_demo_config)
+
+
+@pytest.mark.unit
+def test_sync_script_mirrors_repo_config(tmp_path: Path) -> None:
+    """Build helper must copy the same relative YAML set as repo ``config/``."""
+    sync_script = _PROJECT_ROOT / "scripts" / "sync_demo_config.py"
+    spec = importlib.util.spec_from_file_location("sync_demo_config", sync_script)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    dst = tmp_path / "demo_config"
+    copied = module.sync_demo_config(src=_REPO_CONFIG, dst=dst)
+    assert copied
+    assert (dst / _KEY_YAML).is_file()
+
+    # Relative paths from the sync helper match live iter_demo_config_files.
+    live_rels = {
+        path.relative_to(_REPO_CONFIG).as_posix()
+        for path in iter_demo_config_files()
+    }
+    synced_rels = {rel.as_posix() for rel in copied}
+    assert synced_rels == live_rels

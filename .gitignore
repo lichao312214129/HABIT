@@ -221,3 +221,9 @@ demo_data/_msd_cache/
 # Local scratch: install-matrix probes, wheel builds, verification output, build backups
 .tmp_*/
 build_locked_bak_*/
+
+# Build-generated mirror of repo-root config/ (setup.py build_py /
+# scripts/sync_demo_config.py). Canonical YAML is config/ only — never
+# hand-maintain or commit the baked package copy.
+habit/resources/demo_config/**
+!habit/resources/demo_config/__init__.py

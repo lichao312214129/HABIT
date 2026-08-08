@@ -17,7 +17,8 @@ Bundled, importable resource data shipped inside the HABIT package.
 
 * ``habit/resources/radiomics`` — default PyRadiomics parameter presets so
   ``params_file`` can be omitted (see :mod:`habit.utils.radiomics_preset_utils`).
-* ``habit/resources/demo_config`` — mirror of the repository ``config/`` demo
-  YAML tree for ``habit.copy_demo_config`` / ``habit copy-demo-config``
-  (see :mod:`habit.utils.demo_config_utils`). ``demo_data/`` is never packaged.
+* ``habit/resources/demo_config`` — build-time mirror of repository ``config/``
+  for wheel installs (``habit.copy_demo_config`` / ``habit copy-demo-config``).
+  Editable checkouts read ``config/`` directly; edit that tree only.
+  ``demo_data/`` is never packaged.
 """

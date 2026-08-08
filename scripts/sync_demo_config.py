@@ -14,17 +14,22 @@
 # limitations under the License.
 #
 """
-Sync repository ``config/`` demo YAMLs into ``habit/resources/demo_config/``.
+Build helper: copy repository ``config/`` → ``habit/resources/demo_config/``.
 
-The installable wheel ships the mirrored tree under the package so users can
-run ``habit copy-demo-config`` (or ``habit.copy_demo_config``) without cloning
-the repository. Developers who edit files under the repo-root ``config/``
-directory should re-run this script before committing packaging changes::
+Canonical demo YAML lives **only** at repo-root ``config/``. Developers edit
+that tree and never maintain a second copy by hand.
+
+``setup.py`` invokes :func:`sync_demo_config` from the ``build_py`` command
+so wheels/sdists always bake a fresh mirror. Editable installs
+(``pip install -e .``) do **not** need this script: runtime reads
+``config/`` directly via :func:`habit.utils.demo_config_utils.demo_config_root`.
+
+Manual use (optional, e.g. inspecting the wheel layout locally)::
 
     python scripts/sync_demo_config.py
 
-Only YAML templates and ``README_CONFIG.md`` are copied; accidental log
-artefacts under ``config/`` are skipped. ``demo_data/`` is never packaged.
+Generated files under ``habit/resources/demo_config/`` (except ``__init__.py``)
+are gitignored. ``demo_data/`` is never packaged.
 """
 
 from __future__ import annotations
@@ -38,6 +43,15 @@ from typing import Iterable, List, Sequence, Set
 _ROOT: Path = Path(__file__).resolve().parents[1]
 _SRC: Path = _ROOT / "config"
 _DST: Path = _ROOT / "habit" / "resources" / "demo_config"
+
+_INIT_TEXT: str = (
+    '"""Bundled demo YAML configs shipped inside the HABIT wheel.\n'
+    "\n"
+    "Populated at build time from repository ``config/`` by\n"
+    "``scripts/sync_demo_config.py`` (see setup.py build_py). Edit repo\n"
+    "``config/`` only — do not hand-maintain files here.\n"
+    '"""\n'
+)
 
 # Extensions that belong in the bundled demo-config tree.
 _INCLUDE_SUFFIXES: Set[str] = {".yaml", ".yml", ".md"}
@@ -78,7 +92,7 @@ def sync_demo_config(
 
     Args:
         src: Source tree (repo ``config/``).
-        dst: Destination package resource tree.
+        dst: Destination package resource tree (build artefact).
         dry_run: When True, report planned copies without writing.
 
     Returns:
@@ -99,11 +113,7 @@ def sync_demo_config(
     if dst.exists():
         shutil.rmtree(dst)
     dst.mkdir(parents=True, exist_ok=True)
-    # Keep demo_config importable as a package (matches radiomics resources).
-    (dst / "__init__.py").write_text(
-        '"""Bundled demo YAML configs shipped inside the HABIT wheel."""\n',
-        encoding="utf-8",
-    )
+    (dst / "__init__.py").write_text(_INIT_TEXT, encoding="utf-8")
 
     for rel in relative_files:
         target: Path = dst / rel
@@ -116,7 +126,10 @@ def sync_demo_config(
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments for the sync script."""
     parser = argparse.ArgumentParser(
-        description="Sync repo config/ into habit/resources/demo_config/.",
+        description=(
+            "Build helper: sync repo config/ into "
+            "habit/resources/demo_config/ (setup.py calls this automatically)."
+        ),
     )
     parser.add_argument(
         "--dry-run",

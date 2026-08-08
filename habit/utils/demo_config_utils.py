@@ -13,16 +13,23 @@
 # limitations under the License.
 #
 """
-Materialize bundled demo YAML configs into a user-chosen work directory.
+Materialize demo YAML configs into a user-chosen work directory.
 
-After ``pip install habitat-analysis``, users do not need a git clone to obtain
-the demo ``config/`` tree. The wheel ships a mirror under
-``habit/resources/demo_config/`` (kept in sync with the repository ``config/``
-via ``scripts/sync_demo_config.py``). Call :func:`copy_demo_config` or the CLI
-``habit copy-demo-config`` to write that tree next to a user-owned
-``demo_data/`` folder.
+Single source of truth
+----------------------
+Developers edit **only** the repository-root ``config/`` tree. There is no
+hand-maintained duplicate.
 
-``demo_data/`` itself is **not** packaged; users download it separately.
+Resolution order for :func:`demo_config_root`:
+
+1. **Source / editable checkout** — if ``<repo>/config/`` exists next to the
+   ``habit`` package, use it directly (``pip install -e .`` sees edits live).
+2. **Installed wheel** — use the copy baked into
+   ``habit.resources.demo_config`` at build time (``setup.py`` ``build_py``
+   runs ``scripts/sync_demo_config.py`` automatically).
+
+``demo_data/`` is never packaged; users download it beside the copied
+``config/``.
 """
 
 from __future__ import annotations
@@ -34,48 +41,80 @@ from typing import Iterator, List, Optional, Union
 
 from habit.utils.progress_utils import CustomTqdm
 
-# Package that physically stores the mirrored demo YAML tree.
+# Package that holds the wheel-baked mirror of repo ``config/``.
 _RESOURCE_PACKAGE: str = "habit.resources.demo_config"
 
 PathLike = Union[str, Path]
 
 
-def demo_config_root() -> Path:
+def _repo_config_dir() -> Optional[Path]:
     """
-    Return the filesystem path of the bundled demo-config resource tree.
+    Return the repository ``config/`` directory when running from a checkout.
+
+    ``habit/utils/demo_config_utils.py`` → parents[2] is the repo root in an
+    editable or in-tree install. After a normal wheel install that path is
+    ``site-packages/``, which has no ``config/`` sibling — then we fall back
+    to the packaged resource tree.
 
     Returns:
-        Path: Absolute directory containing the packaged ``config/`` mirror
-        (YAML templates under habitat/, machine_learning/, …).
+        Optional[Path]: Absolute ``config/`` path, or None when absent.
+    """
+    # habit/utils/<this file> -> habit/utils -> habit -> <repo or site-packages>
+    candidate: Path = Path(__file__).resolve().parents[2] / "config"
+    marker: Path = candidate / "habitat" / "config_habitat_two_step.yaml"
+    if candidate.is_dir() and marker.is_file():
+        return candidate
+    return None
+
+
+def demo_config_root() -> Path:
+    """
+    Return the directory of demo YAML templates to copy from.
+
+    Prefers the live repository ``config/`` in editable/source checkouts;
+    otherwise uses the wheel-bundled ``habit.resources.demo_config`` tree.
+
+    Returns:
+        Path: Absolute directory containing habitat/, machine_learning/, …
 
     Raises:
-        FileNotFoundError: When the resource package is missing from the
-            installation (incomplete wheel / editable install without sync).
+        FileNotFoundError: When neither the repo ``config/`` nor the bundled
+            package resources are available.
     """
+    repo_config: Optional[Path] = _repo_config_dir()
+    if repo_config is not None:
+        return repo_config
+
     resource = importlib_resources.files(_RESOURCE_PACKAGE)
     root = Path(str(resource))
-    if not root.is_dir():
-        raise FileNotFoundError(
-            f"Bundled demo config package not found at {root}. "
-            "The HABIT installation may be incomplete; developers should run "
-            "`python scripts/sync_demo_config.py` before packaging."
-        )
-    return root
+    marker = root / "habitat" / "config_habitat_two_step.yaml"
+    if root.is_dir() and marker.is_file():
+        return root
+
+    raise FileNotFoundError(
+        "Demo config templates not found. In a source checkout, ensure "
+        "repository config/ exists. In a wheel install, the package should "
+        "include habit/resources/demo_config (populated automatically by "
+        "setup.py build_py via scripts/sync_demo_config.py)."
+    )
 
 
 def iter_demo_config_files() -> Iterator[Path]:
     """
-    Iterate all regular files under the bundled demo-config tree.
+    Iterate demo template files under :func:`demo_config_root`.
 
     Yields:
-        Path: Absolute paths of bundled files (YAML / README), excluding the
-        package ``__init__.py`` marker.
+        Path: Absolute paths of YAML / markdown templates. Skips package
+        ``__init__.py`` markers that may exist in the wheel mirror.
     """
     root: Path = demo_config_root()
     for path in sorted(root.rglob("*")):
         if not path.is_file():
             continue
         if path.name == "__init__.py":
+            continue
+        suffix: str = path.suffix.lower()
+        if suffix not in {".yaml", ".yml", ".md"}:
             continue
         yield path
 
@@ -87,9 +126,9 @@ def copy_demo_config(
     show_progress: bool = True,
 ) -> Path:
     """
-    Copy bundled demo YAML configs into ``<dest>/config/``.
+    Copy demo YAML configs into ``<dest>/config/``.
 
-    Typical pip-user layout after this call (``demo_data/`` still downloaded
+    Typical layout after this call (``demo_data/`` still downloaded
     separately)::
 
         <work_dir>/
@@ -110,7 +149,7 @@ def copy_demo_config(
     Raises:
         FileExistsError: When ``<dest>/config`` already exists and
             ``overwrite`` is False.
-        FileNotFoundError: When the bundled resource tree is missing.
+        FileNotFoundError: When no demo config source can be resolved.
         OSError: On filesystem errors while creating directories or copying.
     """
     work_dir: Path = Path(dest).expanduser().resolve()
@@ -126,8 +165,7 @@ def copy_demo_config(
     files: List[Path] = list(iter_demo_config_files())
     if not files:
         raise FileNotFoundError(
-            f"No demo config files found under {source_root}. "
-            "Run `python scripts/sync_demo_config.py` in a source checkout."
+            f"No demo config files found under {source_root}."
         )
 
     work_dir.mkdir(parents=True, exist_ok=True)
