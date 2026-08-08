@@ -6,9 +6,10 @@ Do this once, then every how-to page is just copy → edit ★ → run.
 1. Terminal + env
 -----------------
 
-Open a **conda** terminal first. On Windows: Start → search
-``Anaconda Prompt`` (or ``Miniconda Prompt``) → open that app — not plain
-CMD/PowerShell. Details: :doc:`../tutorial/installation`.
+Open a **conda** terminal first. On Windows: Start (Win10 often
+bottom-left; Win11 often bottom-center) → **Anaconda3** → **Anaconda
+Prompt**, or search ``Anaconda Prompt`` — not plain CMD/PowerShell.
+Details and screenshots: :doc:`../tutorial/installation`.
 
 ::
 
