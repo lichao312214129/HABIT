@@ -284,11 +284,16 @@ Randomness (``Seedable``)
 -------------------------
 
 Components that are stochastic implement ``set_random_state(seed)``. Deterministic
-components do not implement the protocol — that fact is itself provenance.
+components do not implement the protocol — that fact is itself provenance
+(e.g. ``SlicSupervoxelizer`` has no ``set_random_state``; use kmeans/gmm).
 
 .. code-block:: python
 
-   svx.set_random_state(42)
+   from habit.domain import HabitatModelFitterRegistry, SupervoxelizerRegistry
+
+   km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
+   km.set_random_state(42)
+   fitter = HabitatModelFitterRegistry.create("kmeans", n_habitats=4)
    fitter.set_random_state(42)
 
 Built-in registry domains

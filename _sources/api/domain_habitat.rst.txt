@@ -91,15 +91,19 @@ Domain: ``supervoxelizer``
 
    from habit.domain import SupervoxelizerRegistry
 
+   # All built-in supervoxelizers use n_supervoxels (not sklearn's
+   # n_clusters / n_components). Confirm with:
+   # SupervoxelizerRegistry.params_model("kmeans").model_fields
    slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
-   km = SupervoxelizerRegistry.create("kmeans", n_clusters=40)
-   gmm = SupervoxelizerRegistry.create("gmm", n_components=40)
-   slic.set_random_state(42)
+   km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
+   gmm = SupervoxelizerRegistry.create("gmm", n_supervoxels=40)
+   # Seedable: kmeans / gmm only. SLIC has no set_random_state.
+   km.set_random_state(42)
    unit = slic(field)
 
-* ``slic`` → ``SlicSupervoxelizer``
-* ``kmeans`` → ``KMeansSupervoxelizer``
-* ``gmm`` → ``GmmSupervoxelizer``
+* ``slic`` → ``SlicSupervoxelizer`` (deterministic; no ``set_random_state``)
+* ``kmeans`` → ``KMeansSupervoxelizer`` (``Seedable``)
+* ``gmm`` → ``GmmSupervoxelizer`` (``Seedable``)
 
 Supervoxel feature extractors
 -----------------------------
@@ -156,8 +160,9 @@ Domain: ``habitat_model_fitter`` (cohort-level)
 * ``kmeans`` → ``KMeansHabitatModelFitter``
 * ``gmm`` → ``GmmHabitatModelFitter``
 
-``n_habitats`` may be ``"auto"`` for elbow / model-selection paths supported by
-the fitter implementation.
+Omit ``n_habitats`` (or pass ``None``) to select the count over
+``min_habitats..max_habitats`` via the fitter's ``validation`` score. There is
+no string ``"auto"`` value — that was a documentation error.
 
 Habitat assigners
 -----------------
@@ -168,12 +173,13 @@ Domain: ``habitat_assigner``
 
    from habit.domain import HabitatAssignerRegistry
 
-   assigner = HabitatAssignerRegistry.create("nearest_centroid")
-   # Prefer the model factory after fit:
+   # nearest_centroid requires the fitted HabitatModel (not a bare create()).
+   assigner = HabitatAssignerRegistry.create("nearest_centroid", model=model)
+   # Preferred after fit — same object, no registry call needed:
    assigner = model.assigner()
    habitat_map = assigner(unit)
 
-* ``nearest_centroid`` → ``NearestCentroidAssigner``
+* ``nearest_centroid`` → ``NearestCentroidAssigner`` (constructor arg: ``model``)
 
 Habitat feature extractors
 --------------------------

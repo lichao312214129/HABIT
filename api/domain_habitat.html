@@ -1547,17 +1547,21 @@ recipes (<a class="reference internal" href="generated/habit.recipes.two_step.ht
 <p>Domain: <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">SupervoxelizerRegistry</span>
 
+<span class="c1"># All built-in supervoxelizers use n_supervoxels (not sklearn&#39;s</span>
+<span class="c1"># n_clusters / n_components). Confirm with:</span>
+<span class="c1"># SupervoxelizerRegistry.params_model(&quot;kmeans&quot;).model_fields</span>
 <span class="n">slic</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-<span class="n">km</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-<span class="n">gmm</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;gmm&quot;</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-<span class="n">slic</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">km</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="n">gmm</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;gmm&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="c1"># Seedable: kmeans / gmm only. SLIC has no set_random_state.</span>
+<span class="n">km</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">unit</span> <span class="o">=</span> <span class="n">slic</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">slic</span></code> → <code class="docutils literal notranslate"><span class="pre">SlicSupervoxelizer</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> → <code class="docutils literal notranslate"><span class="pre">KMeansSupervoxelizer</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> → <code class="docutils literal notranslate"><span class="pre">GmmSupervoxelizer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slic</span></code> → <code class="docutils literal notranslate"><span class="pre">SlicSupervoxelizer</span></code> (deterministic; no <code class="docutils literal notranslate"><span class="pre">set_random_state</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> → <code class="docutils literal notranslate"><span class="pre">KMeansSupervoxelizer</span></code> (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> → <code class="docutils literal notranslate"><span class="pre">GmmSupervoxelizer</span></code> (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</p></li>
 </ul>
 </section>
 <section id="supervoxel-feature-extractors">
@@ -1610,22 +1614,24 @@ with <code class="docutils literal notranslate"><span class="pre">concat</span><
 <li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> → <code class="docutils literal notranslate"><span class="pre">KMeansHabitatModelFitter</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> → <code class="docutils literal notranslate"><span class="pre">GmmHabitatModelFitter</span></code></p></li>
 </ul>
-<p><code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> may be <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> for elbow / model-selection paths supported by
-the fitter implementation.</p>
+<p>Omit <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code> (or pass <code class="docutils literal notranslate"><span class="pre">None</span></code>) to select the count over
+<code class="docutils literal notranslate"><span class="pre">min_habitats..max_habitats</span></code> via the fitter’s <code class="docutils literal notranslate"><span class="pre">validation</span></code> score. There is
+no string <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> value — that was a documentation error.</p>
 </section>
 <section id="habitat-assigners">
 <h2>Habitat assigners<a class="headerlink" href="#habitat-assigners" title="Link to this heading"></a></h2>
 <p>Domain: <code class="docutils literal notranslate"><span class="pre">habitat_assigner</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatAssignerRegistry</span>
 
-<span class="n">assigner</span> <span class="o">=</span> <span class="n">HabitatAssignerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)</span>
-<span class="c1"># Prefer the model factory after fit:</span>
+<span class="c1"># nearest_centroid requires the fitted HabitatModel (not a bare create()).</span>
+<span class="n">assigner</span> <span class="o">=</span> <span class="n">HabitatAssignerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+<span class="c1"># Preferred after fit — same object, no registry call needed:</span>
 <span class="n">assigner</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">assigner</span><span class="p">()</span>
 <span class="n">habitat_map</span> <span class="o">=</span> <span class="n">assigner</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> → <code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nearest_centroid</span></code> → <code class="docutils literal notranslate"><span class="pre">NearestCentroidAssigner</span></code> (constructor arg: <code class="docutils literal notranslate"><span class="pre">model</span></code>)</p></li>
 </ul>
 </section>
 <section id="habitat-feature-extractors">
