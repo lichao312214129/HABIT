@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -1446,40 +1446,122 @@
   <section id="quickstart-python-api">
 <h1>Quickstart: Python API<a class="headerlink" href="#quickstart-python-api" title="Link to this heading"></a></h1>
 <p>Install first (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). This page is the <strong>same demo</strong> as
-<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>, driven by the <strong>same YAML files</strong> through
-<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> (the programmatic twin of the CLI).</p>
-<p>Work from a directory that already has <code class="docutils literal notranslate"><span class="pre">config/</span></code> and <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>
-(see <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> steps 1-2):</p>
+<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>, expressed as <strong>pure Python</strong> — construct a cohort,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code> / <code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code>, and call
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.recipes</span></code> with explicit arguments (no YAML path, no
+<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a>).</p>
+<p>Parameters below mirror the bundled demo configs
+(<code class="docutils literal notranslate"><span class="pre">config/habitat/config_habitat_two_step.yaml</span></code>,
+<code class="docutils literal notranslate"><span class="pre">config/feature_extraction/config_extract_features_demo.yaml</span></code>,
+<code class="docutils literal notranslate"><span class="pre">config/machine_learning/config_machine_learning_radiomics_minimal.yaml</span></code>)
+so habitat label maps match the CLI voxel-wise when you use the same
+<code class="docutils literal notranslate"><span class="pre">demo_data/</span></code>, seed, and execution policy.</p>
+<p>YAML / CLI remain an alternate shell for the same recipes
+(<a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>); they are not required here.</p>
+<p>Work from a directory that already has <code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> (and optionally
+<code class="docutils literal notranslate"><span class="pre">config/</span></code> if you also use the CLI). See <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a> steps 1–2:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Windows - Anaconda Prompt</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">habit</span>
-<span class="n">cd</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>          <span class="c1"># your work_dir (has config/ + demo_data/)</span>
+<span class="n">cd</span> <span class="n">D</span><span class="p">:</span>\<span class="n">my_habit_work</span>          <span class="c1"># your work_dir (has demo_data/)</span>
 </pre></div>
 </div>
-<p>Paths inside the demo YAML resolve from each YAML file’s folder
-(<code class="docutils literal notranslate"><span class="pre">../../demo_data/...</span></code>), exactly as for <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span></code> /
-<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code>.</p>
-<section id="habitat-analysis-same-yaml-as-cli">
-<h2>1. Habitat analysis (same YAML as CLI)<a class="headerlink" href="#habitat-analysis-same-yaml-as-cli" title="Link to this heading"></a></h2>
-<p>CLI twin:</p>
+<section id="habitat-analysis-two-step">
+<h2>1. Habitat analysis (two-step)<a class="headerlink" href="#habitat-analysis-two-step" title="Link to this heading"></a></h2>
+<p>CLI twin (same scientific settings):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span><span class="p">(</span>
-    <span class="s2">&quot;config/habitat/config_habitat_two_step.yaml&quot;</span><span class="p">,</span>
-    <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># write maps / CSV / model under the YAML out_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">RunPolicy</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_from_policy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+
+<span class="n">modalities</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">)</span>
+<span class="c1"># Match the CLI YAML loader: ROI key = first modality in the concat list.</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span>
+    <span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">,</span>
+    <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Mirrors config/habitat/config_habitat_two_step.yaml → HabitatSpec</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_two_step&quot;</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">modalities</span><span class="p">)},</span>
+    <span class="p">),</span>
+    <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span>
+            <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="p">),</span>
+    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">cohort_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span>
+            <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+            <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
+    <span class="n">postprocess_habitat</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;connected_components&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;min_component_size&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s2">&quot;connectivity&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;reassign_method&quot;</span><span class="p">:</span> <span class="s2">&quot;neighbor_vote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_iterations&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Match YAML processes / timeout so process-pool execution matches CLI.</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">RunPolicy</span><span class="p">(</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;process&quot;</span><span class="p">,</span>
+    <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span>
+    <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">backend_from_policy</span><span class="p">(</span><span class="n">policy</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+<span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;demo_data/results/habitat_two_step&quot;</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+    <span class="n">out_dir</span><span class="p">,</span>
+    <span class="n">write_maps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">write_units_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">write_cluster_plots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
 </div>
 <p>Outputs land under <code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/</span></code> (including
 <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code>). With the same
-YAML, seed, and data, API and CLI habitat label maps match voxel-wise.</p>
-<p>In-memory recipes without YAML (synthetic cohorts, custom <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code>)
-live under <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a> – useful for notebooks, not for
-reproducing this demo’s CLI numbers.</p>
+parameters, seed, data, and policy, API and CLI habitat label maps match
+voxel-wise.</p>
+<p>Further notebook-oriented patterns (synthetic cohorts, custom extractors)
+live under <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a>.</p>
 </section>
 <section id="view">
 <h2>2. View<a class="headerlink" href="#view" title="Link to this heading"></a></h2>
@@ -1488,15 +1570,9 @@ reproducing this demo’s CLI numbers.</p>
            <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">view_habitat_napari</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">view_habitat_napari</span>
 
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span>
-    <span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
-    <span class="n">modalities</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">],</span>
-    <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># result.habitat_maps are in the same subject order as the YAML cohort</span>
+<span class="c1"># Anatomy under LAP; habitat maps share the cohort geometry from step 1.</span>
 <span class="n">volume</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
 <span class="n">view_habitat_napari</span><span class="p">(</span>
     <span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
@@ -1510,57 +1586,131 @@ reproducing this demo’s CLI numbers.</p>
 For fuller 3D review, also open the source volume and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
 in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer.</p>
 </section>
-<section id="apply-a-saved-model-same-yaml-as-cli-predict">
-<h2>3. Apply a saved model (same YAML as CLI predict)<a class="headerlink" href="#apply-a-saved-model-same-yaml-as-cli-predict" title="Link to this heading"></a></h2>
+<section id="apply-a-saved-model">
+<h2>3. Apply a saved model<a class="headerlink" href="#apply-a-saved-model" title="Link to this heading"></a></h2>
 <p>After step 1, the archive sits at
 <code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/habitat_model.habitatmodel</span></code>.
 CLI twin:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">get</span><span class="o">-</span><span class="n">habitat</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">habitat</span><span class="o">/</span><span class="n">config_habitat_two_step_predict</span><span class="o">.</span><span class="n">yaml</span> <span class="o">-</span><span class="n">m</span> <span class="n">predict</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatModel</span>
 
-<span class="n">prediction</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span><span class="p">(</span>
-    <span class="s2">&quot;config/habitat/config_habitat_two_step_predict.yaml&quot;</span><span class="p">,</span>
-    <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">HabitatModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+    <span class="s2">&quot;demo_data/results/habitat_two_step/habitat_model.habitatmodel&quot;</span>
 <span class="p">)</span>
+<span class="c1"># Reuse the same HabitatSpec as training (feature chains must match).</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">apply_habitat_model</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span>
+<span class="p">)</span>
+<span class="n">prediction</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;demo_data/results/habitat_two_step/predict&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">),</span> <span class="s2">&quot;subjects labelled&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="extract-habitat-features-same-yaml-as-cli">
-<h2>4. Extract habitat features (same YAML as CLI)<a class="headerlink" href="#extract-habitat-features-same-yaml-as-cli" title="Link to this heading"></a></h2>
+<section id="extract-habitat-features">
+<h2>4. Extract habitat features<a class="headerlink" href="#extract-habitat-features" title="Link to this heading"></a></h2>
 <p>CLI twin:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">feature_extraction</span><span class="o">/</span><span class="n">config_extract_features_demo</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p>Needs step 1 outputs (<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> under the habitats folder named in
-that YAML).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
-
-<span class="n">extract_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span><span class="p">(</span>
-    <span class="s2">&quot;config/feature_extraction/config_extract_features_demo.yaml&quot;</span><span class="p">,</span>
-    <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;extract&quot;</span><span class="p">,</span>
+<p>Needs step 1 outputs (<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>). Pass the same fields as the
+demo YAML, as a Python <code class="docutils literal notranslate"><span class="pre">dict</span></code> (still no config file):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extract_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">extract_habitat_features</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;raw_img_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;habitats_map_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_data/results/habitat_two_step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;out_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_data/results/features&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;n_processes&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;habitat_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;*_habitats.nrrd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;feature_types&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;volume&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;msi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;non_radiomics&quot;</span><span class="p">,</span>
+            <span class="c1"># Heavy PyRadiomics (opt-in):</span>
+            <span class="c1"># &quot;traditional&quot;,</span>
+            <span class="c1"># &quot;whole_habitat&quot;,</span>
+            <span class="c1"># &quot;each_habitat&quot;,</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">extract_result</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="tabular-ml-same-yaml-as-cli">
-<h2>5. Tabular ML (same YAML as CLI)<a class="headerlink" href="#tabular-ml-same-yaml-as-cli" title="Link to this heading"></a></h2>
+<section id="tabular-ml">
+<h2>5. Tabular ML<a class="headerlink" href="#tabular-ml" title="Link to this heading"></a></h2>
 <p>CLI twin:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">model</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">machine_learning</span><span class="o">/</span><span class="n">config_machine_learning_radiomics_minimal</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">mode</span> <span class="n">train</span>
 </pre></div>
 </div>
 <p>Needs the <strong>ML pack</strong> under <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> (see <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart: run the demo (YAML + CLI)</span></a>
-step 2 / the note before <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+step 2). Build a <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code> in code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">ml_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">run_from_yaml</span><span class="p">(</span>
-    <span class="s2">&quot;config/machine_learning/config_machine_learning_radiomics_minimal.yaml&quot;</span><span class="p">,</span>
-    <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
-    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">Spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.outcome</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryOutcome</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Provenance</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;demo_data/ml_data/breast_cancer_dataset.csv&quot;</span><span class="p">)</span>
+<span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
+<span class="n">feature_columns</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+    <span class="n">column</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;subject_id&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="c1"># Prefix matches the YAML ``input.name: radiomics_``</span>
+<span class="n">renamed</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">column</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;radiomics_</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">feature_columns</span>
+<span class="p">}</span>
+<span class="n">table_frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">renamed</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+    <span class="n">frame</span><span class="o">=</span><span class="n">table_frame</span><span class="p">,</span>
+    <span class="n">id_columns</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;subject_id&quot;</span><span class="p">,),</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">renamed</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">feature_columns</span><span class="p">),</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="n">BinaryOutcome</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="n">positive_label</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">provenance</span><span class="o">=</span><span class="n">Provenance</span><span class="o">.</span><span class="n">source</span><span class="p">(</span><span class="s2">&quot;quickstart_python&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Mirrors config_machine_learning_radiomics_minimal.yaml → MLSpec</span>
+<span class="c1"># (variance before z-score; correlation after).</span>
+<span class="n">ml_spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ml_model&quot;</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;correlation&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;spearman&quot;</span><span class="p">}),</span>
+    <span class="p">),</span>
+    <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;penalty&quot;</span><span class="p">:</span> <span class="s2">&quot;l2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;lbfgs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">train_ids</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;demo_data/ml_data/train_ids.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
+    <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="n">test_ids</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;demo_data/ml_data/test_ids.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span>
+    <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="n">ml_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">train_model</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">ml_spec</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">train_ids</span><span class="o">=</span><span class="n">train_ids</span><span class="p">,</span>
+    <span class="n">test_ids</span><span class="o">=</span><span class="n">test_ids</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ml_result</span><span class="o">.</span><span class="n">test_metrics</span><span class="p">)</span>
 </pre></div>
