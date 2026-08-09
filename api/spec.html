@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1454,7 +1458,14 @@ described — the same document shape as v1 YAML.</p>
 → optional voxel prep → supervoxels → optional cohort prep → fit → assign →
 habitat features). That can differ from the dataclass field order, where
 optional preprocessor chains appear later because they have defaults.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">load_habitat_spec</span><span class="p">,</span> <span class="n">save_habitat_spec</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="n">RunPolicy</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">load_habitat_spec</span><span class="p">,</span>
+    <span class="n">save_habitat_config</span><span class="p">,</span>
+    <span class="n">save_habitat_spec</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
@@ -1486,6 +1497,17 @@ optional preprocessor chains appear later because they have defaults.</p>
 <span class="n">restored</span> <span class="o">=</span> <span class="n">load_habitat_spec</span><span class="p">(</span><span class="s2">&quot;habitat_spec.yaml&quot;</span><span class="p">)</span>
 <span class="n">payload</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 <span class="n">again</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="c1"># Runnable v1 document (spec + data + policy + output, defaults expanded).</span>
+<span class="c1"># Same file works with recipes.run_from_yaml and habit get-habitat --config.</span>
+<span class="n">save_habitat_config</span><span class="p">(</span>
+    <span class="s2">&quot;habitat_run.yaml&quot;</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="s2">&quot;out/habitat&quot;</span><span class="p">,</span>
+    <span class="n">policy</span><span class="o">=</span><span class="n">RunPolicy</span><span class="p">(</span><span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;serial&quot;</span><span class="p">,</span> <span class="n">subject_timeout_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="c1"># Or export only the effective spec: section: spec.to_yaml(&quot;spec_only.yaml&quot;)</span>
 </pre></div>
 </div>
 <p>Direct (no-supervoxel) design — set <code class="docutils literal notranslate"><span class="pre">supervoxelizer=None</span></code>:</p>

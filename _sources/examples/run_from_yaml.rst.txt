@@ -7,6 +7,12 @@ the same recipes the command line uses. **v1** documents
 (``version: '1.0'``) are read directly; **v0.1** documents are translated
 through :class:`~habit.spec.legacy.LegacyConfigAdapter` first.
 
+Three equivalent paths for one analysis: (A) build a
+:class:`~habit.spec.HabitatSpec` in Python and call a recipe; (B) export a
+complete effective document with :func:`~habit.spec.save_habitat_config` and
+reload it here; (C) pass that same YAML to ``habit get-habitat --config``.
+With matching seed / data / policy, habitat maps are voxel-identical.
+
 To keep this example self-contained, the script first writes a tiny imaging
 dataset in HABIT's conventional directory layout and a v1 YAML document,
 then executes the document with ``save=True`` — persisting the same

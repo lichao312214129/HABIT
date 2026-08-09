@@ -497,6 +497,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -936,6 +937,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -2387,6 +2391,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.api.habitat.build_feature_extraction_config.html#habit.api.habitat.build_feature_extraction_config">build_feature_extraction_config() (in module habit.api.habitat)</a>
 </li>
+      <li><a href="api/generated/habit.spec.build_habitat_document.html#habit.spec.build_habitat_document">build_habitat_document() (in module habit.spec)</a>
+</li>
       <li><a href="api/generated/habit.domain.build_methods.html#habit.domain.build_methods">build_methods() (in module habit.domain)</a>
 </li>
   </ul></td>
@@ -3317,6 +3323,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.api.habitat.load_feature_extraction_config.html#habit.api.habitat.load_feature_extraction_config">load_feature_extraction_config() (in module habit.api.habitat)</a>
 </li>
+      <li><a href="api/generated/habit.spec.load_habitat_config.html#habit.spec.load_habitat_config">load_habitat_config() (in module habit.spec)</a>
+</li>
       <li><a href="api/generated/habit.spec.load_habitat_spec.html#habit.spec.load_habitat_spec">load_habitat_spec() (in module habit.spec)</a>
 </li>
       <li><a href="api/generated/habit.api.plugins.load_plugins.html#habit.api.plugins.load_plugins">load_plugins() (in module habit.api.plugins)</a>
@@ -3921,6 +3929,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.save">(TablePipeline method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/habit.spec.save_habitat_config.html#habit.spec.save_habitat_config">save_habitat_config() (in module habit.spec)</a>
+</li>
       <li><a href="api/generated/habit.spec.save_habitat_spec.html#habit.spec.save_habitat_spec">save_habitat_spec() (in module habit.spec)</a>
 </li>
       <li><a href="api/generated/habit.spec.save_run_policy.html#habit.spec.save_run_policy">save_run_policy() (in module habit.spec)</a>
@@ -4333,6 +4343,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.spec.Spec.html#habit.spec.Spec.to_dict">(Spec method)</a>
 </li>
       </ul></li>
+      <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_effective_dict">to_effective_dict() (HabitatSpec method)</a>
+</li>
       <li><a href="api/generated/habit.domain.PreciseFeatureSet.html#habit.domain.PreciseFeatureSet.to_frame">to_frame() (PreciseFeatureSet method)</a>
 
       <ul>
@@ -4345,16 +4357,18 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.api.image.ImageVolume.html#habit.api.image.ImageVolume.to_sitk">to_sitk() (ImageVolume method)</a>
 </li>
+      <li><a href="api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_yaml">to_yaml() (HabitatSpec method)</a>
+</li>
       <li><a href="api/generated/habit.domain.VarianceSelectorParams.html#habit.domain.VarianceSelectorParams.top_k">top_k (VarianceSelectorParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.VarianceSelectorParams.html#habit.domain.VarianceSelectorParams.top_percent">top_percent (VarianceSelectorParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.recipes.traditional_radiomics.html#habit.recipes.traditional_radiomics">traditional_radiomics() (in module habit.recipes)</a>
 </li>
-      <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html#habit.domain.TraditionalRadiomicsHabitatFeatures">TraditionalRadiomicsHabitatFeatures (class in habit.domain)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html#habit.domain.TraditionalRadiomicsHabitatFeatures">TraditionalRadiomicsHabitatFeatures (class in habit.domain)</a>
+</li>
       <li><a href="api/generated/habit.domain.TraditionalRadiomicsHabitatFeaturesParams.html#habit.domain.TraditionalRadiomicsHabitatFeaturesParams">TraditionalRadiomicsHabitatFeaturesParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.recipes.ModelResult.html#habit.recipes.ModelResult.train_metrics">train_metrics (ModelResult attribute)</a>

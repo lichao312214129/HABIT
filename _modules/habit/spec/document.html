@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>habit.spec.specs &mdash; HABIT Documentation</title>
+  <title>habit.spec.document &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=39329a72" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/spec/specs.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/habit/spec/document.html" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -1791,7 +1791,7 @@ window.runMermaid = runMermaid;</script>
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">habit.spec.specs</li>
+      <li class="breadcrumb-item active">habit.spec.document</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -1800,7 +1800,7 @@ window.runMermaid = runMermaid;</script>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for habit.spec.specs</h1><div class="highlight"><pre>
+  <h1>Source code for habit.spec.document</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.</span>
 <span class="c1">#</span>
 <span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1815,1034 +1815,191 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Algorithm specifications: what to run, never where data lives.</span>
+<span class="sd">&quot;&quot;&quot;Build and persist runnable v1 habitat configuration documents.</span>
 
-<span class="sd">``Spec`` describes ONE pluggable component; ``HabitatSpec`` composes the</span>
-<span class="sd">specs of a complete habitat analysis. Neither knows about file locations</span>
-<span class="sd">(a ``DataSource`` concern) or execution policy (a ``RunPolicy`` concern) --</span>
-<span class="sd">that tripartition is what makes a specification portable between machines</span>
-<span class="sd">and what gives every result a stable, comparable fingerprint.</span>
+<span class="sd">A pure-Python analysis (``HabitatSpec`` + ``RunPolicy`` + data/output paths)</span>
+<span class="sd">must be exportable as a **complete effective** YAML document so that</span>
+<span class="sd">:func:`~habit.recipes.run_from_yaml` and ``habit get-habitat --config`` replay</span>
+<span class="sd">the same recipe assembly with voxel-identical habitats.</span>
+
+<span class="sd">This module only assembles the document mapping; it never runs the analysis.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.legacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">V1_SCHEMA_VERSION</span><span class="p">,</span> <span class="n">validate_v1_document</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.policy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunPolicy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_read_yaml</span><span class="p">,</span> <span class="n">_write_yaml</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Spec&quot;</span><span class="p">,</span> <span class="s2">&quot;HabitatSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;MLSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;coerce_spec&quot;</span><span class="p">]</span>
-
-<span class="c1">#: Registry domains recognised inside a HabitatSpec, in canonical order.</span>
-<span class="c1">#: Field names deliberately match the plugin domains verbatim (see</span>
-<span class="c1">#: developer/api_upgrade/08_naming_decisions.md §4) so no fourth vocabulary</span>
-<span class="c1">#: appears between YAML, Python, and the registry layer.</span>
-<span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;habitat_assigner&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1">#: Component domains a specification may leave unset. Both concern the</span>
-<span class="c1">#: supervoxel stage, which the one-step and direct-pooling designs skip.</span>
-<span class="n">_OPTIONAL_COMPONENT_DOMAINS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1">#: Methods styles supported by ``HabitatSpec.describe_methods`` (and by the</span>
-<span class="c1">#: RunManifest counterpart -- same verb, same signature, same vocabulary).</span>
-<span class="n">_METHODS_STYLES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">,</span> <span class="s2">&quot;nature&quot;</span><span class="p">)</span>
-
-<span class="c1">#: Human phrasing for the component domains, in pipeline order.</span>
-<span class="c1">#: (Deliberately duplicated in ``habit.contracts.manifest``: the spec layer</span>
-<span class="c1">#: sits at the foundation of the stack and must never import upwards, and</span>
-<span class="c1">#: the fragment is small.)</span>
-<span class="n">_COMPONENT_PHRASES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">,</span> <span class="s2">&quot;voxel feature extraction&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;supervoxelizer&quot;</span><span class="p">,</span> <span class="s2">&quot;supervoxelization&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;supervoxel connected-component postprocessing&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">,</span> <span class="s2">&quot;supervoxel feature extraction&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat model fitting&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;habitat_assigner&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat assignment&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat connected-component postprocessing&quot;</span><span class="p">),</span>
-<span class="p">)</span>
-
-<span class="c1">#: Preprocessing chains, keyed by field name, with the prose each renders as.</span>
-<span class="c1">#: Ordered as they run. The first two are stateless and per subject, the third</span>
-<span class="c1">#: is fitted once on the training cohort -- the distinction that decides where</span>
-<span class="c1">#: leakage is possible, and the reason the field names say WHOSE statistics are</span>
-<span class="c1">#: used rather than which granularity is processed.</span>
-<span class="n">_PREPROCESSING_CHAINS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s2">&quot;voxel_feature_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;per-subject voxel feature preprocessing&quot;</span><span class="p">),</span>
-    <span class="p">(</span>
-        <span class="s2">&quot;supervoxel_feature_preprocessors&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;per-subject supervoxel feature preprocessing&quot;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;cohort_feature_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;cohort-level feature preprocessing&quot;</span><span class="p">),</span>
-<span class="p">)</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;build_habitat_document&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;save_habitat_config&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load_habitat_config&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_params_text</span><span class="p">(</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render one component&#39;s parameter mapping as prose.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;default parameters&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_component_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<div class="viewcode-block" id="build_habitat_document">
+<a class="viewcode-back" href="../../../api/generated/habit.spec.build_habitat_document.html#habit.spec.build_habitat_document">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_habitat_document</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">policy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunPolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">save_results_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">habitats_results_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+    <span class="n">plot_curves</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render a HabitatSpec-shaped payload as ordered prose phrases.</span>
+<span class="sd">    Assemble a native v1 habitat document with expanded defaults.</span>
 
-<span class="sd">    Only keys actually present are rendered: the paragraph states what the</span>
-<span class="sd">    analysis contains, never what a template might have contained.</span>
+<span class="sd">    The ``spec`` section uses :meth:`HabitatSpec.to_effective_dict` so omitted</span>
+<span class="sd">    fingerprint-stable defaults (geometry policy, empty postprocess slots)</span>
+<span class="sd">    appear explicitly. The ``policy`` section always emits every</span>
+<span class="sd">    :class:`RunPolicy` field (caller policy or library defaults).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        payload: Spec payload as produced by ``HabitatSpec.to_dict``.</span>
+<span class="sd">        spec: Analysis declaration (what to compute).</span>
+<span class="sd">        data_source: Cohort root directory or input-manifest YAML path.</span>
+<span class="sd">        out_dir: Destination directory for CLI / ``run_from_yaml(..., save=True)``.</span>
+<span class="sd">        policy: Execution policy; ``None`` expands to :class:`RunPolicy` defaults.</span>
+<span class="sd">        mode: ``&quot;train&quot;`` or ``&quot;predict&quot;``.</span>
+<span class="sd">        pipeline: Fitted ``.habitatmodel`` path for predict mode.</span>
+<span class="sd">        save_images: Persist NRRD habitat (and supervoxel) maps.</span>
+<span class="sd">        save_results_csv: Persist the habitats unit table.</span>
+<span class="sd">        habitats_results_format: ``&quot;parquet&quot;`` or ``&quot;csv&quot;``.</span>
+<span class="sd">        plot_curves: Persist clustering visualisation artefacts.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        One phrase per present component, in pipeline order.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">phrases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">_COMPONENT_PHRASES</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">entry</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">:</span>
-                <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;direct voxel clustering (no supervoxelization)&quot;</span><span class="p">)</span>
-            <span class="c1"># An unset supervoxel_feature_extractor is not a missing step:</span>
-            <span class="c1"># the supervoxelizer&#39;s own feature means describe the regions.</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
-            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">entry</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">features</span><span class="p">:</span>
-        <span class="n">families</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
-            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">features</span>
-        <span class="p">)</span>
-        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;habitat feature families: </span><span class="si">{</span><span class="n">families</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">chain_phrase</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span><span class="p">:</span>
-        <span class="n">chain</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">chain</span><span class="p">:</span>
-            <span class="n">steps</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span>
-            <span class="p">)</span>
-            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chain_phrase</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phrases</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_canonical_json</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Serialise a spec payload deterministically.</span>
-
-<span class="sd">    Tuples become lists and mappings are key-sorted so that two equal specs</span>
-<span class="sd">    always produce byte-identical text -- the precondition for a stable</span>
-<span class="sd">    fingerprint.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        value: Spec payload of plain Python / NumPy scalar values.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Canonical JSON text.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_normalise</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">_normalise</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">_normalise</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
-        <span class="c1"># NumPy scalars and Path-likes degrade to plain JSON values.</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;item&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">item</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">))</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">item</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">_normalise</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">))</span>
-
-
-<div class="viewcode-block" id="Spec">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.Spec.html#habit.spec.Spec">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">Spec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Specification of ONE pluggable component.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name: Registered component name, e.g. ``&quot;slic&quot;``.</span>
-<span class="sd">        params: Constructor parameters. Defaults live in the component</span>
-<span class="sd">            classes themselves so a spec only records deviations.</span>
-<span class="sd">        version: Specification schema version, reserved for future</span>
-<span class="sd">            migrations.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">params</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-
-<div class="viewcode-block" id="Spec.__post_init__">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.Spec.html#habit.spec.Spec.__post_init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalise the parameter mapping into an immutable plain dict.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;Spec.name must be a non-empty string.&quot;</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="Spec.fingerprint">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.Spec.html#habit.spec.Spec.fingerprint">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a stable hash identifying this exact specification.</span>
-
-<span class="sd">        Two runs with equal fingerprints are scientifically comparable;</span>
-<span class="sd">        caching and provenance key on it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Hex digest of the canonical payload.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_payload</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the canonical text form used for hashing.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_canonical_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
-
-<div class="viewcode-block" id="Spec.to_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.Spec.html#habit.spec.Spec.to_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialise to a plain dict (YAML/JSON isomorphic).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">_canonical_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)),</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-        <span class="p">}</span></div>
-
-
-<div class="viewcode-block" id="Spec.from_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.Spec.html#habit.spec.Spec.from_dict">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Spec&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Rebuild a spec from its dict form.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            payload: Mapping with ``name`` and optional ``params`` /</span>
-<span class="sd">                ``version``.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The reconstructed spec.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If ``name`` is missing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spec payload lacks &#39;name&#39;: </span><span class="si">{</span><span class="n">payload</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span>
-            <span class="n">params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})),</span>
-            <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">coerce_spec</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Coerce one component payload into a Spec.</span>
-
-<span class="sd">    Accepts the structured mapping form (``name``/``params``) and the</span>
-<span class="sd">    compact string form (a strict feature-tree expression such as</span>
-<span class="sd">    ``&#39;concat(raw(&quot;T1&quot;), raw(&quot;T2&quot;))&#39;``), so YAML documents may spell a</span>
-<span class="sd">    feature component either way.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        entry: The payload, or ``None``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The coerced Spec, or ``None`` for an unset component.</span>
+<span class="sd">        A v1 document mapping ready for YAML serialisation.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: On a payload of any other type.</span>
+<span class="sd">        HABITAPIError: When the assembled document fails structural validation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">entry</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="c1"># Lazy import: expressions.py itself depends on this module&#39;s Spec.</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.expressions</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_feature_expression</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">HabitatSpec</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;build_habitat_document expects a HabitatSpec; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">run_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">run_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;predict&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;build_habitat_document mode must be &#39;train&#39; or &#39;predict&#39;; got </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">effective_policy</span> <span class="o">=</span> <span class="n">policy</span> <span class="k">if</span> <span class="n">policy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">RunPolicy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">effective_policy</span><span class="p">,</span> <span class="n">RunPolicy</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;build_habitat_document policy must be a RunPolicy; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">effective_policy</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">parse_feature_expression</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Spec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;A component spec must be a mapping or an expression string; &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">entry</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-    <span class="p">)</span>
+    <span class="n">document</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="n">V1_SCHEMA_VERSION</span><span class="p">,</span>
+        <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="s2">&quot;habitat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">run_mode</span><span class="p">,</span>
+        <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">to_effective_dict</span><span class="p">(),</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_source</span><span class="p">)},</span>
+        <span class="s2">&quot;policy&quot;</span><span class="p">:</span> <span class="n">effective_policy</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+        <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;out_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_dir</span><span class="p">),</span>
+            <span class="s2">&quot;save_images&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">save_images</span><span class="p">),</span>
+            <span class="s2">&quot;save_results_csv&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">save_results_csv</span><span class="p">),</span>
+            <span class="s2">&quot;habitats_results_format&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">habitats_results_format</span><span class="p">),</span>
+            <span class="s2">&quot;plot_curves&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">plot_curves</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">document</span><span class="p">[</span><span class="s2">&quot;pipeline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">run_mode</span> <span class="o">==</span> <span class="s2">&quot;predict&quot;</span><span class="p">:</span>
+        <span class="n">document</span><span class="p">[</span><span class="s2">&quot;pipeline&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">validate_v1_document</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">document</span></div>
 
 
-<div class="viewcode-block" id="HabitatSpec">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">HabitatSpec</span><span class="p">:</span>
+
+<div class="viewcode-block" id="save_habitat_config">
+<a class="viewcode-back" href="../../../api/generated/habit.spec.save_habitat_config.html#habit.spec.save_habitat_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_habitat_config</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">out_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">policy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RunPolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;train&quot;</span><span class="p">,</span>
+    <span class="n">pipeline</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_images</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">save_results_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">habitats_results_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+    <span class="n">plot_curves</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Complete specification of a habitat analysis.</span>
-
-<span class="sd">    A frozen, fingerprintable value object. ``supervoxelizer=None`` selects</span>
-<span class="sd">    the direct clustering designs (one-step / direct-pooling), mirroring the</span>
-<span class="sd">    ``SubjectPipeline`` contract.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name: Human-readable specification name.</span>
-<span class="sd">        voxel_feature_extractor: Spec of the voxel feature step.</span>
-<span class="sd">        supervoxelizer: Spec of the supervoxel step, or ``None``.</span>
-<span class="sd">        supervoxel_feature_extractor: Spec of the step describing the</span>
-<span class="sd">            supervoxels, or ``None`` to keep the supervoxelizer&#39;s feature</span>
-<span class="sd">            means (the v0.1 default).</span>
-<span class="sd">        habitat_model_fitter: Spec of the cohort-level fitting step.</span>
-<span class="sd">        habitat_assigner: Spec of the per-subject assignment step.</span>
-<span class="sd">        habitat_features: Specs of habitat feature families.</span>
-<span class="sd">        voxel_feature_preprocessors: Ordered method specs of the stateless</span>
-<span class="sd">            per-subject chain applied to voxel features BEFORE</span>
-<span class="sd">            supervoxelization (v0.1&#39;s ``preprocessing_for_subject_level``).</span>
-<span class="sd">        supervoxel_feature_preprocessors: Ordered method specs of the</span>
-<span class="sd">            stateless per-subject chain applied to supervoxel features. Has no</span>
-<span class="sd">            v0.1 equivalent: that version could only preprocess supervoxel</span>
-<span class="sd">            features at cohort level, which forced per-supervoxel radiomics</span>
-<span class="sd">            through a stateful step it did not need.</span>
-<span class="sd">        cohort_feature_preprocessors: Ordered method specs of the stateful</span>
-<span class="sd">            chain fitted once on the pooled TRAINING units and replayed</span>
-<span class="sd">            afterwards (v0.1&#39;s ``preprocessing_for_group_level``). Its fitted</span>
-<span class="sd">            state is stored in ``HabitatModel.preprocessing_state``, because a</span>
-<span class="sd">            habitat definition is only reproducible together with the feature</span>
-<span class="sd">            space it was defined in.</span>
-<span class="sd">        random_seed: Seed applied to every</span>
-<span class="sd">            :class:`~habit.domain.protocols.Seedable` component. Seeds</span>
-<span class="sd">            change the scientific result, so they live in the spec (and its</span>
-<span class="sd">            fingerprint), not in the run policy.</span>
-<span class="sd">        on_geometry_mismatch: How to handle image/mask voxel-grid disagreements</span>
-<span class="sd">            before Stage-1 extraction. ``&quot;resample_mask&quot;`` (default)</span>
-<span class="sd">            nearest-neighbour resamples each ROI onto the reference image</span>
-<span class="sd">            grid; ``&quot;strict&quot;`` raises :class:`~habit.exceptions.GeometryError`.</span>
-<span class="sd">            The default is omitted from :meth:`to_dict` so historical</span>
-<span class="sd">            fingerprints stay stable when the policy is unchanged.</span>
-<span class="sd">        postprocess_supervoxel: Optional Spec for connected-component cleanup</span>
-<span class="sd">            of supervoxel label maps (two-step). ``None`` skips cleanup and is</span>
-<span class="sd">            omitted from :meth:`to_dict` so historical fingerprints stay stable.</span>
-<span class="sd">        postprocess_habitat: Optional Spec for connected-component cleanup of</span>
-<span class="sd">            final habitat label maps. ``None`` skips cleanup and is omitted</span>
-<span class="sd">            from :meth:`to_dict`.</span>
-<span class="sd">        version: Specification schema version.</span>
-
-<span class="sd">    Examples:</span>
-<span class="sd">        A two-step design (supervoxels per subject, habitats across the</span>
-<span class="sd">        cohort) declared as data:</span>
-
-<span class="sd">        &gt;&gt;&gt; from habit import HabitatSpec, Spec</span>
-<span class="sd">        &gt;&gt;&gt; spec = HabitatSpec(</span>
-<span class="sd">        ...     name=&quot;habitat_two_step&quot;,</span>
-<span class="sd">        ...     voxel_feature_extractor=Spec(&quot;raw&quot;, {&quot;modalities&quot;: [&quot;T1&quot;, &quot;T2&quot;]}),</span>
-<span class="sd">        ...     supervoxelizer=Spec(&quot;kmeans&quot;, {&quot;n_supervoxels&quot;: 50, &quot;n_init&quot;: 10}),</span>
-<span class="sd">        ...     habitat_model_fitter=Spec(</span>
-<span class="sd">        ...         &quot;kmeans&quot;,</span>
-<span class="sd">        ...         {&quot;min_habitats&quot;: 2, &quot;max_habitats&quot;: 10, &quot;validation&quot;: &quot;silhouette&quot;},</span>
-<span class="sd">        ...     ),</span>
-<span class="sd">        ...     habitat_assigner=Spec(&quot;nearest_centroid&quot;),</span>
-<span class="sd">        ...     habitat_features=(Spec(&quot;volume&quot;), Spec(&quot;msi&quot;), Spec(&quot;ith_score&quot;)),</span>
-<span class="sd">        ...     random_seed=42,</span>
-<span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt; spec.fingerprint()  # doctest: +ELLIPSIS</span>
-<span class="sd">        &#39;...&#39;</span>
-
-<span class="sd">        The same document expressed as YAML (``version: &#39;1.0&#39;`` /</span>
-<span class="sd">        ``workflow: habitat``) loads with</span>
-<span class="sd">        :func:`~habit.spec.load_habitat_spec`; see</span>
-<span class="sd">        ``config/habitat/config_habitat_two_step_v1.yaml`` for a complete</span>
-<span class="sd">        annotated example.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span>
-    <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">habitat_assigner</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">habitat_features</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">voxel_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">supervoxel_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">cohort_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">on_geometry_mismatch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resample_mask&quot;</span>
-    <span class="n">postprocess_supervoxel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">postprocess_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-
-<div class="viewcode-block" id="HabitatSpec.__post_init__">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.__post_init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Coerce component payloads into Spec instances and tuples.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;HabitatSpec.name must be a non-empty string.&quot;</span><span class="p">)</span>
-        <span class="c1"># Validate here (not via habit.domain) so habit.spec stays below L3.</span>
-        <span class="n">geometry_policy</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">geometry_policy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;resample_mask&quot;</span><span class="p">,</span> <span class="s2">&quot;strict&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;HabitatSpec.on_geometry_mismatch must be &#39;resample_mask&#39; or &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&#39;strict&#39;; got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">,</span> <span class="n">geometry_policy</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_OPTIONAL_COMPONENT_DOMAINS</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;HabitatSpec requires a &#39;</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">&#39; component spec.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;HabitatSpec.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> must be a Spec; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">):</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">coerced</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">coerced</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coerced</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;HabitatSpec.</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> must be a Spec; &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">coerced</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">chain_field</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span>
-            <span class="o">*</span><span class="p">(</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span><span class="p">),</span>
-        <span class="p">):</span>
-            <span class="n">chain</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">))</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Every entry of HabitatSpec.</span><span class="si">{</span><span class="n">chain_field</span><span class="si">}</span><span class="s2"> must be a Spec.&quot;</span>
-                    <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.component_specs">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.component_specs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">component_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the pipeline component specs keyed by domain name.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span><span class="p">,</span>
-            <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="p">,</span>
-            <span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
-            <span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_model_fitter</span><span class="p">,</span>
-            <span class="s2">&quot;habitat_assigner&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="p">,</span>
-        <span class="p">}</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.describe_methods">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.describe_methods">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">describe_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Render the specification as a manuscript methods paragraph.</span>
-
-<span class="sd">        Deliberately the same verb and signature as</span>
-<span class="sd">        :meth:`habit.contracts.manifest.RunManifest.describe_methods`; the</span>
-<span class="sd">        difference is completeness, not vocabulary. This describes what was</span>
-<span class="sd">        INTENDED and can be read before anything runs -- a spec carries no</span>
-<span class="sd">        software versions, no executed steps and no excluded subjects, so</span>
-<span class="sd">        none are stated. Every configured step appears with its parameters,</span>
-<span class="sd">        which is what makes the paragraph useful for preregistration and for</span>
-<span class="sd">        checking a YAML against the paper draft before the compute starts.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            style: Target venue convention. ``&quot;radiology&quot;`` opens with the</span>
-<span class="sd">                design sentence; ``&quot;nature&quot;`` closes with it. Ordering and</span>
-<span class="sd">                wording only -- the stated facts are identical.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            English prose describing every configured step and its</span>
-<span class="sd">            parameters.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: On an unknown style.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_METHODS_STYLES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unknown methods style </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_METHODS_STYLES</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;The analysis specification </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> comprises &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_component_phrases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()))</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Random seed </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="si">}</span><span class="s2"> is fixed for every &quot;</span>
-                <span class="s2">&quot;stochastic component.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span> <span class="o">==</span> <span class="s2">&quot;strict&quot;</span><span class="p">:</span>
-            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Image and ROI mask geometries must match exactly; &quot;</span>
-                <span class="s2">&quot;mismatches raise an error.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;When an ROI mask and the reference image disagree on voxel &quot;</span>
-                <span class="s2">&quot;grid metadata, the mask is aligned onto the image grid &quot;</span>
-                <span class="s2">&quot;(adopt image geometry when shapes match; otherwise &quot;</span>
-                <span class="s2">&quot;nearest-neighbour resample).&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;nature&quot;</span><span class="p">:</span>
-            <span class="n">closing</span> <span class="o">=</span> <span class="s2">&quot;The analysis was designed with HABIT.&quot;</span>
-            <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="o">*</span><span class="n">body</span><span class="p">,</span> <span class="n">closing</span><span class="p">])</span>
-        <span class="n">opening</span> <span class="o">=</span> <span class="s2">&quot;A habitat imaging analysis was designed with HABIT as follows.&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">opening</span><span class="p">,</span> <span class="o">*</span><span class="n">body</span><span class="p">])</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.fingerprint">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.fingerprint">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a stable hash identifying this exact specification.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span>
-            <span class="n">_canonical_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.to_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialise to a plain dict (YAML isomorphic).&quot;&quot;&quot;</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">domain</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_specs</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">payload</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">feature</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_features</span>
-        <span class="p">]</span>
-        <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="n">chain_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_key</span><span class="p">)</span>
-            <span class="p">]</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;random_seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
-        <span class="c1"># Omit the default so historical HabitatSpec fingerprints stay stable</span>
-        <span class="c1"># for analyses that never opted into strict geometry checks.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span> <span class="o">!=</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span>
-        <span class="c1"># Omit unset postprocess slots so analyses that never enable cleanup</span>
-        <span class="c1"># keep their historical fingerprints.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">payload</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.to_effective_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_effective_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_effective_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialise with fingerprint-stable defaults expanded for YAML export.</span>
-
-<span class="sd">        Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``</span>
-<span class="sd">        and both postprocess slots (``null`` when unset) so a saved document</span>
-<span class="sd">        records the full effective analysis, not only overridden fields.</span>
-<span class="sd">        Fingerprints still use :meth:`to_dict` and are unchanged.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">payload</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.to_yaml">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Export the effective specification as YAML text.</span>
-
-<span class="sd">        This is the Python→YAML half of the Spec/YAML isomorphism for the</span>
-<span class="sd">        ``spec:`` section. For a **runnable** document that also carries</span>
-<span class="sd">        ``data`` / ``policy`` / ``output`` (so CLI and</span>
-<span class="sd">        :func:`~habit.recipes.run_from_yaml` can replay the run), use</span>
-<span class="sd">        :func:`~habit.spec.save_habitat_config`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            path: Optional destination file; when set, the YAML is written.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The YAML text of :meth:`to_effective_dict`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Lazy import keeps ``habit.spec.specs`` free of a hard ``yaml`` edge</span>
-        <span class="c1"># at module import time (yaml_io owns all YAML I/O).</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps_yaml</span><span class="p">,</span> <span class="n">_write_yaml</span>
-
-        <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_effective_dict</span><span class="p">()</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">dumps_yaml</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">_write_yaml</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">text</span></div>
-
-
-<div class="viewcode-block" id="HabitatSpec.from_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.from_dict">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;HabitatSpec&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Rebuild a habitat specification from its dict form.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            payload: Mapping as produced by :meth:`to_dict`.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The reconstructed specification.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If a required component is missing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
-            <span class="n">components</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">domain</span><span class="p">))</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span> <span class="p">())</span>
-        <span class="p">)</span>
-        <span class="n">chains</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">chain_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>
-                <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">,</span> <span class="p">())</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span>
-        <span class="p">}</span>
-        <span class="c1"># ``components`` holds Optional[Spec] because a hand-written document</span>
-        <span class="c1"># may omit a domain; ``__post_init__`` rejects a missing REQUIRED</span>
-        <span class="c1"># component with HABITAPIError, so the casts below only cross the</span>
-        <span class="c1"># static gap -- invalid payloads still fail at construction.</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_spec&quot;</span><span class="p">)),</span>
-            <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">]),</span>
-            <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;supervoxelizer&quot;</span><span class="p">],</span>
-            <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">],</span>
-            <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">]),</span>
-            <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_assigner&quot;</span><span class="p">]),</span>
-            <span class="n">habitat_features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
-            <span class="n">on_geometry_mismatch</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">,</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">)</span>
-            <span class="p">),</span>
-            <span class="n">postprocess_supervoxel</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">)),</span>
-            <span class="n">postprocess_habitat</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">)),</span>
-            <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
-            <span class="o">**</span><span class="n">chains</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
-
-
-
-<span class="c1">#: DEPRECATED tabular chains of an MLSpec, keyed by field name, with the</span>
-<span class="c1">#: prose each renders as. Ordered as they run, which is also the order they</span>
-<span class="c1">#: are concatenated into :attr:`MLSpec.steps`: selection may happen BEFORE</span>
-<span class="c1">#: preprocessing (the stage v0.1 expressed as ``before_z_score: true`` --</span>
-<span class="c1">#: scientifically meaningful whenever a selector&#39;s statistics are distorted</span>
-<span class="c1">#: by normalisation, e.g. variance-based selection is vacuous after</span>
-<span class="c1">#: z-scoring), preprocessing itself, then the ordinary post-preprocessing</span>
-<span class="c1">#: selection.</span>
-<span class="c1">#:</span>
-<span class="c1">#: These three fixed slots express ORDER through STRUCTURE, which caps the</span>
-<span class="c1">#: expressible orderings at two positions -- before all preprocessing, or</span>
-<span class="c1">#: after all of it. ``zscore -&gt; variance -&gt; minmax -&gt; lasso`` has no</span>
-<span class="c1">#: representation here at all. :attr:`MLSpec.steps` replaces them with one</span>
-<span class="c1">#: ordered list; they are kept as deprecated aliases for all of v1.x.</span>
-<span class="n">_ML_CHAINS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="s2">&quot;pre_preprocessing_feature_selectors&quot;</span><span class="p">,</span> <span class="s2">&quot;pre-preprocessing feature selection&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;table_preprocessors&quot;</span><span class="p">,</span> <span class="s2">&quot;table preprocessing&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;feature_selectors&quot;</span><span class="p">,</span> <span class="s2">&quot;feature selection&quot;</span><span class="p">),</span>
-<span class="p">)</span>
-
-<span class="c1">#: Field name of the single ordered step list that supersedes ``_ML_CHAINS``.</span>
-<span class="n">_ML_STEPS_FIELD</span> <span class="o">=</span> <span class="s2">&quot;steps&quot;</span>
-
-<span class="c1">#: Prose for the single ordered step list.</span>
-<span class="n">_ML_STEPS_PHRASE</span> <span class="o">=</span> <span class="s2">&quot;an ordered table pipeline of&quot;</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_ml_phrases</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Render an MLSpec-shaped payload as ordered prose phrases.</span>
-
-<span class="sd">    Handles both payload layouts. A payload carrying the single ordered</span>
-<span class="sd">    ``steps`` list renders as one phrase, because that is exactly what the</span>
-<span class="sd">    list is -- one ordered sequence whose positions carry the meaning the</span>
-<span class="sd">    three deprecated chains used to carry structurally.</span>
+<span class="sd">    Write a complete effective v1 habitat YAML for CLI / YAML-API replay.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        payload: Spec payload as produced by ``MLSpec.to_dict``.</span>
+<span class="sd">        path: Destination YAML path.</span>
+<span class="sd">        spec: Analysis declaration.</span>
+<span class="sd">        data_source: Cohort root or manifest path recorded under ``data.source``.</span>
+<span class="sd">        out_dir: Output directory recorded under ``output.out_dir``.</span>
+<span class="sd">        policy: Optional run policy (defaults expanded when omitted).</span>
+<span class="sd">        mode: ``&quot;train&quot;`` or ``&quot;predict&quot;``.</span>
+<span class="sd">        pipeline: Predict-mode model archive path.</span>
+<span class="sd">        save_images: See :func:`build_habitat_document`.</span>
+<span class="sd">        save_results_csv: See :func:`build_habitat_document`.</span>
+<span class="sd">        habitats_results_format: See :func:`build_habitat_document`.</span>
+<span class="sd">        plot_curves: See :func:`build_habitat_document`.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        One phrase per present chain or component, in pipeline order.</span>
+<span class="sd">        The written path.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">phrases</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">ordered_steps</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">ordered_steps</span><span class="p">:</span>
-        <span class="n">rendered</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
-            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">ordered_steps</span>
-        <span class="p">)</span>
-        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_ML_STEPS_PHRASE</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">rendered</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">chain_phrase</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span><span class="p">:</span>
-        <span class="n">chain</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">chain</span><span class="p">:</span>
-            <span class="n">steps</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
-                <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span>
-            <span class="p">)</span>
-            <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chain_phrase</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">classifier</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">classifier</span><span class="p">:</span>
-        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;a </span><span class="si">{</span><span class="n">classifier</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> classifier &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">_params_text</span><span class="p">(</span><span class="n">classifier</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">))</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span>
-    <span class="n">metrics</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">metrics</span><span class="p">:</span>
-        <span class="n">names</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">metrics</span>
-        <span class="p">)</span>
-        <span class="n">phrases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;evaluation metrics: </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phrases</span><span class="p">)</span>
+    <span class="n">document</span> <span class="o">=</span> <span class="n">build_habitat_document</span><span class="p">(</span>
+        <span class="n">spec</span><span class="p">,</span>
+        <span class="n">data_source</span><span class="o">=</span><span class="n">data_source</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">policy</span><span class="o">=</span><span class="n">policy</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">,</span>
+        <span class="n">save_images</span><span class="o">=</span><span class="n">save_images</span><span class="p">,</span>
+        <span class="n">save_results_csv</span><span class="o">=</span><span class="n">save_results_csv</span><span class="p">,</span>
+        <span class="n">habitats_results_format</span><span class="o">=</span><span class="n">habitats_results_format</span><span class="p">,</span>
+        <span class="n">plot_curves</span><span class="o">=</span><span class="n">plot_curves</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_write_yaml</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MLSpec">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec">[docs]</a>
-<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MLSpec</span><span class="p">:</span>
+
+<div class="viewcode-block" id="load_habitat_config">
+<a class="viewcode-back" href="../../../api/generated/habit.spec.load_habitat_config.html#habit.spec.load_habitat_config">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_habitat_config</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Complete specification of a tabular machine-learning analysis.</span>
+<span class="sd">    Load and structurally validate a v1 habitat YAML document.</span>
 
-<span class="sd">    A frozen, fingerprintable value object describing ONE modelling</span>
-<span class="sd">    definition: an ordered chain of table steps (preprocessors and feature</span>
-<span class="sd">    selectors, interleaved however the design calls for), exactly one</span>
-<span class="sd">    terminal classifier, and the evaluation metric panel. It deliberately</span>
-<span class="sd">    does NOT describe the validation design (split counts, resampling, id</span>
-<span class="sd">    files) -- those are choices of the calling recipe, not of the model</span>
-<span class="sd">    definition.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        path: YAML file written by :func:`save_habitat_config` (or equivalent).</span>
 
-<span class="sd">    **Step order lives in one ordered list.** :attr:`steps` is the pipeline:</span>
-<span class="sd">    position N of the list is step N of the fit. The three fields</span>
-<span class="sd">    :attr:`pre_preprocessing_feature_selectors`,</span>
-<span class="sd">    :attr:`table_preprocessors` and :attr:`feature_selectors` are the</span>
-<span class="sd">    DEPRECATED predecessor of that list -- they expressed order through</span>
-<span class="sd">    three fixed slots, which allowed a selector to sit only before all</span>
-<span class="sd">    preprocessing or after all of it. Declaring any of them still works for</span>
-<span class="sd">    the whole of v1.x: the three are concatenated in their documented order</span>
-<span class="sd">    (pre -&gt; preprocessors -&gt; post) into :attr:`steps`, with a</span>
-<span class="sd">    ``DeprecationWarning``. Declaring both layouts at once is an error --</span>
-<span class="sd">    which of the two is the pipeline would be a guess.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        The validated document mapping.</span>
 
-<span class="sd">    **Which layout a spec serialises in.** :meth:`to_dict` emits the three</span>
-<span class="sd">    deprecated keys for a spec declared with them, and the single ``steps``</span>
-<span class="sd">    key for a spec declared with ``steps``. That asymmetry is deliberate and</span>
-<span class="sd">    load-bearing: every provenance record and golden baseline HABIT has ever</span>
-<span class="sd">    written hashes this payload, so unconditionally adding a ``steps`` key</span>
-<span class="sd">    would move the fingerprint of every analysis already published. A spec</span>
-<span class="sd">    with no table steps at all serialises in the deprecated shape for the</span>
-<span class="sd">    same reason.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name: Human-readable specification name.</span>
-<span class="sd">        classifier: Spec of the terminal classifier.</span>
-<span class="sd">        pre_preprocessing_feature_selectors: DEPRECATED. Ordered specs of</span>
-<span class="sd">            the selection chain fitted on the RAW training table, BEFORE</span>
-<span class="sd">            any preprocessing (v0.1&#39;s ``before_z_score: true`` selectors).</span>
-<span class="sd">            The stage exists because some selection statistics are</span>
-<span class="sd">            distorted by normalisation -- after z-scoring every feature</span>
-<span class="sd">            variance is 1.0, so variance-based selection only carries</span>
-<span class="sd">            information on the raw table. Use :attr:`steps` and put the</span>
-<span class="sd">            selector before the preprocessor instead.</span>
-<span class="sd">        table_preprocessors: DEPRECATED. Ordered specs of the stateful</span>
-<span class="sd">            preprocessing chain fitted on the TRAINING rows and replayed</span>
-<span class="sd">            afterwards (v0.1&#39;s ``normalization``). Use :attr:`steps`.</span>
-<span class="sd">        feature_selectors: DEPRECATED. Ordered specs of the selection</span>
-<span class="sd">            chain, fitted after preprocessing (v0.1&#39;s</span>
-<span class="sd">            ``feature_selection_methods`` entries without</span>
-<span class="sd">            ``before_z_score``). Use :attr:`steps`.</span>
-<span class="sd">        metrics: Specs of the evaluation metric panel. An empty tuple asks</span>
-<span class="sd">            the calling recipe for its default panel.</span>
-<span class="sd">        random_seed: Seed applied to every</span>
-<span class="sd">            :class:`~habit.domain.protocols.Seedable` component. Seeds</span>
-<span class="sd">            change the scientific result, so they live in the spec (and its</span>
-<span class="sd">            fingerprint), not in the run policy.</span>
-<span class="sd">        version: Specification schema version.</span>
-<span class="sd">        steps: The ordered table-step chain -- preprocessors and feature</span>
-<span class="sd">            selectors in the exact order they are fitted. Names are</span>
-<span class="sd">            resolved across both registries by</span>
-<span class="sd">            :func:`habit.domain.assembly.build_table_pipeline`; the spec</span>
-<span class="sd">            layer records the order and stays registry-free. Declared last</span>
-<span class="sd">            among the fields purely so that existing positional</span>
-<span class="sd">            construction keeps meaning what it meant.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: When ``path`` does not exist.</span>
+<span class="sd">        HABITAPIError: When the file is not a valid habitat v1 document.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">classifier</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">pre_preprocessing_feature_selectors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">table_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">feature_selectors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">metrics</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
-    <span class="c1"># Appended after ``version`` rather than inserted next to the chains it</span>
-    <span class="c1"># replaces: inserting it would silently change the meaning of every</span>
-    <span class="c1"># positional MLSpec(...) call, which is the kind of breakage that does</span>
-    <span class="c1"># not raise and lands straight in someone&#39;s results.</span>
-    <span class="n">steps</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-
-<div class="viewcode-block" id="MLSpec.__post_init__">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.__post_init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Coerce payloads into Specs, and fold deprecated chains into ``steps``.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: On a missing/mistyped name or classifier, a chain</span>
-<span class="sd">                entry that is not a :class:`Spec`, or a spec that declares</span>
-<span class="sd">                both ``steps`` and any deprecated chain.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;MLSpec.name must be a non-empty string.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;MLSpec.classifier must be a Spec; got &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span> <span class="o">+</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-        <span class="p">):</span>
-            <span class="n">chain</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">))</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">chain</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Every entry of MLSpec.</span><span class="si">{</span><span class="n">chain_field</span><span class="si">}</span><span class="s2"> must be a Spec.&quot;</span>
-                    <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span>
-        <span class="n">declared_chains</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="n">chain_field</span>
-            <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span>
+    <span class="n">document</span> <span class="o">=</span> <span class="n">_read_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> must contain a YAML mapping at the top level.&quot;</span>
         <span class="p">)</span>
-        <span class="n">folded</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="n">entry</span>
-            <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
-            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">declared_chains</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">!=</span> <span class="n">folded</span><span class="p">:</span>
-            <span class="c1"># An already-translated spec passes BOTH through</span>
-            <span class="c1"># ``dataclasses.replace`` (which re-supplies every field), and</span>
-            <span class="c1"># that is consistent, not contradictory -- ``steps`` is then</span>
-            <span class="c1"># exactly the fold of the chains. Only a genuine disagreement is</span>
-            <span class="c1"># rejected, because there the pipeline would have to be guessed.</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;MLSpec declares both &#39;steps&#39; and the deprecated chain(s) &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">declared_chains</span><span class="p">)</span><span class="si">}</span><span class="s2">, and they disagree: &#39;steps&#39; is &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span><span class="si">}</span><span class="s2"> while the chains &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;fold into </span><span class="si">{</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">folded</span><span class="p">]</span><span class="si">}</span><span class="s2">. Move every &quot;</span>
-                <span class="s2">&quot;step into &#39;steps&#39; in the order it should run, or keep only &quot;</span>
-                <span class="s2">&quot;the deprecated chains.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">declared_chains</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;MLSpec fields &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">chain</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">_ML_CHAINS</span><span class="p">)</span><span class="si">}</span><span class="s2"> are deprecated; &quot;</span>
-                <span class="s2">&quot;declare one ordered &#39;steps&#39; list instead, where the list &quot;</span>
-                <span class="s2">&quot;order is the execution order. The deprecated fields are &quot;</span>
-                <span class="s2">&quot;translated into &#39;steps&#39; as &quot;</span>
-                <span class="s2">&quot;pre_preprocessing_feature_selectors + table_preprocessors &quot;</span>
-                <span class="s2">&quot;+ feature_selectors and will be kept for all of v1.x.&quot;</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="n">folded</span><span class="p">)</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">declares_deprecated_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Report whether this spec was declared through the deprecated chains.</span>
-
-<span class="sd">        Derived from the fields alone (never from hidden construction state)</span>
-<span class="sd">        so that two equal specs always agree on it -- and therefore always</span>
-<span class="sd">        serialise identically. A spec with no table steps at all counts as</span>
-<span class="sd">        deprecated-shaped, which is what keeps its payload byte-identical to</span>
-<span class="sd">        every one written before ``steps`` existed.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            bool: ``True`` when :meth:`to_dict` emits the three deprecated</span>
-<span class="sd">            chain keys, ``False`` when it emits the single ``steps`` key.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_field</span><span class="p">)</span> <span class="k">for</span> <span class="n">chain_field</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span>
-        <span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span>
-
-<div class="viewcode-block" id="MLSpec.describe_methods">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.describe_methods">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">describe_methods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Render the specification as a manuscript methods paragraph.</span>
-
-<span class="sd">        Same verb, signature, and vocabulary as</span>
-<span class="sd">        :meth:`HabitatSpec.describe_methods`; this describes what was</span>
-<span class="sd">        INTENDED and can be read before anything runs.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            style: Target venue convention. ``&quot;radiology&quot;`` opens with the</span>
-<span class="sd">                design sentence; ``&quot;nature&quot;`` closes with it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            English prose describing every configured step and its</span>
-<span class="sd">            parameters.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: On an unknown style.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_METHODS_STYLES</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unknown methods style </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_METHODS_STYLES</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;The modelling specification </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> comprises &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_ml_phrases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()))</span><span class="si">}</span><span class="s2">.&quot;</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Random seed </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="si">}</span><span class="s2"> is fixed for every &quot;</span>
-                <span class="s2">&quot;stochastic component.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;nature&quot;</span><span class="p">:</span>
-            <span class="n">closing</span> <span class="o">=</span> <span class="s2">&quot;The analysis was designed with HABIT.&quot;</span>
-            <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="o">*</span><span class="n">body</span><span class="p">,</span> <span class="n">closing</span><span class="p">])</span>
-        <span class="n">opening</span> <span class="o">=</span> <span class="s2">&quot;A machine-learning analysis was designed with HABIT as follows.&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">opening</span><span class="p">,</span> <span class="o">*</span><span class="n">body</span><span class="p">])</span></div>
-
-
-<div class="viewcode-block" id="MLSpec.fingerprint">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.fingerprint">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a stable hash identifying this exact specification.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span>
-            <span class="n">_canonical_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="MLSpec.to_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.to_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Serialise to a plain dict (YAML isomorphic).</span>
-
-<span class="sd">        Emits exactly ONE of the two table-step layouts -- see the class</span>
-<span class="sd">        docstring for why the choice is asymmetric rather than always</span>
-<span class="sd">        writing both.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dict[str, Any]: The payload, with either the three deprecated</span>
-<span class="sd">            chain keys or the single ``steps`` key, never both.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">declares_deprecated_chains</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span><span class="p">:</span>
-                <span class="n">payload</span><span class="p">[</span><span class="n">chain_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_key</span><span class="p">)</span>
-                <span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">payload</span><span class="p">[</span><span class="n">_ML_STEPS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;classifier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;metrics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">]</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;random_seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
-        <span class="k">return</span> <span class="n">payload</span></div>
-
-
-<div class="viewcode-block" id="MLSpec.from_dict">
-<a class="viewcode-back" href="../../../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec.from_dict">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;MLSpec&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Rebuild a machine-learning specification from its dict form.</span>
-
-<span class="sd">        Reads whichever table-step layout the payload carries. A payload</span>
-<span class="sd">        that carries both is rejected rather than resolved by precedence:</span>
-<span class="sd">        picking one would silently drop half of a hand-written document&#39;s</span>
-<span class="sd">        pipeline.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            payload: Mapping as produced by :meth:`to_dict`, or a</span>
-<span class="sd">                hand-written v1 ``spec`` section.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The reconstructed specification.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If the classifier component is missing, or the</span>
-<span class="sd">                payload declares both ``steps`` and a deprecated chain.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">chains</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">chain_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>
-                <span class="n">Spec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">,</span> <span class="p">())</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_ML_CHAINS</span> <span class="o">+</span> <span class="p">((</span><span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),)</span>
-        <span class="p">}</span>
-        <span class="n">chains</span><span class="p">[</span><span class="n">_ML_STEPS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="n">Spec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_ML_STEPS_FIELD</span><span class="p">,</span> <span class="p">())</span>
-        <span class="p">)</span>
-        <span class="n">classifier</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;ml_spec&quot;</span><span class="p">)),</span>
-            <span class="n">classifier</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">Spec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span> <span class="k">if</span> <span class="n">classifier</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
-            <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
-            <span class="o">**</span><span class="n">chains</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
+    <span class="n">validate_v1_document</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">document</span><span class="p">)</span></div>
 
 </pre></div>
 

@@ -14,7 +14,14 @@ optional preprocessor chains appear later because they have defaults.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, load_habitat_spec, save_habitat_spec
+   from habit import (
+       HabitatSpec,
+       RunPolicy,
+       Spec,
+       load_habitat_spec,
+       save_habitat_config,
+       save_habitat_spec,
+   )
 
    spec = HabitatSpec(
        name="two_step",
@@ -46,6 +53,17 @@ optional preprocessor chains appear later because they have defaults.
    restored = load_habitat_spec("habitat_spec.yaml")
    payload = spec.to_dict()
    again = HabitatSpec.from_dict(payload)
+
+   # Runnable v1 document (spec + data + policy + output, defaults expanded).
+   # Same file works with recipes.run_from_yaml and habit get-habitat --config.
+   save_habitat_config(
+       "habitat_run.yaml",
+       spec,
+       data_source="demo_data/preprocessed",
+       out_dir="out/habitat",
+       policy=RunPolicy(workers=1, backend="serial", subject_timeout_sec=None),
+   )
+   # Or export only the effective spec: section: spec.to_yaml("spec_only.yaml")
 
 Direct (no-supervoxel) design — set ``supervoxelizer=None``::
 

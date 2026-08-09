@@ -223,6 +223,9 @@ Serialisation
    habit.spec.save_habitat_spec
    habit.spec.load_run_policy
    habit.spec.save_run_policy
+   habit.spec.build_habitat_document
+   habit.spec.save_habitat_config
+   habit.spec.load_habitat_config
 
 YAML migration (v0.1 → v1)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

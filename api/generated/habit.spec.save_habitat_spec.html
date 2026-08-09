@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4 current"><a class="current reference internal" href="#">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1450,6 +1454,10 @@
 <dt class="sig sig-object py" id="habit.spec.save_habitat_spec">
 <span class="sig-name descname"><span class="pre">save_habitat_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><span class="pre">HabitatSpec</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></span><a class="reference internal" href="../../_modules/habit/spec/yaml_io.html#save_habitat_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.spec.save_habitat_spec" title="Link to this definition"></a></dt>
 <dd><p>Write a <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> as YAML.</p>
+<p>Uses <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_dict" title="habit.spec.HabitatSpec.to_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatSpec.to_dict()</span></code></a> (fingerprint-stable omissions). For a
+complete effective <code class="docutils literal notranslate"><span class="pre">spec:</span></code> section, call <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_yaml" title="habit.spec.HabitatSpec.to_yaml"><code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatSpec.to_yaml()</span></code></a>;
+for a runnable v1 document (data/policy/output), call
+<a class="reference internal" href="habit.spec.save_habitat_config.html#habit.spec.save_habitat_config" title="habit.spec.save_habitat_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_habitat_config()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

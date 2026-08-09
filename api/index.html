@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1783,6 +1787,15 @@ They are the in-Python counterpart of the YAML configuration files. See
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.save_run_policy.html#habit.spec.save_run_policy" title="habit.spec.save_run_policy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.save_run_policy</span></code></a>(policy, path)</p></td>
 <td><p>Write a <code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code> as YAML.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.build_habitat_document.html#habit.spec.build_habitat_document" title="habit.spec.build_habitat_document"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.build_habitat_document</span></code></a>(spec, *, ...)</p></td>
+<td><p>Assemble a native v1 habitat document with expanded defaults.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.save_habitat_config.html#habit.spec.save_habitat_config" title="habit.spec.save_habitat_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.save_habitat_config</span></code></a>(path, spec, ...)</p></td>
+<td><p>Write a complete effective v1 habitat YAML for CLI / YAML-API replay.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.load_habitat_config.html#habit.spec.load_habitat_config" title="habit.spec.load_habitat_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.load_habitat_config</span></code></a>(path)</p></td>
+<td><p>Load and structurally validate a v1 habitat YAML document.</p></td>
 </tr>
 </tbody>
 </table>

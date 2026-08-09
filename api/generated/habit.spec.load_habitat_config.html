@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>load_habitat_spec &mdash; HABIT Documentation</title>
+  <title>load_habitat_config &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=39329a72" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.spec.load_habitat_spec.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.spec.load_habitat_config.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="save_habitat_spec" href="habit.spec.save_habitat_spec.html" />
-    <link rel="prev" title="RunPolicy" href="habit.spec.RunPolicy.html" /> 
+    <link rel="next" title="LegacyConfigAdapter" href="habit.spec.LegacyConfigAdapter.html" />
+    <link rel="prev" title="save_habitat_config" href="habit.spec.save_habitat_config.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -580,13 +580,13 @@
 </ul>
 </li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#serialisation">Serialisation</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">load_habitat_spec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_spec.html">load_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_run_policy.html">save_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.build_habitat_document.html">build_habitat_document</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_config.html">save_habitat_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_config.html">load_habitat_config</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1438,9 +1438,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">load_habitat_spec</li>
+      <li class="breadcrumb-item active">load_habitat_config</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.spec.load_habitat_spec.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.spec.load_habitat_config.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1448,18 +1448,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="load-habitat-spec">
-<h1>load_habitat_spec<a class="headerlink" href="#load-habitat-spec" title="Link to this heading"></a></h1>
+  <section id="load-habitat-config">
+<h1>load_habitat_config<a class="headerlink" href="#load-habitat-config" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.spec.load_habitat_spec">
-<span class="sig-name descname"><span class="pre">load_habitat_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><span class="pre">HabitatSpec</span></a></span></span><a class="reference internal" href="../../_modules/habit/spec/yaml_io.html#load_habitat_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.spec.load_habitat_spec" title="Link to this definition"></a></dt>
-<dd><p>Load a <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> from its YAML form.</p>
+<dt class="sig sig-object py" id="habit.spec.load_habitat_config">
+<span class="sig-name descname"><span class="pre">load_habitat_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/habit/spec/document.html#load_habitat_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.spec.load_habitat_config" title="Link to this definition"></a></dt>
+<dd><p>Load and structurally validate a v1 habitat YAML document.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – YAML file holding a <code class="docutils literal notranslate"><span class="pre">HabitatSpec.to_dict</span></code> payload.</p>
+<dd class="field-odd"><p><strong>path</strong> – YAML file written by <a class="reference internal" href="habit.spec.save_habitat_config.html#habit.spec.save_habitat_config" title="habit.spec.save_habitat_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_habitat_config()</span></code></a> (or equivalent).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The parsed specification.</p>
+<dd class="field-even"><p>The validated document mapping.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – When <code class="docutils literal notranslate"><span class="pre">path</span></code> does not exist.</p></li>
+<li><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – When the file is not a valid habitat v1 document.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1470,8 +1476,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.spec.RunPolicy.html" class="btn btn-neutral float-left" title="RunPolicy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.spec.save_habitat_spec.html" class="btn btn-neutral float-right" title="save_habitat_spec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.spec.save_habitat_config.html" class="btn btn-neutral float-left" title="save_habitat_config" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.spec.LegacyConfigAdapter.html" class="btn btn-neutral float-right" title="LegacyConfigAdapter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

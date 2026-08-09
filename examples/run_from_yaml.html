@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1451,6 +1455,11 @@ reads a YAML configuration document, detects its version, and dispatches to
 the same recipes the command line uses. <strong>v1</strong> documents
 (<code class="docutils literal notranslate"><span class="pre">version:</span> <span class="pre">'1.0'</span></code>) are read directly; <strong>v0.1</strong> documents are translated
 through <a class="reference internal" href="../api/generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a> first.</p>
+<p>Three equivalent paths for one analysis: (A) build a
+<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> in Python and call a recipe; (B) export a
+complete effective document with <a class="reference internal" href="../api/generated/habit.spec.save_habitat_config.html#habit.spec.save_habitat_config" title="habit.spec.save_habitat_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_habitat_config()</span></code></a> and
+reload it here; (C) pass that same YAML to <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span></code>.
+With matching seed / data / policy, habitat maps are voxel-identical.</p>
 <p>To keep this example self-contained, the script first writes a tiny imaging
 dataset in HABIT’s conventional directory layout and a v1 YAML document,
 then executes the document with <code class="docutils literal notranslate"><span class="pre">save=True</span></code> — persisting the same

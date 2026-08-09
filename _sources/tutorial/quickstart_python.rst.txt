@@ -117,10 +117,24 @@ CLI twin (same scientific settings)::
    )
    print(result.habitat_model.summary())
 
+   # Export a complete effective v1 YAML so CLI / run_from_yaml can replay
+   # this exact run (expanded defaults, not only overridden fields).
+   from habit import save_habitat_config
+
+   save_habitat_config(
+       "demo_data/results/habitat_two_step/effective_config.yaml",
+       spec,
+       data_source="demo_data/preprocessed",
+       out_dir=out_dir,
+       policy=policy,
+   )
+
 Outputs land under ``demo_data/results/habitat_two_step/`` (including
-``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). With the same
-parameters, seed, data, and policy, API and CLI habitat label maps match
-voxel-wise.
+``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). The exported
+``effective_config.yaml`` is a native v1 document: reload it with
+:func:`~habit.recipes.run_from_yaml` or
+``habit get-habitat --config …/effective_config.yaml`` for **voxel-identical**
+habitat maps (same seed, data, and policy).
 
 Further notebook-oriented patterns (synthetic cohorts, custom extractors)
 live under :doc:`../examples/index`.

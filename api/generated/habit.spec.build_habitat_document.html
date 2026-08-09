@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>load_habitat_spec &mdash; HABIT Documentation</title>
+  <title>build_habitat_document &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=39329a72" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.spec.load_habitat_spec.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.spec.build_habitat_document.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="save_habitat_spec" href="habit.spec.save_habitat_spec.html" />
-    <link rel="prev" title="RunPolicy" href="habit.spec.RunPolicy.html" /> 
+    <link rel="next" title="save_habitat_config" href="habit.spec.save_habitat_config.html" />
+    <link rel="prev" title="save_run_policy" href="habit.spec.save_run_policy.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -580,11 +580,11 @@
 </ul>
 </li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#serialisation">Serialisation</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">load_habitat_spec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_spec.html">load_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_run_policy.html">save_run_policy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">build_habitat_document</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_config.html">save_habitat_config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
@@ -1438,9 +1438,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">load_habitat_spec</li>
+      <li class="breadcrumb-item active">build_habitat_document</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.spec.load_habitat_spec.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.spec.build_habitat_document.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1448,18 +1448,36 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="load-habitat-spec">
-<h1>load_habitat_spec<a class="headerlink" href="#load-habitat-spec" title="Link to this heading"></a></h1>
+  <section id="build-habitat-document">
+<h1>build_habitat_document<a class="headerlink" href="#build-habitat-document" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.spec.load_habitat_spec">
-<span class="sig-name descname"><span class="pre">load_habitat_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><span class="pre">HabitatSpec</span></a></span></span><a class="reference internal" href="../../_modules/habit/spec/yaml_io.html#load_habitat_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.spec.load_habitat_spec" title="Link to this definition"></a></dt>
-<dd><p>Load a <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> from its YAML form.</p>
+<dt class="sig sig-object py" id="habit.spec.build_habitat_document">
+<span class="sig-name descname"><span class="pre">build_habitat_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><span class="pre">HabitatSpec</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.policy.RunPolicy"><span class="pre">RunPolicy</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_results_csv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">habitats_results_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'parquet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_curves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/habit/spec/document.html#build_habitat_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.spec.build_habitat_document" title="Link to this definition"></a></dt>
+<dd><p>Assemble a native v1 habitat document with expanded defaults.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">spec</span></code> section uses <a class="reference internal" href="habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.to_effective_dict" title="habit.spec.HabitatSpec.to_effective_dict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatSpec.to_effective_dict()</span></code></a> so omitted
+fingerprint-stable defaults (geometry policy, empty postprocess slots)
+appear explicitly. The <code class="docutils literal notranslate"><span class="pre">policy</span></code> section always emits every
+<a class="reference internal" href="habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> field (caller policy or library defaults).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – YAML file holding a <code class="docutils literal notranslate"><span class="pre">HabitatSpec.to_dict</span></code> payload.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> – Analysis declaration (what to compute).</p></li>
+<li><p><strong>data_source</strong> – Cohort root directory or input-manifest YAML path.</p></li>
+<li><p><strong>out_dir</strong> – Destination directory for CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml(...,</span> <span class="pre">save=True)</span></code>.</p></li>
+<li><p><strong>policy</strong> – Execution policy; <code class="docutils literal notranslate"><span class="pre">None</span></code> expands to <a class="reference internal" href="habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunPolicy</span></code></a> defaults.</p></li>
+<li><p><strong>mode</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;train&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;predict&quot;</span></code>.</p></li>
+<li><p><strong>pipeline</strong> – Fitted <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> path for predict mode.</p></li>
+<li><p><strong>save_images</strong> – Persist NRRD habitat (and supervoxel) maps.</p></li>
+<li><p><strong>save_results_csv</strong> – Persist the habitats unit table.</p></li>
+<li><p><strong>habitats_results_format</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;parquet&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;csv&quot;</span></code>.</p></li>
+<li><p><strong>plot_curves</strong> – Persist clustering visualisation artefacts.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The parsed specification.</p>
+<dd class="field-even"><p>A v1 document mapping ready for YAML serialisation.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – When the assembled document fails structural validation.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1470,8 +1488,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.spec.RunPolicy.html" class="btn btn-neutral float-left" title="RunPolicy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.spec.save_habitat_spec.html" class="btn btn-neutral float-right" title="save_habitat_spec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.spec.save_run_policy.html" class="btn btn-neutral float-left" title="save_run_policy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.spec.save_habitat_config.html" class="btn btn-neutral float-right" title="save_habitat_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

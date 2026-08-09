@@ -59,6 +59,16 @@ anatomy). Close the window to finish; set ``HABIT_NO_VIEW=1`` to skip. For
 3D review, also open the image + habitat map in ITK-SNAP / 3D Slicer /
 SimpleITK.
 
+Export YAML for CLI / YAML-API replay
+-------------------------------------
+
+After constructing the same :class:`~habit.spec.HabitatSpec` in Python, call
+:func:`~habit.spec.save_habitat_config` to write a complete effective v1
+document (defaults expanded). Then
+:func:`~habit.recipes.run_from_yaml` or ``habit get-habitat --config`` on
+that file reproduces the habitat maps voxel-wise. See
+:doc:`../tutorial/quickstart_python` and :doc:`run_from_yaml`.
+
 What to read next
 -----------------
 

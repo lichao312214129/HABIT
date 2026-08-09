@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1554,12 +1558,26 @@ so habitat label maps match the CLI voxel-wise when you use the same
     <span class="n">write_cluster_plots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+
+<span class="c1"># Export a complete effective v1 YAML so CLI / run_from_yaml can replay</span>
+<span class="c1"># this exact run (expanded defaults, not only overridden fields).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_habitat_config</span>
+
+<span class="n">save_habitat_config</span><span class="p">(</span>
+    <span class="s2">&quot;demo_data/results/habitat_two_step/effective_config.yaml&quot;</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;demo_data/preprocessed&quot;</span><span class="p">,</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+    <span class="n">policy</span><span class="o">=</span><span class="n">policy</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Outputs land under <code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/</span></code> (including
-<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code>). With the same
-parameters, seed, data, and policy, API and CLI habitat label maps match
-voxel-wise.</p>
+<code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code> and <code class="docutils literal notranslate"><span class="pre">habitat_model.habitatmodel</span></code>). The exported
+<code class="docutils literal notranslate"><span class="pre">effective_config.yaml</span></code> is a native v1 document: reload it with
+<a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> or
+<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">…/effective_config.yaml</span></code> for <strong>voxel-identical</strong>
+habitat maps (same seed, data, and policy).</p>
 <p>Further notebook-oriented patterns (synthetic cohorts, custom extractors)
 live under <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a>.</p>
 </section>
