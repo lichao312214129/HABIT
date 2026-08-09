@@ -1688,11 +1688,11 @@ the three.</p>
     <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># 2) Subject-level operators</span>
-<span class="c1"># SLIC has no set_random_state; use KMeansSupervoxelizer when you need a seed.</span>
+<span class="c1"># 2) Subject-level operators (Seedable; default seed 0)</span>
 <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]</span>
 <span class="n">voxel</span> <span class="o">=</span> <span class="n">RawVoxelFeatures</span><span class="p">(</span><span class="n">modalities</span><span class="o">=</span><span class="n">modalities</span><span class="p">)</span>
 <span class="n">svx</span> <span class="o">=</span> <span class="n">SlicSupervoxelizer</span><span class="p">(</span><span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">svx</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
 <span class="c1"># 3) The only cohort-level step: fit a population HabitatModel</span>
 <span class="n">units</span> <span class="o">=</span> <span class="p">[</span><span class="n">svx</span><span class="p">(</span><span class="n">voxel</span><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">cohort</span><span class="p">]</span>

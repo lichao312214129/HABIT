@@ -1553,13 +1553,15 @@ recipes (<a class="reference internal" href="generated/habit.recipes.two_step.ht
 <span class="n">slic</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="n">km</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
 <span class="n">gmm</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;gmm&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-<span class="c1"># Seedable: kmeans / gmm only. SLIC has no set_random_state.</span>
+<span class="c1"># All three are Seedable (default seed 0). Current skimage SLIC has no</span>
+<span class="c1"># RNG; set_random_state still records the seed for API uniformity.</span>
+<span class="n">slic</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">km</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">unit</span> <span class="o">=</span> <span class="n">slic</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">slic</span></code> → <code class="docutils literal notranslate"><span class="pre">SlicSupervoxelizer</span></code> (deterministic; no <code class="docutils literal notranslate"><span class="pre">set_random_state</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slic</span></code> → <code class="docutils literal notranslate"><span class="pre">SlicSupervoxelizer</span></code> (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>; backend currently deterministic)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">kmeans</span></code> → <code class="docutils literal notranslate"><span class="pre">KMeansSupervoxelizer</span></code> (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gmm</span></code> → <code class="docutils literal notranslate"><span class="pre">GmmSupervoxelizer</span></code> (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)</p></li>
 </ul>

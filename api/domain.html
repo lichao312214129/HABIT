@@ -1738,12 +1738,16 @@ exactly the precise features. The end-to-end recipe is
 </section>
 <section id="randomness-seedable">
 <h2>Randomness (<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>)<a class="headerlink" href="#randomness-seedable" title="Link to this heading"></a></h2>
-<p>Components that are stochastic implement <code class="docutils literal notranslate"><span class="pre">set_random_state(seed)</span></code>. Deterministic
-components do not implement the protocol — that fact is itself provenance
-(e.g. <code class="docutils literal notranslate"><span class="pre">SlicSupervoxelizer</span></code> has no <code class="docutils literal notranslate"><span class="pre">set_random_state</span></code>; use kmeans/gmm).</p>
+<p>Components that participate in study seeding implement <code class="docutils literal notranslate"><span class="pre">set_random_state</span></code>
+(<code class="docutils literal notranslate"><span class="pre">Seedable</span></code>), including supervoxelizers. Default seed is <code class="docutils literal notranslate"><span class="pre">0</span></code> unless
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec.random_seed</span></code> / an explicit call overrides it. A backend may
+still be numerically deterministic (current skimage SLIC); the method remains
+so every stage shares one seeding surface.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatModelFitterRegistry</span><span class="p">,</span> <span class="n">SupervoxelizerRegistry</span>
 
+<span class="n">slic</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;slic&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="n">km</span> <span class="o">=</span> <span class="n">SupervoxelizerRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">n_supervoxels</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="n">slic</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">km</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">fitter</span> <span class="o">=</span> <span class="n">HabitatModelFitterRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">fitter</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>

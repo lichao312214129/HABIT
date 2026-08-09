@@ -97,11 +97,13 @@ Domain: ``supervoxelizer``
    slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
    km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
    gmm = SupervoxelizerRegistry.create("gmm", n_supervoxels=40)
-   # Seedable: kmeans / gmm only. SLIC has no set_random_state.
+   # All three are Seedable (default seed 0). Current skimage SLIC has no
+   # RNG; set_random_state still records the seed for API uniformity.
+   slic.set_random_state(42)
    km.set_random_state(42)
    unit = slic(field)
 
-* ``slic`` → ``SlicSupervoxelizer`` (deterministic; no ``set_random_state``)
+* ``slic`` → ``SlicSupervoxelizer`` (``Seedable``; backend currently deterministic)
 * ``kmeans`` → ``KMeansSupervoxelizer`` (``Seedable``)
 * ``gmm`` → ``GmmSupervoxelizer`` (``Seedable``)
 
