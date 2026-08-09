@@ -931,6 +931,8 @@ mapping) and :doc:`../api/execution`. Annotated v1 example:
   positive → ProcessPoolBackend even when ``workers == 1`` / ``processes: 1``
 * otherwise → :class:`~habit.execution.SerialBackend`
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 On :class:`~habit.execution.SerialBackend`, timeout / OOM / ``parallel_mode``
 / ``auto_retry_rounds`` knobs do not apply. Serial still honours
 ``on_subject_failure``, ``resume``, ``retry_failed_subjects``,

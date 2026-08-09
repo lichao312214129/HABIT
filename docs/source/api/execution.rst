@@ -109,6 +109,8 @@ Both ``SerialBackend`` and ``ProcessPoolBackend`` accept
 ProcessPoolBackend
 ------------------
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 Multiprocess backend. Constructor surface mirrors :class:`~habit.spec.RunPolicy`
 field-by-field (except ``backend``, ``checkpoint_dir``, and
 ``strict_checkpoint_hash`` — see above).
@@ -174,20 +176,26 @@ field-by-field (except ``backend``, ``checkpoint_dir``, and
    from habit import RunPolicy
    from habit.execution import ProcessPoolBackend
 
-   backend = ProcessPoolBackend(
-       workers=4,
-       subject_timeout_sec=900.0,
-       on_subject_failure="continue",  # or "fail_fast"
-       parallel_mode="persistent",     # library default; use "isolated" for per-subject isolation
-       auto_retry_rounds=2,            # in-run retries for flaky subjects
-       oom_backoff=True,               # reduce workers after MemoryError
-   )
-   results = list(backend.map(pipeline, cohort))
 
-   # From RunPolicy (does not apply checkpoint_dir / strict_checkpoint_hash)
-   backend = ProcessPoolBackend.from_policy(
-       RunPolicy(workers=4, backend="process")
-   )
+   def main() -> None:
+       backend = ProcessPoolBackend(
+           workers=4,
+           subject_timeout_sec=900.0,
+           on_subject_failure="continue",  # or "fail_fast"
+           parallel_mode="persistent",     # library default; use "isolated" for per-subject isolation
+           auto_retry_rounds=2,            # in-run retries for flaky subjects
+           oom_backoff=True,               # reduce workers after MemoryError
+       )
+       results = list(backend.map(pipeline, cohort))
+
+       # From RunPolicy (does not apply checkpoint_dir / strict_checkpoint_hash)
+       backend = ProcessPoolBackend.from_policy(
+           RunPolicy(workers=4, backend="process")
+       )
+
+
+   if __name__ == "__main__":
+       main()
 
 Only path-backed lazy subjects cross the process boundary. Exceeding
 ``subject_timeout_sec`` raises ``SubjectTimeoutError`` (isolated under
