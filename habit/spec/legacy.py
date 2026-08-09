@@ -570,6 +570,16 @@ class LegacyConfigAdapter:
                 feature_construction, clustering_mode, warnings, unmapped
             ),
             "random_seed": payload.get("random_state"),
+            # The v0 ``clustering_mode`` knob becomes an explicit dataflow
+            # declaration: one_step never pools across subjects, the other
+            # two designs fit one cohort-level definition. ``"cohort"`` is
+            # fingerprint-neutral (``to_dict`` omits it, matching an
+            # undeclared dataflow); ``"none"`` is recorded, which is what
+            # moves the one-step spec fingerprint forward.
+            "pooling": "none" if clustering_mode == "one_step" else "cohort",
+            "definition_level": (
+                "subject" if clustering_mode == "one_step" else "cohort"
+            ),
         }
         # Optional top-level key; omit when unset so the HabitatSpec default
         # (resample_mask) applies without changing historical fingerprints.
@@ -2013,6 +2023,7 @@ def _validate_habitat_v1(payload: Mapping[str, Any], mode: Optional[str]) -> Non
             f"v1 section 'spec' must be a mapping; got {type(spec_payload).__name__}."
         )
     spec = HabitatSpec.from_dict(spec_payload)
+    spec.validate_dataflow()
     from habit.domain.assembly import validate_habitat_spec_registry
 
     validate_habitat_spec_registry(spec)

@@ -548,6 +548,13 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     - ``direct_pooling``: pool voxels across all subjects then cluster (compute-heavy).
 
   - **Example**: ``two_step``
+  - **v1 spec mapping**: translation turns this knob into an explicit dataflow
+    declaration on the spec — ``one_step`` becomes ``pooling: none``
+    (``definition_level: subject``), while ``two_step`` / ``direct_pooling``
+    become ``pooling: cohort`` (the default, omitted from fingerprints).
+    Native v1 documents may write ``pooling`` under ``spec:`` directly;
+    :func:`~habit.recipes.fit_habitat` then dispatches on the spec alone.
+    See :doc:`../api/spec`.
 
 **supervoxel**: Supervoxel clustering settings
 

@@ -85,6 +85,50 @@ Direct (no-supervoxel) design — set ``supervoxelizer=None``::
        ),
    )
 
+Declaring the dataflow: ``pooling``
+-----------------------------------
+
+The habitat **strategy is part of the spec**, not of the recipe name.
+``pooling`` declares whether voxel/supervoxel units are pooled across
+subjects before the habitat model is fitted:
+
+* ``pooling="cohort"`` *(default when undeclared)* — units are merged
+  across the cohort, one shared :class:`~habit.contracts.HabitatModel` is
+  fitted, then each subject is labelled back (fan-in → fit → fan-out).
+  With ``supervoxelizer`` set this is the *two-step* design; with
+  ``supervoxelizer=None`` it is *direct pooling*.
+* ``pooling="none"`` — no cross-subject pooling; every subject is fitted
+  and labelled independently (the *one-step* design). Subject-level
+  designs must not declare a ``supervoxelizer`` or
+  ``cohort_feature_preprocessors`` — :meth:`HabitatSpec.validate_dataflow`
+  (called by every habitat recipe) rejects the combination.
+
+``definition_level`` (``"cohort"`` / ``"subject"``) is **derived** from
+``pooling`` — read-only, never set by hand. Both keys stay out of the
+fingerprint for cohort-level designs (so existing specs keep their
+fingerprints) and are recorded explicitly for subject-level ones;
+``to_effective_dict()`` always states the resolved dataflow:
+
+.. code-block:: python
+
+   from habit import HabitatSpec, Spec
+
+   per_subject = HabitatSpec(
+       name="one_step",
+       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+       supervoxelizer=None,
+       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
+       habitat_assigner=Spec("nearest_centroid"),
+       habitat_features=(Spec("volume"),),
+       pooling="none",          # explicit subject-level dataflow
+       random_seed=42,
+   )
+   assert per_subject.definition_level == "subject"
+   per_subject.validate_dataflow()  # no-op for a consistent spec
+
+   # The unified entry dispatches on the declared dataflow:
+   # result = recipes.fit_habitat(cohort, per_subject)
+
 Feature trees and the expression form
 -------------------------------------
 
@@ -378,25 +422,33 @@ Run the translated spec with a recipe
 -------------------------------------
 
 v0.1 YAML selects the habitat design via
-``habitat_segmentation.clustering_mode``. After translation, dispatch to the
-matching L4 recipe (same table the CLI uses):
+``habitat_segmentation.clustering_mode``. Translation turns that knob into
+the spec's explicit ``pooling`` declaration (``one_step`` → ``"none"``;
+``two_step`` / ``direct_pooling`` → ``"cohort"``), so the unified entry
+:func:`~habit.recipes.fit_habitat` can dispatch on the spec alone. The
+mode-named aliases remain as thin validators over ``fit_habitat``:
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 40
+   :widths: 24 24 40
 
    * - ``clustering_mode`` (YAML)
-     - Recipe function
+     - spec dataflow
+     - Alias (all dispatch to ``fit_habitat``)
    * - ``two_step``
+     - ``pooling="cohort"`` + supervoxelizer
      - :func:`~habit.recipes.two_step`
    * - ``one_step``
+     - ``pooling="none"``
      - :func:`~habit.recipes.one_step`
    * - ``direct_pooling``
+     - ``pooling="cohort"``, no supervoxelizer
      - :func:`~habit.recipes.direct_pooling`
 
 Pattern: load the YAML, translate with :class:`~habit.spec.legacy.LegacyConfigAdapter`,
-build a :class:`~habit.spec.specs.HabitatSpec`, then call the recipe named by
-``clustering_mode`` (see :doc:`python_api`):
+build a :class:`~habit.spec.specs.HabitatSpec`, then call
+:func:`~habit.recipes.fit_habitat` — the declared dataflow selects the
+design (see :doc:`python_api`):
 
 .. code-block:: python
 
@@ -414,17 +466,17 @@ build a :class:`~habit.spec.specs.HabitatSpec`, then call the recipe named by
    )
    translation = LegacyConfigAdapter().translate(payload, "habitat")
    spec = HabitatSpec.from_dict(translation.document["spec"])
-   mode = payload["habitat_segmentation"]["clustering_mode"]
+   assert spec.pooling == "cohort"  # declared by the translation
 
-   _RECIPE_BY_MODE = {
-       "two_step": recipes.two_step,
-       "one_step": recipes.one_step,
-       "direct_pooling": recipes.direct_pooling,
-   }
-   cohort = make_synthetic_cohort(n_subjects=4, rng=42)
+   # Modalities must match the spec's feature expression.
+   cohort = make_synthetic_cohort(
+       n_subjects=4,
+       modalities=("pre_contrast", "LAP", "PVP", "delay_3min"),
+       rng=42,
+   )
    # cohort = DirectoryDataSource(...).load()  # real data on disk
 
-   result = _RECIPE_BY_MODE[mode](cohort, spec)
+   result = recipes.fit_habitat(cohort, spec)
    result.save("out/study")
 
 Workflow aliases accepted by migrate / validate / adapter:

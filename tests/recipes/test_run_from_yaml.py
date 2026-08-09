@@ -442,6 +442,60 @@ def test_run_from_yaml_rejects_unsupported_workflow(tmp_path: Path) -> None:
         run_from_yaml(config_path, workflow="migrate")
 
 
+def _mode_spec(**overrides: object) -> "object":
+    """Build a minimal HabitatSpec for clustering-mode inference tests."""
+    from habit.spec.specs import HabitatSpec, Spec
+
+    fields = {
+        "name": "demo",
+        "voxel_feature_extractor": Spec(name="raw", params={"modalities": ["t1"]}),
+        "supervoxelizer": None,
+        "habitat_model_fitter": Spec(name="kmeans", params={}),
+        "habitat_assigner": Spec(name="nearest_centroid", params={}),
+    }
+    fields.update(overrides)
+    return HabitatSpec(**fields)  # type: ignore[arg-type]
+
+
+@pytest.mark.unit
+def test_clustering_mode_prefers_the_declared_dataflow() -> None:
+    """An explicit pooling declaration decides the design, not the name."""
+    from habit.recipes.yaml_runner import _clustering_mode_from_spec
+    from habit.spec.specs import Spec
+
+    assert _clustering_mode_from_spec(_mode_spec(pooling="none")) == "one_step"
+    assert (
+        _clustering_mode_from_spec(
+            _mode_spec(pooling="cohort", supervoxelizer=Spec(name="kmeans", params={}))
+        )
+        == "two_step"
+    )
+    assert _clustering_mode_from_spec(_mode_spec(pooling="cohort")) == "direct_pooling"
+    # The declaration wins even over a contradictory legacy-style name.
+    assert (
+        _clustering_mode_from_spec(_mode_spec(name="habitat_one_step", pooling="cohort"))
+        == "direct_pooling"
+    )
+
+
+@pytest.mark.unit
+def test_clustering_mode_falls_back_to_the_legacy_naming() -> None:
+    """Undeclared dataflows keep the habitat_<mode> name convention working."""
+    from habit.recipes.yaml_runner import _clustering_mode_from_spec
+    from habit.spec.specs import Spec
+
+    assert (
+        _clustering_mode_from_spec(
+            _mode_spec(name="habitat_two_step", supervoxelizer=Spec(name="kmeans", params={}))
+        )
+        == "two_step"
+    )
+    assert _clustering_mode_from_spec(_mode_spec(name="habitat_one_step")) == "one_step"
+
+    with pytest.raises(ValueError, match="Cannot infer clustering_mode"):
+        _clustering_mode_from_spec(_mode_spec(name="demo"))
+
+
 @pytest.mark.unit
 def test_run_from_yaml_preprocess_dispatches_to_recipe(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch

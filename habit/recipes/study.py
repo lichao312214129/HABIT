@@ -177,6 +177,7 @@ def _build_habitat_spec(
             habitat_assigner=Spec(name="nearest_centroid", params={}),
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
+            pooling="cohort",
         )
     if design == "one_step":
         return HabitatSpec(
@@ -193,6 +194,7 @@ def _build_habitat_spec(
             habitat_assigner=Spec(name="nearest_centroid", params={}),
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
+            pooling="none",
         )
     if design == "direct_pooling":
         return HabitatSpec(
@@ -209,6 +211,7 @@ def _build_habitat_spec(
             habitat_assigner=Spec(name="nearest_centroid", params={}),
             habitat_features=_coerce_habitat_features(habitat_features),
             random_seed=random_seed,
+            pooling="cohort",
         )
     raise HABITAPIError(
         f"Unknown habitat design {design!r}; expected one of "

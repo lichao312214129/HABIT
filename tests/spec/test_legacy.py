@@ -215,6 +215,30 @@ def test_predict_mode_translation_has_no_spec() -> None:
 
 
 @pytest.mark.unit
+def test_translation_declares_the_dataflow_explicitly() -> None:
+    """The v0 clustering_mode knob becomes a spec-level pooling declaration."""
+    two_step = _translate("config_habitat_two_step.yaml").document["spec"]
+    assert two_step["pooling"] == "cohort"
+    assert two_step["definition_level"] == "cohort"
+    # Explicit 'cohort' is fingerprint-neutral: the typed spec omits it again.
+    assert "pooling" not in HabitatSpec.from_dict(two_step).to_dict()
+
+    one_step = _translate("config_habitat_one_step_voxel_radiomics_train.yaml").document[
+        "spec"
+    ]
+    assert one_step["pooling"] == "none"
+    assert one_step["definition_level"] == "subject"
+    # The subject-level dataflow is recorded in the fingerprinted form.
+    one_step_dict = HabitatSpec.from_dict(one_step).to_dict()
+    assert one_step_dict["pooling"] == "none"
+    assert one_step_dict["definition_level"] == "subject"
+
+    direct = _translate("config_habitat_direct_pooling_gmm_aic.yaml").document["spec"]
+    assert direct["pooling"] == "cohort"
+    assert direct["definition_level"] == "cohort"
+
+
+@pytest.mark.unit
 def test_supervoxel_radiomics_aggregator_both_spellings() -> None:
     """The two v0.1 axes land in two domains, not one fused supervoxelizer."""
     translation = _translate("config_habitat_two_step_supervoxel_radiomics_train.yaml")

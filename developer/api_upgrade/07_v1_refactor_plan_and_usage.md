@@ -494,6 +494,166 @@ result.inspection.frame("supervoxels.described", "subj001")
 - L1 `DirectoryStepWriter` 落盘 sink。
 - process 后端下的观测（依赖落盘 sink；一期按 E.3 明确报错，不静默丢数据）。
 
+#### F. 生境数据流显式化（路线甲）：`HabitatSpec.pooling` + 统一入口 `fit_habitat`（2026-08-09 定稿）
+
+**为什么做**：今天三种生境设计（`two_step` / `one_step` / `direct_pooling`）的差异
+**不住在 spec 里，而藏在配方函数名里**——同一个 `supervoxelizer=None` 的 spec，
+调 `one_step` 与调 `direct_pooling` 会跑出两种科学上不同的分析，而 spec 指纹逐位相同。
+这违反「溯源是数据结构的一部分」：拿不出数据流声明的 spec 无法自描述，
+`run_manifest.json` 记录的 spec_payload 也看不出跨个体汇聚是否发生。
+路线甲把数据流（含跨个体 pooling）提升为 `HabitatSpec` 的显式声明，
+配方函数退化为薄别名。
+
+**硬约束**：重构后三种策略的**科学结果与旧 CLI 逐位一致**（golden 基线不漂移）；
+`inspect=` 逐步观测继续可用；`apply_habitat_model` 不变。
+
+##### F.1 Spec 表示：一个显式的跨个体汇聚声明
+
+`HabitatSpec` 新增一个字段：
+
+```python
+pooling: Optional[str] = None   # None / "cohort" / "none"
+```
+
+- `"cohort"`：个体级聚类单元（two_step 的超体素、direct_pooling 的体素）经
+  **fan-in** 汇聚成队列矩阵，拟合**一个**队列级生境定义，再 **fan-out** 回到
+  每个个体赋标签、算生境特征。two_step 与 direct_pooling 都是这个数据流，
+  二者只差 `supervoxelizer` 是否存在。
+- `"none"`：不发生任何跨个体汇聚；每个个体**独立**定义并标记自己的生境
+  （one_step）。个体间生境 id 不可比是该设计的固有性质。
+- `None`（默认）：**未声明**，按历史默认解析为 `"cohort"`。存在它唯一的原因，
+  是让旧 spec（磁盘上的 v1 YAML、`.habitatmodel` 的 spec_payload、用户脚本里
+  构造的 spec）无需迁移即可加载；新代码应显式写 `"cohort"` 或 `"none"`。
+
+派生只读属性（不是自由字段，由 spec 图推导）：
+
+```python
+@property
+def definition_level(self) -> str:
+    """生境定义在哪个层级学到：'cohort' 或 'subject'。"""
+    return "subject" if self.pooling == "none" else "cohort"
+```
+
+**指纹规则**（沿用 `on_geometry_mismatch` 的「偏离默认才记录」先例）：
+
+- `to_dict()`：仅当 `pooling == "none"` 时发出 `pooling` 与 `definition_level`
+  两个键；`None` 与 `"cohort"` 都省略（二者语义相同，指纹必须相同）。
+  → two_step / direct_pooling 的既有 spec 指纹**逐位不动**，
+  `.habitatmodel` 的 model_id 与 checkpoint 键全部不受影响。
+- one_step 的 spec 过去**根本没有**记录数据流，如今必须记录
+  （`pooling: "none"` + `definition_level: "subject"`），其 spec 指纹因此前移——
+  这是本设计**有意为之**的溯源增强，不是数值漂移：one_step 的 NRRD 标签图与
+  parquet 特征逐位一致，仅 `run_manifest.json` 的 `spec_payload` /
+  `provenance.spec_fingerprint` 叶子变化，对应 baseline JSON 需按 §F.6 重生。
+- `to_effective_dict()`（YAML 导出）：始终展开 `pooling`（`None` 解析为
+  `"cohort"`）与 `definition_level`，导出文档自描述；round-trip 稳定
+  （`"cohort"` 读回后 `to_dict()` 再次省略，指纹不变）。
+- `from_dict()`：读 `pooling`；若 payload 同时携带 `definition_level`，
+  校验其与推导值一致（防止手改 YAML 造成自相矛盾的声明）。
+
+##### F.2 校验规则
+
+- 值域校验在 `__post_init__`：`pooling` 只接受 `None` / `"cohort"` / `"none"`，
+  其余值构造即抛 `HABITAPIError`（与 `on_geometry_mismatch` 的值域校验同款）。
+- 跨字段一致性**不在构造期**拒绝（保持 spec 是可构造的值对象，既有测试契约不变），
+  而由 `HabitatSpec.validate_dataflow()` 在**入口点**执行：
+  - `pooling == "none"` 要求 `supervoxelizer is None`
+    （个体级定义 + 超体素是 v0.1 从未支持的设计，留作未来扩展）；
+  - `pooling == "none"` 要求 `cohort_feature_preprocessors` 为空
+    （没有任何步骤跨个体，队列级链的统计量无人使用）。
+- `fit_habitat` 与三个别名都会调用 `validate_dataflow()`；
+  `habit check-config`（`_validate_habitat_v1`）同样调用，让错误声明在跑之前暴露。
+- 别名一致性（「校验 spec 一致性，再调统一入口」）：
+  - `two_step`：`supervoxelizer` 必须存在（既有报错消息不变）；`pooling` 不得为
+    `"none"`（显式声明了个体级定义的 spec 与 two_step 矛盾）。
+  - `direct_pooling`：`supervoxelizer` 必须不存在（既有报错消息不变）；
+    `pooling` 不得为 `"none"`。
+  - `one_step`：`supervoxelizer` 必须不存在、cohort 链必须为空（既有报错消息
+    不变）；`pooling == "cohort"` 的显式声明报错；`pooling is None`（未声明）时
+    别名将 spec 规范化为 `pooling="none"` 再运行——**记录进 manifest 的 spec
+    必须如实描述实际跑的数据流**。
+
+##### F.3 统一入口与数据流推导
+
+```python
+def fit_habitat(cohort, spec, *, backend=None, seed=None, checkpoint=None, inspect=None) -> StudyResult:
+    """按 spec 声明的数据流拟合生境模型（spec 驱动，不再看函数名）。"""
+```
+
+- 设计推导纯由 spec 图决定：`definition_level == "subject"` → one_step；
+  否则 `supervoxelizer is not None` → two_step；否则 → direct_pooling。
+- `two_step` / `one_step` / `direct_pooling` 保留为**薄别名**：先做 §F.2 的
+  一致性校验（既有报错消息逐字保留），再调 `fit_habitat`。签名、返回类型、
+  checkpoint 键、`inspect=` 行为全部不变。
+- manifest 的 `provenance.produced_by` 仍记录 `recipes.habitat.<design>`
+  （design 由 spec 推导，三个名字不变），`run_manifest.json` 结构不变。
+- `apply_habitat_model` 不属于拟合入口，保持原样（模型已携带队列级预处理状态，
+  无数据流自由度）。
+
+##### F.4 fan-in / fan-out 原子
+
+新模块 `habit/domain/pooling.py`（L3，纯数据移动，不碰文件系统、无配置概念）：
+
+```python
+@dataclass(frozen=True)
+class PooledUnits:
+    """fan-in 的产物：队列矩阵 + 特征名 + 个体索引（每个个体的行区间）。"""
+    matrix: np.ndarray
+    feature_names: Tuple[str, ...]
+    subject_ids: Tuple[str, ...]
+    boundaries: Tuple[Tuple[int, int], ...]   # 每个个体的 [start, stop) 行区间
+
+    def frame(self) -> pd.DataFrame: ...          # 供 cohort 预处理链 fit
+    def fan_out(self, values: np.ndarray) -> Dict[str, np.ndarray]: ...
+        # fan-out 的数值核：把队列级行向量（如 pooled 标签）按个体索引切回
+
+def fan_in(units: Sequence[Supervoxelization]) -> PooledUnits:
+    """把各个体的聚类单元合并成队列矩阵，并保留个体索引。"""
+```
+
+- `fan_in` 内部复用 `habitat_model/_base.py` 的 `pool_supervoxel_features`
+  （同一处 concat，不与拟合器的内部汇聚长出第二份实现），只追加个体索引。
+- 配方层 `_fit_cohort_model` 的 cohort 链 fit 改走 `fan_in(units).frame()`，
+  数值与旧 `pd.concat(...)` 路径逐位一致（golden 验证）。
+- 拟合器协议不变（仍收 `Sequence[Supervoxelization]` 并内部汇聚）——
+  不改协议是为了零数值风险；`fan_out` 的正确性由聚焦测试钉死
+  （pooled 赋值后切回 == 逐个体赋值）。
+
+##### F.5 YAML 双向映射
+
+- **v0 → v1**（`LegacyConfigAdapter._translate_habitat_spec`）：按
+  `clustering_mode` 显式发出 `pooling`——`one_step` → `"none"`，
+  `two_step` / `direct_pooling` → `"cohort"`（后者 `to_dict()` 省略，指纹不动；
+  前者是 one_step 指纹前移的唯一来源）。`migrate_yaml` 落盘的 v1 文档因此自描述。
+- **v1 → 配方**（`yaml_runner._clustering_mode_from_spec`）：改为**数据流优先**——
+  spec 声明了 `pooling` 或结构可推导时直接定设计；仅当 `pooling` 未声明且
+  spec 名命中旧 `habitat_<mode>` 命名约定时回退到名称推导（旧 v1 文档继续可跑，
+  红线 3）。名称与显式声明矛盾时以声明为准并告警。
+- CLI（`cmd_habitat`）路径不变：v0 配置的 `clustering_mode` 仍选别名，
+  别名校验通过后代入统一入口；15 个子命令名称与选项零变化。
+
+##### F.6 测试与门禁
+
+- 新增聚焦测试：spec 数据流推导（三种组合 + 未声明回退）、`validate_dataflow`
+  报错、别名一致性报错、`pooling` 值域报错、fan-in 个体索引与 fan-out 切分、
+  `to_dict`/`from_dict`/`to_effective_dict` 的指纹稳定性与 round-trip。
+- 门禁：`tests/test_architecture_contracts.py`、`tests/api/test_public_api.py`、
+  `tests/golden/fast/`、`tests/recipes/`、`tests/commands/`、
+  `tests/habitat/test_cli_habitat.py`、`tests/test_all_configs.py`；
+  本地 `demo_data/` 在，加跑 `tests/golden/test_golden_baseline.py`（slow）。
+- 预期基线影响：two_step / direct_pooling / predict / features / ml 基线**零变化**；
+  one_step 基线仅 `run_manifest.json` 的 spec 叶子前移（NRRD/parquet 逐位一致），
+  核对后按 `scripts/make_fast_golden_baseline.py` / `scripts/make_golden_baseline.py`
+  重生 one_step 两条基线并在提交信息中说明。
+
+##### F.7 本期不做
+
+- 个体级定义 + 超体素（per-subject two-step）新设计：v0.1 无此能力，
+  `validate_dataflow` 当前明确拒绝，留待有真实需求时再议。
+- 拟合器协议改为直接消费 `PooledUnits`：会动数值路径，留待单独的、
+  有 golden 护航的重构。
+- CLI 新开关：数据流声明在 spec 里，CLI 无需新选项。
+
 ---
 
 ## core 删除验收计划

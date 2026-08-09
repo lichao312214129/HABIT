@@ -20,13 +20,15 @@ from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
 import habit.recipes as recipes
 
 
-def _spec(name: str, *, supervoxelizer: bool) -> HabitatSpec:
+def _spec(name: str, *, supervoxelizer: bool, pooling: str | None = None) -> HabitatSpec:
     """Build a tiny deterministic habitat spec for demos.
 
     Keyword order follows the runtime pipeline, not HabitatSpec field order.
+    ``pooling`` declares the dataflow explicitly ("cohort" default / "none").
     """
     return HabitatSpec(
         name=name,
+        pooling=pooling,
         voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
         voxel_feature_preprocessors=(
             Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
@@ -104,6 +106,15 @@ print("=== direct_pooling ===")
 pool = recipes.direct_pooling(cohort, _spec("direct_pooling", supervoxelizer=False))
 assert pool.habitat_model is not None
 print(f"  habitats={pool.habitat_model.n_habitats}")
+
+print("=== fit_habitat (unified entry, spec-driven dispatch) ===")
+# pooling="none" declares the subject-level dataflow on the spec itself;
+# fit_habitat reads the declaration and runs the same design as one_step.
+unified = recipes.fit_habitat(
+    cohort, _spec("one_step", supervoxelizer=False, pooling="none")
+)
+assert list(unified.subject_models) == list(one.subject_models)
+print(f"  fit_habitat(pooling='none') subject_models={list(unified.subject_models)}")
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
 import sys

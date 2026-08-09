@@ -43,6 +43,7 @@ from habit.domain.table_protocols import (
     TablePreprocessor,
 )
 from habit.domain.pipeline import SubjectPipeline, TablePipeline
+from habit.domain.pooling import PooledUnits, fan_in
 from habit.domain.postprocess import (
     ConnectedComponentPostprocess,
     build_connected_component_postprocess,
@@ -320,6 +321,9 @@ __all__ = [
     # Composition.
     "SubjectPipeline",
     "TablePipeline",
+    # Cross-subject pooling atoms of the habitat dataflow.
+    "PooledUnits",
+    "fan_in",
     # Label-map post-processing (not a registry protocol).
     "ConnectedComponentPostprocess",
     "build_connected_component_postprocess",

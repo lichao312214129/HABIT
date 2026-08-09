@@ -34,6 +34,12 @@ The three designs differ only in WHERE the habitat definition is learned:
 * :func:`one_step` -- no supervoxels; habitats defined INSIDE each subject,
   independently. There is no cohort-level definition, and the habitat ids of
   two subjects are not comparable.
+
+:func:`fit_habitat` is the unified entry point: it reads the dataflow
+declared on the spec (``HabitatSpec.pooling`` plus the presence of a
+supervoxelizer) and runs the matching design. The three named functions
+remain as thin aliases -- they validate that the spec is consistent with
+the design their name promises, then delegate to :func:`fit_habitat`.
 """
 
 from __future__ import annotations
@@ -66,6 +72,7 @@ from habit.contracts.provenance import Provenance, software_fingerprint
 from habit.contracts.subject import Cohort, Subject
 from habit.contracts.table import FeatureTable
 from habit.domain.assembly import HabitatComponents, build_habitat_components
+from habit.domain.pooling import fan_in
 from habit.domain.protocols import Seedable
 from habit.recipes.result import StudyResult
 from habit.spec.specs import HabitatSpec
@@ -77,7 +84,13 @@ if TYPE_CHECKING:
 
 _LOG = logging.getLogger(__name__)
 
-__all__ = ["two_step", "one_step", "direct_pooling", "apply_habitat_model"]
+__all__ = [
+    "fit_habitat",
+    "two_step",
+    "one_step",
+    "direct_pooling",
+    "apply_habitat_model",
+]
 
 #: Identifier column of the cohort feature table, matching the habitat
 #: feature families (``habit.domain.habitat_features._base``).
@@ -365,8 +378,10 @@ def _fit_cohort_model(
     if chain is not None:
         # Cohort statistics come from the pooled TRAINING units and nothing
         # else; this is the one leakage-sensitive step in habitat definition.
-        pooled = pd.concat([unit.feature_frame() for unit in units], ignore_index=True)
-        chain.fit(pooled)
+        # The fan-in atom pools exactly like the fitter's internal pooling
+        # does, and records the subject index alongside the matrix.
+        pooled = fan_in(units)
+        chain.fit(pooled.frame)
         units = [
             unit.with_feature_frame(
                 chain.transform(unit.feature_frame()),
@@ -747,6 +762,190 @@ def _fit_cohort_design(
     )
 
 
+def _fit_subject_design(
+    cohort: Cohort,
+    spec: HabitatSpec,
+    backend: Optional[ExecutionBackend],
+    checkpoint: Optional[CheckpointStore],
+    inspect: Optional[StepObserver],
+) -> StudyResult:
+    """
+    Run the design whose habitats are defined INSIDE each subject.
+
+    This is the one-step dataflow (``pooling="none"``): no fan-in, no
+    cohort-level definition, no fan-out -- every subject fits and applies
+    its own definition, so habitat ids are not comparable across subjects.
+    Per-subject failures are isolated exactly like the cohort-level designs.
+
+    Args:
+        cohort: Subjects to process.
+        spec: The effective analysis declaration (already seed-folded and
+            canonicalised to ``pooling="none"``).
+        backend: Optional execution backend for the per-subject stage.
+        checkpoint: Optional store enabling per-subject resume; keys scope
+            on the spec fingerprint only.
+        inspect: Optional step observer for in-memory debugging / QA.
+
+    Returns:
+        The study result, entirely in memory, with per-subject models in
+        :attr:`~habit.recipes.result.StudyResult.subject_models`.
+    """
+    _reject_process_inspect(inspect, backend)
+    started_at = _now()
+    components = build_habitat_components(spec)
+    subject_outcomes: Dict[str, str] = {
+        subject.subject_id: "success" for subject in cohort
+    }
+    with _backend_session(backend):
+        survivors, outcomes, failures = _map_soft(
+            cohort,
+            _DefineAndLabelWithinSubject(
+                components=components,
+                assigner_name=spec.habitat_assigner.name,
+                assigner_params=tuple(spec.habitat_assigner.params.items()),
+                extractors=components.habitat_features,
+                seed=spec.random_seed,
+                key_prefix=_one_step_key_prefix(spec),
+                observer=inspect,
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage="one_step",
+        )
+    for subject_id, summary in failures.items():
+        subject_outcomes[subject_id] = summary
+    habitat_maps = tuple(habitat_map for _, habitat_map, _, _ in outcomes)
+    for habitat_map in habitat_maps:
+        subject_outcomes[habitat_map.subject_id] = "success"
+    manifest = _manifest(
+        "one_step",
+        spec,
+        habitat_maps,
+        started_at,
+        subject_outcomes=subject_outcomes,
+    )
+    return StudyResult(
+        habitat_model=None,
+        pipeline=None,
+        features=_cohort_feature_table(
+            [table for _, _, table, _ in outcomes],
+            [subject.subject_id for subject in survivors],
+            manifest.provenance,
+        ),
+        habitat_maps=habitat_maps,
+        manifest=manifest,
+        subject_models={
+            habitat_map.subject_id: model
+            for model, habitat_map, _, _ in outcomes
+        },
+        units=tuple(subject_units for _, _, _, subject_units in outcomes),
+        inspection=inspect,
+    )
+
+
+def _design_from_spec(spec: HabitatSpec) -> str:
+    """
+    Derive the study design from the dataflow the spec declares.
+
+    The declaration is the source of truth: ``definition_level="subject"``
+    (i.e. ``pooling="none"``) selects the one-step design; otherwise the
+    presence of a supervoxelizer distinguishes two-step from
+    direct-pooling. An undeclared dataflow (``pooling=None``) resolves to
+    the historical cohort-level default.
+
+    Args:
+        spec: The effective analysis declaration.
+
+    Returns:
+        One of ``"two_step"``, ``"one_step"``, ``"direct_pooling"``.
+    """
+    if spec.definition_level == "subject":
+        return "one_step"
+    if spec.supervoxelizer is not None:
+        return "two_step"
+    return "direct_pooling"
+
+
+def fit_habitat(
+    cohort: Cohort,
+    spec: HabitatSpec,
+    *,
+    backend: Optional[ExecutionBackend] = None,
+    seed: Optional[int] = None,
+    checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
+) -> StudyResult:
+    """
+    Fit the habitat analysis the spec declares, whatever its dataflow.
+
+    This is the unified, spec-driven entry point: the study design is read
+    off the spec graph (``pooling`` plus the presence of a supervoxelizer)
+    rather than chosen by function name, so the recorded specification
+    alone determines which analysis runs. The named designs
+    (:func:`two_step`, :func:`one_step`, :func:`direct_pooling`) are thin
+    aliases over this function that additionally validate the spec against
+    the design their name promises.
+
+    Args:
+        cohort: Subjects to fit on.
+        spec: The analysis to run. ``pooling="none"`` selects per-subject
+            habitat definition (one-step); otherwise a supervoxelizer
+            selects two-step and its absence selects direct-pooling.
+        backend: Optional execution backend (parallelism, timeouts, resume).
+            Serial when omitted.
+        seed: Optional override of ``spec.random_seed``.
+        checkpoint: Optional store enabling per-subject resume.
+        inspect: Optional step observer for in-memory debugging / QA.
+            Unsupported with the process backend.
+
+    Returns:
+        The study result, entirely in memory. Call
+        :meth:`~habit.recipes.result.StudyResult.save` to persist it.
+
+    Raises:
+        HABITAPIError: If the declared dataflow is inconsistent
+            (see :meth:`~habit.spec.specs.HabitatSpec.validate_dataflow`).
+
+    Examples:
+        >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
+        >>> import habit.recipes as recipes
+        >>> cohort = make_synthetic_cohort(n_subjects=4, shape=(20, 20, 20), rng=0)
+        >>> spec = HabitatSpec(
+        ...     name="demo",
+        ...     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+        ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 5}),
+        ...     habitat_model_fitter=Spec(
+        ...         "kmeans",
+        ...         {"min_habitats": 2, "max_habitats": 3,
+        ...          "validation": "silhouette", "n_init": 5},
+        ...     ),
+        ...     habitat_assigner=Spec("nearest_centroid"),
+        ...     habitat_features=(Spec("volume"),),
+        ...     pooling="cohort",
+        ...     random_seed=42,
+        ... )
+        >>> result = recipes.fit_habitat(cohort, spec)
+        >>> result.habitat_model.n_habitats >= 2
+        True
+    """
+    effective = _effective_spec(spec, seed)
+    effective.validate_dataflow()
+    design = _design_from_spec(effective)
+    if design == "one_step":
+        return _fit_subject_design(
+            cohort, effective, backend, checkpoint, inspect
+        )
+    return _fit_cohort_design(
+        design,
+        cohort,
+        effective,
+        backend,
+        effective.random_seed,
+        checkpoint,
+        inspect=inspect,
+    )
+
+
 def two_step(
     cohort: Cohort,
     spec: HabitatSpec,
@@ -781,7 +980,9 @@ def two_step(
         :meth:`~habit.recipes.result.StudyResult.save` to persist it.
 
     Raises:
-        HABITAPIError: If the spec declares no supervoxelizer.
+        HABITAPIError: If the spec declares no supervoxelizer, or declares
+            ``pooling="none"`` (a subject-level dataflow contradicts the
+            cohort-level definition this design fits).
 
     Examples:
         >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
@@ -813,13 +1014,17 @@ def two_step(
             "one clusters voxels directly: use direct_pooling (cohort-level "
             "habitats) or one_step (per-subject habitats)."
         )
-    return _fit_cohort_design(
-        "two_step",
+    if effective.pooling == "none":
+        raise HABITAPIError(
+            "two_step fits one cohort-level habitat definition, but this "
+            "spec declares pooling='none' (subject-level definition). Use "
+            "one_step, or drop the pooling declaration from the spec."
+        )
+    return fit_habitat(
         cohort,
         effective,
-        backend,
-        effective.random_seed,
-        checkpoint,
+        backend=backend,
+        checkpoint=checkpoint,
         inspect=inspect,
     )
 
@@ -854,7 +1059,9 @@ def direct_pooling(
         The study result, entirely in memory.
 
     Raises:
-        HABITAPIError: If the spec declares a supervoxelizer.
+        HABITAPIError: If the spec declares a supervoxelizer, or declares
+            ``pooling="none"`` (a subject-level dataflow contradicts the
+            cohort-level definition this design fits).
     """
     effective = _effective_spec(spec, seed)
     if effective.supervoxelizer is not None:
@@ -863,13 +1070,17 @@ def direct_pooling(
             f"the supervoxelizer {effective.supervoxelizer.name!r}. Use "
             "two_step, or drop the supervoxelizer from the spec."
         )
-    return _fit_cohort_design(
-        "direct_pooling",
+    if effective.pooling == "none":
+        raise HABITAPIError(
+            "direct_pooling fits one cohort-level habitat definition, but "
+            "this spec declares pooling='none' (subject-level definition). "
+            "Use one_step, or drop the pooling declaration from the spec."
+        )
+    return fit_habitat(
         cohort,
         effective,
-        backend,
-        effective.random_seed,
-        checkpoint,
+        backend=backend,
+        checkpoint=checkpoint,
         inspect=inspect,
     )
 
@@ -916,8 +1127,9 @@ def one_step(
         The study result, entirely in memory.
 
     Raises:
-        HABITAPIError: If the spec declares a supervoxelizer or a
-            cohort-level preprocessing chain.
+        HABITAPIError: If the spec declares a supervoxelizer, a
+            cohort-level preprocessing chain, or ``pooling="cohort"`` (a
+            cohort-level dataflow contradicts this design).
     """
     effective = _effective_spec(spec, seed)
     if effective.supervoxelizer is not None:
@@ -932,56 +1144,25 @@ def one_step(
             "Move those methods to voxel_feature_preprocessors, or use "
             "direct_pooling."
         )
-    _reject_process_inspect(inspect, backend)
-    started_at = _now()
-    components = build_habitat_components(effective)
-    subject_outcomes: Dict[str, str] = {
-        subject.subject_id: "success" for subject in cohort
-    }
-    with _backend_session(backend):
-        survivors, outcomes, failures = _map_soft(
-            cohort,
-            _DefineAndLabelWithinSubject(
-                components=components,
-                assigner_name=effective.habitat_assigner.name,
-                assigner_params=tuple(effective.habitat_assigner.params.items()),
-                extractors=components.habitat_features,
-                seed=effective.random_seed,
-                key_prefix=_one_step_key_prefix(effective),
-                observer=inspect,
-            ),
-            backend=backend,
-            checkpoint=checkpoint,
-            stage="one_step",
+    if effective.pooling == "cohort":
+        raise HABITAPIError(
+            "one_step defines habitats within each subject, but this spec "
+            "declares pooling='cohort'. Use two_step / direct_pooling, or "
+            "declare pooling='none'."
         )
-    for subject_id, summary in failures.items():
-        subject_outcomes[subject_id] = summary
-    habitat_maps = tuple(habitat_map for _, habitat_map, _, _ in outcomes)
-    for habitat_map in habitat_maps:
-        subject_outcomes[habitat_map.subject_id] = "success"
-    manifest = _manifest(
-        "one_step",
+    if effective.pooling is None:
+        # Canonicalise the undeclared dataflow to the design this alias
+        # actually runs, so the recorded spec (manifest, checkpoint keys)
+        # states the subject-level dataflow explicitly.
+        import dataclasses
+
+        effective = dataclasses.replace(effective, pooling="none")
+    return fit_habitat(
+        cohort,
         effective,
-        habitat_maps,
-        started_at,
-        subject_outcomes=subject_outcomes,
-    )
-    return StudyResult(
-        habitat_model=None,
-        pipeline=None,
-        features=_cohort_feature_table(
-            [table for _, _, table, _ in outcomes],
-            [subject.subject_id for subject in survivors],
-            manifest.provenance,
-        ),
-        habitat_maps=habitat_maps,
-        manifest=manifest,
-        subject_models={
-            habitat_map.subject_id: model
-            for model, habitat_map, _, _ in outcomes
-        },
-        units=tuple(subject_units for _, _, _, subject_units in outcomes),
-        inspection=inspect,
+        backend=backend,
+        checkpoint=checkpoint,
+        inspect=inspect,
     )
 
 

@@ -91,7 +91,9 @@ def _load_baseline(case_name: str) -> Dict[str, Any]:
 
 def _demo_data_available() -> bool:
     """Return whether the untracked demo dataset is present locally."""
-    return (REPO_ROOT / "demo_data" / "preprocessed" / "processed_images").is_dir()
+    # The shipped habitat configs consume data_dir = demo_data/preprocessed
+    # with images/ (and masks/) underneath; probe the same layout.
+    return (REPO_ROOT / "demo_data" / "preprocessed" / "images").is_dir()
 
 
 @pytest.mark.unit

@@ -206,6 +206,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "two_step",
         "one_step",
         "direct_pooling",
+        "fit_habitat",
         "two_step_habitat",
         "one_step_habitat",
         "direct_pooling_habitat",
@@ -263,6 +264,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "Metric",
         "SubjectPipeline",
         "TablePipeline",
+        "PooledUnits",
+        "fan_in",
         "ConnectedComponentPostprocess",
         # Precision screen (Prior et al. 2024): the perturbation protocol and
         # its built-ins, the analysis functions, and the resulting artifact.

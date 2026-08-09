@@ -156,7 +156,17 @@ def _specification_sentence(payload: Mapping[str, Any]) -> Optional[str]:
     lead = "The analysis specification"
     if isinstance(name, str) and name:
         lead += f" {name!r}"
-    return f"{lead} comprised {'; '.join(phrases)}."
+    sentence = f"{lead} comprised {'; '.join(phrases)}."
+    # The dataflow declaration is part of the recorded spec payload; state it
+    # when habitats were defined per subject (cohort-level pooling stays the
+    # unmentioned default, mirroring HabitatSpec.describe_methods).
+    if payload.get("definition_level") == "subject":
+        sentence += (
+            " Habitats were defined within each subject independently (no "
+            "cross-subject pooling), so habitat labels are not comparable "
+            "across subjects."
+        )
+    return sentence
 
 
 #: Guidance text for checklist items no execution record can answer. Every

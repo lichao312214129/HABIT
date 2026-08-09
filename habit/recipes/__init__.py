@@ -30,6 +30,7 @@ from habit.recipes.features import extract_habitat_features, traditional_radiomi
 from habit.recipes.habitat import (
     apply_habitat_model,
     direct_pooling,
+    fit_habitat,
     one_step,
     two_step,
 )
@@ -79,6 +80,7 @@ __all__ = [
     "direct_pooling",
     "direct_pooling_habitat",
     "extract_habitat_features",
+    "fit_habitat",
     "icc_analysis",
     "identify_precise_voxel_features",
     "merge_tables",

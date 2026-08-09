@@ -274,6 +274,118 @@ def test_habitat_spec_describe_methods_styles_differ_only_in_ordering() -> None:
         spec.describe_methods(style="imaginary")
 
 
+def _dataflow_spec(**overrides: object) -> HabitatSpec:
+    """Build a minimal valid spec; overrides select the declared dataflow."""
+    fields = {
+        "name": "dataflow",
+        "voxel_feature_extractor": Spec(name="raw", params={"modalities": ["T1"]}),
+        "supervoxelizer": None,
+        "habitat_model_fitter": Spec(name="kmeans"),
+        "habitat_assigner": Spec(name="nearest_centroid"),
+    }
+    fields.update(overrides)
+    return HabitatSpec(**fields)  # type: ignore[arg-type]
+
+
+@pytest.mark.unit
+def test_habitat_spec_pooling_value_domain() -> None:
+    """Only 'cohort' / 'none' / None are accepted, case-normalised."""
+    assert _dataflow_spec().pooling is None
+    assert _dataflow_spec(pooling="cohort").pooling == "cohort"
+    assert _dataflow_spec(pooling="NONE").pooling == "none"
+    with pytest.raises(HABITAPIError, match="pooling"):
+        _dataflow_spec(pooling="sometimes")
+
+
+@pytest.mark.unit
+def test_habitat_spec_definition_level_is_derived() -> None:
+    """The definition level follows the declared dataflow, never free text."""
+    assert _dataflow_spec().definition_level == "cohort"
+    assert _dataflow_spec(pooling="cohort").definition_level == "cohort"
+    assert _dataflow_spec(pooling="none").definition_level == "subject"
+
+
+@pytest.mark.unit
+def test_habitat_spec_pooling_fingerprint_stability() -> None:
+    """Undeclared and explicit-cohort share one fingerprint; 'none' is recorded."""
+    undeclared = _dataflow_spec()
+    explicit_cohort = _dataflow_spec(pooling="cohort")
+    subject_level = _dataflow_spec(pooling="none")
+
+    assert undeclared.fingerprint() == explicit_cohort.fingerprint()
+    assert "pooling" not in undeclared.to_dict()
+    assert "pooling" not in explicit_cohort.to_dict()
+
+    payload = subject_level.to_dict()
+    assert payload["pooling"] == "none"
+    assert payload["definition_level"] == "subject"
+    assert subject_level.fingerprint() != undeclared.fingerprint()
+    # The recorded dataflow round-trips losslessly.
+    restored = HabitatSpec.from_dict(payload)
+    assert restored.pooling == "none"
+    assert restored.fingerprint() == subject_level.fingerprint()
+
+
+@pytest.mark.unit
+def test_habitat_spec_effective_dict_states_the_dataflow() -> None:
+    """YAML export always spells out pooling and the derived level."""
+    effective = _dataflow_spec().to_effective_dict()
+    assert effective["pooling"] == "cohort"
+    assert effective["definition_level"] == "cohort"
+    assert "pooling" not in _dataflow_spec().to_dict()
+
+    subject_level = _dataflow_spec(pooling="none").to_effective_dict()
+    assert subject_level["pooling"] == "none"
+    assert subject_level["definition_level"] == "subject"
+
+    # Round-trip through the effective form keeps the fingerprint stable.
+    for spec in (_dataflow_spec(), _dataflow_spec(pooling="cohort"),
+                 _dataflow_spec(pooling="none")):
+        restored = HabitatSpec.from_dict(spec.to_effective_dict())
+        assert restored.fingerprint() == spec.fingerprint()
+
+
+@pytest.mark.unit
+def test_habitat_spec_from_dict_rejects_a_contradictory_level() -> None:
+    """definition_level is derived; a disagreeing document is rejected."""
+    payload = _dataflow_spec(pooling="none").to_dict()
+    payload["definition_level"] = "cohort"
+    with pytest.raises(HABITAPIError, match="definition_level"):
+        HabitatSpec.from_dict(payload)
+
+
+@pytest.mark.unit
+def test_habitat_spec_validate_dataflow() -> None:
+    """Subject-level definition forbids supervoxels and cohort chains."""
+    _dataflow_spec().validate_dataflow()
+    _dataflow_spec(pooling="cohort").validate_dataflow()
+    _dataflow_spec(pooling="none").validate_dataflow()
+
+    with_supervoxels = _dataflow_spec(
+        pooling="none", supervoxelizer=Spec(name="kmeans")
+    )
+    with pytest.raises(HABITAPIError, match="supervoxelizer"):
+        with_supervoxels.validate_dataflow()
+
+    with_cohort_chain = _dataflow_spec(
+        pooling="none",
+        cohort_feature_preprocessors=(Spec(name="zscore"),),
+    )
+    with pytest.raises(HABITAPIError, match="cohort_feature_preprocessors"):
+        with_cohort_chain.validate_dataflow()
+
+
+@pytest.mark.unit
+def test_habitat_spec_describe_methods_states_subject_level_dataflow() -> None:
+    """Only the subject-level design adds a dataflow sentence to the prose."""
+    cohort_text = _dataflow_spec().describe_methods()
+    assert "cross-subject pooling" not in cohort_text
+
+    subject_text = _dataflow_spec(pooling="none").describe_methods()
+    assert "no cross-subject pooling" in subject_text
+    assert "not comparable across subjects" in subject_text
+
+
 @pytest.mark.unit
 def test_run_policy_defaults_and_validation() -> None:
     """Policy defaults are serial execution with continue-on-failure."""

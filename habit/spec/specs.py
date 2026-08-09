@@ -321,6 +321,17 @@ class HabitatSpec:
             grid; ``"strict"`` raises :class:`~habit.exceptions.GeometryError`.
             The default is omitted from :meth:`to_dict` so historical
             fingerprints stay stable when the policy is unchanged.
+        pooling: Cross-subject pooling declaration of the habitat dataflow.
+            ``"cohort"`` pools the per-subject clustering units (supervoxels,
+            or voxels when ``supervoxelizer=None``) into one cohort matrix,
+            fits ONE shared habitat definition, and assigns it back to each
+            subject (two-step / direct-pooling). ``"none"`` never pools:
+            every subject defines and labels its own habitats independently
+            (one-step), so habitat ids are not comparable across subjects.
+            ``None`` (default) means undeclared and resolves to ``"cohort"``;
+            both ``None`` and ``"cohort"`` are omitted from :meth:`to_dict`
+            so historical fingerprints stay stable, while ``"none"`` is
+            always recorded (with the derived :attr:`definition_level`).
         postprocess_supervoxel: Optional Spec for connected-component cleanup
             of supervoxel label maps (two-step). ``None`` skips cleanup and is
             omitted from :meth:`to_dict` so historical fingerprints stay stable.
@@ -368,6 +379,7 @@ class HabitatSpec:
     cohort_feature_preprocessors: Tuple[Spec, ...] = ()
     random_seed: Optional[int] = None
     on_geometry_mismatch: str = "resample_mask"
+    pooling: Optional[str] = None
     postprocess_supervoxel: Optional[Spec] = None
     postprocess_habitat: Optional[Spec] = None
     version: str = "1.0"
@@ -384,6 +396,14 @@ class HabitatSpec:
                 f"'strict'; got {self.on_geometry_mismatch!r}."
             )
         object.__setattr__(self, "on_geometry_mismatch", geometry_policy)
+        if self.pooling is not None:
+            pooling = str(self.pooling).strip().lower()
+            if pooling not in ("cohort", "none"):
+                raise HABITAPIError(
+                    "HabitatSpec.pooling must be 'cohort' or 'none' (or None "
+                    f"to leave the dataflow undeclared); got {self.pooling!r}."
+                )
+            object.__setattr__(self, "pooling", pooling)
         for domain in _COMPONENT_DOMAINS:
             value = getattr(self, domain)
             if value is None:
@@ -433,6 +453,58 @@ class HabitatSpec:
             "habitat_assigner": self.habitat_assigner,
         }
 
+    @property
+    def definition_level(self) -> str:
+        """
+        Level at which the habitat definition is learned, DERIVED from the
+        declared dataflow.
+
+        ``"subject"`` when ``pooling="none"`` (each subject defines its own
+        habitats; the one-step design), otherwise ``"cohort"`` (one shared
+        definition fitted on the pooled clustering units). This is a
+        read-only view of the spec graph, not a free-form field: it is
+        recorded in :meth:`to_dict` / :meth:`to_effective_dict` whenever the
+        dataflow is declared explicitly, so manifests and fingerprints state
+        where the definition lives.
+        """
+        return "subject" if self.pooling == "none" else "cohort"
+
+    def validate_dataflow(self) -> None:
+        """
+        Check cross-field consistency of the declared habitat dataflow.
+
+        Construction (:meth:`__post_init__`) only enforces the value domain
+        of each field so a spec stays a constructible value object; the
+        combinations below are scientifically meaningless and are rejected
+        here, at the entry points (recipes / ``habit check-config``), before
+        any compute starts.
+
+        Raises:
+            HABITAPIError: If ``pooling="none"`` is combined with a
+                supervoxelizer (per-subject habitat definition on supervoxels
+                is not a supported design) or with a cohort-level
+                preprocessing chain (no step ever pools across subjects, so
+                fitted cohort statistics would never be used).
+        """
+        if self.pooling != "none":
+            return
+        if self.supervoxelizer is not None:
+            raise HABITAPIError(
+                "HabitatSpec.pooling='none' (subject-level habitat definition) "
+                "does not support a supervoxelizer: per-subject definition on "
+                "supervoxels is not a supported design. Remove the "
+                "supervoxelizer (one-step) or declare pooling='cohort' "
+                "(two-step)."
+            )
+        if self.cohort_feature_preprocessors:
+            raise HABITAPIError(
+                "HabitatSpec.pooling='none' (subject-level habitat definition) "
+                "does not support cohort_feature_preprocessors: no step pools "
+                "across subjects, so cohort-level fitted statistics would "
+                "never be used. Move the chain to "
+                "voxel_feature_preprocessors or declare pooling='cohort'."
+            )
+
     def describe_methods(self, style: str = "radiology") -> str:
         """
         Render the specification as a manuscript methods paragraph.
@@ -467,6 +539,12 @@ class HabitatSpec:
             f"The analysis specification {self.name!r} comprises "
             f"{'; '.join(_component_phrases(self.to_dict()))}."
         ]
+        if self.definition_level == "subject":
+            body.append(
+                "Habitats are defined within each subject independently "
+                "(no cross-subject pooling), so habitat labels are not "
+                "comparable across subjects."
+            )
         if self.random_seed is not None:
             body.append(
                 f"Random seed {self.random_seed} is fixed for every "
@@ -516,6 +594,15 @@ class HabitatSpec:
         # for analyses that never opted into strict geometry checks.
         if self.on_geometry_mismatch != "resample_mask":
             payload["on_geometry_mismatch"] = self.on_geometry_mismatch
+        # Record the dataflow only when it departs from the historical
+        # default (cohort-level pooling): ``None`` (undeclared) and
+        # ``"cohort"`` are semantically identical and must share one
+        # fingerprint, so both are omitted; the subject-level design
+        # (one-step) previously went unrecorded and is now always stated,
+        # together with the derived definition level.
+        if self.pooling == "none":
+            payload["pooling"] = "none"
+            payload["definition_level"] = self.definition_level
         # Omit unset postprocess slots so analyses that never enable cleanup
         # keep their historical fingerprints.
         if self.postprocess_supervoxel is not None:
@@ -528,13 +615,18 @@ class HabitatSpec:
         """
         Serialise with fingerprint-stable defaults expanded for YAML export.
 
-        Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``
-        and both postprocess slots (``null`` when unset) so a saved document
-        records the full effective analysis, not only overridden fields.
-        Fingerprints still use :meth:`to_dict` and are unchanged.
+        Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``,
+        the resolved ``pooling`` declaration with its derived
+        ``definition_level``, and both postprocess slots (``null`` when unset)
+        so a saved document records the full effective analysis, not only
+        overridden fields. Fingerprints still use :meth:`to_dict` and are
+        unchanged; the round trip stays stable because ``pooling="cohort"``
+        reads back to the same fingerprint as an undeclared dataflow.
         """
         payload = self.to_dict()
         payload["on_geometry_mismatch"] = self.on_geometry_mismatch
+        payload["pooling"] = "cohort" if self.pooling is None else self.pooling
+        payload["definition_level"] = self.definition_level
         payload["postprocess_supervoxel"] = (
             self.postprocess_supervoxel.to_dict()
             if self.postprocess_supervoxel is not None
@@ -605,7 +697,8 @@ class HabitatSpec:
         # may omit a domain; ``__post_init__`` rejects a missing REQUIRED
         # component with HABITAPIError, so the casts below only cross the
         # static gap -- invalid payloads still fail at construction.
-        return cls(
+        pooling = payload.get("pooling")
+        spec = cls(
             name=str(payload.get("name", "habitat_spec")),
             voxel_feature_extractor=cast(Spec, components["voxel_feature_extractor"]),
             supervoxelizer=components["supervoxelizer"],
@@ -617,11 +710,25 @@ class HabitatSpec:
             on_geometry_mismatch=str(
                 payload.get("on_geometry_mismatch", "resample_mask")
             ),
+            pooling=None if pooling is None else str(pooling),
             postprocess_supervoxel=coerce_spec(payload.get("postprocess_supervoxel")),
             postprocess_habitat=coerce_spec(payload.get("postprocess_habitat")),
             version=str(payload.get("version", "1.0")),
             **chains,
         )
+        # A document may also carry the derived ``definition_level`` (written
+        # by ``to_dict`` / ``to_effective_dict`` / the legacy adapter). It is
+        # not a free-form field: reject documents whose stated level
+        # contradicts the declared dataflow instead of silently re-deriving.
+        stated_level = payload.get("definition_level")
+        if stated_level is not None and str(stated_level) != spec.definition_level:
+            raise HABITAPIError(
+                f"HabitatSpec document declares definition_level="
+                f"{stated_level!r} but pooling={spec.pooling!r} derives "
+                f"{spec.definition_level!r}; fix the document so the two "
+                "agree (definition_level is derived, not settable)."
+            )
+        return spec
 
 
 #: DEPRECATED tabular chains of an MLSpec, keyed by field name, with the

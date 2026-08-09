@@ -63,6 +63,8 @@ from habit.spec.specs import HabitatSpec, MLSpec
 
 __all__ = ["run_from_yaml"]
 
+_LOG = logging.getLogger(__name__)
+
 #: Workflows ``run_from_yaml`` can dispatch (full ``habit check-config`` set).
 _SUPPORTED_WORKFLOWS: Tuple[str, ...] = (
     "habitat",
@@ -397,9 +399,21 @@ def _habitat_config_from_v1_document(document: Mapping[str, Any]) -> Any:
     spec_payload = document.get("spec")
     clustering_mode = legacy.get("habitat_segmentation", {}).get("clustering_mode")
     if clustering_mode is None and isinstance(spec_payload, Mapping):
-        name = str(spec_payload.get("name", ""))
-        if name.startswith("habitat_"):
-            clustering_mode = name[len("habitat_") :]
+        # Dataflow-first: an explicit pooling declaration says which design
+        # runs; the legacy ``habitat_<mode>`` naming is only a fallback for
+        # documents written before the declaration existed.
+        pooling = spec_payload.get("pooling")
+        if pooling is not None:
+            try:
+                clustering_mode = _dataflow_mode_from_spec(
+                    HabitatSpec.from_dict(spec_payload)
+                )
+            except HABITAPIError:
+                clustering_mode = None
+        if clustering_mode is None:
+            name = str(spec_payload.get("name", ""))
+            if name.startswith("habitat_"):
+                clustering_mode = name[len("habitat_") :]
     if clustering_mode is None:
         clustering_mode = "two_step"
 
@@ -523,16 +537,84 @@ def _load_feature_table_from_v1(
     return _load_feature_table(config, logger=logger)
 
 
-def _clustering_mode_from_spec(spec: HabitatSpec) -> str:
-    """Infer the L4 recipe key from a translated habitat spec name."""
+def _dataflow_mode_from_spec(spec: HabitatSpec) -> Optional[str]:
+    """
+    Derive the study design from the spec's declared dataflow.
+
+    Args:
+        spec: The parsed habitat spec.
+
+    Returns:
+        ``"one_step"`` when the spec declares ``pooling="none"``; the
+        cohort-level design matching the supervoxelizer stage when it
+        declares ``pooling="cohort"``; ``None`` when the dataflow is
+        undeclared (legacy documents).
+    """
+    if spec.pooling == "none":
+        return "one_step"
+    if spec.pooling == "cohort":
+        return "two_step" if spec.supervoxelizer is not None else "direct_pooling"
+    return None
+
+
+def _name_mode_from_spec(spec: HabitatSpec) -> Optional[str]:
+    """
+    Infer the study design from the legacy ``habitat_<mode>`` spec naming.
+
+    Args:
+        spec: The parsed habitat spec.
+
+    Returns:
+        The recipe key encoded in the spec name, or ``None`` when the name
+        carries no design.
+    """
     prefix = "habitat_"
     if spec.name.startswith(prefix):
         mode = spec.name[len(prefix) :]
         if mode in _RECIPE_BY_MODE:
             return mode
+    return None
+
+
+def _clustering_mode_from_spec(spec: HabitatSpec) -> str:
+    """
+    Resolve the L4 recipe key for a translated habitat spec.
+
+    The declared dataflow (``spec.pooling``) is the source of truth; the
+    legacy ``habitat_<mode>`` naming convention is only a fallback for
+    documents written before the dataflow was explicit. When both are
+    present and disagree, the declaration wins with a warning -- the name
+    is free text, the declaration is validated.
+
+    Args:
+        spec: The parsed habitat spec.
+
+    Returns:
+        One of ``"two_step"``, ``"one_step"``, ``"direct_pooling"``.
+
+    Raises:
+        ValueError: When neither the dataflow nor the name says anything.
+    """
+    declared = _dataflow_mode_from_spec(spec)
+    named = _name_mode_from_spec(spec)
+    if declared is not None:
+        if named is not None and named != declared:
+            _LOG.warning(
+                "HabitatSpec name %r suggests clustering_mode=%s but the "
+                "declared dataflow (pooling=%r) gives %s; the declaration "
+                "wins.",
+                spec.name,
+                named,
+                spec.pooling,
+                declared,
+            )
+        return declared
+    if named is not None:
+        return named
     raise ValueError(
         f"Cannot infer clustering_mode from HabitatSpec name {spec.name!r}; "
-        f"expected one of {sorted(_RECIPE_BY_MODE)}."
+        f"declare spec.pooling ('cohort'/'none') or use a name like "
+        f"'habitat_<mode>' with mode in {sorted(_RECIPE_BY_MODE)}."
     )
 
 
