@@ -60,7 +60,9 @@ Protocols
 Ordered stages and the shared executor
 --------------------------------------
 
-A :class:`~habit.spec.Stage` is a named component slot. Prefer declaring
+A :class:`~habit.spec.Stage` is a named component slot. Stage ``name`` values
+are custom labels (not role keywords); scientific roles are inferred from
+position + registry domain. Prefer declaring
 :attr:`~habit.spec.HabitatSpec.stages` for new code; the classic named
 fields (``voxel_feature_extractor``, ``supervoxelizer``, …, ``pooling``)
 remain sugar that expands to the same sequence.
@@ -72,15 +74,14 @@ remain sugar that expands to the same sequence.
    import habit.recipes as recipes
 
    stages = (
-       Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]}),
-             role="extract_voxel_features"),
-       Stage("pool", Spec("pool"), role="pool"),
+       Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+       Stage("pool", Spec("pool")),
        Stage("fit", Spec("kmeans", {
            "min_habitats": 2, "max_habitats": 3,
            "validation": "silhouette", "n_init": 5,
-       }), role="fit"),
-       Stage("assign", Spec("nearest_centroid"), role="assign"),
-       Stage("quantify", Spec("volume"), role="quantify"),
+       })),
+       Stage("assign", Spec("nearest_centroid")),
+       Stage("quantify", Spec("volume")),
    )
    spec = HabitatSpec(name="direct", stages=stages, random_seed=42)
    # Subject-level prefix only (no Cohort required):

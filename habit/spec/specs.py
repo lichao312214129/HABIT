@@ -320,8 +320,10 @@ class Stage:
         name: Custom label unique within the enclosing HabitatSpec. Defaults
             to the component registry name when built via :meth:`of`.
         component: The pluggable component specification.
-        role: Optional role tag filled by sugar expansion. ``None`` for
-            user-authored stages until domain role resolution runs.
+        role: Optional override for scientific role. Leave ``None`` for
+            user-authored stages -- domain code infers the role from
+            position + registry domain. Sugar expansion and dual-domain
+            disambiguation may set this explicitly; it is not required API.
     """
 
     name: str
@@ -355,7 +357,8 @@ class Stage:
         Args:
             component: Component spec or mapping.
             name: Optional custom label.
-            role: Optional sugar role tag.
+            role: Optional role override (escape hatch). Prefer omitting
+                this and letting ``resolve_habitat_stages`` infer the role.
 
         Returns:
             The stage.
@@ -866,16 +869,20 @@ class HabitatSpec:
         (each subject defines its own habitats; the one-step design),
         otherwise ``"cohort"``. This is a read-only view of the spec graph,
         not a free-form field.
+
+        Explicit ``stages`` lists derive the level from the sequence itself
+        (presence of a pool marker / role). Named-field sugar still treats
+        undeclared ``pooling`` as cohort-level.
         """
-        if self.stages and any(
-            stage.role == ROLE_POOL
-            or (
-                stage.role is None
-                and stage.component.name == POOL_COMPONENT_NAME
-            )
-            for stage in self.stages
+        stages = self.resolved_stages()
+        if any(
+            stage.role == ROLE_POOL or stage.component.name == POOL_COMPONENT_NAME
+            for stage in stages
         ):
             return "cohort"
+        if self._stages_explicit:
+            # No pool in an authored stage list → subject-level one_step.
+            return "subject"
         return "subject" if self.pooling == "none" else "cohort"
 
     def resolved_stages(self) -> Tuple[Stage, ...]:
@@ -931,12 +938,14 @@ class HabitatSpec:
         has_pool = ROLE_POOL in roles or any(
             stage.component.name == POOL_COMPONENT_NAME for stage in stages
         )
-        # Undeclared pooling sugar still means cohort unless pooling='none'.
+        # Named-field sugar: undeclared pooling still means cohort unless
+        # pooling='none'. Explicit stages trust the sequence only (roles are
+        # optional and may be inferred later by resolve_habitat_stages).
         if self.pooling == "none":
             has_pool = False
         elif self.pooling == "cohort":
             has_pool = True
-        elif not roles and self.pooling is None:
+        elif not self._stages_explicit and self.pooling is None:
             has_pool = True
 
         if has_partition and not has_pool:

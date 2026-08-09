@@ -117,15 +117,15 @@ assert list(unified.subject_models) == list(one.subject_models)
 print(f"  fit_habitat(pooling='none') subject_models={list(unified.subject_models)}")
 
 print("=== fit_habitat with explicit stages (direct_pooling shape) ===")
+# Stage names are custom labels; roles are inferred (no role= required).
 staged = HabitatSpec(
     name="staged_direct",
     stages=(
         Stage(
             "extract_voxel_features",
             Spec("raw", {"modalities": ["T1", "T2"]}),
-            role="extract_voxel_features",
         ),
-        Stage("pool", Spec("pool"), role="pool"),
+        Stage("pool", Spec("pool")),
         Stage(
             "fit",
             Spec(
@@ -137,10 +137,9 @@ staged = HabitatSpec(
                     "n_init": 5,
                 },
             ),
-            role="fit",
         ),
-        Stage("assign", Spec("nearest_centroid"), role="assign"),
-        Stage("quantify", Spec("volume"), role="quantify"),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
     ),
     random_seed=42,
 )

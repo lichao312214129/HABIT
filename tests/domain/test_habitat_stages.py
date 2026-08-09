@@ -221,6 +221,99 @@ def test_inspection_emits_stage_named_and_cohort_records() -> None:
 
 
 @pytest.mark.unit
+def test_role_inferred_without_explicit_role() -> None:
+    """Name-only stages: roles inferred; three strategies + pool-after prep."""
+    cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=4)
+
+    direct = HabitatSpec(
+        name="direct_inferred",
+        stages=(
+            Stage("voxel", Spec("raw", {"modalities": ["T1", "T2"]})),
+            Stage("preprocess1", Spec("zscore")),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 3,
+                        "validation": "silhouette",
+                        "n_init": 3,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+        ),
+        random_seed=1,
+    )
+    assert direct.definition_level == "cohort"
+    assert design_from_stages(resolve_habitat_stages(direct)) == "direct_pooling"
+    recorder = StepRecorder(keep="frames", max_subjects=1)
+    direct_result = recipes.fit_habitat(cohort, direct, inspect=recorder)
+    assert direct_result.habitat_model is not None
+    steps = recorder.steps()
+    assert "preprocess1.output" in steps
+    assert "pool.output" in steps
+    assert "fit.output" in steps
+    assert any(r.subject_id == "__cohort__" for r in recorder.records())
+
+    two = HabitatSpec(
+        name="two_inferred",
+        stages=(
+            Stage("voxel", Spec("raw", {"modalities": ["T1", "T2"]})),
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+            Stage("svx_feat", Spec("mean")),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 3,
+                        "validation": "silhouette",
+                        "n_init": 3,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+        ),
+        random_seed=1,
+    )
+    assert design_from_stages(resolve_habitat_stages(two)) == "two_step"
+    two_result = recipes.fit_habitat(cohort, two)
+    assert two_result.habitat_model is not None
+
+    one = HabitatSpec(
+        name="one_inferred",
+        stages=(
+            Stage("voxel", Spec("raw", {"modalities": ["T1", "T2"]})),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 3,
+                        "validation": "silhouette",
+                        "n_init": 3,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+        ),
+        random_seed=1,
+    )
+    assert one.definition_level == "subject"
+    assert design_from_stages(resolve_habitat_stages(one)) == "one_step"
+    one_result = recipes.fit_habitat(cohort, one)
+    assert list(one_result.subject_models) == [
+        s.subject_id for s in cohort
+    ]
+
+
+@pytest.mark.unit
 def test_temporary_plugin_stage_component_runs() -> None:
     """A temporarily registered pooling marker can appear in stages."""
 
