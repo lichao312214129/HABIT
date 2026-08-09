@@ -18,7 +18,7 @@ Architecture in one diagram
 
 .. code-block:: text
 
-   L4  recipes          two_step / one_step / direct_pooling → StudyResult
+   L4  recipes          fit_habitat (+ two_step / one_step / direct_pooling) → StudyResult
    L3  domain           protocols + registries + SubjectPipeline / TablePipeline
    L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
    L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
@@ -55,6 +55,15 @@ returns a ``StudyResult``; nothing is written until you ask for it:
 
    # Apply a published definition to a new cohort
    predicted = recipes.apply_habitat_model(other_cohort, spec, result.habitat_model)
+
+The design is declared **on the spec**, not chosen by the function name:
+``HabitatSpec.pooling`` states whether units are pooled across subjects
+(``"cohort"``, the default) or fitted per subject (``"none"``), and
+``supervoxelizer`` distinguishes two-step from direct pooling. The three
+calls above are thin aliases that validate that declaration and dispatch to
+the unified entry :func:`~habit.recipes.fit_habitat` — calling
+``recipes.fit_habitat(cohort, spec)`` directly runs the same design the
+spec describes (see :doc:`spec`).
 
 ``one_step`` defines habitats inside each subject independently, so it has no
 cohort-level definition: ``result.habitat_model`` is ``None`` and the

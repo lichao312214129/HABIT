@@ -287,6 +287,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -1189,6 +1190,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1209,6 +1211,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -2075,6 +2078,13 @@ registered via <code class="docutils literal notranslate"><span class="pre">&#64
 </ul>
 </li>
 <li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">two_step</span></code></p></li>
+<li><p><strong>v1 spec mapping</strong>: translation turns this knob into an explicit dataflow
+declaration on the spec — <code class="docutils literal notranslate"><span class="pre">one_step</span></code> becomes <code class="docutils literal notranslate"><span class="pre">pooling:</span> <span class="pre">none</span></code>
+(<code class="docutils literal notranslate"><span class="pre">definition_level:</span> <span class="pre">subject</span></code>), while <code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code>
+become <code class="docutils literal notranslate"><span class="pre">pooling:</span> <span class="pre">cohort</span></code> (the default, omitted from fingerprints).
+Native v1 documents may write <code class="docutils literal notranslate"><span class="pre">pooling</span></code> under <code class="docutils literal notranslate"><span class="pre">spec:</span></code> directly;
+<code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> then dispatches on the spec alone.
+See <a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a>.</p></li>
 </ul>
 </li>
 </ul>

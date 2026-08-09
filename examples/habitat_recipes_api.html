@@ -1211,6 +1211,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1454,12 +1455,17 @@
 <h1>Habitat recipes API (three modes + apply + persistence)<a class="headerlink" href="#habitat-recipes-api-three-modes-apply-persistence" title="Link to this heading"></a></h1>
 <p>Named study designs in <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>:</p>
 <ul class="simple">
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> — unified entry; dispatches on the
+spec’s declared dataflow (<code class="docutils literal notranslate"><span class="pre">HabitatSpec.pooling</span></code> + <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code>)</p></li>
 <li><p><a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a> — supervoxels then cohort habitats</p></li>
 <li><p><a class="reference internal" href="../api/generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step()</span></code></a> — per-subject voxel habitats</p></li>
 <li><p><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling()</span></code></a> — pool voxels across the cohort</p></li>
 <li><p><a class="reference internal" href="../api/generated/habit.recipes.apply_habitat_model.html#habit.recipes.apply_habitat_model" title="habit.recipes.apply_habitat_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_habitat_model()</span></code></a> — reuse a fitted
 <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a></p></li>
 </ul>
+<p>The three mode-named functions are thin aliases: they validate the spec’s
+dataflow declaration and call <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code>, so numerics are identical
+whichever entry you use.</p>
 <p><strong>Batch</strong> — pass a <a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>.
 <strong>Atomic</strong> — <code class="docutils literal notranslate"><span class="pre">result.pipeline(subject)</span></code> labels one
 <a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> with no cohort / backend / YAML.</p>
@@ -1497,13 +1503,15 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_spec</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatSpec</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_spec</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">pooling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatSpec</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a tiny deterministic habitat spec for demos.</span>
 
 <span class="sd">    Keyword order follows the runtime pipeline, not HabitatSpec field order.</span>
+<span class="sd">    ``pooling`` declares the dataflow explicitly (&quot;cohort&quot; default / &quot;none&quot;).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">HabitatSpec</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">pooling</span><span class="o">=</span><span class="n">pooling</span><span class="p">,</span>
         <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
         <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
             <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
@@ -1581,6 +1589,15 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <span class="n">pool</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">direct_pooling</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat (unified entry, spec-driven dispatch) ===&quot;</span><span class="p">)</span>
+<span class="c1"># pooling=&quot;none&quot; declares the subject-level dataflow on the spec itself;</span>
+<span class="c1"># fit_habitat reads the declaration and runs the same design as one_step.</span>
+<span class="n">unified</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">unified</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  fit_habitat(pooling=&#39;none&#39;) subject_models=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">unified</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>

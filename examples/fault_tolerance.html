@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -286,6 +287,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -583,6 +585,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1185,6 +1190,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1205,6 +1211,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>

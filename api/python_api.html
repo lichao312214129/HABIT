@@ -1211,6 +1211,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1464,7 +1465,7 @@ model from its canonical home: <code class="docutils literal notranslate"><span 
 </div>
 <section id="architecture-in-one-diagram">
 <h2>Architecture in one diagram<a class="headerlink" href="#architecture-in-one-diagram" title="Link to this heading"></a></h2>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>L4  recipes          two_step / one_step / direct_pooling → StudyResult
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>L4  recipes          fit_habitat (+ two_step / one_step / direct_pooling) → StudyResult
 L3  domain           protocols + registries + SubjectPipeline / TablePipeline
 L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
 L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
@@ -1502,6 +1503,14 @@ returns a <code class="docutils literal notranslate"><span class="pre">StudyResu
 <span class="n">predicted</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">apply_habitat_model</span><span class="p">(</span><span class="n">other_cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The design is declared <strong>on the spec</strong>, not chosen by the function name:
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec.pooling</span></code> states whether units are pooled across subjects
+(<code class="docutils literal notranslate"><span class="pre">&quot;cohort&quot;</span></code>, the default) or fitted per subject (<code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>), and
+<code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code> distinguishes two-step from direct pooling. The three
+calls above are thin aliases that validate that declaration and dispatch to
+the unified entry <code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> — calling
+<code class="docutils literal notranslate"><span class="pre">recipes.fit_habitat(cohort,</span> <span class="pre">spec)</span></code> directly runs the same design the
+spec describes (see <a class="reference internal" href="spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a>).</p>
 <p><code class="docutils literal notranslate"><span class="pre">one_step</span></code> defines habitats inside each subject independently, so it has no
 cohort-level definition: <code class="docutils literal notranslate"><span class="pre">result.habitat_model</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and the
 per-subject definitions are in <code class="docutils literal notranslate"><span class="pre">result.subject_models</span></code>.</p>

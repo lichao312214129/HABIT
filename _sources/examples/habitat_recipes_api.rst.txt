@@ -3,11 +3,17 @@ Habitat recipes API (three modes + apply + persistence)
 
 Named study designs in ``habit.recipes``:
 
+* :func:`~habit.recipes.fit_habitat` — unified entry; dispatches on the
+  spec's declared dataflow (``HabitatSpec.pooling`` + ``supervoxelizer``)
 * :func:`~habit.recipes.two_step` — supervoxels then cohort habitats
 * :func:`~habit.recipes.one_step` — per-subject voxel habitats
 * :func:`~habit.recipes.direct_pooling` — pool voxels across the cohort
 * :func:`~habit.recipes.apply_habitat_model` — reuse a fitted
   :class:`~habit.contracts.HabitatModel`
+
+The three mode-named functions are thin aliases: they validate the spec's
+dataflow declaration and call ``fit_habitat``, so numerics are identical
+whichever entry you use.
 
 **Batch** — pass a :class:`~habit.contracts.Cohort`.
 **Atomic** — ``result.pipeline(subject)`` labels one

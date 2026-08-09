@@ -287,6 +287,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -1189,6 +1190,7 @@
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1209,6 +1211,7 @@
 </li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1528,6 +1531,48 @@ optional preprocessor chains appear later because they have defaults.</p>
         <span class="c1"># Spec(&quot;each_habitat&quot;),</span>
     <span class="p">),</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="declaring-the-dataflow-pooling">
+<h2>Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code><a class="headerlink" href="#declaring-the-dataflow-pooling" title="Link to this heading"></a></h2>
+<p>The habitat <strong>strategy is part of the spec</strong>, not of the recipe name.
+<code class="docutils literal notranslate"><span class="pre">pooling</span></code> declares whether voxel/supervoxel units are pooled across
+subjects before the habitat model is fitted:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> <em>(default when undeclared)</em> — units are merged
+across the cohort, one shared <a class="reference internal" href="generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a> is
+fitted, then each subject is labelled back (fan-in → fit → fan-out).
+With <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code> set this is the <em>two-step</em> design; with
+<code class="docutils literal notranslate"><span class="pre">supervoxelizer=None</span></code> it is <em>direct pooling</em>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pooling=&quot;none&quot;</span></code> — no cross-subject pooling; every subject is fitted
+and labelled independently (the <em>one-step</em> design). Subject-level
+designs must not declare a <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code> or
+<code class="docutils literal notranslate"><span class="pre">cohort_feature_preprocessors</span></code> — <code class="xref py py-meth docutils literal notranslate"><span class="pre">HabitatSpec.validate_dataflow()</span></code>
+(called by every habitat recipe) rejects the combination.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">definition_level</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;cohort&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;subject&quot;</span></code>) is <strong>derived</strong> from
+<code class="docutils literal notranslate"><span class="pre">pooling</span></code> — read-only, never set by hand. Both keys stay out of the
+fingerprint for cohort-level designs (so existing specs keep their
+fingerprints) and are recorded explicitly for subject-level ones;
+<code class="docutils literal notranslate"><span class="pre">to_effective_dict()</span></code> always states the resolved dataflow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span>
+
+<span class="n">per_subject</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
+    <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
+    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
+    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),),</span>
+    <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>          <span class="c1"># explicit subject-level dataflow</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">per_subject</span><span class="o">.</span><span class="n">definition_level</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span>
+<span class="n">per_subject</span><span class="o">.</span><span class="n">validate_dataflow</span><span class="p">()</span>  <span class="c1"># no-op for a consistent spec</span>
+
+<span class="c1"># The unified entry dispatches on the declared dataflow:</span>
+<span class="c1"># result = recipes.fit_habitat(cohort, per_subject)</span>
 </pre></div>
 </div>
 </section>
@@ -1882,33 +1927,42 @@ CLI / <code class="docutils literal notranslate"><span class="pre">run_from_yaml
 <section id="run-the-translated-spec-with-a-recipe">
 <h2>Run the translated spec with a recipe<a class="headerlink" href="#run-the-translated-spec-with-a-recipe" title="Link to this heading"></a></h2>
 <p>v0.1 YAML selects the habitat design via
-<code class="docutils literal notranslate"><span class="pre">habitat_segmentation.clustering_mode</span></code>. After translation, dispatch to the
-matching L4 recipe (same table the CLI uses):</p>
+<code class="docutils literal notranslate"><span class="pre">habitat_segmentation.clustering_mode</span></code>. Translation turns that knob into
+the spec’s explicit <code class="docutils literal notranslate"><span class="pre">pooling</span></code> declaration (<code class="docutils literal notranslate"><span class="pre">one_step</span></code> → <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>;
+<code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> → <code class="docutils literal notranslate"><span class="pre">&quot;cohort&quot;</span></code>), so the unified entry
+<code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> can dispatch on the spec alone. The
+mode-named aliases remain as thin validators over <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code>:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 42.9%" />
-<col style="width: 57.1%" />
+<col style="width: 27.3%" />
+<col style="width: 27.3%" />
+<col style="width: 45.5%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">clustering_mode</span></code> (YAML)</p></th>
-<th class="head"><p>Recipe function</p></th>
+<th class="head"><p>spec dataflow</p></th>
+<th class="head"><p>Alias (all dispatch to <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code>)</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">two_step</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> + supervoxelizer</p></td>
 <td><p><a class="reference internal" href="generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">one_step</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pooling=&quot;none&quot;</span></code></p></td>
 <td><p><a class="reference internal" href="generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code>, no supervoxelizer</p></td>
 <td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling()</span></code></a></p></td>
 </tr>
 </tbody>
 </table>
 <p>Pattern: load the YAML, translate with <a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.legacy.LegacyConfigAdapter"><code class="xref py py-class docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></a>,
-build a <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>, then call the recipe named by
-<code class="docutils literal notranslate"><span class="pre">clustering_mode</span></code> (see <a class="reference internal" href="python_api.html"><span class="doc">Python API guide (v1.0)</span></a>):</p>
+build a <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.specs.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>, then call
+<code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> — the declared dataflow selects the
+design (see <a class="reference internal" href="python_api.html"><span class="doc">Python API guide (v1.0)</span></a>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
@@ -1923,17 +1977,17 @@ build a <a class="reference internal" href="generated/habit.spec.HabitatSpec.htm
 <span class="p">)</span>
 <span class="n">translation</span> <span class="o">=</span> <span class="n">LegacyConfigAdapter</span><span class="p">()</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;habitat&quot;</span><span class="p">)</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">translation</span><span class="o">.</span><span class="n">document</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">])</span>
-<span class="n">mode</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;habitat_segmentation&quot;</span><span class="p">][</span><span class="s2">&quot;clustering_mode&quot;</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">spec</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;cohort&quot;</span>  <span class="c1"># declared by the translation</span>
 
-<span class="n">_RECIPE_BY_MODE</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;two_step&quot;</span><span class="p">:</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">,</span>
-    <span class="s2">&quot;one_step&quot;</span><span class="p">:</span> <span class="n">recipes</span><span class="o">.</span><span class="n">one_step</span><span class="p">,</span>
-    <span class="s2">&quot;direct_pooling&quot;</span><span class="p">:</span> <span class="n">recipes</span><span class="o">.</span><span class="n">direct_pooling</span><span class="p">,</span>
-<span class="p">}</span>
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="c1"># Modalities must match the spec&#39;s feature expression.</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span>
+    <span class="n">n_subjects</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;pre_contrast&quot;</span><span class="p">,</span> <span class="s2">&quot;LAP&quot;</span><span class="p">,</span> <span class="s2">&quot;PVP&quot;</span><span class="p">,</span> <span class="s2">&quot;delay_3min&quot;</span><span class="p">),</span>
+    <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="c1"># cohort = DirectoryDataSource(...).load()  # real data on disk</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">_RECIPE_BY_MODE</span><span class="p">[</span><span class="n">mode</span><span class="p">](</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 <span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;out/study&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

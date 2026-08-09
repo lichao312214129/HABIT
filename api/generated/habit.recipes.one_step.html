@@ -1211,6 +1211,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1487,8 +1488,9 @@ Unsupported with the process backend.</p></li>
 <dd class="field-even"><p>The study result, entirely in memory.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the spec declares a supervoxelizer or a
-    cohort-level preprocessing chain.</p>
+<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the spec declares a supervoxelizer, a
+    cohort-level preprocessing chain, or <code class="docutils literal notranslate"><span class="pre">pooling=&quot;cohort&quot;</span></code> (a
+    cohort-level dataflow contradicts this design).</p>
 </dd>
 </dl>
 </dd></dl>

@@ -1564,6 +1564,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1839,6 +1840,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">* :func:`one_step` -- no supervoxels; habitats defined INSIDE each subject,</span>
 <span class="sd">  independently. There is no cohort-level definition, and the habitat ids of</span>
 <span class="sd">  two subjects are not comparable.</span>
+
+<span class="sd">:func:`fit_habitat` is the unified entry point: it reads the dataflow</span>
+<span class="sd">declared on the spec (``HabitatSpec.pooling`` plus the presence of a</span>
+<span class="sd">supervoxelizer) and runs the matching design. The three named functions</span>
+<span class="sd">remain as thin aliases -- they validate that the spec is consistent with</span>
+<span class="sd">the design their name promises, then delegate to :func:`fit_habitat`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1871,6 +1878,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span><span class="p">,</span> <span class="n">Subject</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.assembly</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatComponents</span><span class="p">,</span> <span class="n">build_habitat_components</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.pooling</span><span class="w"> </span><span class="kn">import</span> <span class="n">fan_in</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seedable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span>
@@ -1882,7 +1890,13 @@ window.runMermaid = runMermaid;</script>
 
 <span class="n">_LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span> <span class="s2">&quot;one_step&quot;</span><span class="p">,</span> <span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span> <span class="s2">&quot;apply_habitat_model&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;fit_habitat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;apply_habitat_model&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="c1">#: Identifier column of the cohort feature table, matching the habitat</span>
 <span class="c1">#: feature families (``habit.domain.habitat_features._base``).</span>
@@ -2170,8 +2184,10 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">chain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Cohort statistics come from the pooled TRAINING units and nothing</span>
         <span class="c1"># else; this is the one leakage-sensitive step in habitat definition.</span>
-        <span class="n">pooled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">unit</span><span class="o">.</span><span class="n">feature_frame</span><span class="p">()</span> <span class="k">for</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">units</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">chain</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">pooled</span><span class="p">)</span>
+        <span class="c1"># The fan-in atom pools exactly like the fitter&#39;s internal pooling</span>
+        <span class="c1"># does, and records the subject index alongside the matrix.</span>
+        <span class="n">pooled</span> <span class="o">=</span> <span class="n">fan_in</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+        <span class="n">chain</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">pooled</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
         <span class="n">units</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">unit</span><span class="o">.</span><span class="n">with_feature_frame</span><span class="p">(</span>
                 <span class="n">chain</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">feature_frame</span><span class="p">()),</span>
@@ -2552,6 +2568,190 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_subject_design</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">:</span> <span class="n">Cohort</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">],</span>
+    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">],</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the design whose habitats are defined INSIDE each subject.</span>
+
+<span class="sd">    This is the one-step dataflow (``pooling=&quot;none&quot;``): no fan-in, no</span>
+<span class="sd">    cohort-level definition, no fan-out -- every subject fits and applies</span>
+<span class="sd">    its own definition, so habitat ids are not comparable across subjects.</span>
+<span class="sd">    Per-subject failures are isolated exactly like the cohort-level designs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cohort: Subjects to process.</span>
+<span class="sd">        spec: The effective analysis declaration (already seed-folded and</span>
+<span class="sd">            canonicalised to ``pooling=&quot;none&quot;``).</span>
+<span class="sd">        backend: Optional execution backend for the per-subject stage.</span>
+<span class="sd">        checkpoint: Optional store enabling per-subject resume; keys scope</span>
+<span class="sd">            on the spec fingerprint only.</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The study result, entirely in memory, with per-subject models in</span>
+<span class="sd">        :attr:`~habit.recipes.result.StudyResult.subject_models`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_reject_process_inspect</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+    <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="n">build_habitat_components</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">subject_outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">cohort</span>
+    <span class="p">}</span>
+    <span class="k">with</span> <span class="n">_backend_session</span><span class="p">(</span><span class="n">backend</span><span class="p">):</span>
+        <span class="n">survivors</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="n">_map_soft</span><span class="p">(</span>
+            <span class="n">cohort</span><span class="p">,</span>
+            <span class="n">_DefineAndLabelWithinSubject</span><span class="p">(</span>
+                <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
+                <span class="n">assigner_name</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">assigner_params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
+                <span class="n">extractors</span><span class="o">=</span><span class="n">components</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+                <span class="n">key_prefix</span><span class="o">=</span><span class="n">_one_step_key_prefix</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span>
+                <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+            <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+            <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">failures</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">subject_outcomes</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span>
+    <span class="n">habitat_maps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">habitat_map</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">habitat_map</span> <span class="ow">in</span> <span class="n">habitat_maps</span><span class="p">:</span>
+        <span class="n">subject_outcomes</span><span class="p">[</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">_manifest</span><span class="p">(</span>
+        <span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+        <span class="n">spec</span><span class="p">,</span>
+        <span class="n">habitat_maps</span><span class="p">,</span>
+        <span class="n">started_at</span><span class="p">,</span>
+        <span class="n">subject_outcomes</span><span class="o">=</span><span class="n">subject_outcomes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">StudyResult</span><span class="p">(</span>
+        <span class="n">habitat_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">_cohort_feature_table</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">table</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">survivors</span><span class="p">],</span>
+            <span class="n">manifest</span><span class="o">.</span><span class="n">provenance</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">habitat_maps</span><span class="o">=</span><span class="n">habitat_maps</span><span class="p">,</span>
+        <span class="n">manifest</span><span class="o">=</span><span class="n">manifest</span><span class="p">,</span>
+        <span class="n">subject_models</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span> <span class="n">model</span>
+            <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span>
+        <span class="p">},</span>
+        <span class="n">units</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_units</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">),</span>
+        <span class="n">inspection</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_design_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive the study design from the dataflow the spec declares.</span>
+
+<span class="sd">    The declaration is the source of truth: ``definition_level=&quot;subject&quot;``</span>
+<span class="sd">    (i.e. ``pooling=&quot;none&quot;``) selects the one-step design; otherwise the</span>
+<span class="sd">    presence of a supervoxelizer distinguishes two-step from</span>
+<span class="sd">    direct-pooling. An undeclared dataflow (``pooling=None``) resolves to</span>
+<span class="sd">    the historical cohort-level default.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spec: The effective analysis declaration.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One of ``&quot;two_step&quot;``, ``&quot;one_step&quot;``, ``&quot;direct_pooling&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">definition_level</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;one_step&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;two_step&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;direct_pooling&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_habitat</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">:</span> <span class="n">Cohort</span><span class="p">,</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit the habitat analysis the spec declares, whatever its dataflow.</span>
+
+<span class="sd">    This is the unified, spec-driven entry point: the study design is read</span>
+<span class="sd">    off the spec graph (``pooling`` plus the presence of a supervoxelizer)</span>
+<span class="sd">    rather than chosen by function name, so the recorded specification</span>
+<span class="sd">    alone determines which analysis runs. The named designs</span>
+<span class="sd">    (:func:`two_step`, :func:`one_step`, :func:`direct_pooling`) are thin</span>
+<span class="sd">    aliases over this function that additionally validate the spec against</span>
+<span class="sd">    the design their name promises.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cohort: Subjects to fit on.</span>
+<span class="sd">        spec: The analysis to run. ``pooling=&quot;none&quot;`` selects per-subject</span>
+<span class="sd">            habitat definition (one-step); otherwise a supervoxelizer</span>
+<span class="sd">            selects two-step and its absence selects direct-pooling.</span>
+<span class="sd">        backend: Optional execution backend (parallelism, timeouts, resume).</span>
+<span class="sd">            Serial when omitted.</span>
+<span class="sd">        seed: Optional override of ``spec.random_seed``.</span>
+<span class="sd">        checkpoint: Optional store enabling per-subject resume.</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+<span class="sd">            Unsupported with the process backend.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The study result, entirely in memory. Call</span>
+<span class="sd">        :meth:`~habit.recipes.result.StudyResult.save` to persist it.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If the declared dataflow is inconsistent</span>
+<span class="sd">            (see :meth:`~habit.spec.specs.HabitatSpec.validate_dataflow`).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from habit import HabitatSpec, Spec, make_synthetic_cohort</span>
+<span class="sd">        &gt;&gt;&gt; import habit.recipes as recipes</span>
+<span class="sd">        &gt;&gt;&gt; cohort = make_synthetic_cohort(n_subjects=4, shape=(20, 20, 20), rng=0)</span>
+<span class="sd">        &gt;&gt;&gt; spec = HabitatSpec(</span>
+<span class="sd">        ...     name=&quot;demo&quot;,</span>
+<span class="sd">        ...     voxel_feature_extractor=Spec(&quot;raw&quot;, {&quot;modalities&quot;: [&quot;T1&quot;, &quot;T2&quot;]}),</span>
+<span class="sd">        ...     supervoxelizer=Spec(&quot;kmeans&quot;, {&quot;n_supervoxels&quot;: 6, &quot;n_init&quot;: 5}),</span>
+<span class="sd">        ...     habitat_model_fitter=Spec(</span>
+<span class="sd">        ...         &quot;kmeans&quot;,</span>
+<span class="sd">        ...         {&quot;min_habitats&quot;: 2, &quot;max_habitats&quot;: 3,</span>
+<span class="sd">        ...          &quot;validation&quot;: &quot;silhouette&quot;, &quot;n_init&quot;: 5},</span>
+<span class="sd">        ...     ),</span>
+<span class="sd">        ...     habitat_assigner=Spec(&quot;nearest_centroid&quot;),</span>
+<span class="sd">        ...     habitat_features=(Spec(&quot;volume&quot;),),</span>
+<span class="sd">        ...     pooling=&quot;cohort&quot;,</span>
+<span class="sd">        ...     random_seed=42,</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; result = recipes.fit_habitat(cohort, spec)</span>
+<span class="sd">        &gt;&gt;&gt; result.habitat_model.n_habitats &gt;= 2</span>
+<span class="sd">        True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+    <span class="n">effective</span><span class="o">.</span><span class="n">validate_dataflow</span><span class="p">()</span>
+    <span class="n">design</span> <span class="o">=</span> <span class="n">_design_from_spec</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">design</span> <span class="o">==</span> <span class="s2">&quot;one_step&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_fit_subject_design</span><span class="p">(</span>
+            <span class="n">cohort</span><span class="p">,</span> <span class="n">effective</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">,</span> <span class="n">inspect</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_fit_cohort_design</span><span class="p">(</span>
+        <span class="n">design</span><span class="p">,</span>
+        <span class="n">cohort</span><span class="p">,</span>
+        <span class="n">effective</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">,</span>
+        <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
 <div class="viewcode-block" id="two_step">
 <a class="viewcode-back" href="../../../api/generated/habit.recipes.two_step.html#habit.recipes.two_step">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">two_step</span><span class="p">(</span>
@@ -2588,7 +2788,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        :meth:`~habit.recipes.result.StudyResult.save` to persist it.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If the spec declares no supervoxelizer.</span>
+<span class="sd">        HABITAPIError: If the spec declares no supervoxelizer, or declares</span>
+<span class="sd">            ``pooling=&quot;none&quot;`` (a subject-level dataflow contradicts the</span>
+<span class="sd">            cohort-level definition this design fits).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; from habit import HabitatSpec, Spec, make_synthetic_cohort</span>
@@ -2620,13 +2822,17 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;one clusters voxels directly: use direct_pooling (cohort-level &quot;</span>
             <span class="s2">&quot;habitats) or one_step (per-subject habitats).&quot;</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_fit_cohort_design</span><span class="p">(</span>
-        <span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;two_step fits one cohort-level habitat definition, but this &quot;</span>
+            <span class="s2">&quot;spec declares pooling=&#39;none&#39; (subject-level definition). Use &quot;</span>
+            <span class="s2">&quot;one_step, or drop the pooling declaration from the spec.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fit_habitat</span><span class="p">(</span>
         <span class="n">cohort</span><span class="p">,</span>
         <span class="n">effective</span><span class="p">,</span>
-        <span class="n">backend</span><span class="p">,</span>
-        <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
-        <span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
         <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -2664,7 +2870,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        The study result, entirely in memory.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If the spec declares a supervoxelizer.</span>
+<span class="sd">        HABITAPIError: If the spec declares a supervoxelizer, or declares</span>
+<span class="sd">            ``pooling=&quot;none&quot;`` (a subject-level dataflow contradicts the</span>
+<span class="sd">            cohort-level definition this design fits).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2673,13 +2881,17 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">&quot;the supervoxelizer </span><span class="si">{</span><span class="n">effective</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">. Use &quot;</span>
             <span class="s2">&quot;two_step, or drop the supervoxelizer from the spec.&quot;</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_fit_cohort_design</span><span class="p">(</span>
-        <span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;direct_pooling fits one cohort-level habitat definition, but &quot;</span>
+            <span class="s2">&quot;this spec declares pooling=&#39;none&#39; (subject-level definition). &quot;</span>
+            <span class="s2">&quot;Use one_step, or drop the pooling declaration from the spec.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fit_habitat</span><span class="p">(</span>
         <span class="n">cohort</span><span class="p">,</span>
         <span class="n">effective</span><span class="p">,</span>
-        <span class="n">backend</span><span class="p">,</span>
-        <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
-        <span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
         <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -2729,8 +2941,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        The study result, entirely in memory.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If the spec declares a supervoxelizer or a</span>
-<span class="sd">            cohort-level preprocessing chain.</span>
+<span class="sd">        HABITAPIError: If the spec declares a supervoxelizer, a</span>
+<span class="sd">            cohort-level preprocessing chain, or ``pooling=&quot;cohort&quot;`` (a</span>
+<span class="sd">            cohort-level dataflow contradicts this design).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2745,56 +2958,25 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Move those methods to voxel_feature_preprocessors, or use &quot;</span>
             <span class="s2">&quot;direct_pooling.&quot;</span>
         <span class="p">)</span>
-    <span class="n">_reject_process_inspect</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
-    <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
-    <span class="n">components</span> <span class="o">=</span> <span class="n">build_habitat_components</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
-    <span class="n">subject_outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">cohort</span>
-    <span class="p">}</span>
-    <span class="k">with</span> <span class="n">_backend_session</span><span class="p">(</span><span class="n">backend</span><span class="p">):</span>
-        <span class="n">survivors</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="n">_map_soft</span><span class="p">(</span>
-            <span class="n">cohort</span><span class="p">,</span>
-            <span class="n">_DefineAndLabelWithinSubject</span><span class="p">(</span>
-                <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
-                <span class="n">assigner_name</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">assigner_params</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">effective</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()),</span>
-                <span class="n">extractors</span><span class="o">=</span><span class="n">components</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
-                <span class="n">seed</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
-                <span class="n">key_prefix</span><span class="o">=</span><span class="n">_one_step_key_prefix</span><span class="p">(</span><span class="n">effective</span><span class="p">),</span>
-                <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
-            <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
-            <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;cohort&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;one_step defines habitats within each subject, but this spec &quot;</span>
+            <span class="s2">&quot;declares pooling=&#39;cohort&#39;. Use two_step / direct_pooling, or &quot;</span>
+            <span class="s2">&quot;declare pooling=&#39;none&#39;.&quot;</span>
         <span class="p">)</span>
-    <span class="k">for</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">summary</span> <span class="ow">in</span> <span class="n">failures</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">subject_outcomes</span><span class="p">[</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">summary</span>
-    <span class="n">habitat_maps</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">habitat_map</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">habitat_map</span> <span class="ow">in</span> <span class="n">habitat_maps</span><span class="p">:</span>
-        <span class="n">subject_outcomes</span><span class="p">[</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
-    <span class="n">manifest</span> <span class="o">=</span> <span class="n">_manifest</span><span class="p">(</span>
-        <span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+    <span class="k">if</span> <span class="n">effective</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Canonicalise the undeclared dataflow to the design this alias</span>
+        <span class="c1"># actually runs, so the recorded spec (manifest, checkpoint keys)</span>
+        <span class="c1"># states the subject-level dataflow explicitly.</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
+        <span class="n">effective</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">effective</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fit_habitat</span><span class="p">(</span>
+        <span class="n">cohort</span><span class="p">,</span>
         <span class="n">effective</span><span class="p">,</span>
-        <span class="n">habitat_maps</span><span class="p">,</span>
-        <span class="n">started_at</span><span class="p">,</span>
-        <span class="n">subject_outcomes</span><span class="o">=</span><span class="n">subject_outcomes</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">StudyResult</span><span class="p">(</span>
-        <span class="n">habitat_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">features</span><span class="o">=</span><span class="n">_cohort_feature_table</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">table</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">survivors</span><span class="p">],</span>
-            <span class="n">manifest</span><span class="o">.</span><span class="n">provenance</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">habitat_maps</span><span class="o">=</span><span class="n">habitat_maps</span><span class="p">,</span>
-        <span class="n">manifest</span><span class="o">=</span><span class="n">manifest</span><span class="p">,</span>
-        <span class="n">subject_models</span><span class="o">=</span><span class="p">{</span>
-            <span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">:</span> <span class="n">model</span>
-            <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span>
-        <span class="p">},</span>
-        <span class="n">units</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_units</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">),</span>
-        <span class="n">inspection</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
