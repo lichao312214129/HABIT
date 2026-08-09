@@ -30,6 +30,23 @@ spec without the three preprocessor fields and call
 ``components.pipeline(assigner=None).units(subject)``. For raw voxel features
 only: ``components.voxel_feature_extractor(subject).feature_frame()``.
 
+Inspect every step
+------------------
+
+For debugging and QA, pass ``inspect=`` a :class:`~habit.inspection.StepRecorder`
+into ``recipes.two_step`` / ``one_step`` / ``direct_pooling`` /
+``apply_habitat_model``. Default ``inspect=None`` is zero-cost and bit-identical.
+
+Captured boundaries include ``voxel_features.raw``,
+``voxel_features.preprocessed``, ``supervoxels.partition``,
+``supervoxels.described``, ``units.cohort_preprocessed``, ``habitat_map``,
+and ``habitat_features`` (see ``habit.STEP_NAMES``). Use ``steps=``,
+``subjects=``, and ``max_subjects=`` to limit memory. The recorder is also
+available as ``result.inspection``.
+
+In-memory inspection is **not** supported with the process backend; use
+serial / ``workers=1`` while debugging.
+
 Script
 ------
 
@@ -50,3 +67,4 @@ What to read next
 * :doc:`habitat_recipes_api` — three habitat modes that consume these chains
 * :doc:`habitat_preprocessing` — narrative twin of the subject / cohort chains
 * :doc:`../api/domain` — ``HabitatComponents`` attribute table
+* :doc:`../api/domain_habitat` — ``StepRecorder`` / supervoxel feature extractors

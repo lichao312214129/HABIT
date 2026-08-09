@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../../../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -406,11 +406,12 @@ window.runMermaid = runMermaid;</script>
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
@@ -419,17 +420,19 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#habitat-analysis-no-files">1. Habitat analysis (no files)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#view">2. View</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#tabular-ml">4. Tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -438,7 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/index.html">How-to guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/before_you_start.html">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -494,6 +497,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -636,6 +640,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -933,6 +938,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1535,6 +1543,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1855,6 +1864,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span><span class="p">,</span> <span class="n">ProcessingError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">HabitatModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.inspection</span><span class="w"> </span><span class="kn">import</span> <span class="n">StepObserver</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.manifest</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunManifest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutionBackend</span><span class="p">,</span> <span class="n">SubjectResult</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Provenance</span><span class="p">,</span> <span class="n">software_fingerprint</span>
@@ -1913,6 +1923,36 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    reprocessing a stable subject because an unrelated subject joined.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;habitat.one_step:</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reject_process_inspect</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">],</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Refuse in-memory inspection under the process backend.</span>
+
+<span class="sd">    Step records are produced inside worker processes and cannot reach a</span>
+<span class="sd">    parent-process recorder. Debugging must use a serial backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        inspect: Optional step observer from the recipe call site.</span>
+<span class="sd">        backend: Optional execution backend.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If ``inspect`` is set and ``backend.policy.backend``</span>
+<span class="sd">            is ``&quot;process&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">inspect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="s2">&quot;policy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">policy</span><span class="p">,</span> <span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;process&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;inspect= is not supported with the process backend: step records &quot;</span>
+            <span class="s2">&quot;are produced inside worker processes and cannot reach this &quot;</span>
+            <span class="s2">&quot;recorder. Use RunPolicy(backend=&#39;serial&#39;) / workers=1 while &quot;</span>
+            <span class="s2">&quot;debugging.&quot;</span>
+        <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">HabitatSpec</span><span class="p">:</span>
@@ -1989,7 +2029,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    instead so voxel radiomics is not paid twice.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        pipeline: Fitted subject pipeline (assigner attached).</span>
+<span class="sd">        pipeline: Fitted subject pipeline (assigner attached); may carry an</span>
+<span class="sd">            optional step observer for inspection.</span>
 <span class="sd">        extractors: Habitat feature families; may be empty when the study</span>
 <span class="sd">            only needs the label maps.</span>
 <span class="sd">        key_prefix: Checkpoint key prefix from :func:`_label_key_prefix`.</span>
@@ -2065,6 +2106,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        extractors: Habitat feature families; may be empty.</span>
 <span class="sd">        seed: Seed forwarded to the assigner when it is stochastic.</span>
 <span class="sd">        key_prefix: Checkpoint key prefix from :func:`_one_step_key_prefix`.</span>
+<span class="sd">        observer: Optional step observer for debugging / QA.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">components</span><span class="p">:</span> <span class="n">HabitatComponents</span>
@@ -2073,6 +2115,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">extractors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="n">key_prefix</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">cache_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spec-scoped checkpoint key for this subject.&quot;&quot;&quot;</span>
@@ -2089,12 +2132,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        reports one row per defined habitat, aggregated from them.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Stage-1 once: units, then fit/assign/describe without re-extraction.</span>
-        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">units</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
+            <span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">units</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">habitat_model_fitter</span><span class="o">.</span><span class="n">fit</span><span class="p">([</span><span class="n">units</span><span class="p">])</span>
         <span class="n">assigner</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">assigner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assigner_name</span><span class="p">,</span> <span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assigner_params</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assigner</span><span class="p">,</span> <span class="n">Seedable</span><span class="p">):</span>
             <span class="n">assigner</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
+            <span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">observer</span>
+        <span class="p">)</span>
         <span class="n">habitat_map</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">prepared</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">label_and_describe</span><span class="p">(</span>
             <span class="n">subject</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractors</span>
         <span class="p">)</span>
@@ -2412,6 +2459,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">],</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run a design whose habitats are defined across the cohort.</span>
@@ -2432,10 +2480,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        seed: Optional seed override, already folded into ``spec``.</span>
 <span class="sd">        checkpoint: Optional store enabling per-subject resume; units key on</span>
 <span class="sd">            the spec fingerprint, labels on the fitted model&#39;s ``model_id``.</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The study result, entirely in memory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_reject_process_inspect</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
     <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
     <span class="n">components</span> <span class="o">=</span> <span class="n">build_habitat_components</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -2445,7 +2495,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">units_cohort</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">unit_failures</span> <span class="o">=</span> <span class="n">_map_soft</span><span class="p">(</span>
             <span class="n">cohort</span><span class="p">,</span>
             <span class="n">_ComputeUnits</span><span class="p">(</span>
-                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span> <span class="n">_units_key_prefix</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">),</span>
+                <span class="n">_units_key_prefix</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
             <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
@@ -2467,7 +2518,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">units_cohort</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
             <span class="p">],</span>
             <span class="n">_AssignPrecomputedUnits</span><span class="p">(</span>
-                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">),</span>
+                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">),</span>
                 <span class="n">components</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
                 <span class="n">_label_key_prefix</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
             <span class="p">),</span>
@@ -2497,6 +2548,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">habitat_maps</span><span class="o">=</span><span class="n">habitat_maps</span><span class="p">,</span>
         <span class="n">manifest</span><span class="o">=</span><span class="n">manifest</span><span class="p">,</span>
         <span class="n">units</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_units</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="n">labelled</span><span class="p">),</span>
+        <span class="n">inspection</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -2509,6 +2561,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Supervoxels per subject, then habitats across the cohort.</span>
@@ -2527,6 +2580,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        checkpoint: Optional store enabling per-subject resume. Units are</span>
 <span class="sd">            reused across cohorts sharing a spec; labels are reused only for</span>
 <span class="sd">            the same fitted definition (``HabitatModel.model_id`` scope).</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+<span class="sd">            Unsupported with the process backend.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The study result, entirely in memory. Call</span>
@@ -2566,7 +2621,13 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;habitats) or one_step (per-subject habitats).&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">_fit_cohort_design</span><span class="p">(</span>
-        <span class="s2">&quot;two_step&quot;</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">effective</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span> <span class="n">checkpoint</span>
+        <span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
+        <span class="n">cohort</span><span class="p">,</span>
+        <span class="n">effective</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">,</span>
+        <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -2580,6 +2641,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    No supervoxels: habitats learned from the cohort&#39;s pooled voxels.</span>
@@ -2595,6 +2657,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        seed: Optional override of ``spec.random_seed``.</span>
 <span class="sd">        checkpoint: Optional store enabling per-subject resume (same key</span>
 <span class="sd">            scoping as :func:`two_step`).</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+<span class="sd">            Unsupported with the process backend.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The study result, entirely in memory.</span>
@@ -2610,8 +2674,13 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;two_step, or drop the supervoxelizer from the spec.&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">_fit_cohort_design</span><span class="p">(</span>
-        <span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span> <span class="n">cohort</span><span class="p">,</span> <span class="n">effective</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
+        <span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span>
+        <span class="n">cohort</span><span class="p">,</span>
+        <span class="n">effective</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">,</span>
+        <span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
         <span class="n">checkpoint</span><span class="p">,</span>
+        <span class="n">inspect</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -2625,6 +2694,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Habitats defined inside each subject, independently.</span>
@@ -2652,6 +2722,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        checkpoint: Optional store enabling per-subject resume; keys scope</span>
 <span class="sd">            on the spec fingerprint only, since no subject&#39;s computation</span>
 <span class="sd">            depends on any other subject in this design.</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+<span class="sd">            Unsupported with the process backend.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The study result, entirely in memory.</span>
@@ -2673,6 +2745,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Move those methods to voxel_feature_preprocessors, or use &quot;</span>
             <span class="s2">&quot;direct_pooling.&quot;</span>
         <span class="p">)</span>
+    <span class="n">_reject_process_inspect</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
     <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
     <span class="n">components</span> <span class="o">=</span> <span class="n">build_habitat_components</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
     <span class="n">subject_outcomes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -2688,6 +2761,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">extractors</span><span class="o">=</span><span class="n">components</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
                 <span class="n">seed</span><span class="o">=</span><span class="n">effective</span><span class="o">.</span><span class="n">random_seed</span><span class="p">,</span>
                 <span class="n">key_prefix</span><span class="o">=</span><span class="n">_one_step_key_prefix</span><span class="p">(</span><span class="n">effective</span><span class="p">),</span>
+                <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
             <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
@@ -2720,6 +2794,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">outcomes</span>
         <span class="p">},</span>
         <span class="n">units</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_units</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="n">outcomes</span><span class="p">),</span>
+        <span class="n">inspection</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -2734,6 +2809,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ExecutionBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">checkpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CheckpointStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StudyResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Project a published habitat definition onto a new cohort.</span>
@@ -2754,6 +2830,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        seed: Optional override of ``spec.random_seed``.</span>
 <span class="sd">        checkpoint: Optional store enabling per-subject resume; keys scope</span>
 <span class="sd">            on ``model.model_id``, so two definitions never share entries.</span>
+<span class="sd">        inspect: Optional step observer for in-memory debugging / QA.</span>
+<span class="sd">            Unsupported with the process backend.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The study result for the projected cohort.</span>
@@ -2786,6 +2864,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; len(projected.habitat_maps) == len(cohort)  # doctest: +SKIP</span>
 <span class="sd">        True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_reject_process_inspect</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
     <span class="n">started_at</span> <span class="o">=</span> <span class="n">_now</span><span class="p">()</span>
     <span class="n">effective</span> <span class="o">=</span> <span class="n">_effective_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
     <span class="n">components</span> <span class="o">=</span> <span class="n">build_habitat_components</span><span class="p">(</span><span class="n">effective</span><span class="p">)</span>
@@ -2798,7 +2877,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">survivors</span><span class="p">,</span> <span class="n">labelled</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="n">_map_soft</span><span class="p">(</span>
             <span class="n">cohort</span><span class="p">,</span>
             <span class="n">_LabelAndDescribe</span><span class="p">(</span>
-                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">),</span>
+                <span class="n">components</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span><span class="n">assigner</span><span class="o">=</span><span class="n">assigner</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="n">inspect</span><span class="p">),</span>
                 <span class="n">components</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
                 <span class="n">_label_key_prefix</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
             <span class="p">),</span>
@@ -2829,6 +2908,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">habitat_maps</span><span class="o">=</span><span class="n">habitat_maps</span><span class="p">,</span>
         <span class="n">manifest</span><span class="o">=</span><span class="n">manifest</span><span class="p">,</span>
         <span class="n">units</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">subject_units</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">subject_units</span> <span class="ow">in</span> <span class="n">labelled</span><span class="p">),</span>
+        <span class="n">inspection</span><span class="o">=</span><span class="n">inspect</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 

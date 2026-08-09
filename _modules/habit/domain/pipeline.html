@@ -17,7 +17,7 @@
   
         <script src="../../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=58fbf978"></script>
+        <script src="../../../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
@@ -393,7 +393,7 @@ window.runMermaid = runMermaid;</script>
             HABIT
           </a>
               <div class="version">
-                1.1.1
+                1.1.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -406,11 +406,12 @@ window.runMermaid = runMermaid;</script>
               <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#run-habit-inside-a-conda-env">Run HABIT inside a conda env</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../tutorial/installation.html#how-to-open-the-conda-terminal">How to open the conda terminal</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-miniconda">1. Install Miniconda</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#open-the-conda-terminal">2. Open the conda terminal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#create-and-activate-the-habit-env">3. Create and activate the <code class="docutils literal notranslate"><span class="pre">habit</span></code> env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#install-habit-from-official-pypi">4. Install HABIT from official PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-china-mirrors-for-other-packages">5. Optional: China mirrors for <em>other</em> packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#next-quickstart">6. Next: quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#optional-napari-habit-view">Optional: napari (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">view</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#from-source-developers">From source (developers)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/installation.html#need-more-later">Need more later?</a></li>
@@ -419,17 +420,19 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart.html">Quickstart: run the demo (YAML + CLI)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">1. Get demo data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-at-the-project-root">2. Open a conda terminal at the project root</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">3. Run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#create-a-work-directory-and-copy-demo-configs">1. Create a work directory and copy demo configs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#get-demo-data">2. Get demo data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#open-a-conda-terminal-in-work-dir">3. Open a conda terminal in <code class="docutils literal notranslate"><span class="pre">&lt;work_dir&gt;</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#run">4. Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart.html#next">Next</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#habitat-analysis-no-files">1. Habitat analysis (no files)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#view">2. View</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#tabular-ml">4. Tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -438,7 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/index.html">How-to guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/before_you_start.html">Before you start</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#project-root">2. Project root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
@@ -494,6 +497,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -636,6 +640,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -933,6 +938,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1535,6 +1543,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1824,6 +1833,19 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompatibilityError</span><span class="p">,</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">Supervoxelization</span><span class="p">,</span> <span class="n">VoxelFeatureField</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.inspection</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">STEP_HABITAT_FEATURES</span><span class="p">,</span>
+    <span class="n">STEP_HABITAT_MAP</span><span class="p">,</span>
+    <span class="n">STEP_SUPERVOXELS_DESCRIBED</span><span class="p">,</span>
+    <span class="n">STEP_SUPERVOXELS_PARTITION</span><span class="p">,</span>
+    <span class="n">STEP_SUPERVOXELS_POSTPROCESSED</span><span class="p">,</span>
+    <span class="n">STEP_SUPERVOXELS_PREPROCESSED</span><span class="p">,</span>
+    <span class="n">STEP_UNITS_COHORT_PREPROCESSED</span><span class="p">,</span>
+    <span class="n">STEP_VOXEL_FEATURES_PREPROCESSED</span><span class="p">,</span>
+    <span class="n">STEP_VOXEL_FEATURES_RAW</span><span class="p">,</span>
+    <span class="n">StepObserver</span><span class="p">,</span>
+    <span class="n">StepRecord</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.subject</span><span class="w"> </span><span class="kn">import</span> <span class="n">Subject</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.geometry_align</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1982,6 +2004,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            extraction. Ignored when ``supervoxelizer`` is ``None``.</span>
 <span class="sd">        postprocess_habitat: Optional connected-component cleanup applied</span>
 <span class="sd">            immediately after habitat assignment and before habitat features.</span>
+<span class="sd">        observer: Optional step observer for debugging / QA. Never part of</span>
+<span class="sd">            :attr:`spec` or fingerprints; ``None`` (default) is zero-cost.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SubjectPipeline.__init__">
@@ -1998,6 +2022,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">on_geometry_mismatch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ON_GEOMETRY_MISMATCH_DEFAULT</span><span class="p">,</span>
         <span class="n">postprocess_supervoxel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConnectedComponentPostprocess</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">postprocess_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConnectedComponentPostprocess</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StepObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">voxel_feature_extractor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -2034,8 +2059,40 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessor</span> <span class="o">=</span> <span class="n">cohort_feature_preprocessor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span> <span class="o">=</span> <span class="n">coerce_on_geometry_mismatch</span><span class="p">(</span><span class="n">on_geometry_mismatch</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span> <span class="o">=</span> <span class="n">postprocess_supervoxel</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="o">=</span> <span class="n">postprocess_habitat</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="o">=</span> <span class="n">postprocess_habitat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_observer</span> <span class="o">=</span> <span class="n">observer</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_emit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">subject_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">payload</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">produced_by</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fingerprint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Notify the optional observer about one pipeline boundary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            step: Stable step name from ``habit.contracts.inspection``.</span>
+<span class="sd">            subject_id: Owning subject.</span>
+<span class="sd">            payload: Domain object already produced by the pipeline.</span>
+<span class="sd">            produced_by: Short producer tag.</span>
+<span class="sd">            fingerprint: Optional component fingerprint.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_observer</span>
+        <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">observer</span><span class="o">.</span><span class="n">wants</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">observer</span><span class="p">(</span>
+            <span class="n">StepRecord</span><span class="p">(</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                <span class="n">produced_by</span><span class="o">=</span><span class="n">produced_by</span><span class="p">,</span>
+                <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">fingerprint</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
@@ -2102,6 +2159,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
         <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+            <span class="n">STEP_VOXEL_FEATURES_RAW</span><span class="p">,</span>
+            <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">field</span><span class="p">,</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;voxel_feature_extractor.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="n">fingerprint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+        <span class="p">)</span>
         <span class="c1"># Keep the pre-preprocessing field: statistical supervoxel</span>
         <span class="c1"># extractors with ``source=&quot;original&quot;`` aggregate exactly this</span>
         <span class="c1"># signal (the v0.1 ``-original`` column contract).</span>
@@ -2113,14 +2180,35 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;feature_preprocessing.subject.voxel&quot;</span><span class="p">,</span>
                 <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                <span class="n">STEP_VOXEL_FEATURES_PREPROCESSED</span><span class="p">,</span>
+                <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">field</span><span class="p">,</span>
+                <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;feature_preprocessing.subject.voxel&quot;</span><span class="p">,</span>
+                <span class="n">fingerprint</span><span class="o">=</span><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">voxel_units</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+            <span class="n">STEP_SUPERVOXELS_PARTITION</span><span class="p">,</span>
+            <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">units</span><span class="p">,</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;supervoxelizer.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fingerprint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Clean fragments before describing regions so features and the</span>
             <span class="c1"># label map stay aligned for cohort fitting / assignment.</span>
             <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="o">.</span><span class="n">apply_to_supervoxelization</span><span class="p">(</span>
                 <span class="n">units</span><span class="p">,</span> <span class="n">field</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                <span class="n">STEP_SUPERVOXELS_POSTPROCESSED</span><span class="p">,</span>
+                <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">units</span><span class="p">,</span>
+                <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span>
+                <span class="n">fingerprint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Statistical extractors (``mean`` / ``std`` / ``percentile``,</span>
@@ -2130,12 +2218,29 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">binder</span><span class="p">):</span>
                 <span class="n">binder</span><span class="p">(</span><span class="n">working</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">original</span><span class="o">=</span><span class="n">original_field</span><span class="p">)</span>
             <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                <span class="n">STEP_SUPERVOXELS_DESCRIBED</span><span class="p">,</span>
+                <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">units</span><span class="p">,</span>
+                <span class="n">produced_by</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;supervoxel_feature_extractor.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">),</span>
+                <span class="n">fingerprint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">chain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_preprocessor</span>
             <span class="n">units</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">with_feature_frame</span><span class="p">(</span>
                 <span class="n">chain</span><span class="p">(</span><span class="n">units</span><span class="o">.</span><span class="n">feature_frame</span><span class="p">()),</span>
                 <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;feature_preprocessing.subject.supervoxel&quot;</span><span class="p">,</span>
                 <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                <span class="n">STEP_SUPERVOXELS_PREPROCESSED</span><span class="p">,</span>
+                <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+                <span class="n">units</span><span class="p">,</span>
+                <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;feature_preprocessing.subject.supervoxel&quot;</span><span class="p">,</span>
+                <span class="n">fingerprint</span><span class="o">=</span><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">units</span></div>
 
@@ -2180,9 +2285,31 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;feature_preprocessing.cohort&quot;</span><span class="p">,</span>
                 <span class="n">spec_fingerprint</span><span class="o">=</span><span class="n">chain</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
             <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+            <span class="n">STEP_UNITS_COHORT_PREPROCESSED</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">working</span><span class="p">,</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;feature_preprocessing.cohort&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="s2">&quot;assign.passthrough&quot;</span>
+            <span class="p">),</span>
+            <span class="n">fingerprint</span><span class="o">=</span><span class="p">(</span>
+                <span class="kc">None</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessor</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessor</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">()</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">habitat_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="p">(</span><span class="n">working</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">habitat_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span><span class="o">.</span><span class="n">apply_to_habitat_map</span><span class="p">(</span><span class="n">habitat_map</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+            <span class="n">STEP_HABITAT_MAP</span><span class="p">,</span>
+            <span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">habitat_map</span><span class="p">,</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;habitat_assigner.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fingerprint</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">working</span></div>
 
 
@@ -2231,6 +2358,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table</span> <span class="o">=</span> <span class="n">extractors</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">extractor</span> <span class="ow">in</span> <span class="n">extractors</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extractor</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+            <span class="n">STEP_HABITAT_FEATURES</span><span class="p">,</span>
+            <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">table</span><span class="p">,</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span>
+            <span class="n">fingerprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">prepared</span></div>
 
 

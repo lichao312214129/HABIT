@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -286,6 +287,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
@@ -583,6 +585,9 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1185,6 +1190,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#supervoxel-feature-extractors">Supervoxel feature extractors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#step-inspection-optional">Step inspection (optional)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-model-fitters">Habitat model fitters</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-assigners">Habitat assigners</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../domain_habitat.html#habitat-feature-extractors">Habitat feature extractors</a></li>
@@ -1448,7 +1454,7 @@
 <h1>StudyResult<a class="headerlink" href="#studyresult" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.recipes.StudyResult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StudyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/recipes/result.html#StudyResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.recipes.StudyResult" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StudyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/recipes/result.html#StudyResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.recipes.StudyResult" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>What a fitted study hands back, entirely in memory.</p>
 <p>Nothing here has touched the filesystem. Writing is a separate, explicit
@@ -1552,6 +1558,19 @@ uniform type regardless of design.</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="habit.recipes.StudyResult.inspection">
+<span class="sig-name descname"><span class="pre">inspection</span></span><a class="headerlink" href="#habit.recipes.StudyResult.inspection" title="Link to this definition"></a></dt>
+<dd><p>Optional step observer / recorder passed as <code class="docutils literal notranslate"><span class="pre">inspect=</span></code>
+to a recipe. Default <code class="docutils literal notranslate"><span class="pre">None</span></code>. Writers ignore this field; it is
+for in-memory debugging only and is never part of fingerprints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any | None</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.recipes.StudyResult.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">writer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.ResultWriter.html#habit.contracts.ResultWriter" title="habit.contracts.ops.ResultWriter"><span class="pre">ResultWriter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/recipes/result.html#StudyResult.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.recipes.StudyResult.write" title="Link to this definition"></a></dt>
@@ -1620,7 +1639,7 @@ file when plotly is installed.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.recipes.StudyResult.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">()</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.recipes.StudyResult.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">habitat_model:</span> <span class="pre">~habit.contracts.habitat.HabitatModel</span> <span class="pre">|</span> <span class="pre">None,</span> <span class="pre">pipeline:</span> <span class="pre">~typing.Any,</span> <span class="pre">features:</span> <span class="pre">~habit.contracts.table.FeatureTable,</span> <span class="pre">habitat_maps:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.HabitatMap,</span> <span class="pre">...],</span> <span class="pre">manifest:</span> <span class="pre">~habit.contracts.manifest.RunManifest,</span> <span class="pre">subject_models:</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~habit.contracts.habitat.HabitatModel]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">units:</span> <span class="pre">~typing.Tuple[~habit.contracts.habitat.Supervoxelization,</span> <span class="pre">...]</span> <span class="pre">=</span> <span class="pre">(),</span> <span class="pre">inspection:</span> <span class="pre">~typing.Any</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#habit.recipes.StudyResult.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
