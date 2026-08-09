@@ -85,6 +85,7 @@ __all__ = [
     "HabitatFeatureExtractor",
     "ImagePerturbation",
     "Combiner",
+    "PoolingMarker",
     "Seedable",
 ]
 
@@ -500,6 +501,26 @@ class ImagePerturbation(Protocol):
             perturbed masks for geometric perturbations); the original is
             left untouched.
         """
+
+
+@runtime_checkable
+class PoolingMarker(Protocol):
+    """
+    Marker for the subject→cohort fan-in watershed in a stage list.
+
+    The built-in ``pool`` component performs no numeric work; the stage
+    executor recognises the marker and calls
+    :func:`~habit.domain.pooling.fan_in`. Third-party packages may register
+    alternate markers in the ``pooling`` domain (entry point group
+    ``habit.pooling``) when they need a discoverable watershed slot.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the marker specification (provenance / fingerprint)."""
+
+    def __call__(self) -> Any:
+        """Return a small descriptor confirming the watershed (optional)."""
 
 
 @runtime_checkable

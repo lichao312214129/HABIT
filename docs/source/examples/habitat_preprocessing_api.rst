@@ -37,12 +37,14 @@ For debugging and QA, pass ``inspect=`` a :class:`~habit.inspection.StepRecorder
 into ``recipes.two_step`` / ``one_step`` / ``direct_pooling`` /
 ``apply_habitat_model``. Default ``inspect=None`` is zero-cost and bit-identical.
 
-Captured boundaries include ``voxel_features.raw``,
+Captured boundaries include the legacy names ``voxel_features.raw``,
 ``voxel_features.preprocessed``, ``supervoxels.partition``,
 ``supervoxels.described``, ``units.cohort_preprocessed``, ``habitat_map``,
-and ``habitat_features`` (see ``habit.STEP_NAMES``). Use ``steps=``,
-``subjects=``, and ``max_subjects=`` to limit memory. The recorder is also
-available as ``result.inspection``.
+and ``habitat_features`` (see ``habit.STEP_NAMES``), plus stage-bound names
+such as ``preprocess1.output`` / ``pool.output`` / ``fit.output``. After
+``pool`` / ``fit``, cohort-level records use subject id ``__cohort__``.
+Use ``steps=``, ``subjects=``, and ``max_subjects=`` to limit memory.
+The recorder is also available as ``result.inspection``.
 
 In-memory inspection is **not** supported with the process backend; use
 serial / ``workers=1`` while debugging.

@@ -105,7 +105,9 @@ def test_two_step_translation_full_document() -> None:
     spec = document["spec"]
     assert spec["voxel_feature_extractor"] == {
         "name": "raw",
-        "params": {"modalities": ["delay2", "delay3", "delay5"]},
+        "params": {
+            "modalities": ["pre_contrast", "LAP", "PVP", "delay_3min"]
+        },
     }
     supervoxelizer = spec["supervoxelizer"]
     assert supervoxelizer["name"] == "kmeans"
@@ -150,7 +152,7 @@ def test_two_step_translation_full_document() -> None:
     run_policy = RunPolicy.from_dict(policy)
     assert run_policy.on_subject_failure == "continue"
 
-    assert document["data"]["source"].endswith("processed_images")
+    assert document["data"]["source"].endswith("preprocessed")
     assert document["output"]["out_dir"].endswith("habitat_two_step")
     assert document["output"]["save_results_csv"] is True
 
@@ -176,7 +178,7 @@ def test_one_step_translation_uses_one_step_settings() -> None:
     assert fitter["params"]["validation"] == "elbow"
 
     assert spec["voxel_feature_extractor"]["name"] == "voxel_radiomics"
-    assert spec["voxel_feature_extractor"]["params"]["modalities"] == ["delay2"]
+    assert spec["voxel_feature_extractor"]["params"]["modalities"] == ["LAP"]
 
     # The spec parses even with supervoxelizer=None (one-step assembly).
     habitat_spec = HabitatSpec.from_dict(spec)
@@ -198,7 +200,12 @@ def test_direct_pooling_translation_uses_habitat_block() -> None:
     # concat(voxel_radiomics(A), voxel_radiomics(B), ...) is homogeneous.
     extractor = spec["voxel_feature_extractor"]
     assert extractor["name"] == "voxel_radiomics"
-    assert extractor["params"]["modalities"] == ["delay2", "delay3", "delay5"]
+    assert extractor["params"]["modalities"] == [
+        "pre_contrast",
+        "LAP",
+        "PVP",
+        "delay_3min",
+    ]
     validate_v1_document(translation.document)
 
 
@@ -251,7 +258,7 @@ def test_supervoxel_radiomics_aggregator_both_spellings() -> None:
     assert supervoxelizer["params"]["n_supervoxels"] == 50
     # Feature half lands in the supervoxel_feature_extractor domain.
     assert extractor["name"] == "supervoxel_radiomics"
-    assert extractor["params"]["modalities"] == ["delay2"]
+    assert extractor["params"]["modalities"] == ["LAP"]
     assert extractor["params"]["use_supervoxel_cext"] == "auto"
     validate_v1_document(translation.document)
 

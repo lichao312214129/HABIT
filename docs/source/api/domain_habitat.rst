@@ -53,6 +53,42 @@ Protocols
    * - ``Seedable``
      - ``set_random_state(seed)``
      - mixin
+   * - ``PoolingMarker``
+     - ``()`` marker (built-in ``pool``)
+     - Dataflow watershed
+
+Ordered stages and the shared executor
+--------------------------------------
+
+A :class:`~habit.spec.Stage` is a named component slot. Prefer declaring
+:attr:`~habit.spec.HabitatSpec.stages` for new code; the classic named
+fields (``voxel_feature_extractor``, ``supervoxelizer``, …, ``pooling``)
+remain sugar that expands to the same sequence.
+
+.. code-block:: python
+
+   from habit import HabitatSpec, Spec, Stage
+   from habit.domain import run_subject_stage_prefix, resolve_habitat_stages
+   import habit.recipes as recipes
+
+   stages = (
+       Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]}),
+             role="extract_voxel_features"),
+       Stage("pool", Spec("pool"), role="pool"),
+       Stage("fit", Spec("kmeans", {
+           "min_habitats": 2, "max_habitats": 3,
+           "validation": "silhouette", "n_init": 5,
+       }), role="fit"),
+       Stage("assign", Spec("nearest_centroid"), role="assign"),
+       Stage("quantify", Spec("volume"), role="quantify"),
+   )
+   spec = HabitatSpec(name="direct", stages=stages, random_seed=42)
+   # Subject-level prefix only (no Cohort required):
+   # units = run_subject_stage_prefix(subject, spec)
+   result = recipes.fit_habitat(cohort, spec)
+
+Domain: ``pooling`` (entry-point group ``habit.pooling``). Built-in marker:
+``PoolingRegistry.create("pool")``.
 
 Registry pattern (all domains)
 ------------------------------

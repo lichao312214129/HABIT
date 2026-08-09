@@ -232,6 +232,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     ),
     "spec": (
         "Spec",
+        "Stage",
         "HabitatSpec",
         "MLSpec",
         "RunPolicy",

@@ -2,7 +2,13 @@
   "artefacts": [
     "metrics.json",
     "ml_kfold_results.json",
-    "run_manifest.json"
+    "run_manifest.json",
+    "visualizations/cv_LogisticRegression_confusion_matrix.pdf",
+    "visualizations/cv_LogisticRegression_shap.pdf",
+    "visualizations/cv_calibration_curve.pdf",
+    "visualizations/cv_decision_curve.pdf",
+    "visualizations/cv_pr_curve.pdf",
+    "visualizations/cv_roc_curve.pdf"
   ],
   "case": "ml_kfold",
   "command": "cv",
@@ -11,7 +17,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "0f32c33b30889add9a1af5a6bab2e6325af82e3c",
+    "git_commit": "7604bbd26eeb7db2d0bde1f02e639ca39c81bb6d",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -121,7 +127,7 @@
         "provenance.inputs[0].produced_by": "commands.cmd_ml",
         "provenance.inputs[0].random_seed": null,
         "provenance.inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].software.pyradiomics": "3.0.1",
@@ -130,25 +136,23 @@
         "provenance.inputs[0].spec_fingerprint": "",
         "provenance.produced_by": "recipes.modeling.cross_validate",
         "provenance.software.SimpleITK": "2.2.1",
-        "provenance.software.habit": "1.0.0",
+        "provenance.software.habit": "1.1.3",
         "provenance.software.numpy": "1.26.1",
         "provenance.software.pandas": "2.2.3",
         "provenance.software.pyradiomics": "3.0.1",
         "provenance.software.scikit-learn": "1.6.1",
         "provenance.software.scipy": "1.15.3",
-        "provenance.spec_fingerprint": "77ca55231c75aae240e4b9fa35f3de1effbda8064551a39913a8ce0c35afd7f2",
+        "provenance.spec_fingerprint": "19d5c3279a3fbf21b7cacf213d21a4451c150a8680817c5f2c48f343121fc837",
         "spec_payload.classifier.name": "LogisticRegression",
         "spec_payload.classifier.params.penalty": "l2",
         "spec_payload.classifier.params.solver": "lbfgs",
         "spec_payload.classifier.version": "1.0",
         "spec_payload.feature_selectors[0].name": "correlation",
         "spec_payload.feature_selectors[0].params.method": "spearman",
-        "spec_payload.feature_selectors[0].params.visualize": true,
         "spec_payload.feature_selectors[0].version": "1.0",
         "spec_payload.metrics": [],
         "spec_payload.name": "ml_cv",
         "spec_payload.pre_preprocessing_feature_selectors[0].name": "variance",
-        "spec_payload.pre_preprocessing_feature_selectors[0].params.plot_variances": true,
         "spec_payload.pre_preprocessing_feature_selectors[0].version": "1.0",
         "spec_payload.table_preprocessors[0].name": "zscore",
         "spec_payload.table_preprocessors[0].version": "1.0",
@@ -743,6 +747,30 @@
           42.0
         ]
       }
+    },
+    "visualizations/cv_LogisticRegression_confusion_matrix.pdf": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/cv_LogisticRegression_shap.pdf": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/cv_calibration_curve.pdf": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/cv_decision_curve.pdf": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/cv_pr_curve.pdf": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    "visualizations/cv_roc_curve.pdf": {
+      "kind": "presence",
+      "non_empty": true
     }
   }
 }

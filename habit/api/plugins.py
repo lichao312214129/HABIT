@@ -71,6 +71,8 @@ _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     "classifier": "habit.classifier",
     "feature_selector": "habit.feature_selector",
     "metric": "habit.metric",
+    # Dataflow watershed marker (subject→cohort fan-in).
+    "pooling": "habit.pooling",
 }
 #: v0.1 plural plugin domains that alias the v1.0 singular L3 registries.
 #: Per-name resolution prefers the v1 registry when the name exists there,
@@ -124,6 +126,7 @@ _V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
         "habit.domain.precision",
         "ImagePerturbationRegistry",
     ),
+    "pooling": ("habit.domain.pooling_marker", "PoolingRegistry"),
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
 

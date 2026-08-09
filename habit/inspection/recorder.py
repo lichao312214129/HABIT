@@ -60,6 +60,8 @@ def _payload_to_frame(payload: object) -> pd.DataFrame:
                 "habitat_ids_present": [tuple(present)],
             }
         )
+    if isinstance(payload, dict):
+        return pd.DataFrame([payload])
     raise HABITAPIError(
         f"StepRecorder cannot convert payload type {type(payload)!r} to a "
         "DataFrame; use keep='objects' or extend the converter."
@@ -94,16 +96,20 @@ class StepRecorder:
             raise HABITAPIError(
                 f"StepRecorder.max_subjects must be >= 1; got {max_subjects!r}."
             )
-        unknown = (
-            ()
-            if steps is None
-            else tuple(name for name in steps if name not in STEP_NAMES)
-        )
-        if unknown:
-            raise HABITAPIError(
-                f"Unknown inspection step name(s): {list(unknown)}. "
-                f"Known steps: {list(STEP_NAMES)}."
+        if steps is not None:
+            # Accept legacy STEP_NAMES and stage-bound names (``{stage}.output``)
+            # plus the cohort sentinel records emitted after pool/fit.
+            unknown = tuple(
+                name
+                for name in steps
+                if name not in STEP_NAMES and not str(name).endswith(".output")
             )
+            if unknown:
+                raise HABITAPIError(
+                    f"Unknown inspection step name(s): {list(unknown)}. "
+                    f"Known legacy steps: {list(STEP_NAMES)}; stage-bound "
+                    "names must look like '<stage_name>.output'."
+                )
         self._steps = None if steps is None else frozenset(steps)
         self._subjects = None if subjects is None else frozenset(subjects)
         self._max_subjects = None if max_subjects is None else int(max_subjects)
@@ -135,9 +141,16 @@ class StepRecorder:
         """
         if not self.wants(record.step):
             return
-        if self._subjects is not None and record.subject_id not in self._subjects:
+        # Cohort-level records (after pool/fit) use the ``__cohort__`` sentinel
+        # and are not subject to per-subject filters / max_subjects caps.
+        is_cohort = record.subject_id == "__cohort__"
+        if (
+            not is_cohort
+            and self._subjects is not None
+            and record.subject_id not in self._subjects
+        ):
             return
-        if record.subject_id not in self._accepted_subjects:
+        if not is_cohort and record.subject_id not in self._accepted_subjects:
             if (
                 self._max_subjects is not None
                 and len(self._accepted_subjects) >= self._max_subjects

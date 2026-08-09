@@ -35,11 +35,11 @@ The three designs differ only in WHERE the habitat definition is learned:
   independently. There is no cohort-level definition, and the habitat ids of
   two subjects are not comparable.
 
-:func:`fit_habitat` is the unified entry point: it reads the dataflow
-declared on the spec (``HabitatSpec.pooling`` plus the presence of a
-supervoxelizer) and runs the matching design. The three named functions
-remain as thin aliases -- they validate that the spec is consistent with
-the design their name promises, then delegate to :func:`fit_habitat`.
+:func:`fit_habitat` is the unified entry point: it resolves the ordered
+:class:`~habit.spec.specs.Stage` list on the spec and runs the shared
+stage dataflow executor. The three named functions remain as thin aliases
+-- they validate that the spec is consistent with the design their name
+promises, then delegate to :func:`fit_habitat`.
 """
 
 from __future__ import annotations
@@ -74,6 +74,7 @@ from habit.contracts.table import FeatureTable
 from habit.domain.assembly import HabitatComponents, build_habitat_components
 from habit.domain.pooling import fan_in
 from habit.domain.protocols import Seedable
+from habit.domain.stages import execute_habitat_dataflow, resolve_habitat_stages
 from habit.recipes.result import StudyResult
 from habit.spec.specs import HabitatSpec
 
@@ -662,210 +663,6 @@ def _map_soft_items(
     return survivors, values, failures
 
 
-def _fit_cohort_design(
-    design: str,
-    cohort: Cohort,
-    spec: HabitatSpec,
-    backend: Optional[ExecutionBackend],
-    seed: Optional[int],
-    checkpoint: Optional[CheckpointStore] = None,
-    inspect: Optional[StepObserver] = None,
-) -> StudyResult:
-    """
-    Run a design whose habitats are defined across the cohort.
-
-    Shared by :func:`two_step` and :func:`direct_pooling`, which differ only
-    in whether the spec declares a supervoxelizer. Expressing that difference
-    as two functions rather than a ``mode`` string is the point: the caller
-    names a design, not a switch value.
-
-    Per-subject failures are isolated (v0.1 continue): the recipe proceeds
-    with successful subjects and records exclusions on the run manifest.
-
-    Args:
-        design: Recipe name for provenance.
-        cohort: Subjects to fit on.
-        spec: The effective analysis declaration.
-        backend: Optional execution backend for the per-subject stages.
-        seed: Optional seed override, already folded into ``spec``.
-        checkpoint: Optional store enabling per-subject resume; units key on
-            the spec fingerprint, labels on the fitted model's ``model_id``.
-        inspect: Optional step observer for in-memory debugging / QA.
-
-    Returns:
-        The study result, entirely in memory.
-    """
-    _reject_process_inspect(inspect, backend)
-    started_at = _now()
-    components = build_habitat_components(spec)
-    outcomes: Dict[str, str] = {
-        subject.subject_id: "success" for subject in cohort
-    }
-    with _backend_session(backend):
-        units_cohort, units, unit_failures = _map_soft(
-            cohort,
-            _ComputeUnits(
-                components.pipeline(assigner=None, observer=inspect),
-                _units_key_prefix(spec),
-            ),
-            backend=backend,
-            checkpoint=checkpoint,
-            stage=f"{design}.units",
-        )
-        for subject_id, summary in unit_failures.items():
-            outcomes[subject_id] = summary
-        model = _fit_cohort_model(components, units_cohort, units)
-        assigner = _build_assigner(model, spec, seed)
-        # Reuse units already resident in the parent. Re-mapping subjects
-        # through ``_LabelAndDescribe`` would re-run voxel_radiomics (and
-        # any GPU workers) a second time -- the dominant cost of texture
-        # habitats and a common freeze trigger when ProcessPool × CUDA
-        # oversubscribe a laptop GPU.
-        labelled_cohort, labelled, label_failures = _map_soft_items(
-            units_cohort,
-            [
-                _SubjectUnits(subject, subject_units)
-                for subject, subject_units in zip(units_cohort, units)
-            ],
-            _AssignPrecomputedUnits(
-                components.pipeline(assigner=assigner, observer=inspect),
-                components.habitat_features,
-                _label_key_prefix(model),
-            ),
-            checkpoint=checkpoint,
-            stage=f"{design}.label",
-        )
-        for subject_id, summary in label_failures.items():
-            outcomes[subject_id] = summary
-    habitat_maps = tuple(habitat_map for habitat_map, _, _ in labelled)
-    for habitat_map in habitat_maps:
-        outcomes[habitat_map.subject_id] = "success"
-    manifest = _manifest(
-        design,
-        spec,
-        habitat_maps,
-        started_at,
-        subject_outcomes=outcomes,
-    )
-    return StudyResult(
-        habitat_model=model,
-        pipeline=components.pipeline(assigner=assigner),
-        features=_cohort_feature_table(
-            [table for _, table, _ in labelled],
-            [subject.subject_id for subject in labelled_cohort],
-            manifest.provenance,
-        ),
-        habitat_maps=habitat_maps,
-        manifest=manifest,
-        units=tuple(subject_units for _, _, subject_units in labelled),
-        inspection=inspect,
-    )
-
-
-def _fit_subject_design(
-    cohort: Cohort,
-    spec: HabitatSpec,
-    backend: Optional[ExecutionBackend],
-    checkpoint: Optional[CheckpointStore],
-    inspect: Optional[StepObserver],
-) -> StudyResult:
-    """
-    Run the design whose habitats are defined INSIDE each subject.
-
-    This is the one-step dataflow (``pooling="none"``): no fan-in, no
-    cohort-level definition, no fan-out -- every subject fits and applies
-    its own definition, so habitat ids are not comparable across subjects.
-    Per-subject failures are isolated exactly like the cohort-level designs.
-
-    Args:
-        cohort: Subjects to process.
-        spec: The effective analysis declaration (already seed-folded and
-            canonicalised to ``pooling="none"``).
-        backend: Optional execution backend for the per-subject stage.
-        checkpoint: Optional store enabling per-subject resume; keys scope
-            on the spec fingerprint only.
-        inspect: Optional step observer for in-memory debugging / QA.
-
-    Returns:
-        The study result, entirely in memory, with per-subject models in
-        :attr:`~habit.recipes.result.StudyResult.subject_models`.
-    """
-    _reject_process_inspect(inspect, backend)
-    started_at = _now()
-    components = build_habitat_components(spec)
-    subject_outcomes: Dict[str, str] = {
-        subject.subject_id: "success" for subject in cohort
-    }
-    with _backend_session(backend):
-        survivors, outcomes, failures = _map_soft(
-            cohort,
-            _DefineAndLabelWithinSubject(
-                components=components,
-                assigner_name=spec.habitat_assigner.name,
-                assigner_params=tuple(spec.habitat_assigner.params.items()),
-                extractors=components.habitat_features,
-                seed=spec.random_seed,
-                key_prefix=_one_step_key_prefix(spec),
-                observer=inspect,
-            ),
-            backend=backend,
-            checkpoint=checkpoint,
-            stage="one_step",
-        )
-    for subject_id, summary in failures.items():
-        subject_outcomes[subject_id] = summary
-    habitat_maps = tuple(habitat_map for _, habitat_map, _, _ in outcomes)
-    for habitat_map in habitat_maps:
-        subject_outcomes[habitat_map.subject_id] = "success"
-    manifest = _manifest(
-        "one_step",
-        spec,
-        habitat_maps,
-        started_at,
-        subject_outcomes=subject_outcomes,
-    )
-    return StudyResult(
-        habitat_model=None,
-        pipeline=None,
-        features=_cohort_feature_table(
-            [table for _, _, table, _ in outcomes],
-            [subject.subject_id for subject in survivors],
-            manifest.provenance,
-        ),
-        habitat_maps=habitat_maps,
-        manifest=manifest,
-        subject_models={
-            habitat_map.subject_id: model
-            for model, habitat_map, _, _ in outcomes
-        },
-        units=tuple(subject_units for _, _, _, subject_units in outcomes),
-        inspection=inspect,
-    )
-
-
-def _design_from_spec(spec: HabitatSpec) -> str:
-    """
-    Derive the study design from the dataflow the spec declares.
-
-    The declaration is the source of truth: ``definition_level="subject"``
-    (i.e. ``pooling="none"``) selects the one-step design; otherwise the
-    presence of a supervoxelizer distinguishes two-step from
-    direct-pooling. An undeclared dataflow (``pooling=None``) resolves to
-    the historical cohort-level default.
-
-    Args:
-        spec: The effective analysis declaration.
-
-    Returns:
-        One of ``"two_step"``, ``"one_step"``, ``"direct_pooling"``.
-    """
-    if spec.definition_level == "subject":
-        return "one_step"
-    if spec.supervoxelizer is not None:
-        return "two_step"
-    return "direct_pooling"
-
-
 def fit_habitat(
     cohort: Cohort,
     spec: HabitatSpec,
@@ -878,19 +675,19 @@ def fit_habitat(
     """
     Fit the habitat analysis the spec declares, whatever its dataflow.
 
-    This is the unified, spec-driven entry point: the study design is read
-    off the spec graph (``pooling`` plus the presence of a supervoxelizer)
-    rather than chosen by function name, so the recorded specification
-    alone determines which analysis runs. The named designs
-    (:func:`two_step`, :func:`one_step`, :func:`direct_pooling`) are thin
-    aliases over this function that additionally validate the spec against
-    the design their name promises.
+    This is the unified, stage-driven entry point: the ordered
+    :attr:`~habit.spec.specs.HabitatSpec.stages` list (explicit or expanded
+    from the named-field sugar) is resolved and executed by one shared
+    dataflow executor. The named designs (:func:`two_step`, :func:`one_step`,
+    :func:`direct_pooling`) are thin aliases that validate the spec against
+    the design their name promises, then delegate here.
 
     Args:
-        cohort: Subjects to fit on.
-        spec: The analysis to run. ``pooling="none"`` selects per-subject
-            habitat definition (one-step); otherwise a supervoxelizer
-            selects two-step and its absence selects direct-pooling.
+        cohort: Subjects to fit on (required when the stage list contains
+            ``pool`` / cohort-level ``fit``).
+        spec: The analysis to run. Strategy is inferred from the stage
+            sequence (partition+pool → two_step; pool only → direct_pooling;
+            neither → one_step).
         backend: Optional execution backend (parallelism, timeouts, resume).
             Serial when omitted.
         seed: Optional override of ``spec.random_seed``.
@@ -930,19 +727,99 @@ def fit_habitat(
     """
     effective = _effective_spec(spec, seed)
     effective.validate_dataflow()
-    design = _design_from_spec(effective)
-    if design == "one_step":
-        return _fit_subject_design(
-            cohort, effective, backend, checkpoint, inspect
+    # Force role resolution early so illegal sequences fail before compute.
+    resolve_habitat_stages(effective)
+    _reject_process_inspect(inspect, backend)
+    started_at = _now()
+
+    def _map_units(units_cohort, components, eff_spec, observer):
+        return _map_soft(
+            units_cohort,
+            _ComputeUnits(
+                components.pipeline(assigner=None, observer=observer),
+                _units_key_prefix(eff_spec),
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage="habitat.units",
         )
-    return _fit_cohort_design(
-        design,
-        cohort,
-        effective,
-        backend,
-        effective.random_seed,
-        checkpoint,
-        inspect=inspect,
+
+    def _map_one_step(one_cohort, components, eff_spec, observer):
+        return _map_soft(
+            one_cohort,
+            _DefineAndLabelWithinSubject(
+                components=components,
+                assigner_name=eff_spec.habitat_assigner.name,
+                assigner_params=tuple(eff_spec.habitat_assigner.params.items()),
+                extractors=components.habitat_features,
+                seed=eff_spec.random_seed,
+                key_prefix=_one_step_key_prefix(eff_spec),
+                observer=observer,
+            ),
+            backend=backend,
+            checkpoint=checkpoint,
+            stage="one_step",
+        )
+
+    def _map_labels_compat(
+        units_cohort, units, components, eff_spec, model, observer
+    ):
+        assigner = _build_assigner(model, eff_spec, eff_spec.random_seed)
+        return _map_soft_items(
+            units_cohort,
+            [
+                _SubjectUnits(subject, subject_units)
+                for subject, subject_units in zip(units_cohort, units)
+            ],
+            _AssignPrecomputedUnits(
+                components.pipeline(assigner=assigner, observer=observer),
+                components.habitat_features,
+                _label_key_prefix(model),
+            ),
+            checkpoint=checkpoint,
+            stage="habitat.label",
+        )
+
+    with _backend_session(backend):
+        flow = execute_habitat_dataflow(
+            cohort,
+            effective,
+            map_soft_units=_map_units,
+            map_soft_labels=_map_labels_compat,
+            map_soft_one_step=_map_one_step,
+            seed=effective.random_seed,
+            inspect=inspect,
+        )
+
+    manifest = _manifest(
+        flow.design,
+        flow.spec,
+        flow.habitat_maps,
+        started_at,
+        subject_outcomes=flow.outcomes,
+    )
+    assigner = (
+        None
+        if flow.model is None
+        else _build_assigner(flow.model, flow.spec, flow.spec.random_seed)
+    )
+    return StudyResult(
+        habitat_model=flow.model,
+        pipeline=(
+            None
+            if flow.model is None
+            else flow.components.pipeline(assigner=assigner)
+        ),
+        features=_cohort_feature_table(
+            list(flow.tables),
+            list(flow.subject_ids),
+            manifest.provenance,
+        ),
+        habitat_maps=flow.habitat_maps,
+        manifest=manifest,
+        subject_models=flow.subject_models,
+        units=flow.units,
+        inspection=inspect,
     )
 
 

@@ -494,167 +494,143 @@ result.inspection.frame("supervoxels.described", "subj001")
 - L1 `DirectoryStepWriter` 落盘 sink。
 - process 后端下的观测（依赖落盘 sink；一期按 E.3 明确报错，不静默丢数据）。
 
-#### F. 生境数据流显式化（路线甲）：`HabitatSpec.pooling` + 统一入口 `fit_habitat`（2026-08-09 定稿）
+#### F. 生境数据流显式化（定稿）：有序命名 Stage + 统一 stage executor（2026-08-09）
 
-**为什么做**：今天三种生境设计（`two_step` / `one_step` / `direct_pooling`）的差异
-**不住在 spec 里，而藏在配方函数名里**——同一个 `supervoxelizer=None` 的 spec，
-调 `one_step` 与调 `direct_pooling` 会跑出两种科学上不同的分析，而 spec 指纹逐位相同。
-这违反「溯源是数据结构的一部分」：拿不出数据流声明的 spec 无法自描述，
-`run_manifest.json` 记录的 spec_payload 也看不出跨个体汇聚是否发生。
-路线甲把数据流（含跨个体 pooling）提升为 `HabitatSpec` 的显式声明，
-配方函数退化为薄别名。
+> **状态：LOCKED。** 取代此前「路线甲」仅以 `HabitatSpec.pooling` 字段区分数据流的方案。
+> `pooling` 字段与命名字段表单保留为 **糖 / 派生视图**；`stages` 为 source of truth。
+> 已落地的 `habit/domain/pooling.py`（`fan_in` / `PooledUnits.fan_out`）与
+> `fit_habitat` 入口在本方案中演进，不另起第二套数据移动。
 
-**硬约束**：重构后三种策略的**科学结果与旧 CLI 逐位一致**（golden 基线不漂移）；
-`inspect=` 逐步观测继续可用；`apply_habitat_model` 不变。
+**为什么做**：三种生境设计（`two_step` / `one_step` / `direct_pooling`）的差异若只藏在
+配方函数名或单一 `pooling` 枚举里，仍无法表达 **pool 之后的特征预处理**
+（direct_pooling / two_step 的一等公民）、也无法让第三方用同一执行器拼出自定义有序
+流水线。策略应由 **stage 序列** 推断；`pool` 组件是个体级 ↔ 队列级的唯一分水岭。
 
-##### F.1 Spec 表示：一个显式的跨个体汇聚声明
+**硬约束**：三种策略的科学结果与旧 CLI / golden **逐位一致**；CLI 15 子命令与选项不变；
+旧 YAML 可跑；`.habitatmodel` 可读或明确不兼容，绝不能静默出错误生境图；
+`inspect=` 继续可用（process backend 拒绝 inspect 的既有规则保留）。
 
-`HabitatSpec` 新增一个字段：
-
-```python
-pooling: Optional[str] = None   # None / "cohort" / "none"
-```
-
-- `"cohort"`：个体级聚类单元（two_step 的超体素、direct_pooling 的体素）经
-  **fan-in** 汇聚成队列矩阵，拟合**一个**队列级生境定义，再 **fan-out** 回到
-  每个个体赋标签、算生境特征。two_step 与 direct_pooling 都是这个数据流，
-  二者只差 `supervoxelizer` 是否存在。
-- `"none"`：不发生任何跨个体汇聚；每个个体**独立**定义并标记自己的生境
-  （one_step）。个体间生境 id 不可比是该设计的固有性质。
-- `None`（默认）：**未声明**，按历史默认解析为 `"cohort"`。存在它唯一的原因，
-  是让旧 spec（磁盘上的 v1 YAML、`.habitatmodel` 的 spec_payload、用户脚本里
-  构造的 spec）无需迁移即可加载；新代码应显式写 `"cohort"` 或 `"none"`。
-
-派生只读属性（不是自由字段，由 spec 图推导）：
+##### F.1 Stage API 与 `HabitatSpec.stages`
 
 ```python
-@property
-def definition_level(self) -> str:
-    """生境定义在哪个层级学到：'cohort' 或 'subject'。"""
-    return "subject" if self.pooling == "none" else "cohort"
+Stage(name: str, Spec(...))   # name 自定义、spec 内唯一；默认 = 组件 registry 名
+HabitatSpec(name=..., stages=[...])
+recipes.fit_habitat(cohort, spec)
 ```
 
-**指纹规则**（沿用 `on_geometry_mismatch` 的「偏离默认才记录」先例）：
+- **名字是标签，不是角色关键字。** 角色由「位置 + 组件所属 registry domain」推断。
+- 文档推荐命名（仅约定，非关键字）：`extract_voxel_features`、
+  `preprocess1` / `preprocess2` / …（同角色重复时 1-based）、`partition`、
+  `extract_supervoxel_features`、`pool`、`fit`、`assign`、
+  `quantify`（或与公开 API 对齐时用 `extract_habitat_features`）。
+- 示例中的模态须自洽（若用 T1+T2 则全程一致）。
+- **旧命名字段表单**（`voxel_feature_extractor` / `supervoxelizer` / …
+  `*_preprocessors` / `pooling`）保留为糖：构造时 **normalize → 同一内部 stage 列表**；
+  显式 `stages` 与命名字段并存时以 `stages` 为准，矛盾则报错。
+- **指纹**：
+  - 纯糖表单（未显式给 `stages`）：`to_dict()` 仍发命名字段 + 既有 `pooling`
+    规则（`none` 才记录），**two_step / direct_pooling 历史指纹逐位不动**。
+  - 显式 `stages`：`to_dict()` 记录有序 `stages`（含 name + component）与
+    `random_seed`；顺序与名字进入指纹。
+- `pooling` / `definition_level`：**派生**——序列中含 `pool` 角色 →
+  `pooling="cohort"` / `definition_level="cohort"`；否则 `"none"` / `"subject"`。
+  糖表单仍可显式写 `pooling` 以便旧文档 round-trip。
 
-- `to_dict()`：仅当 `pooling == "none"` 时发出 `pooling` 与 `definition_level`
-  两个键；`None` 与 `"cohort"` 都省略（二者语义相同，指纹必须相同）。
-  → two_step / direct_pooling 的既有 spec 指纹**逐位不动**，
-  `.habitatmodel` 的 model_id 与 checkpoint 键全部不受影响。
-- one_step 的 spec 过去**根本没有**记录数据流，如今必须记录
-  （`pooling: "none"` + `definition_level: "subject"`），其 spec 指纹因此前移——
-  这是本设计**有意为之**的溯源增强，不是数值漂移：one_step 的 NRRD 标签图与
-  parquet 特征逐位一致，仅 `run_manifest.json` 的 `spec_payload` /
-  `provenance.spec_fingerprint` 叶子变化，对应 baseline JSON 需按 §F.6 重生。
-- `to_effective_dict()`（YAML 导出）：始终展开 `pooling`（`None` 解析为
-  `"cohort"`）与 `definition_level`，导出文档自描述；round-trip 稳定
-  （`"cohort"` 读回后 `to_dict()` 再次省略，指纹不变）。
-- `from_dict()`：读 `pooling`；若 payload 同时携带 `definition_level`，
-  校验其与推导值一致（防止手改 YAML 造成自相矛盾的声明）。
+##### F.2 三种策略（由 stage 序列推断）
 
-##### F.2 校验规则
+| 策略 | 序列特征 | 备注 |
+|---|---|---|
+| `two_step` | 有 partition + 有 pool | pool 后 preprocess 允许 |
+| `direct_pooling` | 无 partition、有 pool | **pool 后特征预处理为一等公民** |
+| `one_step` | 无 partition、无 pool | 个体内 fit/assign；标签跨个体不可比 |
 
-- 值域校验在 `__post_init__`：`pooling` 只接受 `None` / `"cohort"` / `"none"`，
-  其余值构造即抛 `HABITAPIError`（与 `on_geometry_mismatch` 的值域校验同款）。
-- 跨字段一致性**不在构造期**拒绝（保持 spec 是可构造的值对象，既有测试契约不变），
-  而由 `HabitatSpec.validate_dataflow()` 在**入口点**执行：
-  - `pooling == "none"` 要求 `supervoxelizer is None`
-    （个体级定义 + 超体素是 v0.1 从未支持的设计，留作未来扩展）；
-  - `pooling == "none"` 要求 `cohort_feature_preprocessors` 为空
-    （没有任何步骤跨个体，队列级链的统计量无人使用）。
-- `fit_habitat` 与三个别名都会调用 `validate_dataflow()`；
-  `habit check-config`（`_validate_habitat_v1`）同样调用，让错误声明在跑之前暴露。
-- 别名一致性（「校验 spec 一致性，再调统一入口」）：
-  - `two_step`：`supervoxelizer` 必须存在（既有报错消息不变）；`pooling` 不得为
-    `"none"`（显式声明了个体级定义的 spec 与 two_step 矛盾）。
-  - `direct_pooling`：`supervoxelizer` 必须不存在（既有报错消息不变）；
-    `pooling` 不得为 `"none"`。
-  - `one_step`：`supervoxelizer` 必须不存在、cohort 链必须为空（既有报错消息
-    不变）；`pooling == "cohort"` 的显式声明报错；`pooling is None`（未声明）时
-    别名将 spec 规范化为 `pooling="none"` 再运行——**记录进 manifest 的 spec
-    必须如实描述实际跑的数据流**。
+**暂不支持**：有 partition 无 pool → **明确报错**（提示补 `pool`），禁止静默猜测为
+per-subject two-step。
 
-##### F.3 统一入口与数据流推导
+##### F.3 校验（错误即文档）
 
-```python
-def fit_habitat(cohort, spec, *, backend=None, seed=None, checkpoint=None, inspect=None) -> StudyResult:
-    """按 spec 声明的数据流拟合生境模型（spec 驱动，不再看函数名）。"""
-```
+`HabitatSpec.validate_dataflow()`（入口点 + `check-config`）对非法序列给出可行动消息：
 
-- 设计推导纯由 spec 图决定：`definition_level == "subject"` → one_step；
-  否则 `supervoxelizer is not None` → two_step；否则 → direct_pooling。
-- `two_step` / `one_step` / `direct_pooling` 保留为**薄别名**：先做 §F.2 的
-  一致性校验（既有报错消息逐字保留），再调 `fit_habitat`。签名、返回类型、
-  checkpoint 键、`inspect=` 行为全部不变。
-- manifest 的 `provenance.produced_by` 仍记录 `recipes.habitat.<design>`
-  （design 由 spec 推导，三个名字不变），`run_manifest.json` 结构不变。
-- `apply_habitat_model` 不属于拟合入口，保持原样（模型已携带队列级预处理状态，
-  无数据流自由度）。
+- 缺 `pool`（有 partition 时）/ 错误顺序 / 重名 stage；
+- 双域 `kmeans` 歧义消解规则写进报错与文档：
+  **assign 之前且位于 pool 之后（或 one_step 的 fit 位）→ fitter**；
+  **位于 `extract_supervoxel_features` 之前且尚未 pool → partition**；
+- 同名跨域无法按位置消解时拒绝猜测。
 
-##### F.4 fan-in / fan-out 原子
+##### F.4 统一 stage dataflow executor（不是只改 Spec 形状）
 
-新模块 `habit/domain/pooling.py`（L3，纯数据移动，不碰文件系统、无配置概念）：
+三种策略共享 **一条** 执行路径；每个 stage 是原子算子。仅两处层级跃迁：
 
-```python
-@dataclass(frozen=True)
-class PooledUnits:
-    """fan-in 的产物：队列矩阵 + 特征名 + 个体索引（每个个体的行区间）。"""
-    matrix: np.ndarray
-    feature_names: Tuple[str, ...]
-    subject_ids: Tuple[str, ...]
-    boundaries: Tuple[Tuple[int, int], ...]   # 每个个体的 [start, stop) 行区间
+1. **`pool`**：`fan_in`（subject → cohort），复用 `habit/domain/pooling.py`；
+2. **`assign`**：绑定队列级 `HabitatModel` 后 fan_out / 逐个体赋值
+   （`PooledUnits.fan_out` 用于行向量切分；标签图路径与现
+   `SubjectPipeline` / assigner 契约一致，避免第二份数值实现）。
 
-    def frame(self) -> pd.DataFrame: ...          # 供 cohort 预处理链 fit
-    def fan_out(self, values: np.ndarray) -> Dict[str, np.ndarray]: ...
-        # fan-out 的数值核：把队列级行向量（如 pooled 标签）按个体索引切回
+落点：
 
-def fan_in(units: Sequence[Supervoxelization]) -> PooledUnits:
-    """把各个体的聚类单元合并成队列矩阵，并保留个体索引。"""
-```
+- L3 `habit/domain/stages/`（角色解析、原子算子、executor）——无配置概念、无 IO；
+- L4 `habit/recipes/habitat.py` 的 `fit_habitat` 装配组件并调用 executor；
+- `two_step` / `one_step` / `direct_pooling` = **薄别名**：构造等价 stage 列表
+  （或等价糖表单）→ 同一 `fit_habitat` / executor。
 
-- `fan_in` 内部复用 `habitat_model/_base.py` 的 `pool_supervoxel_features`
-  （同一处 concat，不与拟合器的内部汇聚长出第二份实现），只追加个体索引。
-- 配方层 `_fit_cohort_model` 的 cohort 链 fit 改走 `fan_in(units).frame()`，
-  数值与旧 `pd.concat(...)` 路径逐位一致（golden 验证）。
-- 拟合器协议不变（仍收 `Sequence[Supervoxelization]` 并内部汇聚）——
-  不改协议是为了零数值风险；`fan_out` 的正确性由聚焦测试钉死
-  （pooled 赋值后切回 == 逐个体赋值）。
+**个体原子性**：stage 序列的 subject-level 前缀可对单个 `Subject` 调用，无需
+Cohort / backend；仅当序列含 pool / 队列级 fit 时 `fit_habitat` 才要求 cohort。
 
-##### F.5 YAML 双向映射
+种子沿 stage 对每个 `Seedable` 组件确定性传播；subject 前缀仍可用
+parallel / checkpoint backend。
 
-- **v0 → v1**（`LegacyConfigAdapter._translate_habitat_spec`）：按
-  `clustering_mode` 显式发出 `pooling`——`one_step` → `"none"`，
-  `two_step` / `direct_pooling` → `"cohort"`（后者 `to_dict()` 省略，指纹不动；
-  前者是 one_step 指纹前移的唯一来源）。`migrate_yaml` 落盘的 v1 文档因此自描述。
-- **v1 → 配方**（`yaml_runner._clustering_mode_from_spec`）：改为**数据流优先**——
-  spec 声明了 `pooling` 或结构可推导时直接定设计；仅当 `pooling` 未声明且
-  spec 名命中旧 `habitat_<mode>` 命名约定时回退到名称推导（旧 v1 文档继续可跑，
-  红线 3）。名称与显式声明矛盾时以声明为准并告警。
-- CLI（`cmd_habitat`）路径不变：v0 配置的 `clustering_mode` 仍选别名，
-  别名校验通过后代入统一入口；15 个子命令名称与选项零变化。
+##### F.5 Inspection
 
-##### F.6 测试与门禁
+每个 stage 边界发出 `StepRecord`，step 名绑定 stage 名（如 `preprocess1.output`、
+`pool.output`）。pool / fit 之后扩展 **cohort-level** records（`subject_id` 可用
+哨兵如 `"__cohort__"` 或 recorder 约定的队列键）。`inspect=StepRecorder(...)`
+仍为 opt-in；filters / `max_subjects`；**拒绝 process backend + inspect**（既有规则）。
 
-- 新增聚焦测试：spec 数据流推导（三种组合 + 未声明回退）、`validate_dataflow`
-  报错、别名一致性报错、`pooling` 值域报错、fan-in 个体索引与 fan-out 切分、
-  `to_dict`/`from_dict`/`to_effective_dict` 的指纹稳定性与 round-trip。
-- 门禁：`tests/test_architecture_contracts.py`、`tests/api/test_public_api.py`、
-  `tests/golden/fast/`、`tests/recipes/`、`tests/commands/`、
-  `tests/habitat/test_cli_habitat.py`、`tests/test_all_configs.py`；
-  本地 `demo_data/` 在，加跑 `tests/golden/test_golden_baseline.py`（slow）。
-- 预期基线影响：two_step / direct_pooling / predict / features / ml 基线**零变化**；
-  one_step 基线仅 `run_manifest.json` 的 spec 叶子前移（NRRD/parquet 逐位一致），
-  核对后按 `scripts/make_fast_golden_baseline.py` / `scripts/make_golden_baseline.py`
-  重生 one_step 两条基线并在提交信息中说明。
+旧固定名（`voxel_features.raw` 等）可继续作为别名映射，避免既有调试脚本全断。
 
-##### F.7 本期不做
+##### F.6 `HabitatModel` / 溯源
 
-- 个体级定义 + 超体素（per-subject two-step）新设计：v0.1 无此能力，
-  `validate_dataflow` 当前明确拒绝，留待有真实需求时再议。
-- 拟合器协议改为直接消费 `PooledUnits`：会动数值路径，留待单独的、
-  有 golden 护航的重构。
-- CLI 新开关：数据流声明在 spec 里，CLI 无需新选项。
+- pool 之后的 preprocess 链状态随 `HabitatModel` 走
+  （`with_cohort_preprocessing()` **必须重算 `model_id`**——既有契约）。
+- 旧 `.habitatmodel`：能加载则加载，否则 **明确不兼容错误**，禁止静默错图。
+- `RunManifest.describe_methods()` / `HabitatSpec.describe_methods()` 按
+  **stage 顺序**叙述。
+
+##### F.7 `pool` 标记组件与插件
+
+- 注册 `pool` 标记组件；域名 = `snake_case(协议名)`，entry-point 组 =
+  `habit.` + domain（在 `habit/api/plugins.py::_ENTRY_POINT_GROUPS` 与
+  `pyproject.toml` 注释模板中登记）。
+- 测试：临时插件组件可出现在 `stages` 中并被 executor 调用。
+
+##### F.8 YAML / CLI / Compat
+
+- YAML round-trip：`stages` 与糖表单均可；`migrate_yaml` / legacy 翻译可继续发
+  糖字段 + 派生 `pooling`，读回 normalize 为同一内部表示。
+- CLI 名称与选项不变；旧 YAML 继续可跑。
+- **禁止**往 `compat/` 加新能力。
+
+##### F.9 成功门禁（全部通过才可宣称完成）
+
+1. **数值**：CLI 三策略 vs baselines——生境标签逐体素一致；特征 `rtol=1e-6`；
+   `tests/golden/fast/` 绿；若有 `demo_data/` 再跑完整本地 baseline。
+2. Fast gate 绿：architecture + api + commands + recipes + golden/fast + registry + 新测。
+3. `test_architecture_contracts` + `test_public_api` 绿；新公开符号已登记。
+4. CLI 15 子命令不变；旧 YAML 仍可跑。
+5. py310 对文档示例真实冒烟（无 mock）。
+6. Sphinx 0 error 0 warning；按 `docs-gh-pages-deploy.mdc` 用临时 worktree 发布
+   gh-pages（禁止在主树 checkout gh-pages；禁止 force-push）。
+7. `HabitatModel` save/load：带 post-pool preprocess 的新模型 round-trip；旧模型
+   可加载或明确报错。
+
+##### F.10 本期不做
+
+- partition 无 pool 的 per-subject two-step。
+- 拟合器协议改为直接消费 `PooledUnits`（单独、有 golden 护航的后续重构）。
+- CLI 新开关（数据流在 spec / stages 里表达）。
 
 ---
+
 
 ## core 删除验收计划
 

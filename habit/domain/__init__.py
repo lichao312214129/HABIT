@@ -30,6 +30,7 @@ from habit.domain.protocols import (
     HabitatFeatureExtractor,
     HabitatModelFitter,
     ImagePerturbation,
+    PoolingMarker,
     Seedable,
     SubjectFeaturePreprocessor,
     SupervoxelFeatureExtractor,
@@ -44,6 +45,14 @@ from habit.domain.table_protocols import (
 )
 from habit.domain.pipeline import SubjectPipeline, TablePipeline
 from habit.domain.pooling import PooledUnits, fan_in
+from habit.domain.pooling_marker import PoolMarker, PoolMarkerParams, PoolingRegistry
+from habit.domain.stages import (
+    ResolvedStage,
+    design_from_stages,
+    execute_habitat_dataflow,
+    resolve_habitat_stages,
+    run_subject_stage_prefix,
+)
 from habit.domain.postprocess import (
     ConnectedComponentPostprocess,
     build_connected_component_postprocess,
@@ -324,6 +333,16 @@ __all__ = [
     # Cross-subject pooling atoms of the habitat dataflow.
     "PooledUnits",
     "fan_in",
+    "PoolMarker",
+    "PoolMarkerParams",
+    "PoolingRegistry",
+    # Stage dataflow (ordered named stages + shared executor).
+    "ResolvedStage",
+    "design_from_stages",
+    "execute_habitat_dataflow",
+    "resolve_habitat_stages",
+    "run_subject_stage_prefix",
+    "PoolingMarker",
     # Label-map post-processing (not a registry protocol).
     "ConnectedComponentPostprocess",
     "build_connected_component_postprocess",

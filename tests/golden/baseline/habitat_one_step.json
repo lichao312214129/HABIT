@@ -1,12 +1,19 @@
 {
   "artefacts": [
-    ".habitat_checkpoint/40ea9609e4e02deeae3f8362fd099e8f2ce1efe1fa0672c0da89d18ec5534b79.pkl",
-    ".habitat_checkpoint/ad793cc54ddba14ddd75616aaaebf6674ff01b4019aa242c40c0b7042b00d675.pkl",
+    ".habitat_checkpoint/37af8303f0d6876087760e69e1c12a5802b02eacdb435b9590bd0828cf74dc5a.pkl",
+    ".habitat_checkpoint/53684b5e243b58114f04b3a09be0b338c06a3e7faecbd53a794766a5ad77be28.pkl",
+    ".habitat_checkpoint/6565e5c71b56926b54235d03ed0bea1c082e29be4664e0dea3f77a16027ddfaf.pkl",
+    ".habitat_checkpoint/bc4c0bdfa9c7e9d4e1f7cb537966212f4c9ce56365113412325839c2392c2ba5.pkl",
+    ".habitat_checkpoint/e41e35d16254fb4cf05dd53f9b736c893bb0060d88327c7f0b1f3ffa798df1d8.pkl",
+    ".habitat_checkpoint/run_fingerprint.json",
     "habitat_features.csv",
     "habitats.parquet",
     "run_manifest.json",
     "subj001_habitats.nrrd",
-    "subj002_habitats.nrrd"
+    "subj002_habitats.nrrd",
+    "subj003_habitats.nrrd",
+    "subj004_habitats.nrrd",
+    "subj005_habitats.nrrd"
   ],
   "case": "habitat_one_step",
   "command": "get-habitat",
@@ -15,7 +22,7 @@
   "environment": {
     "float_atol": 1e-09,
     "float_rtol": 1e-06,
-    "git_commit": "39dcab03fb82a07e237aaadb06f41311cc786814",
+    "git_commit": "7604bbd26eeb7db2d0bde1f02e639ca39c81bb6d",
     "versions": {
       "SimpleITK": "2.2.1",
       "numpy": "1.26.1",
@@ -28,11 +35,27 @@
     }
   },
   "fingerprints": {
-    ".habitat_checkpoint/40ea9609e4e02deeae3f8362fd099e8f2ce1efe1fa0672c0da89d18ec5534b79.pkl": {
+    ".habitat_checkpoint/37af8303f0d6876087760e69e1c12a5802b02eacdb435b9590bd0828cf74dc5a.pkl": {
       "kind": "presence",
       "non_empty": true
     },
-    ".habitat_checkpoint/ad793cc54ddba14ddd75616aaaebf6674ff01b4019aa242c40c0b7042b00d675.pkl": {
+    ".habitat_checkpoint/53684b5e243b58114f04b3a09be0b338c06a3e7faecbd53a794766a5ad77be28.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/6565e5c71b56926b54235d03ed0bea1c082e29be4664e0dea3f77a16027ddfaf.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/bc4c0bdfa9c7e9d4e1f7cb537966212f4c9ce56365113412325839c2392c2ba5.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/e41e35d16254fb4cf05dd53f9b736c893bb0060d88327c7f0b1f3ffa798df1d8.pkl": {
+      "kind": "presence",
+      "non_empty": true
+    },
+    ".habitat_checkpoint/run_fingerprint.json": {
       "kind": "presence",
       "non_empty": true
     },
@@ -40,7 +63,10 @@
       "categorical": {
         "subject": [
           "subj001",
-          "subj002"
+          "subj002",
+          "subj003",
+          "subj004",
+          "subj005"
         ]
       },
       "columns": [
@@ -49,7 +75,7 @@
       "kind": "table",
       "numeric_columns": [],
       "shape": [
-        2,
+        5,
         1
       ],
       "values": {}
@@ -64,7 +90,21 @@
           "subj002",
           "subj002",
           "subj002",
-          "subj002"
+          "subj002",
+          "subj003",
+          "subj003",
+          "subj003",
+          "subj003",
+          "subj004",
+          "subj004",
+          "subj004",
+          "subj004",
+          "subj004",
+          "subj005",
+          "subj005",
+          "subj005",
+          "subj005",
+          "subj005"
         ]
       },
       "columns": [
@@ -72,63 +112,121 @@
         "supervoxel",
         "habitats",
         "count",
-        "delay2",
-        "delay3",
-        "delay5"
+        "pre_contrast",
+        "LAP",
+        "PVP",
+        "delay_3min"
       ],
       "kind": "table",
       "numeric_columns": [
         "supervoxel",
         "habitats",
         "count",
-        "delay2",
-        "delay3",
-        "delay5"
+        "pre_contrast",
+        "LAP",
+        "PVP",
+        "delay_3min"
       ],
       "shape": [
-        8,
-        7
+        22,
+        8
       ],
       "values": {
+        "LAP": [
+          0.2533864553935701,
+          0.7265577840531392,
+          0.3244004925933671,
+          0.7621837610069234,
+          0.7708351873581958,
+          0.13512362078456716,
+          0.6676168874644908,
+          0.6404999459047237,
+          0.8688297219893433,
+          0.3538696475474925,
+          0.07800761310953377,
+          0.5902443583095168,
+          0.22041794558081457,
+          0.3451881191329959,
+          0.580825281289241,
+          0.7450596804647185,
+          0.7344600095673761,
+          0.19511800496152093,
+          0.4950677891407306,
+          0.7716334144072182,
+          0.5629011920256197,
+          0.7134825544087897
+        ],
+        "PVP": [
+          0.14182801538468673,
+          0.3632996841351923,
+          0.41496295798545196,
+          0.8164317235832178,
+          0.19308282128523305,
+          0.42436685320607453,
+          0.8439988961372469,
+          0.5212309630846501,
+          0.8623001575400415,
+          0.3931626884723542,
+          0.09860152392845167,
+          0.6030804389910939,
+          0.15814006028573296,
+          0.6521363056958568,
+          0.4648334487381587,
+          0.8603441034556856,
+          0.43581900543714525,
+          0.11332069716583505,
+          0.42187223983649735,
+          0.7809318175170866,
+          0.3043950928961188,
+          0.8218580788855877
+        ],
         "count": [
-          340.0,
-          227.0,
-          105.0,
-          123.0,
-          350.0,
-          655.0,
-          184.0,
-          604.0
+          11351.0,
+          9781.0,
+          6266.0,
+          7296.0,
+          2974.0,
+          1995.0,
+          1787.0,
+          3102.0,
+          1208.0,
+          2295.0,
+          762.0,
+          1891.0,
+          1633.0,
+          1013.0,
+          659.0,
+          994.0,
+          1541.0,
+          25432.0,
+          8209.0,
+          9978.0,
+          24277.0,
+          12188.0
         ],
-        "delay2": [
-          0.2944539072514529,
-          0.7348747332771157,
-          0.8454353079677795,
-          0.24675610720499658,
-          0.646821855053232,
-          0.19702633447039192,
-          0.889783990601,
-          0.3949579808105801
-        ],
-        "delay3": [
-          0.149785399797014,
-          0.37486429833153345,
-          0.8229996199612657,
-          0.4488376708983655,
-          0.6513987967480511,
-          0.15685241533295755,
-          0.8939636595809037,
-          0.4882427399337541
-        ],
-        "delay5": [
-          0.1978167231892147,
-          0.3566251365681475,
-          0.8509334948256292,
-          0.5339876655877539,
-          0.6142785168183201,
-          0.15543872889335747,
-          0.9280248628344377,
-          0.3391976518137058
+        "delay_3min": [
+          0.1367199438295194,
+          0.3083454759065046,
+          0.4207905416650016,
+          0.7983125156393361,
+          0.15456434397254842,
+          0.36140350877192984,
+          0.8207395290775257,
+          0.4414819223329862,
+          0.8433249818071861,
+          0.29178551947065273,
+          0.0854618461202134,
+          0.5121378022443969,
+          0.1869159430127122,
+          0.7048466323338765,
+          0.2646763076585553,
+          0.8084943395311629,
+          0.33625012704940466,
+          0.14928907765070956,
+          0.2994757529853723,
+          0.724698323021611,
+          0.24874703102540532,
+          0.8063306645499576
         ],
         "habitats": [
           1.0,
@@ -138,7 +236,45 @@
           1.0,
           2.0,
           3.0,
-          4.0
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+        ],
+        "pre_contrast": [
+          0.21109089201231504,
+          0.5181074809859093,
+          0.5738031170006108,
+          0.770739841117695,
+          0.17370334566240753,
+          0.621437969924812,
+          0.7232687465025183,
+          0.3854126370083817,
+          0.8328135427896709,
+          0.1989478306395771,
+          0.18274023886549065,
+          0.5425024288859099,
+          0.24561849357011636,
+          0.3459723593287266,
+          0.7746661608497724,
+          0.6488631790744467,
+          0.24375730045425048,
+          0.20719348446719477,
+          0.8115584521054128,
+          0.3037124856502487,
+          0.21845701942604362,
+          0.8388134503883602
         ],
         "supervoxel": [
           1.0,
@@ -148,7 +284,21 @@
           1.0,
           2.0,
           3.0,
-          4.0
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
         ]
       }
     },
@@ -159,27 +309,36 @@
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.action": "adopt_geometry",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.mismatches": [
+          "origin",
+          "direction"
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.policy": "resample_mask",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_label": "pre_contrast",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.roi_name": "pre_contrast",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.subject_id": "subj001",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
         "provenance.inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
-        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "480027a345dabd8c371e880fdf97cd6a30720e4011407a9687220f9aaaebc89e",
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "5a205b9b17a0033f65c080d86f3335cd3dcc091571c29338082c6a1246d45dc8",
         "provenance.inputs[0].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
         "provenance.inputs[0].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
@@ -189,7 +348,7 @@
         "provenance.inputs[0].inputs[0].produced_by": "pipeline.voxel_units",
         "provenance.inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].inputs[0].software.pyradiomics": "3.0.1",
@@ -198,38 +357,47 @@
         "provenance.inputs[0].inputs[0].spec_fingerprint": "",
         "provenance.inputs[0].produced_by": "habitat_assigner.nearest_centroid",
         "provenance.inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[0].software.habit": "1.1.3",
         "provenance.inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[0].software.pyradiomics": "3.0.1",
         "provenance.inputs[0].software.scikit-learn": "1.6.1",
         "provenance.inputs[0].software.scipy": "1.15.3",
-        "provenance.inputs[0].spec_fingerprint": "258cbe70dafa74fbac2164bf682188876a960555479254d80b66f9b1882caca9",
+        "provenance.inputs[0].spec_fingerprint": "778bf8b5d66b186bdbd44da3086cd1705a8fb9e3d7493945a061353ed08c4738",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.action": "adopt_geometry",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.mismatches": [
+          "origin",
+          "direction"
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.policy": "resample_mask",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_label": "pre_contrast",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.roi_name": "pre_contrast",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.subject_id": "subj002",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
         "provenance.inputs[1].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
-        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].spec_fingerprint": "480027a345dabd8c371e880fdf97cd6a30720e4011407a9687220f9aaaebc89e",
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].spec_fingerprint": "5a205b9b17a0033f65c080d86f3335cd3dcc091571c29338082c6a1246d45dc8",
         "provenance.inputs[1].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
         "provenance.inputs[1].inputs[0].inputs[0].random_seed": null,
         "provenance.inputs[1].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[1].inputs[0].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[1].inputs[0].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[1].inputs[0].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[1].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
@@ -239,7 +407,7 @@
         "provenance.inputs[1].inputs[0].produced_by": "pipeline.voxel_units",
         "provenance.inputs[1].inputs[0].random_seed": null,
         "provenance.inputs[1].inputs[0].software.SimpleITK": "2.2.1",
-        "provenance.inputs[1].inputs[0].software.habit": "1.0.0",
+        "provenance.inputs[1].inputs[0].software.habit": "1.1.3",
         "provenance.inputs[1].inputs[0].software.numpy": "1.26.1",
         "provenance.inputs[1].inputs[0].software.pandas": "2.2.3",
         "provenance.inputs[1].inputs[0].software.pyradiomics": "3.0.1",
@@ -248,23 +416,201 @@
         "provenance.inputs[1].inputs[0].spec_fingerprint": "",
         "provenance.inputs[1].produced_by": "habitat_assigner.nearest_centroid",
         "provenance.inputs[1].software.SimpleITK": "2.2.1",
-        "provenance.inputs[1].software.habit": "1.0.0",
+        "provenance.inputs[1].software.habit": "1.1.3",
         "provenance.inputs[1].software.numpy": "1.26.1",
         "provenance.inputs[1].software.pandas": "2.2.3",
         "provenance.inputs[1].software.pyradiomics": "3.0.1",
         "provenance.inputs[1].software.scikit-learn": "1.6.1",
         "provenance.inputs[1].software.scipy": "1.15.3",
-        "provenance.inputs[1].spec_fingerprint": "32fb66bcbec861faa427b848f1abeed0a74658d14241c9492677637480b93876",
+        "provenance.inputs[1].spec_fingerprint": "d8c4b2f5fcc5e67a8fbba7143fccf13e5872653baac47db64df52fd99c80caf6",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.action": "adopt_geometry",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.mismatches": [
+          "origin",
+          "direction"
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.policy": "resample_mask",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_label": "pre_contrast",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.roi_name": "pre_contrast",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.subject_id": "subj003",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].spec_fingerprint": "5a205b9b17a0033f65c080d86f3335cd3dcc091571c29338082c6a1246d45dc8",
+        "provenance.inputs[2].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
+        "provenance.inputs[2].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[2].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[2].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[2].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[2].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[2].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[2].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[2].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[2].inputs[0].inputs[0].spec_fingerprint": "f7f671c70445a471e78b2f0b3e6fdebdd9383117b515bdda47ee31e253198fd4",
+        "provenance.inputs[2].inputs[0].produced_by": "pipeline.voxel_units",
+        "provenance.inputs[2].inputs[0].random_seed": null,
+        "provenance.inputs[2].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[2].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[2].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[2].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[2].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[2].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[2].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[2].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[2].produced_by": "habitat_assigner.nearest_centroid",
+        "provenance.inputs[2].software.SimpleITK": "2.2.1",
+        "provenance.inputs[2].software.habit": "1.1.3",
+        "provenance.inputs[2].software.numpy": "1.26.1",
+        "provenance.inputs[2].software.pandas": "2.2.3",
+        "provenance.inputs[2].software.pyradiomics": "3.0.1",
+        "provenance.inputs[2].software.scikit-learn": "1.6.1",
+        "provenance.inputs[2].software.scipy": "1.15.3",
+        "provenance.inputs[2].spec_fingerprint": "0f60ba26edef5b296f11f029e856833c042cb2afaad52a6e6c6aee427cc71ecb",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.action": "adopt_geometry",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.mismatches": [
+          "origin",
+          "direction"
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.policy": "resample_mask",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_label": "pre_contrast",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.roi_name": "pre_contrast",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.subject_id": "subj004",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].spec_fingerprint": "5a205b9b17a0033f65c080d86f3335cd3dcc091571c29338082c6a1246d45dc8",
+        "provenance.inputs[3].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
+        "provenance.inputs[3].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[3].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[3].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[3].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[3].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[3].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[3].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[3].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[3].inputs[0].inputs[0].spec_fingerprint": "f7f671c70445a471e78b2f0b3e6fdebdd9383117b515bdda47ee31e253198fd4",
+        "provenance.inputs[3].inputs[0].produced_by": "pipeline.voxel_units",
+        "provenance.inputs[3].inputs[0].random_seed": null,
+        "provenance.inputs[3].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[3].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[3].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[3].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[3].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[3].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[3].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[3].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[3].produced_by": "habitat_assigner.nearest_centroid",
+        "provenance.inputs[3].software.SimpleITK": "2.2.1",
+        "provenance.inputs[3].software.habit": "1.1.3",
+        "provenance.inputs[3].software.numpy": "1.26.1",
+        "provenance.inputs[3].software.pandas": "2.2.3",
+        "provenance.inputs[3].software.pyradiomics": "3.0.1",
+        "provenance.inputs[3].software.scikit-learn": "1.6.1",
+        "provenance.inputs[3].software.scipy": "1.15.3",
+        "provenance.inputs[3].spec_fingerprint": "28b90730945012764ccde225a77d945c328862f06cf52bdcdfa04cf5fb350153",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].inputs": [],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].produced_by": "subject_images",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.action": "adopt_geometry",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.mismatches": [
+          "origin",
+          "direction"
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.policy": "resample_mask",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_label": "pre_contrast",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.roi_name": "pre_contrast",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.subject_id": "subj005",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].produced_by": "voxel_feature_extractor.raw",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].spec_fingerprint": "5a205b9b17a0033f65c080d86f3335cd3dcc091571c29338082c6a1246d45dc8",
+        "provenance.inputs[4].inputs[0].inputs[0].produced_by": "feature_preprocessing.subject.voxel",
+        "provenance.inputs[4].inputs[0].inputs[0].random_seed": null,
+        "provenance.inputs[4].inputs[0].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[4].inputs[0].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[4].inputs[0].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[4].inputs[0].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[4].inputs[0].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[4].inputs[0].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[4].inputs[0].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[4].inputs[0].inputs[0].spec_fingerprint": "f7f671c70445a471e78b2f0b3e6fdebdd9383117b515bdda47ee31e253198fd4",
+        "provenance.inputs[4].inputs[0].produced_by": "pipeline.voxel_units",
+        "provenance.inputs[4].inputs[0].random_seed": null,
+        "provenance.inputs[4].inputs[0].software.SimpleITK": "2.2.1",
+        "provenance.inputs[4].inputs[0].software.habit": "1.1.3",
+        "provenance.inputs[4].inputs[0].software.numpy": "1.26.1",
+        "provenance.inputs[4].inputs[0].software.pandas": "2.2.3",
+        "provenance.inputs[4].inputs[0].software.pyradiomics": "3.0.1",
+        "provenance.inputs[4].inputs[0].software.scikit-learn": "1.6.1",
+        "provenance.inputs[4].inputs[0].software.scipy": "1.15.3",
+        "provenance.inputs[4].inputs[0].spec_fingerprint": "",
+        "provenance.inputs[4].produced_by": "habitat_assigner.nearest_centroid",
+        "provenance.inputs[4].software.SimpleITK": "2.2.1",
+        "provenance.inputs[4].software.habit": "1.1.3",
+        "provenance.inputs[4].software.numpy": "1.26.1",
+        "provenance.inputs[4].software.pandas": "2.2.3",
+        "provenance.inputs[4].software.pyradiomics": "3.0.1",
+        "provenance.inputs[4].software.scikit-learn": "1.6.1",
+        "provenance.inputs[4].software.scipy": "1.15.3",
+        "provenance.inputs[4].spec_fingerprint": "6b93341f5c6f4af1384be510e121b469c9b5c3e79ee0ee0a878c6e0f55981040",
         "provenance.produced_by": "recipes.habitat.one_step",
         "provenance.software.SimpleITK": "2.2.1",
-        "provenance.software.habit": "1.0.0",
+        "provenance.software.habit": "1.1.3",
         "provenance.software.numpy": "1.26.1",
         "provenance.software.pandas": "2.2.3",
         "provenance.software.pyradiomics": "3.0.1",
         "provenance.software.scikit-learn": "1.6.1",
         "provenance.software.scipy": "1.15.3",
-        "provenance.spec_fingerprint": "128a148c1011834f7957a10642bf172e6b7651f59fad3296945debc9bf870040",
+        "provenance.spec_fingerprint": "3aa979e53e856c2e9bbdb2c8aa91bdd741ca27254d6981b7596382de371e1ed8",
         "spec_payload.cohort_feature_preprocessors": [],
+        "spec_payload.definition_level": "subject",
         "spec_payload.habitat_assigner.name": "nearest_centroid",
         "spec_payload.habitat_assigner.version": "1.0",
         "spec_payload.habitat_features": [],
@@ -273,42 +619,305 @@
         "spec_payload.habitat_model_fitter.params.validation": "elbow",
         "spec_payload.habitat_model_fitter.version": "1.0",
         "spec_payload.name": "habitat_one_step",
+        "spec_payload.pooling": "none",
         "spec_payload.supervoxel_feature_extractor": null,
         "spec_payload.supervoxel_feature_preprocessors": [],
         "spec_payload.supervoxelizer": null,
         "spec_payload.version": "1.0",
         "spec_payload.voxel_feature_extractor.name": "raw",
         "spec_payload.voxel_feature_extractor.params.modalities": [
-          "delay2",
-          "delay3",
-          "delay5"
+          "pre_contrast",
+          "LAP",
+          "PVP",
+          "delay_3min"
         ],
         "spec_payload.voxel_feature_extractor.version": "1.0",
         "spec_payload.voxel_feature_preprocessors[0].name": "winsorize",
         "spec_payload.voxel_feature_preprocessors[0].params.across_features": false,
-        "spec_payload.voxel_feature_preprocessors[0].params.bin_strategy": null,
-        "spec_payload.voxel_feature_preprocessors[0].params.corr_method": null,
-        "spec_payload.voxel_feature_preprocessors[0].params.corr_threshold": null,
-        "spec_payload.voxel_feature_preprocessors[0].params.n_bins": null,
-        "spec_payload.voxel_feature_preprocessors[0].params.variance_threshold": null,
         "spec_payload.voxel_feature_preprocessors[0].version": "1.0",
         "spec_payload.voxel_feature_preprocessors[1].name": "minmax",
         "spec_payload.voxel_feature_preprocessors[1].params.across_features": false,
-        "spec_payload.voxel_feature_preprocessors[1].params.bin_strategy": null,
-        "spec_payload.voxel_feature_preprocessors[1].params.corr_method": null,
-        "spec_payload.voxel_feature_preprocessors[1].params.corr_threshold": null,
-        "spec_payload.voxel_feature_preprocessors[1].params.n_bins": null,
-        "spec_payload.voxel_feature_preprocessors[1].params.variance_threshold": null,
-        "spec_payload.voxel_feature_preprocessors[1].params.winsor_limits": null,
         "spec_payload.voxel_feature_preprocessors[1].version": "1.0",
         "subject_outcomes.subj001": "success",
-        "subject_outcomes.subj002": "success"
+        "subject_outcomes.subj002": "success",
+        "subject_outcomes.subj003": "success",
+        "subject_outcomes.subj004": "success",
+        "subject_outcomes.subj005": "success"
       },
       "numeric": {
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.origin": [
+          -179.759,
+          -209.569,
+          80.5007
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.shape": [
+          200.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.origin": [
+          -179.75900268554688,
+          -209.56900024414062,
+          82.0009994506836
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.shape": [
+          200.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[0].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
         "provenance.inputs[0].random_seed": [
           42.0
         ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.origin": [
+          -185.976,
+          -204.148,
+          74.2158
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.shape": [
+          200.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.origin": [
+          0.0,
+          0.0,
+          199.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.shape": [
+          200.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[1].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
         "provenance.inputs[1].random_seed": [
+          42.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.origin": [
+          -185.303,
+          -180.945,
+          59.6773
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.shape": [
+          190.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.origin": [
+          -185.30299377441406,
+          -180.94500732421875,
+          61.177001953125
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.shape": [
+          190.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[2].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[2].random_seed": [
+          42.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.origin": [
+          -188.001,
+          -190.195,
+          129.096
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.shape": [
+          190.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.origin": [
+          0.0,
+          0.0,
+          189.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.shape": [
+          190.0,
+          360.0,
+          360.0
+        ],
+        "provenance.inputs[3].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[3].random_seed": [
+          42.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.origin": [
+          -204.5707855225,
+          -170.696762085,
+          151.709854126
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.shape": [
+          192.0,
+          380.0,
+          380.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.reference_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.direction": [
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.origin": [
+          -204.57078552250005,
+          -170.696762085,
+          152.709854126
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.shape": [
+          192.0,
+          380.0,
+          380.0
+        ],
+        "provenance.inputs[4].inputs[0].inputs[0].inputs[0].notes.geometry_align.source_geometry.spacing": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "provenance.inputs[4].random_seed": [
           42.0
         ],
         "provenance.random_seed": [
@@ -337,11 +946,11 @@
     },
     "subj001_habitats.nrrd": {
       "direction": [
-        -1.0,
+        1.0,
         0.0,
         0.0,
         0.0,
-        -1.0,
+        1.0,
         0.0,
         0.0,
         0.0,
@@ -357,15 +966,15 @@
         4
       ],
       "origin": [
-        171.01510620117188,
-        163.74209594726562,
-        -148.50790405273438
+        -179.759,
+        -209.569,
+        80.5007
       ],
-      "sha256": "1c008e0d5d8ecc326a4023cbc479b1151a341013635f20c882ec3725ef6eaa41",
+      "sha256": "0049679952f17a46252e22b38fe52bc664cd7172160e5b102ece2ff2312c48ab",
       "shape": [
         200,
-        340,
-        340
+        360,
+        360
       ],
       "spacing": [
         1.0,
@@ -375,11 +984,11 @@
     },
     "subj002_habitats.nrrd": {
       "direction": [
-        -1.0,
+        1.0,
         0.0,
         0.0,
         0.0,
-        -1.0,
+        1.0,
         0.0,
         0.0,
         0.0,
@@ -395,15 +1004,131 @@
         4
       ],
       "origin": [
-        173.30812072753906,
-        155.13612365722656,
-        -123.2842025756836
+        -185.976,
+        -204.148,
+        74.2158
       ],
-      "sha256": "5e83d3412b8d1d42995f0bea5d19c558b5707f4c396016ba485dc24efa5d1e85",
+      "sha256": "aca13ae13c68eb957d21432c4ed110f7b969398edcbd098af560ba734d2dc136",
       "shape": [
         200,
         360,
         360
+      ],
+      "spacing": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "subj003_habitats.nrrd": {
+      "direction": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "dtype": "int32",
+      "kind": "array",
+      "label_values": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "origin": [
+        -185.303,
+        -180.945,
+        59.6773
+      ],
+      "sha256": "44e3364802fb9d8276d2026bcba0eef6a143ec47a3154d2ddfdba70d36aa4ff9",
+      "shape": [
+        190,
+        360,
+        360
+      ],
+      "spacing": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "subj004_habitats.nrrd": {
+      "direction": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "dtype": "int32",
+      "kind": "array",
+      "label_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "origin": [
+        -188.001,
+        -190.195,
+        129.096
+      ],
+      "sha256": "cb45bbf262b75b1ebfb5735361940a2bd5d236ee32ac82089c4181660d29d11c",
+      "shape": [
+        190,
+        360,
+        360
+      ],
+      "spacing": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "subj005_habitats.nrrd": {
+      "direction": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "dtype": "int32",
+      "kind": "array",
+      "label_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "origin": [
+        -204.5707855225,
+        -170.696762085,
+        151.709854126
+      ],
+      "sha256": "2a067a249f4aeddce82884191d5ff8e660638c66d3e831d9c7135e07db203521",
+      "shape": [
+        192,
+        380,
+        380
       ],
       "spacing": [
         1.0,

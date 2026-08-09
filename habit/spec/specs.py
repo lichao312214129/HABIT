@@ -28,11 +28,44 @@ import json
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union, cast
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
 
 from habit.exceptions import HABITAPIError
 
-__all__ = ["Spec", "HabitatSpec", "MLSpec", "coerce_spec"]
+__all__ = [
+    "Spec",
+    "Stage",
+    "HabitatSpec",
+    "MLSpec",
+    "coerce_spec",
+    "ROLE_EXTRACT_VOXEL_FEATURES",
+    "ROLE_PREPROCESS",
+    "ROLE_PARTITION",
+    "ROLE_EXTRACT_SUPERVOXEL_FEATURES",
+    "ROLE_POOL",
+    "ROLE_FIT",
+    "ROLE_ASSIGN",
+    "ROLE_QUANTIFY",
+    "ROLE_POSTPROCESS_SUPERVOXEL",
+    "ROLE_POSTPROCESS_HABITAT",
+    "POOL_COMPONENT_NAME",
+]
+
+#: Recommended / sugar role tags (documentation + sugar expansion). Names are
+#: labels, not keywords -- domain code may also infer roles from position.
+ROLE_EXTRACT_VOXEL_FEATURES = "extract_voxel_features"
+ROLE_PREPROCESS = "preprocess"
+ROLE_PARTITION = "partition"
+ROLE_EXTRACT_SUPERVOXEL_FEATURES = "extract_supervoxel_features"
+ROLE_POOL = "pool"
+ROLE_FIT = "fit"
+ROLE_ASSIGN = "assign"
+ROLE_QUANTIFY = "quantify"
+ROLE_POSTPROCESS_SUPERVOXEL = "postprocess_supervoxel"
+ROLE_POSTPROCESS_HABITAT = "postprocess_habitat"
+
+#: Built-in marker component name in the ``pooling`` plugin domain.
+POOL_COMPONENT_NAME = "pool"
 
 #: Registry domains recognised inside a HabitatSpec, in canonical order.
 #: Field names deliberately match the plugin domains verbatim (see
@@ -279,6 +312,317 @@ def coerce_spec(entry: Any) -> Optional[Spec]:
 
 
 @dataclass(frozen=True)
+class Stage:
+    """
+    One named step in a habitat dataflow.
+
+    Attributes:
+        name: Custom label unique within the enclosing HabitatSpec. Defaults
+            to the component registry name when built via :meth:`of`.
+        component: The pluggable component specification.
+        role: Optional role tag filled by sugar expansion. ``None`` for
+            user-authored stages until domain role resolution runs.
+    """
+
+    name: str
+    component: Spec
+    role: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        """Validate name / component types."""
+        if not isinstance(self.name, str) or not self.name.strip():
+            raise HABITAPIError("Stage.name must be a non-empty string.")
+        if not isinstance(self.component, Spec):
+            raise HABITAPIError(
+                f"Stage.component must be a Spec; got "
+                f"{type(self.component).__name__}."
+            )
+        if self.role is not None and (
+            not isinstance(self.role, str) or not self.role.strip()
+        ):
+            raise HABITAPIError("Stage.role must be a non-empty string when set.")
+
+    @classmethod
+    def of(
+        cls,
+        component: Union[Spec, Mapping[str, Any]],
+        name: Optional[str] = None,
+        role: Optional[str] = None,
+    ) -> "Stage":
+        """
+        Build a stage, defaulting ``name`` to the component registry name.
+
+        Args:
+            component: Component spec or mapping.
+            name: Optional custom label.
+            role: Optional sugar role tag.
+
+        Returns:
+            The stage.
+        """
+        spec = component if isinstance(component, Spec) else coerce_spec(component)
+        if spec is None:
+            raise HABITAPIError("Stage.of requires a component Spec.")
+        return cls(name=name or spec.name, component=spec, role=role)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise for YAML / fingerprint payloads."""
+        payload: Dict[str, Any] = {
+            "name": self.name,
+            "component": self.component.to_dict(),
+        }
+        if self.role is not None:
+            payload["role"] = self.role
+        return payload
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "Stage":
+        """
+        Rebuild a stage from its dict form.
+
+        Args:
+            payload: Mapping with ``name`` + ``component``, or a bare Spec
+                mapping with optional ``stage_name``.
+
+        Returns:
+            The reconstructed stage.
+        """
+        if "component" in payload:
+            component = coerce_spec(payload["component"])
+            if component is None:
+                raise HABITAPIError(
+                    f"Stage payload lacks a component Spec: {payload!r}."
+                )
+            name = str(payload.get("name") or component.name)
+            role = payload.get("role")
+            return cls(
+                name=name,
+                component=component,
+                role=None if role is None else str(role),
+            )
+        component = coerce_spec(payload)
+        if component is None:
+            raise HABITAPIError(f"Cannot parse Stage from payload: {payload!r}.")
+        name = str(payload.get("stage_name") or component.name)
+        role = payload.get("role")
+        return cls(
+            name=name,
+            component=component,
+            role=None if role is None else str(role),
+        )
+
+
+def _expand_stages_from_fields(
+    *,
+    voxel_feature_extractor: Spec,
+    supervoxelizer: Optional[Spec],
+    supervoxel_feature_extractor: Optional[Spec],
+    habitat_model_fitter: Spec,
+    habitat_assigner: Spec,
+    habitat_features: Tuple[Spec, ...],
+    voxel_feature_preprocessors: Tuple[Spec, ...],
+    supervoxel_feature_preprocessors: Tuple[Spec, ...],
+    cohort_feature_preprocessors: Tuple[Spec, ...],
+    pooling: Optional[str],
+    postprocess_supervoxel: Optional[Spec],
+    postprocess_habitat: Optional[Spec],
+) -> Tuple[Stage, ...]:
+    """
+    Expand the named-field sugar form into an ordered stage list.
+
+    Preprocess stages are numbered globally (``preprocess1``, …). A ``pool``
+    marker is inserted when the dataflow is cohort-level (default / explicit
+    ``pooling != "none"``).
+    """
+    stages: list[Stage] = [
+        Stage(
+            name=ROLE_EXTRACT_VOXEL_FEATURES,
+            component=voxel_feature_extractor,
+            role=ROLE_EXTRACT_VOXEL_FEATURES,
+        )
+    ]
+    preprocess_i = 1
+    for method in voxel_feature_preprocessors:
+        stages.append(
+            Stage(
+                name=f"{ROLE_PREPROCESS}{preprocess_i}",
+                component=method,
+                role=ROLE_PREPROCESS,
+            )
+        )
+        preprocess_i += 1
+    if supervoxelizer is not None:
+        stages.append(
+            Stage(
+                name=ROLE_PARTITION,
+                component=supervoxelizer,
+                role=ROLE_PARTITION,
+            )
+        )
+        if postprocess_supervoxel is not None:
+            stages.append(
+                Stage(
+                    name=ROLE_POSTPROCESS_SUPERVOXEL,
+                    component=postprocess_supervoxel,
+                    role=ROLE_POSTPROCESS_SUPERVOXEL,
+                )
+            )
+        if supervoxel_feature_extractor is not None:
+            stages.append(
+                Stage(
+                    name=ROLE_EXTRACT_SUPERVOXEL_FEATURES,
+                    component=supervoxel_feature_extractor,
+                    role=ROLE_EXTRACT_SUPERVOXEL_FEATURES,
+                )
+            )
+        for method in supervoxel_feature_preprocessors:
+            stages.append(
+                Stage(
+                    name=f"{ROLE_PREPROCESS}{preprocess_i}",
+                    component=method,
+                    role=ROLE_PREPROCESS,
+                )
+            )
+            preprocess_i += 1
+    include_pool = pooling != "none"
+    if include_pool:
+        stages.append(
+            Stage(
+                name=ROLE_POOL,
+                component=Spec(POOL_COMPONENT_NAME),
+                role=ROLE_POOL,
+            )
+        )
+        for method in cohort_feature_preprocessors:
+            stages.append(
+                Stage(
+                    name=f"{ROLE_PREPROCESS}{preprocess_i}",
+                    component=method,
+                    role=ROLE_PREPROCESS,
+                )
+            )
+            preprocess_i += 1
+    stages.append(
+        Stage(
+            name=ROLE_FIT,
+            component=habitat_model_fitter,
+            role=ROLE_FIT,
+        )
+    )
+    stages.append(
+        Stage(
+            name=ROLE_ASSIGN,
+            component=habitat_assigner,
+            role=ROLE_ASSIGN,
+        )
+    )
+    if postprocess_habitat is not None:
+        stages.append(
+            Stage(
+                name=ROLE_POSTPROCESS_HABITAT,
+                component=postprocess_habitat,
+                role=ROLE_POSTPROCESS_HABITAT,
+            )
+        )
+    for index, feature in enumerate(habitat_features):
+        name = ROLE_QUANTIFY if index == 0 else f"{ROLE_QUANTIFY}{index + 1}"
+        stages.append(Stage(name=name, component=feature, role=ROLE_QUANTIFY))
+    return tuple(stages)
+
+
+def _named_fields_from_stages(
+    stages: Sequence[Stage],
+) -> Dict[str, Any]:
+    """
+    Derive named HabitatSpec fields from a stage list that already carries roles.
+
+    Args:
+        stages: Stages with ``role`` set (sugar expansion or prior resolution).
+
+    Returns:
+        Keyword arguments suitable for constructing / updating HabitatSpec.
+    """
+    voxel_feature_extractor: Optional[Spec] = None
+    supervoxelizer: Optional[Spec] = None
+    supervoxel_feature_extractor: Optional[Spec] = None
+    habitat_model_fitter: Optional[Spec] = None
+    habitat_assigner: Optional[Spec] = None
+    habitat_features: list[Spec] = []
+    voxel_pre: list[Spec] = []
+    supervoxel_pre: list[Spec] = []
+    cohort_pre: list[Spec] = []
+    postprocess_supervoxel: Optional[Spec] = None
+    postprocess_habitat: Optional[Spec] = None
+    seen_pool = False
+    seen_partition = False
+    for stage in stages:
+        role = stage.role
+        if role is None:
+            raise HABITAPIError(
+                f"Stage {stage.name!r} has no role; resolve roles before "
+                "deriving named HabitatSpec fields."
+            )
+        if role == ROLE_EXTRACT_VOXEL_FEATURES:
+            voxel_feature_extractor = stage.component
+        elif role == ROLE_PARTITION:
+            supervoxelizer = stage.component
+            seen_partition = True
+        elif role == ROLE_EXTRACT_SUPERVOXEL_FEATURES:
+            supervoxel_feature_extractor = stage.component
+        elif role == ROLE_POOL:
+            seen_pool = True
+        elif role == ROLE_FIT:
+            habitat_model_fitter = stage.component
+        elif role == ROLE_ASSIGN:
+            habitat_assigner = stage.component
+        elif role == ROLE_QUANTIFY:
+            habitat_features.append(stage.component)
+        elif role == ROLE_POSTPROCESS_SUPERVOXEL:
+            postprocess_supervoxel = stage.component
+        elif role == ROLE_POSTPROCESS_HABITAT:
+            postprocess_habitat = stage.component
+        elif role == ROLE_PREPROCESS:
+            if not seen_pool and not seen_partition:
+                voxel_pre.append(stage.component)
+            elif not seen_pool and seen_partition:
+                supervoxel_pre.append(stage.component)
+            else:
+                cohort_pre.append(stage.component)
+        else:
+            raise HABITAPIError(
+                f"Unknown stage role {role!r} on stage {stage.name!r}."
+            )
+    if voxel_feature_extractor is None:
+        raise HABITAPIError(
+            "stages must include an extract_voxel_features role "
+            "(voxel_feature_extractor)."
+        )
+    if habitat_model_fitter is None:
+        raise HABITAPIError(
+            "stages must include a fit role (habitat_model_fitter)."
+        )
+    if habitat_assigner is None:
+        raise HABITAPIError(
+            "stages must include an assign role (habitat_assigner)."
+        )
+    pooling = "cohort" if seen_pool else "none"
+    return {
+        "voxel_feature_extractor": voxel_feature_extractor,
+        "supervoxelizer": supervoxelizer,
+        "supervoxel_feature_extractor": supervoxel_feature_extractor,
+        "habitat_model_fitter": habitat_model_fitter,
+        "habitat_assigner": habitat_assigner,
+        "habitat_features": tuple(habitat_features),
+        "voxel_feature_preprocessors": tuple(voxel_pre),
+        "supervoxel_feature_preprocessors": tuple(supervoxel_pre),
+        "cohort_feature_preprocessors": tuple(cohort_pre),
+        "pooling": pooling,
+        "postprocess_supervoxel": postprocess_supervoxel,
+        "postprocess_habitat": postprocess_habitat,
+    }
+
+
+@dataclass(frozen=True)
 class HabitatSpec:
     """
     Complete specification of a habitat analysis.
@@ -321,17 +665,18 @@ class HabitatSpec:
             grid; ``"strict"`` raises :class:`~habit.exceptions.GeometryError`.
             The default is omitted from :meth:`to_dict` so historical
             fingerprints stay stable when the policy is unchanged.
-        pooling: Cross-subject pooling declaration of the habitat dataflow.
-            ``"cohort"`` pools the per-subject clustering units (supervoxels,
-            or voxels when ``supervoxelizer=None``) into one cohort matrix,
-            fits ONE shared habitat definition, and assigns it back to each
-            subject (two-step / direct-pooling). ``"none"`` never pools:
-            every subject defines and labels its own habitats independently
-            (one-step), so habitat ids are not comparable across subjects.
-            ``None`` (default) means undeclared and resolves to ``"cohort"``;
+        pooling: Cross-subject pooling declaration of the habitat dataflow
+            (sugar / derived view). Prefer :attr:`stages` with a ``pool``
+            marker for new code. ``"cohort"`` pools clustering units across
+            subjects; ``"none"`` defines habitats inside each subject
+            (one-step). ``None`` (default) means undeclared and resolves to
+            ``"cohort"`` for sugar forms without an explicit ``pool`` stage;
             both ``None`` and ``"cohort"`` are omitted from :meth:`to_dict`
             so historical fingerprints stay stable, while ``"none"`` is
             always recorded (with the derived :attr:`definition_level`).
+        stages: Ordered named stages (source of truth when provided
+            explicitly). The named component fields above remain as sugar
+            that normalises to the same internal stage list.
         postprocess_supervoxel: Optional Spec for connected-component cleanup
             of supervoxel label maps (two-step). ``None`` skips cleanup and is
             omitted from :meth:`to_dict` so historical fingerprints stay stable.
@@ -368,10 +713,12 @@ class HabitatSpec:
     """
 
     name: str
-    voxel_feature_extractor: Spec
-    supervoxelizer: Optional[Spec]
-    habitat_model_fitter: Spec
-    habitat_assigner: Spec
+    # Named fields are sugar. They are required unless ``stages`` is supplied
+    # explicitly (then roles fill them after resolution / sugar roles).
+    voxel_feature_extractor: Optional[Spec] = None
+    supervoxelizer: Optional[Spec] = None
+    habitat_model_fitter: Optional[Spec] = None
+    habitat_assigner: Optional[Spec] = None
     supervoxel_feature_extractor: Optional[Spec] = None
     habitat_features: Tuple[Spec, ...] = ()
     voxel_feature_preprocessors: Tuple[Spec, ...] = ()
@@ -380,9 +727,14 @@ class HabitatSpec:
     random_seed: Optional[int] = None
     on_geometry_mismatch: str = "resample_mask"
     pooling: Optional[str] = None
+    stages: Optional[Tuple[Stage, ...]] = None
     postprocess_supervoxel: Optional[Spec] = None
     postprocess_habitat: Optional[Spec] = None
     version: str = "1.0"
+    #: True when the caller supplied ``stages=`` explicitly (fingerprint
+    #: records the ordered stage list). Sugar-only specs keep historical
+    #: named-field fingerprints.
+    _stages_explicit: bool = field(default=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         """Coerce component payloads into Spec instances and tuples."""
@@ -404,18 +756,30 @@ class HabitatSpec:
                     f"to leave the dataflow undeclared); got {self.pooling!r}."
                 )
             object.__setattr__(self, "pooling", pooling)
-        for domain in _COMPONENT_DOMAINS:
-            value = getattr(self, domain)
-            if value is None:
-                if domain in _OPTIONAL_COMPONENT_DOMAINS:
-                    continue
-                raise HABITAPIError(
-                    f"HabitatSpec requires a '{domain}' component spec."
-                )
-            if not isinstance(value, Spec):
-                raise HABITAPIError(
-                    f"HabitatSpec.{domain} must be a Spec; got {type(value).__name__}."
-                )
+
+        # ``stages`` stores ONLY caller-authored stages. Sugar expansion is
+        # computed by :meth:`resolved_stages` so ``dataclasses.replace`` on
+        # named fields (e.g. ``pooling="none"``) never keeps a stale pool
+        # stage from a previous expansion.
+        stages_explicit = self.stages is not None
+        if stages_explicit:
+            coerced_stages: List[Stage] = []
+            for entry in self.stages or ():
+                if isinstance(entry, Stage):
+                    coerced_stages.append(entry)
+                elif isinstance(entry, Mapping):
+                    coerced_stages.append(Stage.from_dict(entry))
+                else:
+                    raise HABITAPIError(
+                        "Every HabitatSpec.stages entry must be a Stage or "
+                        f"mapping; got {type(entry).__name__}."
+                    )
+            object.__setattr__(self, "stages", tuple(coerced_stages))
+            if coerced_stages and all(stage.role for stage in coerced_stages):
+                derived = _named_fields_from_stages(tuple(coerced_stages))
+                for key, value in derived.items():
+                    object.__setattr__(self, key, value)
+
         for field_name in ("postprocess_supervoxel", "postprocess_habitat"):
             value = getattr(self, field_name)
             if value is None:
@@ -440,8 +804,47 @@ class HabitatSpec:
                     raise HABITAPIError(
                         f"Every entry of HabitatSpec.{chain_field} must be a Spec."
                     )
+
+        # Sugar path: named fields required when stages were not supplied.
+        if not stages_explicit:
+            for domain in _COMPONENT_DOMAINS:
+                value = getattr(self, domain)
+                if value is None:
+                    if domain in _OPTIONAL_COMPONENT_DOMAINS:
+                        continue
+                    raise HABITAPIError(
+                        f"HabitatSpec requires a '{domain}' component spec "
+                        "(or an explicit stages list that provides it)."
+                    )
+                if not isinstance(value, Spec):
+                    raise HABITAPIError(
+                        f"HabitatSpec.{domain} must be a Spec; "
+                        f"got {type(value).__name__}."
+                    )
+        else:
+            for domain in _COMPONENT_DOMAINS:
+                value = getattr(self, domain)
+                if value is None:
+                    continue
+                if not isinstance(value, Spec):
+                    raise HABITAPIError(
+                        f"HabitatSpec.{domain} must be a Spec; "
+                        f"got {type(value).__name__}."
+                    )
+
+        object.__setattr__(self, "_stages_explicit", stages_explicit)
         if self.random_seed is not None:
             object.__setattr__(self, "random_seed", int(self.random_seed))
+
+        stage_names = [stage.name for stage in self.resolved_stages()]
+        if len(stage_names) != len(set(stage_names)):
+            dupes = sorted(
+                {name for name in stage_names if stage_names.count(name) > 1}
+            )
+            raise HABITAPIError(
+                f"HabitatSpec stage names must be unique; duplicates: {dupes}. "
+                "Rename the colliding Stage.name labels."
+            )
 
     def component_specs(self) -> Mapping[str, Optional[Spec]]:
         """Return the pipeline component specs keyed by domain name."""
@@ -459,51 +862,109 @@ class HabitatSpec:
         Level at which the habitat definition is learned, DERIVED from the
         declared dataflow.
 
-        ``"subject"`` when ``pooling="none"`` (each subject defines its own
-        habitats; the one-step design), otherwise ``"cohort"`` (one shared
-        definition fitted on the pooled clustering units). This is a
-        read-only view of the spec graph, not a free-form field: it is
-        recorded in :meth:`to_dict` / :meth:`to_effective_dict` whenever the
-        dataflow is declared explicitly, so manifests and fingerprints state
-        where the definition lives.
+        ``"subject"`` when there is no ``pool`` stage / ``pooling="none"``
+        (each subject defines its own habitats; the one-step design),
+        otherwise ``"cohort"``. This is a read-only view of the spec graph,
+        not a free-form field.
         """
+        if self.stages and any(
+            stage.role == ROLE_POOL
+            or (
+                stage.role is None
+                and stage.component.name == POOL_COMPONENT_NAME
+            )
+            for stage in self.stages
+        ):
+            return "cohort"
         return "subject" if self.pooling == "none" else "cohort"
+
+    def resolved_stages(self) -> Tuple[Stage, ...]:
+        """
+        Return the ordered stages (explicit or sugar-expanded).
+
+        Sugar expansion is computed here (not stored on ``stages``) so
+        replacing named fields such as ``pooling`` rebuilds the sequence.
+
+        Returns:
+            The effective stage tuple used by the executor and fingerprints
+            of explicit-stage specs.
+        """
+        if self._stages_explicit and self.stages is not None:
+            return self.stages
+        if self.voxel_feature_extractor is None or self.habitat_model_fitter is None:
+            return self.stages or ()
+        if self.habitat_assigner is None:
+            return self.stages or ()
+        return _expand_stages_from_fields(
+            voxel_feature_extractor=self.voxel_feature_extractor,
+            supervoxelizer=self.supervoxelizer,
+            supervoxel_feature_extractor=self.supervoxel_feature_extractor,
+            habitat_model_fitter=self.habitat_model_fitter,
+            habitat_assigner=self.habitat_assigner,
+            habitat_features=self.habitat_features,
+            voxel_feature_preprocessors=self.voxel_feature_preprocessors,
+            supervoxel_feature_preprocessors=self.supervoxel_feature_preprocessors,
+            cohort_feature_preprocessors=self.cohort_feature_preprocessors,
+            pooling=self.pooling,
+            postprocess_supervoxel=self.postprocess_supervoxel,
+            postprocess_habitat=self.postprocess_habitat,
+        )
 
     def validate_dataflow(self) -> None:
         """
-        Check cross-field consistency of the declared habitat dataflow.
+        Check cross-field / stage-sequence consistency of the dataflow.
 
-        Construction (:meth:`__post_init__`) only enforces the value domain
-        of each field so a spec stays a constructible value object; the
-        combinations below are scientifically meaningless and are rejected
-        here, at the entry points (recipes / ``habit check-config``), before
-        any compute starts.
+        Construction (:meth:`__post_init__`) only enforces value domains so a
+        spec stays a constructible value object; scientifically meaningless
+        combinations are rejected here at entry points (recipes /
+        ``habit check-config``). Role inference that needs registries runs in
+        ``habit.domain.stages`` and is invoked from ``fit_habitat``.
 
         Raises:
-            HABITAPIError: If ``pooling="none"`` is combined with a
-                supervoxelizer (per-subject habitat definition on supervoxels
-                is not a supported design) or with a cohort-level
-                preprocessing chain (no step ever pools across subjects, so
-                fitted cohort statistics would never be used).
+            HABITAPIError: On illegal sugar combinations or structural stage
+                errors (duplicate names already rejected at construction;
+                partition without pool; subject-level + cohort preprocess).
         """
-        if self.pooling != "none":
-            return
-        if self.supervoxelizer is not None:
+        stages = self.resolved_stages()
+        roles = [stage.role for stage in stages if stage.role is not None]
+        has_partition = ROLE_PARTITION in roles or self.supervoxelizer is not None
+        has_pool = ROLE_POOL in roles or any(
+            stage.component.name == POOL_COMPONENT_NAME for stage in stages
+        )
+        # Undeclared pooling sugar still means cohort unless pooling='none'.
+        if self.pooling == "none":
+            has_pool = False
+        elif self.pooling == "cohort":
+            has_pool = True
+        elif not roles and self.pooling is None:
+            has_pool = True
+
+        if has_partition and not has_pool:
             raise HABITAPIError(
-                "HabitatSpec.pooling='none' (subject-level habitat definition) "
-                "does not support a supervoxelizer: per-subject definition on "
-                "supervoxels is not a supported design. Remove the "
-                "supervoxelizer (one-step) or declare pooling='cohort' "
-                "(two-step)."
+                "HabitatSpec declares a partition (supervoxelizer) stage but "
+                "no pool stage: per-subject definition on supervoxels is not "
+                "a supported design. Add a pool stage "
+                "(Stage('pool', Spec('pool'))) after the subject-level "
+                "prefix, or remove the partition stage for one_step."
             )
-        if self.cohort_feature_preprocessors:
-            raise HABITAPIError(
-                "HabitatSpec.pooling='none' (subject-level habitat definition) "
-                "does not support cohort_feature_preprocessors: no step pools "
-                "across subjects, so cohort-level fitted statistics would "
-                "never be used. Move the chain to "
-                "voxel_feature_preprocessors or declare pooling='cohort'."
-            )
+        if self.pooling == "none":
+            if self.supervoxelizer is not None:
+                raise HABITAPIError(
+                    "HabitatSpec.pooling='none' (subject-level habitat "
+                    "definition) does not support a supervoxelizer: "
+                    "per-subject definition on supervoxels is not a supported "
+                    "design. Remove the supervoxelizer (one-step) or declare "
+                    "pooling='cohort' / add a pool stage (two-step)."
+                )
+            if self.cohort_feature_preprocessors:
+                raise HABITAPIError(
+                    "HabitatSpec.pooling='none' (subject-level habitat "
+                    "definition) does not support cohort_feature_preprocessors: "
+                    "no step pools across subjects, so cohort-level fitted "
+                    "statistics would never be used. Move the chain to "
+                    "voxel_feature_preprocessors, or declare pooling='cohort' "
+                    "/ insert a pool stage before those preprocess steps."
+                )
 
     def describe_methods(self, style: str = "radiology") -> str:
         """
@@ -535,10 +996,27 @@ class HabitatSpec:
                 f"Unknown methods style {style!r}; expected one of "
                 f"{_METHODS_STYLES}."
             )
-        body: list[str] = [
-            f"The analysis specification {self.name!r} comprises "
-            f"{'; '.join(_component_phrases(self.to_dict()))}."
+        # Narrate both the ordered stages and the classic component phrases
+        # so manuscripts keep recognisable step names while stages stay SoT.
+        stage_phrases = [
+            (
+                f"{stage.name} ({stage.component.name}"
+                f"{'' if not stage.component.params else ', ' + _params_text(stage.component.params)})"
+            )
+            for stage in self.resolved_stages()
         ]
+        component_text = "; ".join(_component_phrases(self.to_dict()))
+        if stage_phrases:
+            body: list[str] = [
+                f"The analysis specification {self.name!r} proceeds through "
+                f"ordered stages: {'; '.join(stage_phrases)}. "
+                f"In component terms it comprises {component_text}."
+            ]
+        else:
+            body = [
+                f"The analysis specification {self.name!r} comprises "
+                f"{component_text}."
+            ]
         if self.definition_level == "subject":
             body.append(
                 "Habitats are defined within each subject independently "
@@ -580,6 +1058,16 @@ class HabitatSpec:
             "name": self.name,
             "version": self.version,
         }
+        # Explicit stages are the fingerprint source of truth. Sugar-only
+        # specs keep the historical named-field payload so two_step /
+        # direct_pooling fingerprints stay byte-identical.
+        if self._stages_explicit:
+            payload["stages"] = [stage.to_dict() for stage in self.resolved_stages()]
+            payload["random_seed"] = self.random_seed
+            if self.on_geometry_mismatch != "resample_mask":
+                payload["on_geometry_mismatch"] = self.on_geometry_mismatch
+            return payload
+
         for domain, component in self.component_specs().items():
             payload[domain] = component.to_dict() if component is not None else None
         payload["habitat_features"] = [
@@ -616,16 +1104,24 @@ class HabitatSpec:
         Serialise with fingerprint-stable defaults expanded for YAML export.
 
         Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``,
-        the resolved ``pooling`` declaration with its derived
+        the resolved ``pooling`` / ``stages`` view with its derived
         ``definition_level``, and both postprocess slots (``null`` when unset)
         so a saved document records the full effective analysis, not only
-        overridden fields. Fingerprints still use :meth:`to_dict` and are
-        unchanged; the round trip stays stable because ``pooling="cohort"``
-        reads back to the same fingerprint as an undeclared dataflow.
+        overridden fields. Fingerprints still use :meth:`to_dict`.
         """
         payload = self.to_dict()
         payload["on_geometry_mismatch"] = self.on_geometry_mismatch
-        payload["pooling"] = "cohort" if self.pooling is None else self.pooling
+        payload["stages"] = [stage.to_dict() for stage in self.resolved_stages()]
+        resolved_pooling = (
+            "none"
+            if self.definition_level == "subject"
+            else ("cohort" if self.pooling is None else self.pooling)
+        )
+        if self.pooling == "none":
+            resolved_pooling = "none"
+        elif self.definition_level == "cohort":
+            resolved_pooling = "cohort" if self.pooling is None else self.pooling
+        payload["pooling"] = resolved_pooling
         payload["definition_level"] = self.definition_level
         payload["postprocess_supervoxel"] = (
             self.postprocess_supervoxel.to_dict()
@@ -637,6 +1133,12 @@ class HabitatSpec:
             if self.postprocess_habitat is not None
             else None
         )
+        # Sugar named fields aid human readers even when stages are explicit.
+        if self._stages_explicit and self.voxel_feature_extractor is not None:
+            for domain, component in self.component_specs().items():
+                payload.setdefault(
+                    domain, component.to_dict() if component is not None else None
+                )
         return payload
 
     def to_yaml(self, path: Optional[Union[str, Path]] = None) -> str:
@@ -679,43 +1181,60 @@ class HabitatSpec:
         Raises:
             HABITAPIError: If a required component is missing.
         """
-        components: Dict[str, Optional[Spec]] = {}
-        for domain in _COMPONENT_DOMAINS:
-            components[domain] = coerce_spec(payload.get(domain))
-        features = tuple(
-            cast(Spec, coerce_spec(item))
-            for item in payload.get("habitat_features", ())
-        )
-        chains = {
-            chain_key: tuple(
-                cast(Spec, coerce_spec(item))
-                for item in payload.get(chain_key, ())
+        stages_payload = payload.get("stages")
+        if stages_payload is not None and "voxel_feature_extractor" not in payload:
+            # Stages-only document.
+            stages = tuple(Stage.from_dict(item) for item in stages_payload)
+            spec = cls(
+                name=str(payload.get("name", "habitat_spec")),
+                stages=stages,
+                random_seed=payload.get("random_seed"),
+                on_geometry_mismatch=str(
+                    payload.get("on_geometry_mismatch", "resample_mask")
+                ),
+                version=str(payload.get("version", "1.0")),
             )
-            for chain_key, _ in _PREPROCESSING_CHAINS
-        }
-        # ``components`` holds Optional[Spec] because a hand-written document
-        # may omit a domain; ``__post_init__`` rejects a missing REQUIRED
-        # component with HABITAPIError, so the casts below only cross the
-        # static gap -- invalid payloads still fail at construction.
-        pooling = payload.get("pooling")
-        spec = cls(
-            name=str(payload.get("name", "habitat_spec")),
-            voxel_feature_extractor=cast(Spec, components["voxel_feature_extractor"]),
-            supervoxelizer=components["supervoxelizer"],
-            supervoxel_feature_extractor=components["supervoxel_feature_extractor"],
-            habitat_model_fitter=cast(Spec, components["habitat_model_fitter"]),
-            habitat_assigner=cast(Spec, components["habitat_assigner"]),
-            habitat_features=features,
-            random_seed=payload.get("random_seed"),
-            on_geometry_mismatch=str(
-                payload.get("on_geometry_mismatch", "resample_mask")
-            ),
-            pooling=None if pooling is None else str(pooling),
-            postprocess_supervoxel=coerce_spec(payload.get("postprocess_supervoxel")),
-            postprocess_habitat=coerce_spec(payload.get("postprocess_habitat")),
-            version=str(payload.get("version", "1.0")),
-            **chains,
-        )
+        else:
+            components: Dict[str, Optional[Spec]] = {}
+            for domain in _COMPONENT_DOMAINS:
+                components[domain] = coerce_spec(payload.get(domain))
+            features = tuple(
+                cast(Spec, coerce_spec(item))
+                for item in payload.get("habitat_features", ())
+            )
+            chains = {
+                chain_key: tuple(
+                    cast(Spec, coerce_spec(item))
+                    for item in payload.get(chain_key, ())
+                )
+                for chain_key, _ in _PREPROCESSING_CHAINS
+            }
+            pooling = payload.get("pooling")
+            # Named fields present: keep the sugar fingerprint path. An
+            # accompanying ``stages`` list from ``to_effective_dict`` is
+            # documentation only and must not flip ``_stages_explicit``.
+            spec = cls(
+                name=str(payload.get("name", "habitat_spec")),
+                voxel_feature_extractor=components["voxel_feature_extractor"],
+                supervoxelizer=components["supervoxelizer"],
+                supervoxel_feature_extractor=components[
+                    "supervoxel_feature_extractor"
+                ],
+                habitat_model_fitter=components["habitat_model_fitter"],
+                habitat_assigner=components["habitat_assigner"],
+                habitat_features=features,
+                random_seed=payload.get("random_seed"),
+                on_geometry_mismatch=str(
+                    payload.get("on_geometry_mismatch", "resample_mask")
+                ),
+                pooling=None if pooling is None else str(pooling),
+                postprocess_supervoxel=coerce_spec(
+                    payload.get("postprocess_supervoxel")
+                ),
+                postprocess_habitat=coerce_spec(payload.get("postprocess_habitat")),
+                version=str(payload.get("version", "1.0")),
+                **chains,
+            )
         # A document may also carry the derived ``definition_level`` (written
         # by ``to_dict`` / ``to_effective_dict`` / the legacy adapter). It is
         # not a free-form field: reject documents whose stated level

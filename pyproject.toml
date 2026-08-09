@@ -83,11 +83,16 @@ habit = "habit.cli:cli"
 # Plugin entry-point groups are intentionally NOT declared here: setuptools
 # strips empty groups from the generated metadata, so empty declarations would
 # be dead weight. Third-party plugins declare the groups in their own
-# packaging metadata (e.g. [project.entry-points."habit.supervoxelizer"] or
-# [project.entry-points."habit.combiner"] for a custom feature combiner) and
-# `habit.load_plugins()` discovers them at run time. The authoritative group
-# list lives in `habit/api/plugins.py::_ENTRY_POINT_GROUPS` and is documented
-# in docs/source/api/plugins.rst.
+# packaging metadata, for example:
+#   [project.entry-points."habit.supervoxelizer"]
+#   my_slic = "my_pkg.supervoxel:MySlic"
+#   [project.entry-points."habit.combiner"]
+#   my_combiner = "my_pkg.combiners:MyCombiner"
+#   [project.entry-points."habit.pooling"]
+#   my_pool = "my_pkg.pooling:MyPoolMarker"
+# and `habit.load_plugins()` discovers them at run time. The authoritative
+# group list lives in `habit/api/plugins.py::_ENTRY_POINT_GROUPS` and is
+# documented in docs/source/api/plugins.rst.
 
 [project.optional-dependencies]
 # PyRadiomics is installed separately (never pulled by HABIT extras):

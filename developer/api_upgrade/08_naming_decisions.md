@@ -163,11 +163,16 @@ HABIT 的核心科学优势是天然多模态（T1/T2/CT/PET 任意组合）。�
 | `habitat_assigner` | `HabitatAssigner` | `habit.habitat_assigner` |
 | `habitat_feature_extractor` | `HabitatFeatureExtractor` | `habit.habitat_feature_extractor` |
 | `combiner` | `Combiner` | `habit.combiner` |
+| `pooling` | `PoolingMarker` | `habit.pooling` |
 | `preprocessor` | 图像预处理 | `habit.preprocessor` |
 | `table_preprocessor` | 特征表预处理 | `habit.table_preprocessor` |
 | `classifier` | ML 模型 | `habit.classifier` |
 | `feature_selector` | 特征选择 | `habit.feature_selector` |
 | `metric` | 评估指标 | `habit.metric` |
+
+`pooling` / `PoolingMarker`：有序 stage 列表里的 **subject→cohort 分水岭标记**
+（内置名 ``pool``）。它不是聚类算法；executor 识别该角色后调用
+``habit.domain.pooling.fan_in``。见 `07` §F（2026-08-09 stages 定稿）。
 
 要点：
 - **单数、协议名**，不是复数域名（推翻此前的 `habit.preprocessors` 复数方案——那是 v0.1 的偶然，不是该继承的约定；v1.0 允许破坏性重构，统一为协议名更自洽）。

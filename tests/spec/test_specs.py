@@ -236,7 +236,10 @@ def test_habitat_spec_describe_methods_states_every_configured_step() -> None:
 
     assert text.startswith("A habitat imaging analysis was designed with HABIT")
     assert "'demo'" in text
-    # Every configured step appears, with its parameters, in pipeline order.
+    # Ordered stages are narrated, and classic component phrases remain.
+    assert "ordered stages:" in text
+    assert "extract_voxel_features (raw" in text
+    assert "partition (slic" in text
     assert text.index("voxel feature extraction with raw") < text.index(
         "supervoxelization with slic"
     ) < text.index("habitat model fitting with kmeans") < text.index(

@@ -16,7 +16,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 
@@ -107,14 +107,46 @@ pool = recipes.direct_pooling(cohort, _spec("direct_pooling", supervoxelizer=Fal
 assert pool.habitat_model is not None
 print(f"  habitats={pool.habitat_model.n_habitats}")
 
-print("=== fit_habitat (unified entry, spec-driven dispatch) ===")
-# pooling="none" declares the subject-level dataflow on the spec itself;
-# fit_habitat reads the declaration and runs the same design as one_step.
+print("=== fit_habitat (unified entry, stage dataflow executor) ===")
+# pooling="none" declares the subject-level dataflow on the sugar form;
+# fit_habitat expands stages and runs the shared executor (same as one_step).
 unified = recipes.fit_habitat(
     cohort, _spec("one_step", supervoxelizer=False, pooling="none")
 )
 assert list(unified.subject_models) == list(one.subject_models)
 print(f"  fit_habitat(pooling='none') subject_models={list(unified.subject_models)}")
+
+print("=== fit_habitat with explicit stages (direct_pooling shape) ===")
+staged = HabitatSpec(
+    name="staged_direct",
+    stages=(
+        Stage(
+            "extract_voxel_features",
+            Spec("raw", {"modalities": ["T1", "T2"]}),
+            role="extract_voxel_features",
+        ),
+        Stage("pool", Spec("pool"), role="pool"),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 3,
+                    "validation": "silhouette",
+                    "n_init": 5,
+                },
+            ),
+            role="fit",
+        ),
+        Stage("assign", Spec("nearest_centroid"), role="assign"),
+        Stage("quantify", Spec("volume"), role="quantify"),
+    ),
+    random_seed=42,
+)
+staged_result = recipes.fit_habitat(cohort, staged)
+assert staged_result.habitat_model is not None
+print(f"  staged n_habitats={staged_result.habitat_model.n_habitats}")
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
 import sys

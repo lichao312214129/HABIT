@@ -37,7 +37,20 @@ from habit.spec.legacy import (
     validate_v1_document,
 )
 from habit.spec.policy import RunPolicy
-from habit.spec.specs import HabitatSpec, MLSpec, Spec, coerce_spec
+from habit.spec.specs import HabitatSpec, MLSpec, Spec, Stage, coerce_spec
+from habit.spec.stages import (
+    POOL_COMPONENT_NAME,
+    ROLE_ASSIGN,
+    ROLE_EXTRACT_SUPERVOXEL_FEATURES,
+    ROLE_EXTRACT_VOXEL_FEATURES,
+    ROLE_FIT,
+    ROLE_PARTITION,
+    ROLE_POOL,
+    ROLE_POSTPROCESS_HABITAT,
+    ROLE_POSTPROCESS_SUPERVOXEL,
+    ROLE_PREPROCESS,
+    ROLE_QUANTIFY,
+)
 from habit.spec.yaml_io import (
     load_habitat_spec,
     load_run_policy,
@@ -47,10 +60,22 @@ from habit.spec.yaml_io import (
 
 __all__ = [
     "Spec",
+    "Stage",
     "HabitatSpec",
     "MLSpec",
     "RunPolicy",
     "coerce_spec",
+    "POOL_COMPONENT_NAME",
+    "ROLE_EXTRACT_VOXEL_FEATURES",
+    "ROLE_PREPROCESS",
+    "ROLE_PARTITION",
+    "ROLE_EXTRACT_SUPERVOXEL_FEATURES",
+    "ROLE_POOL",
+    "ROLE_FIT",
+    "ROLE_ASSIGN",
+    "ROLE_QUANTIFY",
+    "ROLE_POSTPROCESS_SUPERVOXEL",
+    "ROLE_POSTPROCESS_HABITAT",
     "parse_feature_expression",
     "load_habitat_spec",
     "save_habitat_spec",
