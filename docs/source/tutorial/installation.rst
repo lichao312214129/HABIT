@@ -1,4 +1,4 @@
-﻿Installation
+Installation
 ============
 
 This page is for absolute beginners on Windows (macOS / Linux notes where
@@ -142,7 +142,7 @@ You do **not** need a git clone for the demo YAML templates. Create any
 work folder, then::
 
    mkdir D:\my_habit_work
-   cd /d D:\my_habit_work
+   cd D:\my_habit_work
    habit copy-demo-config --dest .
 
 That writes ``config/`` into your folder. Download ``demo_data/`` next to

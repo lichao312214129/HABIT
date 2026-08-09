@@ -24,7 +24,7 @@ Pick any folder you own as ``<work_dir>``. Materialize the bundled demo
 YAML tree (shipped inside the wheel; not ``demo_data``)::
 
    mkdir D:\my_habit_work        # Windows — use your path
-   cd /d D:\my_habit_work
+   cd D:\my_habit_work
    habit copy-demo-config --dest .
 
    # macOS / Linux
