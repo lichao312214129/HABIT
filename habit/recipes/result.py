@@ -93,6 +93,9 @@ class StudyResult:
             no supervoxel step stores one-voxel units (see
             :func:`~habit.domain.pipeline.voxel_units`), so the field has one
             uniform type regardless of design.
+        inspection: Optional step observer / recorder passed as ``inspect=``
+            to a recipe. Default ``None``. Writers ignore this field; it is
+            for in-memory debugging only and is never part of fingerprints.
     """
 
     habitat_model: Optional[HabitatModel]
@@ -102,6 +105,7 @@ class StudyResult:
     manifest: RunManifest
     subject_models: Mapping[str, HabitatModel] = field(default_factory=dict)
     units: Tuple[Supervoxelization, ...] = ()
+    inspection: Optional[Any] = None
 
     def _units_table_granularity(self) -> Optional[str]:
         """

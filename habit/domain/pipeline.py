@@ -28,6 +28,19 @@ from sklearn.pipeline import Pipeline as SkPipeline
 
 from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.contracts.habitat import HabitatMap, Supervoxelization, VoxelFeatureField
+from habit.contracts.inspection import (
+    STEP_HABITAT_FEATURES,
+    STEP_HABITAT_MAP,
+    STEP_SUPERVOXELS_DESCRIBED,
+    STEP_SUPERVOXELS_PARTITION,
+    STEP_SUPERVOXELS_POSTPROCESSED,
+    STEP_SUPERVOXELS_PREPROCESSED,
+    STEP_UNITS_COHORT_PREPROCESSED,
+    STEP_VOXEL_FEATURES_PREPROCESSED,
+    STEP_VOXEL_FEATURES_RAW,
+    StepObserver,
+    StepRecord,
+)
 from habit.contracts.subject import Subject
 from habit.contracts.table import FeatureTable
 from habit.domain.geometry_align import (
@@ -184,6 +197,8 @@ class SubjectPipeline:
             extraction. Ignored when ``supervoxelizer`` is ``None``.
         postprocess_habitat: Optional connected-component cleanup applied
             immediately after habitat assignment and before habitat features.
+        observer: Optional step observer for debugging / QA. Never part of
+            :attr:`spec` or fingerprints; ``None`` (default) is zero-cost.
     """
 
     def __init__(
@@ -198,6 +213,7 @@ class SubjectPipeline:
         on_geometry_mismatch: str = ON_GEOMETRY_MISMATCH_DEFAULT,
         postprocess_supervoxel: Optional[ConnectedComponentPostprocess] = None,
         postprocess_habitat: Optional[ConnectedComponentPostprocess] = None,
+        observer: Optional[StepObserver] = None,
     ) -> None:
         if voxel_feature_extractor is None:
             raise HABITAPIError(
@@ -235,6 +251,38 @@ class SubjectPipeline:
         self.on_geometry_mismatch = coerce_on_geometry_mismatch(on_geometry_mismatch)
         self.postprocess_supervoxel = postprocess_supervoxel
         self.postprocess_habitat = postprocess_habitat
+        self._observer = observer
+
+    def _emit(
+        self,
+        step: str,
+        subject_id: str,
+        payload: Any,
+        produced_by: str,
+        fingerprint: Optional[str] = None,
+    ) -> None:
+        """
+        Notify the optional observer about one pipeline boundary.
+
+        Args:
+            step: Stable step name from ``habit.contracts.inspection``.
+            subject_id: Owning subject.
+            payload: Domain object already produced by the pipeline.
+            produced_by: Short producer tag.
+            fingerprint: Optional component fingerprint.
+        """
+        observer = self._observer
+        if observer is None or not observer.wants(step):
+            return
+        observer(
+            StepRecord(
+                step=step,
+                subject_id=subject_id,
+                payload=payload,
+                produced_by=produced_by,
+                spec_fingerprint=fingerprint,
+            )
+        )
 
     @property
     def spec(self) -> Spec:
@@ -299,6 +347,16 @@ class SubjectPipeline:
         """
         subject = self._prepare_subject(subject)
         field = self.voxel_feature_extractor(subject)
+        self._emit(
+            STEP_VOXEL_FEATURES_RAW,
+            subject.subject_id,
+            field,
+            produced_by=(
+                "voxel_feature_extractor."
+                f"{self.voxel_feature_extractor.spec.name}"
+            ),
+            fingerprint=self.voxel_feature_extractor.spec.fingerprint(),
+        )
         # Keep the pre-preprocessing field: statistical supervoxel
         # extractors with ``source="original"`` aggregate exactly this
         # signal (the v0.1 ``-original`` column contract).
@@ -310,14 +368,35 @@ class SubjectPipeline:
                 produced_by="feature_preprocessing.subject.voxel",
                 spec_fingerprint=chain.spec.fingerprint(),
             )
+            self._emit(
+                STEP_VOXEL_FEATURES_PREPROCESSED,
+                subject.subject_id,
+                field,
+                produced_by="feature_preprocessing.subject.voxel",
+                fingerprint=chain.spec.fingerprint(),
+            )
         if self.supervoxelizer is None:
             return voxel_units(field)
         units = self.supervoxelizer(field)
+        self._emit(
+            STEP_SUPERVOXELS_PARTITION,
+            subject.subject_id,
+            units,
+            produced_by=f"supervoxelizer.{self.supervoxelizer.spec.name}",
+            fingerprint=self.supervoxelizer.spec.fingerprint(),
+        )
         if self.postprocess_supervoxel is not None:
             # Clean fragments before describing regions so features and the
             # label map stay aligned for cohort fitting / assignment.
             units = self.postprocess_supervoxel.apply_to_supervoxelization(
                 units, field
+            )
+            self._emit(
+                STEP_SUPERVOXELS_POSTPROCESSED,
+                subject.subject_id,
+                units,
+                produced_by="postprocess_supervoxel",
+                fingerprint=self.postprocess_supervoxel.spec.fingerprint(),
             )
         if self.supervoxel_feature_extractor is not None:
             # Statistical extractors (``mean`` / ``std`` / ``percentile``,
@@ -327,12 +406,29 @@ class SubjectPipeline:
             if callable(binder):
                 binder(working=field, original=original_field)
             units = self.supervoxel_feature_extractor(subject, units)
+            self._emit(
+                STEP_SUPERVOXELS_DESCRIBED,
+                subject.subject_id,
+                units,
+                produced_by=(
+                    "supervoxel_feature_extractor."
+                    f"{self.supervoxel_feature_extractor.spec.name}"
+                ),
+                fingerprint=self.supervoxel_feature_extractor.spec.fingerprint(),
+            )
         if self.supervoxel_feature_preprocessor is not None:
             chain = self.supervoxel_feature_preprocessor
             units = units.with_feature_frame(
                 chain(units.feature_frame()),
                 produced_by="feature_preprocessing.subject.supervoxel",
                 spec_fingerprint=chain.spec.fingerprint(),
+            )
+            self._emit(
+                STEP_SUPERVOXELS_PREPROCESSED,
+                subject.subject_id,
+                units,
+                produced_by="feature_preprocessing.subject.supervoxel",
+                fingerprint=chain.spec.fingerprint(),
             )
         return units
 
@@ -374,9 +470,31 @@ class SubjectPipeline:
                 produced_by="feature_preprocessing.cohort",
                 spec_fingerprint=chain.spec.fingerprint(),
             )
+        self._emit(
+            STEP_UNITS_COHORT_PREPROCESSED,
+            units.subject_id,
+            working,
+            produced_by=(
+                "feature_preprocessing.cohort"
+                if self.cohort_feature_preprocessor is not None
+                else "assign.passthrough"
+            ),
+            fingerprint=(
+                None
+                if self.cohort_feature_preprocessor is None
+                else self.cohort_feature_preprocessor.spec.fingerprint()
+            ),
+        )
         habitat_map = self.habitat_assigner(working)
         if self.postprocess_habitat is not None:
             habitat_map = self.postprocess_habitat.apply_to_habitat_map(habitat_map)
+        self._emit(
+            STEP_HABITAT_MAP,
+            habitat_map.subject_id,
+            habitat_map,
+            produced_by=f"habitat_assigner.{self.habitat_assigner.spec.name}",
+            fingerprint=self.habitat_assigner.spec.fingerprint(),
+        )
         return habitat_map, working
 
     def __call__(self, subject: Subject) -> HabitatMap:
@@ -419,6 +537,13 @@ class SubjectPipeline:
         table = extractors[0](subject, habitat_map)
         for extractor in extractors[1:]:
             table = table.join(extractor(subject, habitat_map))
+        self._emit(
+            STEP_HABITAT_FEATURES,
+            subject.subject_id,
+            table,
+            produced_by="habitat_features",
+            fingerprint=None,
+        )
         return habitat_map, table, prepared
 
     def extract_features(

@@ -291,6 +291,7 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.registry",
         "habit.spec",
         "habit.recipes",
+        "habit.inspection",
         "habit.cli",
         "habit.commands",
         "habit.compat",
@@ -330,11 +331,28 @@ _LAYER_FORBIDDEN_IMPORTS = {
         "habit.adapters",
         "habit.execution",
         "habit.recipes",
+        "habit.inspection",
         "habit.cli",
         "habit.commands",
         "habit.compat",
         # The v0.1 engines are an upper layer for the domain: every algorithm
         # the domain used to borrow from them now lives in habit.kernels.
+        "habit.compat.engines.habitat_analysis",
+        "habit.compat.engines.machine_learning",
+        "habit.compat.engines.preprocessing",
+    ),
+    # L3 inspection: in-memory step observers. May use contracts (+ exceptions
+    # / pandas) but must not reach adapters, recipes, CLI, or compat engines.
+    "habit.inspection": (
+        "habit.adapters",
+        "habit.domain",
+        "habit.execution",
+        "habit.registry",
+        "habit.spec",
+        "habit.recipes",
+        "habit.cli",
+        "habit.commands",
+        "habit.compat",
         "habit.compat.engines.habitat_analysis",
         "habit.compat.engines.machine_learning",
         "habit.compat.engines.preprocessing",
@@ -413,6 +431,7 @@ _ENGINE_FREE_PACKAGES = (
     "habit.registry",
     "habit.spec",
     "habit.viz",
+    "habit.inspection",
     "habit.recipes",
 )
 
@@ -433,6 +452,7 @@ _CONFIG_FREE_PACKAGES = (
     "habit.domain",
     "habit.registry",
     "habit.viz",
+    "habit.inspection",
 )
 
 #: Identifiers that signal configuration-layer concepts leaking into L0-L3.

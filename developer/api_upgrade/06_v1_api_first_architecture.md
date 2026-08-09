@@ -140,10 +140,17 @@ v1.0 把它提升为一等对象：自带群体质心、特征定义、预处理
 L5  interfaces   CLI / YAML / GUI / REST      ← 解析与装配，无业务逻辑
 L4  recipes      标准研究配方 + RunManifest 汇总 + 报告导出
 L3  domain ops   八个领域协议 + Registry
+    + inspection 内存逐步观测（StepRecorder；可选；不入 Spec/fingerprint）
 L2  contracts    领域数据模型 + 两级算子协议 + 执行后端协议
+                 + StepRecord / StepObserver（观测契约，非分析声明）
 L1  adapters     DataSource / Sink：目录约定、nnU-Net、MONAI、DataFrame、内存
 L0  kernels      纯计算（numpy / SimpleITK / torch），无 IO、无状态、无日志
 ```
+
+`habit.inspection` 与 `habit.viz` 同属 L3 旁路包：只依赖 contracts，不碰文件系统，
+不进入 `HabitatSpec.fingerprint()` / `RunManifest`。默认 `inspect=None` 时数值路径
+与未接入观测时逐位一致。落盘观测（DirectoryStepWriter）若需要，放在 L1 adapters，
+不在一期范围内。
 
 ### 4.1 依赖规则
 

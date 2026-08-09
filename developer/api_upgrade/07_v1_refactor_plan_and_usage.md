@@ -117,6 +117,7 @@ habit/
 │   ├── assignment/
 │   ├── habitat_features/
 │   └── table_preprocessing/     #   建模表预处理（一行一受试者）
+├── inspection/              # L3 内存逐步观测（StepRecorder；不碰盘）
 ├── execution/               # 执行后端（与算法正交）
 │   ├── backends.py          #   SerialBackend / ProcessPoolBackend
 │   └── checkpoint.py        #   CheckpointStore
@@ -323,6 +324,175 @@ DICOM-SEG / BIDS 留待后续——接口上不设障碍，新增一个 `DataSou
 
 - [x] **compat.sklearn / monai / nnunet**：`habit/compat/` + `tests/compat/`
 - [x] **show_versions**：`habit/api/utils.py`（公开 API `habit.show_versions`）
+
+#### E. 逐步可观测（step inspection）· 一期（2026-08-09 定稿，**已实现**）
+
+**为什么要做**：北极星目标 2「嵌入生态」要求 HABIT 成为可查、可信的基础设施。
+今天跑完 `recipes.two_step()` 后，用户只能拿到标签图、生境级 `features` 与
+`StudyResult.units`（多数路径下已是 **cohort 预处理之后**的单元表）；
+**原始/预处理后的体素特征、cohort 前的超体素特征全部在 `SubjectPipeline.units()`
+内部算完即丢**。要验证「每一步是对的」，目前只能用原子算子重跑，无法在一次运行中
+观察数据流变化。
+
+**范围**：一期只做**纯 API 的内存观测**。CLI 开关、落盘 sink、process 后端观测
+留二期（见末尾「本期不做」）。
+
+##### E.0 不变量（违反即失败）
+
+- [x] `inspect=None`（默认）时行为与数值**逐位不变**：`tests/golden/fast/` 必须绿。
+- [x] observer **不得**进入 `Spec` / `HabitatSpec.fingerprint()` / `RunManifest`
+  / `SubjectPipeline.describe()`——它是观测，不是分析声明。
+- [x] 只在**已有边界** emit，不新增任何计算。
+- [x] L3 不碰文件系统；`StudyResult.save()` 忽略 `inspection` 字段。
+
+##### E.1 步骤名（`habit/contracts/inspection.py` 中的 `STEP_*` 字符串常量）
+
+| 名称 | payload 类型 | emit 位置 |
+|---|---|---|
+| `voxel_features.raw` | `VoxelFeatureField` | `voxel_feature_extractor` 之后 |
+| `voxel_features.preprocessed` | `VoxelFeatureField` | subject 体素预处理链之后 |
+| `supervoxels.partition` | `Supervoxelization` | `supervoxelizer(field)` 之后 |
+| `supervoxels.postprocessed` | `Supervoxelization` | 配了 `postprocess_supervoxel` 才发 |
+| `supervoxels.described` | `Supervoxelization` | `supervoxel_feature_extractor` 之后 |
+| `supervoxels.preprocessed` | `Supervoxelization` | subject 超体素预处理链之后 |
+| `units.cohort_preprocessed` | `Supervoxelization` | `assign()` 内 cohort 链之后 |
+| `habitat_map` | `HabitatMap` | 赋标签之后 |
+| `habitat_features` | `FeatureTable` | `label_and_describe` 之后 |
+
+##### E.2 新增文件
+
+**`habit/contracts/inspection.py`（L2）**
+
+```python
+STEP_VOXEL_FEATURES_RAW: Final[str] = "voxel_features.raw"
+# ... 其余 8 个常量；STEP_NAMES: Final[Tuple[str, ...]]
+
+@dataclass(frozen=True)
+class StepRecord:
+    step: str
+    subject_id: str
+    payload: Any                     # 领域对象；L2 不转 DataFrame
+    produced_by: str
+    spec_fingerprint: Optional[str] = None
+
+@runtime_checkable
+class StepObserver(Protocol):
+    def wants(self, step: str) -> bool: ...
+    def __call__(self, record: StepRecord) -> None: ...
+```
+
+**`habit/inspection/`（新顶层包，L3 档，只允许依赖 `habit.contracts`）**
+
+```python
+StepRecorder(
+    steps: Optional[Sequence[str]] = None,      # None = 全部
+    subjects: Optional[Sequence[str]] = None,
+    max_subjects: Optional[int] = None,         # 内存闸门
+    keep: Literal["frames", "objects"] = "frames",
+)
+.wants(step) -> bool
+.__call__(record: StepRecord) -> None
+.steps() -> Tuple[str, ...]
+.subjects() -> Tuple[str, ...]
+.records(step=None, subject_id=None) -> Tuple[StepRecord, ...]
+.frame(step: str, subject_id: Optional[str] = None) -> pd.DataFrame
+.summary() -> pd.DataFrame          # step | subject_id | n_rows | n_cols
+```
+
+`keep="frames"`（默认）只保留特征表，丢弃体素索引/`label_array` 引用；
+`keep="objects"` 才保留完整领域对象（需要看标签数组时用）。
+
+> ⚠️ 新增顶层包需要在 `tests/test_architecture_contracts.py` 的层序表登记为
+> L3 档。按 `habit-change-protocol.mdc` §4，这属于契约变更，**须与本文件的
+> 说明同一次提交**。
+
+##### E.3 改动点
+
+**`habit/domain/pipeline.py`**
+
+- `SubjectPipeline.__init__(..., observer: Optional[StepObserver] = None)`。
+- 私有 `_emit(step, subject_id, payload, produced_by, fingerprint=None)`；
+  首行 `if self._observer is None or not self._observer.wants(step): return`
+  —— 关闭时零构造开销。
+- `units()` 内按 E.1 表 emit 六处；`assign()` emit 两处；
+  `label_and_describe()` emit 一处。
+- `describe()` 保持不变。
+
+**`habit/domain/assembly.py`**
+
+- `HabitatComponents.pipeline(assigner=..., observer: Optional[StepObserver] = None)` 透传。
+
+**`habit/recipes/habitat.py`**
+
+- `two_step` / `direct_pooling` / `one_step` / `apply_habitat_model` /
+  `_fit_cohort_design` 增 keyword-only 参数 `inspect: Optional[StepObserver] = None`。
+- 透传到 `_ComputeUnits`、`_AssignPrecomputedUnits`、`_LabelAndDescribe`、
+  `_DefineAndLabelWithinSubject` 各自构造 pipeline 的位置。
+- **process 后端守卫**（鸭子判断，不 import `habit.execution`）：
+
+```python
+if inspect is not None:
+    policy = getattr(backend, "policy", None)
+    if getattr(policy, "backend", None) == "process":
+        raise HABITAPIError(
+            "inspect= is not supported with the process backend: step records "
+            "are produced inside worker processes and cannot reach this "
+            "recorder. Use RunPolicy(backend='serial') / workers=1 while "
+            "debugging."
+        )
+```
+
+**`habit/recipes/result.py`**
+
+- `StudyResult` 末尾新增 `inspection: Optional[Any] = None`（默认 `None`；
+  writer 忽略），recipes 把传入的 observer 挂上去。
+
+**`habit/_public_api.py` / `habit/__init__.py`**
+
+- 登记 `StepRecord`、`StepObserver`、`StepRecorder`、`STEP_NAMES` 与各
+  `STEP_*` 常量（纯新增，不改既有签名）。
+
+##### E.4 目标用法
+
+```python
+from habit import StepRecorder
+import habit.recipes as recipes
+
+rec = StepRecorder(steps=["voxel_features.raw", "supervoxels.described"], max_subjects=2)
+result = recipes.two_step(cohort, spec, inspect=rec)
+
+result.inspection.summary()
+result.inspection.frame("supervoxels.described", "subj001")
+```
+
+##### E.5 测试（新增 `tests/api/test_step_inspection.py`）
+
+1. `inspect=None` 时 `spec.fingerprint()`、生境标签、特征表与不传该参数完全一致。
+2. two_step 合成队列采到全部步骤（无 postprocess 时 8 个，有则 9 个）。
+3. `steps=` 过滤生效；用计数 spy 验证**未请求的步骤没有构造 payload**。
+4. `subjects=` / `max_subjects` 生效。
+5. process 后端 + `inspect` → `HABITAPIError`，消息含 `serial` / `workers=1`。
+6. 形状校验：`voxel_features.raw` 行数 = ROI 体素数；`supervoxels.*` 行数 =
+   超体素数；`units.cohort_preprocessed` 列与 `habitat_model.feature_names` 一致。
+7. `one_step` / `direct_pooling` / `apply_habitat_model` 各一条冒烟。
+
+**必跑门禁**：`tests/test_architecture_contracts.py`、`tests/api/test_public_api.py`、
+`tests/golden/fast/`；本地有 `demo_data/` 时加 `tests/golden/test_golden_baseline.py`。
+另按 `verify-before-done.mdc` 用 `py310` 跑一段真实 API 片段冒烟。
+
+##### E.6 文档（不新建 rst）
+
+- `docs/source/examples/habitat_preprocessing_api.rst` 增小节
+  “Inspect every step”，并在 `scripts/habitat_preprocessing_api_demo.py`
+  末尾追加可运行片段（保持 `if __name__ == "__main__":` 习惯）。
+- `docs/source/api/domain_habitat.rst` 补一行指向 `StepRecorder`。
+- 文档改动后按 `docs-gh-pages-deploy.mdc` 本地构建并推 `gh-pages`。
+
+##### E.7 本期不做（二期再定）
+
+- CLI `--inspect-steps` / `--inspect-dir` 开关（用户明确表示调试用 API 即可）。
+- L1 `DirectoryStepWriter` 落盘 sink。
+- process 后端下的观测（依赖落盘 sink；一期按 E.3 明确报错，不静默丢数据）。
 
 ---
 

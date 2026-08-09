@@ -115,6 +115,24 @@ Domain: ``supervoxel_feature_extractor``
 
 * ``mean_voxel_features`` → ``MeanVoxelFeatures``
 * ``supervoxel_radiomics`` → ``SupervoxelRadiomicsFeatures``
+* ``mean`` / ``std`` / ``percentile`` → per-supervoxel statistics (compose
+  with ``concat``)
+
+Step inspection (optional)
+--------------------------
+
+To observe every habitat pipeline boundary in memory, pass
+``inspect=StepRecorder(...)`` to a recipe. See
+:doc:`../examples/habitat_preprocessing_api` ("Inspect every step").
+
+.. code-block:: python
+
+   from habit import StepRecorder
+   import habit.recipes as recipes
+
+   rec = StepRecorder(steps=["supervoxels.described"], max_subjects=2)
+   result = recipes.two_step(cohort, spec, inspect=rec)
+   result.inspection.summary()
 
 Habitat model fitters
 ---------------------

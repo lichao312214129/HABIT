@@ -59,6 +59,7 @@ import pandas as pd
 
 from habit.exceptions import HABITAPIError, ProcessingError
 from habit.contracts.habitat import HabitatMap, HabitatModel
+from habit.contracts.inspection import StepObserver
 from habit.contracts.manifest import RunManifest
 from habit.contracts.ops import ExecutionBackend, SubjectResult
 from habit.contracts.provenance import Provenance, software_fingerprint
@@ -117,6 +118,36 @@ def _one_step_key_prefix(spec: HabitatSpec) -> str:
     reprocessing a stable subject because an unrelated subject joined.
     """
     return f"habitat.one_step:{spec.fingerprint()}"
+
+
+def _reject_process_inspect(
+    inspect: Optional[StepObserver],
+    backend: Optional[ExecutionBackend],
+) -> None:
+    """
+    Refuse in-memory inspection under the process backend.
+
+    Step records are produced inside worker processes and cannot reach a
+    parent-process recorder. Debugging must use a serial backend.
+
+    Args:
+        inspect: Optional step observer from the recipe call site.
+        backend: Optional execution backend.
+
+    Raises:
+        HABITAPIError: If ``inspect`` is set and ``backend.policy.backend``
+            is ``"process"``.
+    """
+    if inspect is None:
+        return
+    policy = getattr(backend, "policy", None)
+    if getattr(policy, "backend", None) == "process":
+        raise HABITAPIError(
+            "inspect= is not supported with the process backend: step records "
+            "are produced inside worker processes and cannot reach this "
+            "recorder. Use RunPolicy(backend='serial') / workers=1 while "
+            "debugging."
+        )
 
 
 def _effective_spec(spec: HabitatSpec, seed: Optional[int]) -> HabitatSpec:
@@ -193,7 +224,8 @@ class _LabelAndDescribe:
     instead so voxel radiomics is not paid twice.
 
     Attributes:
-        pipeline: Fitted subject pipeline (assigner attached).
+        pipeline: Fitted subject pipeline (assigner attached); may carry an
+            optional step observer for inspection.
         extractors: Habitat feature families; may be empty when the study
             only needs the label maps.
         key_prefix: Checkpoint key prefix from :func:`_label_key_prefix`.
@@ -269,6 +301,7 @@ class _DefineAndLabelWithinSubject:
         extractors: Habitat feature families; may be empty.
         seed: Seed forwarded to the assigner when it is stochastic.
         key_prefix: Checkpoint key prefix from :func:`_one_step_key_prefix`.
+        observer: Optional step observer for debugging / QA.
     """
 
     components: HabitatComponents
@@ -277,6 +310,7 @@ class _DefineAndLabelWithinSubject:
     extractors: Tuple[Any, ...]
     seed: Optional[int]
     key_prefix: str
+    observer: Optional[StepObserver] = None
 
     def cache_key(self, subject: Subject) -> str:
         """Return the spec-scoped checkpoint key for this subject."""
@@ -293,12 +327,16 @@ class _DefineAndLabelWithinSubject:
         reports one row per defined habitat, aggregated from them.
         """
         # Stage-1 once: units, then fit/assign/describe without re-extraction.
-        units = self.components.pipeline(assigner=None).units(subject)
+        units = self.components.pipeline(
+            assigner=None, observer=self.observer
+        ).units(subject)
         model = self.components.habitat_model_fitter.fit([units])
         assigner = model.assigner(self.assigner_name, **dict(self.assigner_params))
         if self.seed is not None and isinstance(assigner, Seedable):
             assigner.set_random_state(self.seed)
-        pipeline = self.components.pipeline(assigner=assigner)
+        pipeline = self.components.pipeline(
+            assigner=assigner, observer=self.observer
+        )
         habitat_map, table, prepared = pipeline.label_and_describe(
             subject, units, self.extractors
         )
@@ -616,6 +654,7 @@ def _fit_cohort_design(
     backend: Optional[ExecutionBackend],
     seed: Optional[int],
     checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
 ) -> StudyResult:
     """
     Run a design whose habitats are defined across the cohort.
@@ -636,10 +675,12 @@ def _fit_cohort_design(
         seed: Optional seed override, already folded into ``spec``.
         checkpoint: Optional store enabling per-subject resume; units key on
             the spec fingerprint, labels on the fitted model's ``model_id``.
+        inspect: Optional step observer for in-memory debugging / QA.
 
     Returns:
         The study result, entirely in memory.
     """
+    _reject_process_inspect(inspect, backend)
     started_at = _now()
     components = build_habitat_components(spec)
     outcomes: Dict[str, str] = {
@@ -649,7 +690,8 @@ def _fit_cohort_design(
         units_cohort, units, unit_failures = _map_soft(
             cohort,
             _ComputeUnits(
-                components.pipeline(assigner=None), _units_key_prefix(spec)
+                components.pipeline(assigner=None, observer=inspect),
+                _units_key_prefix(spec),
             ),
             backend=backend,
             checkpoint=checkpoint,
@@ -671,7 +713,7 @@ def _fit_cohort_design(
                 for subject, subject_units in zip(units_cohort, units)
             ],
             _AssignPrecomputedUnits(
-                components.pipeline(assigner=assigner),
+                components.pipeline(assigner=assigner, observer=inspect),
                 components.habitat_features,
                 _label_key_prefix(model),
             ),
@@ -701,6 +743,7 @@ def _fit_cohort_design(
         habitat_maps=habitat_maps,
         manifest=manifest,
         units=tuple(subject_units for _, _, subject_units in labelled),
+        inspection=inspect,
     )
 
 
@@ -711,6 +754,7 @@ def two_step(
     backend: Optional[ExecutionBackend] = None,
     seed: Optional[int] = None,
     checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
 ) -> StudyResult:
     """
     Supervoxels per subject, then habitats across the cohort.
@@ -729,6 +773,8 @@ def two_step(
         checkpoint: Optional store enabling per-subject resume. Units are
             reused across cohorts sharing a spec; labels are reused only for
             the same fitted definition (``HabitatModel.model_id`` scope).
+        inspect: Optional step observer for in-memory debugging / QA.
+            Unsupported with the process backend.
 
     Returns:
         The study result, entirely in memory. Call
@@ -768,7 +814,13 @@ def two_step(
             "habitats) or one_step (per-subject habitats)."
         )
     return _fit_cohort_design(
-        "two_step", cohort, effective, backend, effective.random_seed, checkpoint
+        "two_step",
+        cohort,
+        effective,
+        backend,
+        effective.random_seed,
+        checkpoint,
+        inspect=inspect,
     )
 
 
@@ -779,6 +831,7 @@ def direct_pooling(
     backend: Optional[ExecutionBackend] = None,
     seed: Optional[int] = None,
     checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
 ) -> StudyResult:
     """
     No supervoxels: habitats learned from the cohort's pooled voxels.
@@ -794,6 +847,8 @@ def direct_pooling(
         seed: Optional override of ``spec.random_seed``.
         checkpoint: Optional store enabling per-subject resume (same key
             scoping as :func:`two_step`).
+        inspect: Optional step observer for in-memory debugging / QA.
+            Unsupported with the process backend.
 
     Returns:
         The study result, entirely in memory.
@@ -809,8 +864,13 @@ def direct_pooling(
             "two_step, or drop the supervoxelizer from the spec."
         )
     return _fit_cohort_design(
-        "direct_pooling", cohort, effective, backend, effective.random_seed,
+        "direct_pooling",
+        cohort,
+        effective,
+        backend,
+        effective.random_seed,
         checkpoint,
+        inspect=inspect,
     )
 
 
@@ -821,6 +881,7 @@ def one_step(
     backend: Optional[ExecutionBackend] = None,
     seed: Optional[int] = None,
     checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
 ) -> StudyResult:
     """
     Habitats defined inside each subject, independently.
@@ -848,6 +909,8 @@ def one_step(
         checkpoint: Optional store enabling per-subject resume; keys scope
             on the spec fingerprint only, since no subject's computation
             depends on any other subject in this design.
+        inspect: Optional step observer for in-memory debugging / QA.
+            Unsupported with the process backend.
 
     Returns:
         The study result, entirely in memory.
@@ -869,6 +932,7 @@ def one_step(
             "Move those methods to voxel_feature_preprocessors, or use "
             "direct_pooling."
         )
+    _reject_process_inspect(inspect, backend)
     started_at = _now()
     components = build_habitat_components(effective)
     subject_outcomes: Dict[str, str] = {
@@ -884,6 +948,7 @@ def one_step(
                 extractors=components.habitat_features,
                 seed=effective.random_seed,
                 key_prefix=_one_step_key_prefix(effective),
+                observer=inspect,
             ),
             backend=backend,
             checkpoint=checkpoint,
@@ -916,6 +981,7 @@ def one_step(
             for model, habitat_map, _, _ in outcomes
         },
         units=tuple(subject_units for _, _, _, subject_units in outcomes),
+        inspection=inspect,
     )
 
 
@@ -927,6 +993,7 @@ def apply_habitat_model(
     backend: Optional[ExecutionBackend] = None,
     seed: Optional[int] = None,
     checkpoint: Optional[CheckpointStore] = None,
+    inspect: Optional[StepObserver] = None,
 ) -> StudyResult:
     """
     Project a published habitat definition onto a new cohort.
@@ -947,6 +1014,8 @@ def apply_habitat_model(
         seed: Optional override of ``spec.random_seed``.
         checkpoint: Optional store enabling per-subject resume; keys scope
             on ``model.model_id``, so two definitions never share entries.
+        inspect: Optional step observer for in-memory debugging / QA.
+            Unsupported with the process backend.
 
     Returns:
         The study result for the projected cohort.
@@ -979,6 +1048,7 @@ def apply_habitat_model(
         >>> len(projected.habitat_maps) == len(cohort)  # doctest: +SKIP
         True
     """
+    _reject_process_inspect(inspect, backend)
     started_at = _now()
     effective = _effective_spec(spec, seed)
     components = build_habitat_components(effective)
@@ -991,7 +1061,7 @@ def apply_habitat_model(
         survivors, labelled, failures = _map_soft(
             cohort,
             _LabelAndDescribe(
-                components.pipeline(assigner=assigner),
+                components.pipeline(assigner=assigner, observer=inspect),
                 components.habitat_features,
                 _label_key_prefix(model),
             ),
@@ -1022,6 +1092,7 @@ def apply_habitat_model(
         habitat_maps=habitat_maps,
         manifest=manifest,
         units=tuple(subject_units for _, _, subject_units in labelled),
+        inspection=inspect,
     )
 
 

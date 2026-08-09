@@ -48,6 +48,20 @@ from habit.contracts.habitat import (
 )
 from habit.contracts.table import FeatureTable
 from habit.contracts.manifest import RunManifest
+from habit.contracts.inspection import (
+    STEP_HABITAT_FEATURES,
+    STEP_HABITAT_MAP,
+    STEP_NAMES,
+    STEP_SUPERVOXELS_DESCRIBED,
+    STEP_SUPERVOXELS_PARTITION,
+    STEP_SUPERVOXELS_POSTPROCESSED,
+    STEP_SUPERVOXELS_PREPROCESSED,
+    STEP_UNITS_COHORT_PREPROCESSED,
+    STEP_VOXEL_FEATURES_PREPROCESSED,
+    STEP_VOXEL_FEATURES_RAW,
+    StepObserver,
+    StepRecord,
+)
 from habit.contracts.ops import (
     CohortOperator,
     DataSource,
@@ -82,6 +96,18 @@ __all__ = [
     "outcome_to_dict",
     "outcome_from_dict",
     "RunManifest",
+    "STEP_VOXEL_FEATURES_RAW",
+    "STEP_VOXEL_FEATURES_PREPROCESSED",
+    "STEP_SUPERVOXELS_PARTITION",
+    "STEP_SUPERVOXELS_POSTPROCESSED",
+    "STEP_SUPERVOXELS_DESCRIBED",
+    "STEP_SUPERVOXELS_PREPROCESSED",
+    "STEP_UNITS_COHORT_PREPROCESSED",
+    "STEP_HABITAT_MAP",
+    "STEP_HABITAT_FEATURES",
+    "STEP_NAMES",
+    "StepRecord",
+    "StepObserver",
     "SubjectOperator",
     "CohortOperator",
     "SubjectResult",

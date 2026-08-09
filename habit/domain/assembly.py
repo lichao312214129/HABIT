@@ -141,13 +141,20 @@ class HabitatComponents:
     postprocess_supervoxel: Optional[ConnectedComponentPostprocess] = None
     postprocess_habitat: Optional[ConnectedComponentPostprocess] = None
 
-    def pipeline(self, *, assigner: Optional[Any]) -> SubjectPipeline:
+    def pipeline(
+        self,
+        *,
+        assigner: Optional[Any],
+        observer: Optional[Any] = None,
+    ) -> SubjectPipeline:
         """
         Assemble the subject pipeline.
 
         Args:
             assigner: Fitted assigner for prediction, or ``None`` to build the
                 fit-time pipeline that only produces clustering units.
+            observer: Optional step observer for debugging / QA. Never part of
+                the analysis fingerprint.
 
         Returns:
             The pipeline. The cohort chain is attached only when an assigner
@@ -167,6 +174,7 @@ class HabitatComponents:
             on_geometry_mismatch=self.on_geometry_mismatch,
             postprocess_supervoxel=self.postprocess_supervoxel,
             postprocess_habitat=self.postprocess_habitat,
+            observer=observer,
         )
 
 

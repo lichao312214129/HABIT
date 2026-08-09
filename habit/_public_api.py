@@ -158,6 +158,18 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "Subject",
         "Cohort",
         "CohortFingerprint",
+        "STEP_VOXEL_FEATURES_RAW",
+        "STEP_VOXEL_FEATURES_PREPROCESSED",
+        "STEP_SUPERVOXELS_PARTITION",
+        "STEP_SUPERVOXELS_POSTPROCESSED",
+        "STEP_SUPERVOXELS_DESCRIBED",
+        "STEP_SUPERVOXELS_PREPROCESSED",
+        "STEP_UNITS_COHORT_PREPROCESSED",
+        "STEP_HABITAT_MAP",
+        "STEP_HABITAT_FEATURES",
+        "STEP_NAMES",
+        "StepRecord",
+        "StepObserver",
         "cohort_from_directory",
         "Provenance",
         "VoxelFeatureField",
@@ -331,6 +343,11 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "AsDictTransform",
     ),
     "compat.nnunet": ("NnUNetDataSource",),
+    # In-memory step inspection (L3). Only ``StepRecorder`` is re-exported
+    # from this package; step-name constants live under ``contracts``.
+    "inspection": (
+        "StepRecorder",
+    ),
     # Publication figures, mirrored from ``habit.viz.__all__``. matplotlib
     # itself stays function-level inside ``habit.viz``, so these registrations
     # do not make ``import habit`` pull a plotting backend.
