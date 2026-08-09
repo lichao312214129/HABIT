@@ -1539,6 +1539,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/domain_habitat.html">Habitat domain API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#protocols">Protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#ordered-stages-and-the-shared-executor">Ordered stages and the shared executor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#registry-pattern-all-domains">Registry pattern (all domains)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
@@ -1834,11 +1835,44 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Spec&quot;</span><span class="p">,</span> <span class="s2">&quot;HabitatSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;MLSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;coerce_spec&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Spec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Stage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HabitatSpec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MLSpec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;coerce_spec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_EXTRACT_VOXEL_FEATURES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_PREPROCESS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_PARTITION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_EXTRACT_SUPERVOXEL_FEATURES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_POOL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_FIT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_ASSIGN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_QUANTIFY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_POSTPROCESS_SUPERVOXEL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ROLE_POSTPROCESS_HABITAT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;POOL_COMPONENT_NAME&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: Recommended / sugar role tags (documentation + sugar expansion). Names are</span>
+<span class="c1">#: labels, not keywords -- domain code may also infer roles from position.</span>
+<span class="n">ROLE_EXTRACT_VOXEL_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;extract_voxel_features&quot;</span>
+<span class="n">ROLE_PREPROCESS</span> <span class="o">=</span> <span class="s2">&quot;preprocess&quot;</span>
+<span class="n">ROLE_PARTITION</span> <span class="o">=</span> <span class="s2">&quot;partition&quot;</span>
+<span class="n">ROLE_EXTRACT_SUPERVOXEL_FEATURES</span> <span class="o">=</span> <span class="s2">&quot;extract_supervoxel_features&quot;</span>
+<span class="n">ROLE_POOL</span> <span class="o">=</span> <span class="s2">&quot;pool&quot;</span>
+<span class="n">ROLE_FIT</span> <span class="o">=</span> <span class="s2">&quot;fit&quot;</span>
+<span class="n">ROLE_ASSIGN</span> <span class="o">=</span> <span class="s2">&quot;assign&quot;</span>
+<span class="n">ROLE_QUANTIFY</span> <span class="o">=</span> <span class="s2">&quot;quantify&quot;</span>
+<span class="n">ROLE_POSTPROCESS_SUPERVOXEL</span> <span class="o">=</span> <span class="s2">&quot;postprocess_supervoxel&quot;</span>
+<span class="n">ROLE_POSTPROCESS_HABITAT</span> <span class="o">=</span> <span class="s2">&quot;postprocess_habitat&quot;</span>
+
+<span class="c1">#: Built-in marker component name in the ``pooling`` plugin domain.</span>
+<span class="n">POOL_COMPONENT_NAME</span> <span class="o">=</span> <span class="s2">&quot;pool&quot;</span>
 
 <span class="c1">#: Registry domains recognised inside a HabitatSpec, in canonical order.</span>
 <span class="c1">#: Field names deliberately match the plugin domains verbatim (see</span>
@@ -2099,6 +2133,317 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
 
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Stage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One named step in a habitat dataflow.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name: Custom label unique within the enclosing HabitatSpec. Defaults</span>
+<span class="sd">            to the component registry name when built via :meth:`of`.</span>
+<span class="sd">        component: The pluggable component specification.</span>
+<span class="sd">        role: Optional role tag filled by sugar expansion. ``None`` for</span>
+<span class="sd">            user-authored stages until domain role resolution runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">component</span><span class="p">:</span> <span class="n">Spec</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate name / component types.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;Stage.name must be a non-empty string.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage.component must be a Spec; got &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">role</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;Stage.role must be a non-empty string when set.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">of</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">component</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">role</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Stage&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a stage, defaulting ``name`` to the component registry name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            component: Component spec or mapping.</span>
+<span class="sd">            name: Optional custom label.</span>
+<span class="sd">            role: Optional sugar role tag.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The stage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">component</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">Spec</span><span class="p">)</span> <span class="k">else</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;Stage.of requires a component Spec.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">spec</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialise for YAML / fingerprint payloads.&quot;&quot;&quot;</span>
+        <span class="n">payload</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">role</span>
+        <span class="k">return</span> <span class="n">payload</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Stage&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rebuild a stage from its dict form.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            payload: Mapping with ``name`` + ``component``, or a bare Spec</span>
+<span class="sd">                mapping with optional ``stage_name``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The reconstructed stage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;component&quot;</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+            <span class="n">component</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="p">[</span><span class="s2">&quot;component&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Stage payload lacks a component Spec: </span><span class="si">{</span><span class="n">payload</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">role</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot parse Stage from payload: </span><span class="si">{</span><span class="n">payload</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stage_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">role</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">component</span><span class="p">,</span>
+            <span class="n">role</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">role</span><span class="p">),</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_expand_stages_from_fields</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">],</span>
+    <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">],</span>
+    <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">habitat_assigner</span><span class="p">:</span> <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">habitat_features</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">voxel_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">supervoxel_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">cohort_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">pooling</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">postprocess_supervoxel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">],</span>
+    <span class="n">postprocess_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand the named-field sugar form into an ordered stage list.</span>
+
+<span class="sd">    Preprocess stages are numbered globally (``preprocess1``, …). A ``pool``</span>
+<span class="sd">    marker is inserted when the dataflow is cohort-level (default / explicit</span>
+<span class="sd">    ``pooling != &quot;none&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Stage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">ROLE_EXTRACT_VOXEL_FEATURES</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">voxel_feature_extractor</span><span class="p">,</span>
+            <span class="n">role</span><span class="o">=</span><span class="n">ROLE_EXTRACT_VOXEL_FEATURES</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">preprocess_i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">voxel_feature_preprocessors</span><span class="p">:</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Stage</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ROLE_PREPROCESS</span><span class="si">}{</span><span class="n">preprocess_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="n">ROLE_PREPROCESS</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">preprocess_i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Stage</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">ROLE_PARTITION</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">supervoxelizer</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="n">ROLE_PARTITION</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">postprocess_supervoxel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Stage</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">ROLE_POSTPROCESS_SUPERVOXEL</span><span class="p">,</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">postprocess_supervoxel</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">ROLE_POSTPROCESS_SUPERVOXEL</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">supervoxel_feature_extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Stage</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">ROLE_EXTRACT_SUPERVOXEL_FEATURES</span><span class="p">,</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">ROLE_EXTRACT_SUPERVOXEL_FEATURES</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">supervoxel_feature_preprocessors</span><span class="p">:</span>
+            <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Stage</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ROLE_PREPROCESS</span><span class="si">}{</span><span class="n">preprocess_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">ROLE_PREPROCESS</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">preprocess_i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">include_pool</span> <span class="o">=</span> <span class="n">pooling</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
+    <span class="k">if</span> <span class="n">include_pool</span><span class="p">:</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Stage</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">ROLE_POOL</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="n">POOL_COMPONENT_NAME</span><span class="p">),</span>
+                <span class="n">role</span><span class="o">=</span><span class="n">ROLE_POOL</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">cohort_feature_preprocessors</span><span class="p">:</span>
+            <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Stage</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ROLE_PREPROCESS</span><span class="si">}{</span><span class="n">preprocess_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">component</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                    <span class="n">role</span><span class="o">=</span><span class="n">ROLE_PREPROCESS</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">preprocess_i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">ROLE_FIT</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">habitat_model_fitter</span><span class="p">,</span>
+            <span class="n">role</span><span class="o">=</span><span class="n">ROLE_FIT</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">ROLE_ASSIGN</span><span class="p">,</span>
+            <span class="n">component</span><span class="o">=</span><span class="n">habitat_assigner</span><span class="p">,</span>
+            <span class="n">role</span><span class="o">=</span><span class="n">ROLE_ASSIGN</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">postprocess_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">Stage</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">ROLE_POSTPROCESS_HABITAT</span><span class="p">,</span>
+                <span class="n">component</span><span class="o">=</span><span class="n">postprocess_habitat</span><span class="p">,</span>
+                <span class="n">role</span><span class="o">=</span><span class="n">ROLE_POSTPROCESS_HABITAT</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">feature</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">habitat_features</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">ROLE_QUANTIFY</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ROLE_QUANTIFY</span><span class="si">}{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Stage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">feature</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="n">ROLE_QUANTIFY</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">stages</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_named_fields_from_stages</span><span class="p">(</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Stage</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive named HabitatSpec fields from a stage list that already carries roles.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        stages: Stages with ``role`` set (sugar expansion or prior resolution).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Keyword arguments suitable for constructing / updating HabitatSpec.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">habitat_assigner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">habitat_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">voxel_pre</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">supervoxel_pre</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cohort_pre</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">postprocess_supervoxel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">postprocess_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">seen_pool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">seen_partition</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span><span class="p">:</span>
+        <span class="n">role</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">role</span>
+        <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> has no role; resolve roles before &quot;</span>
+                <span class="s2">&quot;deriving named HabitatSpec fields.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_EXTRACT_VOXEL_FEATURES</span><span class="p">:</span>
+            <span class="n">voxel_feature_extractor</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_PARTITION</span><span class="p">:</span>
+            <span class="n">supervoxelizer</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+            <span class="n">seen_partition</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_EXTRACT_SUPERVOXEL_FEATURES</span><span class="p">:</span>
+            <span class="n">supervoxel_feature_extractor</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POOL</span><span class="p">:</span>
+            <span class="n">seen_pool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_FIT</span><span class="p">:</span>
+            <span class="n">habitat_model_fitter</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_ASSIGN</span><span class="p">:</span>
+            <span class="n">habitat_assigner</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_QUANTIFY</span><span class="p">:</span>
+            <span class="n">habitat_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POSTPROCESS_SUPERVOXEL</span><span class="p">:</span>
+            <span class="n">postprocess_supervoxel</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POSTPROCESS_HABITAT</span><span class="p">:</span>
+            <span class="n">postprocess_habitat</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span>
+        <span class="k">elif</span> <span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_PREPROCESS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">seen_pool</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">seen_partition</span><span class="p">:</span>
+                <span class="n">voxel_pre</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">seen_pool</span> <span class="ow">and</span> <span class="n">seen_partition</span><span class="p">:</span>
+                <span class="n">supervoxel_pre</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cohort_pre</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown stage role </span><span class="si">{</span><span class="n">role</span><span class="si">!r}</span><span class="s2"> on stage </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">voxel_feature_extractor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;stages must include an extract_voxel_features role &quot;</span>
+            <span class="s2">&quot;(voxel_feature_extractor).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">habitat_model_fitter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;stages must include a fit role (habitat_model_fitter).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">habitat_assigner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;stages must include an assign role (habitat_assigner).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">pooling</span> <span class="o">=</span> <span class="s2">&quot;cohort&quot;</span> <span class="k">if</span> <span class="n">seen_pool</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">:</span> <span class="n">voxel_feature_extractor</span><span class="p">,</span>
+        <span class="s2">&quot;supervoxelizer&quot;</span><span class="p">:</span> <span class="n">supervoxelizer</span><span class="p">,</span>
+        <span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">:</span> <span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
+        <span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">:</span> <span class="n">habitat_model_fitter</span><span class="p">,</span>
+        <span class="s2">&quot;habitat_assigner&quot;</span><span class="p">:</span> <span class="n">habitat_assigner</span><span class="p">,</span>
+        <span class="s2">&quot;habitat_features&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">habitat_features</span><span class="p">),</span>
+        <span class="s2">&quot;voxel_feature_preprocessors&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">voxel_pre</span><span class="p">),</span>
+        <span class="s2">&quot;supervoxel_feature_preprocessors&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">supervoxel_pre</span><span class="p">),</span>
+        <span class="s2">&quot;cohort_feature_preprocessors&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cohort_pre</span><span class="p">),</span>
+        <span class="s2">&quot;pooling&quot;</span><span class="p">:</span> <span class="n">pooling</span><span class="p">,</span>
+        <span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">:</span> <span class="n">postprocess_supervoxel</span><span class="p">,</span>
+        <span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">:</span> <span class="n">postprocess_habitat</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
 <div class="viewcode-block" id="HabitatSpec">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2144,17 +2489,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            grid; ``&quot;strict&quot;`` raises :class:`~habit.exceptions.GeometryError`.</span>
 <span class="sd">            The default is omitted from :meth:`to_dict` so historical</span>
 <span class="sd">            fingerprints stay stable when the policy is unchanged.</span>
-<span class="sd">        pooling: Cross-subject pooling declaration of the habitat dataflow.</span>
-<span class="sd">            ``&quot;cohort&quot;`` pools the per-subject clustering units (supervoxels,</span>
-<span class="sd">            or voxels when ``supervoxelizer=None``) into one cohort matrix,</span>
-<span class="sd">            fits ONE shared habitat definition, and assigns it back to each</span>
-<span class="sd">            subject (two-step / direct-pooling). ``&quot;none&quot;`` never pools:</span>
-<span class="sd">            every subject defines and labels its own habitats independently</span>
-<span class="sd">            (one-step), so habitat ids are not comparable across subjects.</span>
-<span class="sd">            ``None`` (default) means undeclared and resolves to ``&quot;cohort&quot;``;</span>
+<span class="sd">        pooling: Cross-subject pooling declaration of the habitat dataflow</span>
+<span class="sd">            (sugar / derived view). Prefer :attr:`stages` with a ``pool``</span>
+<span class="sd">            marker for new code. ``&quot;cohort&quot;`` pools clustering units across</span>
+<span class="sd">            subjects; ``&quot;none&quot;`` defines habitats inside each subject</span>
+<span class="sd">            (one-step). ``None`` (default) means undeclared and resolves to</span>
+<span class="sd">            ``&quot;cohort&quot;`` for sugar forms without an explicit ``pool`` stage;</span>
 <span class="sd">            both ``None`` and ``&quot;cohort&quot;`` are omitted from :meth:`to_dict`</span>
 <span class="sd">            so historical fingerprints stay stable, while ``&quot;none&quot;`` is</span>
 <span class="sd">            always recorded (with the derived :attr:`definition_level`).</span>
+<span class="sd">        stages: Ordered named stages (source of truth when provided</span>
+<span class="sd">            explicitly). The named component fields above remain as sugar</span>
+<span class="sd">            that normalises to the same internal stage list.</span>
 <span class="sd">        postprocess_supervoxel: Optional Spec for connected-component cleanup</span>
 <span class="sd">            of supervoxel label maps (two-step). ``None`` skips cleanup and is</span>
 <span class="sd">            omitted from :meth:`to_dict` so historical fingerprints stay stable.</span>
@@ -2191,10 +2537,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span>
-    <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Spec</span>
-    <span class="n">habitat_assigner</span><span class="p">:</span> <span class="n">Spec</span>
+    <span class="c1"># Named fields are sugar. They are required unless ``stages`` is supplied</span>
+    <span class="c1"># explicitly (then roles fill them after resolution / sugar roles).</span>
+    <span class="n">voxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">supervoxelizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">habitat_model_fitter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">habitat_assigner</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">supervoxel_feature_extractor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">habitat_features</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">voxel_feature_preprocessors</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Spec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
@@ -2203,9 +2551,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">on_geometry_mismatch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resample_mask&quot;</span>
     <span class="n">pooling</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stages</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">postprocess_supervoxel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">postprocess_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+    <span class="c1">#: True when the caller supplied ``stages=`` explicitly (fingerprint</span>
+    <span class="c1">#: records the ordered stage list). Sugar-only specs keep historical</span>
+    <span class="c1">#: named-field fingerprints.</span>
+    <span class="n">_stages_explicit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="HabitatSpec.__post_init__">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.__post_init__">[docs]</a>
@@ -2229,18 +2582,30 @@ window.runMermaid = runMermaid;</script>
                     <span class="sa">f</span><span class="s2">&quot;to leave the dataflow undeclared); got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="si">!r}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
             <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;pooling&quot;</span><span class="p">,</span> <span class="n">pooling</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_OPTIONAL_COMPONENT_DOMAINS</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;HabitatSpec requires a &#39;</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">&#39; component spec.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;HabitatSpec.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> must be a Spec; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+
+        <span class="c1"># ``stages`` stores ONLY caller-authored stages. Sugar expansion is</span>
+        <span class="c1"># computed by :meth:`resolved_stages` so ``dataclasses.replace`` on</span>
+        <span class="c1"># named fields (e.g. ``pooling=&quot;none&quot;``) never keeps a stale pool</span>
+        <span class="c1"># stage from a previous expansion.</span>
+        <span class="n">stages_explicit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">stages_explicit</span><span class="p">:</span>
+            <span class="n">coerced_stages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Stage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">or</span> <span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Stage</span><span class="p">):</span>
+                    <span class="n">coerced_stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+                    <span class="n">coerced_stages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Stage</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="s2">&quot;Every HabitatSpec.stages entry must be a Stage or &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;mapping; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;stages&quot;</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">coerced_stages</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">coerced_stages</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">coerced_stages</span><span class="p">):</span>
+                <span class="n">derived</span> <span class="o">=</span> <span class="n">_named_fields_from_stages</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">coerced_stages</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">derived</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">,</span> <span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2265,8 +2630,47 @@ window.runMermaid = runMermaid;</script>
                     <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Every entry of HabitatSpec.</span><span class="si">{</span><span class="n">chain_field</span><span class="si">}</span><span class="s2"> must be a Spec.&quot;</span>
                     <span class="p">)</span>
+
+        <span class="c1"># Sugar path: named fields required when stages were not supplied.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stages_explicit</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_OPTIONAL_COMPONENT_DOMAINS</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;HabitatSpec requires a &#39;</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">&#39; component spec &quot;</span>
+                        <span class="s2">&quot;(or an explicit stages list that provides it).&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;HabitatSpec.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> must be a Spec; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Spec</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;HabitatSpec.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2"> must be a Spec; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_stages_explicit&quot;</span><span class="p">,</span> <span class="n">stages_explicit</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span></div>
+            <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">))</span>
+
+        <span class="n">stage_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stage_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">stage_names</span><span class="p">)):</span>
+            <span class="n">dupes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">stage_names</span> <span class="k">if</span> <span class="n">stage_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;HabitatSpec stage names must be unique; duplicates: </span><span class="si">{</span><span class="n">dupes</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Rename the colliding Stage.name labels.&quot;</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HabitatSpec.component_specs">
@@ -2288,53 +2692,114 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Level at which the habitat definition is learned, DERIVED from the</span>
 <span class="sd">        declared dataflow.</span>
 
-<span class="sd">        ``&quot;subject&quot;`` when ``pooling=&quot;none&quot;`` (each subject defines its own</span>
-<span class="sd">        habitats; the one-step design), otherwise ``&quot;cohort&quot;`` (one shared</span>
-<span class="sd">        definition fitted on the pooled clustering units). This is a</span>
-<span class="sd">        read-only view of the spec graph, not a free-form field: it is</span>
-<span class="sd">        recorded in :meth:`to_dict` / :meth:`to_effective_dict` whenever the</span>
-<span class="sd">        dataflow is declared explicitly, so manifests and fingerprints state</span>
-<span class="sd">        where the definition lives.</span>
+<span class="sd">        ``&quot;subject&quot;`` when there is no ``pool`` stage / ``pooling=&quot;none&quot;``</span>
+<span class="sd">        (each subject defines its own habitats; the one-step design),</span>
+<span class="sd">        otherwise ``&quot;cohort&quot;``. This is a read-only view of the spec graph,</span>
+<span class="sd">        not a free-form field.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POOL</span>
+            <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">POOL_COMPONENT_NAME</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;cohort&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;subject&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span> <span class="k">else</span> <span class="s2">&quot;cohort&quot;</span>
+
+<div class="viewcode-block" id="HabitatSpec.resolved_stages">
+<a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.resolved_stages">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolved_stages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the ordered stages (explicit or sugar-expanded).</span>
+
+<span class="sd">        Sugar expansion is computed here (not stored on ``stages``) so</span>
+<span class="sd">        replacing named fields such as ``pooling`` rebuilds the sequence.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The effective stage tuple used by the executor and fingerprints</span>
+<span class="sd">            of explicit-stage specs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_model_fitter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="k">return</span> <span class="n">_expand_stages_from_fields</span><span class="p">(</span>
+            <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span><span class="p">,</span>
+            <span class="n">supervoxelizer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span><span class="p">,</span>
+            <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_extractor</span><span class="p">,</span>
+            <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_model_fitter</span><span class="p">,</span>
+            <span class="n">habitat_assigner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_assigner</span><span class="p">,</span>
+            <span class="n">habitat_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">habitat_features</span><span class="p">,</span>
+            <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_preprocessors</span><span class="p">,</span>
+            <span class="n">supervoxel_feature_preprocessors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">supervoxel_feature_preprocessors</span><span class="p">,</span>
+            <span class="n">cohort_feature_preprocessors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessors</span><span class="p">,</span>
+            <span class="n">pooling</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="p">,</span>
+            <span class="n">postprocess_supervoxel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="p">,</span>
+            <span class="n">postprocess_habitat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="HabitatSpec.validate_dataflow">
 <a class="viewcode-back" href="../../../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.validate_dataflow">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_dataflow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Check cross-field consistency of the declared habitat dataflow.</span>
+<span class="sd">        Check cross-field / stage-sequence consistency of the dataflow.</span>
 
-<span class="sd">        Construction (:meth:`__post_init__`) only enforces the value domain</span>
-<span class="sd">        of each field so a spec stays a constructible value object; the</span>
-<span class="sd">        combinations below are scientifically meaningless and are rejected</span>
-<span class="sd">        here, at the entry points (recipes / ``habit check-config``), before</span>
-<span class="sd">        any compute starts.</span>
+<span class="sd">        Construction (:meth:`__post_init__`) only enforces value domains so a</span>
+<span class="sd">        spec stays a constructible value object; scientifically meaningless</span>
+<span class="sd">        combinations are rejected here at entry points (recipes /</span>
+<span class="sd">        ``habit check-config``). Role inference that needs registries runs in</span>
+<span class="sd">        ``habit.domain.stages`` and is invoked from ``fit_habitat``.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            HABITAPIError: If ``pooling=&quot;none&quot;`` is combined with a</span>
-<span class="sd">                supervoxelizer (per-subject habitat definition on supervoxels</span>
-<span class="sd">                is not a supported design) or with a cohort-level</span>
-<span class="sd">                preprocessing chain (no step ever pools across subjects, so</span>
-<span class="sd">                fitted cohort statistics would never be used).</span>
+<span class="sd">            HABITAPIError: On illegal sugar combinations or structural stage</span>
+<span class="sd">                errors (duplicate names already rejected at construction;</span>
+<span class="sd">                partition without pool; subject-level + cohort preprocess).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span> <span class="k">if</span> <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">has_partition</span> <span class="o">=</span> <span class="n">ROLE_PARTITION</span> <span class="ow">in</span> <span class="n">roles</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">has_pool</span> <span class="o">=</span> <span class="n">ROLE_POOL</span> <span class="ow">in</span> <span class="n">roles</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">POOL_COMPONENT_NAME</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span>
+        <span class="p">)</span>
+        <span class="c1"># Undeclared pooling sugar still means cohort unless pooling=&#39;none&#39;.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;cohort&quot;</span><span class="p">:</span>
+            <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">roles</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">has_partition</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_pool</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat definition) &quot;</span>
-                <span class="s2">&quot;does not support a supervoxelizer: per-subject definition on &quot;</span>
-                <span class="s2">&quot;supervoxels is not a supported design. Remove the &quot;</span>
-                <span class="s2">&quot;supervoxelizer (one-step) or declare pooling=&#39;cohort&#39; &quot;</span>
-                <span class="s2">&quot;(two-step).&quot;</span>
+                <span class="s2">&quot;HabitatSpec declares a partition (supervoxelizer) stage but &quot;</span>
+                <span class="s2">&quot;no pool stage: per-subject definition on supervoxels is not &quot;</span>
+                <span class="s2">&quot;a supported design. Add a pool stage &quot;</span>
+                <span class="s2">&quot;(Stage(&#39;pool&#39;, Spec(&#39;pool&#39;))) after the subject-level &quot;</span>
+                <span class="s2">&quot;prefix, or remove the partition stage for one_step.&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessors</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat definition) &quot;</span>
-                <span class="s2">&quot;does not support cohort_feature_preprocessors: no step pools &quot;</span>
-                <span class="s2">&quot;across subjects, so cohort-level fitted statistics would &quot;</span>
-                <span class="s2">&quot;never be used. Move the chain to &quot;</span>
-                <span class="s2">&quot;voxel_feature_preprocessors or declare pooling=&#39;cohort&#39;.&quot;</span>
-            <span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">supervoxelizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat &quot;</span>
+                    <span class="s2">&quot;definition) does not support a supervoxelizer: &quot;</span>
+                    <span class="s2">&quot;per-subject definition on supervoxels is not a supported &quot;</span>
+                    <span class="s2">&quot;design. Remove the supervoxelizer (one-step) or declare &quot;</span>
+                    <span class="s2">&quot;pooling=&#39;cohort&#39; / add a pool stage (two-step).&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_feature_preprocessors</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;HabitatSpec.pooling=&#39;none&#39; (subject-level habitat &quot;</span>
+                    <span class="s2">&quot;definition) does not support cohort_feature_preprocessors: &quot;</span>
+                    <span class="s2">&quot;no step pools across subjects, so cohort-level fitted &quot;</span>
+                    <span class="s2">&quot;statistics would never be used. Move the chain to &quot;</span>
+                    <span class="s2">&quot;voxel_feature_preprocessors, or declare pooling=&#39;cohort&#39; &quot;</span>
+                    <span class="s2">&quot;/ insert a pool stage before those preprocess steps.&quot;</span>
+                <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="HabitatSpec.describe_methods">
@@ -2369,10 +2834,27 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;Unknown methods style </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">; expected one of &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_METHODS_STYLES</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;The analysis specification </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> comprises &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_component_phrases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()))</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="c1"># Narrate both the ordered stages and the classic component phrases</span>
+        <span class="c1"># so manuscripts keep recognisable step names while stages stay SoT.</span>
+        <span class="n">stage_phrases</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">params</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;, &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">_params_text</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">params</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()</span>
         <span class="p">]</span>
+        <span class="n">component_text</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_component_phrases</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">stage_phrases</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;The analysis specification </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> proceeds through &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ordered stages: </span><span class="si">{</span><span class="s1">&#39;; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stage_phrases</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;In component terms it comprises </span><span class="si">{</span><span class="n">component_text</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;The analysis specification </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> comprises &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">component_text</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition_level</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
             <span class="n">body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="s2">&quot;Habitats are defined within each subject independently &quot;</span>
@@ -2420,6 +2902,16 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="c1"># Explicit stages are the fingerprint source of truth. Sugar-only</span>
+        <span class="c1"># specs keep the historical named-field payload so two_step /</span>
+        <span class="c1"># direct_pooling fingerprints stay byte-identical.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span><span class="p">:</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;stages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()]</span>
+            <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;random_seed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span> <span class="o">!=</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">:</span>
+                <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span>
+            <span class="k">return</span> <span class="n">payload</span>
+
         <span class="k">for</span> <span class="n">domain</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_specs</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">payload</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -2459,16 +2951,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Serialise with fingerprint-stable defaults expanded for YAML export.</span>
 
 <span class="sd">        Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``,</span>
-<span class="sd">        the resolved ``pooling`` declaration with its derived</span>
+<span class="sd">        the resolved ``pooling`` / ``stages`` view with its derived</span>
 <span class="sd">        ``definition_level``, and both postprocess slots (``null`` when unset)</span>
 <span class="sd">        so a saved document records the full effective analysis, not only</span>
-<span class="sd">        overridden fields. Fingerprints still use :meth:`to_dict` and are</span>
-<span class="sd">        unchanged; the round trip stays stable because ``pooling=&quot;cohort&quot;``</span>
-<span class="sd">        reads back to the same fingerprint as an undeclared dataflow.</span>
+<span class="sd">        overridden fields. Fingerprints still use :meth:`to_dict`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_geometry_mismatch</span>
-        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;pooling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cohort&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;stages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()]</span>
+        <span class="n">resolved_pooling</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;none&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition_level</span> <span class="o">==</span> <span class="s2">&quot;subject&quot;</span>
+            <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;cohort&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="n">resolved_pooling</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition_level</span> <span class="o">==</span> <span class="s2">&quot;cohort&quot;</span><span class="p">:</span>
+            <span class="n">resolved_pooling</span> <span class="o">=</span> <span class="s2">&quot;cohort&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;pooling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resolved_pooling</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;definition_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">definition_level</span>
         <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_supervoxel</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -2480,6 +2980,12 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocess_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
+        <span class="c1"># Sugar named fields aid human readers even when stages are explicit.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_feature_extractor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">domain</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_specs</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                    <span class="n">domain</span><span class="p">,</span> <span class="n">component</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
         <span class="k">return</span> <span class="n">payload</span></div>
 
 
@@ -2528,43 +3034,60 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Raises:</span>
 <span class="sd">            HABITAPIError: If a required component is missing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
-            <span class="n">components</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">domain</span><span class="p">))</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span> <span class="p">())</span>
-        <span class="p">)</span>
-        <span class="n">chains</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">chain_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>
-                <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">,</span> <span class="p">())</span>
+        <span class="n">stages_payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stages&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stages_payload</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;voxel_feature_extractor&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
+            <span class="c1"># Stages-only document.</span>
+            <span class="n">stages</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Stage</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stages_payload</span><span class="p">)</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_spec&quot;</span><span class="p">)),</span>
+                <span class="n">stages</span><span class="o">=</span><span class="n">stages</span><span class="p">,</span>
+                <span class="n">random_seed</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
+                <span class="n">on_geometry_mismatch</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
+                    <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">,</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span>
-        <span class="p">}</span>
-        <span class="c1"># ``components`` holds Optional[Spec] because a hand-written document</span>
-        <span class="c1"># may omit a domain; ``__post_init__`` rejects a missing REQUIRED</span>
-        <span class="c1"># component with HABITAPIError, so the casts below only cross the</span>
-        <span class="c1"># static gap -- invalid payloads still fail at construction.</span>
-        <span class="n">pooling</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pooling&quot;</span><span class="p">)</span>
-        <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_spec&quot;</span><span class="p">)),</span>
-            <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">]),</span>
-            <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;supervoxelizer&quot;</span><span class="p">],</span>
-            <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;supervoxel_feature_extractor&quot;</span><span class="p">],</span>
-            <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">]),</span>
-            <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_assigner&quot;</span><span class="p">]),</span>
-            <span class="n">habitat_features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
-            <span class="n">on_geometry_mismatch</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">,</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">)</span>
-            <span class="p">),</span>
-            <span class="n">pooling</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">pooling</span><span class="p">),</span>
-            <span class="n">postprocess_supervoxel</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">)),</span>
-            <span class="n">postprocess_habitat</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">)),</span>
-            <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
-            <span class="o">**</span><span class="n">chains</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Spec</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_COMPONENT_DOMAINS</span><span class="p">:</span>
+                <span class="n">components</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">domain</span><span class="p">))</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;habitat_features&quot;</span><span class="p">,</span> <span class="p">())</span>
+            <span class="p">)</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">chain_key</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="n">cast</span><span class="p">(</span><span class="n">Spec</span><span class="p">,</span> <span class="n">coerce_spec</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chain_key</span><span class="p">,</span> <span class="p">())</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">chain_key</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">_PREPROCESSING_CHAINS</span>
+            <span class="p">}</span>
+            <span class="n">pooling</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pooling&quot;</span><span class="p">)</span>
+            <span class="c1"># Named fields present: keep the sugar fingerprint path. An</span>
+            <span class="c1"># accompanying ``stages`` list from ``to_effective_dict`` is</span>
+            <span class="c1"># documentation only and must not flip ``_stages_explicit``.</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_spec&quot;</span><span class="p">)),</span>
+                <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;voxel_feature_extractor&quot;</span><span class="p">],</span>
+                <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;supervoxelizer&quot;</span><span class="p">],</span>
+                <span class="n">supervoxel_feature_extractor</span><span class="o">=</span><span class="n">components</span><span class="p">[</span>
+                    <span class="s2">&quot;supervoxel_feature_extractor&quot;</span>
+                <span class="p">],</span>
+                <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_model_fitter&quot;</span><span class="p">],</span>
+                <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">components</span><span class="p">[</span><span class="s2">&quot;habitat_assigner&quot;</span><span class="p">],</span>
+                <span class="n">habitat_features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+                <span class="n">random_seed</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;random_seed&quot;</span><span class="p">),</span>
+                <span class="n">on_geometry_mismatch</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
+                    <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;on_geometry_mismatch&quot;</span><span class="p">,</span> <span class="s2">&quot;resample_mask&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">pooling</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">pooling</span><span class="p">),</span>
+                <span class="n">postprocess_supervoxel</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span>
+                    <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_supervoxel&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">postprocess_habitat</span><span class="o">=</span><span class="n">coerce_spec</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;postprocess_habitat&quot;</span><span class="p">)),</span>
+                <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">)),</span>
+                <span class="o">**</span><span class="n">chains</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="c1"># A document may also carry the derived ``definition_level`` (written</span>
         <span class="c1"># by ``to_dict`` / ``to_effective_dict`` / the legacy adapter). It is</span>
         <span class="c1"># not a free-form field: reject documents whose stated level</span>

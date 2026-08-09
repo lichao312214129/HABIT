@@ -1186,6 +1186,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/domain_habitat.html">Habitat domain API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#protocols">Protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#ordered-stages-and-the-shared-executor">Ordered stages and the shared executor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#registry-pattern-all-domains">Registry pattern (all domains)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#voxel-feature-extractors">Voxel feature extractors</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/domain_habitat.html#supervoxelizers">Supervoxelizers</a></li>
@@ -1484,12 +1485,14 @@ only: <code class="docutils literal notranslate"><span class="pre">components.vo
 <p>For debugging and QA, pass <code class="docutils literal notranslate"><span class="pre">inspect=</span></code> a <code class="xref py py-class docutils literal notranslate"><span class="pre">StepRecorder</span></code>
 into <code class="docutils literal notranslate"><span class="pre">recipes.two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> /
 <code class="docutils literal notranslate"><span class="pre">apply_habitat_model</span></code>. Default <code class="docutils literal notranslate"><span class="pre">inspect=None</span></code> is zero-cost and bit-identical.</p>
-<p>Captured boundaries include <code class="docutils literal notranslate"><span class="pre">voxel_features.raw</span></code>,
+<p>Captured boundaries include the legacy names <code class="docutils literal notranslate"><span class="pre">voxel_features.raw</span></code>,
 <code class="docutils literal notranslate"><span class="pre">voxel_features.preprocessed</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxels.partition</span></code>,
 <code class="docutils literal notranslate"><span class="pre">supervoxels.described</span></code>, <code class="docutils literal notranslate"><span class="pre">units.cohort_preprocessed</span></code>, <code class="docutils literal notranslate"><span class="pre">habitat_map</span></code>,
-and <code class="docutils literal notranslate"><span class="pre">habitat_features</span></code> (see <code class="docutils literal notranslate"><span class="pre">habit.STEP_NAMES</span></code>). Use <code class="docutils literal notranslate"><span class="pre">steps=</span></code>,
-<code class="docutils literal notranslate"><span class="pre">subjects=</span></code>, and <code class="docutils literal notranslate"><span class="pre">max_subjects=</span></code> to limit memory. The recorder is also
-available as <code class="docutils literal notranslate"><span class="pre">result.inspection</span></code>.</p>
+and <code class="docutils literal notranslate"><span class="pre">habitat_features</span></code> (see <code class="docutils literal notranslate"><span class="pre">habit.STEP_NAMES</span></code>), plus stage-bound names
+such as <code class="docutils literal notranslate"><span class="pre">preprocess1.output</span></code> / <code class="docutils literal notranslate"><span class="pre">pool.output</span></code> / <code class="docutils literal notranslate"><span class="pre">fit.output</span></code>. After
+<code class="docutils literal notranslate"><span class="pre">pool</span></code> / <code class="docutils literal notranslate"><span class="pre">fit</span></code>, cohort-level records use subject id <code class="docutils literal notranslate"><span class="pre">__cohort__</span></code>.
+Use <code class="docutils literal notranslate"><span class="pre">steps=</span></code>, <code class="docutils literal notranslate"><span class="pre">subjects=</span></code>, and <code class="docutils literal notranslate"><span class="pre">max_subjects=</span></code> to limit memory.
+The recorder is also available as <code class="docutils literal notranslate"><span class="pre">result.inspection</span></code>.</p>
 <p>In-memory inspection is <strong>not</strong> supported with the process backend; use
 serial / <code class="docutils literal notranslate"><span class="pre">workers=1</span></code> while debugging.</p>
 </section>

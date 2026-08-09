@@ -3,17 +3,25 @@ Habitat recipes API (three modes + apply + persistence)
 
 Named study designs in ``habit.recipes``:
 
-* :func:`~habit.recipes.fit_habitat` — unified entry; dispatches on the
-  spec's declared dataflow (``HabitatSpec.pooling`` + ``supervoxelizer``)
+* :func:`~habit.recipes.fit_habitat` — unified entry; runs the shared
+  **stage dataflow executor** from :attr:`~habit.spec.HabitatSpec.stages`
+  (or the named-field sugar that expands to the same sequence)
 * :func:`~habit.recipes.two_step` — supervoxels then cohort habitats
 * :func:`~habit.recipes.one_step` — per-subject voxel habitats
 * :func:`~habit.recipes.direct_pooling` — pool voxels across the cohort
 * :func:`~habit.recipes.apply_habitat_model` — reuse a fitted
   :class:`~habit.contracts.HabitatModel`
 
-The three mode-named functions are thin aliases: they validate the spec's
-dataflow declaration and call ``fit_habitat``, so numerics are identical
-whichever entry you use.
+Strategy is inferred from the stage sequence: partition+pool → two_step;
+pool only → direct_pooling; neither → one_step. The ``pool`` marker is the
+only subject↔cohort watershed. The three mode-named functions are thin
+aliases that validate the spec and call ``fit_habitat``, so numerics are
+identical whichever entry you use.
+
+Recommended stage labels (documentation only, not keywords):
+``extract_voxel_features``, ``preprocess1`` / ``preprocess2`` / …,
+``partition``, ``extract_supervoxel_features``, ``pool``, ``fit``,
+``assign``, ``quantify``. Roles come from position + registry domain.
 
 **Batch** — pass a :class:`~habit.contracts.Cohort`.
 **Atomic** — ``result.pipeline(subject)`` labels one
