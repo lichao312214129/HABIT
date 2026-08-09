@@ -22,6 +22,11 @@ translation. Data location is deliberately absent: that is the
 
 from __future__ import annotations
 
+from habit.spec.document import (
+    build_habitat_document,
+    load_habitat_config,
+    save_habitat_config,
+)
 from habit.spec.expressions import parse_feature_expression
 from habit.spec.legacy import (
     LegacyConfigAdapter,
@@ -51,6 +56,9 @@ __all__ = [
     "save_habitat_spec",
     "load_run_policy",
     "save_run_policy",
+    "build_habitat_document",
+    "save_habitat_config",
+    "load_habitat_config",
     "LegacyConfigAdapter",
     "LegacyTranslation",
     "MigrationReport",

@@ -6,8 +6,10 @@
 # execute) + output (what to persist). The spec section is one-to-one with
 # habit.HabitatSpec — what you see here is exactly what exists in Python.
 #
-# Run it (v1 documents are executed through the Python API, not get-habitat):
+# Run it (v1 documents share one assembly path with the Python YAML API):
 #
+#   habit get-habitat --config config/habitat/config_habitat_two_step_v1.yaml
+#   # or:
 #   E:\conda\mconda\envs\py310\python.exe -c "import habit; habit.recipes.run_from_yaml('config/habitat/config_habitat_two_step_v1.yaml', save=True)"
 #
 # Validate without running:

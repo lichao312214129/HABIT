@@ -30,7 +30,26 @@ from habit.exceptions import HABITAPIError
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec
 
-__all__ = ["load_habitat_spec", "save_habitat_spec", "load_run_policy", "save_run_policy"]
+__all__ = [
+    "dumps_yaml",
+    "load_habitat_spec",
+    "save_habitat_spec",
+    "load_run_policy",
+    "save_run_policy",
+]
+
+
+def dumps_yaml(payload: Mapping[str, Any]) -> str:
+    """
+    Serialise one mapping to a YAML string (stable key order).
+
+    Args:
+        payload: Top-level mapping to emit.
+
+    Returns:
+        UTF-8 YAML text.
+    """
+    return yaml.safe_dump(dict(payload), sort_keys=False, allow_unicode=True)
 
 
 def _read_yaml(path: Union[str, Path]) -> Dict[str, Any]:
@@ -53,10 +72,7 @@ def _write_yaml(payload: Mapping[str, Any], path: Union[str, Path]) -> Path:
     """Write one YAML mapping file, creating parent directories."""
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(
-        yaml.safe_dump(dict(payload), sort_keys=False, allow_unicode=True),
-        encoding="utf-8",
-    )
+    destination.write_text(dumps_yaml(payload), encoding="utf-8")
     return destination
 
 
@@ -76,6 +92,11 @@ def load_habitat_spec(path: Union[str, Path]) -> HabitatSpec:
 def save_habitat_spec(spec: HabitatSpec, path: Union[str, Path]) -> Path:
     """
     Write a :class:`HabitatSpec` as YAML.
+
+    Uses :meth:`HabitatSpec.to_dict` (fingerprint-stable omissions). For a
+    complete effective ``spec:`` section, call :meth:`HabitatSpec.to_yaml`;
+    for a runnable v1 document (data/policy/output), call
+    :func:`~habit.spec.save_habitat_config`.
 
     Args:
         spec: The specification to serialise.

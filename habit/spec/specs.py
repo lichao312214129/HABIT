@@ -27,7 +27,8 @@ import hashlib
 import json
 import warnings
 from dataclasses import dataclass, field
-from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, cast
+from pathlib import Path
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union, cast
 
 from habit.exceptions import HABITAPIError
 
@@ -522,6 +523,55 @@ class HabitatSpec:
         if self.postprocess_habitat is not None:
             payload["postprocess_habitat"] = self.postprocess_habitat.to_dict()
         return payload
+
+    def to_effective_dict(self) -> Dict[str, Any]:
+        """
+        Serialise with fingerprint-stable defaults expanded for YAML export.
+
+        Unlike :meth:`to_dict`, this always includes ``on_geometry_mismatch``
+        and both postprocess slots (``null`` when unset) so a saved document
+        records the full effective analysis, not only overridden fields.
+        Fingerprints still use :meth:`to_dict` and are unchanged.
+        """
+        payload = self.to_dict()
+        payload["on_geometry_mismatch"] = self.on_geometry_mismatch
+        payload["postprocess_supervoxel"] = (
+            self.postprocess_supervoxel.to_dict()
+            if self.postprocess_supervoxel is not None
+            else None
+        )
+        payload["postprocess_habitat"] = (
+            self.postprocess_habitat.to_dict()
+            if self.postprocess_habitat is not None
+            else None
+        )
+        return payload
+
+    def to_yaml(self, path: Optional[Union[str, Path]] = None) -> str:
+        """
+        Export the effective specification as YAML text.
+
+        This is the Python→YAML half of the Spec/YAML isomorphism for the
+        ``spec:`` section. For a **runnable** document that also carries
+        ``data`` / ``policy`` / ``output`` (so CLI and
+        :func:`~habit.recipes.run_from_yaml` can replay the run), use
+        :func:`~habit.spec.save_habitat_config`.
+
+        Args:
+            path: Optional destination file; when set, the YAML is written.
+
+        Returns:
+            The YAML text of :meth:`to_effective_dict`.
+        """
+        # Lazy import keeps ``habit.spec.specs`` free of a hard ``yaml`` edge
+        # at module import time (yaml_io owns all YAML I/O).
+        from habit.spec.yaml_io import dumps_yaml, _write_yaml
+
+        payload = self.to_effective_dict()
+        text = dumps_yaml(payload)
+        if path is not None:
+            _write_yaml(payload, path)
+        return text
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "HabitatSpec":

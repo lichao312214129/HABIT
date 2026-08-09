@@ -65,9 +65,15 @@ from habit.exceptions import (
 from habit.schemas import HabitatAnalysisConfig
 from habit.execution.checkpoint import CheckpointStore
 from habit.execution.selection import backend_from_policy
-from habit.recipes import apply_habitat_model, direct_pooling, one_step, two_step
+from habit.recipes import (
+    apply_habitat_model,
+    direct_pooling,
+    one_step,
+    run_from_yaml,
+    two_step,
+)
 from habit.recipes.result import StudyResult
-from habit.spec.legacy import LegacyConfigAdapter
+from habit.spec.legacy import LegacyConfigAdapter, detect_yaml_version
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec
 from habit.utils.log_utils import setup_logger, stop_queue_listener
@@ -126,6 +132,10 @@ def run_habitat(
     ``StudyResult.save`` (v1 layout) plus ``habitat_model.habitatmodel``
     for the fitted model.
 
+    Native **v1** documents (``version: '1.0'``) share the same assembly as
+    :func:`~habit.recipes.run_from_yaml` so exported YAML from
+    :func:`~habit.spec.save_habitat_config` replays voxel-identically.
+
     Args:
         config_file: Path to configuration YAML file.
         debug_mode: Whether to enable debug mode.
@@ -135,6 +145,33 @@ def run_habitat(
         exit_on_error: When True (CLI default), call ``sys.exit(1)`` on failure.
             GUI callers should pass False so exceptions propagate.
     """
+    config_path = Path(config_file)
+    if not config_path.is_file():
+        echo_error(f"Error: Configuration file not found: {config_file}")
+        if exit_on_error:
+            sys.exit(1)
+        raise FileNotFoundError(config_file)
+
+    try:
+        payload = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        echo_error(f"Error: Failed to load configuration: {exc}")
+        if exit_on_error:
+            sys.exit(1)
+        raise
+
+    if isinstance(payload, Mapping) and detect_yaml_version(payload) == "v1":
+        _run_habitat_v1_document(
+            config_path,
+            payload,
+            debug_mode=debug_mode,
+            mode=mode,
+            pipeline_path=pipeline_path,
+            resume=resume,
+            exit_on_error=exit_on_error,
+        )
+        return
+
     config = load_config_or_exit(HabitatAnalysisConfig, config_file)
     click.echo(f"Loaded configuration from: {config_file}")
 
@@ -181,6 +218,108 @@ def run_habitat(
             _run_predict(config, logger)
         else:
             _run_train(config, logger)
+        logger.info("Habitat analysis completed successfully")
+        echo_success("Habitat analysis completed successfully!")
+    except _USER_FACING_ERRORS as exc:
+        logger.error("Error during habitat analysis: %s", exc)
+        echo_error(f"Error: {exc}")
+        if exit_on_error:
+            sys.exit(1)
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.error(
+            "Unexpected error during habitat analysis: %s", exc, exc_info=True
+        )
+        echo_error(
+            "Error: An unexpected internal error occurred during habitat analysis.\n"
+            f"Details: {exc}\n"
+            "If this persists, please report a bug and attach habitat_analysis.log "
+            "from your output directory."
+        )
+        if exit_on_error:
+            sys.exit(1)
+        raise
+    finally:
+        stop_queue_listener()
+
+
+def _run_habitat_v1_document(
+    config_path: Path,
+    payload: Mapping[str, Any],
+    *,
+    debug_mode: bool,
+    mode: Optional[str],
+    pipeline_path: Optional[str],
+    resume: bool,
+    exit_on_error: bool,
+) -> None:
+    """
+    Execute a native v1 habitat document through ``run_from_yaml``.
+
+    CLI overrides are applied to an in-memory copy written beside the original
+    path only when needed; scientific assembly stays identical to the YAML API.
+
+    Args:
+        config_path: Path to the source YAML file.
+        payload: Parsed v1 document mapping.
+        debug_mode: Enable debug logging.
+        mode: Optional ``train`` / ``predict`` override.
+        pipeline_path: Optional fitted-model path override.
+        resume: When True, force ``policy.resume`` on.
+        exit_on_error: Exit the process on user-facing failures.
+    """
+    document = dict(payload)
+    if mode is not None:
+        document["mode"] = str(mode).strip().lower()
+    if pipeline_path is not None:
+        document["pipeline"] = str(pipeline_path)
+    if resume:
+        policy = dict(document.get("policy") or {})
+        policy["resume"] = True
+        document["policy"] = policy
+
+    output = dict(document.get("output") or {})
+    out_dir = Path(str(output.get("out_dir") or "."))
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    log_level = logging.DEBUG if debug_mode else logging.INFO
+    logger = setup_logger(
+        name="cli.habitat",
+        output_dir=out_dir,
+        log_filename="habitat_analysis.log",
+        level=log_level,
+    )
+
+    run_mode = str(document.get("mode", "train")).strip().lower()
+    click.echo(f"Loaded v1 configuration from: {config_path}")
+    click.echo("Starting habitat analysis...")
+    click.echo(f"  Mode: {run_mode}")
+    click.echo(f"  Output directory: {out_dir}")
+    if run_mode == "predict":
+        click.echo(f"  Pipeline path: {document.get('pipeline') or 'auto'}")
+    click.echo(f"  Log file at: {out_dir / 'habitat_analysis.log'}")
+    logger.info("==== Starting Habitat Analysis (v1 document) ====")
+    logger.info("Config file: %s", config_path)
+    logger.info("Document: %s", document)
+
+    # Materialise CLI overrides (if any) so run_from_yaml reads one file and
+    # keeps a single assembly path with the YAML API.
+    effective_path = config_path
+    if document != payload:
+        effective_path = out_dir / "_cli_effective_habitat_config.yaml"
+        effective_path.write_text(
+            yaml.safe_dump(document, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+        logger.info("Wrote CLI-overridden effective config: %s", effective_path)
+
+    try:
+        run_from_yaml(
+            effective_path,
+            workflow="habitat",
+            save=True,
+            logger=logger,
+        )
         logger.info("Habitat analysis completed successfully")
         echo_success("Habitat analysis completed successfully!")
     except _USER_FACING_ERRORS as exc:
