@@ -16,11 +16,11 @@ Core developers
 
 **Jiang Zekun**
 
-* Institution: Biomedical Big Data Research Institute, West China Hospital, Sichuan University
+* Institution: West China Biomedical Big Data Center, West China Hospital, Sichuan University
 
 **Jiang Kunyuan**
 
-* Institution: West China Medical Robotics Research Institute
+* Institution: West China Medical Robotics Center
 
 Future developers
 -----------------
