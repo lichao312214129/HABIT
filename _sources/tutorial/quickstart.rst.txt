@@ -13,7 +13,7 @@ materialize the bundled demo YAML tree into ``<work_dir>/config/``::
    # Windows — Anaconda Prompt (not plain CMD)
    conda activate habit          # prompt must show (habit)
    mkdir D:\my_habit_work
-   cd /d D:\my_habit_work
+   cd D:\my_habit_work
    habit copy-demo-config --dest .
 
    # macOS / Linux
@@ -89,7 +89,7 @@ check::
 
    # Windows — Anaconda Prompt (not plain CMD)
    conda activate habit          # prompt must show (habit)
-   cd /d D:\my_habit_work        # your work_dir (has config/)
+   cd D:\my_habit_work        # your work_dir (has config/)
 
    # macOS / Linux — Terminal with conda available
    conda activate habit

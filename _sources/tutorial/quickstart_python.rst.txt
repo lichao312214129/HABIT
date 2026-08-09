@@ -10,7 +10,7 @@ Work from a directory that already has ``config/`` and ``demo_data/``
 
    # Windows - Anaconda Prompt
    conda activate habit
-   cd /d D:\my_habit_work          # your work_dir (has config/ + demo_data/)
+   cd D:\my_habit_work          # your work_dir (has config/ + demo_data/)
 
 Paths inside the demo YAML resolve from each YAML file's folder
 (``../../demo_data/...``), exactly as for ``habit get-habitat`` /
