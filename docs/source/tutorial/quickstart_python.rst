@@ -155,10 +155,9 @@ live under :doc:`../examples/index`.
 2. View
 -------
 
-CLI twin::
+CLI twin (one line — conda / Windows terminals do not support ``\`` continuation)::
 
-   habit view demo_data/preprocessed/images/subj001/LAP/...nrrd \
-              demo_data/results/habitat_two_step/subj001_habitats.nrrd
+   habit view demo_data/preprocessed/images/subj001/LAP/...nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
 Append inside the same ``main()`` from step 1 (uses ``cohort`` /
 ``result``)::
