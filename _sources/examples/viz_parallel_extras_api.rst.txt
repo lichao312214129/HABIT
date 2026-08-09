@@ -12,6 +12,13 @@ Visualization, RunPolicy parallelism, and extras API
 **Atomic** predict after a parallel fit remains
 ``result.pipeline(subject)``.
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
+This demo constructs a :class:`~habit.spec.RunPolicy` with
+``backend="process"`` for illustration; the short path below runs
+``one_step`` serially. Keep any real ``ProcessPoolBackend.map`` /
+``recipes.*(…, backend=…)`` call under ``__main__``.
+
 Script
 ------
 

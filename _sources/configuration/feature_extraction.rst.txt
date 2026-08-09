@@ -81,7 +81,11 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Type**: integer
 - **Required**: no
 - **Default**: ``4`` (built-in default for feature extraction config)
-- **Description**: number of processes for parallel processing
+- **Description**: number of processes for parallel processing.
+  When ``n_processes > 1``, Windows scripts that call the extract recipe
+  from Python must use ``if __name__ == "__main__":`` (same spawn rule as
+  habitat :class:`~habit.execution.ProcessPoolBackend`; see
+  :doc:`../api/execution`).
 - **Example**: ``3``
 
 **habitat_pattern**: habitat file glob pattern

@@ -133,20 +133,28 @@ old configs translate byte-identically while new configs get the tree.
 scheduling concern. Field names match backend keyword arguments so the
 YAML ``policy:`` block and the Python form stay one-to-one.
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 .. code-block:: python
 
    from habit import RunPolicy, load_run_policy, save_run_policy
 
-   policy = RunPolicy(
-       workers=4,
-       backend="process",              # "serial" | "process"
-       on_subject_failure="continue",  # or "fail_fast"
-       subject_timeout_sec=900.0,
-       parallel_mode="persistent",     # library default
-       auto_retry_rounds=2,
-   )
-   save_run_policy(policy, "run_policy.yaml")
-   policy2 = load_run_policy("run_policy.yaml")
+   def main() -> None:
+       policy = RunPolicy(
+           workers=4,
+           backend="process",              # "serial" | "process"
+           on_subject_failure="continue",  # or "fail_fast"
+           subject_timeout_sec=900.0,
+           parallel_mode="persistent",     # library default
+           auto_retry_rounds=2,
+       )
+       save_run_policy(policy, "run_policy.yaml")
+       policy2 = load_run_policy("run_policy.yaml")
+       # Pass policy into recipes / ProcessPoolBackend only under __main__.
+
+
+   if __name__ == "__main__":
+       main()
 
 ``on_subject_failure="continue"`` isolates errors inside the execution
 backend. :meth:`~habit.contracts.Cohort.map` still raises

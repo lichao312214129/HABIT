@@ -26,6 +26,10 @@ Either way, ProcessPoolBackend is selected only when
 SerialBackend and timeout / OOM / ``parallel_mode`` / ``auto_retry_rounds``
 do not apply (see :doc:`../api/execution`).
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
+The demo script already wraps work in ``if __name__ == "__main__":``.
+
 Script
 ------
 

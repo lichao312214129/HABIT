@@ -31,6 +31,13 @@ CLI twin (same scientific settings)::
 
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
+Save the block below as a ``.py`` file (for example ``run_two_step.py``)
+and run ``python run_two_step.py``. Do **not** paste it at the top level
+of a script without the ``__main__`` guard — the demo uses a process
+pool (same as the CLI YAML ``processes: 2``).
+
+.. include:: ../_includes/windows_multiprocessing.rst
+
 .. code-block:: python
 
    from pathlib import Path
@@ -39,95 +46,101 @@ CLI twin (same scientific settings)::
    from habit.execution import backend_from_policy
    import habit.recipes as recipes
 
-   modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
-   # Match the CLI YAML loader: ROI key = first modality in the concat list.
-   cohort = cohort_from_directory(
-       "demo_data/preprocessed",
-       modalities=modalities,
-       roi="pre_contrast",
-   )
 
-   # Mirrors config/habitat/config_habitat_two_step.yaml → HabitatSpec
-   spec = HabitatSpec(
-       name="habitat_two_step",
-       voxel_feature_extractor=Spec(
-           "raw",
-           {"modalities": list(modalities)},
-       ),
-       voxel_feature_preprocessors=(
-           Spec(
-               "winsorize",
-               {"winsor_limits": (0.05, 0.05), "across_features": False},
+   def main() -> None:
+       modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
+       # Match the CLI YAML loader: ROI key = first modality in the concat list.
+       cohort = cohort_from_directory(
+           "demo_data/preprocessed",
+           modalities=modalities,
+           roi="pre_contrast",
+       )
+
+       # Mirrors config/habitat/config_habitat_two_step.yaml → HabitatSpec
+       spec = HabitatSpec(
+           name="habitat_two_step",
+           voxel_feature_extractor=Spec(
+               "raw",
+               {"modalities": list(modalities)},
            ),
-           Spec("minmax", {"across_features": False}),
-       ),
-       supervoxelizer=Spec(
-           "kmeans",
-           {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
-       ),
-       cohort_feature_preprocessors=(
-           Spec(
-               "binning",
+           voxel_feature_preprocessors=(
+               Spec(
+                   "winsorize",
+                   {"winsor_limits": (0.05, 0.05), "across_features": False},
+               ),
+               Spec("minmax", {"across_features": False}),
+           ),
+           supervoxelizer=Spec(
+               "kmeans",
+               {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
+           ),
+           cohort_feature_preprocessors=(
+               Spec(
+                   "binning",
+                   {
+                       "n_bins": 10,
+                       "bin_strategy": "uniform",
+                       "across_features": False,
+                   },
+               ),
+           ),
+           habitat_model_fitter=Spec(
+               "kmeans",
                {
-                   "n_bins": 10,
-                   "bin_strategy": "uniform",
-                   "across_features": False,
+                   "min_habitats": 2,
+                   "max_habitats": 10,
+                   "validation": "elbow",
+                   "max_iter": 300,
+                   "n_init": 10,
                },
            ),
-       ),
-       habitat_model_fitter=Spec(
-           "kmeans",
-           {
-               "min_habitats": 2,
-               "max_habitats": 10,
-               "validation": "elbow",
-               "max_iter": 300,
-               "n_init": 10,
-           },
-       ),
-       habitat_assigner=Spec("nearest_centroid"),
-       postprocess_habitat=Spec(
-           "connected_components",
-           {
-               "min_component_size": 100,
-               "connectivity": 1,
-               "reassign_method": "neighbor_vote",
-               "max_iterations": 3,
-           },
-       ),
-       random_seed=42,
-   )
+           habitat_assigner=Spec("nearest_centroid"),
+           postprocess_habitat=Spec(
+               "connected_components",
+               {
+                   "min_component_size": 100,
+                   "connectivity": 1,
+                   "reassign_method": "neighbor_vote",
+                   "max_iterations": 3,
+               },
+           ),
+           random_seed=42,
+       )
 
-   # Match YAML processes / timeout so process-pool execution matches CLI.
-   policy = RunPolicy(
-       workers=2,
-       backend="process",
-       subject_timeout_sec=900.0,
-       resume=False,
-   )
-   backend = backend_from_policy(policy)
+       # Match YAML processes / timeout so process-pool execution matches CLI.
+       policy = RunPolicy(
+           workers=2,
+           backend="process",
+           subject_timeout_sec=900.0,
+           resume=False,
+       )
+       backend = backend_from_policy(policy)
 
-   result = recipes.two_step(cohort, spec, backend=backend)
-   out_dir = Path("demo_data/results/habitat_two_step")
-   result.save(
-       out_dir,
-       write_maps=True,
-       write_units_table=True,
-       write_cluster_plots=True,
-   )
-   print(result.habitat_model.summary())
+       result = recipes.two_step(cohort, spec, backend=backend)
+       out_dir = Path("demo_data/results/habitat_two_step")
+       result.save(
+           out_dir,
+           write_maps=True,
+           write_units_table=True,
+           write_cluster_plots=True,
+       )
+       print(result.habitat_model.summary())
 
-   # Export a complete effective v1 YAML so CLI / run_from_yaml can replay
-   # this exact run (expanded defaults, not only overridden fields).
-   from habit import save_habitat_config
+       # Export a complete effective v1 YAML so CLI / run_from_yaml can replay
+       # this exact run (expanded defaults, not only overridden fields).
+       from habit import save_habitat_config
 
-   save_habitat_config(
-       "demo_data/results/habitat_two_step/effective_config.yaml",
-       spec,
-       data_source="demo_data/preprocessed",
-       out_dir=out_dir,
-       policy=policy,
-   )
+       save_habitat_config(
+           "demo_data/results/habitat_two_step/effective_config.yaml",
+           spec,
+           data_source="demo_data/preprocessed",
+           out_dir=out_dir,
+           policy=policy,
+       )
+
+
+   if __name__ == "__main__":
+       main()
 
 Outputs land under ``demo_data/results/habitat_two_step/`` (including
 ``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). The exported
@@ -147,7 +160,8 @@ CLI twin::
    habit view demo_data/preprocessed/images/subj001/LAP/...nrrd \
               demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
-.. code-block:: python
+Append inside the same ``main()`` from step 1 (uses ``cohort`` /
+``result``)::
 
    from habit.viz import view_habitat_napari
 
@@ -173,7 +187,7 @@ CLI twin::
 
    habit get-habitat --config config/habitat/config_habitat_two_step_predict.yaml -m predict
 
-.. code-block:: python
+Still inside ``main()`` (reuses ``cohort``, ``spec``, ``backend``)::
 
    from habit import HabitatModel
 
@@ -195,30 +209,37 @@ CLI twin::
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
 Needs step 1 outputs (``*_habitats.nrrd``). Pass the same fields as the
-demo YAML, as a Python ``dict`` (still no config file):
+demo YAML, as a Python ``dict`` (still no config file).
+``n_processes: 2`` also spawns workers — keep this call under
+``if __name__ == "__main__":`` (see the note in step 1).
 
 .. code-block:: python
 
-   extract_result = recipes.extract_habitat_features(
-       {
-           "raw_img_folder": "demo_data/preprocessed",
-           "habitats_map_folder": "demo_data/results/habitat_two_step",
-           "out_dir": "demo_data/results/features",
-           "n_processes": 2,
-           "habitat_pattern": "*_habitats.nrrd",
-           "feature_types": [
-               "volume",
-               "msi",
-               "ith_score",
-               "non_radiomics",
-               # Heavy PyRadiomics (opt-in):
-               # "traditional",
-               # "whole_habitat",
-               # "each_habitat",
-           ],
-       }
-   )
-   print(extract_result.output_dir)
+   def main() -> None:
+       extract_result = recipes.extract_habitat_features(
+           {
+               "raw_img_folder": "demo_data/preprocessed",
+               "habitats_map_folder": "demo_data/results/habitat_two_step",
+               "out_dir": "demo_data/results/features",
+               "n_processes": 2,
+               "habitat_pattern": "*_habitats.nrrd",
+               "feature_types": [
+                   "volume",
+                   "msi",
+                   "ith_score",
+                   "non_radiomics",
+                   # Heavy PyRadiomics (opt-in):
+                   # "traditional",
+                   # "whole_habitat",
+                   # "each_habitat",
+               ],
+           }
+       )
+       print(extract_result.output_dir)
+
+
+   if __name__ == "__main__":
+       main()
 
 5. Tabular ML
 -------------
@@ -229,9 +250,8 @@ CLI twin::
 
 Needs the **ML pack** under ``demo_data/ml_data/`` (see :doc:`quickstart`
 step 2). Build a :class:`~habit.contracts.FeatureTable` and
-:class:`~habit.MLSpec` in code:
-
-.. code-block:: python
+:class:`~habit.MLSpec` in code (no process pool; ``__main__`` optional
+here, but harmless to keep)::
 
    from pathlib import Path
 

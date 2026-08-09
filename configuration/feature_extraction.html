@@ -75,11 +75,11 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/quickstart_python.html">Quickstart: Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-same-yaml-as-cli">1. Habitat analysis (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#habitat-analysis-two-step">1. Habitat analysis (two-step)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#view">2. View</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model-same-yaml-as-cli-predict">3. Apply a saved model (same YAML as CLI predict)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features-same-yaml-as-cli">4. Extract habitat features (same YAML as CLI)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml-same-yaml-as-cli">5. Tabular ML (same YAML as CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
 </ul>
 </li>
 </ul>
@@ -144,6 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -583,6 +584,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_spec.html">save_habitat_spec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_run_policy.html">load_run_policy</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_run_policy.html">save_run_policy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.build_habitat_document.html">build_habitat_document</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.save_habitat_config.html">save_habitat_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
@@ -1523,7 +1527,11 @@
 <li><p><strong>Type</strong>: integer</p></li>
 <li><p><strong>Required</strong>: no</p></li>
 <li><p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">4</span></code> (built-in default for feature extraction config)</p></li>
-<li><p><strong>Description</strong>: number of processes for parallel processing</p></li>
+<li><p><strong>Description</strong>: number of processes for parallel processing.
+When <code class="docutils literal notranslate"><span class="pre">n_processes</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, Windows scripts that call the extract recipe
+from Python must use <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> (same spawn rule as
+habitat <a class="reference internal" href="../api/generated/habit.execution.ProcessPoolBackend.html#habit.execution.ProcessPoolBackend" title="habit.execution.ProcessPoolBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolBackend</span></code></a>; see
+<a class="reference internal" href="../api/execution.html"><span class="doc">Execution backends</span></a>).</p></li>
 <li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
 </ul>
 <p><strong>habitat_pattern</strong>: habitat file glob pattern</p>
