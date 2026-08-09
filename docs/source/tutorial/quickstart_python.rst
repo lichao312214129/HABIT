@@ -2,45 +2,128 @@ Quickstart: Python API
 ========================
 
 Install first (:doc:`installation`). This page is the **same demo** as
-:doc:`quickstart`, driven by the **same YAML files** through
-:func:`~habit.recipes.run_from_yaml` (the programmatic twin of the CLI).
+:doc:`quickstart`, expressed as **pure Python** — construct a cohort,
+:class:`~habit.HabitatSpec` / :class:`~habit.MLSpec`, and call
+:mod:`habit.recipes` with explicit arguments (no YAML path, no
+:func:`~habit.recipes.run_from_yaml`).
 
-Work from a directory that already has ``config/`` and ``demo_data/``
-(see :doc:`quickstart` steps 1-2)::
+Parameters below mirror the bundled demo configs
+(``config/habitat/config_habitat_two_step.yaml``,
+``config/feature_extraction/config_extract_features_demo.yaml``,
+``config/machine_learning/config_machine_learning_radiomics_minimal.yaml``)
+so habitat label maps match the CLI voxel-wise when you use the same
+``demo_data/``, seed, and execution policy.
+
+YAML / CLI remain an alternate shell for the same recipes
+(:doc:`quickstart`); they are not required here.
+
+Work from a directory that already has ``demo_data/`` (and optionally
+``config/`` if you also use the CLI). See :doc:`quickstart` steps 1–2::
 
    # Windows - Anaconda Prompt
    conda activate habit
-   cd D:\my_habit_work          # your work_dir (has config/ + demo_data/)
+   cd D:\my_habit_work          # your work_dir (has demo_data/)
 
-Paths inside the demo YAML resolve from each YAML file's folder
-(``../../demo_data/...``), exactly as for ``habit get-habitat`` /
-``habit extract`` / ``habit model``.
+1. Habitat analysis (two-step)
+------------------------------
 
-1. Habitat analysis (same YAML as CLI)
---------------------------------------
-
-CLI twin::
+CLI twin (same scientific settings)::
 
    habit get-habitat --config config/habitat/config_habitat_two_step.yaml
 
 .. code-block:: python
 
+   from pathlib import Path
+
+   from habit import HabitatSpec, RunPolicy, Spec, cohort_from_directory
+   from habit.execution import backend_from_policy
    import habit.recipes as recipes
 
-   result = recipes.run_from_yaml(
-       "config/habitat/config_habitat_two_step.yaml",
-       workflow="habitat",
-       save=True,  # write maps / CSV / model under the YAML out_dir
+   modalities = ("pre_contrast", "LAP", "PVP", "delay_3min")
+   # Match the CLI YAML loader: ROI key = first modality in the concat list.
+   cohort = cohort_from_directory(
+       "demo_data/preprocessed",
+       modalities=modalities,
+       roi="pre_contrast",
+   )
+
+   # Mirrors config/habitat/config_habitat_two_step.yaml → HabitatSpec
+   spec = HabitatSpec(
+       name="habitat_two_step",
+       voxel_feature_extractor=Spec(
+           "raw",
+           {"modalities": list(modalities)},
+       ),
+       voxel_feature_preprocessors=(
+           Spec(
+               "winsorize",
+               {"winsor_limits": (0.05, 0.05), "across_features": False},
+           ),
+           Spec("minmax", {"across_features": False}),
+       ),
+       supervoxelizer=Spec(
+           "kmeans",
+           {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
+       ),
+       cohort_feature_preprocessors=(
+           Spec(
+               "binning",
+               {
+                   "n_bins": 10,
+                   "bin_strategy": "uniform",
+                   "across_features": False,
+               },
+           ),
+       ),
+       habitat_model_fitter=Spec(
+           "kmeans",
+           {
+               "min_habitats": 2,
+               "max_habitats": 10,
+               "validation": "elbow",
+               "max_iter": 300,
+               "n_init": 10,
+           },
+       ),
+       habitat_assigner=Spec("nearest_centroid"),
+       postprocess_habitat=Spec(
+           "connected_components",
+           {
+               "min_component_size": 100,
+               "connectivity": 1,
+               "reassign_method": "neighbor_vote",
+               "max_iterations": 3,
+           },
+       ),
+       random_seed=42,
+   )
+
+   # Match YAML processes / timeout so process-pool execution matches CLI.
+   policy = RunPolicy(
+       workers=2,
+       backend="process",
+       subject_timeout_sec=900.0,
+       resume=False,
+   )
+   backend = backend_from_policy(policy)
+
+   result = recipes.two_step(cohort, spec, backend=backend)
+   out_dir = Path("demo_data/results/habitat_two_step")
+   result.save(
+       out_dir,
+       write_maps=True,
+       write_units_table=True,
+       write_cluster_plots=True,
    )
    print(result.habitat_model.summary())
 
 Outputs land under ``demo_data/results/habitat_two_step/`` (including
 ``*_habitats.nrrd`` and ``habitat_model.habitatmodel``). With the same
-YAML, seed, and data, API and CLI habitat label maps match voxel-wise.
+parameters, seed, data, and policy, API and CLI habitat label maps match
+voxel-wise.
 
-In-memory recipes without YAML (synthetic cohorts, custom ``HabitatSpec``)
-live under :doc:`../examples/index` -- useful for notebooks, not for
-reproducing this demo's CLI numbers.
+Further notebook-oriented patterns (synthetic cohorts, custom extractors)
+live under :doc:`../examples/index`.
 
 2. View
 -------
@@ -52,15 +135,9 @@ CLI twin::
 
 .. code-block:: python
 
-   from habit import cohort_from_directory
    from habit.viz import view_habitat_napari
 
-   cohort = cohort_from_directory(
-       "demo_data/preprocessed",
-       modalities=["pre_contrast", "LAP", "PVP", "delay_3min"],
-       roi="LAP",
-   )
-   # result.habitat_maps are in the same subject order as the YAML cohort
+   # Anatomy under LAP; habitat maps share the cohort geometry from step 1.
    volume = cohort[0].image("LAP")
    view_habitat_napari(
        volume.data,
@@ -73,8 +150,8 @@ Needs napari (:doc:`installation`). Blocks until you close the window.
 For fuller 3D review, also open the source volume and ``*_habitats.nrrd``
 in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer.
 
-3. Apply a saved model (same YAML as CLI predict)
--------------------------------------------------
+3. Apply a saved model
+----------------------
 
 After step 1, the archive sits at
 ``demo_data/results/habitat_two_step/habitat_model.habitatmodel``.
@@ -84,53 +161,127 @@ CLI twin::
 
 .. code-block:: python
 
-   import habit.recipes as recipes
+   from habit import HabitatModel
 
-   prediction = recipes.run_from_yaml(
-       "config/habitat/config_habitat_two_step_predict.yaml",
-       workflow="habitat",
-       save=True,
+   model = HabitatModel.load(
+       "demo_data/results/habitat_two_step/habitat_model.habitatmodel"
    )
+   # Reuse the same HabitatSpec as training (feature chains must match).
+   prediction = recipes.apply_habitat_model(
+       cohort, spec, model, backend=backend
+   )
+   prediction.save("demo_data/results/habitat_two_step/predict")
    print(len(prediction.habitat_maps), "subjects labelled")
 
-4. Extract habitat features (same YAML as CLI)
-----------------------------------------------
+4. Extract habitat features
+---------------------------
 
 CLI twin::
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-Needs step 1 outputs (``*_habitats.nrrd`` under the habitats folder named in
-that YAML).
+Needs step 1 outputs (``*_habitats.nrrd``). Pass the same fields as the
+demo YAML, as a Python ``dict`` (still no config file):
 
 .. code-block:: python
 
-   import habit.recipes as recipes
-
-   extract_result = recipes.run_from_yaml(
-       "config/feature_extraction/config_extract_features_demo.yaml",
-       workflow="extract",
+   extract_result = recipes.extract_habitat_features(
+       {
+           "raw_img_folder": "demo_data/preprocessed",
+           "habitats_map_folder": "demo_data/results/habitat_two_step",
+           "out_dir": "demo_data/results/features",
+           "n_processes": 2,
+           "habitat_pattern": "*_habitats.nrrd",
+           "feature_types": [
+               "volume",
+               "msi",
+               "ith_score",
+               "non_radiomics",
+               # Heavy PyRadiomics (opt-in):
+               # "traditional",
+               # "whole_habitat",
+               # "each_habitat",
+           ],
+       }
    )
    print(extract_result.output_dir)
 
-5. Tabular ML (same YAML as CLI)
---------------------------------
+5. Tabular ML
+-------------
 
 CLI twin::
 
    habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
 
 Needs the **ML pack** under ``demo_data/ml_data/`` (see :doc:`quickstart`
-step 2 / the note before ``habit model``).
+step 2). Build a :class:`~habit.contracts.FeatureTable` and
+:class:`~habit.MLSpec` in code:
 
 .. code-block:: python
 
+   from pathlib import Path
+
+   import pandas as pd
+
+   from habit import FeatureTable, MLSpec, Spec
+   from habit.contracts.outcome import BinaryOutcome
+   from habit.contracts.provenance import Provenance
    import habit.recipes as recipes
 
-   ml_result = recipes.run_from_yaml(
-       "config/machine_learning/config_machine_learning_radiomics_minimal.yaml",
-       workflow="model",
-       save=True,
+   csv_path = Path("demo_data/ml_data/breast_cancer_dataset.csv")
+   frame = pd.read_csv(csv_path, dtype={"subject_id": str})
+   feature_columns = tuple(
+       column
+       for column in frame.columns
+       if column not in {"subject_id", "label"}
+   )
+   # Prefix matches the YAML ``input.name: radiomics_``
+   renamed = {
+       column: f"radiomics_{column}" for column in feature_columns
+   }
+   table_frame = frame.rename(columns=renamed)
+   table = FeatureTable(
+       frame=table_frame,
+       id_columns=("subject_id",),
+       feature_columns=tuple(renamed[column] for column in feature_columns),
+       outcome=BinaryOutcome(column="label", positive_label=1),
+       provenance=Provenance.source("quickstart_python"),
+   )
+
+   # Mirrors config_machine_learning_radiomics_minimal.yaml → MLSpec
+   # (variance before z-score; correlation after).
+   ml_spec = MLSpec(
+       name="ml_model",
+       steps=(
+           Spec("variance", {"threshold": 0.2}),
+           Spec("zscore"),
+           Spec("correlation", {"threshold": 0.8, "method": "spearman"}),
+       ),
+       classifier=Spec(
+           "LogisticRegression",
+           {
+               "C": 1.0,
+               "penalty": "l2",
+               "solver": "lbfgs",
+               "max_iter": 1000,
+           },
+       ),
+       random_seed=42,
+   )
+
+   train_ids = Path("demo_data/ml_data/train_ids.txt").read_text(
+       encoding="utf-8"
+   ).split()
+   test_ids = Path("demo_data/ml_data/test_ids.txt").read_text(
+       encoding="utf-8"
+   ).split()
+
+   ml_result = recipes.train_model(
+       table,
+       ml_spec,
+       seed=42,
+       train_ids=train_ids,
+       test_ids=test_ids,
    )
    print(ml_result.test_metrics)
 
