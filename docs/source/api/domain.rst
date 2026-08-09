@@ -283,15 +283,19 @@ exactly the precise features. The end-to-end recipe is
 Randomness (``Seedable``)
 -------------------------
 
-Components that are stochastic implement ``set_random_state(seed)``. Deterministic
-components do not implement the protocol — that fact is itself provenance
-(e.g. ``SlicSupervoxelizer`` has no ``set_random_state``; use kmeans/gmm).
+Components that participate in study seeding implement ``set_random_state``
+(``Seedable``), including supervoxelizers. Default seed is ``0`` unless
+``HabitatSpec.random_seed`` / an explicit call overrides it. A backend may
+still be numerically deterministic (current skimage SLIC); the method remains
+so every stage shares one seeding surface.
 
 .. code-block:: python
 
    from habit.domain import HabitatModelFitterRegistry, SupervoxelizerRegistry
 
+   slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
    km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
+   slic.set_random_state(42)
    km.set_random_state(42)
    fitter = HabitatModelFitterRegistry.create("kmeans", n_habitats=4)
    fitter.set_random_state(42)

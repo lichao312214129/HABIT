@@ -258,11 +258,11 @@ Canonical end-to-end example
        rng=42,
    )
 
-   # 2) Subject-level operators
-   # SLIC has no set_random_state; use KMeansSupervoxelizer when you need a seed.
+   # 2) Subject-level operators (Seedable; default seed 0)
    modalities = ["T1", "T2"]
    voxel = RawVoxelFeatures(modalities=modalities)
    svx = SlicSupervoxelizer(n_supervoxels=30)
+   svx.set_random_state(42)
 
    # 3) The only cohort-level step: fit a population HabitatModel
    units = [svx(voxel(s)) for s in cohort]

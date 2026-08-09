@@ -46,9 +46,10 @@ def test_supervoxelizer_docs_use_n_supervoxels_not_sklearn_names() -> None:
     slic = SupervoxelizerRegistry.create("slic", n_supervoxels=50)
     km = SupervoxelizerRegistry.create("kmeans", n_supervoxels=40)
     gmm = SupervoxelizerRegistry.create("gmm", n_supervoxels=40)
-    assert not hasattr(slic, "set_random_state")
+    assert isinstance(slic, Seedable)
     assert isinstance(km, Seedable)
     assert isinstance(gmm, Seedable)
+    slic.set_random_state(42)
     km.set_random_state(42)
     gmm.set_random_state(42)
 

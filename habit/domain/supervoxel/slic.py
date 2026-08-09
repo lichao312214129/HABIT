@@ -56,6 +56,13 @@ class SlicSupervoxelizer:
     through its clustering factory. Here it is one ordinary subject-level
     operator: field in, partition out.
 
+    Implements :class:`~habit.domain.protocols.Seedable` so every
+    supervoxelizer shares the same seeding surface as kmeans/gmm and so
+    ``HabitatSpec.random_seed`` reaches this stage during assembly. The
+    current ``skimage.segmentation.slic`` backend has no RNG parameter;
+    ``set_random_state`` therefore records the seed for API uniformity and
+    future backends without changing today's deterministic partitions.
+
     Args:
         n_supervoxels: Requested number of supervoxels. Clamped to the
             number of ROI voxels (a partition cannot have more non-empty
@@ -94,6 +101,8 @@ class SlicSupervoxelizer:
             fixed=("n_segments", "mask", "channel_axis", "start_label"),
             owner="supervoxelizer.slic",
         )
+        # Default matches other Seedable supervoxelizers (fixed seed 0).
+        self._seed = 0
 
     @property
     def spec(self) -> Spec:
@@ -108,6 +117,17 @@ class SlicSupervoxelizer:
         if self.estimator_params:
             params["estimator_params"] = dict(self.estimator_params)
         return Spec(name="slic", params=params)
+
+    def set_random_state(self, seed: int) -> None:
+        """
+        Record the study seed for this supervoxelizer.
+
+        Args:
+            seed: Non-negative study seed from ``HabitatSpec.random_seed`` or
+                an explicit caller. Stored for Seedable uniformity; the
+                current skimage SLIC call does not consume it.
+        """
+        self._seed = int(seed)
 
     def __call__(self, field: VoxelFeatureField) -> Supervoxelization:
         """
