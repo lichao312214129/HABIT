@@ -2,11 +2,11 @@
 """
 Parallel habitat analysis with RunPolicy and ProcessPoolBackend.
 
-``HabitatSpec`` declares *what* to compute; :class:`~habit.spec.RunPolicy`
+``HabitatSpec.stages`` declares *what* to compute; :class:`~habit.spec.RunPolicy`
 declares *how* to schedule it (worker count, failure policy, timeouts).
-Pass a :class:`~habit.execution.process_pool.ProcessPoolBackend` to any
-habitat recipe to run subjects in parallel — the scientific result is
-identical to serial execution when seeds are fixed.
+Pass a :class:`~habit.execution.process_pool.ProcessPoolBackend` to
+:func:`~habit.recipes.fit_habitat` to run subjects in parallel — the
+scientific result is identical to serial execution when seeds are fixed.
 
 This script accompanies ``docs/source/examples/parallel_execution.rst``.
 
@@ -17,7 +17,7 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import HabitatSpec, RunPolicy, Spec, make_synthetic_cohort
+from habit import HabitatSpec, RunPolicy, Spec, Stage, make_synthetic_cohort
 from habit.execution.process_pool import ProcessPoolBackend
 import habit.recipes as recipes
 
@@ -27,27 +27,36 @@ def main() -> None:
     cohort = make_synthetic_cohort(n_subjects=6, shape=(14, 14, 14), rng=21)
     spec = HabitatSpec(
         name="parallel_demo",
-        voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-        supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 3}),
-        habitat_model_fitter=Spec(
-            "kmeans",
-            {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
-        ),
-        habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(
-            Spec("volume"),
-            Spec("msi"),
-            Spec("ith_score"),
-            Spec("non_radiomics"),
+        stages=(
+            Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 3,
+                        "validation": "silhouette",
+                        "n_init": 3,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+            Stage("quantify", Spec("volume")),
+            Stage("quantify2", Spec("msi")),
+            Stage("quantify3", Spec("ith_score")),
+            Stage("quantify4", Spec("non_radiomics")),
             # Heavy PyRadiomics families (opt-in; require pyradiomics):
-            # Spec("traditional"),
-            # Spec("whole_habitat"),
-            # Spec("each_habitat"),
+            # Stage("quantify5", Spec("traditional")),
+            # Stage("quantify6", Spec("whole_habitat")),
+            # Stage("quantify7", Spec("each_habitat")),
         ),
         random_seed=21,
     )
 
-    serial_result = recipes.two_step(cohort, spec)
+    serial_result = recipes.fit_habitat(cohort, spec)
     print(f"Serial: {len(serial_result.habitat_maps)} maps, "
           f"{serial_result.habitat_model.n_habitats} habitats")
 
@@ -63,7 +72,7 @@ def main() -> None:
     print(f"RunPolicy: workers={policy.workers}, backend={policy.backend!r}, "
           f"parallel_mode={policy.parallel_mode!r}")
 
-    parallel_result = recipes.two_step(cohort, spec, backend=backend)
+    parallel_result = recipes.fit_habitat(cohort, spec, backend=backend)
     print(f"Parallel: {len(parallel_result.habitat_maps)} maps, "
           f"{parallel_result.habitat_model.n_habitats} habitats")
 

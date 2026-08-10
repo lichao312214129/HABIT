@@ -41,7 +41,8 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
         cohort: Synthetic cohort used for the recipe run.
         subject: One subject used for atomic inspection calls.
     """
-    # Keyword order follows the runtime pipeline (not HabitatSpec field order).
+    # Sugar form keeps the documented chain field names for this page;
+    # batch entry is recipes.fit_habitat (stages expand under the hood).
     spec = HabitatSpec(
         name="feature_prep_demo",
         voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
@@ -80,10 +81,6 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
             Spec("msi"),
             Spec("ith_score"),
             Spec("non_radiomics"),
-            # Heavy PyRadiomics families (opt-in; require pyradiomics):
-            # Spec("traditional"),
-            # Spec("whole_habitat"),
-            # Spec("each_habitat"),
         ),
         random_seed=5,
     )
@@ -92,8 +89,6 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     print(f"  voxel steps:  {[s.name for s in spec.voxel_feature_preprocessors]}")
     print(f"  cohort steps: {[s.name for s in spec.cohort_feature_preprocessors]}")
 
-    # HabitatComponents uses the same names as HabitatSpec / SubjectPipeline
-    # (no abbreviated voxel_extractor / cohort_chain / fitter / …).
     components = build_habitat_components(spec)
     assert components.voxel_feature_extractor is not None
     assert components.voxel_feature_preprocessor is not None
@@ -106,23 +101,25 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
         f"{len(components.voxel_feature_preprocessor.methods)}"
     )
 
-    # Optional in-memory inspection of every pipeline boundary.
     recorder = StepRecorder(max_subjects=1)
-    result = recipes.two_step(cohort, spec, inspect=recorder)
+    result = recipes.fit_habitat(cohort, spec, inspect=recorder)
     assert result.habitat_model is not None
     assert result.inspection is recorder
     print(
-        f"=== two_step with feature chains: habitats={result.habitat_model.n_habitats} ==="
+        f"=== fit_habitat with feature chains: habitats={result.habitat_model.n_habitats} ==="
     )
     print("=== Step inspection (result.inspection) ===")
     print(result.inspection.summary().to_string(index=False))
     sid = subject.subject_id
     print(
         "  described supervoxel features:",
-        list(result.inspection.frame("supervoxels.described", sid).columns),
+        list(
+            result.inspection.frame(
+                "extract_supervoxel_features.output", sid
+            ).columns
+        ),
     )
 
-    # Atomic subject-level chain on a voxel feature matrix (not on result.units).
     chain = build_subject_chain(list(spec.voxel_feature_preprocessors))
     assert chain is not None
     raw_voxel = components.voxel_feature_extractor(subject).feature_frame()
@@ -130,7 +127,6 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     print("=== Atomic SubjectPreprocessingChain (on raw voxel features) ===")
     print(f"  in={raw_voxel.shape}, out={transformed.shape}")
 
-    # Raw supervoxel units: omit preprocessor fields, then pipeline.units(...).
     bare = HabitatSpec(
         name="bare_units",
         voxel_feature_extractor=spec.voxel_feature_extractor,
@@ -148,6 +144,7 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     from _habitat_eye_check import eye_check_study
 
     eye_check_study(cohort, result)
+
 
 
 if __name__ == "__main__":

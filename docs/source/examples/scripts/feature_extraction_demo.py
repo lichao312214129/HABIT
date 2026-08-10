@@ -5,7 +5,7 @@ Habitat feature extraction after a two-step training run.
 Demonstrates:
 
 * **Batch** — ``extract_habitat_features(config)`` over a directory of maps.
-* **Train path** — ``recipes.two_step`` with preprocessing chains (aligned
+* **Train path** — ``recipes.fit_habitat`` with stages/preprocess chains (aligned
   with ``demo_data/results/api/05_extract_features`` when demo_data exists).
 
 Feature families: ``traditional``, ``non_radiomics``, ``whole_habitat``,
@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Sequence, Tuple
 import numpy as np
 import SimpleITK as sitk
 
-from habit import HabitatSpec, Spec, cohort_from_directory, make_synthetic_cohort
+from habit import HabitatSpec, Spec, Stage, cohort_from_directory, make_synthetic_cohort
 import habit.recipes as recipes
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
@@ -50,37 +50,57 @@ def main() -> None:
     cohort, modalities = _load_cohort()
     print(f"Cohort: {len(cohort)} subjects, modalities={list(modalities)}")
 
-    # Keyword order follows the runtime pipeline (not HabitatSpec field order).
+    # Stages SoT: partition + pool ⇒ two_step; preprocess after pool is cohort-level.
     spec = HabitatSpec(
         name="extract_demo",
-        voxel_feature_extractor=Spec("raw", {"modalities": list(modalities)}),
-        voxel_feature_preprocessors=(
-            Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-            Spec("minmax", {"across_features": False}),
-        ),
-        supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 3}),
-        cohort_feature_preprocessors=(
-            Spec("binning", {"n_bins": 6, "bin_strategy": "uniform", "across_features": False}),
-        ),
-        habitat_model_fitter=Spec(
-            "kmeans",
-            {"min_habitats": 2, "max_habitats": 4, "validation": "elbow", "n_init": 3},
-        ),
-        habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(
-            Spec("volume"),
-            Spec("msi"),
-            Spec("ith_score"),
-            Spec("non_radiomics"),
-            # Heavy PyRadiomics families (opt-in; require pyradiomics):
-            # Spec("traditional"),
-            # Spec("whole_habitat"),
-            # Spec("each_habitat"),
+        stages=(
+            Stage(
+                "extract_voxel_features",
+                Spec("raw", {"modalities": list(modalities)}),
+            ),
+            Stage(
+                "preprocess1",
+                Spec(
+                    "winsorize",
+                    {"winsor_limits": (0.05, 0.05), "across_features": False},
+                ),
+            ),
+            Stage("preprocess2", Spec("minmax", {"across_features": False})),
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "preprocess3",
+                Spec(
+                    "binning",
+                    {
+                        "n_bins": 6,
+                        "bin_strategy": "uniform",
+                        "across_features": False,
+                    },
+                ),
+            ),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 4,
+                        "validation": "elbow",
+                        "n_init": 3,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+            Stage("quantify", Spec("volume")),
+            Stage("quantify2", Spec("msi")),
+            Stage("quantify3", Spec("ith_score")),
+            Stage("quantify4", Spec("non_radiomics")),
         ),
         random_seed=11,
     )
 
-    train_result = recipes.two_step(cohort, spec)
+    train_result = recipes.fit_habitat(cohort, spec)
     print(f"Trained: {train_result.habitat_model.n_habitats} habitats, "
           f"{len(train_result.habitat_maps)} maps")
 

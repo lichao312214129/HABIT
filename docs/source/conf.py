@@ -89,7 +89,7 @@ napoleon_use_rtype = True
 html_theme = "sphinx_rtd_theme"
 html_theme_options = {
     "navigation_depth": 4,
-    "display_version": True,
+    # sphinx-rtd-theme no longer accepts display_version
     "prev_next_buttons_location": "bottom",
     "collapse_navigation": False,
     "sticky_navigation": True,

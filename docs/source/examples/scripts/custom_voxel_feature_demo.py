@@ -135,7 +135,7 @@ print("=== expression: square(T1 / (T2^3 + eps)) ===")
 print(f"  atomic features: {units.feature_frame().columns.tolist()}")
 print(f"  n_voxels x n_features: {units.features.shape}")
 
-result = recipes.two_step(cohort, expression_spec)
+result = recipes.fit_habitat(cohort, expression_spec)
 print(f"  batch: {len(result.habitat_maps)} maps, "
       f"{result.habitat_model.n_habitats} habitats")
 
@@ -172,7 +172,7 @@ print("\n=== custom plugin: t1_t2_contrast ===")
 print(f"  registered names include: "
       f"{[n for n in VoxelFeatureExtractorRegistry.available() if 't1' in n or n == 'expression']}")
 print(f"  atomic features: {custom_units.feature_frame().columns.tolist()}")
-custom_result = recipes.two_step(cohort, custom_spec)
+custom_result = recipes.fit_habitat(cohort, custom_spec)
 print(f"  batch: {len(custom_result.habitat_maps)} maps, "
       f"{custom_result.habitat_model.n_habitats} habitats")
 

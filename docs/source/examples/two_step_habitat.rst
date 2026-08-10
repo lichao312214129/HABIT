@@ -7,10 +7,14 @@ definition is learned from all subjects' supervoxels pooled together. This
 example runs the full train path on a synthetic cohort:
 
 1. build a cohort (:func:`~habit.datasets.make_synthetic_cohort`),
-2. declare the analysis as a :class:`~habit.spec.HabitatSpec`,
-3. fit with :func:`~habit.recipes.two_step`,
+2. declare ordered :class:`~habit.spec.Stage` entries on
+   :class:`~habit.spec.HabitatSpec` (partition + pool ⇒ two_step),
+3. fit with :func:`~habit.recipes.fit_habitat`,
 4. inspect the model, maps, feature table, and the auto-generated methods
    paragraph.
+
+The thin alias :func:`~habit.recipes.two_step` remains for compat; it
+validates the design then calls ``fit_habitat``.
 
 Script
 ------

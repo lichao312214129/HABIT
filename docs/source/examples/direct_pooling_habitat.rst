@@ -2,9 +2,12 @@ Direct-pooling habitat analysis
 ===============================
 
 Direct pooling skips supervoxels and clusters **all ROI voxels pooled across
-the cohort**. Both ``voxel_feature_preprocessors`` (per subject) and
-``cohort_feature_preprocessors`` (on the pooled table) run during training,
+the cohort**. Declare stages with a ``pool`` marker and **no** ``partition``,
+then call :func:`~habit.recipes.fit_habitat`. Preprocess stages may run
+before and after ``pool`` (post-pool feature preprocess is first-class),
 producing one cohort-level :class:`~habit.contracts.HabitatModel`.
+
+The thin alias :func:`~habit.recipes.direct_pooling` remains for compat.
 
 Script
 ------

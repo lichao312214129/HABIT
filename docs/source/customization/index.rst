@@ -94,17 +94,24 @@ logic beyond the built-in ``expression`` DSL.
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec
+   from habit import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
    spec = HabitatSpec(
        name="diy",
-       voxel_feature_extractor=Spec("t1_t2_contrast", {"modalities": ["T1", "T2"]}),
-       supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
-       habitat_assigner=Spec("nearest_centroid"),
+       stages=(
+           Stage(
+               "extract_voxel_features",
+               Spec("t1_t2_contrast", {"modalities": ["T1", "T2"]}),
+           ),
+           Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 5})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+       ),
+       random_seed=42,
    )
-   result = recipes.two_step(cohort, spec)
+   result = recipes.fit_habitat(cohort, spec)
 
 **Step 3 (optional): ship as a third-party package**
 

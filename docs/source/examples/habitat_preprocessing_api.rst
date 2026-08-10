@@ -34,17 +34,20 @@ Inspect every step
 ------------------
 
 For debugging and QA, pass ``inspect=`` a :class:`~habit.inspection.StepRecorder`
-into ``recipes.two_step`` / ``one_step`` / ``direct_pooling`` /
-``apply_habitat_model``. Default ``inspect=None`` is zero-cost and bit-identical.
+into ``recipes.fit_habitat`` (or the thin ``two_step`` / ``one_step`` /
+``direct_pooling`` aliases) and ``apply_habitat_model``. Default
+``inspect=None`` is zero-cost and bit-identical.
 
-Captured boundaries include the legacy names ``voxel_features.raw``,
-``voxel_features.preprocessed``, ``supervoxels.partition``,
-``supervoxels.described``, ``units.cohort_preprocessed``, ``habitat_map``,
-and ``habitat_features`` (see ``habit.STEP_NAMES``), plus stage-bound names
-such as ``preprocess1.output`` / ``pool.output`` / ``fit.output``. After
-``pool`` / ``fit``, cohort-level records use subject id ``__cohort__``.
-Use ``steps=``, ``subjects=``, and ``max_subjects=`` to limit memory.
-The recorder is also available as ``result.inspection``.
+Captured boundaries are primarily **stage-bound** names such as
+``extract_voxel_features.output``, ``preprocess1.output``,
+``partition.output``, ``extract_supervoxel_features.output``,
+``pool.output``, ``fit.output``, ``assign.output``, and
+``quantify.output``. Legacy aliases in ``habit.STEP_NAMES``
+(``voxel_features.raw``, ``supervoxels.described``, …) may still appear
+on some paths; prefer the stage-bound names when reading
+``result.inspection``. After ``pool`` / ``fit``, cohort-level records use
+subject id ``__cohort__``. Use ``steps=``, ``subjects=``, and
+``max_subjects=`` to limit memory.
 
 In-memory inspection is **not** supported with the process backend; use
 serial / ``workers=1`` while debugging.

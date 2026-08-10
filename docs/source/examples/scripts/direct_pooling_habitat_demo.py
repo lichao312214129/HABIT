@@ -3,9 +3,11 @@
 Direct-pooling habitat analysis on a synthetic cohort.
 
 All ROI voxels from all subjects are pooled before cohort-level clustering.
-Both ``voxel_feature_preprocessors`` (per subject) and
-``cohort_feature_preprocessors`` (across the pooled table) apply during
-training.
+Preprocess stages may run before and after the ``pool`` marker (post-pool
+feature preprocess is first-class).
+
+Primary API: HabitatSpec.stages + recipes.fit_habitat (pool only ⇒
+direct_pooling).
 
 This script accompanies ``docs/source/examples/direct_pooling_habitat.rst``.
 
@@ -16,54 +18,64 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 cohort = make_synthetic_cohort(n_subjects=5, shape=(18, 18, 18), rng=42)
 print(f"Cohort: {len(cohort)} subjects")
 
-# Keyword arguments are ordered by the runtime pipeline (not HabitatSpec field
-# definition order). Dataclass defaults put preprocessors after the fitter in
-# the class body; keyword calls may follow execution order instead:
-#   voxel features -> voxel prep -> (no supervoxels) -> cohort prep
-#   -> fit habitats -> assign -> habitat features.
+# pool without partition ⇒ direct_pooling. preprocess1/2 run per subject
+# before pool; preprocess3 runs on pooled units (cohort-level).
 spec = HabitatSpec(
     name="habitat_direct_pooling",
-    # 1. Per-voxel features inside each ROI.
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    # 2. Stateless per-subject prep on voxel feature rows (before pooling).
-    voxel_feature_preprocessors=(
-        Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-        Spec("minmax", {"across_features": False}),
-    ),
-    # 3. No supervoxel stage: every ROI voxel is a clustering unit.
-    supervoxelizer=None,
-    # 4. Stateful prep fitted on pooled training units, then applied.
-    cohort_feature_preprocessors=(
-        Spec("binning", {"n_bins": 8, "bin_strategy": "uniform", "across_features": False}),
-    ),
-    # 5. Learn the cohort-level habitat definition on pooled units.
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 4, "validation": "silhouette", "n_init": 5},
-    ),
-    # 6. Paint each unit with the nearest habitat centroid.
-    habitat_assigner=Spec("nearest_centroid"),
-    # 7. Describe habitats after assignment.
-    habitat_features=(
-        Spec("volume"),
-        Spec("msi"),
-        Spec("ith_score"),
-        Spec("non_radiomics"),
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage(
+            "preprocess1",
+            Spec(
+                "winsorize",
+                {"winsor_limits": (0.05, 0.05), "across_features": False},
+            ),
+        ),
+        Stage("preprocess2", Spec("minmax", {"across_features": False})),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "preprocess3",
+            Spec(
+                "binning",
+                {
+                    "n_bins": 8,
+                    "bin_strategy": "uniform",
+                    "across_features": False,
+                },
+            ),
+        ),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 4,
+                    "validation": "silhouette",
+                    "n_init": 5,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
         # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
+        # Stage("quantify5", Spec("traditional")),
+        # Stage("quantify6", Spec("whole_habitat")),
+        # Stage("quantify7", Spec("each_habitat")),
     ),
     random_seed=42,
 )
 
-result = recipes.direct_pooling(cohort, spec)
+result = recipes.fit_habitat(cohort, spec)
 
 print("\n--- Cohort-level habitat model ---")
 print(result.habitat_model.summary())
