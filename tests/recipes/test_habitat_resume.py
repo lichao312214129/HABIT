@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Per-subject resume in the habitat recipes (stage-5 wiring).
+"""Per-subject resume in the habitat study paths (stage-5 wiring).
 
-A ``CheckpointStore`` passed to any of the four habitat recipes is forwarded
-to every ``Cohort.map`` the recipe runs. Cache keys carry their validity
-scope inside the key string, so correctness never depends on store-level
-metadata:
+A ``CheckpointStore`` passed to :class:`~habit.recipes.study.Study` (fit or
+predict) is forwarded to every ``Cohort.map`` the study runs. Cache keys
+carry their validity scope inside the key string, so correctness never
+depends on store-level metadata:
 
 * clustering units key on the SPEC fingerprint -- they depend on one
   subject and the spec alone, so a growing cohort reuses earlier subjects;
@@ -41,11 +41,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import habit.recipes as recipes
 from habit.contracts.subject import Cohort, Subject
 from habit.datasets import make_synthetic_cohort
 from habit.execution.checkpoint import CheckpointStore
 from habit.recipes.result import StudyResult
+from habit.recipes.study import Study
 from habit.spec.specs import HabitatSpec, Spec
 
 #: Volume shape for every cohort in this module; small enough that SLIC
@@ -131,11 +131,13 @@ def test_two_step_resume_reuses_every_subject(tmp_path: Path) -> None:
     store = CheckpointStore(tmp_path / "ckpt")
     cohort = _cohort(4)
 
-    first = recipes.two_step(cohort, _spec(), checkpoint=store)
+    first = Study(spec=_spec(), design="two_step").fit_predict(cohort, checkpoint=store)
     # Four units entries plus four label entries.
     assert len(store) == 8
 
-    second = recipes.two_step(_sabotaged_cohort(cohort), _spec(), checkpoint=store)
+    second = Study(spec=_spec(), design="two_step").fit_predict(
+        _sabotaged_cohort(cohort), checkpoint=store
+    )
 
     assert len(store) == 8
     assert first.habitat_model is not None and second.habitat_model is not None
@@ -150,10 +152,12 @@ def test_direct_pooling_resume_reuses_every_subject(tmp_path: Path) -> None:
     cohort = _cohort(2)
     spec = _spec(two_step=False)
 
-    first = recipes.direct_pooling(cohort, spec, checkpoint=store)
+    first = Study(spec=spec, design="direct_pooling").fit_predict(cohort, checkpoint=store)
     assert len(store) == 4
 
-    second = recipes.direct_pooling(_sabotaged_cohort(cohort), spec, checkpoint=store)
+    second = Study(spec=spec, design="direct_pooling").fit_predict(
+        _sabotaged_cohort(cohort), checkpoint=store
+    )
 
     assert len(store) == 4
     _assert_same_study(first, second)
@@ -166,10 +170,12 @@ def test_one_step_resume_reuses_every_subject(tmp_path: Path) -> None:
     cohort = _cohort(3)
     spec = _spec(two_step=False)
 
-    first = recipes.one_step(cohort, spec, checkpoint=store)
+    first = Study(spec=spec, design="one_step").fit_predict(cohort, checkpoint=store)
     assert len(store) == 3
 
-    second = recipes.one_step(_sabotaged_cohort(cohort), spec, checkpoint=store)
+    second = Study(spec=spec, design="one_step").fit_predict(
+        _sabotaged_cohort(cohort), checkpoint=store
+    )
 
     assert len(store) == 3
     assert set(second.subject_models) == set(first.subject_models)
@@ -184,8 +190,8 @@ def test_spec_change_invalidates_cached_entries(tmp_path: Path) -> None:
     spec_a = _spec(n_habitats=3)
     spec_b = _spec(n_habitats=2)
 
-    first_a = recipes.two_step(cohort, spec_a, checkpoint=store)
-    first_b = recipes.two_step(cohort, spec_b, checkpoint=store)
+    first_a = Study(spec=spec_a, design="two_step").fit_predict(cohort, checkpoint=store)
+    first_b = Study(spec=spec_b, design="two_step").fit_predict(cohort, checkpoint=store)
 
     # Two subjects x two stages x two specs: B recomputed everything.
     assert len(store) == 8
@@ -194,7 +200,9 @@ def test_spec_change_invalidates_cached_entries(tmp_path: Path) -> None:
     assert first_b.habitat_model.model_id != first_a.habitat_model.model_id
 
     # Switching back to spec A hits A's entries again.
-    second_a = recipes.two_step(_sabotaged_cohort(cohort), spec_a, checkpoint=store)
+    second_a = Study(spec=spec_a, design="two_step").fit_predict(
+        _sabotaged_cohort(cohort), checkpoint=store
+    )
     assert len(store) == 8
     _assert_same_study(first_a, second_a)
 
@@ -207,12 +215,12 @@ def test_cohort_growth_reuses_units_but_relabels(tmp_path: Path) -> None:
     cohort4 = _cohort(4)
     spec = _spec()
 
-    recipes.two_step(cohort3, spec, checkpoint=store)
+    Study(spec=spec, design="two_step").fit_predict(cohort3, checkpoint=store)
     assert len(store) == 6
 
     # The 4-subject model differs, so labels recompute (4 new entries),
     # while the first three subjects' units are reused (1 new units entry).
-    grown = recipes.two_step(cohort4, spec, checkpoint=store)
+    grown = Study(spec=spec, design="two_step").fit_predict(cohort4, checkpoint=store)
     assert len(store) == 6 + 1 + 4
     assert grown.habitat_model is not None
 
@@ -225,21 +233,21 @@ def test_apply_habitat_model_scopes_entries_by_model(tmp_path: Path) -> None:
     cohort3 = _cohort(3)
     spec = _spec()
 
-    model_a = recipes.two_step(cohort4, spec).habitat_model
-    model_b = recipes.two_step(cohort3, spec).habitat_model
+    model_a = Study(spec=spec, design="two_step").fit_predict(cohort4).habitat_model
+    model_b = Study(spec=spec, design="two_step").fit_predict(cohort3).habitat_model
     assert model_a is not None and model_b is not None
     assert model_a.model_id != model_b.model_id
 
-    first_a = recipes.apply_habitat_model(cohort4, spec, model_a, checkpoint=store)
+    first_a = Study.from_model(model_a, spec).predict(cohort4, checkpoint=store)
     assert len(store) == 4
 
-    first_b = recipes.apply_habitat_model(cohort4, spec, model_b, checkpoint=store)
+    first_b = Study.from_model(model_b, spec).predict(cohort4, checkpoint=store)
     # A different model_id must not hit model A's labels.
     assert len(store) == 8
     assert all(m.model_id == model_b.model_id for m in first_b.habitat_maps)
 
-    second_a = recipes.apply_habitat_model(
-        _sabotaged_cohort(cohort4), spec, model_a, checkpoint=store
+    second_a = Study.from_model(model_a, spec).predict(
+        _sabotaged_cohort(cohort4), checkpoint=store
     )
     assert len(store) == 8
     _assert_same_study(first_a, second_a)

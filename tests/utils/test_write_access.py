@@ -136,6 +136,43 @@ def test_atomic_replace_leaves_final_file_without_temp(writable_dir: Path) -> No
 
 
 @pytest.mark.unit
+@pytest.mark.parametrize(
+    "filename,expected_suffix",
+    [
+        ("subj001_habitats.nii.gz", ".nii.gz"),
+        ("subj001_habitats.nrrd", ".nrrd"),
+        ("subj001_habitats.nii", ".nii"),
+    ],
+)
+def test_atomic_replace_temp_keeps_compound_suffix(
+    writable_dir: Path, filename: str, expected_suffix: str
+) -> None:
+    """
+    Temp paths must end with the full encoder suffix (not ``.nii.<rand>.gz``).
+
+    SimpleITK selects ImageIO from the write path; splitting ``.nii.gz`` so
+    the random token sits between ``nii`` and ``gz`` makes WriteImage fail
+    with ``Unable to determine ImageIO writer``.
+    """
+    destination = writable_dir / filename
+    seen: list[Path] = []
+
+    def _writer(tmp_path: Path) -> None:
+        seen.append(tmp_path)
+        name = tmp_path.name.lower()
+        # Broken pathlib split yields ``...nii.<random>.gz`` which does NOT
+        # end with ``.nii.gz``; requiring the full suffix catches that.
+        assert name.endswith(expected_suffix), (
+            f"temp path {tmp_path!s} must end with {expected_suffix!r}"
+        )
+        tmp_path.write_bytes(b"ok")
+
+    write_via_temp_then_replace(destination, _writer)
+    assert seen, "writer must receive a temp path"
+    assert destination.read_bytes() == b"ok"
+
+
+@pytest.mark.unit
 def test_atomic_replace_cleans_temp_on_failure(writable_dir: Path) -> None:
     """A failed writer removes the sibling temp and does not create the destination."""
     destination = writable_dir / "labels.nrrd"

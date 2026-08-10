@@ -179,27 +179,92 @@ def test_public_runner_rejects_invalid_dictionary_before_core_execution() -> Non
 
 
 @pytest.mark.unit
-def test_load_feature_extraction_config_delegates_to_plugin_aware_loader() -> None:
-    """Public loader preserves optional plugin configuration blocks from YAML."""
-    from pathlib import Path
-    from unittest.mock import MagicMock, patch
+def test_load_feature_extraction_config_preserves_graph_block(tmp_path) -> None:
+    """Public loader validates the ``graph:`` block without the compat layer."""
+    import sys
 
     import habit
+    from habit.schemas.workflows.habitat import (
+        FeatureExtractionConfig,
+        GraphFeatureBlock,
+    )
 
-    expected_config = MagicMock()
-    expected_plugins = {"graph": MagicMock()}
-    with patch(
-        "habit.compat.feature_extraction_loader."
-        "load_feature_extraction_config_from_file",
-        return_value=(expected_config, expected_plugins),
-    ) as mock_load:
-        actual_config, actual_plugins = habit.load_feature_extraction_config(
-            Path("feature_config.yaml")
+    config_path = tmp_path / "feature_config.yaml"
+    config_path.write_text(
+        "raw_img_folder: raw\n"
+        "habitats_map_folder: habitats\n"
+        "out_dir: features\n"
+        "feature_types: [non_radiomics, graph]\n"
+        "graph:\n"
+        "  distance_threshold: 8.0\n"
+        "  visualize: true\n"
+        "  visualization_format: png\n",
+        encoding="utf-8",
+    )
+
+    config, plugins = habit.load_feature_extraction_config(config_path)
+
+    assert isinstance(config, FeatureExtractionConfig)
+    assert list(config.feature_types) == ["non_radiomics", "graph"]
+    block = plugins["graph"]
+    assert isinstance(block, GraphFeatureBlock)
+    assert block.distance_threshold == 8.0
+    # Visualization settings survive the public loader (the deprecated compat
+    # shim dropped them).
+    assert block.visualize is True
+    assert block.visualization_format == "png"
+    assert "habit.compat.feature_extraction_loader" not in sys.modules
+    assert "habit.compat.graph_plugin" not in sys.modules
+
+
+@pytest.mark.unit
+def test_build_feature_extraction_config_reports_graph_field_errors() -> None:
+    """Invalid ``graph:`` fields fail with an error naming the field."""
+    import habit
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError) as excinfo:
+        habit.build_feature_extraction_config(
+            {
+                "raw_img_folder": "raw",
+                "habitats_map_folder": "habitats",
+                "out_dir": "features",
+                "feature_types": ["graph"],
+                "graph": {"distance_threshold": -1.0},
+            }
         )
+    assert "distance_threshold" in str(excinfo.value)
 
-    mock_load.assert_called_once_with(Path("feature_config.yaml"))
-    assert actual_config is expected_config
-    assert actual_plugins is expected_plugins
+    with pytest.raises(ValidationError) as excinfo_unknown:
+        habit.build_feature_extraction_config(
+            {
+                "raw_img_folder": "raw",
+                "habitats_map_folder": "habitats",
+                "out_dir": "features",
+                "feature_types": ["graph"],
+                "graph": {"typo_field": 1},
+            }
+        )
+    assert "typo_field" in str(excinfo_unknown.value)
+
+    # A validated config object passes through with default plugin configs.
+    from habit.schemas.workflows.habitat import (
+        FeatureExtractionConfig,
+        GraphFeatureBlock,
+    )
+
+    validated = FeatureExtractionConfig.model_validate(
+        {
+            "raw_img_folder": "raw",
+            "habitats_map_folder": "habitats",
+            "out_dir": "features",
+            "feature_types": ["graph"],
+        }
+    )
+    config, plugins = habit.build_feature_extraction_config(validated)
+    assert config is validated
+    assert isinstance(plugins["graph"], GraphFeatureBlock)
+    assert plugins["graph"].visualize is False
 
 
 @pytest.mark.unit

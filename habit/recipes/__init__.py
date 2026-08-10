@@ -27,13 +27,6 @@ from __future__ import annotations
 from habit.recipes.auxiliary import dice, dicom_info, merge_tables
 from habit.recipes.comparison import compare_models, pairwise_delong_test
 from habit.recipes.features import extract_habitat_features, traditional_radiomics
-from habit.recipes.habitat import (
-    apply_habitat_model,
-    direct_pooling,
-    fit_habitat,
-    one_step,
-    two_step,
-)
 from habit.recipes.icc import icc_analysis
 from habit.recipes.precision import (
     identify_precise_voxel_features,
@@ -72,19 +65,15 @@ __all__ = [
     "SearchResult",
     "Study",
     "StudyResult",
-    "apply_habitat_model",
     "compare_models",
     "cross_validate",
     "dice",
     "dicom_info",
-    "direct_pooling",
     "direct_pooling_habitat",
     "extract_habitat_features",
-    "fit_habitat",
     "icc_analysis",
     "identify_precise_voxel_features",
     "merge_tables",
-    "one_step",
     "one_step_habitat",
     "pairwise_delong_test",
     "predict_model",
@@ -97,7 +86,6 @@ __all__ = [
     "test_retest_analysis",
     "traditional_radiomics",
     "train_model",
-    "two_step",
     "two_step_habitat",
     "voxel_radiomics_factory",
 ]

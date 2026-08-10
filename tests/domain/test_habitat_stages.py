@@ -32,9 +32,9 @@ from habit.domain.stages import (
 )
 from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.inspection import StepRecorder
+from habit.recipes.study import Study
 from habit.spec import HabitatSpec, Spec, Stage
 from habit import make_synthetic_cohort
-import habit.recipes as recipes
 
 
 #: Shared kmeans fitter params for lightweight stage fixtures.
@@ -233,12 +233,12 @@ def test_subject_prefix_runs_without_cohort() -> None:
 
 
 @pytest.mark.unit
-def test_stage_parity_two_step_alias_vs_fit_habitat() -> None:
-    """two_step alias and fit_habitat agree voxel-wise on labels."""
+def test_stage_parity_declared_design_vs_inferred() -> None:
+    """Declared ``design=`` and stage-inferred runs agree voxel-wise."""
     cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=1)
     spec = HabitatSpec(**_base_fields())
-    a = recipes.two_step(cohort, spec)
-    b = recipes.fit_habitat(cohort, spec)
+    a = Study(spec=spec, design="two_step").fit_predict(cohort)
+    b = Study(spec=spec).fit_predict(cohort)
     assert a.manifest.provenance.produced_by == b.manifest.provenance.produced_by
     for left, right in zip(a.habitat_maps, b.habitat_maps):
         np.testing.assert_array_equal(left.label_array, right.label_array)
@@ -259,7 +259,7 @@ def test_inspection_emits_stage_named_and_cohort_records() -> None:
     cohort = make_synthetic_cohort(n_subjects=2, shape=(16, 16, 16), rng=2)
     spec = HabitatSpec(**_base_fields(supervoxelizer=None))
     recorder = StepRecorder(keep="frames", max_subjects=1)
-    recipes.direct_pooling(cohort, spec, inspect=recorder)
+    Study(spec=spec, design="direct_pooling").fit_predict(cohort, inspect=recorder)
     steps = recorder.steps()
     assert any(step.endswith(".output") for step in steps)
     assert any(step.startswith("pool.") for step in steps) or any(
@@ -299,7 +299,7 @@ def test_role_inferred_without_explicit_role() -> None:
     assert direct.definition_level == "cohort"
     assert design_from_stages(resolve_habitat_stages(direct)) == "direct_pooling"
     recorder = StepRecorder(keep="frames", max_subjects=1)
-    direct_result = recipes.fit_habitat(cohort, direct, inspect=recorder)
+    direct_result = Study(spec=direct).fit_predict(cohort, inspect=recorder)
     assert direct_result.habitat_model is not None
     steps = recorder.steps()
     assert "preprocess1.output" in steps
@@ -331,7 +331,7 @@ def test_role_inferred_without_explicit_role() -> None:
         random_seed=1,
     )
     assert design_from_stages(resolve_habitat_stages(two)) == "two_step"
-    two_result = recipes.fit_habitat(cohort, two)
+    two_result = Study(spec=two).fit_predict(cohort)
     assert two_result.habitat_model is not None
 
     one = HabitatSpec(
@@ -356,7 +356,7 @@ def test_role_inferred_without_explicit_role() -> None:
     )
     assert one.definition_level == "subject"
     assert design_from_stages(resolve_habitat_stages(one)) == "one_step"
-    one_result = recipes.fit_habitat(cohort, one)
+    one_result = Study(spec=one).fit_predict(cohort)
     assert list(one_result.subject_models) == [
         s.subject_id for s in cohort
     ]
@@ -405,7 +405,7 @@ def test_temporary_plugin_stage_component_runs() -> None:
         resolved = resolve_habitat_stages(spec)
         assert any(item.component.component.name == "temp_pool_marker" for item in resolved)
         cohort = make_synthetic_cohort(n_subjects=2, shape=(16, 16, 16), rng=3)
-        result = recipes.fit_habitat(cohort, spec)
+        result = Study(spec=spec).fit_predict(cohort)
         assert result.habitat_model is not None
     finally:
         # Best-effort cleanup: registry has no public unregister; overwrite is fine.
@@ -420,7 +420,8 @@ def test_habitat_model_save_load_apply_with_post_pool_preprocess(
 ) -> None:
     """
     F.9 gate: stages fit with post-pool preprocess round-trips through
-    ``.habitatmodel`` and ``apply_habitat_model`` without label drift.
+    ``.habitatmodel`` and ``Study.from_model(...).predict(...)`` without
+    label drift.
 
     Also pins the invariant that cohort preprocess state travels with the
     model and ``with_cohort_preprocessing`` recomputes ``model_id``.
@@ -437,7 +438,7 @@ def test_habitat_model_save_load_apply_with_post_pool_preprocess(
     assert normalized.cohort_feature_preprocessors
     assert all(s.name == "zscore" for s in normalized.cohort_feature_preprocessors)
 
-    trained = recipes.fit_habitat(cohort, spec)
+    trained = Study(spec=spec).fit_predict(cohort)
     model = trained.habitat_model
     assert model is not None
     assert "cohort_feature_preprocessor" in model.preprocessing_state
@@ -464,7 +465,7 @@ def test_habitat_model_save_load_apply_with_post_pool_preprocess(
         == model.preprocessing_state["cohort_feature_preprocessor"]
     )
 
-    applied = recipes.apply_habitat_model(cohort, spec, loaded)
+    applied = Study.from_model(loaded, spec).predict(cohort)
     trained_maps = {m.subject_id: m.label_array for m in trained.habitat_maps}
     for habitat_map in applied.habitat_maps:
         np.testing.assert_array_equal(

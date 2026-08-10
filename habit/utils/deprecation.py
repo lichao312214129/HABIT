@@ -57,7 +57,7 @@ def build_deprecation_message(
 
     Args:
         subject: Human-readable name of the deprecated symbol, e.g.
-            ``"habit.api.clinical.Cohort"``.
+            ``"habit.compat.sklearn.HabitatFeaturesEstimator"``.
         since: Version in which the deprecation started, e.g. ``"1.0.0"``.
         alternative: Replacement symbol to migrate to, if one exists.
         removed_in: Version in which the symbol will be removed; an empty

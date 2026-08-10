@@ -21,7 +21,7 @@ from pathlib import Path
 import pytest
 
 from habit.contracts.habitat import HabitatModel
-from habit.recipes import apply_habitat_model
+from habit.recipes.study import Study
 from habit.spec.specs import HabitatSpec
 from tests.cloud_behavior.helpers import (
     count_label_mismatches,
@@ -37,7 +37,7 @@ def test_train_save_load_predict_matches_training_labels(
     tmp_path: Path,
 ) -> None:
     """
-    ``two_step`` → save → ``HabitatModel.load`` → ``apply_habitat_model`` round-trip.
+    ``Study.fit`` → save → ``HabitatModel.load`` → ``Study.predict`` round-trip.
 
     Re-applying the fitted model to the training cohort must reproduce the
     original habitat label maps with zero voxel mismatches.
@@ -50,7 +50,7 @@ def test_train_save_load_predict_matches_training_labels(
 
     loaded_model = HabitatModel.load(artefact_dir / "habitat_model.habitatmodel")
     cohort = load_cohort_from_tree(synthetic_tree)
-    predict_result = apply_habitat_model(cohort, habitat_spec, loaded_model)
+    predict_result = Study.from_model(loaded_model, habitat_spec).predict(cohort)
 
     mismatches = count_label_mismatches(
         train_result.habitat_maps,

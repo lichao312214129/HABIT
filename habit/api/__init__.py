@@ -15,9 +15,9 @@
 """
 Stable programmatic API facade for HABIT.
 
-Import pipeline runners and config classes from here or from the top-level
-``habit`` package. Implementation remains in ``habit.core.*``; this subpackage
-only re-exports symbols without changing behaviour.
+Import pipeline runners, config helpers, and v1 layered symbols from here or
+from the top-level ``habit`` package. This subpackage re-exports the registry
+in :mod:`habit._public_api` without changing behaviour.
 """
 
 from __future__ import annotations

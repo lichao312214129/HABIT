@@ -20,6 +20,10 @@ from habit.domain.habitat_features.each_habitat import (
     EachHabitatRadiomicsFeatures,
     EachHabitatRadiomicsFeaturesParams,
 )
+from habit.domain.habitat_features.graph import (
+    GraphHabitatFeatures,
+    GraphHabitatFeaturesParams,
+)
 from habit.domain.habitat_features.ith import IthHabitatFeatures, IthHabitatFeaturesParams
 from habit.domain.habitat_features.msi import MsiHabitatFeatures, MsiHabitatFeaturesParams
 from habit.domain.habitat_features.non_radiomics import (
@@ -41,6 +45,8 @@ from habit.domain.habitat_features.whole_habitat import (
 )
 
 __all__ = [
+    "GraphHabitatFeatures",
+    "GraphHabitatFeaturesParams",
     "IthHabitatFeatures",
     "IthHabitatFeaturesParams",
     "MsiHabitatFeatures",

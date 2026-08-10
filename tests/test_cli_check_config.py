@@ -109,3 +109,67 @@ def test_check_config_explains_yaml_syntax_errors(tmp_path: Path) -> None:
     assert result.exit_code == 1
     assert "YAML 修改提示" in result.output
     assert "出错位置约在" in result.output
+
+
+def _extract_config_with_graph_block(graph_body: str) -> str:
+    """Render a minimal extract config carrying a ``graph:`` block."""
+    return (
+        "out_dir: features_out\n"
+        "debug: false\n"
+        "feature_types:\n"
+        "  - graph\n"
+        "raw_img_folder: images\n"
+        "habitats_map_folder: habitats\n"
+        "n_habitats: 2\n"
+        f"graph:\n{graph_body}"
+    )
+
+
+def test_check_config_extract_accepts_graph_block(tmp_path: Path) -> None:
+    """The plugin-aware extract check validates a well-formed ``graph:`` block."""
+    config_path = tmp_path / "extract_graph.yaml"
+    config_path.write_text(
+        _extract_config_with_graph_block(
+            "  distance_threshold: 8.0\n  visualize: true\n"
+        ),
+        encoding="utf-8",
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        ["check-config", "-c", str(config_path), "-w", "extract"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "workflow=extract" in result.output
+
+
+def test_check_config_extract_reports_graph_field_errors(tmp_path: Path) -> None:
+    """A bad ``graph:`` field fails the check and names the offending field."""
+    config_path = tmp_path / "extract_graph_bad.yaml"
+    config_path.write_text(
+        _extract_config_with_graph_block("  distance_threshold: -1.0\n"),
+        encoding="utf-8",
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        ["check-config", "-c", str(config_path), "-w", "extract"],
+    )
+
+    assert result.exit_code == 1
+    assert "distance_threshold" in result.output
+
+    unknown_key_path = tmp_path / "extract_graph_unknown.yaml"
+    unknown_key_path.write_text(
+        _extract_config_with_graph_block("  typo_field: 1\n"),
+        encoding="utf-8",
+    )
+
+    result_unknown = CliRunner().invoke(
+        cli,
+        ["check-config", "-c", str(unknown_key_path), "-w", "extract"],
+    )
+
+    assert result_unknown.exit_code == 1
+    assert "typo_field" in result_unknown.output

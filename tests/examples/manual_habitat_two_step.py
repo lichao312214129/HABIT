@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 """
-Manual example: two-step habitat analysis via ``habit.recipes.two_step``.
+Manual example: two-step habitat analysis via ``habit.recipes.Study``.
 
 Pure Python API — HabitatSpec built in code, cohort loaded from demo_data paths.
 
@@ -28,7 +28,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from habit.adapters import DirectoryDataSource
-from habit.recipes import two_step
+from habit.recipes import Study
 from habit.spec.specs import HabitatSpec, Spec
 
 from tests.examples.demo_paths import EXAMPLE_OUT, IMAGING_ROOT, MODALITIES
@@ -68,8 +68,8 @@ spec = HabitatSpec(
 cohort = DirectoryDataSource(IMAGING_ROOT, modalities=list(MODALITIES), roi=MODALITIES[0]).load()
 print(f"Loaded cohort: {len(cohort)} subjects from {IMAGING_ROOT}")
 
-# --- run recipe and save ---
-result = two_step(cohort, spec)
+# --- run study and save ---
+result = Study(spec=spec, design="two_step").fit_predict(cohort)
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 result.save(OUT_DIR)
 

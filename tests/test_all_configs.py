@@ -246,12 +246,10 @@ def _schema_loader(spec: PipelineConfigSpec) -> Callable[[str], Any]:
         ),
     }
     if spec.command == "extract":
-        from habit.compat.feature_extraction_loader import (
-            load_feature_extraction_config_from_file,
-        )
+        from habit.api.habitat import load_feature_extraction_config
 
         def _load_extract(path: str) -> Any:
-            config, _plugins = load_feature_extraction_config_from_file(path)
+            config, _plugins = load_feature_extraction_config(path)
             return config
 
         return _load_extract

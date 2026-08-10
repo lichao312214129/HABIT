@@ -140,9 +140,11 @@ def load_feature_extraction_config(
     Load feature-extraction YAML, including optional feature-plugin settings.
 
     Unlike ``FeatureExtractionConfig.from_file``, this function preserves and
-    validates plugin-specific sections such as ``graph``.  Pass the returned
-    ``plugin_configs`` to :func:`run_feature_extraction` for behavior identical
-    to the ``habit extract-features`` CLI command.
+    validates plugin-specific sections such as ``graph`` (validated as
+    :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`, including its
+    visualization settings).  Pass the returned ``plugin_configs`` to
+    :func:`run_feature_extraction` for behavior identical to the
+    ``habit extract-features`` CLI command.
 
     Args:
         config_path: Path to a feature-extraction YAML configuration file.
@@ -150,12 +152,13 @@ def load_feature_extraction_config(
     Returns:
         Tuple containing the validated shared config and plugin config mapping.
     """
-    from habit.compat.legacy_core import load_feature_extraction_config_from_file
+    from habit.utils.config_loader import load_config
 
-    return cast(
-        Tuple["FeatureExtractionConfig", Dict[str, Any]],
-        load_feature_extraction_config_from_file(config_path),
-    )
+    path = Path(config_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Configuration file not found: {path}")
+    config_dict = load_config(str(path), resolve_paths=True)
+    return build_feature_extraction_config(config_dict)
 
 
 def build_feature_extraction_config(
@@ -168,23 +171,54 @@ def build_feature_extraction_config(
     contain plugin-specific sections such as ``graph``.  It is the dictionary
     equivalent of :func:`load_feature_extraction_config`.
 
+    The ``graph:`` block is stripped before validating the shared schema (so
+    ``FeatureExtractionConfig`` stays plugin-free) and validated separately as
+    :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`; validation
+    errors point at the offending ``graph`` field.
+
     Args:
         config: Validated shared config or a complete feature-extraction mapping.
 
     Returns:
         Tuple containing the validated shared config and plugin config mapping.
     """
-    from habit.compat.legacy_core import parse_feature_extraction_config
-
-    if isinstance(config, Mapping):
-        return cast(
-            Tuple["FeatureExtractionConfig", Dict[str, Any]],
-            parse_feature_extraction_config(dict(config)),
-        )
-    return cast(
-        Tuple["FeatureExtractionConfig", Dict[str, Any]],
-        parse_feature_extraction_config(config),
+    from habit.schemas.workflows.habitat import (
+        FeatureExtractionConfig,
+        GraphFeatureBlock,
     )
+
+    if isinstance(config, FeatureExtractionConfig):
+        return config, _plugin_configs_for_feature_types(config.feature_types)
+
+    data = dict(config)
+    graph_data = data.pop("graph", None)
+    validated = FeatureExtractionConfig.model_validate(data)
+    plugin_configs: Dict[str, Any] = {}
+    if graph_data is not None:
+        plugin_configs["graph"] = GraphFeatureBlock.model_validate(graph_data)
+    elif "graph" in validated.feature_types:
+        # Defaults apply when the family is requested without a settings block.
+        plugin_configs["graph"] = GraphFeatureBlock()
+    return validated, plugin_configs
+
+
+def _plugin_configs_for_feature_types(
+    feature_types: Any,
+) -> Dict[str, Any]:
+    """
+    Build default plugin configs when only the feature-type names are known.
+
+    Args:
+        feature_types: Requested extraction feature type names.
+
+    Returns:
+        Plugin name to default config object mapping (may be empty).
+    """
+    from habit.schemas.workflows.habitat import GraphFeatureBlock
+
+    if "graph" in list(feature_types or []):
+        return {"graph": GraphFeatureBlock()}
+    return {}
 
 
 def run_feature_extraction(

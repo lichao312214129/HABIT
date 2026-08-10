@@ -154,11 +154,11 @@ _FIXTURE: Dict[str, Any] = {}
 def _study() -> Dict[str, Any]:
     """Fit the two-step study once and index its habitat maps by subject."""
     if not _FIXTURE:
-        import habit.recipes as recipes
+        from habit.recipes.study import Study
 
         spec, root = spec_and_data_root(TRAIN_CONFIG)
         cohort = load_demo_cohort(spec, root)
-        result = recipes.two_step(cohort, spec)
+        result = Study(spec=spec, design="two_step").fit_predict(cohort)
         _FIXTURE["subjects"] = {s.subject_id: s for s in cohort}
         _FIXTURE["maps"] = {m.subject_id: m for m in result.habitat_maps}
     return _FIXTURE

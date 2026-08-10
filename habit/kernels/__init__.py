@@ -32,6 +32,15 @@ from habit.kernels.cluster_selection import (
     score_direction,
     vote_best_index,
 )
+from habit.kernels.habitat_graph import (
+    HabitatGraphFeatureOptions,
+    build_adjacency_graph,
+    build_centroid_distance_graph,
+    extract_graph_features,
+    extract_graph_features_for_labels,
+    extract_habitat_nodes,
+    pair_count,
+)
 from habit.kernels.habitat_metrics import (
     habitat_region_stats,
     habitat_volume_fractions,
@@ -75,6 +84,13 @@ __all__ = [
     "habitat_volume_fractions",
     "habitat_region_stats",
     "ith_score",
+    "HabitatGraphFeatureOptions",
+    "extract_graph_features",
+    "extract_graph_features_for_labels",
+    "extract_habitat_nodes",
+    "build_centroid_distance_graph",
+    "build_adjacency_graph",
+    "pair_count",
     "compute_midrank",
     "fast_delong",
     "delong_roc_variance",

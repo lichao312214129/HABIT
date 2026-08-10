@@ -27,6 +27,7 @@ does not depend on concrete feature classes.
 
 from __future__ import annotations
 
+import warnings
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from importlib import import_module
@@ -251,7 +252,11 @@ def bootstrap_optional_features() -> None:
     """Import optional feature packages so their handlers self-register.
 
     Built-in handlers are imported first so they are always available,
-    then optional packages (e.g. HABIT-v2 graph features) are attempted.
+    then legacy optional packages are attempted. The former HABIT-v2 graph
+    plugin is attempted only for backward compatibility: graph topology
+    features are built into HABIT as the ``graph`` domain feature family
+    (``habit.domain.habitat_features.GraphHabitatFeatures``), so this import
+    is a no-op in practice and will be dropped with the compat layer.
     """
     global _PLUGINS_BOOTSTRAPPED
     if _PLUGINS_BOOTSTRAPPED:
@@ -305,23 +310,40 @@ def validate_feature_types(feature_types: List[str]) -> None:
     if unknown:
         raise ValueError(
             f"Unknown feature_types: {unknown}. Available: {sorted(allowed)}. "
-            "Graph features require the private HABIT-v2 plugin package."
+            "Graph topology features are built into HABIT as the 'graph' "
+            "domain feature family; request them through the domain registry "
+            "(habit.domain.habitat_features.HabitatFeatureExtractorRegistry), "
+            "not through this legacy factory."
         )
+
+
+_GRAPH_ENSURE_DEPRECATION_MESSAGE = (
+    "habit.compat.engines.habitat_extraction.feature_registry."
+    "ensure_graph_plugin_available is deprecated and will be removed in a "
+    "future release; graph topology features are built into HABIT as the "
+    "'graph' domain feature family "
+    "(habit.domain.habitat_features.GraphHabitatFeatures)."
+)
+
+#: Process-local flag so the deprecation warning is emitted once per module.
+_GRAPH_ENSURE_WARNED: bool = False
 
 
 def ensure_graph_plugin_available() -> None:
-    """Raise ValueError when the graph plugin is requested but not installed.
+    """Deprecated no-op kept for backward compatibility.
 
-    Raises:
-        ValueError: If the graph plugin is not registered.
+    Graph topology features shipped as an optional v0.1 plugin; they are now
+    a built-in domain feature family, so there is nothing left to check.
     """
-    bootstrap_optional_features()
-    if HabitatFeatureFactory.get("graph") is None:
-        raise ValueError(
-            "feature_types includes 'graph' but the graph feature plugin is "
-            "not installed. Graph topology features are only available in "
-            "the private HABIT-v2 distribution."
+    global _GRAPH_ENSURE_WARNED
+    if not _GRAPH_ENSURE_WARNED:
+        _GRAPH_ENSURE_WARNED = True
+        warnings.warn(
+            _GRAPH_ENSURE_DEPRECATION_MESSAGE,
+            DeprecationWarning,
+            stacklevel=2,
         )
+    return None
 
 
 def build_feature_handler(

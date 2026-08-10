@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 """
-Manual example: apply a saved habitat model via ``habit.recipes.apply_habitat_model``.
+Manual example: apply a saved habitat model via ``Study.from_model(...).predict(...)``.
 
 Train in memory, save/reload ``HabitatModel``, then project onto the same cohort.
 
@@ -32,7 +32,7 @@ import numpy as np
 
 from habit.adapters import DirectoryDataSource
 from habit.contracts.habitat import HabitatModel
-from habit.recipes import apply_habitat_model, two_step
+from habit.recipes import Study
 from habit.spec.specs import HabitatSpec, Spec
 
 from tests.examples.demo_paths import EXAMPLE_OUT, IMAGING_ROOT, MODALITIES
@@ -74,7 +74,7 @@ print(f"Loaded cohort: {len(cohort)} subjects from {IMAGING_ROOT}")
 if DRY_RUN:
     print("Dry-run OK: spec, cohort and imports validated.")
 else:
-    train_result = two_step(cohort, spec)
+    train_result = Study(spec=spec, design="two_step").fit_predict(cohort)
     assert train_result.habitat_model is not None
 
     model_dir: Path = OUT_DIR / "model"
@@ -83,7 +83,7 @@ else:
     print(f"Saved HabitatModel archive: {archive}")
 
     reloaded: HabitatModel = HabitatModel.load(archive)
-    predict_result = apply_habitat_model(cohort, spec, reloaded)
+    predict_result = Study.from_model(reloaded, spec).predict(cohort)
 
     predict_dir: Path = OUT_DIR / "predict"
     predict_dir.mkdir(parents=True, exist_ok=True)

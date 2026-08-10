@@ -74,6 +74,12 @@ from habit.viz.habitat_clustering import (
     plot_habitat_clustering_pca_3d,
     plot_habitat_clustering_pca_3d_interactive,
 )
+from habit.viz.habitat_graph import (
+    plot_habitat_graph_network_2d,
+    plot_habitat_graph_slice,
+    render_habitat_graph_network_3d,
+    render_habitat_graph_surface_3d,
+)
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
 from habit.viz.survival import (
@@ -124,6 +130,11 @@ __all__ = [
     "plot_habitat_clustering_pca_3d_interactive",
     # habitat overlay on source image
     "plot_habitat_overlay",
+    # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
+    "plot_habitat_graph_slice",
+    "plot_habitat_graph_network_2d",
+    "render_habitat_graph_surface_3d",
+    "render_habitat_graph_network_3d",
     # optional interactive napari viewer (requires [view] extra)
     "view_habitat_napari",
 ]

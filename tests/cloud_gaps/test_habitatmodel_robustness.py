@@ -24,9 +24,9 @@ import numpy as np
 import pytest
 
 import habit
-import habit.recipes as recipes
 from habit.contracts.habitat import HabitatModel
 from habit.exceptions import CompatibilityError
+from habit.recipes.study import Study
 from habit.spec.specs import HabitatSpec, Spec
 from tests.cloud_gaps.synth_data import MODALITIES, ROI
 
@@ -81,7 +81,7 @@ def trained_model(demo_data_root: Path) -> HabitatModel:
         roi=ROI,
         name="gap_test",
     )
-    result = recipes.two_step(cohort, spec)
+    result = Study(spec=spec, design="two_step").fit_predict(cohort)
     assert result.habitat_model is not None
     return result.habitat_model
 

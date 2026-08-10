@@ -96,11 +96,18 @@ def build_habitat_document(
             f"got {type(effective_policy).__name__}."
         )
 
+    # Resolve stages-first specs before serialising so the written document
+    # carries roles on every stage and sugar named fields (modalities, etc.).
+    # Lazy import keeps document assembly free of a hard domain edge at import.
+    from habit.domain.stages import ensure_habitat_spec_resolved
+
+    effective_spec = ensure_habitat_spec_resolved(spec)
+
     document: Dict[str, Any] = {
         "version": V1_SCHEMA_VERSION,
         "workflow": "habitat",
         "mode": run_mode,
-        "spec": spec.to_effective_dict(),
+        "spec": effective_spec.to_effective_dict(),
         "data": {"source": str(data_source)},
         "policy": effective_policy.to_dict(),
         "output": {

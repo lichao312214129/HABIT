@@ -179,6 +179,7 @@ def test_habitat_feature_registry() -> None:
     """All built-in families construct through their registry."""
     assert set(HabitatFeatureExtractorRegistry.available()) == {
         "each_habitat",
+        "graph",
         "ith_score",
         "msi",
         "non_radiomics",

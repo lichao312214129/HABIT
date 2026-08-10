@@ -3,6 +3,8 @@ Habitat fit modes (fit_habitat + apply + I/O)
 
 **Level:** recipe API · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~30–90 s
 
+Replaces the former ``habitat_recipes_api`` example title (bookmark URL retained).
+
 Named study designs in ``habit.recipes``:
 
 * :func:`~habit.recipes.fit_habitat` — unified entry; stage dataflow executor

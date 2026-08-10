@@ -150,6 +150,8 @@ from habit.domain.assignment import (
 from habit.domain.habitat_features import (
     EachHabitatRadiomicsFeatures,
     EachHabitatRadiomicsFeaturesParams,
+    GraphHabitatFeatures,
+    GraphHabitatFeaturesParams,
     HabitatFeatureExtractorRegistry,
     HabitatVolumeFeatures,
     HabitatVolumeFeaturesParams,
@@ -408,6 +410,8 @@ __all__ = [
     # Built-in habitat feature extractors.
     "MsiHabitatFeatures",
     "MsiHabitatFeaturesParams",
+    "GraphHabitatFeatures",
+    "GraphHabitatFeaturesParams",
     "IthHabitatFeatures",
     "IthHabitatFeaturesParams",
     "HabitatVolumeFeatures",

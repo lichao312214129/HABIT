@@ -15,7 +15,8 @@
 """Python API ↔ exported YAML ↔ CLI habitat map parity.
 
 Path A constructs a :class:`~habit.spec.HabitatSpec` in pure Python and runs
-:func:`~habit.recipes.two_step`. Path A then saves a complete effective v1
+``Study(spec=spec, design="two_step").fit_predict(cohort)``. Path A then
+saves a complete effective v1
 document via :func:`~habit.spec.save_habitat_config`. Path B reloads that
 document with :func:`~habit.recipes.run_from_yaml`; path C runs
 ``habit get-habitat --config`` on the same file. Habitat label maps must be
@@ -33,10 +34,18 @@ import pytest
 import SimpleITK as sitk
 import yaml
 
-from habit import HabitatSpec, RunPolicy, Spec, cohort_from_directory, save_habitat_config
+from habit import (
+    HabitatSpec,
+    RunPolicy,
+    Spec,
+    Stage,
+    cohort_from_directory,
+    save_habitat_config,
+)
 from habit.execution import backend_from_policy
-from habit.recipes import run_from_yaml, two_step
+from habit.recipes import run_from_yaml
 from habit.recipes.result import StudyResult
+from habit.recipes.study import Study
 from habit.spec.document import build_habitat_document, load_habitat_config
 from habit.utils.subprocess_utils import run_capture_text
 
@@ -197,6 +206,124 @@ def test_save_habitat_config_expands_defaults(tmp_path: Path) -> None:
     assert payload["on_geometry_mismatch"] == "resample_mask"
 
 
+def _two_step_stages_name_only_spec() -> HabitatSpec:
+    """
+    Stages-first two-step spec without authored ``role=`` (except postprocess).
+
+    Mirrors the quickstart / ``mytest-temp.py`` construction path where named
+    sugar fields stay ``None`` until role resolution.
+    """
+    modalities = list(_MODALITIES)
+    return HabitatSpec(
+        name="habitat_two_step_stages",
+        stages=(
+            Stage(
+                "extract_voxel_features",
+                Spec("raw", {"modalities": modalities}),
+            ),
+            Stage(
+                "preprocess1",
+                Spec(
+                    "winsorize",
+                    {
+                        "winsor_limits": (0.05, 0.05),
+                        "across_features": False,
+                    },
+                ),
+            ),
+            Stage("preprocess2", Spec("minmax", {"across_features": False})),
+            Stage(
+                "partition",
+                Spec(
+                    "kmeans",
+                    {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
+                ),
+            ),
+            Stage("pool", Spec("pool")),
+            Stage(
+                "preprocess3",
+                Spec(
+                    "binning",
+                    {
+                        "n_bins": 10,
+                        "bin_strategy": "uniform",
+                        "across_features": False,
+                    },
+                ),
+            ),
+            Stage(
+                "fit",
+                Spec(
+                    "kmeans",
+                    {
+                        "min_habitats": 2,
+                        "max_habitats": 10,
+                        "validation": "elbow",
+                        "max_iter": 300,
+                        "n_init": 10,
+                    },
+                ),
+            ),
+            Stage("assign", Spec("nearest_centroid")),
+            Stage(
+                "postprocess_habitat",
+                Spec(
+                    "connected_components",
+                    {
+                        "min_component_size": 100,
+                        "connectivity": 1,
+                        "reassign_method": "neighbor_vote",
+                        "max_iterations": 3,
+                    },
+                ),
+                role="postprocess_habitat",
+            ),
+        ),
+        random_seed=42,
+    )
+
+
+@pytest.mark.unit
+def test_save_habitat_config_stages_name_only(tmp_path: Path) -> None:
+    """
+    Stages-first specs (most stages without ``role=``) export a runnable v1 doc.
+
+    Regression: registry validation used to read ``voxel_feature_extractor``
+    while it was still ``None``, crashing ``save_habitat_config``.
+    """
+    spec = _two_step_stages_name_only_spec()
+    assert spec.voxel_feature_extractor is None
+    yaml_path = save_habitat_config(
+        tmp_path / "stages_effective.yaml",
+        spec,
+        data_source="demo_data/preprocessed",
+        out_dir=tmp_path / "out",
+        policy=_serial_policy(),
+    )
+    reloaded = load_habitat_config(yaml_path)
+    assert reloaded["version"] == "1.0"
+    assert reloaded["workflow"] == "habitat"
+    assert reloaded["data"]["source"] == "demo_data/preprocessed"
+    assert "stages" in reloaded["spec"]
+    assert reloaded["spec"].get("stages_authoritative") is True
+    # Effective export fills roles on every stage and mirrors sugar fields.
+    assert all(stage.get("role") for stage in reloaded["spec"]["stages"])
+    assert reloaded["spec"]["voxel_feature_extractor"]["params"]["modalities"] == list(
+        _MODALITIES
+    )
+    restored = HabitatSpec.from_dict(reloaded["spec"])
+    assert restored._stages_explicit
+    assert restored.voxel_feature_extractor is not None
+    assert restored.voxel_feature_extractor.params["modalities"] == list(_MODALITIES)
+    # Round-trip through document validation must succeed again.
+    build_habitat_document(
+        restored,
+        data_source=reloaded["data"]["source"],
+        out_dir=tmp_path / "out2",
+        policy=_serial_policy(),
+    )
+
+
 @pytest.mark.integration
 def test_python_yaml_cli_habitat_maps_voxel_identical(
     project_root: Path,
@@ -225,7 +352,7 @@ def test_python_yaml_cli_habitat_maps_voxel_identical(
         modalities=_MODALITIES,
         roi=_MODALITIES[0],
     )
-    result_a = two_step(cohort, spec, backend=backend)
+    result_a = Study(spec=spec, design="two_step").fit_predict(cohort, backend=backend)
     result_a.save(
         out_a,
         write_maps=True,

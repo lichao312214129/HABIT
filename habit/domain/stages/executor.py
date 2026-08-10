@@ -73,6 +73,7 @@ __all__ = [
     "run_subject_stage_prefix",
     "execute_habitat_dataflow",
     "normalize_spec_for_execution",
+    "ensure_habitat_spec_resolved",
 ]
 
 #: Sentinel subject id for cohort-level inspection records after pool/fit.
@@ -197,6 +198,37 @@ def normalize_spec_for_execution(
         # Re-enter via sugar path so historical fingerprints stay stable.
         return replace(spec, stages=None, **fields)
     return replace(spec, stages=staged, **fields)
+
+
+def ensure_habitat_spec_resolved(spec: HabitatSpec) -> HabitatSpec:
+    """
+    Return a HabitatSpec ready for export, cohort assembly, or execution.
+
+    Stages-first documents often omit ``role=`` and leave sugar fields such
+    as ``voxel_feature_extractor`` as ``None`` until role resolution runs.
+    Call this at document write / YAML-run boundaries so callers can read
+    named fields without re-implementing resolve + normalize.
+
+    Args:
+        spec: Habitat specification (sugar or explicit stages).
+
+    Returns:
+        ``spec`` unchanged when already resolved; otherwise a copy with every
+        stage role filled and named fields derived.
+    """
+    if not spec._stages_explicit:
+        return spec
+    stages = spec.stages or ()
+    if (
+        stages
+        and all(stage.role for stage in stages)
+        and spec.voxel_feature_extractor is not None
+        and spec.habitat_model_fitter is not None
+        and spec.habitat_assigner is not None
+    ):
+        return spec
+    resolved = resolve_habitat_stages(spec)
+    return normalize_spec_for_execution(spec, resolved)
 
 
 def run_subject_stage_prefix(

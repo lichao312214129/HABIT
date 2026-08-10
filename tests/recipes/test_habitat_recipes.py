@@ -54,28 +54,28 @@ def _spec(**overrides: object) -> HabitatSpec:
 @pytest.mark.unit
 def test_two_step_requires_a_supervoxelizer() -> None:
     """A spec with no supervoxel stage is not a two-step analysis."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     with pytest.raises(HABITAPIError, match="two_step requires a supervoxelizer"):
-        recipes.two_step(object(), _spec(supervoxelizer=None))  # type: ignore[arg-type]
+        Study(spec=_spec(supervoxelizer=None), design="two_step").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
 def test_direct_pooling_rejects_a_supervoxelizer() -> None:
     """Direct pooling clusters voxels; a supervoxel stage contradicts it."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     with pytest.raises(HABITAPIError, match="direct_pooling clusters voxels"):
-        recipes.direct_pooling(object(), _spec())  # type: ignore[arg-type]
+        Study(spec=_spec(), design="direct_pooling").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
 def test_one_step_rejects_a_supervoxelizer() -> None:
     """One-step clusters each subject's voxels; a supervoxel stage contradicts it."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     with pytest.raises(HABITAPIError, match="one_step clusters each subject"):
-        recipes.one_step(object(), _spec())  # type: ignore[arg-type]
+        Study(spec=_spec(), design="one_step").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
@@ -87,14 +87,14 @@ def test_one_step_rejects_a_cohort_preprocessing_chain() -> None:
     is the difference between a caller learning their configuration is
     meaningless and their believing it took effect.
     """
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     spec = _spec(
         supervoxelizer=None,
         cohort_feature_preprocessors=(Spec(name="zscore", params={}),),
     )
     with pytest.raises(HABITAPIError, match="cohort-level"):
-        recipes.one_step(object(), spec)  # type: ignore[arg-type]
+        Study(spec=spec, design="one_step").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
@@ -121,7 +121,7 @@ def test_direct_pooling_summary_keeps_spec_random_seed_with_cohort_chain() -> No
     spec set ``random_seed=42``.
     """
     from habit.datasets import make_synthetic_cohort
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = make_synthetic_cohort(
         n_subjects=3, modalities=("T1", "T2"), shape=(12, 12, 12), rng=0
@@ -153,7 +153,7 @@ def test_direct_pooling_summary_keeps_spec_random_seed_with_cohort_chain() -> No
         random_seed=42,
     )
 
-    result = recipes.direct_pooling(cohort, spec)
+    result = Study(spec=spec, design="direct_pooling").fit_predict(cohort)
     model = result.habitat_model
     assert model is not None
     assert model.provenance.random_seed == 42
@@ -165,36 +165,36 @@ def test_direct_pooling_summary_keeps_spec_random_seed_with_cohort_chain() -> No
 @pytest.mark.unit
 def test_two_step_rejects_a_subject_level_dataflow() -> None:
     """pooling='none' contradicts the cohort-level definition two_step fits."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     with pytest.raises(HABITAPIError, match="two_step fits one cohort-level"):
-        recipes.two_step(object(), _spec(pooling="none"))  # type: ignore[arg-type]
+        Study(spec=_spec(pooling="none"), design="two_step").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
 def test_direct_pooling_rejects_a_subject_level_dataflow() -> None:
     """pooling='none' contradicts the cohort-level definition direct_pooling fits."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     spec = _spec(supervoxelizer=None, pooling="none")
     with pytest.raises(HABITAPIError, match="direct_pooling fits one cohort-level"):
-        recipes.direct_pooling(object(), spec)  # type: ignore[arg-type]
+        Study(spec=spec, design="direct_pooling").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
 def test_one_step_rejects_a_cohort_level_dataflow() -> None:
     """pooling='cohort' contradicts the per-subject definition one_step fits."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     spec = _spec(supervoxelizer=None, pooling="cohort")
     with pytest.raises(HABITAPIError, match="one_step defines habitats"):
-        recipes.one_step(object(), spec)  # type: ignore[arg-type]
+        Study(spec=spec, design="one_step").fit(object())  # type: ignore[arg-type]
 
 
 @pytest.mark.unit
 def test_fit_habitat_rejects_an_inconsistent_dataflow() -> None:
-    """The unified entry validates the declared dataflow before any compute."""
-    import habit.recipes as recipes
+    """The undeclared-design path validates the dataflow before any compute."""
+    from habit.recipes.study import Study
 
     spec = _spec(
         supervoxelizer=None,
@@ -202,7 +202,7 @@ def test_fit_habitat_rejects_an_inconsistent_dataflow() -> None:
         cohort_feature_preprocessors=(Spec(name="zscore", params={}),),
     )
     with pytest.raises(HABITAPIError, match="cohort_feature_preprocessors"):
-        recipes.fit_habitat(object(), spec)  # type: ignore[arg-type]
+        Study(spec=spec).fit(object())  # type: ignore[arg-type]
 
 
 def _runnable_spec(**overrides: object) -> HabitatSpec:
@@ -234,12 +234,12 @@ def _tiny_cohort() -> object:
 
 @pytest.mark.unit
 def test_fit_habitat_dispatches_on_the_declared_dataflow() -> None:
-    """The spec graph alone selects the design the unified entry runs."""
-    import habit.recipes as recipes
+    """The spec graph alone selects the design the undeclared study runs."""
+    from habit.recipes.study import Study
 
     cohort = _tiny_cohort()
 
-    subject_level = recipes.fit_habitat(cohort, _runnable_spec(pooling="none"))
+    subject_level = Study(spec=_runnable_spec(pooling="none")).fit_predict(cohort)
     assert subject_level.habitat_model is None
     assert subject_level.subject_models
     assert subject_level.manifest.provenance.produced_by == "recipes.habitat.one_step"
@@ -250,26 +250,26 @@ def test_fit_habitat_dispatches_on_the_declared_dataflow() -> None:
     two_step_spec = _runnable_spec(
         supervoxelizer=Spec(name="kmeans", params={"n_supervoxels": 4, "n_init": 3})
     )
-    cohort_level = recipes.fit_habitat(cohort, two_step_spec)
+    cohort_level = Study(spec=two_step_spec).fit_predict(cohort)
     assert cohort_level.habitat_model is not None
     assert cohort_level.manifest.provenance.produced_by == "recipes.habitat.two_step"
     # Cohort-level dataflow stays the unrecorded default: no fingerprint move.
     assert "pooling" not in cohort_level.manifest.spec_payload
 
-    pooled = recipes.fit_habitat(cohort, _runnable_spec())
+    pooled = Study(spec=_runnable_spec()).fit_predict(cohort)
     assert pooled.manifest.provenance.produced_by == "recipes.habitat.direct_pooling"
 
 
 @pytest.mark.unit
 def test_one_step_alias_matches_fit_habitat_with_declared_dataflow() -> None:
-    """The alias canonicalises an undeclared spec to the design it runs."""
+    """The declared design canonicalises an undeclared spec to what it runs."""
     import numpy as np
 
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = _tiny_cohort()
-    aliased = recipes.one_step(cohort, _runnable_spec())
-    declared = recipes.fit_habitat(cohort, _runnable_spec(pooling="none"))
+    aliased = Study(spec=_runnable_spec(), design="one_step").fit_predict(cohort)
+    declared = Study(spec=_runnable_spec(pooling="none")).fit_predict(cohort)
 
     assert (
         aliased.manifest.provenance.spec_fingerprint
@@ -284,15 +284,10 @@ def test_one_step_alias_matches_fit_habitat_with_declared_dataflow() -> None:
 
 @pytest.mark.unit
 def test_public_recipe_surface() -> None:
-    """The recipe layer exposes exactly the assembly functions plus the result."""
+    """The recipe layer exposes exactly the Study API plus the result."""
     import habit.recipes as recipes
 
     assert set(recipes.__all__) == {
-        "two_step",
-        "one_step",
-        "direct_pooling",
-        "fit_habitat",
-        "apply_habitat_model",
         "extract_habitat_features",
         "traditional_radiomics",
         "compare_models",

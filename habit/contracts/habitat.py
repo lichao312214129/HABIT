@@ -435,8 +435,8 @@ class HabitatModel:
         >>> print(model.summary())  # doctest: +SKIP
         >>> assigner = model.assigner()  # doctest: +SKIP
 
-        See :func:`habit.recipes.apply_habitat_model` for projecting a
-        reloaded model onto new subjects.
+        See :meth:`habit.recipes.Study.predict` (via ``Study.from_model``)
+        for projecting a reloaded model onto new subjects.
     """
 
     model_id: str
@@ -663,8 +663,8 @@ class HabitatModel:
                 f"{source} is not a {_FORMAT_NAME} file. HABIT v1.0 expects "
                 "a self-describing .habitatmodel archive produced by train; "
                 "legacy v0.1 habitat_pipeline.pkl files are not supported. "
-                "Re-train and use apply_habitat_model or point pipeline_path "
-                "at habitat_model.habitatmodel."
+                "Re-train and apply the model via Study.from_model(...).predict(...) "
+                "or point pipeline_path at habitat_model.habitatmodel."
             ) from exc
         with archive:
             try:

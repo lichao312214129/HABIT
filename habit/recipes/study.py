@@ -15,14 +15,25 @@
 """Object-style habitat study entry points (L4).
 
 A :class:`Study` bundles *what* to compute (the :class:`~habit.spec.specs.HabitatSpec`
-and the recipe design) separately from *on which cohort* to run it. That split
-is the v1.0 API surface described in ``developer/api_upgrade/07`` §9.2: recipes
-build studies, ``study.fit(cohort)`` returns a :class:`~habit.recipes.result.StudyResult`.
+and an optional design declaration) separately from *on which cohort* to run it,
+and follows the sklearn estimator lifecycle:
+
+.. code-block:: python
+
+    study = two_step_habitat(modalities=["T1", "T2"], n_habitats="auto")
+    study.fit(train_cohort)                  # -> self; study.model_ is fitted
+    result = study.predict(new_cohort)       # apply the fitted definition
+    train_result = study.fit_predict(train_cohort)  # fit + full result
+
+This is the single public entry point for habitat analysis: the function-style
+engines live privately in :mod:`habit.recipes.habitat` so users learn one
+object with one ``fit`` verb instead of two vocabularies for the same work.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -33,10 +44,18 @@ from typing import (
     Union,
 )
 
+from habit.contracts.habitat import HabitatModel
+from habit.contracts.inspection import StepObserver
 from habit.contracts.ops import ExecutionBackend
 from habit.contracts.subject import Cohort
-from habit.exceptions import HABITAPIError
-from habit.recipes.habitat import direct_pooling, one_step, two_step
+from habit.exceptions import HABITAPIError, NotFittedError
+from habit.recipes.habitat import (
+    _apply_habitat_model,
+    _direct_pooling,
+    _fit_habitat,
+    _one_step,
+    _two_step,
+)
 from habit.recipes.result import StudyResult
 from habit.spec.specs import HabitatSpec, Spec
 
@@ -50,12 +69,28 @@ __all__ = [
     "direct_pooling_habitat",
 ]
 
-#: Recipe name -> the L4 function implementing that design.
+#: Design name -> the private validator implementing that design's guards.
 _RECIPE_BY_DESIGN: Mapping[str, Callable[..., StudyResult]] = {
-    "two_step": two_step,
-    "one_step": one_step,
-    "direct_pooling": direct_pooling,
+    "two_step": _two_step,
+    "one_step": _one_step,
+    "direct_pooling": _direct_pooling,
 }
+
+
+def _infer_design(spec: HabitatSpec) -> str:
+    """
+    Derive the study design from the spec's declared dataflow.
+
+    Args:
+        spec: The analysis declaration to inspect.
+
+    Returns:
+        ``"one_step"`` for ``pooling="none"``; otherwise ``"two_step"`` when
+        a supervoxelizer is declared and ``"direct_pooling"`` when not.
+    """
+    if spec.pooling == "none":
+        return "one_step"
+    return "two_step" if spec.supervoxelizer is not None else "direct_pooling"
 
 
 def _coerce_habitat_features(
@@ -219,18 +254,50 @@ def _build_habitat_spec(
     )
 
 
-@dataclass(frozen=True)
+@dataclass
 class Study:
     """
     A habitat analysis declared independently of any cohort.
 
+    The lifecycle mirrors a sklearn estimator: :meth:`fit` learns the
+    cohort-level habitat definition and returns ``self``; :meth:`predict`
+    projects that definition onto a new cohort; :meth:`fit_predict` fits and
+    hands back the full :class:`~habit.recipes.result.StudyResult` in one
+    call. Fitted state is exposed through the trailing-underscore attributes
+    ``model_`` and ``fit_result_``.
+
     Attributes:
         spec: The analysis to run.
-        design: Recipe identifier (``two_step``, ``one_step``, ``direct_pooling``).
+        design: Optional declared intent (``"two_step"``, ``"one_step"`` or
+            ``"direct_pooling"``). When set, ``fit`` validates the spec
+            against the design's guards before running, so a mismatched spec
+            fails loudly instead of silently running a different dataflow.
+            When ``None``, the dataflow declared by the spec itself
+            (``pooling`` / stage list) decides what runs.
+        model_: The fitted :class:`~habit.contracts.habitat.HabitatModel`;
+            ``None`` until fitted, and ``None`` after fitting a ``one_step``
+            study (that design defines habitats per subject, so there is no
+            cohort-level model to publish).
+        fit_result_: The :class:`~habit.recipes.result.StudyResult` produced
+            by the latest :meth:`fit`; ``None`` until fitted.
     """
 
     spec: HabitatSpec
-    design: str
+    design: Optional[str] = None
+    model_: Optional[HabitatModel] = field(
+        default=None, init=False, repr=False, compare=False
+    )
+    fit_result_: Optional[StudyResult] = field(
+        default=None, init=False, repr=False, compare=False
+    )
+
+    def __post_init__(self) -> None:
+        """Validate the declared design before any compute happens."""
+        if self.design is not None and self.design not in _RECIPE_BY_DESIGN:
+            raise HABITAPIError(
+                f"Study design {self.design!r} has no registered recipe; "
+                f"expected one of {sorted(_RECIPE_BY_DESIGN)}."
+            )
 
     def fit(
         self,
@@ -239,31 +306,163 @@ class Study:
         backend: Optional[ExecutionBackend] = None,
         checkpoint: Optional[CheckpointStore] = None,
         seed: Optional[int] = None,
-    ) -> StudyResult:
+        inspect: Optional[StepObserver] = None,
+    ) -> "Study":
         """
-        Run this study on a cohort and return an in-memory result.
+        Learn the habitat definition on a cohort; return ``self``.
 
         Args:
             cohort: Subjects to analyse.
             backend: Optional execution backend (parallelism, resume policy).
             checkpoint: Optional checkpoint store forwarded to per-subject stages.
             seed: Optional override of ``spec.random_seed``.
+            inspect: Optional step observer for in-memory debugging / QA.
+                Unsupported with the process backend.
+
+        Returns:
+            ``self``, fitted: ``model_`` holds the cohort-level definition
+            (except for the ``one_step`` design) and ``fit_result_`` the full
+            study result.
+        """
+        if self.design is None:
+            recipe: Callable[..., StudyResult] = _fit_habitat
+        else:
+            recipe = _RECIPE_BY_DESIGN[self.design]
+        result = recipe(
+            cohort,
+            self.spec,
+            backend=backend,
+            seed=seed,
+            checkpoint=checkpoint,
+            inspect=inspect,
+        )
+        self.model_ = result.habitat_model
+        self.fit_result_ = result
+        return self
+
+    def predict(
+        self,
+        cohort: Cohort,
+        *,
+        backend: Optional[ExecutionBackend] = None,
+        checkpoint: Optional[CheckpointStore] = None,
+        seed: Optional[int] = None,
+        inspect: Optional[StepObserver] = None,
+    ) -> StudyResult:
+        """
+        Apply the fitted habitat definition to a (new) cohort.
+
+        The model's own cohort-level preprocessing state is restored and
+        re-applied, because centroids only mean something in the feature
+        space they were computed in.
+
+        Args:
+            cohort: Subjects to label.
+            backend: Optional execution backend. Serial when omitted.
+            checkpoint: Optional store enabling per-subject resume; keys
+                scope on ``model_.model_id``.
+            seed: Optional override of ``spec.random_seed``.
+            inspect: Optional step observer for in-memory debugging / QA.
+                Unsupported with the process backend.
+
+        Returns:
+            The study result for the projected cohort: habitat maps, the
+            habitat feature table and the run manifest, all in memory.
+
+        Raises:
+            NotFittedError: If the study has no fitted model yet.
+            HABITAPIError: If the study ran a ``one_step`` fit, which defines
+                habitats per subject and therefore has no cohort-level model
+                to apply.
+        """
+        if self.model_ is None:
+            if self.fit_result_ is None:
+                raise NotFittedError(
+                    "Study is not fitted yet; call fit(cohort) first, or load "
+                    "a published definition with Study.from_model(...)."
+                )
+            raise HABITAPIError(
+                f"The {self.design or 'one_step'!r} design defines habitats "
+                "inside each subject independently, so there is no "
+                "cohort-level model to apply to new data."
+            )
+        return _apply_habitat_model(
+            cohort,
+            self.spec,
+            self.model_,
+            backend=backend,
+            seed=seed,
+            checkpoint=checkpoint,
+            inspect=inspect,
+        )
+
+    def fit_predict(
+        self,
+        cohort: Cohort,
+        *,
+        backend: Optional[ExecutionBackend] = None,
+        checkpoint: Optional[CheckpointStore] = None,
+        seed: Optional[int] = None,
+        inspect: Optional[StepObserver] = None,
+    ) -> StudyResult:
+        """
+        Fit on a cohort and return the full study result.
+
+        Equivalent to ``fit(cohort).fit_result_``, provided for the common
+        case where the training-cohort artefacts (maps, features, manifest)
+        are wanted immediately.
+
+        Args:
+            cohort: Subjects to analyse.
+            backend: Optional execution backend (parallelism, resume policy).
+            checkpoint: Optional checkpoint store forwarded to per-subject stages.
+            seed: Optional override of ``spec.random_seed``.
+            inspect: Optional step observer for in-memory debugging / QA.
 
         Returns:
             The completed study result.
         """
-        recipe = _RECIPE_BY_DESIGN.get(self.design)
-        if recipe is None:
-            raise HABITAPIError(
-                f"Study design {self.design!r} has no registered recipe."
-            )
-        return recipe(
+        self.fit(
             cohort,
-            self.spec,
             backend=backend,
             checkpoint=checkpoint,
             seed=seed,
+            inspect=inspect,
         )
+        assert self.fit_result_ is not None  # guaranteed by fit()
+        return self.fit_result_
+
+    @classmethod
+    def from_model(
+        cls,
+        model: Union[HabitatModel, str, Path],
+        spec: Optional[HabitatSpec] = None,
+    ) -> "Study":
+        """
+        Build a fitted study from a published habitat model.
+
+        This is the external-validation entry point: load a
+        ``.habitatmodel`` artefact (or pass an in-memory
+        :class:`~habit.contracts.habitat.HabitatModel`) and call
+        :meth:`predict` on the new cohort.
+
+        Args:
+            model: A fitted model, or a path to a ``.habitatmodel`` archive.
+            spec: The analysis declaration whose upstream stages must match
+                the model's training spec. When ``None``, the spec embedded
+                in the model archive is used.
+
+        Returns:
+            A study whose ``model_`` is already fitted, ready for
+            :meth:`predict`.
+        """
+        if not isinstance(model, HabitatModel):
+            model = HabitatModel.load(model)
+        if spec is None:
+            spec = HabitatSpec.from_dict(model.spec_payload)
+        study = cls(spec=spec, design=_infer_design(spec))
+        study.model_ = model
+        return study
 
 
 def two_step_habitat(
