@@ -467,6 +467,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -566,6 +567,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1144,7 +1149,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1211,8 +1216,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1489,8 +1495,8 @@ see <a class="reference internal" href="custom_voxel_features.html"><span class=
 </tr>
 </tbody>
 </table>
-<p>Every route supports <strong>batch</strong> (<code class="docutils literal notranslate"><span class="pre">recipes.two_step(cohort,</span> <span class="pre">spec)</span></code>) and
-<strong>atomic</strong> inspection via
+<p>Every route supports <strong>batch</strong> (<code class="docutils literal notranslate"><span class="pre">recipes.fit_habitat(cohort,</span> <span class="pre">spec)</span></code>;
+two-step sugar or stages) and <strong>atomic</strong> inspection via
 <code class="xref py py-func docutils literal notranslate"><span class="pre">build_habitat_components()</span></code> — attribute names
 match the Spec (<code class="docutils literal notranslate"><span class="pre">components.voxel_feature_extractor</span></code>,
 <code class="docutils literal notranslate"><span class="pre">components.supervoxel_feature_extractor</span></code>, …) and
@@ -1509,7 +1515,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="sd">* ``voxel_radiomics`` / ``supervoxel_radiomics`` — PyRadiomics texture</span>
 <span class="sd">  (requires ``demo_data/`` and PyRadiomics; skipped gracefully otherwise).</span>
 
-<span class="sd">Both **batch** (``recipes.two_step(cohort, spec)``) and **atomic**</span>
+<span class="sd">Both **batch** (``recipes.fit_habitat(cohort, spec)``) and **atomic**</span>
 <span class="sd">(``SubjectPipeline.units(subject)``) calls are shown.</span>
 
 <span class="sd">This script accompanies ``docs/source/examples/habitat_feature_routes.rst``.</span>
@@ -1592,7 +1598,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== raw(modalities) ===&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  atomic n_features: </span><span class="si">{</span><span class="n">_atomic_units</span><span class="p">(</span><span class="n">raw_spec</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">raw_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">raw_spec</span><span class="p">)</span>
+<span class="n">raw_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">raw_spec</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> maps, &quot;</span>
       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2"> habitats&quot;</span><span class="p">)</span>
 
@@ -1635,7 +1641,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== concat(raw, raw) per modality ===&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  atomic n_features: </span><span class="si">{</span><span class="n">_atomic_units</span><span class="p">(</span><span class="n">concat_spec</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">concat_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">concat_spec</span><span class="p">)</span>
+<span class="n">concat_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">concat_spec</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">concat_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> maps&quot;</span><span class="p">)</span>
 
 <span class="c1"># --- slic supervoxelizer (spatial coherence) ---------------------------------</span>
@@ -1663,7 +1669,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== supervoxelizer: slic ===&quot;</span><span class="p">)</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  atomic n_features: </span><span class="si">{</span><span class="n">_atomic_units</span><span class="p">(</span><span class="n">slic_spec</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">slic_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">slic_spec</span><span class="p">)</span>
+    <span class="n">slic_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">slic_spec</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slic_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> maps, &quot;</span>
           <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">slic_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2"> habitats&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - demo script reports and continues</span>
@@ -1700,7 +1706,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
     <span class="k">try</span><span class="p">:</span>
         <span class="n">n_feat</span> <span class="o">=</span> <span class="n">_atomic_units</span><span class="p">(</span><span class="n">vr_spec</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  atomic n_features: </span><span class="si">{</span><span class="n">n_feat</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">vr_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">single</span><span class="p">,</span> <span class="n">vr_spec</span><span class="p">)</span>
+        <span class="n">vr_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">single</span><span class="p">,</span> <span class="n">vr_spec</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch (1 subject): </span><span class="si">{</span><span class="n">vr_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2"> habitats&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  voxel_radiomics skipped: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1734,7 +1740,7 @@ match the Spec (<code class="docutils literal notranslate"><span class="pre">com
     <span class="k">try</span><span class="p">:</span>
         <span class="n">n_feat</span> <span class="o">=</span> <span class="n">_atomic_units</span><span class="p">(</span><span class="n">svr_spec</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  atomic n_features: </span><span class="si">{</span><span class="n">n_feat</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">svr_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">single</span><span class="p">,</span> <span class="n">svr_spec</span><span class="p">)</span>
+        <span class="n">svr_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">single</span><span class="p">,</span> <span class="n">svr_spec</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch (1 subject): </span><span class="si">{</span><span class="n">svr_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2"> habitats&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  supervoxel_radiomics skipped: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

@@ -5,9 +5,11 @@ Imaging-side protocols, built-in operators, registries, and
 ``SubjectPipeline``. Import registries from ``habit.domain`` (they are **not**
 top-level ``habit`` exports).
 
-For end-to-end habitat studies without hand-wiring each stage, prefer the L4
-recipes (:func:`~habit.recipes.two_step`, :func:`~habit.recipes.direct_pooling`,
-:func:`~habit.recipes.one_step`) documented in :doc:`python_api`.
+For end-to-end habitat studies without hand-wiring each operator, prefer
+:func:`~habit.recipes.fit_habitat` with :attr:`~habit.spec.HabitatSpec.stages`
+(documented in :doc:`python_api`). The mode-named aliases
+(:func:`~habit.recipes.two_step`, :func:`~habit.recipes.direct_pooling`,
+:func:`~habit.recipes.one_step`) remain as thin validators.
 
 .. code-block:: python
 
@@ -174,7 +176,7 @@ To observe every habitat pipeline boundary in memory, pass
    import habit.recipes as recipes
 
    rec = StepRecorder(steps=["supervoxels.described"], max_subjects=2)
-   result = recipes.two_step(cohort, spec, inspect=rec)
+   result = recipes.fit_habitat(cohort, spec, inspect=rec)
    result.inspection.summary()
 
 Habitat model fitters

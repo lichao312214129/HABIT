@@ -823,6 +823,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -922,6 +923,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1500,7 +1505,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1567,8 +1572,9 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1819,8 +1825,10 @@ configuration parsing out of the algorithms.</p>
 <h2>Design principles<a class="headerlink" href="#design-principles" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
 <li><p><strong>API first</strong>: every study is a Python function call
-(<code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">recipes.two_step(cohort,</span> <span class="pre">spec)</span></code>); YAML and the CLI are
-projections of the same call.</p></li>
+(<code class="docutils literal notranslate"><span class="pre">result</span> <span class="pre">=</span> <span class="pre">recipes.fit_habitat(cohort,</span> <span class="pre">spec)</span></code> with
+<code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code>); YAML and the CLI are projections of the same
+call. Mode-named aliases (<code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> /
+<code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code>) remain as thin validators.</p></li>
 <li><p><strong>Typed specifications</strong>: analyses are declared as immutable, fingerprinted
 spec objects (<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>, <a class="reference internal" href="../api/generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLSpec</span></code></a>)
 rather than loosely structured dictionaries.</p></li>
@@ -1953,7 +1961,8 @@ layer.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get-habitat</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">HabitatAnalysisConfig</span></code> → <code class="docutils literal notranslate"><span class="pre">LegacyConfigAdapter</span></code></p></td>
-<td><p><a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.two_step()</span></code></a> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code></p></td>
+<td><p><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.recipes.fit_habitat()</span></code></a> (aliases: <code class="docutils literal notranslate"><span class="pre">two_step</span></code> /
+<code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extract</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">FeatureExtractionConfig</span></code></p></td>

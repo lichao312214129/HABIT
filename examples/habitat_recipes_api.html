@@ -467,6 +467,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -566,6 +567,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1144,7 +1149,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1211,8 +1216,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1456,7 +1462,7 @@
 <h1>Habitat recipes API (three modes + apply + persistence)<a class="headerlink" href="#habitat-recipes-api-three-modes-apply-persistence" title="Link to this heading"></a></h1>
 <p>Named study designs in <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>:</p>
 <ul class="simple">
-<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code> — unified entry; runs the shared
+<li><p><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a> — unified entry; runs the shared
 <strong>stage dataflow executor</strong> from <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a>
 (or the named-field sugar that expands to the same sequence)</p></li>
 <li><p><a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a> — supervoxels then cohort habitats</p></li>
@@ -1491,13 +1497,15 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Habitat recipe API: three clustering modes + apply + StudyResult / model I/O.</span>
+<span class="sd">Habitat recipe API: stages-first fit_habitat + apply + StudyResult / model I/O.</span>
 
-<span class="sd">* **Batch** — ``two_step`` / ``one_step`` / ``direct_pooling`` on a Cohort.</span>
-<span class="sd">* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model`` on</span>
-<span class="sd">  one subject or a sliced cohort.</span>
-<span class="sd">* **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``</span>
-<span class="sd">  (``.habitatmodel``).</span>
+<span class="sd">* **Primary** — ``HabitatSpec.stages`` + ``recipes.fit_habitat`` (strategy</span>
+<span class="sd">  inferred: partition+pool → two_step; pool only → direct_pooling;</span>
+<span class="sd">  neither → one_step).</span>
+<span class="sd">* **Compat** — thin aliases ``two_step`` / ``one_step`` / ``direct_pooling``</span>
+<span class="sd">  and named-field sugar still call the same executor.</span>
+<span class="sd">* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model``.</span>
+<span class="sd">* **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``.</span>
 
 <span class="sd">Accompanies ``docs/source/examples/habitat_recipes_api.rst``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -1511,34 +1519,25 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_spec</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">pooling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a tiny deterministic habitat spec for demos.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_quantify_stages</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared habitat-feature stages for the demos.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify4&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">)),</span>
+        <span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
+        <span class="c1"># Stage(&quot;quantify5&quot;, Spec(&quot;traditional&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify6&quot;, Spec(&quot;whole_habitat&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify7&quot;, Spec(&quot;each_habitat&quot;)),</span>
+    <span class="p">)</span>
 
-<span class="sd">    Keyword order follows the runtime pipeline, not HabitatSpec field order.</span>
-<span class="sd">    ``pooling`` declares the dataflow explicitly (&quot;cohort&quot; default / &quot;none&quot;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="n">pooling</span><span class="o">=</span><span class="n">pooling</span><span class="p">,</span>
-        <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-        <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;winsorize&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
-        <span class="p">),</span>
-        <span class="n">supervoxelizer</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">supervoxelizer</span>
-            <span class="k">else</span> <span class="kc">None</span>
-        <span class="p">),</span>
-        <span class="n">cohort_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;one_step&quot;</span>
-        <span class="k">else</span> <span class="p">(),</span>
-        <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_stage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Stage</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared k-means habitat fitter stage.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Stage</span><span class="p">(</span>
+        <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+        <span class="n">Spec</span><span class="p">(</span>
             <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
             <span class="p">{</span>
                 <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
@@ -1547,25 +1546,44 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
                 <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">),</span>
-        <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-        <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">),</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">),</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">),</span>
-            <span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
-            <span class="c1"># Spec(&quot;traditional&quot;),</span>
-            <span class="c1"># Spec(&quot;whole_habitat&quot;),</span>
-            <span class="c1"># Spec(&quot;each_habitat&quot;),</span>
-        <span class="p">),</span>
-        <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
     <span class="p">)</span>
 
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== two_step (batch train) ===&quot;</span><span class="p">)</span>
-<span class="n">two</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat two_step shape (partition + pool) ===&quot;</span><span class="p">)</span>
+<span class="n">two_step_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;preprocess3&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+                    <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">_fit_stage</span><span class="p">(),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">two</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">two_step_spec</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">, &quot;</span>
       <span class="sa">f</span><span class="s2">&quot;features=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">two</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1575,7 +1593,7 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
     <span class="n">archive</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;demo.habitatmodel&quot;</span>
     <span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
     <span class="n">reloaded</span><span class="p">:</span> <span class="n">HabitatModel</span> <span class="o">=</span> <span class="n">HabitatModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
-    <span class="n">predicted</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">apply_habitat_model</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">reloaded</span><span class="p">)</span>
+    <span class="n">predicted</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">apply_habitat_model</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">two_step_spec</span><span class="p">,</span> <span class="n">reloaded</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  reloaded model_id=</span><span class="si">{</span><span class="n">reloaded</span><span class="o">.</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  predict maps=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">predicted</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1589,54 +1607,84 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  pipeline(</span><span class="si">{</span><span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">) labels=&quot;</span>
       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">one_map</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== one_step (per-subject habitats) ===&quot;</span><span class="p">)</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">one_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat one_step shape (neither partition nor pool) ===&quot;</span><span class="p">)</span>
+<span class="n">one_step_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
+        <span class="n">_fit_stage</span><span class="p">(),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
+    <span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">one</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">one_step_spec</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  subject_models=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== direct_pooling ===&quot;</span><span class="p">)</span>
-<span class="n">pool</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">direct_pooling</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-<span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat (unified entry, stage dataflow executor) ===&quot;</span><span class="p">)</span>
-<span class="c1"># pooling=&quot;none&quot; declares the subject-level dataflow on the sugar form;</span>
-<span class="c1"># fit_habitat expands stages and runs the shared executor (same as one_step).</span>
-<span class="n">unified</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span>
-    <span class="n">cohort</span><span class="p">,</span> <span class="n">_spec</span><span class="p">(</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span> <span class="n">supervoxelizer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="k">assert</span> <span class="nb">list</span><span class="p">(</span><span class="n">unified</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  fit_habitat(pooling=&#39;none&#39;) subject_models=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">unified</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat with explicit stages (direct_pooling shape) ===&quot;</span><span class="p">)</span>
-<span class="c1"># Stage names are custom labels; roles are inferred (no role= required).</span>
-<span class="n">staged</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;staged_direct&quot;</span><span class="p">,</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat direct_pooling shape (pool only) ===&quot;</span><span class="p">)</span>
+<span class="n">direct_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span>
     <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
         <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
+            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+            <span class="p">),</span>
         <span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
         <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
         <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;preprocess3&quot;</span><span class="p">,</span>
             <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+                    <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">),</span>
         <span class="p">),</span>
+        <span class="n">_fit_stage</span><span class="p">(),</span>
         <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
     <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">staged_result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">staged</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">staged_result</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  staged n_habitats=</span><span class="si">{</span><span class="n">staged_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">pool</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">direct_spec</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Compat aliases (thin validators → same fit_habitat) ===&quot;</span><span class="p">)</span>
+<span class="c1"># Named-field sugar + mode-named aliases remain supported.</span>
+<span class="n">sugar</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step_sugar&quot;</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
+    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
+    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
+    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">alias</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">sugar</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  recipes.two_step sugar: habitats=</span><span class="si">{</span><span class="n">alias</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>

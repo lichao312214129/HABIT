@@ -467,6 +467,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -566,6 +567,10 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1144,7 +1149,7 @@
 <li class="toctree-l3"><a class="reference internal" href="python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1211,8 +1216,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1457,9 +1463,11 @@
 <p>Imaging-side protocols, built-in operators, registries, and
 <code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code>. Import registries from <code class="docutils literal notranslate"><span class="pre">habit.domain</span></code> (they are <strong>not</strong>
 top-level <code class="docutils literal notranslate"><span class="pre">habit</span></code> exports).</p>
-<p>For end-to-end habitat studies without hand-wiring each stage, prefer the L4
-recipes (<a class="reference internal" href="generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a>, <a class="reference internal" href="generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling()</span></code></a>,
-<a class="reference internal" href="generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step()</span></code></a>) documented in <a class="reference internal" href="python_api.html"><span class="doc">Python API guide (v1.0)</span></a>.</p>
+<p>For end-to-end habitat studies without hand-wiring each operator, prefer
+<a class="reference internal" href="generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a> with <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a>
+(documented in <a class="reference internal" href="python_api.html"><span class="doc">Python API guide (v1.0)</span></a>). The mode-named aliases
+(<a class="reference internal" href="generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a>, <a class="reference internal" href="generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling()</span></code></a>,
+<a class="reference internal" href="generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step()</span></code></a>) remain as thin validators.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.domain</span>  <span class="c1"># registers all built-ins</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">HabitatAssignerRegistry</span><span class="p">,</span>
@@ -1524,7 +1532,7 @@ recipes (<a class="reference internal" href="generated/habit.recipes.two_step.ht
 </section>
 <section id="ordered-stages-and-the-shared-executor">
 <h2>Ordered stages and the shared executor<a class="headerlink" href="#ordered-stages-and-the-shared-executor" title="Link to this heading"></a></h2>
-<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code> is a named component slot. Stage <code class="docutils literal notranslate"><span class="pre">name</span></code> values
+<p>A <a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code></a> is a named component slot. Stage <code class="docutils literal notranslate"><span class="pre">name</span></code> values
 are custom labels (not role keywords); scientific roles are inferred from
 position + registry domain. Prefer declaring
 <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a> for new code; the classic named
@@ -1628,7 +1636,7 @@ with <code class="docutils literal notranslate"><span class="pre">concat</span><
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="n">rec</span> <span class="o">=</span> <span class="n">StepRecorder</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;supervoxels.described&quot;</span><span class="p">],</span> <span class="n">max_subjects</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">inspect</span><span class="o">=</span><span class="n">rec</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">inspect</span><span class="o">=</span><span class="n">rec</span><span class="p">)</span>
 <span class="n">result</span><span class="o">.</span><span class="n">inspection</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
 </pre></div>
 </div>

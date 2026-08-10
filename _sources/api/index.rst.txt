@@ -50,9 +50,13 @@ walkthrough.
 Habitat analysis
 ~~~~~~~~~~~~~~~~
 
+Primary entry: :func:`~habit.recipes.fit_habitat` (stage dataflow executor).
+``two_step`` / ``one_step`` / ``direct_pooling`` are thin aliases.
+
 .. autosummary::
    :toctree: generated
 
+   habit.recipes.fit_habitat
    habit.recipes.two_step
    habit.recipes.one_step
    habit.recipes.direct_pooling
@@ -209,6 +213,7 @@ They are the in-Python counterpart of the YAML configuration files. See
    :toctree: generated
 
    habit.spec.Spec
+   habit.spec.Stage
    habit.spec.HabitatSpec
    habit.spec.MLSpec
    habit.spec.RunPolicy

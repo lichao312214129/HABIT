@@ -467,6 +467,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -566,6 +567,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1144,7 +1149,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1211,8 +1216,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1460,11 +1466,14 @@ definition is learned from all subjects’ supervoxels pooled together. This
 example runs the full train path on a synthetic cohort:</p>
 <ol class="arabic simple">
 <li><p>build a cohort (<a class="reference internal" href="../api/generated/habit.datasets.make_synthetic_cohort.html#habit.datasets.make_synthetic_cohort" title="habit.datasets.make_synthetic_cohort"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_synthetic_cohort()</span></code></a>),</p></li>
-<li><p>declare the analysis as a <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a>,</p></li>
-<li><p>fit with <a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a>,</p></li>
+<li><p>declare ordered <a class="reference internal" href="../api/generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code></a> entries on
+<a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a> (partition + pool ⇒ two_step),</p></li>
+<li><p>fit with <a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a>,</p></li>
 <li><p>inspect the model, maps, feature table, and the auto-generated methods
 paragraph.</p></li>
 </ol>
+<p>The thin alias <a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a> remains for compat; it
+validates the design then calls <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code>.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
@@ -1476,12 +1485,14 @@ paragraph.</p></li>
 <span class="sd">inspects: the fitted HabitatModel, the per-subject habitat maps, and the</span>
 <span class="sd">habitat feature table.</span>
 
+<span class="sd">Primary API: HabitatSpec.stages + recipes.fit_habitat (partition + pool).</span>
+
 <span class="sd">Run from the repository root:</span>
 
 <span class="sd">    python docs/source/examples/scripts/two_step_habitat_quickstart.py</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">make_synthetic_cohort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span><span class="p">,</span> <span class="n">make_synthetic_cohort</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="c1"># 1. Cohort: six synthetic subjects, two modalities, one ROI each. Replace</span>
@@ -1495,34 +1506,42 @@ paragraph.</p></li>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span><span class="si">}</span><span class="s2"> subjects -&gt; </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="c1"># 2. Spec: the whole analysis as one frozen, fingerprintable value object.</span>
-<span class="c1"># Keyword arguments follow the runtime pipeline (not HabitatSpec field order):</span>
-<span class="c1">#   voxel features -&gt; supervoxels -&gt; fit habitats on pooled units</span>
-<span class="c1">#   -&gt; assign -&gt; habitat features.</span>
+<span class="c1"># 2. Spec: ordered named stages are the source of truth.</span>
+<span class="c1">#    partition + pool ⇒ two_step strategy (inferred, not chosen by recipe name).</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;habitat_two_step&quot;</span><span class="p">,</span>
-    <span class="c1"># 1. Voxel level: concatenate the raw intensities of both modalities.</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-    <span class="c1"># 2. Supervoxel level: per-subject k-means over the voxel features.</span>
-    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}),</span>
-    <span class="c1"># 3. Cohort level: k-means over pooled supervoxels; habitat count in</span>
-    <span class="c1">#    [2, 3] selected by silhouette score.</span>
-    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
-    <span class="p">),</span>
-    <span class="c1"># 4. Assignment: each supervoxel takes the habitat of its nearest centroid.</span>
-    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-    <span class="c1"># 5. Habitat feature families, computed after assignment.</span>
-    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">),</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">),</span>
+    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
+        <span class="c1"># Voxel level: concatenate the raw intensities of both modalities.</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+        <span class="c1"># Supervoxel level: per-subject k-means over the voxel features.</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})),</span>
+        <span class="c1"># Cross-subject watershed: pool units before cohort-level fit.</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
+        <span class="c1"># Cohort level: k-means over pooled supervoxels; habitat count in</span>
+        <span class="c1"># [2, 3] selected by silhouette score.</span>
+        <span class="n">Stage</span><span class="p">(</span>
+            <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
+            <span class="n">Spec</span><span class="p">(</span>
+                <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                    <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+        <span class="c1"># Assignment: each unit takes the habitat of its nearest centroid.</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="c1"># Habitat feature families, computed after assignment.</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify4&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">)),</span>
         <span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
-        <span class="c1"># Spec(&quot;traditional&quot;),</span>
-        <span class="c1"># Spec(&quot;whole_habitat&quot;),</span>
-        <span class="c1"># Spec(&quot;each_habitat&quot;),</span>
+        <span class="c1"># Stage(&quot;quantify5&quot;, Spec(&quot;traditional&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify6&quot;, Spec(&quot;whole_habitat&quot;)),</span>
+        <span class="c1"># Stage(&quot;quantify7&quot;, Spec(&quot;each_habitat&quot;)),</span>
     <span class="p">),</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1531,9 +1550,9 @@ paragraph.</p></li>
 <span class="c1"># 3. Train: fit the cohort-level habitat definition and label every subject.</span>
 <span class="c1">#    Non-batch alternative after training:</span>
 <span class="c1">#      habitat_map = result.pipeline(cohort[0])</span>
-<span class="c1">#    Fit-time units (no assigner): build_habitat_components(spec).pipeline(</span>
-<span class="c1">#        assigner=None).units(cohort[0])  — see habitat_preprocessing_demo.py.</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+<span class="c1">#    Compat aliases recipes.two_step / one_step / direct_pooling also call</span>
+<span class="c1">#    fit_habitat after validating the design their name promises.</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Fitted habitat model ---&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
@@ -1545,8 +1564,8 @@ paragraph.</p></li>
       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> features&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First feature columns:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)[:</span><span class="mi">6</span><span class="p">])</span>
 
-<span class="c1"># 4. Methods paragraph, generated from the run manifest: only steps that</span>
-<span class="c1">#    actually executed are stated.</span>
+<span class="c1"># 4. Methods paragraph, generated from the run manifest: only stages that</span>
+<span class="c1">#    actually executed are stated (in stage order).</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Methods paragraph (from the run manifest) ---&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">manifest</span><span class="o">.</span><span class="n">describe_methods</span><span class="p">())</span>
 

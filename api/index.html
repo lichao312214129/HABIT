@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="two_step" href="generated/habit.recipes.two_step.html" />
+    <link rel="next" title="fit_habitat" href="generated/habit.recipes.fit_habitat.html" />
     <link rel="prev" title="Habitats and clustering" href="../explanation/concepts.html" /> 
 </head>
 
@@ -467,6 +467,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-analysis">Habitat analysis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.fit_habitat.html">fit_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.two_step.html">two_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.one_step.html">one_step</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.direct_pooling.html">direct_pooling</a></li>
@@ -566,6 +567,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#specifications-habit-spec">Specifications (<code class="docutils literal notranslate"><span class="pre">habit.spec</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.Spec.html">Spec</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.Spec.html#habit.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.Stage.html">Stage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage"><code class="docutils literal notranslate"><span class="pre">Stage</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.spec.HabitatSpec.html">HabitatSpec</a><ul>
@@ -1144,7 +1149,7 @@
 <li class="toctree-l3"><a class="reference internal" href="python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="python_api.html#one-line-recipes">One-line recipes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1211,8 +1216,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="spec.html">Spec, RunPolicy, and YAML isomorphism</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#spec-and-habitatspec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="spec.html#declaring-the-dataflow-pooling">Declaring the dataflow: <code class="docutils literal notranslate"><span class="pre">pooling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#stage-and-habitatspec-stages-source-of-truth"><code class="docutils literal notranslate"><span class="pre">Stage</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatSpec.stages</span></code> (source of truth)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#named-field-sugar-and-pooling-compat">Named-field sugar and <code class="docutils literal notranslate"><span class="pre">pooling</span></code> (compat)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="spec.html#save-load-and-runnable-yaml">Save / load and runnable YAML</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#feature-trees-and-the-expression-form">Feature trees and the expression form</a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#runpolicy"><code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="spec.html#detect-validate-migrate-yaml">Detect, validate, migrate YAML</a></li>
@@ -1493,27 +1499,32 @@ returns a typed result object. See <a class="reference internal" href="python_ap
 walkthrough.</p>
 <section id="habitat-analysis">
 <h3>Habitat analysis<a class="headerlink" href="#habitat-analysis" title="Link to this heading"></a></h3>
+<p>Primary entry: <a class="reference internal" href="generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a> (stage dataflow executor).
+<code class="docutils literal notranslate"><span class="pre">two_step</span></code> / <code class="docutils literal notranslate"><span class="pre">one_step</span></code> / <code class="docutils literal notranslate"><span class="pre">direct_pooling</span></code> are thin aliases.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.two_step</span></code></a>(cohort, spec, *[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.fit_habitat</span></code></a>(cohort, spec, *[, ...])</p></td>
+<td><p>Fit the habitat analysis the spec declares, whatever its dataflow.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.two_step</span></code></a>(cohort, spec, *[, ...])</p></td>
 <td><p>Supervoxels per subject, then habitats across the cohort.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.one_step</span></code></a>(cohort, spec, *[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.one_step</span></code></a>(cohort, spec, *[, ...])</p></td>
 <td><p>Habitats defined inside each subject, independently.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.direct_pooling</span></code></a>(cohort, spec, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.direct_pooling</span></code></a>(cohort, spec, *)</p></td>
 <td><p>No supervoxels: habitats learned from the cohort's pooled voxels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.two_step_habitat.html#habit.recipes.two_step_habitat" title="habit.recipes.two_step_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.two_step_habitat</span></code></a>(*, modalities)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.two_step_habitat.html#habit.recipes.two_step_habitat" title="habit.recipes.two_step_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.two_step_habitat</span></code></a>(*, modalities)</p></td>
 <td><p>Declare a classical two-step habitat study.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.one_step_habitat</span></code></a>(*, modalities)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.one_step_habitat.html#habit.recipes.one_step_habitat" title="habit.recipes.one_step_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.one_step_habitat</span></code></a>(*, modalities)</p></td>
 <td><p>Declare a one-step habitat study (habitats defined inside each subject).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat" title="habit.recipes.direct_pooling_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.direct_pooling_habitat</span></code></a>(*, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.direct_pooling_habitat.html#habit.recipes.direct_pooling_habitat" title="habit.recipes.direct_pooling_habitat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.direct_pooling_habitat</span></code></a>(*, ...)</p></td>
 <td><p>Declare a direct-pooling habitat study (voxels pooled across the cohort).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.apply_habitat_model.html#habit.recipes.apply_habitat_model" title="habit.recipes.apply_habitat_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.apply_habitat_model</span></code></a>(cohort, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.apply_habitat_model.html#habit.recipes.apply_habitat_model" title="habit.recipes.apply_habitat_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.apply_habitat_model</span></code></a>(cohort, ...)</p></td>
 <td><p>Project a published habitat definition onto a new cohort.</p></td>
 </tr>
 </tbody>
@@ -1765,13 +1776,16 @@ They are the in-Python counterpart of the YAML configuration files. See
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.Spec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.Spec</span></code></a>(name, params, ...)</p></td>
 <td><p>Specification of ONE pluggable component.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.HabitatSpec</span></code></a>(name[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.Stage.html#habit.spec.Stage" title="habit.spec.Stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.Stage</span></code></a>(name, component[, role])</p></td>
+<td><p>One named step in a habitat dataflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec" title="habit.spec.HabitatSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.HabitatSpec</span></code></a>(name[, ...])</p></td>
 <td><p>Complete specification of a habitat analysis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.MLSpec</span></code></a>(name, classifier[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.MLSpec.html#habit.spec.MLSpec" title="habit.spec.MLSpec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.MLSpec</span></code></a>(name, classifier[, ...])</p></td>
 <td><p>Complete specification of a tabular machine-learning analysis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.RunPolicy</span></code></a>(workers, backend, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy" title="habit.spec.RunPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.RunPolicy</span></code></a>(workers, backend, ...)</p></td>
 <td><p>Execution policy for a study run.</p></td>
 </tr>
 </tbody>
@@ -3228,7 +3242,7 @@ v1 contracts of the same name documented under <a class="reference internal" hre
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../explanation/concepts.html" class="btn btn-neutral float-left" title="Habitats and clustering" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="generated/habit.recipes.two_step.html" class="btn btn-neutral float-right" title="two_step" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="generated/habit.recipes.fit_habitat.html" class="btn btn-neutral float-right" title="fit_habitat" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

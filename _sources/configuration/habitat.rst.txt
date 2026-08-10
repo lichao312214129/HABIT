@@ -552,8 +552,11 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     declaration on the spec — ``one_step`` becomes ``pooling: none``
     (``definition_level: subject``), while ``two_step`` / ``direct_pooling``
     become ``pooling: cohort`` (the default, omitted from fingerprints).
-    Native v1 documents may write ``pooling`` under ``spec:`` directly;
-    :func:`~habit.recipes.fit_habitat` then dispatches on the spec alone.
+    Native v1 documents may write ``pooling`` under ``spec:`` directly, or
+    declare an explicit ``stages`` list. The Python API prefers
+    :attr:`~habit.spec.HabitatSpec.stages` +
+    :func:`~habit.recipes.fit_habitat` (strategy inferred from the sequence);
+    YAML ``clustering_mode`` / sugar ``pooling`` remain the CLI/YAML path.
     See :doc:`../api/spec`.
 
 **supervoxel**: Supervoxel clustering settings

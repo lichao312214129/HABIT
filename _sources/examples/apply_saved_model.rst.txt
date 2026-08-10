@@ -7,7 +7,7 @@ published alongside a paper and applied by other groups to their own
 cohorts. This example shows the publish-and-reuse workflow:
 
 1. train a definition on a discovery cohort with
-   :func:`~habit.recipes.two_step`,
+   :func:`~habit.recipes.fit_habitat` (two-step stages),
 2. round-trip it through a ``.habitatmodel`` archive
    (:meth:`~habit.contracts.HabitatModel.save` /
    :meth:`~habit.contracts.HabitatModel.load`),
