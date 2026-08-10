@@ -55,7 +55,6 @@ FORBIDDEN_DEFAULT_PACKAGES = {
     "autogluon",
     "gradio",
     "lifelines",
-    "networkx",
     "opencv-python",
     "plotly",
     "pyvista",
