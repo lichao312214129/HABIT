@@ -2142,8 +2142,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        name: Custom label unique within the enclosing HabitatSpec. Defaults</span>
 <span class="sd">            to the component registry name when built via :meth:`of`.</span>
 <span class="sd">        component: The pluggable component specification.</span>
-<span class="sd">        role: Optional role tag filled by sugar expansion. ``None`` for</span>
-<span class="sd">            user-authored stages until domain role resolution runs.</span>
+<span class="sd">        role: Optional override for scientific role. Leave ``None`` for</span>
+<span class="sd">            user-authored stages -- domain code infers the role from</span>
+<span class="sd">            position + registry domain. Sugar expansion and dual-domain</span>
+<span class="sd">            disambiguation may set this explicitly; it is not required API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
@@ -2177,7 +2179,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Args:</span>
 <span class="sd">            component: Component spec or mapping.</span>
 <span class="sd">            name: Optional custom label.</span>
-<span class="sd">            role: Optional sugar role tag.</span>
+<span class="sd">            role: Optional role override (escape hatch). Prefer omitting</span>
+<span class="sd">                this and letting ``resolve_habitat_stages`` infer the role.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The stage.</span>
@@ -2696,16 +2699,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        (each subject defines its own habitats; the one-step design),</span>
 <span class="sd">        otherwise ``&quot;cohort&quot;``. This is a read-only view of the spec graph,</span>
 <span class="sd">        not a free-form field.</span>
+
+<span class="sd">        Explicit ``stages`` lists derive the level from the sequence itself</span>
+<span class="sd">        (presence of a pool marker / role). Named-field sugar still treats</span>
+<span class="sd">        undeclared ``pooling`` as cohort-level.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POOL</span>
-            <span class="ow">or</span> <span class="p">(</span>
-                <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">POOL_COMPONENT_NAME</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stages</span>
+        <span class="n">stages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_stages</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">stage</span><span class="o">.</span><span class="n">role</span> <span class="o">==</span> <span class="n">ROLE_POOL</span> <span class="ow">or</span> <span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">POOL_COMPONENT_NAME</span>
+            <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span>
         <span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;cohort&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span><span class="p">:</span>
+            <span class="c1"># No pool in an authored stage list → subject-level one_step.</span>
+            <span class="k">return</span> <span class="s2">&quot;subject&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;subject&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span> <span class="k">else</span> <span class="s2">&quot;cohort&quot;</span>
 
 <div class="viewcode-block" id="HabitatSpec.resolved_stages">
@@ -2766,12 +2773,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">has_pool</span> <span class="o">=</span> <span class="n">ROLE_POOL</span> <span class="ow">in</span> <span class="n">roles</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
             <span class="n">stage</span><span class="o">.</span><span class="n">component</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">POOL_COMPONENT_NAME</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">stages</span>
         <span class="p">)</span>
-        <span class="c1"># Undeclared pooling sugar still means cohort unless pooling=&#39;none&#39;.</span>
+        <span class="c1"># Named-field sugar: undeclared pooling still means cohort unless</span>
+        <span class="c1"># pooling=&#39;none&#39;. Explicit stages trust the sequence only (roles are</span>
+        <span class="c1"># optional and may be inferred later by resolve_habitat_stages).</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
             <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">==</span> <span class="s2">&quot;cohort&quot;</span><span class="p">:</span>
             <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">roles</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages_explicit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">has_pool</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="n">has_partition</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_pool</span><span class="p">:</span>

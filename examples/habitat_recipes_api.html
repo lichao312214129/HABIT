@@ -1608,15 +1608,15 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  fit_habitat(pooling=&#39;none&#39;) subject_models=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">unified</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat with explicit stages (direct_pooling shape) ===&quot;</span><span class="p">)</span>
+<span class="c1"># Stage names are custom labels; roles are inferred (no role= required).</span>
 <span class="n">staged</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;staged_direct&quot;</span><span class="p">,</span>
     <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
         <span class="n">Stage</span><span class="p">(</span>
             <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
             <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-            <span class="n">role</span><span class="o">=</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;pool&quot;</span><span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
         <span class="n">Stage</span><span class="p">(</span>
             <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
             <span class="n">Spec</span><span class="p">(</span>
@@ -1628,10 +1628,9 @@ shown in the script; see also <a class="reference internal" href="habitat_prepro
                     <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">),</span>
-            <span class="n">role</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;assign&quot;</span><span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;quantify&quot;</span><span class="p">),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
     <span class="p">),</span>
     <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>

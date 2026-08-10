@@ -1524,7 +1524,9 @@ recipes (<a class="reference internal" href="generated/habit.recipes.two_step.ht
 </section>
 <section id="ordered-stages-and-the-shared-executor">
 <h2>Ordered stages and the shared executor<a class="headerlink" href="#ordered-stages-and-the-shared-executor" title="Link to this heading"></a></h2>
-<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code> is a named component slot. Prefer declaring
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Stage</span></code> is a named component slot. Stage <code class="docutils literal notranslate"><span class="pre">name</span></code> values
+are custom labels (not role keywords); scientific roles are inferred from
+position + registry domain. Prefer declaring
 <a class="reference internal" href="generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a> for new code; the classic named
 fields (<code class="docutils literal notranslate"><span class="pre">voxel_feature_extractor</span></code>, <code class="docutils literal notranslate"><span class="pre">supervoxelizer</span></code>, …, <code class="docutils literal notranslate"><span class="pre">pooling</span></code>)
 remain sugar that expands to the same sequence.</p>
@@ -1533,15 +1535,14 @@ remain sugar that expands to the same sequence.</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
 
 <span class="n">stages</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-          <span class="n">role</span><span class="o">=</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">),</span>
-    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;pool&quot;</span><span class="p">),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
     <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-    <span class="p">}),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;fit&quot;</span><span class="p">),</span>
-    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;assign&quot;</span><span class="p">),</span>
-    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;quantify&quot;</span><span class="p">),</span>
+    <span class="p">})),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
+    <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;direct&quot;</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="n">stages</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="c1"># Subject-level prefix only (no Cohort required):</span>
