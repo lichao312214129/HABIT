@@ -45,6 +45,9 @@ click==8.4.1
 pydicom==3.0.2
 pydantic==2.11.7
 kneed==0.8.6
+# Graph-topology habitat features (habit.kernels.habitat_graph); required
+# default dependency since the graph family left the optional/compat path.
+networkx==3.4.2
 # Habitat default results use parquet (habitats_results_format=parquet), so
 # the bundle always ships the parquet engine. optional extra [tables]
 pyarrow==21.0.0

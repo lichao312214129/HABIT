@@ -78,6 +78,7 @@ _V1_BUILTINS = {
         "traditional",
         "whole_habitat",
         "each_habitat",
+        "graph",
     },
     "table_preprocessor": {
         "minmax",

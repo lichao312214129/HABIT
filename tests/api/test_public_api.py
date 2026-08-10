@@ -202,6 +202,14 @@ def test_load_feature_extraction_config_preserves_graph_block(tmp_path) -> None:
         encoding="utf-8",
     )
 
+    # Drop any prior imports so this assertion measures the public loader
+    # itself, not leftover modules from other tests in the same process.
+    for _compat_name in (
+        "habit.compat.feature_extraction_loader",
+        "habit.compat.graph_plugin",
+    ):
+        sys.modules.pop(_compat_name, None)
+
     config, plugins = habit.load_feature_extraction_config(config_path)
 
     assert isinstance(config, FeatureExtractionConfig)
