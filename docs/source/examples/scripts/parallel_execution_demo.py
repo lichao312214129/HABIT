@@ -5,7 +5,7 @@ Parallel habitat analysis with RunPolicy and ProcessPoolBackend.
 ``HabitatSpec.stages`` declares *what* to compute; :class:`~habit.spec.RunPolicy`
 declares *how* to schedule it (worker count, failure policy, timeouts).
 Pass a :class:`~habit.execution.process_pool.ProcessPoolBackend` to
-:func:`~habit.recipes.fit_habitat` to run subjects in parallel — the
+:meth:`~habit.recipes.Study.fit_predict` to run subjects in parallel — the
 scientific result is identical to serial execution when seeds are fixed.
 
 This script accompanies ``docs/source/examples/parallel_execution.rst``.
@@ -56,7 +56,7 @@ def main() -> None:
         random_seed=21,
     )
 
-    serial_result = recipes.fit_habitat(cohort, spec)
+    serial_result = recipes.Study(spec=spec).fit_predict(cohort)
     print(f"Serial: {len(serial_result.habitat_maps)} maps, "
           f"{serial_result.habitat_model.n_habitats} habitats")
 
@@ -72,7 +72,7 @@ def main() -> None:
     print(f"RunPolicy: workers={policy.workers}, backend={policy.backend!r}, "
           f"parallel_mode={policy.parallel_mode!r}")
 
-    parallel_result = recipes.fit_habitat(cohort, spec, backend=backend)
+    parallel_result = recipes.Study(spec=spec).fit_predict(cohort, backend=backend)
     print(f"Parallel: {len(parallel_result.habitat_maps)} maps, "
           f"{parallel_result.habitat_model.n_habitats} habitats")
 

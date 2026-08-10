@@ -8,7 +8,7 @@ a .habitatmodel archive, and projects the reloaded definition onto a SECOND
 cohort of previously unseen subjects -- the publish-and-reuse workflow the
 v1 HabitatModel contract is designed for.
 
-Primary API: HabitatSpec.stages + recipes.fit_habitat.
+Primary API: HabitatSpec.stages + recipes.Study(...).fit_predict.
 
 Run from the repository root:
 
@@ -59,7 +59,7 @@ spec = HabitatSpec(
 
 # 1. Train the habitat definition on the discovery cohort.
 train_cohort = make_synthetic_cohort(n_subjects=5, shape=(20, 20, 20), rng=42)
-train_result = recipes.fit_habitat(train_cohort, spec)
+train_result = recipes.Study(spec=spec).fit_predict(train_cohort)
 print(f"Trained on {len(train_cohort)} subjects: "
       f"{train_result.habitat_model.n_habitats} habitats")
 
@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory() as tmp:
     #    new units are scored in the training feature space.
     new_cohort = make_synthetic_cohort(n_subjects=3, shape=(20, 20, 20), rng=1234)
     print(f"\nNew cohort (batch apply): {list(new_cohort.subject_ids)}")
-    prediction = recipes.apply_habitat_model(new_cohort, spec, model)
+    prediction = recipes.Study.from_model(model, spec).predict(new_cohort)
 
     # Non-batch: apply to one subject via the returned SubjectPipeline.
     atomic_subject = new_cohort[0]

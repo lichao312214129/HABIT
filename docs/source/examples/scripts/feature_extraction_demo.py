@@ -5,7 +5,7 @@ Habitat feature extraction after a two-step training run.
 Demonstrates:
 
 * **Batch** — ``extract_habitat_features(config)`` over a directory of maps.
-* **Train path** — ``recipes.fit_habitat`` with stages/preprocess chains (aligned
+* **Train path** — ``recipes.Study(...).fit_predict`` with stages/preprocess chains (aligned
   with ``demo_data/results/api/05_extract_features`` when demo_data exists).
 
 Feature families: ``traditional``, ``non_radiomics``, ``whole_habitat``,
@@ -100,7 +100,7 @@ def main() -> None:
         random_seed=11,
     )
 
-    train_result = recipes.fit_habitat(cohort, spec)
+    train_result = recipes.Study(spec=spec).fit_predict(cohort)
     print(f"Trained: {train_result.habitat_model.n_habitats} habitats, "
           f"{len(train_result.habitat_maps)} maps")
 

@@ -67,7 +67,7 @@ def main() -> None:
     print(f"spec_b fingerprint: {fp_b[:16]}...")
     print(f"fingerprints equal: {fp_a == fp_b}")
 
-    result = recipes.fit_habitat(cohort, spec_a)
+    result = recipes.Study(spec=spec_a).fit_predict(cohort)
     print("\n--- describe_methods (radiology style) ---")
     print(result.manifest.describe_methods(style="radiology"))
     versions = dict(result.manifest.software_versions())

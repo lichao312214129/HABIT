@@ -42,7 +42,7 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
         subject: One subject used for atomic inspection calls.
     """
     # Sugar form keeps the documented chain field names for this page;
-    # batch entry is recipes.fit_habitat (stages expand under the hood).
+    # batch entry is Study(spec=...).fit_predict (stages expand under the hood).
     spec = HabitatSpec(
         name="feature_prep_demo",
         voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
@@ -102,11 +102,11 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     )
 
     recorder = StepRecorder(max_subjects=1)
-    result = recipes.fit_habitat(cohort, spec, inspect=recorder)
+    result = recipes.Study(spec=spec).fit_predict(cohort, inspect=recorder)
     assert result.habitat_model is not None
     assert result.inspection is recorder
     print(
-        f"=== fit_habitat with feature chains: habitats={result.habitat_model.n_habitats} ==="
+        f"=== Study.fit_predict with feature chains: habitats={result.habitat_model.n_habitats} ==="
     )
     print("=== Step inspection (result.inspection) ===")
     print(result.inspection.summary().to_string(index=False))

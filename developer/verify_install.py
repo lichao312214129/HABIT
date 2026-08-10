@@ -853,9 +853,11 @@ def run_full_habitat(
         cohort = _load_demo_cohort(demo_root)
         spec = _build_fast_habitat_spec(two_step=(mode == "two_step"))
         if mode == "two_step":
-            result = recipes.two_step(cohort, spec)
+            result = recipes.Study(spec=spec, design="two_step").fit_predict(cohort)
         elif mode == "direct_pooling":
-            result = recipes.direct_pooling(cohort, spec)
+            result = recipes.Study(
+                spec=spec, design="direct_pooling"
+            ).fit_predict(cohort)
         else:
             raise ValueError(f"unknown habitat mode: {mode}")
         assert result.habitat_model is not None, "expected a fitted cohort habitat model"

@@ -10,7 +10,7 @@ Demonstrates the main feature-construction paths referenced in habitat YAML:
 * ``voxel_radiomics`` / ``supervoxel_radiomics`` — PyRadiomics texture
   (requires ``demo_data/`` and PyRadiomics; skipped gracefully otherwise).
 
-Both **batch** (``recipes.fit_habitat(cohort, spec)``) and **atomic**
+Both **batch** (``recipes.Study(spec=spec).fit_predict(cohort)``) and **atomic**
 (``SubjectPipeline.units(subject)``) calls are shown.
 
 This script accompanies ``docs/source/examples/habitat_feature_routes.rst``.
@@ -93,7 +93,7 @@ raw_spec = HabitatSpec(
 )
 print("\n=== raw(modalities) ===")
 print(f"  atomic n_features: {_atomic_units(raw_spec, subject)}")
-raw_result = recipes.fit_habitat(cohort, raw_spec)
+raw_result = recipes.Study(spec=raw_spec).fit_predict(cohort)
 print(f"  batch: {len(raw_result.habitat_maps)} maps, "
       f"{raw_result.habitat_model.n_habitats} habitats")
 
@@ -136,7 +136,7 @@ concat_spec = HabitatSpec(
 )
 print("\n=== concat(raw, raw) per modality ===")
 print(f"  atomic n_features: {_atomic_units(concat_spec, subject)}")
-concat_result = recipes.fit_habitat(cohort, concat_spec)
+concat_result = recipes.Study(spec=concat_spec).fit_predict(cohort)
 print(f"  batch: {len(concat_result.habitat_maps)} maps")
 
 # --- slic supervoxelizer (spatial coherence) ---------------------------------
@@ -164,7 +164,7 @@ slic_spec = HabitatSpec(
 print("\n=== supervoxelizer: slic ===")
 try:
     print(f"  atomic n_features: {_atomic_units(slic_spec, subject)}")
-    slic_result = recipes.fit_habitat(cohort, slic_spec)
+    slic_result = recipes.Study(spec=slic_spec).fit_predict(cohort)
     print(f"  batch: {len(slic_result.habitat_maps)} maps, "
           f"{slic_result.habitat_model.n_habitats} habitats")
 except Exception as exc:  # noqa: BLE001 - demo script reports and continues
@@ -201,7 +201,7 @@ if IMAGING_ROOT.is_dir() and PARAMS_VOXEL.is_file() and PARAMS_SV.is_file():
     try:
         n_feat = _atomic_units(vr_spec, subject)
         print(f"  atomic n_features: {n_feat}")
-        vr_result = recipes.fit_habitat(single, vr_spec)
+        vr_result = recipes.Study(spec=vr_spec).fit_predict(single)
         print(f"  batch (1 subject): {vr_result.habitat_model.n_habitats} habitats")
     except Exception as exc:  # noqa: BLE001
         print(f"  voxel_radiomics skipped: {exc}")
@@ -235,7 +235,7 @@ if IMAGING_ROOT.is_dir() and PARAMS_VOXEL.is_file() and PARAMS_SV.is_file():
     try:
         n_feat = _atomic_units(svr_spec, subject)
         print(f"  atomic n_features: {n_feat}")
-        svr_result = recipes.fit_habitat(single, svr_spec)
+        svr_result = recipes.Study(spec=svr_spec).fit_predict(single)
         print(f"  batch (1 subject): {svr_result.habitat_model.n_habitats} habitats")
     except Exception as exc:  # noqa: BLE001
         print(f"  supervoxel_radiomics skipped: {exc}")

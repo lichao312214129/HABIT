@@ -76,7 +76,7 @@ def main() -> None:
         ),
         random_seed=9,
     )
-    result = recipes.fit_habitat(cohort, spec)
+    result = recipes.Study(spec=spec).fit_predict(cohort)
     # one_step has per-subject models (no cohort pipeline); atomic reuse is the
     # already-computed habitat map for that subject (or re-run one_step on a
     # one-subject cohort slice).

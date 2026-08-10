@@ -8,7 +8,7 @@ stage, no pool). The fitted per-subject state is frozen into
 ``StudyResult.subject_models``; there is no single cohort-level
 ``habitat_model``.
 
-Primary API: HabitatSpec.stages + recipes.fit_habitat (neither partition
+Primary API: HabitatSpec.stages + recipes.Study(...).fit_predict (neither partition
 nor pool ⇒ one_step).
 
 This script accompanies ``docs/source/examples/one_step_habitat.rst``.
@@ -64,7 +64,7 @@ spec = HabitatSpec(
     random_seed=42,
 )
 
-result = recipes.fit_habitat(cohort, spec)
+result = recipes.Study(spec=spec).fit_predict(cohort)
 
 print(f"\nCohort-level habitat_model: {result.habitat_model}")
 print(f"Per-subject models: {len(result.subject_models)} subjects")

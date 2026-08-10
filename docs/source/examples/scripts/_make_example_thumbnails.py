@@ -53,7 +53,7 @@ def main() -> None:
         ),
         random_seed=42,
     )
-    result = recipes.fit_habitat(cohort, spec)
+    result = recipes.Study(spec=spec).fit_predict(cohort)
     subject = cohort[0]
     anatomy = subject.image("T1").data
     labels = result.habitat_maps[0].label_array

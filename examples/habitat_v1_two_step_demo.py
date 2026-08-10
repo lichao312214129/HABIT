@@ -26,15 +26,17 @@ What this script demonstrates, in order:
    ``<root>/masks/<subject>/<roi>/``) with ``habit.cohort_from_directory``.
 3. Specification -- declare the whole analysis as a ``HabitatSpec``: a frozen,
    fingerprintable value object that knows nothing about files or execution.
-4. Training -- run the ``two_step`` recipe (supervoxels per subject, habitats
-   learned across the cohort) and inspect the in-memory ``StudyResult``.
+4. Training -- build a ``Study`` for the ``two_step`` design (supervoxels per
+   subject, habitats learned across the cohort), call ``fit_predict``, and
+   inspect the in-memory ``StudyResult``.
 5. Persistence -- write habitat maps, feature tables, the model archive and
    the run manifest with ``StudyResult.save()``; writing to disk is a
    separate, explicit act in v1.0.
 6. Prediction -- reload the ``.habitatmodel`` archive and project the SAME
-   habitat definition onto the cohort with ``apply_habitat_model``. On a
-   real study this second cohort would be new data; reusing the training
-   cohort here doubles as a determinism check (labels must match exactly).
+   habitat definition onto the cohort with ``Study.from_model(...).predict``.
+   On a real study this second cohort would be new data; reusing the
+   training cohort here doubles as a determinism check (labels must match
+   exactly).
 
 Run from the repository root inside the py310 conda environment::
 
@@ -191,7 +193,7 @@ def train(cohort: Cohort, spec: HabitatSpec) -> StudyResult:
     Returns:
         The in-memory study result (model, maps, features, manifest).
     """
-    result: StudyResult = recipes.two_step(cohort, spec)
+    result: StudyResult = recipes.Study(spec=spec, design="two_step").fit_predict(cohort)
 
     assert result.habitat_model is not None  # two_step always fits a cohort model
     print("\n--- Fitted habitat model ---")
@@ -223,7 +225,7 @@ def predict_with_saved_model(cohort: Cohort, spec: HabitatSpec, train_result: St
     model: HabitatModel = HabitatModel.load(archive)
     print(f"\nReloaded model {model.model_id} ({model.n_habitats} habitats) from {archive}")
 
-    predict_result: StudyResult = recipes.apply_habitat_model(cohort, spec, model)
+    predict_result: StudyResult = recipes.Study.from_model(model, spec).predict(cohort)
     predict_dir: Path = predict_result.save(OUT_DIR / "predict_on_train")
     print(f"Predict artefacts written to: {predict_dir}")
 
