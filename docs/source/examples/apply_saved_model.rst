@@ -9,12 +9,12 @@ published alongside a paper and applied by other groups to their own
 cohorts. This example shows the publish-and-reuse workflow:
 
 1. train a definition on a discovery cohort with
-   :func:`~habit.recipes.fit_habitat` (two-step stages),
+   :meth:`~habit.recipes.Study.fit_predict` (two-step stages),
 2. round-trip it through a ``.habitatmodel`` archive
    (:meth:`~habit.contracts.HabitatModel.save` /
    :meth:`~habit.contracts.HabitatModel.load`),
 3. project the reloaded definition onto **new, previously unseen subjects**
-   with :func:`~habit.recipes.apply_habitat_model`.
+   with :meth:`~habit.recipes.Study.predict`.
 
 No fitting happens after the reload: the model's stored cohort-level
 preprocessing state is replayed, so the new supervoxels are scored in the

@@ -11,12 +11,12 @@ example runs the full train path on a synthetic cohort:
 1. build a cohort (:func:`~habit.datasets.make_synthetic_cohort`),
 2. declare ordered :class:`~habit.spec.Stage` entries on
    :class:`~habit.spec.HabitatSpec` (partition + pool ⇒ two_step),
-3. fit with :func:`~habit.recipes.fit_habitat`,
+3. fit with :meth:`~habit.recipes.Study.fit_predict`,
 4. inspect the model, maps, feature table, and the auto-generated methods
    paragraph.
 
-The thin alias :func:`~habit.recipes.two_step` remains for compat; it
-validates the design then calls ``fit_habitat``.
+The factory :func:`~habit.recipes.two_step_habitat` remains for convenience; it
+validates the design then calls ``Study.fit_predict``.
 
 Script
 ------
