@@ -875,18 +875,6 @@ Radiomics
    habit.api.radiomics.extract_features
    habit.api.radiomics.extract_batch
 
-Clinical facade
-~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.clinical.ClinicalCohort
-   habit.api.clinical.PreparedCohort
-   habit.api.clinical.HabitatResult
-   habit.api.clinical.ClinicalPreprocessor
-   habit.api.clinical.HabitatSegmenter
-
 Habitat and feature-extraction workflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -937,18 +925,6 @@ Preprocessing and DICOM utilities
    habit.api.preprocessing.run_preprocess
    habit.api.dicom_sort.DicomSortConfig
    habit.api.dicom_sort.run_dicom_sort
-
-Estimators
-~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.estimators.EstimatorPersistenceMixin
-   habit.api.estimators.HabitatClusterer
-   habit.api.estimators.HabitClassifier
-   habit.api.estimators.OutcomeClassifier
-   habit.api.estimators.SubjectFeatureAggregator
 
 Provenance and workflow results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

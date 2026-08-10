@@ -39,7 +39,7 @@ from habit.contracts.inspection import (
     StepRecord,
 )
 from habit.execution.process_pool import ProcessPoolBackend
-import habit.recipes as recipes
+from habit.recipes.study import Study
 
 
 def _two_step_spec(*, with_sv_fx: bool = False, with_voxel_prep: bool = False) -> HabitatSpec:
@@ -99,9 +99,11 @@ def test_inspect_none_matches_baseline_labels_and_fingerprint() -> None:
     """Default inspect=None must not change scientific outputs."""
     cohort = make_synthetic_cohort(n_subjects=3, shape=(12, 12, 12), rng=3)
     spec = _two_step_spec()
-    baseline = recipes.two_step(cohort, spec)
-    again = recipes.two_step(cohort, spec, inspect=None)
-    with_rec = recipes.two_step(cohort, spec, inspect=StepRecorder(max_subjects=1))
+    baseline = Study(spec=spec, design="two_step").fit_predict(cohort)
+    again = Study(spec=spec, design="two_step").fit_predict(cohort, inspect=None)
+    with_rec = Study(spec=spec, design="two_step").fit_predict(
+        cohort, inspect=StepRecorder(max_subjects=1)
+    )
     assert again.inspection is None
     assert with_rec.inspection is not None
     # Observer must never enter the analysis declaration / fingerprint.
@@ -127,7 +129,7 @@ def test_two_step_captures_core_steps_with_recorder() -> None:
     cohort = make_synthetic_cohort(n_subjects=2, shape=(12, 12, 12), rng=5)
     spec = _two_step_spec(with_sv_fx=True, with_voxel_prep=True)
     rec = StepRecorder(max_subjects=2)
-    result = recipes.two_step(cohort, spec, inspect=rec)
+    result = Study(spec=spec, design="two_step").fit_predict(cohort, inspect=rec)
     assert result.inspection is rec
     steps = set(rec.steps())
     assert STEP_VOXEL_FEATURES_RAW in steps
@@ -154,7 +156,7 @@ def test_steps_filter_skips_unwanted_observer_calls() -> None:
     cohort = make_synthetic_cohort(n_subjects=2, shape=(10, 10, 10), rng=6)
     spec = _two_step_spec(with_sv_fx=True)
     spy = _CountingObserver(steps=[STEP_SUPERVOXELS_DESCRIBED])
-    recipes.two_step(cohort, spec, inspect=spy)
+    Study(spec=spec, design="two_step").fit_predict(cohort, inspect=spy)
     assert spy.calls
     assert set(spy.calls) == {STEP_SUPERVOXELS_DESCRIBED}
 
@@ -165,10 +167,10 @@ def test_max_subjects_and_subjects_filters() -> None:
     spec = _two_step_spec()
     only = cohort[0].subject_id
     rec = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], subjects=[only])
-    recipes.two_step(cohort, spec, inspect=rec)
+    Study(spec=spec, design="two_step").fit_predict(cohort, inspect=rec)
     assert rec.subjects() == (only,)
     capped = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], max_subjects=1)
-    recipes.two_step(cohort, spec, inspect=capped)
+    Study(spec=spec, design="two_step").fit_predict(cohort, inspect=capped)
     assert len(capped.subjects()) == 1
 
 
@@ -178,7 +180,9 @@ def test_process_backend_rejects_inspect() -> None:
     spec = _two_step_spec()
     rec = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW], max_subjects=1)
     with pytest.raises(HABITAPIError, match="serial|workers=1"):
-        recipes.two_step(cohort, spec, backend=ProcessPoolBackend(workers=1), inspect=rec)
+        Study(spec=spec, design="two_step").fit_predict(
+            cohort, backend=ProcessPoolBackend(workers=1), inspect=rec
+        )
 
 
 def test_one_step_and_direct_pooling_and_apply_smoke() -> None:
@@ -197,7 +201,7 @@ def test_one_step_and_direct_pooling_and_apply_smoke() -> None:
         random_seed=9,
     )
     rec_dp = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW, STEP_HABITAT_MAP], max_subjects=1)
-    dp = recipes.direct_pooling(cohort, dp_spec, inspect=rec_dp)
+    dp = Study(spec=dp_spec, design="direct_pooling").fit_predict(cohort, inspect=rec_dp)
     assert STEP_VOXEL_FEATURES_RAW in rec_dp.steps()
     assert STEP_HABITAT_MAP in rec_dp.steps()
 
@@ -214,15 +218,15 @@ def test_one_step_and_direct_pooling_and_apply_smoke() -> None:
         random_seed=9,
     )
     rec_os = StepRecorder(steps=[STEP_VOXEL_FEATURES_RAW, STEP_HABITAT_MAP], max_subjects=1)
-    os_result = recipes.one_step(cohort, os_spec, inspect=rec_os)
+    os_result = Study(spec=os_spec, design="one_step").fit_predict(cohort, inspect=rec_os)
     assert os_result.habitat_model is None
     assert STEP_HABITAT_MAP in rec_os.steps()
 
-    train = recipes.two_step(cohort, _two_step_spec())
+    train = Study(spec=_two_step_spec(), design="two_step").fit_predict(cohort)
     assert train.habitat_model is not None
     rec_apply = StepRecorder(steps=[STEP_HABITAT_MAP], max_subjects=1)
-    applied = recipes.apply_habitat_model(
-        cohort, _two_step_spec(), train.habitat_model, inspect=rec_apply
+    applied = Study.from_model(train.habitat_model, _two_step_spec()).predict(
+        cohort, inspect=rec_apply
     )
     assert len(applied.habitat_maps) == len(cohort)
     assert STEP_HABITAT_MAP in rec_apply.steps()

@@ -53,11 +53,11 @@ RECIPE_CASES = [
 ]
 
 
-def _recipe(name: str):
-    """Resolve a recipe function by name."""
-    import habit.recipes as recipes
+def _run_study(design: str, cohort, spec):
+    """Run a habitat design through the object-style Study API."""
+    from habit.recipes.study import Study
 
-    return getattr(recipes, name)
+    return Study(spec=spec, design=design).fit_predict(cohort)
 
 
 def _restrict(record: dict, suffix: str) -> dict:
@@ -84,7 +84,7 @@ def test_fast_recipe_writes_expected_habitat_maps(case: RecipeCase, tmp_path: Pa
     from tests.golden.fast.conftest import load_fast_baseline
 
     spec = _light_habitat_spec(two_step=case.recipe == "two_step")
-    result = _recipe(case.recipe)(synthetic_cohort(), spec)
+    result = _run_study(case.recipe, synthetic_cohort(), spec)
     result.save(tmp_path)
     baseline = load_fast_baseline(case.name)
     expected = _restrict(baseline, HABITAT_MAP_SUFFIX)
@@ -99,10 +99,8 @@ def test_fast_recipe_writes_expected_habitat_maps(case: RecipeCase, tmp_path: Pa
 @pytest.mark.parametrize("case", RECIPE_CASES, ids=lambda case: case.name)
 def test_fast_recipe_settles_on_three_habitats(case: RecipeCase) -> None:
     """Cluster count stays pinned at three on the synthetic cohort."""
-    import habit.recipes as recipes
-
     spec = _light_habitat_spec(two_step=case.recipe == "two_step")
-    result = _recipe(case.recipe)(synthetic_cohort(), spec)
+    result = _run_study(case.recipe, synthetic_cohort(), spec)
     counts = {int(habitat_map.label_array.max()) for habitat_map in result.habitat_maps}
     assert counts == {FAST_N_HABITATS}
 
@@ -110,16 +108,16 @@ def test_fast_recipe_settles_on_three_habitats(case: RecipeCase) -> None:
 @pytest.mark.integration
 def test_fast_predict_relabels_training_cohort_identically(tmp_path: Path) -> None:
     """Saved model round trip reproduces training labels on synthetic data."""
-    import habit.recipes as recipes
     from habit.contracts.habitat import HabitatModel
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
     spec = _light_habitat_spec(two_step=True)
-    trained = recipes.two_step(cohort, spec)
+    trained = Study(spec=spec, design="two_step").fit_predict(cohort)
     assert trained.habitat_model is not None
     archive = trained.habitat_model.save(tmp_path / "model.habitatmodel")
     reloaded = HabitatModel.load(archive)
-    predicted = recipes.apply_habitat_model(cohort, spec, reloaded)
+    predicted = Study.from_model(reloaded, spec).predict(cohort)
     expected = {item.subject_id: item.label_array for item in trained.habitat_maps}
     for habitat_map in predicted.habitat_maps:
         assert np.array_equal(

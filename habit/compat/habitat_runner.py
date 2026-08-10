@@ -36,7 +36,7 @@ _LEGACY_PICKLE_MESSAGE = (
     "Legacy v0.1 pickle pipelines are not supported in HABIT v1.0. "
     "Train a model to produce {model_name!r}, then run predict with "
     "pipeline_path pointing at that archive or call "
-    "habit.recipes.apply_habitat_model in Python."
+    "habit.recipes.Study.from_model(...).predict(...) in Python."
 )
 
 

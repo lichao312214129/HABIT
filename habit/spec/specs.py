@@ -925,7 +925,7 @@ class HabitatSpec:
         spec stays a constructible value object; scientifically meaningless
         combinations are rejected here at entry points (recipes /
         ``habit check-config``). Role inference that needs registries runs in
-        ``habit.domain.stages`` and is invoked from ``fit_habitat``.
+        ``habit.domain.stages`` and is invoked from ``Study.fit``.
 
         Raises:
             HABITAPIError: On illegal sugar combinations or structural stage
@@ -1148,6 +1148,10 @@ class HabitatSpec:
                 payload.setdefault(
                     domain, component.to_dict() if component is not None else None
                 )
+            # Mark stages as SoT so from_dict does not flip to the sugar
+            # fingerprint path when both stages and named fields are present
+            # (effective exports of stages-first specs).
+            payload["stages_authoritative"] = True
         return payload
 
     def to_yaml(self, path: Optional[Union[str, Path]] = None) -> str:
@@ -1191,8 +1195,14 @@ class HabitatSpec:
             HABITAPIError: If a required component is missing.
         """
         stages_payload = payload.get("stages")
-        if stages_payload is not None and "voxel_feature_extractor" not in payload:
-            # Stages-only document.
+        stages_authoritative = bool(payload.get("stages_authoritative"))
+        # Prefer the stages list when it is the authored source of truth
+        # (stages-only docs, or effective exports that also mirror sugar
+        # fields for readers). Sugar specs that merely attach a derived
+        # stages view must keep the named-field fingerprint path.
+        if stages_payload is not None and (
+            "voxel_feature_extractor" not in payload or stages_authoritative
+        ):
             stages = tuple(Stage.from_dict(item) for item in stages_payload)
             spec = cls(
                 name=str(payload.get("name", "habitat_spec")),

@@ -248,13 +248,18 @@ def write_via_temp_then_replace(
             raise_unwritable_destination(parent, cause=exc)
         raise
 
-    # Keep the real suffix (including compound ones like ``.nii.gz``) so
-    # SimpleITK picks the correct ImageIO writer from the temp path.
+    # Keep the real encoder suffix (including compound ones like ``.nii.gz``)
+    # so SimpleITK picks the correct ImageIO writer from the temp path.
+    #
+    # Do NOT reuse ``dest.stem`` / ``dest.suffix`` as mkstemp prefix/suffix:
+    # pathlib treats ``subj001_habitats.nii.gz`` as stem ``...nii`` + suffix
+    # ``.gz``, which yields ``...nii.<random>.gz`` and SimpleITK cannot
+    # select an ImageIO writer. Use a neutral prefix and the full compound
+    # suffix instead.
     encoder_suffix = _encoder_suffix(dest)
-    stem_for_temp = dest.name[: -len(encoder_suffix)] if encoder_suffix else dest.name
     fd, tmp_name = tempfile.mkstemp(
-        prefix=f".{stem_for_temp}.",
-        suffix=encoder_suffix,
+        prefix=".habit_write_",
+        suffix=encoder_suffix if encoder_suffix else ".tmp",
         dir=str(parent),
     )
     os.close(fd)

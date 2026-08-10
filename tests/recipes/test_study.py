@@ -19,17 +19,19 @@ from __future__ import annotations
 import pytest
 
 from habit.datasets import make_synthetic_cohort
-from habit.recipes.study import Study, direct_pooling_habitat, one_step_habitat, two_step_habitat
+from habit.exceptions import HABITAPIError, NotFittedError
 from habit.recipes.result import StudyResult
+from habit.recipes.study import (
+    Study,
+    direct_pooling_habitat,
+    one_step_habitat,
+    two_step_habitat,
+)
 from habit.spec.specs import HabitatSpec, Spec
 
 
-@pytest.mark.unit
-def test_study_fit_delegates_to_two_step_recipe(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Study.fit forwards backend and checkpoint kwargs to the recipe."""
-    captured: dict[str, object] = {}
-    cohort = make_synthetic_cohort(n_subjects=2, modalities=("T1",), shape=(8, 8, 8), rng=0)
-    spec = HabitatSpec(
+def _two_step_spec() -> HabitatSpec:
+    return HabitatSpec(
         name="unit",
         voxel_feature_extractor=Spec(name="raw", params={"modalities": ["T1"]}),
         supervoxelizer=Spec(name="kmeans", params={"n_supervoxels": 4}),
@@ -38,7 +40,27 @@ def test_study_fit_delegates_to_two_step_recipe(monkeypatch: pytest.MonkeyPatch)
         random_seed=0,
     )
 
-    def _fake_two_step(cohort_arg, spec_arg, *, backend=None, seed=None, checkpoint=None):
+
+@pytest.mark.unit
+def test_study_fit_delegates_to_two_step_recipe(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Study.fit forwards kwargs to the design recipe and returns self."""
+    captured: dict[str, object] = {}
+    cohort = make_synthetic_cohort(
+        n_subjects=2, modalities=("T1",), shape=(8, 8, 8), rng=0
+    )
+    spec = _two_step_spec()
+
+    def _fake_two_step(
+        cohort_arg,
+        spec_arg,
+        *,
+        backend=None,
+        seed=None,
+        checkpoint=None,
+        inspect=None,
+    ):
         captured.update(
             {
                 "cohort": cohort_arg,
@@ -62,12 +84,31 @@ def test_study_fit_delegates_to_two_step_recipe(monkeypatch: pytest.MonkeyPatch)
         _fake_two_step,
     )
     study = Study(spec=spec, design="two_step")
-    result = study.fit(cohort, seed=7)
+    returned = study.fit(cohort, seed=7)
 
-    assert isinstance(result, StudyResult)
+    assert returned is study
+    assert isinstance(study.fit_result_, StudyResult)
     assert captured["cohort"] is cohort
     assert captured["spec"] is spec
     assert captured["seed"] == 7
+
+
+@pytest.mark.unit
+def test_study_rejects_unknown_design() -> None:
+    """A design outside the three habitat designs fails at construction."""
+    with pytest.raises(HABITAPIError, match="no registered recipe"):
+        Study(spec=_two_step_spec(), design="sideways")
+
+
+@pytest.mark.unit
+def test_predict_requires_a_fitted_model() -> None:
+    """predict before fit raises the sklearn-standard error."""
+    cohort = make_synthetic_cohort(
+        n_subjects=1, modalities=("T1",), shape=(8, 8, 8), rng=0
+    )
+    study = Study(spec=_two_step_spec(), design="two_step")
+    with pytest.raises(NotFittedError, match="not fitted"):
+        study.predict(cohort)
 
 
 @pytest.mark.unit

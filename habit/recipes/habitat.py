@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""The three habitat designs, as assembly functions (L4).
+"""Internal engines behind :class:`~habit.recipes.study.Study` (L4).
 
 Each function here is a WIRING DIAGRAM, not an engine: it reads a
 :class:`~habit.spec.specs.HabitatSpec`, builds the declared components, runs
@@ -28,22 +28,29 @@ the same object as the algorithm wiring.
 
 The three designs differ only in WHERE the habitat definition is learned:
 
-* :func:`two_step` -- supervoxels per subject, habitats across the cohort.
-* :func:`direct_pooling` -- no supervoxels; habitats across the cohort's
+* ``two_step`` -- supervoxels per subject, habitats across the cohort.
+* ``direct_pooling`` -- no supervoxels; habitats across the cohort's
   pooled voxels.
-* :func:`one_step` -- no supervoxels; habitats defined INSIDE each subject,
+* ``one_step`` -- no supervoxels; habitats defined INSIDE each subject,
   independently. There is no cohort-level definition, and the habitat ids of
   two subjects are not comparable.
 
-:func:`fit_habitat` is the unified entry point: it resolves the ordered
+:func:`_fit_habitat` is the unified implementation: it resolves the ordered
 :class:`~habit.spec.specs.Stage` list on the spec and runs the shared
-stage dataflow executor. The three named functions remain as thin aliases
--- they validate that the spec is consistent with the design their name
-promises, then delegate to :func:`fit_habitat`.
+stage dataflow executor. The three named validators remain as thin guards
+-- they check that the spec is consistent with the design their name
+promises, then delegate to :func:`_fit_habitat`.
+
+This module is private on purpose: the single public entry point is
+:class:`~habit.recipes.study.Study` (``study.fit(cohort)`` /
+``study.predict(cohort)`` / ``study.fit_predict(cohort)``). Keeping one
+public object with one ``fit`` verb mirrors the sklearn estimator lifecycle
+instead of exposing a second, function-style vocabulary for the same work.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import logging
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
@@ -88,14 +95,6 @@ if TYPE_CHECKING:
     from habit.execution.checkpoint import CheckpointStore
 
 _LOG = logging.getLogger(__name__)
-
-__all__ = [
-    "fit_habitat",
-    "two_step",
-    "one_step",
-    "direct_pooling",
-    "apply_habitat_model",
-]
 
 #: Identifier column of the cohort feature table, matching the habitat
 #: feature families (``habit.domain.habitat_features._base``).
@@ -237,7 +236,7 @@ class _LabelAndDescribe:
     """
     Subject operator: extract units, assign habitats, then describe them.
 
-    Used by :func:`apply_habitat_model`, where units are not already in
+    Used by :func:`_apply_habitat_model`, where units are not already in
     memory. Cohort-level fit recipes use :class:`_AssignPrecomputedUnits`
     instead so voxel radiomics is not paid twice.
 
@@ -399,6 +398,24 @@ def _fit_cohort_model(
     if chain is not None:
         model = model.with_cohort_preprocessing(chain.state, chain.spec.to_dict())
     return model
+
+
+def _with_full_spec_payload(model: HabitatModel, spec: HabitatSpec) -> HabitatModel:
+    """
+    Embed the full analysis specification in the model card.
+
+    The fitter alone records only its own spec, but a circulated model must
+    state the whole upstream procedure (voxel features, partition,
+    preprocessing chains) so :meth:`~habit.recipes.study.Study.from_model`
+    can rebuild it and external validation replays the identical pipeline.
+    ``model_id`` derives from the fitter fingerprint and cohort digest, never
+    from ``spec_payload``, so enriching the card cannot change the model's
+    identity. Keys the fit path already recorded (the resolved fitter spec,
+    the fitted cohort preprocessing chain) win over the declared spec's
+    entries.
+    """
+    merged = {**spec.to_dict(), **dict(model.spec_payload)}
+    return dataclasses.replace(model, spec_payload=merged)
 
 
 def _build_assigner(
@@ -667,7 +684,7 @@ def _map_soft_items(
     return survivors, values, failures
 
 
-def fit_habitat(
+def _fit_habitat(
     cohort: Cohort,
     spec: HabitatSpec,
     *,
@@ -679,11 +696,12 @@ def fit_habitat(
     """
     Fit the habitat analysis the spec declares, whatever its dataflow.
 
-    This is the unified, stage-driven entry point: the ordered
+    This is the unified, stage-driven implementation behind
+    :meth:`~habit.recipes.study.Study.fit`: the ordered
     :attr:`~habit.spec.specs.HabitatSpec.stages` list (explicit or expanded
     from the named-field sugar) is resolved and executed by one shared
-    dataflow executor. The named designs (:func:`two_step`, :func:`one_step`,
-    :func:`direct_pooling`) are thin aliases that validate the spec against
+    dataflow executor. The named designs (:func:`_two_step`, :func:`_one_step`,
+    :func:`_direct_pooling`) are thin validators that check the spec against
     the design their name promises, then delegate here.
 
     Args:
@@ -709,7 +727,7 @@ def fit_habitat(
 
     Examples:
         >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
-        >>> import habit.recipes as recipes
+        >>> from habit.recipes import Study
         >>> cohort = make_synthetic_cohort(n_subjects=4, shape=(20, 20, 20), rng=0)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -725,7 +743,7 @@ def fit_habitat(
         ...     pooling="cohort",
         ...     random_seed=42,
         ... )
-        >>> result = recipes.fit_habitat(cohort, spec)
+        >>> result = Study(spec=spec).fit_predict(cohort)
         >>> result.habitat_model.n_habitats >= 2
         True
     """
@@ -795,6 +813,9 @@ def fit_habitat(
             inspect=inspect,
         )
 
+    model = flow.model
+    if model is not None:
+        model = _with_full_spec_payload(model, flow.spec)
     manifest = _manifest(
         flow.design,
         flow.spec,
@@ -804,11 +825,11 @@ def fit_habitat(
     )
     assigner = (
         None
-        if flow.model is None
-        else _build_assigner(flow.model, flow.spec, flow.spec.random_seed)
+        if model is None
+        else _build_assigner(model, flow.spec, flow.spec.random_seed)
     )
     return StudyResult(
-        habitat_model=flow.model,
+        habitat_model=model,
         pipeline=(
             None
             if flow.model is None
@@ -827,7 +848,7 @@ def fit_habitat(
     )
 
 
-def two_step(
+def _two_step(
     cohort: Cohort,
     spec: HabitatSpec,
     *,
@@ -867,7 +888,7 @@ def two_step(
 
     Examples:
         >>> from habit import HabitatSpec, Spec, make_synthetic_cohort
-        >>> import habit.recipes as recipes
+        >>> from habit.recipes import Study
         >>> cohort = make_synthetic_cohort(n_subjects=6, shape=(24, 24, 24), rng=42)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -882,7 +903,7 @@ def two_step(
         ...     habitat_features=(Spec("volume"),),
         ...     random_seed=42,
         ... )
-        >>> result = recipes.two_step(cohort, spec)
+        >>> result = Study(spec=spec, design="two_step").fit_predict(cohort)
         >>> result.habitat_model.n_habitats >= 2
         True
         >>> len(result.habitat_maps) == len(cohort)
@@ -901,7 +922,7 @@ def two_step(
             "spec declares pooling='none' (subject-level definition). Use "
             "one_step, or drop the pooling declaration from the spec."
         )
-    return fit_habitat(
+    return _fit_habitat(
         cohort,
         effective,
         backend=backend,
@@ -910,7 +931,7 @@ def two_step(
     )
 
 
-def direct_pooling(
+def _direct_pooling(
     cohort: Cohort,
     spec: HabitatSpec,
     *,
@@ -932,7 +953,7 @@ def direct_pooling(
         backend: Optional execution backend. Serial when omitted.
         seed: Optional override of ``spec.random_seed``.
         checkpoint: Optional store enabling per-subject resume (same key
-            scoping as :func:`two_step`).
+            scoping as :func:`_two_step`).
         inspect: Optional step observer for in-memory debugging / QA.
             Unsupported with the process backend.
 
@@ -957,7 +978,7 @@ def direct_pooling(
             "this spec declares pooling='none' (subject-level definition). "
             "Use one_step, or drop the pooling declaration from the spec."
         )
-    return fit_habitat(
+    return _fit_habitat(
         cohort,
         effective,
         backend=backend,
@@ -966,7 +987,7 @@ def direct_pooling(
     )
 
 
-def one_step(
+def _one_step(
     cohort: Cohort,
     spec: HabitatSpec,
     *,
@@ -1038,7 +1059,7 @@ def one_step(
         import dataclasses
 
         effective = dataclasses.replace(effective, pooling="none")
-    return fit_habitat(
+    return _fit_habitat(
         cohort,
         effective,
         backend=backend,
@@ -1047,7 +1068,7 @@ def one_step(
     )
 
 
-def apply_habitat_model(
+def _apply_habitat_model(
     cohort: Cohort,
     spec: HabitatSpec,
     model: HabitatModel,
@@ -1060,11 +1081,13 @@ def apply_habitat_model(
     """
     Project a published habitat definition onto a new cohort.
 
-    The prediction half of the ladder: no habitat is defined here, the given
-    model is applied. The model's own cohort-level preprocessing state is
-    restored and re-applied, because centroids only mean something in the
-    feature space they were computed in -- skipping it would still produce
-    plausible-looking labels, which is precisely why it is not optional.
+    The prediction half of the ladder, implementing
+    :meth:`~habit.recipes.study.Study.predict`: no habitat is defined here,
+    the given model is applied. The model's own cohort-level preprocessing
+    state is restored and re-applied, because centroids only mean something
+    in the feature space they were computed in -- skipping it would still
+    produce plausible-looking labels, which is precisely why it is not
+    optional.
 
     Args:
         cohort: Subjects to label.
@@ -1088,7 +1111,7 @@ def apply_habitat_model(
         data, which also verifies the save/load/apply round-trip):
 
         >>> from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
-        >>> import habit.recipes as recipes
+        >>> from habit.recipes import Study
         >>> cohort = make_synthetic_cohort(n_subjects=5, shape=(20, 20, 20), rng=7)
         >>> spec = HabitatSpec(
         ...     name="demo",
@@ -1103,10 +1126,9 @@ def apply_habitat_model(
         ...     habitat_features=(Spec("volume"),),
         ...     random_seed=7,
         ... )
-        >>> train = recipes.two_step(cohort, spec)
-        >>> train.habitat_model.save("/tmp/demo.habitatmodel")  # doctest: +SKIP
-        >>> reloaded = HabitatModel.load("/tmp/demo.habitatmodel")  # doctest: +SKIP
-        >>> projected = recipes.apply_habitat_model(cohort, spec, reloaded)  # doctest: +SKIP
+        >>> study = Study(spec=spec, design="two_step").fit(cohort)
+        >>> study.model_.save("/tmp/demo.habitatmodel")  # doctest: +SKIP
+        >>> projected = Study.from_model("/tmp/demo.habitatmodel").predict(cohort)  # doctest: +SKIP
         >>> len(projected.habitat_maps) == len(cohort)  # doctest: +SKIP
         True
     """
@@ -1116,7 +1138,7 @@ def apply_habitat_model(
     effective.validate_dataflow()
     # Name-only stages leave named fields empty until roles are inferred;
     # normalize so assembly (and subject pipelines) see the same components
-    # that fit_habitat used. Fitted cohort preprocess still comes from the
+    # that _fit_habitat used. Fitted cohort preprocess still comes from the
     # model via _with_model_preprocessing below.
     resolved = resolve_habitat_stages(effective)
     effective = normalize_spec_for_execution(effective, resolved)
@@ -1180,8 +1202,6 @@ def _with_model_preprocessing(
         The components with the model's fitted chain attached, or unchanged
         when the model carries none.
     """
-    import dataclasses
-
     from habit.domain.feature_preprocessing import CohortPreprocessingChain
 
     state = (model.preprocessing_state or {}).get("cohort_feature_preprocessor")

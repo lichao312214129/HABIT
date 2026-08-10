@@ -23,9 +23,26 @@ single edit to the plotting code.
 
 The presets are deliberately conservative: a white background, no chartjunk,
 and a colour palette that stays distinguishable in greyscale and for the most
-common colour-vision deficiencies. A preset is a starting point, not a cage:
-because every plotting function returns the live ``Figure``, the caller can
-restyle any detail after the fact.
+common colour-vision deficiencies. A preset is a **geometry / typography
+starting point**, not a full submission checklist (file format, panel-letter
+case, de-identification, figure legends, and venue redraw policies still
+belong to the author).
+
+Built-in numbers are taken from public author guides (verify before
+submission; venues change specs):
+
+* ``nature`` — Nature final-submission / final-artwork guides
+  (https://www.nature.com/nature/for-authors/final-submission,
+  https://www.nature.com/documents/nature-final-artwork.pdf):
+  89 mm / 183 mm; Helvetica or Arial; other text max 7 pt / min 5 pt.
+* ``radiology`` — RSNA *Radiology* Instructions for Authors
+  (https://pubs.rsna.org/page/radiology/author-instructions):
+  imaging panels 3–7 inches wide at ≥300 dpi; graphs/illustrations at
+  1200 dpi; sans-serif (Arial) labels.
+* ``lancet`` — Lancet family / *The Lancet Digital Health* Information for
+  Authors (figures ≥300 dpi and ≥107 mm wide; Times New Roman for figure
+  headings/legends; most line art is redrawn in house):
+  https://www.thelancet.com/pb-assets/Lancet/authors/tldh-info-for-authors-1778587678573.pdf
 """
 
 from __future__ import annotations
@@ -49,6 +66,23 @@ __all__ = [
 #: inch-based figure size.
 _MM_PER_INCH = 25.4
 
+#: Prefer journal-named faces first; DejaVu remains a portable fallback so
+#: headless CI without Arial/Times still renders.
+_SANS_FONT_LIST = ("Arial", "Helvetica", "DejaVu Sans")
+_SERIF_FONT_LIST = ("Times New Roman", "Times", "DejaVu Serif")
+
+#: Okabe–Ito colour-blind-safe palette (also survives greyscale printing).
+_OKABE_ITO: Tuple[str, ...] = (
+    "#0072B2",  # blue
+    "#D55E00",  # vermillion
+    "#009E73",  # bluish green
+    "#CC79A7",  # reddish purple
+    "#E69F00",  # orange
+    "#56B4E9",  # sky blue
+    "#F0E442",  # yellow
+    "#000000",  # black
+)
+
 
 @dataclass(frozen=True)
 class StyleSpec:
@@ -57,15 +91,15 @@ class StyleSpec:
 
     Attributes:
         name: Preset identifier used with :func:`use_style`.
-        single_column_mm: Width of a single-column figure in millimetres.
+        single_column_mm: Width of a single-column (or minimum submission)
+            figure in millimetres.
         double_column_mm: Width of a full-width figure in millimetres.
-        dpi: Resolution applied when the caller saves (a hint; the actual
-            DPI is set at ``savefig`` time by the caller or the sink).
+        dpi: Default ``savefig.dpi`` hint for raster export. Callers may
+            override at ``savefig`` time (e.g. RSNA line art at 1200 dpi).
         font_family: ``"sans-serif"`` or ``"serif"``.
-        font_size: Base font size in points; other sizes scale from it.
+        font_size: Base font size in points; tick/legend sizes scale from it.
         line_width: Base line width in points.
-        palette: Colour cycle for groups/models, chosen to survive greyscale
-            and colour-vision deficiency.
+        palette: Colour cycle for groups/models.
         extra_rcparams: Any further rcParams the preset overrides.
     """
 
@@ -76,26 +110,16 @@ class StyleSpec:
     font_family: str = "sans-serif"
     font_size: float = 8.0
     line_width: float = 1.0
-    palette: Tuple[str, ...] = field(
-        default=(
-            "#0072B2",  # blue
-            "#D55E00",  # vermillion
-            "#009E73",  # bluish green
-            "#CC79A7",  # reddish purple
-            "#E69F00",  # orange
-            "#56B4E9",  # sky blue
-            "#F0E442",  # yellow
-            "#000000",  # black
-        )
-    )
+    palette: Tuple[str, ...] = field(default=_OKABE_ITO)
     extra_rcparams: Dict[str, object] = field(default_factory=dict)
 
     def rcparams(self) -> Dict[str, object]:
         """Translate the spec into a matplotlib rcParams mapping."""
+        # Do NOT set savefig.bbox='tight': tight cropping changes the physical
+        # width so the figure no longer matches the journal column millimetres.
         base: Dict[str, object] = {
             "figure.dpi": 100.0,  # on-screen; the saved DPI is set at savefig
             "savefig.dpi": float(self.dpi),
-            "savefig.bbox": "tight",
             "font.family": self.font_family,
             "font.size": self.font_size,
             "axes.titlesize": self.font_size,
@@ -104,17 +128,24 @@ class StyleSpec:
             "axes.edgecolor": "#333333",
             "axes.grid": False,
             "axes.prop_cycle": _color_cycle(self.palette),
-            "xtick.labelsize": self.font_size - 1,
-            "ytick.labelsize": self.font_size - 1,
+            "xtick.labelsize": max(self.font_size - 1.0, 5.0),
+            "ytick.labelsize": max(self.font_size - 1.0, 5.0),
             "xtick.major.width": self.line_width,
             "ytick.major.width": self.line_width,
-            "legend.fontsize": self.font_size - 1,
+            "legend.fontsize": max(self.font_size - 1.0, 5.0),
             "legend.frameon": False,
             "lines.linewidth": self.line_width,
             "figure.facecolor": "white",
             "axes.facecolor": "white",
             "savefig.facecolor": "white",
+            "pdf.fonttype": 42,  # embed TrueType so editors can re-typeset
+            "ps.fonttype": 42,
+            "svg.fonttype": "none",  # keep text as text in SVG
         }
+        if self.font_family == "serif":
+            base["font.serif"] = list(_SERIF_FONT_LIST)
+        else:
+            base["font.sans-serif"] = list(_SANS_FONT_LIST)
         base.update(self.extra_rcparams)
         return base
 
@@ -153,19 +184,27 @@ _REGISTRY: Dict[str, StyleSpec] = {}
 
 def _register_defaults() -> None:
     """Populate the built-in presets once, at import."""
+    # Draft / generic: Nature-like geometry at a lighter raster DPI.
     default = StyleSpec(name="default")
 
-    # Radiology (RSNA): sans-serif, single column 89 mm, TIFF at >=300 dpi.
+    # RSNA Radiology author instructions (imaging 3–7 in @ ≥300 dpi;
+    # graphs/illustrations 1200 dpi; Arial sans-serif labels).
+    # savefig.dpi=600 is a practical combo-figure default; override to 1200
+    # for pure line art when submitting revisions.
+    # Imaging callouts in RSNA guides use ≥12 pt Arial; axis / tick text stays
+    # at 8 pt here — enlarge annotation artists separately when labelling
+    # medical-image panels.
     radiology = replace(
         default,
         name="radiology",
-        single_column_mm=89.0,
-        double_column_mm=183.0,
+        single_column_mm=3.0 * _MM_PER_INCH,  # 76.2 mm — official minimum
+        double_column_mm=7.0 * _MM_PER_INCH,  # 177.8 mm — official maximum
         dpi=600,
         font_family="sans-serif",
         font_size=8.0,
     )
-    # Nature portfolio: sans-serif (Arial/Helvetica), single 89 mm, double 183.
+
+    # Nature final artwork: 89 / 183 mm; Helvetica or Arial; other text ≤7 pt.
     nature = replace(
         default,
         name="nature",
@@ -174,16 +213,26 @@ def _register_defaults() -> None:
         dpi=600,
         font_family="sans-serif",
         font_size=7.0,
+        line_width=0.8,  # Nature guidance: strokes ~0.25–1 pt at final size
     )
-    # Lancet family: serif body, single 87 mm, double 180 mm.
+
+    # Lancet Digital Health / Lancet family author guides: figures ≥107 mm
+    # wide at ≥300 dpi; Times New Roman for headings/legends; no box around
+    # graphs; line art is typically redrawn in house. Double width uses a
+    # full-page layout (~180 mm) because the public PDF does not publish a
+    # second column millimetre for charts (only the 107 mm minimum).
     lancet = replace(
         default,
         name="lancet",
-        single_column_mm=87.0,
+        single_column_mm=107.0,
         double_column_mm=180.0,
         dpi=600,
         font_family="serif",
         font_size=8.0,
+        extra_rcparams={
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+        },
     )
     for spec in (default, radiology, nature, lancet):
         _REGISTRY[spec.name] = spec
@@ -244,7 +293,7 @@ def use_style(name: str | StyleSpec) -> Iterator[StyleSpec]:
         >>> from habit.viz import use_style, plot_kaplan_meier  # doctest: +SKIP
         >>> with use_style("radiology") as style:
         ...     fig = plot_kaplan_meier(...)
-        >>> fig.savefig("km.tiff", dpi=300)  # doctest: +SKIP
+        >>> fig.savefig("km.tiff", dpi=style.dpi)  # doctest: +SKIP
     """
     spec = name if isinstance(name, StyleSpec) else get_style(name)
     # matplotlib is an OPTIONAL dependency (habitat-analysis[viz]). Style

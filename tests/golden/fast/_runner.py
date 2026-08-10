@@ -270,48 +270,49 @@ def run_fast_ml_kfold(out_dir: Path) -> Dict[str, Any]:
 
 
 def _run_two_step(out_dir: Path) -> Any:
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
-    result = recipes.two_step(cohort, _light_habitat_spec(two_step=True))
+    result = Study(spec=_light_habitat_spec(two_step=True), design="two_step").fit_predict(cohort)
     result.save(out_dir)
     return result
 
 
 def _run_one_step(out_dir: Path) -> Any:
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
-    result = recipes.one_step(cohort, _light_habitat_spec(two_step=False))
+    result = Study(spec=_light_habitat_spec(two_step=False), design="one_step").fit_predict(cohort)
     result.save(out_dir)
     return result
 
 
 def _run_direct_pooling(out_dir: Path) -> Any:
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
-    result = recipes.direct_pooling(cohort, _light_habitat_spec(two_step=False))
+    result = Study(spec=_light_habitat_spec(two_step=False), design="direct_pooling").fit_predict(cohort)
     result.save(out_dir)
     return result
 
 
 def _run_predict(out_dir: Path) -> Any:
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
-    train = recipes.two_step(cohort, _light_habitat_spec(two_step=True))
+    spec = _light_habitat_spec(two_step=True)
+    train = Study(spec=spec, design="two_step").fit_predict(cohort)
     assert train.habitat_model is not None
-    result = recipes.apply_habitat_model(cohort, _light_habitat_spec(two_step=True), train.habitat_model)
+    result = Study.from_model(train.habitat_model, spec).predict(cohort)
     result.save(out_dir)
     return result
 
 
 def _run_habitat_features(out_dir: Path) -> None:
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = synthetic_cohort()
-    study = recipes.two_step(cohort, _light_habitat_spec(two_step=True))
+    study = Study(spec=_light_habitat_spec(two_step=True), design="two_step").fit_predict(cohort)
     _write_habitat_features(out_dir, study_result=study, cohort=cohort)
 
 

@@ -50,12 +50,12 @@ from habit.execution.selection import backend_from_policy
 from habit.exceptions import HABITAPIError
 from habit.recipes.comparison import compare_models
 from habit.recipes.features import extract_habitat_features, traditional_radiomics
-from habit.recipes.habitat import apply_habitat_model, direct_pooling, one_step, two_step
 from habit.recipes.icc import icc_analysis
 from habit.recipes.modeling import CVResult, ModelResult, cross_validate, train_model
 from habit.recipes.preprocess import preprocess_images
 from habit.recipes.result import StudyResult
 from habit.recipes.sort_dicom import sort_dicom
+from habit.recipes.study import Study
 from habit.recipes.test_retest import test_retest_analysis
 from habit.spec.legacy import LegacyConfigAdapter, _guess_workflow_from_path, detect_yaml_version, validate_v1_document
 from habit.spec.policy import RunPolicy
@@ -79,12 +79,8 @@ _SUPPORTED_WORKFLOWS: Tuple[str, ...] = (
     "sort-dicom",
 )
 
-#: clustering_mode -> L4 habitat recipe.
-_RECIPE_BY_MODE: Mapping[str, Callable[..., StudyResult]] = {
-    "two_step": two_step,
-    "one_step": one_step,
-    "direct_pooling": direct_pooling,
-}
+#: clustering_mode values the habitat train paths accept (the Study designs).
+_HABITAT_DESIGNS: Tuple[str, ...] = ("two_step", "one_step", "direct_pooling")
 
 _TRAIN_CHECKPOINT_DIRNAME = ".habitat_checkpoint"
 _PREDICT_CHECKPOINT_DIRNAME = ".habitat_predict_checkpoint"
@@ -94,7 +90,7 @@ _LEGACY_PICKLE_MESSAGE = (
     "Legacy v0.1 pickle pipelines are not supported in HABIT v1.0. "
     f"Train a model to produce {_V1_MODEL_NAME!r}, then run predict with "
     "pipeline_path pointing at that archive or call "
-    "habit.recipes.apply_habitat_model in Python."
+    "habit.recipes.Study.from_model(...).predict(...) in Python."
 )
 
 
@@ -298,17 +294,22 @@ def _habitat_train_v1(
         raise ValueError(
             "A train-mode habitat v1 document must carry a non-empty 'spec' section."
         )
-    spec = HabitatSpec.from_dict(spec_payload)
+    from habit.domain.stages import ensure_habitat_spec_resolved
+
+    # Stages-first YAML may omit role= / sugar fields; resolve once before
+    # cohort assembly and recipe dispatch read named fields.
+    spec = ensure_habitat_spec_resolved(HabitatSpec.from_dict(spec_payload))
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=False)
     mode = _clustering_mode_from_spec(spec)
-    recipe = _RECIPE_BY_MODE.get(mode)
-    if recipe is None:
+    if mode not in _HABITAT_DESIGNS:
         raise ValueError(
-            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_RECIPE_BY_MODE)}."
+            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_HABITAT_DESIGNS)}."
         )
-    return recipe(cohort, spec, backend=backend, checkpoint=checkpoint)
+    return Study(spec=spec, design=mode).fit_predict(
+        cohort, backend=backend, checkpoint=checkpoint
+    )
 
 
 def _habitat_predict_v1(
@@ -322,12 +323,14 @@ def _habitat_predict_v1(
     spec_payload = document.get("spec")
     if spec_payload is None:
         spec_payload = model.spec_payload
-    spec = HabitatSpec.from_dict(spec_payload)
+    from habit.domain.stages import ensure_habitat_spec_resolved
+
+    spec = ensure_habitat_spec_resolved(HabitatSpec.from_dict(spec_payload))
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
-    return apply_habitat_model(
-        cohort, spec, model, backend=backend, checkpoint=checkpoint
+    return Study.from_model(model, spec).predict(
+        cohort, backend=backend, checkpoint=checkpoint
     )
 
 
@@ -575,7 +578,7 @@ def _name_mode_from_spec(spec: HabitatSpec) -> Optional[str]:
     prefix = "habitat_"
     if spec.name.startswith(prefix):
         mode = spec.name[len(prefix) :]
-        if mode in _RECIPE_BY_MODE:
+        if mode in _HABITAT_DESIGNS:
             return mode
     return None
 
@@ -618,7 +621,7 @@ def _clustering_mode_from_spec(spec: HabitatSpec) -> str:
     raise ValueError(
         f"Cannot infer clustering_mode from HabitatSpec name {spec.name!r}; "
         f"declare spec.pooling ('cohort'/'none') or use a name like "
-        f"'habitat_<mode>' with mode in {sorted(_RECIPE_BY_MODE)}."
+        f"'habitat_<mode>' with mode in {sorted(_HABITAT_DESIGNS)}."
     )
 
 
@@ -675,12 +678,13 @@ def _habitat_train(
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=False)
 
     mode = str(config.habitat_segmentation.clustering_mode)
-    recipe = _RECIPE_BY_MODE.get(mode)
-    if recipe is None:
+    if mode not in _HABITAT_DESIGNS:
         raise ValueError(
-            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_RECIPE_BY_MODE)}."
+            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_HABITAT_DESIGNS)}."
         )
-    return recipe(cohort, spec, backend=backend, checkpoint=checkpoint)
+    return Study(spec=spec, design=mode).fit_predict(
+        cohort, backend=backend, checkpoint=checkpoint
+    )
 
 
 def _habitat_predict(
@@ -699,8 +703,8 @@ def _habitat_predict(
     backend = backend_from_policy(RunPolicy.from_dict(document.get("policy") or {}))
     cohort = _load_habitat_cohort(config, spec, logger=logger)
     checkpoint = _checkpoint_store_for(config, spec=spec, predict=True)
-    return apply_habitat_model(
-        cohort, spec, model, backend=backend, checkpoint=checkpoint
+    return Study.from_model(model, spec).predict(
+        cohort, backend=backend, checkpoint=checkpoint
     )
 
 

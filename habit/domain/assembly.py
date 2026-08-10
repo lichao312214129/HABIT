@@ -332,29 +332,34 @@ def validate_habitat_spec_registry(spec: HabitatSpec) -> None:
     from habit.domain.feature_preprocessing.registry import (
         FeaturePreprocessingMethodRegistry,
     )
+    from habit.domain.stages.executor import ensure_habitat_spec_resolved
+
+    effective = ensure_habitat_spec_resolved(spec)
 
     _require_registered_tree(
-        spec.voxel_feature_extractor, VoxelFeatureExtractorRegistry
+        effective.voxel_feature_extractor, VoxelFeatureExtractorRegistry
     )
-    if spec.supervoxelizer is not None:
-        _require_registered_name(spec.supervoxelizer, SupervoxelizerRegistry)
-    if spec.supervoxel_feature_extractor is not None:
+    if effective.supervoxelizer is not None:
+        _require_registered_name(effective.supervoxelizer, SupervoxelizerRegistry)
+    if effective.supervoxel_feature_extractor is not None:
         _require_registered_tree(
-            spec.supervoxel_feature_extractor,
+            effective.supervoxel_feature_extractor,
             SupervoxelFeatureExtractorRegistry,
         )
-    for step in spec.voxel_feature_preprocessors:
+    for step in effective.voxel_feature_preprocessors:
         _require_registered_name(step, FeaturePreprocessingMethodRegistry)
-    for step in spec.supervoxel_feature_preprocessors:
+    for step in effective.supervoxel_feature_preprocessors:
         _require_registered_name(step, FeaturePreprocessingMethodRegistry)
-    for step in spec.cohort_feature_preprocessors:
+    for step in effective.cohort_feature_preprocessors:
         _require_registered_name(step, FeaturePreprocessingMethodRegistry)
-    _require_registered_name(spec.habitat_model_fitter, HabitatModelFitterRegistry)
-    _require_registered_name(spec.habitat_assigner, HabitatAssignerRegistry)
-    for feature_spec in spec.habitat_features:
+    _require_registered_name(
+        effective.habitat_model_fitter, HabitatModelFitterRegistry
+    )
+    _require_registered_name(effective.habitat_assigner, HabitatAssignerRegistry)
+    for feature_spec in effective.habitat_features:
         _require_registered_tree(feature_spec, HabitatFeatureExtractorRegistry)
     for field_name in ("postprocess_supervoxel", "postprocess_habitat"):
-        entry = getattr(spec, field_name)
+        entry = getattr(effective, field_name)
         if entry is None:
             continue
         if entry.name != "connected_components":

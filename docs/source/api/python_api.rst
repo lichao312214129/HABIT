@@ -9,9 +9,8 @@ Everything below is implemented on the ``v1.0.0`` branch.
    ``import habit; print(habit.__version__)`` → ``1.0.0``
 
    Since v1.0.0 the top-level ``habit.Cohort`` **is** the imaging cohort
-   (``habit.contracts.subject.Cohort``). The v0.1 clinical directory wrapper
-   was renamed :class:`habit.ClinicalCohort`. You can equally import the data
-   model from its canonical home: ``from habit.contracts import Cohort``.
+   (``habit.contracts.subject.Cohort``). Import it from its canonical home:
+   ``from habit.contracts import Cohort`` (or ``import habit``).
 
 Architecture in one diagram
 ---------------------------

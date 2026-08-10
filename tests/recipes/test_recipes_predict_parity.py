@@ -52,11 +52,11 @@ PREDICT_CASE = "habitat_two_step_predict"
 
 def _fit_two_step() -> Any:
     """Fit the two-step study on the demo cohort."""
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     spec, root = spec_and_data_root(TRAIN_CONFIG)
     cohort = load_demo_cohort(spec, root)
-    return recipes.two_step(cohort, spec), spec, cohort
+    return Study(spec=spec, design="two_step").fit_predict(cohort), spec, cohort
 
 
 @pytest.mark.slow
@@ -71,8 +71,8 @@ def test_saved_model_relabels_its_training_cohort_identically(tmp_path: Path) ->
     if not demo_data_available():
         pytest.skip("demo_data/ is not present; the predict round trip needs imaging data")
 
-    import habit.recipes as recipes
     from habit.contracts.habitat import HabitatModel
+    from habit.recipes.study import Study
 
     result, spec, cohort = _fit_two_step()
     assert result.habitat_model is not None
@@ -83,7 +83,7 @@ def test_saved_model_relabels_its_training_cohort_identically(tmp_path: Path) ->
         "reloading changed the model identity; the archive is not faithful"
     )
 
-    predicted = recipes.apply_habitat_model(cohort, spec, reloaded)
+    predicted = Study.from_model(reloaded, spec).predict(cohort)
     trained_maps = {m.subject_id: m.label_array for m in result.habitat_maps}
     for habitat_map in predicted.habitat_maps:
         expected = trained_maps[habitat_map.subject_id]
@@ -114,15 +114,15 @@ def test_predict_labels_match_the_frozen_cli_baseline(tmp_path: Path) -> None:
 
     import hashlib
 
-    import habit.recipes as recipes
     from habit.contracts.habitat import HabitatModel
+    from habit.recipes.study import Study
 
     baseline = load_baseline(PREDICT_CASE)
     result, spec, cohort = _fit_two_step()
     reloaded = HabitatModel.load(
         result.habitat_model.save(tmp_path / "habitat_model.habitatmodel")
     )
-    predicted = recipes.apply_habitat_model(cohort, spec, reloaded)
+    predicted = Study.from_model(reloaded, spec).predict(cohort)
 
     for habitat_map in predicted.habitat_maps:
         key = f"{habitat_map.subject_id}_habitats.nrrd"

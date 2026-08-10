@@ -37,7 +37,7 @@ mismatch or a corrupt/unreadable legacy manifest. Reads honour
 Predict compatibility: models fitted by this command are saved as v1
 ``.habitatmodel`` archives only. Legacy v0.1 raw-pickle pipelines are
 rejected with a migration message pointing at ``habitat_model.habitatmodel``
-and :func:`habit.recipes.apply_habitat_model`.
+and :meth:`habit.recipes.Study.predict` via ``Study.from_model``.
 """
 
 from __future__ import annotations
@@ -65,25 +65,15 @@ from habit.exceptions import (
 from habit.schemas import HabitatAnalysisConfig
 from habit.execution.checkpoint import CheckpointStore
 from habit.execution.selection import backend_from_policy
-from habit.recipes import (
-    apply_habitat_model,
-    direct_pooling,
-    one_step,
-    run_from_yaml,
-    two_step,
-)
+from habit.recipes import Study, run_from_yaml
 from habit.recipes.result import StudyResult
 from habit.spec.legacy import LegacyConfigAdapter, detect_yaml_version
 from habit.spec.policy import RunPolicy
 from habit.spec.specs import HabitatSpec
 from habit.utils.log_utils import setup_logger, stop_queue_listener
 
-#: clustering_mode -> the L4 recipe implementing that study design.
-_RECIPE_BY_MODE: Mapping[str, Callable[..., StudyResult]] = {
-    "two_step": two_step,
-    "one_step": one_step,
-    "direct_pooling": direct_pooling,
-}
+#: clustering_mode values the train path accepts (the Study designs).
+_HABITAT_DESIGNS: Tuple[str, ...] = ("two_step", "one_step", "direct_pooling")
 
 #: v0.1 checkpoint directory names, kept identical so a user's existing
 #: mental model (and cleanup scripts) still apply; the payload format is
@@ -101,7 +91,7 @@ _LEGACY_PICKLE_MESSAGE = (
     "Legacy v0.1 pickle pipelines are not supported in HABIT v1.0. "
     f"Train a model to produce {_V1_MODEL_NAME!r}, then run predict with "
     "pipeline_path pointing at that archive or call "
-    "habit.recipes.apply_habitat_model in Python."
+    "habit.recipes.Study.from_model(...).predict(...) in Python."
 )
 
 #: Exceptions that reflect user input or data-layout problems rather than
@@ -373,17 +363,13 @@ def _run_train(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
     _log_checkpoint_strategy(config, checkpoint.root, logger)
 
     mode = str(config.habitat_segmentation.clustering_mode)
-    recipe = _RECIPE_BY_MODE.get(mode)
-    if recipe is None:
+    if mode not in _HABITAT_DESIGNS:
         raise ValueError(
-            f"Unknown clustering_mode {mode!r}; expected one of {sorted(_RECIPE_BY_MODE)}."
+            f"Unknown clustering_mode {mode!r}; expected one of {list(_HABITAT_DESIGNS)}."
         )
-    logger.info(
-        "Running v1 recipe %s (clustering_mode=%s)",
-        getattr(recipe, "__name__", mode),
-        mode,
-    )
-    result = recipe(cohort, spec, backend=backend, checkpoint=checkpoint)
+    logger.info("Running v1 habitat study (clustering_mode=%s)", mode)
+    study = Study(spec=spec, design=mode)
+    result = study.fit_predict(cohort, backend=backend, checkpoint=checkpoint)
     _save_result(result, config)
 
     if result.habitat_model is None:
@@ -407,8 +393,8 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
     Apply a fitted habitat model, routing by the artefact's format.
 
     v1 ``.habitatmodel`` archives go through
-    :func:`habit.recipes.apply_habitat_model`. Legacy v0.1 raw pickles are
-    rejected with a migration message.
+    :meth:`habit.recipes.Study.predict` (via ``Study.from_model``). Legacy
+    v0.1 raw pickles are rejected with a migration message.
 
     Args:
         config: Validated v0.1 habitat configuration.
@@ -446,7 +432,9 @@ def _run_predict(config: HabitatAnalysisConfig, logger: logging.Logger) -> None:
         model.n_habitats,
         model.provenance.produced_by,
     )
-    result = apply_habitat_model(cohort, spec, model, backend=backend, checkpoint=checkpoint)
+    result = Study.from_model(model, spec).predict(
+        cohort, backend=backend, checkpoint=checkpoint
+    )
     _save_result(result, config)
 
 

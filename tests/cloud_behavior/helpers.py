@@ -262,7 +262,7 @@ def run_two_step_on_tree(data_root: Path, spec: HabitatSpec) -> StudyResult:
     Returns:
         Completed study result.
     """
-    import habit.recipes as recipes
+    from habit.recipes.study import Study
 
     cohort = load_cohort_from_tree(data_root)
-    return recipes.two_step(cohort, spec, seed=SYNTHETIC_SEED)
+    return Study(spec=spec, design="two_step").fit_predict(cohort, seed=SYNTHETIC_SEED)

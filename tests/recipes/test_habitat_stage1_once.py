@@ -31,8 +31,8 @@ from habit.contracts.habitat import VoxelFeatureField
 from habit.contracts.subject import Subject
 from habit.datasets import make_synthetic_cohort
 from habit.domain.voxel_features.raw import RawVoxelFeatures
+from habit.recipes.study import Study
 from habit.spec.specs import HabitatSpec, Spec
-import habit.recipes as recipes
 
 
 class _CountingRaw(RawVoxelFeatures):
@@ -142,7 +142,7 @@ def _one_step_spec() -> HabitatSpec:
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "recipe_name,spec_factory",
+    "design,spec_factory",
     [
         ("direct_pooling", _direct_pooling_spec),
         ("two_step", _two_step_spec),
@@ -151,17 +151,17 @@ def _one_step_spec() -> HabitatSpec:
 )
 def test_train_recipe_runs_stage1_once_per_subject(
     monkeypatch: pytest.MonkeyPatch,
-    recipe_name: str,
+    design: str,
     spec_factory: Any,
 ) -> None:
-    """Train recipes must not re-extract voxel features in the label stage."""
+    """Train studies must not re-extract voxel features in the label stage."""
     call_log: List[str] = []
     _install_counting_raw(monkeypatch, call_log)
     cohort = make_synthetic_cohort(
         n_subjects=3, modalities=("T1", "T2"), shape=(12, 12, 12), rng=1
     )
-    recipe = getattr(recipes, recipe_name)
-    result = recipe(cohort, spec_factory())
+    recipe = Study(spec=spec_factory(), design=design)
+    result = recipe.fit_predict(cohort)
     assert len(result.habitat_maps) == 3
     assert call_log == [subject.subject_id for subject in cohort]
 
@@ -177,13 +177,13 @@ def test_apply_habitat_model_recomputes_stage1(
         n_subjects=2, modalities=("T1", "T2"), shape=(12, 12, 12), rng=2
     )
     spec = _direct_pooling_spec()
-    trained = recipes.direct_pooling(cohort, spec)
+    trained = Study(spec=spec, design="direct_pooling").fit_predict(cohort)
     assert trained.habitat_model is not None
     train_calls = list(call_log)
     assert train_calls == [subject.subject_id for subject in cohort]
 
     call_log.clear()
-    projected = recipes.apply_habitat_model(cohort, spec, trained.habitat_model)
+    projected = Study.from_model(trained.habitat_model, spec).predict(cohort)
     assert len(projected.habitat_maps) == 2
     assert call_log == [subject.subject_id for subject in cohort]
 
