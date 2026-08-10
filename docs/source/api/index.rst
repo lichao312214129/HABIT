@@ -50,20 +50,19 @@ walkthrough.
 Habitat analysis
 ~~~~~~~~~~~~~~~~
 
-Primary entry: :func:`~habit.recipes.fit_habitat` (stage dataflow executor).
-``two_step`` / ``one_step`` / ``direct_pooling`` are thin aliases.
+Primary entry: :class:`~habit.recipes.Study` (sklearn-style
+:meth:`~habit.recipes.Study.fit` / :meth:`~habit.recipes.Study.fit_predict` /
+:meth:`~habit.recipes.Study.predict`). Factories
+``two_step_habitat`` / ``one_step_habitat`` / ``direct_pooling_habitat``
+build a :class:`~habit.recipes.Study` with a declared design.
 
 .. autosummary::
    :toctree: generated
 
-   habit.recipes.fit_habitat
-   habit.recipes.two_step
-   habit.recipes.one_step
-   habit.recipes.direct_pooling
+   habit.recipes.Study
    habit.recipes.two_step_habitat
    habit.recipes.one_step_habitat
    habit.recipes.direct_pooling_habitat
-   habit.recipes.apply_habitat_model
 
 Precision screen
 ~~~~~~~~~~~~~~~~
@@ -120,7 +119,6 @@ Recipe result types
 .. autosummary::
    :toctree: generated
 
-   habit.recipes.Study
    habit.recipes.StudyResult
    habit.recipes.ModelResult
    habit.recipes.CVResult

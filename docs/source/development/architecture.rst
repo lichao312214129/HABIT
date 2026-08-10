@@ -10,11 +10,11 @@ configuration parsing out of the algorithms.
 Design principles
 -----------------
 
-1. **API first**: every study is a Python function call
-   (``result = recipes.fit_habitat(cohort, spec)`` with
+1. **API first**: every study is a :class:`~habit.recipes.Study`
+   (``result = recipes.Study(spec=spec).fit_predict(cohort)`` with
    ``HabitatSpec.stages``); YAML and the CLI are projections of the same
-   call. Mode-named aliases (``two_step`` / ``one_step`` /
-   ``direct_pooling``) remain as thin validators.
+   call. Habitat factories (``two_step_habitat`` / ``one_step_habitat`` /
+   ``direct_pooling_habitat``) return a Study with a declared design.
 2. **Typed specifications**: analyses are declared as immutable, fingerprinted
    spec objects (:class:`~habit.spec.HabitatSpec`, :class:`~habit.spec.MLSpec`)
    rather than loosely structured dictionaries.
@@ -35,7 +35,7 @@ The six layers
        CLI["CLI commands"]
        YAML["YAML documents"]
      end
-     L4["L4 — recipes (habit/recipes/)<br/>two_step · one_step · direct_pooling<br/>train_model · cross_validate · predict_model<br/>extract · radiomics · compare_models<br/>run_from_yaml · apply_habitat_model"]
+     L4["L4 — recipes (habit/recipes/)<br/>Study.fit / fit_predict / predict<br/>two_step_habitat · one_step_habitat · direct_pooling_habitat<br/>train_model · cross_validate · predict_model<br/>extract · radiomics · compare_models · run_from_yaml"]
      L3["L3 — domain (habit/domain/)<br/>protocols + component registries<br/>SubjectPipeline · TablePipeline"]
      L2["L2 — contracts (habit/contracts/)<br/>Subject · Cohort · FeatureTable<br/>HabitatModel · RunManifest"]
      L1["L1 — adapters (habit/adapters/)<br/>DirectoryDataSource · sinks<br/>(the only layer that reads files)"]
@@ -152,8 +152,8 @@ layer.
      - :func:`habit.recipes.preprocess_images`
    * - ``get-habitat``
      - ``HabitatAnalysisConfig`` → ``LegacyConfigAdapter``
-     - :func:`habit.recipes.fit_habitat` (aliases: ``two_step`` /
-       ``one_step`` / ``direct_pooling``)
+     - :class:`habit.recipes.Study` (factories: ``two_step_habitat`` /
+       ``one_step_habitat`` / ``direct_pooling_habitat``)
    * - ``extract``
      - ``FeatureExtractionConfig``
      - :func:`habit.recipes.extract_habitat_features` (domain extractors;

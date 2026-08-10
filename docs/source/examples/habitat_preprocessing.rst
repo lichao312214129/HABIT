@@ -35,9 +35,9 @@ see :doc:`habitat_preprocessing_api` (API deep dive) and :doc:`../api/domain`.
 * **Two-step / direct-pooling** — all applicable chains run during training.
   The cohort chain is fitted on pooled units, stored in
   ``HabitatModel.preprocessing_state['cohort_feature_preprocessor']``, and
-  **replayed** by :func:`~habit.recipes.apply_habitat_model` (centroids only
+  **replayed** by :meth:`~habit.recipes.Study.predict` (centroids only
   mean something in the training feature space).
-* **Batch** — ``recipes.fit_habitat(cohort, spec)`` (strategy from stages /
+* **Batch** — ``recipes.Study(spec=spec).fit_predict(cohort)`` (strategy from stages /
   sugar: partition+pool, pool only, or neither). Mode-named aliases remain.
 * **Non-batch (atomic)** — :class:`~habit.domain.pipeline.SubjectPipeline`:
 
@@ -63,12 +63,12 @@ Output (abbreviated)
    === Non-batch: SubjectPipeline.units (fit-time, no assigner) ===
      subj001: 42 units, 3 features, range [0.000, 1.000]
 
-   === Batch: fit_habitat two_step stages (voxel + supervoxel + cohort) ===
+   === Batch: Study fit_predict two_step stages (voxel + supervoxel + cohort) ===
    HabitatModel kmeans-...
      produced by        : habitat_model_fitter.kmeans+cohort_preprocessing
    Preprocessing state keys: ['cohort_feature_preprocessor', 'inertia', ...]
 
-   === Batch: fit_habitat one_step stages (voxel chain only) ===
+   === Batch: Study fit_predict one_step stages (voxel chain only) ===
      subject_models: 2
      cohort habitat_model: None
 

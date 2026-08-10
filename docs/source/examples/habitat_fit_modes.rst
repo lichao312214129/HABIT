@@ -1,5 +1,5 @@
-Habitat fit modes (fit_habitat + apply + I/O)
-=============================================
+Habitat fit modes (Study fit/predict + I/O)
+===========================================
 
 **Level:** recipe API · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~30–90 s
 
@@ -7,11 +7,14 @@ Replaces the former ``habitat_recipes_api`` example title (bookmark URL retained
 
 Named study designs in ``habit.recipes``:
 
-* :func:`~habit.recipes.fit_habitat` — unified entry; stage dataflow executor
-* :func:`~habit.recipes.two_step` / :func:`~habit.recipes.one_step` /
-  :func:`~habit.recipes.direct_pooling` — thin aliases that validate shape
-* :func:`~habit.recipes.apply_habitat_model` — reuse a fitted
-  :class:`~habit.contracts.HabitatModel`
+* :class:`~habit.recipes.Study` — primary entry; sklearn-style
+  :meth:`~habit.recipes.Study.fit` / :meth:`~habit.recipes.Study.fit_predict` /
+  :meth:`~habit.recipes.Study.predict`
+* :func:`~habit.recipes.two_step_habitat` / :func:`~habit.recipes.one_step_habitat` /
+  :func:`~habit.recipes.direct_pooling_habitat` — factories that return a
+  :class:`~habit.recipes.Study` with a declared design
+* :meth:`~habit.recipes.Study.from_model` — load a published
+  :class:`~habit.contracts.HabitatModel` then :meth:`~habit.recipes.Study.predict`
 
 Strategy is inferred: partition+pool → two_step; pool only → direct_pooling;
 neither → one_step. The ``pool`` marker is the subject↔cohort watershed.

@@ -54,8 +54,10 @@ Strategy is **inferred from stages**, not from the function name:
 * **direct_pooling** — ``pool`` without partition (voxels pooled across cohort)
 * **one_step** — neither (habitats defined per subject)
 
-Primary API: :func:`~habit.recipes.fit_habitat`. Thin aliases
-``two_step`` / ``one_step`` / ``direct_pooling`` only validate the shape.
+Primary API: :class:`~habit.recipes.Study`
+(:meth:`~habit.recipes.Study.fit_predict` / :meth:`~habit.recipes.Study.predict`).
+Factories ``two_step_habitat`` / ``one_step_habitat`` /
+``direct_pooling_habitat`` declare the intended design.
 
 What must stay paired
 ---------------------

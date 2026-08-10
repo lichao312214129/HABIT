@@ -24,7 +24,7 @@ Three equivalent customisation surfaces
      - Swap Python callables; fit with a fitter; bind ``model.assigner()``.
    * - ``HabitatSpec.stages``
      - Change ``Stage(..., Spec("name", {...}))`` entries; run
-       :func:`~habit.recipes.fit_habitat`. YAML-isomorphic.
+       :meth:`~habit.recipes.Study.fit_predict`. YAML-isomorphic.
 
 Recommended customisation checklist
 -----------------------------------

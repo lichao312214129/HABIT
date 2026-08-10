@@ -140,7 +140,7 @@ pool (same as the CLI YAML ``processes: 2``).
        )
        backend = backend_from_policy(policy)
 
-       result = recipes.fit_habitat(cohort, spec, backend=backend)
+       result = recipes.Study(spec=spec).fit_predict(cohort, backend=backend)
        out_dir = Path("demo_data/results/habitat_two_step")
        result.save(
            out_dir,
@@ -218,8 +218,8 @@ Still inside ``main()`` (reuses ``cohort``, ``spec``, ``backend``)::
        "demo_data/results/habitat_two_step/habitat_model.habitatmodel"
    )
    # Reuse the same HabitatSpec as training (feature chains must match).
-   prediction = recipes.apply_habitat_model(
-       cohort, spec, model, backend=backend
+   prediction = recipes.Study.from_model(model, spec).predict(
+       cohort, backend=backend
    )
    prediction.save("demo_data/results/habitat_two_step/predict")
    print(len(prediction.habitat_maps), "subjects labelled")

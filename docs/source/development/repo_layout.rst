@@ -86,12 +86,13 @@ Top-level package responsibilities
      - **L3**: domain protocols and component registries;
        ``SubjectPipeline`` and ``TablePipeline`` live here.
    * - ``habit/recipes/``
-     - **L4**: the standard study designs — ``two_step`` / ``one_step`` /
-       ``direct_pooling``, ``train_model`` / ``cross_validate`` /
+     - **L4**: ``Study`` (``fit`` / ``fit_predict`` / ``predict``) plus
+       habitat factories ``two_step_habitat`` / ``one_step_habitat`` /
+       ``direct_pooling_habitat``, ``train_model`` / ``cross_validate`` /
        ``predict_model``, ``extract_habitat_features`` /
-       ``traditional_radiomics``, ``compare_models``, ``run_from_yaml``,
-       ``apply_habitat_model``. ML/compare disk figures go through
-       ``ml_reporting.py`` / ``comparison_reporting.py``.
+       ``traditional_radiomics``, ``compare_models``, ``run_from_yaml``.
+       ML/compare disk figures go through ``ml_reporting.py`` /
+       ``comparison_reporting.py``.
    * - ``habit/viz/``
      - Publication figures (``Figure`` in, no filesystem). Classification
        curves and SHAP helpers used by ML and compare reporting.

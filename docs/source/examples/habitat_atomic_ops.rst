@@ -4,7 +4,7 @@ Atomic habitat operators (no YAML, no recipe)
 **Level:** atomic · **Data:** synthetic · **Extras:** none · **Time:** ~10–30 s
 
 Every subject-level step is a single-argument callable. This page walks the
-classical two-step design **without** :func:`~habit.recipes.fit_habitat`, so
+classical two-step design **without** :meth:`~habit.recipes.Study.fit_predict`, so
 you can embed HABIT inside another notebook or debug one failing case.
 
 Pipeline shown
@@ -39,5 +39,5 @@ What to read next
 
 * :doc:`habitat_custom_pipeline` — Registry.create and Spec-stage customisation
 * :doc:`habitat_analysis_overview` — where this sits vs recipes
-* :doc:`two_step_habitat` — same design via ``fit_habitat``
+* :doc:`two_step_habitat` — same design via ``Study.fit_predict``
 * :doc:`data_from_arrays` — build ``Subject`` from NumPy

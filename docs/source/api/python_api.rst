@@ -17,7 +17,7 @@ Architecture in one diagram
 
 .. code-block:: text
 
-   L4  recipes          fit_habitat (+ thin two_step / one_step / direct_pooling) → StudyResult
+   L4  recipes          Study.fit / fit_predict / predict (+ habitat factories) → StudyResult
    L3  domain           stages executor + protocols + SubjectPipeline / TablePipeline
    L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
    L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
@@ -39,10 +39,10 @@ Mental model
 5. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition + procedure.
 6. Writing to disk is explicit (``HabitatModel.save`` / ``StudyResult.save``).
 
-Primary recipe: ``fit_habitat``
--------------------------------
+Primary entry: ``Study``
+------------------------
 
-Declare stages, then call :func:`~habit.recipes.fit_habitat`. Nothing is
+Declare stages, then call :meth:`~habit.recipes.Study.fit_predict`. Nothing is
 written until you ask for it:
 
 .. code-block:: python
@@ -62,20 +62,22 @@ written until you ask for it:
        ),
        random_seed=42,
    )
-   result = recipes.fit_habitat(cohort, spec)
+   result = recipes.Study(spec=spec).fit_predict(cohort)
    result.save("out/study")                         # optional, explicit
 
    # Apply a published definition to a new cohort
-   predicted = recipes.apply_habitat_model(other_cohort, spec, result.habitat_model)
+   predicted = recipes.Study.from_model(result.habitat_model, spec).predict(other_cohort)
 
 Recommended stage labels (documentation only, not keywords):
 ``extract_voxel_features``, ``preprocess1`` / ``preprocess2`` / …,
 ``partition``, ``extract_supervoxel_features``, ``pool``, ``fit``,
 ``assign``, ``quantify``. Do not teach ``role=`` as the primary API.
 
-Named-field ``HabitatSpec`` plus :func:`~habit.recipes.two_step` /
-:func:`~habit.recipes.one_step` / :func:`~habit.recipes.direct_pooling`
-remain thin sugar/aliases that validate and call ``fit_habitat`` (see
+Named-field ``HabitatSpec`` plus the factories
+:func:`~habit.recipes.two_step_habitat` /
+:func:`~habit.recipes.one_step_habitat` /
+:func:`~habit.recipes.direct_pooling_habitat` remain convenience builders that
+return a :class:`~habit.recipes.Study` with a declared ``design`` (see
 :doc:`spec`).
 
 One-step (no ``pool``) has no cohort-level definition:
@@ -134,9 +136,8 @@ Synthetic cohort and three strategy shapes
        "extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})
    )
 
-   two_step = recipes.fit_habitat(
-       cohort,
-       HabitatSpec(
+   two_step = recipes.Study(
+       spec=HabitatSpec(
            name="two_step",
            stages=(
                extract,
@@ -147,24 +148,22 @@ Synthetic cohort and three strategy shapes
                *quantify,
            ),
            random_seed=42,
-       ),
-   )
-   direct = recipes.fit_habitat(
-       cohort,
-       HabitatSpec(
+       )
+   ).fit_predict(cohort)
+   direct = recipes.Study(
+       spec=HabitatSpec(
            name="direct_pooling",
            stages=(extract, Stage("pool", Spec("pool")), fit, assign, *quantify),
            random_seed=42,
-       ),
-   )
-   per_subject = recipes.fit_habitat(
-       cohort,
-       HabitatSpec(
+       )
+   ).fit_predict(cohort)
+   per_subject = recipes.Study(
+       spec=HabitatSpec(
            name="one_step",
            stages=(extract, fit, assign, *quantify),
            random_seed=42,
-       ),
-   )
+       )
+   ).fit_predict(cohort)
 
    print(two_step.habitat_model.summary())
    print(per_subject.subject_models.keys())  # one HabitatModel per subject
@@ -206,17 +205,15 @@ The upstream ``HabitatSpec`` must match the stages used during fitting.
        random_seed=42,
    )
 
-   train = recipes.fit_habitat(train_cohort, spec)
+   train = recipes.Study(spec=spec).fit_predict(train_cohort)
    out = train.save("out/train_study")
 
    held_out = make_synthetic_cohort(n_subjects=2, rng=99)
-   predicted = recipes.apply_habitat_model(
-       held_out, spec, train.habitat_model
-   )
+   predicted = recipes.Study.from_model(train.habitat_model, spec).predict(held_out)
 
    # Equivalent after reload from disk
    reloaded = HabitatModel.load(out / "habitat_model.habitatmodel")
-   predicted = recipes.apply_habitat_model(held_out, spec, reloaded)
+   predicted = recipes.Study.from_model(reloaded, spec).predict(held_out)
 
 Run a YAML config from Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -241,7 +238,7 @@ directly (habitat train/predict and ML train/cv workflows):
 
 To translate a v0.1 document by hand — for example to swap the data source or
 run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
-:func:`~habit.recipes.fit_habitat` (full details in :doc:`spec`):
+:meth:`~habit.recipes.Study.fit_predict` (full details in :doc:`spec`):
 
 .. code-block:: python
 
@@ -260,7 +257,7 @@ run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
    translation = LegacyConfigAdapter().translate(payload, "habitat")
    spec = HabitatSpec.from_dict(translation.document["spec"])
    cohort = make_synthetic_cohort(n_subjects=4, rng=42)  # or DirectoryDataSource(...).load()
-   result = recipes.fit_habitat(cohort, spec)
+   result = recipes.Study(spec=spec).fit_predict(cohort)
 
 The section below shows the same two-step analysis assembled by hand, which is
 what the stage executor runs under the hood and what you extend for custom
