@@ -141,6 +141,32 @@
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#key-types">Key types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#entry-points">Entry points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#dataflow-classical-two-step">Dataflow (classical two-step)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#reading-order">Reading order</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#output">Output</a></li>
@@ -160,11 +186,39 @@
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#design-rules">Design rules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_fit_modes.html">Habitat fit modes (fit_habitat + apply + I/O)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#pipeline-shown">Pipeline shown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#three-equivalent-customisation-surfaces">Three equivalent customisation surfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#recommended-customisation-checklist">Recommended customisation checklist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#common-swaps">Common swaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_recipes_api.html">Habitat recipes API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
@@ -173,12 +227,18 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#runnable-demo">Runnable demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#design-rules">Design rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="precise_features.html">Precise features: screen before you cluster</a><ul>
@@ -195,29 +255,28 @@
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#see-also">See also</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#entry-points">Entry points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
@@ -232,10 +291,21 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="persistence.html">Persisting study artefacts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="provenance_methods.html">Provenance and methods paragraphs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="parallel_execution.html">Parallel execution with RunPolicy</a><ul>
@@ -251,6 +321,11 @@
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#key-contracts">Key contracts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_entry_points.html">Third-party plugins (entry points)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
@@ -272,43 +347,6 @@
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="habitat_recipes_api.html">Habitat recipes API (three modes + apply + persistence)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habitat_recipes_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_recipes_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_recipes_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 </ul>
@@ -1460,6 +1498,7 @@
              
   <section id="one-step-habitat-analysis">
 <h1>One-step habitat analysis<a class="headerlink" href="#one-step-habitat-analysis" title="Link to this heading"></a></h1>
+<p><strong>Level:</strong> recipe · <strong>Data:</strong> synthetic · <strong>Extras:</strong> optional <code class="docutils literal notranslate"><span class="pre">[view]</span></code> · <strong>Time:</strong> ~20–60 s</p>
 <p>The one-step design clusters <strong>voxels inside each subject independently</strong>.
 Declare stages with <strong>neither</strong> <code class="docutils literal notranslate"><span class="pre">partition</span></code> <strong>nor</strong> <code class="docutils literal notranslate"><span class="pre">pool</span></code>, then call
 <a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a>. There is <strong>no cohort-level preprocessing
@@ -1576,6 +1615,8 @@ chain</strong> at train time — per-subject state is frozen into
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
 <ul class="simple">
+<li><p><a class="reference internal" href="habitat_analysis_overview.html"><span class="doc">Habitat analysis overview (recipes → atoms → custom)</span></a> — recipe / atomic / custom map</p></li>
+<li><p><a class="reference internal" href="habitat_atomic_ops.html"><span class="doc">Atomic habitat operators (no YAML, no recipe)</span></a> — operator-level walkthrough</p></li>
 <li><p><a class="reference internal" href="habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a> — how preprocessing chains differ by design</p></li>
 <li><p><a class="reference internal" href="two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a> — the cohort-level alternative</p></li>
 <li><p><a class="reference internal" href="direct_pooling_habitat.html"><span class="doc">Direct-pooling habitat analysis</span></a> — pool all voxels before clustering</p></li>

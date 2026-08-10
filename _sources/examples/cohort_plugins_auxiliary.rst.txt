@@ -1,9 +1,14 @@
 Cohort assembly, plugins, and auxiliary utilities
 =================================================
 
+**Level:** shell / QC · **Data:** demo_data (partial) · **Extras:** none · **Time:** varies
+
 API surfaces beyond the core habitat/ML recipes. Each utility below has a
 **batch** entry (directory or table) and, where applicable, an **atomic**
 counterpart (single subject / single file).
+
+For pure NumPy → ``Subject`` without directories, see :doc:`data_from_arrays`.
+For entry-point plugins, see :doc:`plugin_entry_points`.
 
 Cohort and plugins
 ------------------

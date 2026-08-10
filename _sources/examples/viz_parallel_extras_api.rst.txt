@@ -37,5 +37,5 @@ The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 What to read next
 -----------------
 
-* :doc:`habitat_recipes_api` — serial habitat baselines
+* :doc:`habitat_fit_modes` — serial habitat baselines
 * :doc:`tabular_ml_api` — ML recipes behind the coefficient forest

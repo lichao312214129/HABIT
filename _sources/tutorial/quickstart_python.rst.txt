@@ -15,7 +15,9 @@ so habitat label maps match the CLI voxel-wise when you use the same
 ``demo_data/``, seed, and execution policy.
 
 YAML / CLI remain an alternate shell for the same recipes
-(:doc:`quickstart`); they are not required here.
+(:doc:`quickstart`); they are not required here. For the recipe → atomic →
+custom layering of habitat analysis, see
+:doc:`../examples/habitat_analysis_overview`.
 
 Work from a directory that already has ``demo_data/`` (and optionally
 ``config/`` if you also use the CLI). See :doc:`quickstart` steps 1–2::

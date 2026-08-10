@@ -33,7 +33,7 @@ atomic checks).
 What to read next
 -----------------
 
-* :doc:`habitat_recipes_api` — habitat modes on a processed cohort
+* :doc:`habitat_fit_modes` — habitat modes on a processed cohort
 * :doc:`habitat_preprocessing_api` — clustering **feature** chains
   (different domain: voxel/supervoxel matrices, not images)
 * :doc:`../configuration/preprocessing` — every preprocessor module

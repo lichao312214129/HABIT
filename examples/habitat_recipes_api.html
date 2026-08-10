@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habitat recipes API (three modes + apply + persistence) &mdash; HABIT Documentation</title>
+  <title>Habitat recipes API &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Habitat feature-preprocessing API (subject + cohort chains)" href="habitat_preprocessing_api.html" />
-    <link rel="prev" title="Image preprocessing API (batch + atomic)" href="image_preprocessing_api.html" /> 
+    <link rel="next" title="Feature composition: trees, combiners, and statistics" href="feature_composition.html" />
+    <link rel="prev" title="Custom habitat pipelines (operators + Spec stages)" href="habitat_custom_pipeline.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -141,6 +141,32 @@
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#key-types">Key types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#entry-points">Entry points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#dataflow-classical-two-step">Dataflow (classical two-step)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_analysis_overview.html#reading-order">Reading order</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#output">Output</a></li>
@@ -160,11 +186,39 @@
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#design-rules">Design rules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_fit_modes.html">Habitat fit modes (fit_habitat + apply + I/O)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#pipeline-shown">Pipeline shown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#three-equivalent-customisation-surfaces">Three equivalent customisation surfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#recommended-customisation-checklist">Recommended customisation checklist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#common-swaps">Common swaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Habitat recipes API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
@@ -173,12 +227,18 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#runnable-demo">Runnable demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#design-rules">Design rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="precise_features.html">Precise features: screen before you cluster</a><ul>
@@ -195,29 +255,28 @@
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#see-also">See also</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#entry-points">Entry points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
@@ -232,10 +291,21 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="persistence.html">Persisting study artefacts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="provenance_methods.html">Provenance and methods paragraphs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="parallel_execution.html">Parallel execution with RunPolicy</a><ul>
@@ -251,6 +321,11 @@
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#key-contracts">Key contracts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_entry_points.html">Third-party plugins (entry points)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
@@ -272,43 +347,6 @@
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Habitat recipes API (three modes + apply + persistence)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 </ul>
@@ -1448,7 +1486,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
-      <li class="breadcrumb-item active">Habitat recipes API (three modes + apply + persistence)</li>
+      <li class="breadcrumb-item active">Habitat recipes API</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples/habitat_recipes_api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -1458,264 +1496,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="habitat-recipes-api-three-modes-apply-persistence">
-<h1>Habitat recipes API (three modes + apply + persistence)<a class="headerlink" href="#habitat-recipes-api-three-modes-apply-persistence" title="Link to this heading"></a></h1>
-<p>Named study designs in <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.fit_habitat.html#habit.recipes.fit_habitat" title="habit.recipes.fit_habitat"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_habitat()</span></code></a> — unified entry; runs the shared
-<strong>stage dataflow executor</strong> from <a class="reference internal" href="../api/generated/habit.spec.HabitatSpec.html#habit.spec.HabitatSpec.stages" title="habit.spec.HabitatSpec.stages"><code class="xref py py-attr docutils literal notranslate"><span class="pre">stages</span></code></a>
-(or the named-field sugar that expands to the same sequence)</p></li>
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.two_step.html#habit.recipes.two_step" title="habit.recipes.two_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">two_step()</span></code></a> — supervoxels then cohort habitats</p></li>
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.one_step.html#habit.recipes.one_step" title="habit.recipes.one_step"><code class="xref py py-func docutils literal notranslate"><span class="pre">one_step()</span></code></a> — per-subject voxel habitats</p></li>
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.direct_pooling.html#habit.recipes.direct_pooling" title="habit.recipes.direct_pooling"><code class="xref py py-func docutils literal notranslate"><span class="pre">direct_pooling()</span></code></a> — pool voxels across the cohort</p></li>
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.apply_habitat_model.html#habit.recipes.apply_habitat_model" title="habit.recipes.apply_habitat_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_habitat_model()</span></code></a> — reuse a fitted
-<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a></p></li>
-</ul>
-<p>Strategy is inferred from the stage sequence: partition+pool → two_step;
-pool only → direct_pooling; neither → one_step. The <code class="docutils literal notranslate"><span class="pre">pool</span></code> marker is the
-only subject↔cohort watershed. The three mode-named functions are thin
-aliases that validate the spec and call <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code>, so numerics are
-identical whichever entry you use.</p>
-<p>Recommended stage labels (documentation only, not keywords):
-<code class="docutils literal notranslate"><span class="pre">extract_voxel_features</span></code>, <code class="docutils literal notranslate"><span class="pre">preprocess1</span></code> / <code class="docutils literal notranslate"><span class="pre">preprocess2</span></code> / …,
-<code class="docutils literal notranslate"><span class="pre">partition</span></code>, <code class="docutils literal notranslate"><span class="pre">extract_supervoxel_features</span></code>, <code class="docutils literal notranslate"><span class="pre">pool</span></code>, <code class="docutils literal notranslate"><span class="pre">fit</span></code>,
-<code class="docutils literal notranslate"><span class="pre">assign</span></code>, <code class="docutils literal notranslate"><span class="pre">quantify</span></code>. Roles come from position + registry domain.</p>
-<p><strong>Batch</strong> — pass a <a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>.
-<strong>Atomic</strong> — <code class="docutils literal notranslate"><span class="pre">result.pipeline(subject)</span></code> labels one
-<a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> with no cohort / backend / YAML.</p>
-<p>Persistence:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="../api/generated/habit.recipes.StudyResult.html#habit.recipes.StudyResult.save" title="habit.recipes.StudyResult.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> — NRRD maps, feature table,
-units parquet, cluster plots, <code class="docutils literal notranslate"><span class="pre">run_manifest.json</span></code></p></li>
-<li><p><a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.save" title="habit.contracts.HabitatModel.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a> /
-<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel.load" title="habit.contracts.HabitatModel.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a> — <code class="docutils literal notranslate"><span class="pre">.habitatmodel</span></code> archive</p></li>
-</ul>
-<p>Both subject-level and cohort-level <strong>feature</strong> preprocess chains
-(<code class="docutils literal notranslate"><span class="pre">voxel_feature_preprocessors</span></code> / <code class="docutils literal notranslate"><span class="pre">cohort_feature_preprocessors</span></code>) are
-shown in the script; see also <a class="reference internal" href="habitat_preprocessing_api.html"><span class="doc">Habitat feature-preprocessing API (subject + cohort chains)</span></a>.</p>
-<section id="script">
-<h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Habitat recipe API: stages-first fit_habitat + apply + StudyResult / model I/O.</span>
-
-<span class="sd">* **Primary** — ``HabitatSpec.stages`` + ``recipes.fit_habitat`` (strategy</span>
-<span class="sd">  inferred: partition+pool → two_step; pool only → direct_pooling;</span>
-<span class="sd">  neither → one_step).</span>
-<span class="sd">* **Compat** — thin aliases ``two_step`` / ``one_step`` / ``direct_pooling``</span>
-<span class="sd">  and named-field sugar still call the same executor.</span>
-<span class="sd">* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model``.</span>
-<span class="sd">* **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``.</span>
-
-<span class="sd">Accompanies ``docs/source/examples/habitat_recipes_api.rst``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatModel</span><span class="p">,</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span><span class="p">,</span> <span class="n">make_synthetic_cohort</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_quantify_stages</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Stage</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared habitat-feature stages for the demos.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;msi&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify3&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;ith_score&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;quantify4&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">)),</span>
-        <span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
-        <span class="c1"># Stage(&quot;quantify5&quot;, Spec(&quot;traditional&quot;)),</span>
-        <span class="c1"># Stage(&quot;quantify6&quot;, Spec(&quot;whole_habitat&quot;)),</span>
-        <span class="c1"># Stage(&quot;quantify7&quot;, Spec(&quot;each_habitat&quot;)),</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_fit_stage</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Stage</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared k-means habitat fitter stage.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Stage</span><span class="p">(</span>
-        <span class="s2">&quot;fit&quot;</span><span class="p">,</span>
-        <span class="n">Spec</span><span class="p">(</span>
-            <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="p">},</span>
-        <span class="p">),</span>
-    <span class="p">)</span>
-
-
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat two_step shape (partition + pool) ===&quot;</span><span class="p">)</span>
-<span class="n">two_step_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step&quot;</span><span class="p">,</span>
-    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;preprocess3&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-                    <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">_fit_stage</span><span class="p">(),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
-    <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">two</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">two_step_spec</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">, &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;features=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">two</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== apply_habitat_model + .habitatmodel round-trip ===&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_api_habitat_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-    <span class="n">archive</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;demo.habitatmodel&quot;</span>
-    <span class="n">two</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
-    <span class="n">reloaded</span><span class="p">:</span> <span class="n">HabitatModel</span> <span class="o">=</span> <span class="n">HabitatModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
-    <span class="n">predicted</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">apply_habitat_model</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">two_step_spec</span><span class="p">,</span> <span class="n">reloaded</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  reloaded model_id=</span><span class="si">{</span><span class="n">reloaded</span><span class="o">.</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  predict maps=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">predicted</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="n">saved</span> <span class="o">=</span> <span class="n">two</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;study_out&quot;</span><span class="p">,</span> <span class="n">write_cluster_plots</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  StudyResult.save -&gt; </span><span class="si">{</span><span class="n">saved</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Atomic: SubjectPipeline on one subject ===&quot;</span><span class="p">)</span>
-<span class="n">pipeline</span> <span class="o">=</span> <span class="n">two</span><span class="o">.</span><span class="n">pipeline</span>
-<span class="k">assert</span> <span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="n">one_map</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  pipeline(</span><span class="si">{</span><span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">) labels=&quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">one_map</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat one_step shape (neither partition nor pool) ===&quot;</span><span class="p">)</span>
-<span class="n">one_step_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;one_step&quot;</span><span class="p">,</span>
-    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
-        <span class="n">_fit_stage</span><span class="p">(),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
-    <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">one</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">one_step_spec</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  subject_models=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">one</span><span class="o">.</span><span class="n">subject_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== fit_habitat direct_pooling shape (pool only) ===&quot;</span><span class="p">)</span>
-<span class="n">direct_spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;direct_pooling&quot;</span><span class="p">,</span>
-    <span class="n">stages</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]})),</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;preprocess1&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;winsorize&quot;</span><span class="p">,</span>
-                <span class="p">{</span><span class="s2">&quot;winsor_limits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;preprocess2&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;pool&quot;</span><span class="p">)),</span>
-        <span class="n">Stage</span><span class="p">(</span>
-            <span class="s2">&quot;preprocess3&quot;</span><span class="p">,</span>
-            <span class="n">Spec</span><span class="p">(</span>
-                <span class="s2">&quot;binning&quot;</span><span class="p">,</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;n_bins&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
-                    <span class="s2">&quot;bin_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">),</span>
-        <span class="p">),</span>
-        <span class="n">_fit_stage</span><span class="p">(),</span>
-        <span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;assign&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)),</span>
-        <span class="o">*</span><span class="n">_quantify_stages</span><span class="p">(),</span>
-    <span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">pool</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">fit_habitat</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">direct_spec</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitats=</span><span class="si">{</span><span class="n">pool</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Compat aliases (thin validators → same fit_habitat) ===&quot;</span><span class="p">)</span>
-<span class="c1"># Named-field sugar + mode-named aliases remain supported.</span>
-<span class="n">sugar</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;two_step_sugar&quot;</span><span class="p">,</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
-    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
-    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">alias</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">two_step</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">sugar</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  recipes.two_step sugar: habitats=</span><span class="si">{</span><span class="n">alias</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">_habitat_eye_check</span><span class="w"> </span><span class="kn">import</span> <span class="n">eye_check_study</span>
-<span class="n">eye_check_study</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">two</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="coverage">
-<h2>Coverage<a class="headerlink" href="#coverage" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">demo_data/results/api/</span></code> steps <code class="docutils literal notranslate"><span class="pre">02_habitat_two_step</span></code>,
-<code class="docutils literal notranslate"><span class="pre">03_habitat_one_step</span></code>, <code class="docutils literal notranslate"><span class="pre">04_habitat_direct_pooling</span></code>.</p>
-<p>The script ends with a <strong>napari eye-check</strong>. <code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips it.</p>
-</section>
-<section id="what-to-read-next">
-<h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="habitat_preprocessing_api.html"><span class="doc">Habitat feature-preprocessing API (subject + cohort chains)</span></a> — feature-chain details</p></li>
-<li><p><a class="reference internal" href="parallel_execution.html"><span class="doc">Parallel execution with RunPolicy</span></a> / <a class="reference internal" href="viz_parallel_extras_api.html"><span class="doc">Visualization, RunPolicy parallelism, and extras API</span></a> — <code class="docutils literal notranslate"><span class="pre">RunPolicy</span></code> + process pool</p></li>
-<li><p><a class="reference internal" href="features_radiomics_api.html"><span class="doc">Feature extraction and traditional radiomics API</span></a> — habitat / traditional feature extraction</p></li>
-</ul>
-</section>
+  <section id="habitat-recipes-api">
+<h1>Habitat recipes API<a class="headerlink" href="#habitat-recipes-api" title="Link to this heading"></a></h1>
+<p>This page moved to <a class="reference internal" href="habitat_fit_modes.html"><span class="doc">Habitat fit modes (fit_habitat + apply + I/O)</span></a> (same script:
+<code class="docutils literal notranslate"><span class="pre">scripts/habitat_recipes_api_demo.py</span></code>).</p>
+<p>See also <a class="reference internal" href="habitat_analysis_overview.html"><span class="doc">Habitat analysis overview (recipes → atoms → custom)</span></a>, <a class="reference internal" href="habitat_atomic_ops.html"><span class="doc">Atomic habitat operators (no YAML, no recipe)</span></a>, and
+<a class="reference internal" href="habitat_custom_pipeline.html"><span class="doc">Custom habitat pipelines (operators + Spec stages)</span></a>.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="image_preprocessing_api.html" class="btn btn-neutral float-left" title="Image preprocessing API (batch + atomic)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habitat_preprocessing_api.html" class="btn btn-neutral float-right" title="Habitat feature-preprocessing API (subject + cohort chains)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habitat_custom_pipeline.html" class="btn btn-neutral float-left" title="Custom habitat pipelines (operators + Spec stages)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="feature_composition.html" class="btn btn-neutral float-right" title="Feature composition: trees, combiners, and statistics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

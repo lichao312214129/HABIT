@@ -105,5 +105,5 @@ What to read next
 
 * :doc:`../api/domain` — the ``ImagePerturbation`` protocol and registry
 * :doc:`../api/kernels` — the perturbation and voxel-ICC numeric kernels
-* :doc:`habitat_preprocessing_api` — the preprocessing chains the whitelist
+* :doc:`habitat_preprocessing` / :doc:`habitat_preprocessing_api` — chains the whitelist
   joins

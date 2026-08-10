@@ -1,6 +1,8 @@
 One-step habitat analysis
 =========================
 
+**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~20–60 s
+
 The one-step design clusters **voxels inside each subject independently**.
 Declare stages with **neither** ``partition`` **nor** ``pool``, then call
 :func:`~habit.recipes.fit_habitat`. There is **no cohort-level preprocessing
@@ -39,6 +41,8 @@ The script ends with a **napari eye-check**. Close the window to finish;
 What to read next
 -----------------
 
+* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
+* :doc:`habitat_atomic_ops` — operator-level walkthrough
 * :doc:`habitat_preprocessing` — how preprocessing chains differ by design
 * :doc:`two_step_habitat` — the cohort-level alternative
 * :doc:`direct_pooling_habitat` — pool all voxels before clustering
