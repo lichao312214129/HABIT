@@ -19,7 +19,6 @@ Provides supervoxel-to-habitat NRRD export without importing ``habit.core``.
 
 from __future__ import annotations
 
-import os
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -82,6 +81,26 @@ def save_habitat_from_supervoxel_mapping(
     habitats_img = sitk.GetImageFromArray(habitats_array)
     habitats_img.CopyInformation(supervoxel)
 
-    output_path = os.path.join(destination, f"{subject}_habitats.nrrd")
-    sitk.WriteImage(habitats_img, output_path)
-    return output_path
+    from pathlib import Path
+
+    from habit.exceptions import HABITAPIError
+    from habit.utils.write_access import (
+        is_filesystem_permission_error,
+        raise_unwritable_destination,
+        write_via_temp_then_replace,
+    )
+
+    output_path = Path(destination) / f"{subject}_habitats.nrrd"
+
+    def _write_tmp(tmp_path: Path) -> None:
+        sitk.WriteImage(habitats_img, str(tmp_path))
+
+    try:
+        write_via_temp_then_replace(output_path, _write_tmp)
+    except HABITAPIError:
+        raise
+    except Exception as exc:
+        if is_filesystem_permission_error(exc):
+            raise_unwritable_destination(output_path, cause=exc)
+        raise
+    return str(output_path)

@@ -260,6 +260,10 @@ def _run_v1_habitat_yaml(
 ) -> StudyResult:
     """Run a habitat v1 document without round-tripping through v0 schemas."""
     config = _habitat_config_from_v1_document(document)
+    # When outputs will be persisted, probe out_dir before the long fit/predict
+    # so Permission denied is not discovered only at StudyResult.save.
+    if save:
+        _probe_out_dir_before_long_run(config.out_dir)
     mode = str(document.get("mode", "train")).strip().lower()
     if mode == "predict":
         pipeline_file = Path(config.pipeline_path) if config.pipeline_path else None
@@ -628,6 +632,10 @@ def _run_habitat_yaml(
     from habit.api.habitat import HabitatAnalysisConfig
 
     config = HabitatAnalysisConfig.from_file(str(path))
+    # When outputs will be persisted, probe out_dir before the long fit/predict
+    # so Permission denied is not discovered only at StudyResult.save.
+    if save:
+        _probe_out_dir_before_long_run(config.out_dir)
     run_mode = str(config.run_mode)
     if run_mode == "predict":
         pipeline_file = Path(config.pipeline_path) if config.pipeline_path else None
@@ -1173,6 +1181,21 @@ def _resolve_manifest_entry(
         )
         return candidates[0] if candidates else None
     return None
+
+
+def _probe_out_dir_before_long_run(out_dir: Union[str, Path]) -> None:
+    """
+    Probe ``out_dir`` writability before an expensive habitat train/predict.
+
+    Args:
+        out_dir: Destination from the YAML ``output.out_dir`` / legacy field.
+
+    Raises:
+        HABITAPIError: When the directory cannot accept new files.
+    """
+    from habit.utils.write_access import probe_writable_directory
+
+    probe_writable_directory(out_dir)
 
 
 def _save_habitat_result(result: StudyResult, config: Any) -> None:

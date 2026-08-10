@@ -184,7 +184,10 @@ def run_habitat(
     )
 
     output_path = Path(config.out_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    # Fail fast on unwritable out_dir before the long train/predict work.
+    from habit.utils.write_access import probe_writable_directory
+
+    probe_writable_directory(output_path)
 
     log_level = logging.DEBUG if config.debug else logging.INFO
     logger = setup_logger(
@@ -280,7 +283,10 @@ def _run_habitat_v1_document(
 
     output = dict(document.get("output") or {})
     out_dir = Path(str(output.get("out_dir") or "."))
-    out_dir.mkdir(parents=True, exist_ok=True)
+    # Fail fast on unwritable out_dir before the long train/predict work.
+    from habit.utils.write_access import probe_writable_directory
+
+    probe_writable_directory(out_dir)
 
     log_level = logging.DEBUG if debug_mode else logging.INFO
     logger = setup_logger(

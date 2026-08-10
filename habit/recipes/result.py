@@ -254,9 +254,26 @@ class StudyResult:
         # Imported here rather than at module scope: a caller who never
         # persists anything should not pay for the adapter layer, and L4
         # must not make the filesystem adapter a hard import dependency.
-        from habit.adapters.writers import DirectoryResultWriter
+        from habit.adapters.writers import DirectoryResultWriter, normalize_map_format
 
+        root = Path(out_dir)
+        map_extension = normalize_map_format(map_format)
+        # Fail fast before any artefact write so a locked / read-only out_dir
+        # does not surface only after a long fit.
+        overwrite_candidates = [
+            root / f"{habitat_map.subject_id}_habitats{map_extension}"
+            for habitat_map in self.habitat_maps
+        ]
+        if self.habitat_model is not None:
+            overwrite_candidates.append(root / "habitat_model.habitatmodel")
+        overwrite_candidates.extend(
+            [
+                root / f"{_FEATURE_TABLE_NAME}.csv",
+                root / "run_manifest.json",
+            ]
+        )
         writer = DirectoryResultWriter(out_dir, map_format=map_format)
+        writer.probe_write_access(existing_paths=overwrite_candidates)
         if write_maps:
             for habitat_map in self.habitat_maps:
                 writer.write_habitat_map(habitat_map)

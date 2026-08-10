@@ -42,6 +42,12 @@ from habit.utils.habitats_results_io import (
     normalize_habitats_results_format,
     save_habitats_results,
 )
+from habit.utils.write_access import (
+    is_filesystem_permission_error,
+    probe_writable_directory,
+    raise_unwritable_destination,
+    write_via_temp_then_replace,
+)
 
 __all__ = ["DirectoryResultWriter", "normalize_map_format"]
 
@@ -125,6 +131,34 @@ def _apply_geometry(image: Any, geometry: Geometry) -> None:
     image.SetSpacing(tuple(float(v) for v in geometry.spacing))
     image.SetOrigin(tuple(float(v) for v in geometry.origin))
     image.SetDirection(tuple(float(v) for v in geometry.direction))
+
+
+def _write_label_image(image: Any, destination: Path) -> None:
+    """
+    Persist a SimpleITK label image via temp file + atomic replace.
+
+    Args:
+        image: SimpleITK image ready to write (geometry already applied).
+        destination: Final on-disk path (extension selects the encoder).
+
+    Raises:
+        HABITAPIError: When the filesystem refuses the write or replace.
+    """
+    sitk = _require_simpleitk()
+
+    def _write_tmp(tmp_path: Path) -> None:
+        sitk.WriteImage(image, str(tmp_path))
+
+    try:
+        write_via_temp_then_replace(destination, _write_tmp)
+    except HABITAPIError:
+        raise
+    except Exception as exc:
+        # SimpleITK commonly raises RuntimeError("... Permission denied ...")
+        # instead of PermissionError; surface the same actionable HABIT error.
+        if is_filesystem_permission_error(exc):
+            raise_unwritable_destination(destination, cause=exc)
+        raise
 
 
 def _unit_assignments(
@@ -264,10 +298,35 @@ class DirectoryResultWriter:
     ) -> None:
         self.root = Path(root)
         self.map_extension = normalize_map_format(map_format)
+        self._write_probed = False
+
+    def probe_write_access(
+        self,
+        *,
+        existing_paths: Optional[Sequence[Union[str, Path]]] = None,
+    ) -> Path:
+        """
+        Fail fast if ``root`` (or listed overwrite targets) is not writable.
+
+        Safe to call more than once; constructing the writer still has no
+        side effect until this method or a write runs.
+
+        Args:
+            existing_paths: Optional files that will be overwritten.
+
+        Returns:
+            The destination directory after a successful probe.
+        """
+        probe_writable_directory(self.root, existing_paths=existing_paths)
+        self._write_probed = True
+        return self.root
 
     def _destination(self, filename: str) -> Path:
-        """Return an absolute path inside ``root``, creating it if needed."""
-        self.root.mkdir(parents=True, exist_ok=True)
+        """Return a path inside ``root``, probing write access on first use."""
+        if not self._write_probed:
+            self.probe_write_access()
+        else:
+            self.root.mkdir(parents=True, exist_ok=True)
         return self.root / filename
 
     def write_habitat_map(self, habitat_map: HabitatMap) -> Optional[str]:
@@ -287,7 +346,7 @@ class DirectoryResultWriter:
         array = np.ascontiguousarray(habitat_map.label_array, dtype=_LABEL_DTYPE)
         image = sitk.GetImageFromArray(array)
         _apply_geometry(image, habitat_map.geometry)
-        sitk.WriteImage(image, str(destination))
+        _write_label_image(image, destination)
         return str(destination)
 
     def write_feature_table(
@@ -332,7 +391,7 @@ class DirectoryResultWriter:
         array = np.ascontiguousarray(units.label_array, dtype=_LABEL_DTYPE)
         image = sitk.GetImageFromArray(array)
         _apply_geometry(image, units.geometry)
-        sitk.WriteImage(image, str(destination))
+        _write_label_image(image, destination)
         return str(destination)
 
     def write_units_table(
