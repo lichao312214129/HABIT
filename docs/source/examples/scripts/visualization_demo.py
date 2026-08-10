@@ -23,7 +23,7 @@ import tempfile
 from pathlib import Path
 
 import habit.recipes as recipes
-from habit import HabitatSpec, Spec, make_synthetic_cohort, make_synthetic_feature_table
+from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort, make_synthetic_feature_table
 from habit.viz import (
     plot_habitat_clustering_pca_2d,
     plot_kaplan_meier,
@@ -37,16 +37,27 @@ out_dir = Path(tempfile.mkdtemp(prefix="habit_viz_demo_"))
 cohort = make_synthetic_cohort(n_subjects=6, shape=(20, 20, 20), rng=3)
 spec = HabitatSpec(
     name="viz_two_step",
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 3,
+                    "validation": "silhouette",
+                    "n_init": 3,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
     ),
-    habitat_assigner=Spec("nearest_centroid"),
     random_seed=3,
 )
-result = recipes.two_step(cohort, spec)
+result = recipes.fit_habitat(cohort, spec)
 arrays = result._population_clustering_arrays()
 if arrays is None:
     raise RuntimeError("Expected pooled clustering arrays from two-step result.")

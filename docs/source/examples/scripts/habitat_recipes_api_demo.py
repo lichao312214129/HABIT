@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 """
-Habitat recipe API: three clustering modes + apply + StudyResult / model I/O.
+Habitat recipe API: stages-first fit_habitat + apply + StudyResult / model I/O.
 
-* **Batch** — ``two_step`` / ``one_step`` / ``direct_pooling`` on a Cohort.
-* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model`` on
-  one subject or a sliced cohort.
-* **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``
-  (``.habitatmodel``).
+* **Primary** — ``HabitatSpec.stages`` + ``recipes.fit_habitat`` (strategy
+  inferred: partition+pool → two_step; pool only → direct_pooling;
+  neither → one_step).
+* **Compat** — thin aliases ``two_step`` / ``one_step`` / ``direct_pooling``
+  and named-field sugar still call the same executor.
+* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model``.
+* **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``.
 
 Accompanies ``docs/source/examples/habitat_recipes_api.rst``.
 """
@@ -20,34 +22,25 @@ from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 
-def _spec(name: str, *, supervoxelizer: bool, pooling: str | None = None) -> HabitatSpec:
-    """Build a tiny deterministic habitat spec for demos.
+def _quantify_stages() -> tuple[Stage, ...]:
+    """Shared habitat-feature stages for the demos."""
+    return (
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
+        # Heavy PyRadiomics families (opt-in; require pyradiomics):
+        # Stage("quantify5", Spec("traditional")),
+        # Stage("quantify6", Spec("whole_habitat")),
+        # Stage("quantify7", Spec("each_habitat")),
+    )
 
-    Keyword order follows the runtime pipeline, not HabitatSpec field order.
-    ``pooling`` declares the dataflow explicitly ("cohort" default / "none").
-    """
-    return HabitatSpec(
-        name=name,
-        pooling=pooling,
-        voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-        voxel_feature_preprocessors=(
-            Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-            Spec("minmax", {"across_features": False}),
-        ),
-        supervoxelizer=(
-            Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})
-            if supervoxelizer
-            else None
-        ),
-        cohort_feature_preprocessors=(
-            Spec(
-                "binning",
-                {"n_bins": 8, "bin_strategy": "uniform", "across_features": False},
-            ),
-        )
-        if name != "one_step"
-        else (),
-        habitat_model_fitter=Spec(
+
+def _fit_stage() -> Stage:
+    """Shared k-means habitat fitter stage."""
+    return Stage(
+        "fit",
+        Spec(
             "kmeans",
             {
                 "min_habitats": 2,
@@ -56,25 +49,44 @@ def _spec(name: str, *, supervoxelizer: bool, pooling: str | None = None) -> Hab
                 "n_init": 3,
             },
         ),
-        habitat_assigner=Spec("nearest_centroid"),
-        habitat_features=(
-            Spec("volume"),
-            Spec("msi"),
-            Spec("ith_score"),
-            Spec("non_radiomics"),
-            # Heavy PyRadiomics families (opt-in; require pyradiomics):
-            # Spec("traditional"),
-            # Spec("whole_habitat"),
-            # Spec("each_habitat"),
-        ),
-        random_seed=11,
     )
 
 
 cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=11)
 
-print("=== two_step (batch train) ===")
-two = recipes.two_step(cohort, _spec("two_step", supervoxelizer=True))
+print("=== fit_habitat two_step shape (partition + pool) ===")
+two_step_spec = HabitatSpec(
+    name="two_step",
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage(
+            "preprocess1",
+            Spec(
+                "winsorize",
+                {"winsor_limits": (0.05, 0.05), "across_features": False},
+            ),
+        ),
+        Stage("preprocess2", Spec("minmax", {"across_features": False})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 3})),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "preprocess3",
+            Spec(
+                "binning",
+                {
+                    "n_bins": 8,
+                    "bin_strategy": "uniform",
+                    "across_features": False,
+                },
+            ),
+        ),
+        _fit_stage(),
+        Stage("assign", Spec("nearest_centroid")),
+        *_quantify_stages(),
+    ),
+    random_seed=11,
+)
+two = recipes.fit_habitat(cohort, two_step_spec)
 assert two.habitat_model is not None
 print(f"  habitats={two.habitat_model.n_habitats}, "
       f"features={len(two.features.feature_columns)}")
@@ -84,7 +96,7 @@ with tempfile.TemporaryDirectory(prefix="habit_api_habitat_") as tmp:
     archive = Path(tmp) / "demo.habitatmodel"
     two.habitat_model.save(archive)
     reloaded: HabitatModel = HabitatModel.load(archive)
-    predicted = recipes.apply_habitat_model(cohort, _spec("two_step", supervoxelizer=True), reloaded)
+    predicted = recipes.apply_habitat_model(cohort, two_step_spec, reloaded)
     print(f"  reloaded model_id={reloaded.model_id}")
     print(f"  predict maps={len(predicted.habitat_maps)}")
 
@@ -98,54 +110,84 @@ one_map = pipeline(cohort[0])
 print(f"  pipeline({cohort[0].subject_id}) labels="
       f"{sorted(set(int(v) for v in one_map.label_array.ravel() if v > 0))}")
 
-print("=== one_step (per-subject habitats) ===")
-one = recipes.one_step(cohort, _spec("one_step", supervoxelizer=False))
+print("=== fit_habitat one_step shape (neither partition nor pool) ===")
+one_step_spec = HabitatSpec(
+    name="one_step",
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage(
+            "preprocess1",
+            Spec(
+                "winsorize",
+                {"winsor_limits": (0.05, 0.05), "across_features": False},
+            ),
+        ),
+        Stage("preprocess2", Spec("minmax", {"across_features": False})),
+        _fit_stage(),
+        Stage("assign", Spec("nearest_centroid")),
+        *_quantify_stages(),
+    ),
+    random_seed=11,
+)
+one = recipes.fit_habitat(cohort, one_step_spec)
 print(f"  subject_models={list(one.subject_models)}")
 
-print("=== direct_pooling ===")
-pool = recipes.direct_pooling(cohort, _spec("direct_pooling", supervoxelizer=False))
-assert pool.habitat_model is not None
-print(f"  habitats={pool.habitat_model.n_habitats}")
-
-print("=== fit_habitat (unified entry, stage dataflow executor) ===")
-# pooling="none" declares the subject-level dataflow on the sugar form;
-# fit_habitat expands stages and runs the shared executor (same as one_step).
-unified = recipes.fit_habitat(
-    cohort, _spec("one_step", supervoxelizer=False, pooling="none")
-)
-assert list(unified.subject_models) == list(one.subject_models)
-print(f"  fit_habitat(pooling='none') subject_models={list(unified.subject_models)}")
-
-print("=== fit_habitat with explicit stages (direct_pooling shape) ===")
-# Stage names are custom labels; roles are inferred (no role= required).
-staged = HabitatSpec(
-    name="staged_direct",
+print("=== fit_habitat direct_pooling shape (pool only) ===")
+direct_spec = HabitatSpec(
+    name="direct_pooling",
     stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
         Stage(
-            "extract_voxel_features",
-            Spec("raw", {"modalities": ["T1", "T2"]}),
+            "preprocess1",
+            Spec(
+                "winsorize",
+                {"winsor_limits": (0.05, 0.05), "across_features": False},
+            ),
         ),
+        Stage("preprocess2", Spec("minmax", {"across_features": False})),
         Stage("pool", Spec("pool")),
         Stage(
-            "fit",
+            "preprocess3",
             Spec(
-                "kmeans",
+                "binning",
                 {
-                    "min_habitats": 2,
-                    "max_habitats": 3,
-                    "validation": "silhouette",
-                    "n_init": 5,
+                    "n_bins": 8,
+                    "bin_strategy": "uniform",
+                    "across_features": False,
                 },
             ),
         ),
+        _fit_stage(),
         Stage("assign", Spec("nearest_centroid")),
-        Stage("quantify", Spec("volume")),
+        *_quantify_stages(),
     ),
-    random_seed=42,
+    random_seed=11,
 )
-staged_result = recipes.fit_habitat(cohort, staged)
-assert staged_result.habitat_model is not None
-print(f"  staged n_habitats={staged_result.habitat_model.n_habitats}")
+pool = recipes.fit_habitat(cohort, direct_spec)
+assert pool.habitat_model is not None
+print(f"  habitats={pool.habitat_model.n_habitats}")
+
+print("=== Compat aliases (thin validators → same fit_habitat) ===")
+# Named-field sugar + mode-named aliases remain supported.
+sugar = HabitatSpec(
+    name="two_step_sugar",
+    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+    supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 3}),
+    habitat_model_fitter=Spec(
+        "kmeans",
+        {
+            "min_habitats": 2,
+            "max_habitats": 3,
+            "validation": "silhouette",
+            "n_init": 3,
+        },
+    ),
+    habitat_assigner=Spec("nearest_centroid"),
+    habitat_features=(Spec("volume"),),
+    random_seed=11,
+)
+alias = recipes.two_step(cohort, sugar)
+print(f"  recipes.two_step sugar: habitats={alias.habitat_model.n_habitats}")
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
 import sys

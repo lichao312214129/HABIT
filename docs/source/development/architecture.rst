@@ -11,8 +11,10 @@ Design principles
 -----------------
 
 1. **API first**: every study is a Python function call
-   (``result = recipes.two_step(cohort, spec)``); YAML and the CLI are
-   projections of the same call.
+   (``result = recipes.fit_habitat(cohort, spec)`` with
+   ``HabitatSpec.stages``); YAML and the CLI are projections of the same
+   call. Mode-named aliases (``two_step`` / ``one_step`` /
+   ``direct_pooling``) remain as thin validators.
 2. **Typed specifications**: analyses are declared as immutable, fingerprinted
    spec objects (:class:`~habit.spec.HabitatSpec`, :class:`~habit.spec.MLSpec`)
    rather than loosely structured dictionaries.
@@ -150,7 +152,8 @@ layer.
      - :func:`habit.recipes.preprocess_images`
    * - ``get-habitat``
      - ``HabitatAnalysisConfig`` → ``LegacyConfigAdapter``
-     - :func:`habit.recipes.two_step` / ``one_step`` / ``direct_pooling``
+     - :func:`habit.recipes.fit_habitat` (aliases: ``two_step`` /
+       ``one_step`` / ``direct_pooling``)
    * - ``extract``
      - ``FeatureExtractionConfig``
      - :func:`habit.recipes.extract_habitat_features` (domain extractors;

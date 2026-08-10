@@ -66,7 +66,7 @@ The v1 stack (L0–L5, see :doc:`architecture`) has its own vocabulary:
    * - **Recipe**
      - A standard study design: assembles domain components per the spec,
        executes them, and returns a typed result.
-     - ``recipes.two_step``, ``recipes.train_model``
+     - ``recipes.fit_habitat``, ``recipes.train_model``
    * - **Contract**
      - The typed data model that travels between layers.
      - ``Subject``, ``Cohort``, ``FeatureTable``, ``HabitatModel``

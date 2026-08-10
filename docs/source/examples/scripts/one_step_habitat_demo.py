@@ -2,11 +2,14 @@
 """
 One-step habitat analysis on a synthetic cohort.
 
-Each subject is clustered independently at the voxel level (no supervoxel
-stage, no cohort-level preprocessing chain). The fitted per-subject state is
-frozen into :class:`~habit.contracts.HabitatModel` entries inside
+Each subject is clustered independently at the voxel level (no partition
+stage, no pool). The fitted per-subject state is frozen into
+:class:`~habit.contracts.HabitatModel` entries inside
 ``StudyResult.subject_models``; there is no single cohort-level
 ``habitat_model``.
+
+Primary API: HabitatSpec.stages + recipes.fit_habitat (neither partition
+nor pool ⇒ one_step).
 
 This script accompanies ``docs/source/examples/one_step_habitat.rst``.
 
@@ -17,49 +20,51 @@ Run from the repository root::
 
 from __future__ import annotations
 
-from habit import HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 cohort = make_synthetic_cohort(n_subjects=4, shape=(20, 20, 20), rng=42)
 print(f"Cohort: {len(cohort)} subjects")
 
-# Keyword arguments follow the per-subject runtime order (not HabitatSpec field
-# definition order). One-step has no cohort_feature_preprocessors stage:
-#   voxel features -> voxel prep -> fit habitats inside this subject
-#   -> assign -> habitat features.
+# Neither partition nor pool ⇒ one_step (inferred from the stage sequence).
 spec = HabitatSpec(
     name="habitat_one_step",
-    # 1. Per-voxel features inside each ROI.
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    # 2. Stateless per-subject prep before clustering.
-    voxel_feature_preprocessors=(
-        Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}),
-        Spec("minmax", {"across_features": False}),
-    ),
-    # 3. No supervoxel stage: voxels are clustered inside each subject.
-    supervoxelizer=None,
-    # 4. Fit a habitat definition on THIS subject's voxels only.
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 4, "validation": "silhouette", "n_init": 5},
-    ),
-    # 5. Assign labels from that subject-local definition.
-    habitat_assigner=Spec("nearest_centroid"),
-    # 6. Describe habitats after assignment.
-    habitat_features=(
-        Spec("volume"),
-        Spec("msi"),
-        Spec("ith_score"),
-        Spec("non_radiomics"),
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage(
+            "preprocess1",
+            Spec(
+                "winsorize",
+                {"winsor_limits": (0.05, 0.05), "across_features": False},
+            ),
+        ),
+        Stage("preprocess2", Spec("minmax", {"across_features": False})),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 4,
+                    "validation": "silhouette",
+                    "n_init": 5,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
         # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
+        # Stage("quantify5", Spec("traditional")),
+        # Stage("quantify6", Spec("whole_habitat")),
+        # Stage("quantify7", Spec("each_habitat")),
     ),
     random_seed=42,
 )
 
-result = recipes.one_step(cohort, spec)
+result = recipes.fit_habitat(cohort, spec)
 
 print(f"\nCohort-level habitat_model: {result.habitat_model}")
 print(f"Per-subject models: {len(result.subject_models)} subjects")

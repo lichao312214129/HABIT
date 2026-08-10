@@ -17,8 +17,8 @@ Design rules exercised here:
   clusters independently; state lives in ``subject_models``).
 * **Two-step / direct-pooling** — cohort chain is fitted on pooled units,
   frozen into ``HabitatModel.preprocessing_state``, and replayed at apply.
-* **Batch** — ``recipes.two_step(cohort, spec)`` (or ``one_step`` /
-  ``direct_pooling``).
+* **Batch** — ``recipes.fit_habitat(cohort, spec)`` (sugar expands to
+  stages; partition+pool / pool only / neither).
 * **Non-batch (atomic)** — ``SubjectPipeline.units(subject)`` before fit,
   ``SubjectPipeline(subject)`` after a model is attached (train or apply).
 
@@ -82,7 +82,8 @@ cohort_chain = (
     Spec("binning", {"n_bins": 6, "bin_strategy": "uniform", "across_features": False}),
 )
 
-# Keyword arguments follow runtime order (not HabitatSpec field definition order).
+# Sugar form mirrors YAML chain field names (see table in the rst).
+# Batch entry is still recipes.fit_habitat; strategy from pooling + partition.
 two_step_spec = HabitatSpec(
     name="two_step_with_chains",
     voxel_feature_extractor=Spec("raw", {"modalities": list(modalities)}),
@@ -100,10 +101,6 @@ two_step_spec = HabitatSpec(
         Spec("msi"),
         Spec("ith_score"),
         Spec("non_radiomics"),
-        # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
     ),
     random_seed=7,
 )
@@ -124,16 +121,13 @@ direct_pooling_spec = HabitatSpec(
         Spec("msi"),
         Spec("ith_score"),
         Spec("non_radiomics"),
-        # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
     ),
     random_seed=7,
 )
 
 one_step_spec = HabitatSpec(
     name="one_step_subject_only",
+    pooling="none",
     voxel_feature_extractor=Spec("raw", {"modalities": list(modalities)}),
     voxel_feature_preprocessors=voxel_chain,
     supervoxelizer=None,
@@ -147,10 +141,6 @@ one_step_spec = HabitatSpec(
         Spec("msi"),
         Spec("ith_score"),
         Spec("non_radiomics"),
-        # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
     ),
     random_seed=7,
 )
@@ -178,8 +168,8 @@ print(f"  {subject.subject_id}: {summary['n_units']} units, "
       f"range [{summary['feature_min']:.3f}, {summary['feature_max']:.3f}]")
 
 # --- Batch: two-step train (all three chains) --------------------------------
-print("\n=== Batch: two_step (voxel + supervoxel + cohort chains) ===")
-two_step_result = recipes.two_step(cohort, two_step_spec)
+print("\n=== Batch: fit_habitat two_step stages (voxel + supervoxel + cohort) ===")
+two_step_result = recipes.fit_habitat(cohort, two_step_spec)
 model = two_step_result.habitat_model
 assert model is not None
 print(model.summary())
@@ -195,15 +185,15 @@ print(f"Atomic predict_pipeline({subject.subject_id!r}): "
       f"{len(unique_labels)} habitat labels in ROI")
 
 # --- Batch: direct-pooling (voxel + cohort; no supervoxel chain) --------------
-print("\n=== Batch: direct_pooling (voxel + cohort chains) ===")
-dp_result = recipes.direct_pooling(cohort, direct_pooling_spec)
+print("\n=== Batch: fit_habitat direct_pooling stages (voxel + cohort) ===")
+dp_result = recipes.fit_habitat(cohort, direct_pooling_spec)
 assert dp_result.habitat_model is not None
 print(f"  habitats={dp_result.habitat_model.n_habitats}, "
       f"state keys={sorted(dp_result.habitat_model.preprocessing_state.keys())}")
 
 # --- Batch: one-step (voxel chain only; per-subject models) ------------------
-print("\n=== Batch: one_step (voxel chain only; no cohort chain) ===")
-one_step_result = recipes.one_step(cohort, one_step_spec)
+print("\n=== Batch: fit_habitat one_step stages (voxel chain only) ===")
+one_step_result = recipes.fit_habitat(cohort, one_step_spec)
 print(f"  subject_models: {len(one_step_result.subject_models)}")
 print(f"  cohort habitat_model: {one_step_result.habitat_model}")
 first_model = next(iter(one_step_result.subject_models.values()))

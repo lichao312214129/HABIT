@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from habit import HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -25,26 +25,31 @@ print("=== In-memory: habitat_features on two_step ===")
 cohort = make_synthetic_cohort(n_subjects=2, shape=(12, 12, 12), rng=3)
 spec = HabitatSpec(
     name="feat_demo",
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 2}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 2},
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(
-        Spec("volume"),
-        Spec("msi"),
-        Spec("ith_score"),
-        Spec("non_radiomics"),
-        # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 5, "n_init": 2})),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 3,
+                    "validation": "silhouette",
+                    "n_init": 2,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
     ),
     random_seed=3,
 )
-result = recipes.two_step(cohort, spec)
+result = recipes.fit_habitat(cohort, spec)
 print(f"  feature columns ({len(result.features.feature_columns)}):")
 for name in result.features.feature_columns:
     print(f"    - {name}")

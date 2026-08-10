@@ -7,12 +7,14 @@ anywhere (no files on disk, fixed seeds) and prints the objects a real study
 inspects: the fitted HabitatModel, the per-subject habitat maps, and the
 habitat feature table.
 
+Primary API: HabitatSpec.stages + recipes.fit_habitat (partition + pool).
+
 Run from the repository root:
 
     python docs/source/examples/scripts/two_step_habitat_quickstart.py
 """
 
-from habit import HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 # 1. Cohort: six synthetic subjects, two modalities, one ROI each. Replace
@@ -26,34 +28,42 @@ cohort = make_synthetic_cohort(
 )
 print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 
-# 2. Spec: the whole analysis as one frozen, fingerprintable value object.
-# Keyword arguments follow the runtime pipeline (not HabitatSpec field order):
-#   voxel features -> supervoxels -> fit habitats on pooled units
-#   -> assign -> habitat features.
+# 2. Spec: ordered named stages are the source of truth.
+#    partition + pool ⇒ two_step strategy (inferred, not chosen by recipe name).
 spec = HabitatSpec(
     name="habitat_two_step",
-    # 1. Voxel level: concatenate the raw intensities of both modalities.
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    # 2. Supervoxel level: per-subject k-means over the voxel features.
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 8, "n_init": 5}),
-    # 3. Cohort level: k-means over pooled supervoxels; habitat count in
-    #    [2, 3] selected by silhouette score.
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 5},
-    ),
-    # 4. Assignment: each supervoxel takes the habitat of its nearest centroid.
-    habitat_assigner=Spec("nearest_centroid"),
-    # 5. Habitat feature families, computed after assignment.
-    habitat_features=(
-        Spec("volume"),
-        Spec("msi"),
-        Spec("ith_score"),
-        Spec("non_radiomics"),
+    stages=(
+        # Voxel level: concatenate the raw intensities of both modalities.
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        # Supervoxel level: per-subject k-means over the voxel features.
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 5})),
+        # Cross-subject watershed: pool units before cohort-level fit.
+        Stage("pool", Spec("pool")),
+        # Cohort level: k-means over pooled supervoxels; habitat count in
+        # [2, 3] selected by silhouette score.
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 3,
+                    "validation": "silhouette",
+                    "n_init": 5,
+                },
+            ),
+        ),
+        # Assignment: each unit takes the habitat of its nearest centroid.
+        Stage("assign", Spec("nearest_centroid")),
+        # Habitat feature families, computed after assignment.
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
         # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
+        # Stage("quantify5", Spec("traditional")),
+        # Stage("quantify6", Spec("whole_habitat")),
+        # Stage("quantify7", Spec("each_habitat")),
     ),
     random_seed=42,
 )
@@ -62,9 +72,9 @@ print(f"Spec fingerprint: {spec.fingerprint()}")
 # 3. Train: fit the cohort-level habitat definition and label every subject.
 #    Non-batch alternative after training:
 #      habitat_map = result.pipeline(cohort[0])
-#    Fit-time units (no assigner): build_habitat_components(spec).pipeline(
-#        assigner=None).units(cohort[0])  — see habitat_preprocessing_demo.py.
-result = recipes.two_step(cohort, spec)
+#    Compat aliases recipes.two_step / one_step / direct_pooling also call
+#    fit_habitat after validating the design their name promises.
+result = recipes.fit_habitat(cohort, spec)
 
 print("\n--- Fitted habitat model ---")
 print(result.habitat_model.summary())
@@ -76,8 +86,8 @@ print(f"Feature table: {result.features.frame.shape[0]} subjects x "
       f"{len(result.features.feature_columns)} features")
 print("First feature columns:", list(result.features.feature_columns)[:6])
 
-# 4. Methods paragraph, generated from the run manifest: only steps that
-#    actually executed are stated.
+# 4. Methods paragraph, generated from the run manifest: only stages that
+#    actually executed are stated (in stage order).
 print("\n--- Methods paragraph (from the run manifest) ---")
 print(result.manifest.describe_methods())
 

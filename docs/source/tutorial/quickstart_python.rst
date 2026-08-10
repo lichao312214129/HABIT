@@ -42,7 +42,7 @@ pool (same as the CLI YAML ``processes: 2``).
 
    from pathlib import Path
 
-   from habit import HabitatSpec, RunPolicy, Spec, cohort_from_directory
+   from habit import HabitatSpec, RunPolicy, Spec, Stage, cohort_from_directory
    from habit.execution import backend_from_policy
    import habit.recipes as recipes
 
@@ -56,53 +56,75 @@ pool (same as the CLI YAML ``processes: 2``).
            roi="pre_contrast",
        )
 
-       # Mirrors config/habitat/config_habitat_two_step.yaml → HabitatSpec
+       # Same science as config/habitat/config_habitat_two_step.yaml,
+       # declared as ordered stages (source of truth). Strategy is inferred:
+       # partition + pool → two_step.
        spec = HabitatSpec(
            name="habitat_two_step",
-           voxel_feature_extractor=Spec(
-               "raw",
-               {"modalities": list(modalities)},
-           ),
-           voxel_feature_preprocessors=(
-               Spec(
-                   "winsorize",
-                   {"winsor_limits": (0.05, 0.05), "across_features": False},
+           stages=(
+               Stage(
+                   "extract_voxel_features",
+                   Spec("raw", {"modalities": list(modalities)}),
                ),
-               Spec("minmax", {"across_features": False}),
-           ),
-           supervoxelizer=Spec(
-               "kmeans",
-               {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
-           ),
-           cohort_feature_preprocessors=(
-               Spec(
-                   "binning",
-                   {
-                       "n_bins": 10,
-                       "bin_strategy": "uniform",
-                       "across_features": False,
-                   },
+               Stage(
+                   "preprocess1",
+                   Spec(
+                       "winsorize",
+                       {
+                           "winsor_limits": (0.05, 0.05),
+                           "across_features": False,
+                       },
+                   ),
                ),
-           ),
-           habitat_model_fitter=Spec(
-               "kmeans",
-               {
-                   "min_habitats": 2,
-                   "max_habitats": 10,
-                   "validation": "elbow",
-                   "max_iter": 300,
-                   "n_init": 10,
-               },
-           ),
-           habitat_assigner=Spec("nearest_centroid"),
-           postprocess_habitat=Spec(
-               "connected_components",
-               {
-                   "min_component_size": 100,
-                   "connectivity": 1,
-                   "reassign_method": "neighbor_vote",
-                   "max_iterations": 3,
-               },
+               Stage("preprocess2", Spec("minmax", {"across_features": False})),
+               Stage(
+                   "partition",
+                   Spec(
+                       "kmeans",
+                       {"n_supervoxels": 50, "max_iter": 300, "n_init": 10},
+                   ),
+               ),
+               Stage("pool", Spec("pool")),
+               Stage(
+                   "preprocess3",
+                   Spec(
+                       "binning",
+                       {
+                           "n_bins": 10,
+                           "bin_strategy": "uniform",
+                           "across_features": False,
+                       },
+                   ),
+               ),
+               Stage(
+                   "fit",
+                   Spec(
+                       "kmeans",
+                       {
+                           "min_habitats": 2,
+                           "max_habitats": 10,
+                           "validation": "elbow",
+                           "max_iter": 300,
+                           "n_init": 10,
+                       },
+                   ),
+               ),
+               Stage("assign", Spec("nearest_centroid")),
+               # connected_components is not a plugin domain yet; role= is the
+               # documented escape hatch (omit this stage to skip cleanup).
+               Stage(
+                   "postprocess_habitat",
+                   Spec(
+                       "connected_components",
+                       {
+                           "min_component_size": 100,
+                           "connectivity": 1,
+                           "reassign_method": "neighbor_vote",
+                           "max_iterations": 3,
+                       },
+                   ),
+                   role="postprocess_habitat",
+               ),
            ),
            random_seed=42,
        )
@@ -116,7 +138,7 @@ pool (same as the CLI YAML ``processes: 2``).
        )
        backend = backend_from_policy(policy)
 
-       result = recipes.two_step(cohort, spec, backend=backend)
+       result = recipes.fit_habitat(cohort, spec, backend=backend)
        out_dir = Path("demo_data/results/habitat_two_step")
        result.save(
            out_dir,

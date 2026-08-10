@@ -18,12 +18,12 @@ Architecture in one diagram
 
 .. code-block:: text
 
-   L4  recipes          fit_habitat (+ two_step / one_step / direct_pooling) → StudyResult
-   L3  domain           protocols + registries + SubjectPipeline / TablePipeline
+   L4  recipes          fit_habitat (+ thin two_step / one_step / direct_pooling) → StudyResult
+   L3  domain           stages executor + protocols + SubjectPipeline / TablePipeline
    L2  contracts        Subject, Cohort, HabitatModel, FeatureTable, RunManifest
    L1  adapters         DirectoryDataSource, FileImageRef, NnUNetDataSource
    L0  kernels          pure NumPy MSI / ITH / ICC / DeLong / ...
-        + spec          HabitatSpec + RunPolicy  (YAML ↔ Python)
+        + spec          HabitatSpec.stages + Stage + RunPolicy  (YAML ↔ Python)
         + execution     SerialBackend / ProcessPoolBackend / CheckpointStore
         + compat        sklearn / MONAI / nnU-Net
 
@@ -31,43 +31,57 @@ Mental model
 ------------
 
 1. **Cohort** = ordered subjects (lazy images).
-2. **Subject-level operators** are one-argument callables (no YAML, no pool).
-3. **Only** ``HabitatModelFitter.fit`` is cohort-level (shared habitat definition).
-4. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition + procedure.
-5. Writing to disk is explicit (``HabitatModel.save`` / ``StudyResult.save``).
+2. **``HabitatSpec.stages``** = ordered named stages (source of truth); strategy
+   is inferred (partition+pool → two_step; pool only → direct_pooling;
+   neither → one_step).
+3. **Subject-level operators** are one-argument callables (no YAML required).
+4. **``pool``** is the only subject↔cohort watershed; post-pool feature
+   preprocess is first-class.
+5. Publish **``HabitatModel`` + ``SubjectPipeline``** = definition + procedure.
+6. Writing to disk is explicit (``HabitatModel.save`` / ``StudyResult.save``).
 
-One-line recipes
-----------------
+Primary recipe: ``fit_habitat``
+-------------------------------
 
-Three habitat designs are available as assembly functions. Each takes a cohort
-and a :class:`~habit.spec.specs.HabitatSpec`, runs entirely in memory, and
-returns a ``StudyResult``; nothing is written until you ask for it:
+Declare stages, then call :func:`~habit.recipes.fit_habitat`. Nothing is
+written until you ask for it:
 
 .. code-block:: python
 
+   from habit import HabitatSpec, Spec, Stage
    import habit.recipes as recipes
 
-   result = recipes.two_step(cohort, spec)          # supervoxels, then habitats
-   result = recipes.direct_pooling(cohort, spec)    # cohort-level voxel habitats
-   result = recipes.one_step(cohort, spec)          # per-subject voxel habitats
-
+   spec = HabitatSpec(
+       name="demo",
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("partition", Spec("slic", {"n_supervoxels": 30})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 5})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+       ),
+       random_seed=42,
+   )
+   result = recipes.fit_habitat(cohort, spec)
    result.save("out/study")                         # optional, explicit
 
    # Apply a published definition to a new cohort
    predicted = recipes.apply_habitat_model(other_cohort, spec, result.habitat_model)
 
-The design is declared **on the spec**, not chosen by the function name:
-``HabitatSpec.pooling`` states whether units are pooled across subjects
-(``"cohort"``, the default) or fitted per subject (``"none"``), and
-``supervoxelizer`` distinguishes two-step from direct pooling. The three
-calls above are thin aliases that validate that declaration and dispatch to
-the unified entry :func:`~habit.recipes.fit_habitat` — calling
-``recipes.fit_habitat(cohort, spec)`` directly runs the same design the
-spec describes (see :doc:`spec`).
+Recommended stage labels (documentation only, not keywords):
+``extract_voxel_features``, ``preprocess1`` / ``preprocess2`` / …,
+``partition``, ``extract_supervoxel_features``, ``pool``, ``fit``,
+``assign``, ``quantify``. Do not teach ``role=`` as the primary API.
 
-``one_step`` defines habitats inside each subject independently, so it has no
-cohort-level definition: ``result.habitat_model`` is ``None`` and the
-per-subject definitions are in ``result.subject_models``.
+Named-field ``HabitatSpec`` plus :func:`~habit.recipes.two_step` /
+:func:`~habit.recipes.one_step` / :func:`~habit.recipes.direct_pooling`
+remain thin sugar/aliases that validate and call ``fit_habitat`` (see
+:doc:`spec`).
+
+One-step (no ``pool``) has no cohort-level definition:
+``result.habitat_model`` is ``None``; per-subject definitions live in
+``result.subject_models``.
 
 To open habitat labels on anatomy right after the recipe (napari screenshots
 included), see **View the habitat maps** in :doc:`../tutorial/quickstart_python`.
@@ -90,12 +104,12 @@ Environment fingerprint
 
    print(show_versions())  # HABIT, Python, NumPy, …
 
-Synthetic cohort and three habitat designs
+Synthetic cohort and three strategy shapes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
-   from habit import HabitatSpec, Spec, make_synthetic_cohort
+   from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
    import habit.recipes as recipes
 
    cohort = make_synthetic_cohort(
@@ -105,35 +119,52 @@ Synthetic cohort and three habitat designs
        rng=42,
    )
 
-   # Shared spec fields; only supervoxelizer differs by design
-   base = dict(
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3, "n_init": 5}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
-       ),
-       random_seed=42,
+   fit = Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 5}))
+   assign = Stage("assign", Spec("nearest_centroid"))
+   quantify = (
+       Stage("quantify", Spec("volume")),
+       Stage("quantify2", Spec("msi")),
+       Stage("quantify3", Spec("ith_score")),
+       Stage("quantify4", Spec("non_radiomics")),
+       # Heavy PyRadiomics families (opt-in; require pyradiomics):
+       # Stage("quantify5", Spec("traditional")),
+       # Stage("quantify6", Spec("whole_habitat")),
+       # Stage("quantify7", Spec("each_habitat")),
+   )
+   extract = Stage(
+       "extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})
    )
 
-   two_step = recipes.two_step(
+   two_step = recipes.fit_habitat(
        cohort,
-       HabitatSpec(name="two_step", supervoxelizer=Spec("slic", {"n_supervoxels": 30}), **base),
+       HabitatSpec(
+           name="two_step",
+           stages=(
+               extract,
+               Stage("partition", Spec("slic", {"n_supervoxels": 30})),
+               Stage("pool", Spec("pool")),
+               fit,
+               assign,
+               *quantify,
+           ),
+           random_seed=42,
+       ),
    )
-   direct = recipes.direct_pooling(
+   direct = recipes.fit_habitat(
        cohort,
-       HabitatSpec(name="direct_pooling", supervoxelizer=None, **base),
+       HabitatSpec(
+           name="direct_pooling",
+           stages=(extract, Stage("pool", Spec("pool")), fit, assign, *quantify),
+           random_seed=42,
+       ),
    )
-   per_subject = recipes.one_step(
+   per_subject = recipes.fit_habitat(
        cohort,
-       HabitatSpec(name="one_step", supervoxelizer=None, **base),
+       HabitatSpec(
+           name="one_step",
+           stages=(extract, fit, assign, *quantify),
+           random_seed=42,
+       ),
    )
 
    print(two_step.habitat_model.summary())
@@ -155,31 +186,28 @@ The upstream ``HabitatSpec`` must match the stages used during fitting.
 
    from pathlib import Path
 
-   from habit import HabitatSpec, Spec, make_synthetic_cohort
+   from habit import HabitatSpec, Spec, Stage, make_synthetic_cohort
    from habit.contracts import HabitatModel
    import habit.recipes as recipes
 
    train_cohort = make_synthetic_cohort(n_subjects=4, rng=42)
    spec = HabitatSpec(
        name="two_step",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-       supervoxelizer=Spec("slic", {"n_supervoxels": 30}),
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("partition", Spec("slic", {"n_supervoxels": 30})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+           Stage("quantify2", Spec("msi")),
+           Stage("quantify3", Spec("ith_score")),
+           Stage("quantify4", Spec("non_radiomics")),
        ),
        random_seed=42,
    )
 
-   train = recipes.two_step(train_cohort, spec)
+   train = recipes.fit_habitat(train_cohort, spec)
    out = train.save("out/train_study")
 
    held_out = make_synthetic_cohort(n_subjects=2, rng=99)
@@ -213,8 +241,8 @@ directly (habitat train/predict and ML train/cv workflows):
    )
 
 To translate a v0.1 document by hand — for example to swap the data source or
-run on an in-memory cohort — use ``LegacyConfigAdapter`` and call a recipe
-directly (full details in :doc:`spec`):
+run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
+:func:`~habit.recipes.fit_habitat` (full details in :doc:`spec`):
 
 .. code-block:: python
 
@@ -233,11 +261,11 @@ directly (full details in :doc:`spec`):
    translation = LegacyConfigAdapter().translate(payload, "habitat")
    spec = HabitatSpec.from_dict(translation.document["spec"])
    cohort = make_synthetic_cohort(n_subjects=4, rng=42)  # or DirectoryDataSource(...).load()
-   result = recipes.two_step(cohort, spec)
+   result = recipes.fit_habitat(cohort, spec)
 
 The section below shows the same two-step analysis assembled by hand, which is
-what a recipe does internally and what you extend when a design is not one of
-the three.
+what the stage executor runs under the hood and what you extend for custom
+designs.
 
 Canonical end-to-end example
 ----------------------------
@@ -298,22 +326,21 @@ Canonical end-to-end example
        ],
    )
 
-   # 5) Optional: declare the same design as a HabitatSpec (YAML-isomorphic)
+   # 5) Optional: declare the same design as stages (YAML-isomorphic)
+   from habit import Stage
+
    spec = HabitatSpec(
        name="two_step_demo",
-       voxel_feature_extractor=Spec("raw", {"modalities": modalities}),
-       supervoxelizer=Spec("slic", {"n_supervoxels": 30}),
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": modalities})),
+           Stage("partition", Spec("slic", {"n_supervoxels": 30})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+           Stage("quantify2", Spec("msi")),
+           Stage("quantify3", Spec("ith_score")),
+           Stage("quantify4", Spec("non_radiomics")),
        ),
        random_seed=42,
    )

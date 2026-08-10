@@ -4,13 +4,148 @@ Spec, RunPolicy, and YAML isomorphism
 ``habit.spec`` is how designs are declared, fingerprinted, saved, migrated, and
 described — the same document shape as v1 YAML.
 
-``Spec`` and ``HabitatSpec``
-----------------------------
+``Stage`` and ``HabitatSpec.stages`` (source of truth)
+------------------------------------------------------
 
-Keyword arguments may be written in **runtime pipeline order** (voxel features
-→ optional voxel prep → supervoxels → optional cohort prep → fit → assign →
-habitat features). That can differ from the dataclass field order, where
-optional preprocessor chains appear later because they have defaults.
+A habitat analysis is an **ordered list of named stages**. Each
+:class:`~habit.spec.Stage` pairs a custom label with a
+:class:`~habit.spec.Spec` component. Stage names are **labels**, not role
+keywords: scientific roles are inferred from position + registry domain.
+Recommended labels (convention only): ``extract_voxel_features``,
+``preprocess1`` / ``preprocess2`` / …, ``partition``,
+``extract_supervoxel_features``, ``pool``, ``fit``, ``assign``,
+``quantify``. Leave ``role=`` unset for normal authoring (escape hatch only).
+
+Strategy is **inferred from the stage sequence**:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 38 40
+
+   * - Strategy
+     - Stage-sequence signature
+     - Notes
+   * - two_step
+     - ``partition`` + ``pool``
+     - Post-pool feature preprocess is first-class
+   * - direct_pooling
+     - ``pool`` only (no partition)
+     - Post-pool feature preprocess is first-class
+   * - one_step
+     - neither partition nor pool
+     - Per-subject fit/assign; habitat ids not comparable across subjects
+
+Partition without ``pool`` is rejected
+(:meth:`~habit.spec.HabitatSpec.validate_dataflow`).
+
+Primary entry: :func:`~habit.recipes.fit_habitat`.
+
+.. code-block:: python
+
+   from habit import HabitatSpec, Spec, Stage
+   import habit.recipes as recipes
+
+   # two_step shape (partition + pool)
+   two_step = HabitatSpec(
+       name="demo_two_step",
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("partition", Spec("slic", {"n_supervoxels": 50})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 4})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+           Stage("quantify2", Spec("msi")),
+           Stage("quantify3", Spec("ith_score")),
+           Stage("quantify4", Spec("non_radiomics")),
+           # Heavy PyRadiomics families (opt-in; require pyradiomics):
+           # Stage("quantify5", Spec("traditional")),
+           # Stage("quantify6", Spec("whole_habitat")),
+           # Stage("quantify7", Spec("each_habitat")),
+       ),
+       random_seed=42,
+   )
+
+   # direct_pooling shape (pool only; post-pool preprocess allowed)
+   direct = HabitatSpec(
+       name="demo_direct",
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("preprocess1", Spec("minmax", {"across_features": False})),
+           Stage("pool", Spec("pool")),
+           Stage(
+               "preprocess2",
+               Spec(
+                   "binning",
+                   {
+                       "n_bins": 8,
+                       "bin_strategy": "uniform",
+                       "across_features": False,
+                   },
+               ),
+           ),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+       ),
+       random_seed=42,
+   )
+
+   # one_step shape (no partition, no pool)
+   one_step = HabitatSpec(
+       name="demo_one_step",
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+       ),
+       random_seed=42,
+   )
+
+   print(two_step.fingerprint())
+   print(two_step.describe_methods(style="radiology"))
+   # result = recipes.fit_habitat(cohort, two_step)
+
+Named-field sugar and ``pooling`` (compat)
+------------------------------------------
+
+The classic named fields (``voxel_feature_extractor``, ``supervoxelizer``,
+``habitat_model_fitter``, ``*_preprocessors``, …) and the ``pooling``
+declaration remain **sugar**: they expand to the same internal stage list.
+When both ``stages`` and named fields are provided, ``stages`` wins if they
+agree; contradictions raise. Prefer ``stages`` for new Python code.
+
+Derived views: a ``pool`` stage ⇒ ``pooling="cohort"`` /
+``definition_level="cohort"``; otherwise ``"none"`` / ``"subject"``.
+``definition_level`` is read-only.
+
+Thin recipe aliases :func:`~habit.recipes.two_step`,
+:func:`~habit.recipes.one_step`, and
+:func:`~habit.recipes.direct_pooling` validate the design their name
+promises, then call :func:`~habit.recipes.fit_habitat`.
+
+Sugar form (same two-step science as above)::
+
+   from habit import HabitatSpec, Spec
+
+   sugar = HabitatSpec(
+       name="two_step_sugar",
+       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
+       supervoxelizer=Spec("slic", {"n_supervoxels": 50}),
+       habitat_model_fitter=Spec("kmeans", {"n_habitats": 4}),
+       habitat_assigner=Spec("nearest_centroid"),
+       habitat_features=(
+           Spec("volume"),
+           Spec("msi"),
+           Spec("ith_score"),
+           Spec("non_radiomics"),
+       ),
+       random_seed=42,
+   )
+
+Save / load and runnable YAML
+-----------------------------
 
 .. code-block:: python
 
@@ -18,6 +153,7 @@ optional preprocessor chains appear later because they have defaults.
        HabitatSpec,
        RunPolicy,
        Spec,
+       Stage,
        load_habitat_spec,
        save_habitat_config,
        save_habitat_spec,
@@ -25,29 +161,16 @@ optional preprocessor chains appear later because they have defaults.
 
    spec = HabitatSpec(
        name="two_step",
-       voxel_feature_extractor=Spec(
-           name="raw",
-           params={"modalities": ["T1", "T2"]},
-       ),
-       supervoxelizer=Spec(name="slic", params={"n_supervoxels": 50}),
-       habitat_model_fitter=Spec(name="kmeans", params={"n_habitats": 4}),
-       habitat_assigner=Spec(name="nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
+       stages=(
+           Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+           Stage("partition", Spec("slic", {"n_supervoxels": 50})),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 4})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
        ),
        random_seed=42,
    )
-
-   print(spec.fingerprint())
-   print(spec.describe_methods(style="radiology"))
-   print(spec.describe_methods(style="nature"))
 
    save_habitat_spec(spec, "habitat_spec.yaml")
    restored = load_habitat_spec("habitat_spec.yaml")
@@ -63,104 +186,56 @@ optional preprocessor chains appear later because they have defaults.
        out_dir="out/habitat",
        policy=RunPolicy(workers=1, backend="serial", subject_timeout_sec=None),
    )
-   # Or export only the effective spec: section: spec.to_yaml("spec_only.yaml")
 
-Direct (no-supervoxel) design — set ``supervoxelizer=None``::
-
-   direct = HabitatSpec(
-       name="direct",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1"]}),
-       supervoxelizer=None,
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(
-           Spec("volume"),
-           Spec("msi"),
-           Spec("ith_score"),
-           Spec("non_radiomics"),
-           # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Spec("traditional"),
-           # Spec("whole_habitat"),
-           # Spec("each_habitat"),
-       ),
-   )
-
-Declaring the dataflow: ``pooling``
------------------------------------
-
-The habitat **strategy is part of the spec**, not of the recipe name.
-``pooling`` declares whether voxel/supervoxel units are pooled across
-subjects before the habitat model is fitted:
-
-* ``pooling="cohort"`` *(default when undeclared)* — units are merged
-  across the cohort, one shared :class:`~habit.contracts.HabitatModel` is
-  fitted, then each subject is labelled back (fan-in → fit → fan-out).
-  With ``supervoxelizer`` set this is the *two-step* design; with
-  ``supervoxelizer=None`` it is *direct pooling*.
-* ``pooling="none"`` — no cross-subject pooling; every subject is fitted
-  and labelled independently (the *one-step* design). Subject-level
-  designs must not declare a ``supervoxelizer`` or
-  ``cohort_feature_preprocessors`` — :meth:`HabitatSpec.validate_dataflow`
-  (called by every habitat recipe) rejects the combination.
-
-``definition_level`` (``"cohort"`` / ``"subject"``) is **derived** from
-``pooling`` — read-only, never set by hand. Both keys stay out of the
-fingerprint for cohort-level designs (so existing specs keep their
-fingerprints) and are recorded explicitly for subject-level ones;
-``to_effective_dict()`` always states the resolved dataflow:
-
-.. code-block:: python
-
-   from habit import HabitatSpec, Spec
-
-   per_subject = HabitatSpec(
-       name="one_step",
-       voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-       supervoxelizer=None,
-       habitat_model_fitter=Spec("kmeans", {"n_habitats": 3}),
-       habitat_assigner=Spec("nearest_centroid"),
-       habitat_features=(Spec("volume"),),
-       pooling="none",          # explicit subject-level dataflow
-       random_seed=42,
-   )
-   assert per_subject.definition_level == "subject"
-   per_subject.validate_dataflow()  # no-op for a consistent spec
-
-   # The unified entry dispatches on the declared dataflow:
-   # result = recipes.fit_habitat(cohort, per_subject)
+Fingerprints: pure sugar forms (no explicit ``stages``) keep the historical
+named-field + ``pooling`` payload for two_step / direct_pooling stability.
+Explicit ``stages`` records the ordered list (names + components) and
+``random_seed``.
 
 Feature trees and the expression form
 -------------------------------------
 
-Extraction stages (``voxel_feature_extractor``,
-``supervoxel_feature_extractor``, ``habitat_features``) accept a **tree** of
-nodes: leaves carry ``modality=`` / ``modalities=`` parameters, and combiner
-nodes nest their children under ``params["children"]`` as plain
-``{"name", "params"}`` payloads. Any component entry may be written in two
-**fingerprint-identical** spellings — the structured mapping above, or the
-strict expression string parsed by :func:`~habit.spec.parse_feature_expression`
+Extraction stages accept a **tree** of nodes: leaves carry ``modality=`` /
+``modalities=`` parameters, and combiner nodes nest their children under
+``params["children"]`` as plain ``{"name", "params"}`` payloads. Any
+component entry may be written in two **fingerprint-identical** spellings —
+the structured mapping above, or the strict expression string parsed by
+:func:`~habit.spec.parse_feature_expression`
 (:func:`~habit.spec.coerce_spec` routes a string entry to the parser and a
 mapping entry to ``Spec.from_dict``):
 
 .. code-block:: python
 
-   from habit import HabitatSpec, parse_feature_expression
+   from habit import HabitatSpec, Stage, parse_feature_expression
 
    expr = parse_feature_expression(
        'concat(raw("T1"), local_entropy("T2", kernel_size=3))'
    )
    spec = HabitatSpec(
        name="tree",
-       voxel_feature_extractor=expr,
-       # ... same remaining fields as above ...
+       stages=(
+           Stage("extract_voxel_features", expr),
+           Stage("pool", Spec("pool")),
+           Stage("fit", Spec("kmeans", {"n_habitats": 3})),
+           Stage("assign", Spec("nearest_centroid")),
+           Stage("quantify", Spec("volume")),
+       ),
+       random_seed=42,
    )
 
    # YAML dual form — a string entry is parsed the same way:
    again = HabitatSpec.from_dict(
-       {"name": "tree", "voxel_feature_extractor":
-        'concat(raw("T1"), local_entropy("T2", kernel_size=3))', ...}
+       {
+           "name": "tree",
+           "stages": [
+               {
+                   "name": "extract_voxel_features",
+                   "component": 'concat(raw("T1"), local_entropy("T2", kernel_size=3))',
+               },
+               # ... remaining stages ...
+           ],
+       }
    )
-   assert again.fingerprint() == spec.fingerprint()
 
 Expression grammar is deliberately strict: modality names are **quoted
 strings**, parameters are explicit ``key=value`` literals, children are
@@ -423,32 +498,32 @@ Run the translated spec with a recipe
 
 v0.1 YAML selects the habitat design via
 ``habitat_segmentation.clustering_mode``. Translation turns that knob into
-the spec's explicit ``pooling`` declaration (``one_step`` → ``"none"``;
-``two_step`` / ``direct_pooling`` → ``"cohort"``), so the unified entry
-:func:`~habit.recipes.fit_habitat` can dispatch on the spec alone. The
-mode-named aliases remain as thin validators over ``fit_habitat``:
+named-field sugar plus a derived ``pooling`` declaration (``one_step`` →
+``"none"``; ``two_step`` / ``direct_pooling`` → ``"cohort"``). Native v1
+documents may also declare explicit ``stages``. Either way,
+:func:`~habit.recipes.fit_habitat` runs the shared stage executor. Mode-named
+aliases remain as thin validators:
 
 .. list-table::
    :header-rows: 1
-   :widths: 24 24 40
+   :widths: 24 36 40
 
    * - ``clustering_mode`` (YAML)
-     - spec dataflow
+     - Inferred stage signature / sugar
      - Alias (all dispatch to ``fit_habitat``)
    * - ``two_step``
-     - ``pooling="cohort"`` + supervoxelizer
+     - partition + pool (sugar: ``pooling="cohort"`` + supervoxelizer)
      - :func:`~habit.recipes.two_step`
    * - ``one_step``
-     - ``pooling="none"``
+     - neither (sugar: ``pooling="none"``)
      - :func:`~habit.recipes.one_step`
    * - ``direct_pooling``
-     - ``pooling="cohort"``, no supervoxelizer
+     - pool only (sugar: ``pooling="cohort"``, no supervoxelizer)
      - :func:`~habit.recipes.direct_pooling`
 
 Pattern: load the YAML, translate with :class:`~habit.spec.legacy.LegacyConfigAdapter`,
 build a :class:`~habit.spec.specs.HabitatSpec`, then call
-:func:`~habit.recipes.fit_habitat` — the declared dataflow selects the
-design (see :doc:`python_api`):
+:func:`~habit.recipes.fit_habitat`:
 
 .. code-block:: python
 
@@ -466,7 +541,6 @@ design (see :doc:`python_api`):
    )
    translation = LegacyConfigAdapter().translate(payload, "habitat")
    spec = HabitatSpec.from_dict(translation.document["spec"])
-   assert spec.pooling == "cohort"  # declared by the translation
 
    # Modalities must match the spec's feature expression.
    cohort = make_synthetic_cohort(

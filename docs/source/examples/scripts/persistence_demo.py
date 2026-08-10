@@ -6,6 +6,8 @@ Writes NRRD habitat maps, ``habitat_model.habitatmodel``, feature tables
 (parquet/csv), ``habitats.parquet`` unit table, run manifest, and optional
 clustering figures — the same layout the CLI produces.
 
+Primary API: HabitatSpec.stages + recipes.fit_habitat.
+
 This script accompanies ``docs/source/examples/persistence.rst``.
 
 Run from the repository root::
@@ -19,34 +21,42 @@ import json
 import tempfile
 from pathlib import Path
 
-from habit import HabitatModel, HabitatSpec, Spec, make_synthetic_cohort
+from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
 cohort = make_synthetic_cohort(n_subjects=4, shape=(18, 18, 18), rng=99)
-# Keyword order follows the runtime pipeline (not HabitatSpec field order).
 spec = HabitatSpec(
     name="persistence_demo",
-    voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    habitat_features=(
-        Spec("volume"),
-        Spec("msi"),
-        Spec("ith_score"),
-        Spec("non_radiomics"),
+    stages=(
+        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+        Stage("pool", Spec("pool")),
+        Stage(
+            "fit",
+            Spec(
+                "kmeans",
+                {
+                    "min_habitats": 2,
+                    "max_habitats": 3,
+                    "validation": "silhouette",
+                    "n_init": 3,
+                },
+            ),
+        ),
+        Stage("assign", Spec("nearest_centroid")),
+        Stage("quantify", Spec("volume")),
+        Stage("quantify2", Spec("msi")),
+        Stage("quantify3", Spec("ith_score")),
+        Stage("quantify4", Spec("non_radiomics")),
         # Heavy PyRadiomics families (opt-in; require pyradiomics):
-        # Spec("traditional"),
-        # Spec("whole_habitat"),
-        # Spec("each_habitat"),
+        # Stage("quantify5", Spec("traditional")),
+        # Stage("quantify6", Spec("whole_habitat")),
+        # Stage("quantify7", Spec("each_habitat")),
     ),
     random_seed=99,
 )
 
-result = recipes.two_step(cohort, spec)
+result = recipes.fit_habitat(cohort, spec)
 
 with tempfile.TemporaryDirectory(prefix="habit_persist_") as tmp:
     out_dir = Path(tmp) / "study_out"
