@@ -111,7 +111,7 @@ logic beyond the built-in ``expression`` DSL.
        ),
        random_seed=42,
    )
-   result = recipes.fit_habitat(cohort, spec)
+   result = recipes.Study(spec=spec).fit_predict(cohort)
 
 **Step 3 (optional): ship as a third-party package**
 

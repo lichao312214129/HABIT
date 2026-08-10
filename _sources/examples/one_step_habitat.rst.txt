@@ -5,12 +5,12 @@ One-step habitat analysis
 
 The one-step design clusters **voxels inside each subject independently**.
 Declare stages with **neither** ``partition`` **nor** ``pool``, then call
-:func:`~habit.recipes.fit_habitat`. There is **no cohort-level preprocessing
+:meth:`~habit.recipes.Study.fit_predict`. There is **no cohort-level preprocessing
 chain** at train time — per-subject state is frozen into
 ``StudyResult.subject_models`` rather than a single
 :class:`~habit.contracts.HabitatModel`.
 
-The thin alias :func:`~habit.recipes.one_step` remains for compat.
+The factory :func:`~habit.recipes.one_step_habitat` remains for convenience.
 
 Script
 ------

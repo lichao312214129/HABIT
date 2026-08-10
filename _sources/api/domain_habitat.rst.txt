@@ -6,10 +6,10 @@ Imaging-side protocols, built-in operators, registries, and
 top-level ``habit`` exports).
 
 For end-to-end habitat studies without hand-wiring each operator, prefer
-:func:`~habit.recipes.fit_habitat` with :attr:`~habit.spec.HabitatSpec.stages`
+:meth:`~habit.recipes.Study.fit_predict` with :attr:`~habit.spec.HabitatSpec.stages`
 (documented in :doc:`python_api`). The mode-named aliases
-(:func:`~habit.recipes.two_step`, :func:`~habit.recipes.direct_pooling`,
-:func:`~habit.recipes.one_step`) remain as thin validators.
+(:func:`~habit.recipes.two_step_habitat`, :func:`~habit.recipes.direct_pooling_habitat`,
+:func:`~habit.recipes.one_step_habitat`) remain as thin validators.
 
 .. code-block:: python
 
@@ -88,7 +88,7 @@ remain sugar that expands to the same sequence.
    spec = HabitatSpec(name="direct", stages=stages, random_seed=42)
    # Subject-level prefix only (no Cohort required):
    # units = run_subject_stage_prefix(subject, spec)
-   result = recipes.fit_habitat(cohort, spec)
+   result = recipes.Study(spec=spec).fit_predict(cohort)
 
 Domain: ``pooling`` (entry-point group ``habit.pooling``). Built-in marker:
 ``PoolingRegistry.create("pool")``.
@@ -177,7 +177,7 @@ To observe every habitat pipeline boundary in memory, pass
    import habit.recipes as recipes
 
    rec = StepRecorder(steps=["supervoxels.described"], max_subjects=2)
-   result = recipes.fit_habitat(cohort, spec, inspect=rec)
+   result = recipes.Study(spec=spec).fit_predict(cohort, inspect=rec)
    result.inspection.summary()
 
 Habitat model fitters

@@ -555,7 +555,7 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
     Native v1 documents may write ``pooling`` under ``spec:`` directly, or
     declare an explicit ``stages`` list. The Python API prefers
     :attr:`~habit.spec.HabitatSpec.stages` +
-    :func:`~habit.recipes.fit_habitat` (strategy inferred from the sequence);
+    :meth:`~habit.recipes.Study.fit_predict` (strategy inferred from the sequence);
     YAML ``clustering_mode`` / sugar ``pooling`` remain the CLI/YAML path.
     See :doc:`../api/spec`.
 

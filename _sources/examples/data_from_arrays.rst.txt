@@ -33,5 +33,5 @@ What to read next
 -----------------
 
 * :doc:`habitat_atomic_ops` — run operators on these subjects
-* :doc:`two_step_habitat` — or pass the ``Cohort`` to ``fit_habitat``
+* :doc:`two_step_habitat` — or pass the ``Cohort`` to ``Study.fit_predict``
 * :doc:`../how_to/prepare_data` — directory layout when you do use files

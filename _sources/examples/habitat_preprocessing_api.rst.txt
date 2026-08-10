@@ -34,9 +34,9 @@ Inspect every step
 ------------------
 
 For debugging and QA, pass ``inspect=`` a :class:`~habit.inspection.StepRecorder`
-into ``recipes.fit_habitat`` (or the thin ``two_step`` / ``one_step`` /
-``direct_pooling`` aliases) and ``apply_habitat_model``. Default
-``inspect=None`` is zero-cost and bit-identical.
+into ``recipes.Study(...).fit_predict`` (or a factory-built Study) and
+``Study.from_model(...).predict``. Default ``inspect=None`` is zero-cost and
+bit-identical.
 
 Captured boundaries are primarily **stage-bound** names such as
 ``extract_voxel_features.output``, ``preprocess1.output``,

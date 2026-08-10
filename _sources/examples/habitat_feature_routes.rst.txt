@@ -25,7 +25,7 @@ the route through ``HabitatSpec.voxel_feature_extractor`` (and optionally
    * - ``slic`` (supervoxelizer)
      - Spatially coherent supervoxels instead of k-means over features
 
-Every route supports **batch** (``recipes.fit_habitat(cohort, spec)``;
+Every route supports **batch** (``recipes.Study(spec=spec).fit_predict(cohort)``;
 two-step sugar or stages) and **atomic** inspection via
 :func:`~habit.domain.assembly.build_habitat_components` — attribute names
 match the Spec (``components.voxel_feature_extractor``,

@@ -10,8 +10,9 @@ simpler structures; see :doc:`repo_layout`.
    **v1.0 framing.** User-facing orchestration lives in the v1 recipes
    (:doc:`../api/index`):
 
-   * Habitat studies: ``habit.recipes.fit_habitat`` (aliases ``two_step`` /
-     ``one_step`` / ``direct_pooling``) over ``HabitatSpec.stages`` /
+   * Habitat studies: ``habit.recipes.Study`` (``fit`` / ``fit_predict`` /
+     ``predict``; factories ``two_step_habitat`` / ``one_step_habitat`` /
+     ``direct_pooling_habitat``) over ``HabitatSpec.stages`` /
      ``habit/domain/`` registries.
    * Tabular ML: ``habit.recipes.train_model`` / ``cross_validate`` /
      ``predict_model`` over :class:`~habit.domain.TablePipeline`, with

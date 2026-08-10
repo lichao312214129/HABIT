@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -6,21 +8,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TablePipeline &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=39329a72" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.domain.TablePipeline.html" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=cb7bf70b"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=cb7bf70b"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -39,9 +40,6 @@
           <a href="../../index.html" class="icon icon-home">
             HABIT
           </a>
-              <div class="version">
-                1.1.3
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -141,174 +139,53 @@
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/index.html#gallery-map">Gallery map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#data-cohorts">1. Data &amp; cohorts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#image-preprocessing">2. Image preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#habitat-design-spec-features">4. Habitat design (Spec &amp; features)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#quantification">5. Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#machine-learning">6. Machine learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#visualization">7. Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#persistence-provenance">8. Persistence &amp; provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#execution-reliability">9. Execution &amp; reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#extending-habit">10. Extending HABIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#yaml-cli-shells">11. YAML &amp; CLI shells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/index.html#qc-auxiliary">12. QC &amp; auxiliary</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing.html">Batch image preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_fit_modes.html">Habitat fit modes (Study fit/predict + I/O)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/persistence.html">Persisting study artefacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/provenance_methods.html">Provenance and methods paragraphs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/parallel_execution.html">Parallel execution with RunPolicy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/fault_tolerance.html">Fault tolerance patterns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/plugin_entry_points.html">Third-party plugins (entry points)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html">Cohort assembly, plugins, and auxiliary utilities</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/one_step_habitat.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing.html#design-rules">Design rules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_routes.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_routes.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html#two-spellings-one-spec">Two spellings, one Spec</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html#runnable-demo">Runnable demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_composition.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/custom_voxel_features.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/custom_voxel_features.html#see-also">See also</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/apply_saved_model.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/apply_saved_model.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/apply_saved_model.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/image_preprocessing.html">Batch image preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing.html#entry-points">Entry points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/ml_advanced.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/visualization.html">Publication figures with habit.viz</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/persistence.html">Persisting study artefacts</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/persistence.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/parallel_execution.html">Parallel execution with RunPolicy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html#yaml-two-tracks">YAML: two tracks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html#failure-policy-note">Failure policy note</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/parallel_execution.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/fault_tolerance.html">Fault tolerance patterns</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/fault_tolerance.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/fault_tolerance.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/fault_tolerance.html#key-contracts">Key contracts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/fault_tolerance.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/run_from_yaml.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/run_from_yaml.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/run_from_yaml.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#path-semantics-short">Path semantics (short)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#command-checklist">Command checklist</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cli_yaml_workflows.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html">Cohort assembly, plugins, and auxiliary utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#cohort-and-plugins">Cohort and plugins</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#auxiliary-recipes">Auxiliary recipes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#config-tooling-programmatic-twins-of-cli">Config tooling (programmatic twins of CLI)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#output-abbreviated">Output (abbreviated)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/cohort_plugins_auxiliary.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_recipes_api.html">Habitat recipes API (three modes + apply + persistence)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_recipes_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_recipes_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_recipes_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/tabular_ml_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/features_radiomics_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/features_radiomics_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/features_radiomics_api.html#what-to-read-next">What to read next</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#script">Script</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#coverage">Coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 </ul>
@@ -467,14 +344,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-analysis">Habitat analysis</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.fit_habitat.html">fit_habitat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.two_step.html">two_step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.one_step.html">one_step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.direct_pooling.html">direct_pooling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.recipes.Study.html">Study</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.two_step_habitat.html">two_step_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.one_step_habitat.html">one_step_habitat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.direct_pooling_habitat.html">direct_pooling_habitat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.apply_habitat_model.html">apply_habitat_model</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#precision-screen">Precision screen</a><ul>
@@ -507,7 +380,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#recipe-result-types">Recipe result types</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.recipes.Study.html">Study</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.StudyResult.html">StudyResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.ModelResult.html">ModelResult</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.CVResult.html">CVResult</a></li>
@@ -1072,14 +944,6 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.api.radiomics.extract_batch.html">extract_batch</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#clinical-facade">Clinical facade</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.ClinicalCohort.html">ClinicalCohort</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.PreparedCohort.html">PreparedCohort</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.HabitatResult.html">HabitatResult</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.ClinicalPreprocessor.html">ClinicalPreprocessor</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.clinical.HabitatSegmenter.html">HabitatSegmenter</a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-and-feature-extraction-workflows">Habitat and feature-extraction workflows</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.HabitatAnalysisConfig.html">HabitatAnalysisConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.api.habitat.FeatureExtractionConfig.html">FeatureExtractionConfig</a></li>
@@ -1115,14 +979,6 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.api.dicom_sort.run_dicom_sort.html">run_dicom_sort</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#estimators">Estimators</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.EstimatorPersistenceMixin.html">EstimatorPersistenceMixin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.HabitatClusterer.html">HabitatClusterer</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.HabitClassifier.html">HabitClassifier</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.OutcomeClassifier.html">OutcomeClassifier</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.api.estimators.SubjectFeatureAggregator.html">SubjectFeatureAggregator</a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#provenance-and-workflow-results">Provenance and workflow results</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.api.provenance.RunManifest.html">RunManifest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.api.provenance.create_run_manifest.html">create_run_manifest</a></li>
@@ -1149,7 +1005,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../python_api.html">Python API guide (v1.0)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#architecture-in-one-diagram">Architecture in one diagram</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#mental-model">Mental model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../python_api.html#primary-recipe-fit-habitat">Primary recipe: <code class="docutils literal notranslate"><span class="pre">fit_habitat</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../python_api.html#primary-entry-study">Primary entry: <code class="docutils literal notranslate"><span class="pre">Study</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#common-workflows">Common workflows</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#canonical-end-to-end-example">Canonical end-to-end example</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../python_api.html#where-to-go-next">Where to go next</a></li>
@@ -1462,7 +1318,7 @@
 <h1>TablePipeline<a class="headerlink" href="#tablepipeline" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TablePipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pipeline_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TablePipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pipeline_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a></p>
 <p>Fitted preprocessing/selection chain plus model over feature tables.</p>
 <p>The structural answer to the train/predict leakage class of bugs: the
@@ -1546,12 +1402,12 @@ endpoints); kept so existing call sites keep working.</p></li>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pipeline_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">pipeline_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.components">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">components</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="habit.domain.TablePreprocessor.html#habit.domain.TablePreprocessor" title="habit.domain.table_protocols.TablePreprocessor"><span class="pre">TablePreprocessor</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.FeatureSelector.html#habit.domain.FeatureSelector" title="habit.domain.table_protocols.FeatureSelector"><span class="pre">FeatureSelector</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#habit.domain.TablePipeline.components" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">components</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="habit.domain.TablePreprocessor.html#habit.domain.TablePreprocessor" title="habit.domain.table_protocols.TablePreprocessor"><span class="pre">TablePreprocessor</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.FeatureSelector.html#habit.domain.FeatureSelector" title="habit.domain.table_protocols.FeatureSelector"><span class="pre">FeatureSelector</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#habit.domain.TablePipeline.components" title="Link to this definition"></a></dt>
 <dd><p>Return the ordered HABIT transformation components.</p>
 <p>This is the successor of the pre-v1.1 <code class="docutils literal notranslate"><span class="pre">.steps</span></code> property. <code class="docutils literal notranslate"><span class="pre">.steps</span></code>
 now means what sklearn means by it, so the HABIT components – the
@@ -1571,7 +1427,7 @@ plumbing, and the model is <a class="reference internal" href="#habit.domain.Tab
 
 <dl class="py property">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.model">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span></em><a class="headerlink" href="#habit.domain.TablePipeline.model" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">model</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Regressor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">SurvivalModel</span></span><a class="headerlink" href="#habit.domain.TablePipeline.model" title="Link to this definition"></a></dt>
 <dd><p>Return the terminal outcome model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1586,13 +1442,13 @@ plumbing, and the model is <a class="reference internal" href="#habit.domain.Tab
 
 <dl class="py property">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.classifier">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classifier</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a></em><a class="headerlink" href="#habit.domain.TablePipeline.classifier" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">classifier</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.domain.Classifier.html#habit.domain.Classifier" title="habit.domain.table_protocols.Classifier"><span class="pre">Classifier</span></a></span><a class="headerlink" href="#habit.domain.TablePipeline.classifier" title="Link to this definition"></a></dt>
 <dd><p>Return the terminal model, asserted to be a classifier.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.frame_schema">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frame_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FrameToTable</span></em><a class="headerlink" href="#habit.domain.TablePipeline.frame_schema" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">frame_schema</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FrameToTable</span></span><a class="headerlink" href="#habit.domain.TablePipeline.frame_schema" title="Link to this definition"></a></dt>
 <dd><p>Return the <code class="docutils literal notranslate"><span class="pre">FrameToTable</span></code> head step.</p>
 <p>The one place to read or re-declare the column schema an sklearn
 driver’s frames follow. Prefer
@@ -1608,7 +1464,7 @@ machinery and survives <code class="docutils literal notranslate"><span class="p
 
 <dl class="py property">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.spec">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spec</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><span class="pre">Spec</span></a></em><a class="headerlink" href="#habit.domain.TablePipeline.spec" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">spec</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><span class="pre">Spec</span></a></span><a class="headerlink" href="#habit.domain.TablePipeline.spec" title="Link to this definition"></a></dt>
 <dd><p>Return the composed specification of every stage.</p>
 <p>The payload shape – <code class="docutils literal notranslate"><span class="pre">{&quot;steps&quot;:</span> <span class="pre">[...],</span> <span class="pre">&quot;model&quot;:</span> <span class="pre">{...}}</span></code> – is the
 FINGERPRINTED one and is deliberately unchanged by the move to
@@ -1641,7 +1497,7 @@ never a constructor parameter).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.table.FeatureTable"><span class="pre">FeatureTable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.table.FeatureTable"><span class="pre">FeatureTable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.fit" title="Link to this definition"></a></dt>
 <dd><p>Fit every step in order, then the terminal model.</p>
 <p>Each step is fitted on the table produced by the previous step, so
 learned statistics compose exactly as they will at predict time.</p>
@@ -1829,7 +1685,7 @@ version 1 (written before this class became an
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.load" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/pipeline.html#TablePipeline.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.TablePipeline.load" title="Link to this definition"></a></dt>
 <dd><p>Load a pipeline previously written by <a class="reference internal" href="#habit.domain.TablePipeline.save" title="habit.domain.TablePipeline.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>.</p>
 <p>Both on-disk format versions are readable:</p>
 <ul class="simple">
@@ -1865,11 +1721,12 @@ files from sources you trust.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.set_fit_request">
-<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="headerlink" href="#habit.domain.TablePipeline.set_fit_request" title="Link to this definition"></a></dt>
-<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
-<p>Note that this method is only relevant if
-<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
-Please see <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="headerlink" href="#habit.domain.TablePipeline.set_fit_request" title="Link to this definition"></a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-meta-estimator" title="(in scikit-learn v1.9)"><span class="xref std std-term">meta-estimator</span></a> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
+Please check the <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
 mechanism works.</p>
 <p>The options for each parameter are:</p>
 <ul class="simple">
@@ -1883,12 +1740,6 @@ existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 1.3.</span></p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method is only relevant if this estimator is used as a
-sub-estimator of a meta-estimator, e.g. used inside a
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1905,11 +1756,12 @@ sub-estimator of a meta-estimator, e.g. used inside a
 
 <dl class="py method">
 <dt class="sig sig-object py" id="habit.domain.TablePipeline.set_score_request">
-<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="headerlink" href="#habit.domain.TablePipeline.set_score_request" title="Link to this definition"></a></dt>
-<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
-<p>Note that this method is only relevant if
-<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
-Please see <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#habit.domain.TablePipeline" title="habit.domain.pipeline.TablePipeline"><span class="pre">TablePipeline</span></a></span></span><a class="headerlink" href="#habit.domain.TablePipeline.set_score_request" title="Link to this definition"></a></dt>
+<dd><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant when this estimator is used as a
+sub-estimator within a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-meta-estimator" title="(in scikit-learn v1.9)"><span class="xref std std-term">meta-estimator</span></a> and metadata routing is enabled
+with <code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.set_config.html#sklearn.set_config" title="(in scikit-learn v1.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code></a>).
+Please check the <a class="reference external" href="https://scikit-learn.org/stable/metadata_routing.html#metadata-routing" title="(in scikit-learn v1.9)"><span class="xref std std-ref">User Guide</span></a> on how the routing
 mechanism works.</p>
 <p>The options for each parameter are:</p>
 <ul class="simple">
@@ -1923,12 +1775,6 @@ existing request. This allows you to change the request for some
 parameters and not others.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">Added in version 1.3.</span></p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This method is only relevant if this estimator is used as a
-sub-estimator of a meta-estimator, e.g. used inside a
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>. Otherwise it has no effect.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

@@ -38,7 +38,7 @@ Strategy is **inferred from the stage sequence**:
 Partition without ``pool`` is rejected
 (:meth:`~habit.spec.HabitatSpec.validate_dataflow`).
 
-Primary entry: :func:`~habit.recipes.fit_habitat`.
+Primary entry: :meth:`~habit.recipes.Study.fit_predict`.
 
 .. code-block:: python
 
@@ -105,7 +105,7 @@ Primary entry: :func:`~habit.recipes.fit_habitat`.
 
    print(two_step.fingerprint())
    print(two_step.describe_methods(style="radiology"))
-   # result = recipes.fit_habitat(cohort, two_step)
+   # result = recipes.Study(spec=two_step).fit_predict(cohort)
 
 Named-field sugar and ``pooling`` (compat)
 ------------------------------------------
@@ -120,10 +120,11 @@ Derived views: a ``pool`` stage ⇒ ``pooling="cohort"`` /
 ``definition_level="cohort"``; otherwise ``"none"`` / ``"subject"``.
 ``definition_level`` is read-only.
 
-Thin recipe aliases :func:`~habit.recipes.two_step`,
-:func:`~habit.recipes.one_step`, and
-:func:`~habit.recipes.direct_pooling` validate the design their name
-promises, then call :func:`~habit.recipes.fit_habitat`.
+Habitat factories :func:`~habit.recipes.two_step_habitat`,
+:func:`~habit.recipes.one_step_habitat`, and
+:func:`~habit.recipes.direct_pooling_habitat` return a
+:class:`~habit.recipes.Study` whose ``design`` validates the shape their
+name promises before :meth:`~habit.recipes.Study.fit`.
 
 Sugar form (same two-step science as above)::
 
@@ -501,7 +502,7 @@ v0.1 YAML selects the habitat design via
 named-field sugar plus a derived ``pooling`` declaration (``one_step`` →
 ``"none"``; ``two_step`` / ``direct_pooling`` → ``"cohort"``). Native v1
 documents may also declare explicit ``stages``. Either way,
-:func:`~habit.recipes.fit_habitat` runs the shared stage executor. Mode-named
+:meth:`~habit.recipes.Study.fit_predict` runs the shared stage executor. Mode-named
 aliases remain as thin validators:
 
 .. list-table::
@@ -510,20 +511,20 @@ aliases remain as thin validators:
 
    * - ``clustering_mode`` (YAML)
      - Inferred stage signature / sugar
-     - Alias (all dispatch to ``fit_habitat``)
+     - Alias (all dispatch to ``Study.fit_predict``)
    * - ``two_step``
      - partition + pool (sugar: ``pooling="cohort"`` + supervoxelizer)
-     - :func:`~habit.recipes.two_step`
+     - :func:`~habit.recipes.two_step_habitat`
    * - ``one_step``
      - neither (sugar: ``pooling="none"``)
-     - :func:`~habit.recipes.one_step`
+     - :func:`~habit.recipes.one_step_habitat`
    * - ``direct_pooling``
      - pool only (sugar: ``pooling="cohort"``, no supervoxelizer)
-     - :func:`~habit.recipes.direct_pooling`
+     - :func:`~habit.recipes.direct_pooling_habitat`
 
 Pattern: load the YAML, translate with :class:`~habit.spec.legacy.LegacyConfigAdapter`,
 build a :class:`~habit.spec.specs.HabitatSpec`, then call
-:func:`~habit.recipes.fit_habitat`:
+:meth:`~habit.recipes.Study.fit_predict`:
 
 .. code-block:: python
 
@@ -550,7 +551,7 @@ build a :class:`~habit.spec.specs.HabitatSpec`, then call
    )
    # cohort = DirectoryDataSource(...).load()  # real data on disk
 
-   result = recipes.fit_habitat(cohort, spec)
+   result = recipes.Study(spec=spec).fit_predict(cohort)
    result.save("out/study")
 
 Workflow aliases accepted by migrate / validate / adapter:

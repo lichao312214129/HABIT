@@ -31,23 +31,100 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    $env:HABIT_NO_VIEW = "1"
    python docs/source/examples/scripts/_smoke_examples.py
 
+Gallery map
+-----------
+
+The numbered modules below are the reading order. Sphinx **Next** / **Previous**
+and the sidebar follow the single hidden ``toctree`` at the bottom of this page
+(same order as this map).
+
+1. Data & cohorts
+~~~~~~~~~~~~~~~~~
+
+* :doc:`data_from_arrays`
+
+2. Image preprocessing
+~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`image_preprocessing`
+* :doc:`image_preprocessing_api`
+
+3. Habitat analysis (core)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`habitat_analysis_overview`
+* :doc:`two_step_habitat`
+* :doc:`one_step_habitat`
+* :doc:`direct_pooling_habitat`
+* :doc:`habitat_fit_modes`
+* :doc:`apply_saved_model`
+* :doc:`habitat_atomic_ops`
+* :doc:`habitat_custom_pipeline`
+
+4. Habitat design (Spec & features)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`feature_composition`
+* :doc:`habitat_feature_routes`
+* :doc:`habitat_preprocessing`
+* :doc:`habitat_preprocessing_api`
+* :doc:`precise_features`
+* :doc:`custom_voxel_features`
+
+5. Quantification
+~~~~~~~~~~~~~~~~~
+
+* :doc:`feature_extraction`
+* :doc:`features_radiomics_api`
+
+6. Machine learning
+~~~~~~~~~~~~~~~~~~~
+
+* :doc:`tabular_ml`
+* :doc:`tabular_ml_api`
+* :doc:`ml_advanced`
+
+7. Visualization
+~~~~~~~~~~~~~~~~
+
+* :doc:`visualization`
+* :doc:`viz_parallel_extras_api`
+
+8. Persistence & provenance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`persistence`
+* :doc:`provenance_methods`
+
+9. Execution & reliability
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`parallel_execution`
+* :doc:`fault_tolerance`
+
+10. Extending HABIT
+~~~~~~~~~~~~~~~~~~~
+
+* :doc:`plugin_entry_points`
+
+11. YAML & CLI shells
+~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`run_from_yaml`
+* :doc:`cli_yaml_workflows`
+
+12. QC & auxiliary
+~~~~~~~~~~~~~~~~~~
+
+* :doc:`cohort_plugins_auxiliary`
+
 .. toctree::
    :maxdepth: 1
-   :caption: 1. Data & cohorts
+   :hidden:
 
    data_from_arrays
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 2. Image preprocessing
-
    image_preprocessing
    image_preprocessing_api
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 3. Habitat analysis (core)
-
    habitat_analysis_overview
    two_step_habitat
    one_step_habitat
@@ -56,70 +133,24 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    apply_saved_model
    habitat_atomic_ops
    habitat_custom_pipeline
-   habitat_recipes_api
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 4. Habitat design (Spec & features)
-
    feature_composition
    habitat_feature_routes
    habitat_preprocessing
    habitat_preprocessing_api
    precise_features
    custom_voxel_features
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 5. Quantification
-
    feature_extraction
    features_radiomics_api
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 6. Machine learning
-
    tabular_ml
    tabular_ml_api
    ml_advanced
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 7. Visualization
-
    visualization
    viz_parallel_extras_api
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 8. Persistence & provenance
-
    persistence
    provenance_methods
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 9. Execution & reliability
-
    parallel_execution
    fault_tolerance
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 10. Extending HABIT
-
    plugin_entry_points
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 11. YAML & CLI shells
-
    run_from_yaml
    cli_yaml_workflows
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 12. QC & auxiliary
-
    cohort_plugins_auxiliary
