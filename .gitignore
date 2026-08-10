@@ -188,6 +188,7 @@ cython_debug/
 
 # Sphinx / quickstart screenshots (override blanket *.png).
 !docs/source/_static/images/*.png
+!docs/source/_static/images/**/*.png
 
 # Specific directories to ignore
 demo_data/results/

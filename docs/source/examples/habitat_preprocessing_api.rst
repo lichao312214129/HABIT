@@ -69,7 +69,7 @@ The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 What to read next
 -----------------
 
-* :doc:`habitat_recipes_api` — three habitat modes that consume these chains
+* :doc:`habitat_fit_modes` — three habitat modes that consume these chains
 * :doc:`habitat_preprocessing` — narrative twin of the subject / cohort chains
 * :doc:`../api/domain` — ``HabitatComponents`` attribute table
 * :doc:`../api/domain_habitat` — ``StepRecorder`` / supervoxel feature extractors

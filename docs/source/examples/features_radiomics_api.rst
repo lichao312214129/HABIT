@@ -30,4 +30,4 @@ What to read next
 -----------------
 
 * :doc:`tabular_ml_api` — model the resulting tables
-* :doc:`habitat_recipes_api` — produce habitat maps first
+* :doc:`habitat_fit_modes` — produce habitat maps first

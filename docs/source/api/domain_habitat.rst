@@ -168,7 +168,8 @@ Step inspection (optional)
 
 To observe every habitat pipeline boundary in memory, pass
 ``inspect=StepRecorder(...)`` to a recipe. See
-:doc:`../examples/habitat_preprocessing_api` ("Inspect every step").
+:doc:`../examples/habitat_preprocessing_api` ("Inspect every step") and
+:doc:`../examples/habitat_atomic_ops`.
 
 .. code-block:: python
 

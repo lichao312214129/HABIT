@@ -1,6 +1,8 @@
 Direct-pooling habitat analysis
 ===============================
 
+**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~20–60 s
+
 Direct pooling skips supervoxels and clusters **all ROI voxels pooled across
 the cohort**. Declare stages with a ``pool`` marker and **no** ``partition``,
 then call :func:`~habit.recipes.fit_habitat`. Preprocess stages may run
@@ -39,6 +41,8 @@ The script ends with a **napari eye-check**. Close the window to finish;
 What to read next
 -----------------
 
+* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
+* :doc:`habitat_custom_pipeline` — customise stages for pooling designs
 * :doc:`habitat_preprocessing` — subject vs cohort preprocessing chains
 * :doc:`two_step_habitat` — supervoxel intermediate stage
 * :doc:`apply_saved_model` — reuse a cohort-level model on new subjects

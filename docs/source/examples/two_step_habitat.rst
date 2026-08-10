@@ -1,6 +1,8 @@
 Two-step habitat analysis, end to end
 =====================================
 
+**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~30–90 s
+
 The classical habitat design: each subject's ROI is partitioned into
 supervoxels, every supervoxel is described by its features, and the habitat
 definition is learned from all subjects' supervoxels pooled together. This
@@ -76,7 +78,9 @@ that file reproduces the habitat maps voxel-wise. See
 What to read next
 -----------------
 
-* :doc:`../tutorial/quickstart_python` — same first run plus napari view screenshots
+* :doc:`habitat_analysis_overview` — recipe / atomic / custom map
+* :doc:`habitat_atomic_ops` — same science as single-argument callables
+* :doc:`habitat_custom_pipeline` — swap components safely
+* :doc:`../tutorial/quickstart_python` — demo_data path + napari screenshots
 * :doc:`apply_saved_model` — persist the model and project it onto new subjects
-* :doc:`../api/python_api` — the narrative Python API guide
 * :class:`~habit.recipes.StudyResult` — what a recipe returns

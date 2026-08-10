@@ -27,7 +27,7 @@ Design rules
 Assembled live objects use the same vocabulary on
 :class:`~habit.domain.assembly.HabitatComponents`
 (``voxel_feature_preprocessor``, ``cohort_feature_preprocessor``, …);
-see :doc:`habitat_preprocessing_api` and :doc:`../api/domain`.
+see :doc:`habitat_preprocessing_api` (API deep dive) and :doc:`../api/domain`.
 
 * **One-step** — ``voxel_feature_preprocessors`` only. No cohort chain at
   train: each subject clusters independently; frozen state lives in

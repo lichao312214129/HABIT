@@ -1,6 +1,8 @@
 Apply a saved .habitatmodel to new subjects
 ===========================================
 
+**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~20–60 s
+
 A fitted :class:`~habit.contracts.HabitatModel` is HABIT's primary
 scientific artefact: a self-describing habitat definition that can be
 published alongside a paper and applied by other groups to their own
