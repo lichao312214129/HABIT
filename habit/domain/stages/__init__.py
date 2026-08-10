@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from habit.domain.stages.executor import (
     execute_habitat_dataflow,
+    normalize_spec_for_execution,
     run_subject_stage_prefix,
 )
 from habit.domain.stages.resolve import (
@@ -31,5 +32,6 @@ __all__ = [
     "design_from_stages",
     "resolve_habitat_stages",
     "execute_habitat_dataflow",
+    "normalize_spec_for_execution",
     "run_subject_stage_prefix",
 ]

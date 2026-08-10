@@ -74,7 +74,11 @@ from habit.contracts.table import FeatureTable
 from habit.domain.assembly import HabitatComponents, build_habitat_components
 from habit.domain.pooling import fan_in
 from habit.domain.protocols import Seedable
-from habit.domain.stages import execute_habitat_dataflow, resolve_habitat_stages
+from habit.domain.stages import (
+    execute_habitat_dataflow,
+    normalize_spec_for_execution,
+    resolve_habitat_stages,
+)
 from habit.recipes.result import StudyResult
 from habit.spec.specs import HabitatSpec
 
@@ -1109,6 +1113,13 @@ def apply_habitat_model(
     _reject_process_inspect(inspect, backend)
     started_at = _now()
     effective = _effective_spec(spec, seed)
+    effective.validate_dataflow()
+    # Name-only stages leave named fields empty until roles are inferred;
+    # normalize so assembly (and subject pipelines) see the same components
+    # that fit_habitat used. Fitted cohort preprocess still comes from the
+    # model via _with_model_preprocessing below.
+    resolved = resolve_habitat_stages(effective)
+    effective = normalize_spec_for_execution(effective, resolved)
     components = build_habitat_components(effective)
     components = _with_model_preprocessing(components, model)
     assigner = _build_assigner(model, effective, effective.random_seed)

@@ -16,20 +16,34 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Tuple
+
 import numpy as np
 import pytest
 
+from habit.contracts.habitat import HabitatModel
 from habit.domain.pooling_marker import PoolMarker, PoolingRegistry
 from habit.domain.stages import (
     design_from_stages,
+    normalize_spec_for_execution,
     resolve_habitat_stages,
     run_subject_stage_prefix,
 )
-from habit.exceptions import HABITAPIError
+from habit.exceptions import CompatibilityError, HABITAPIError
 from habit.inspection import StepRecorder
 from habit.spec import HabitatSpec, Spec, Stage
 from habit import make_synthetic_cohort
 import habit.recipes as recipes
+
+
+#: Shared kmeans fitter params for lightweight stage fixtures.
+_FITTER_PARAMS = {
+    "min_habitats": 2,
+    "max_habitats": 3,
+    "validation": "silhouette",
+    "n_init": 3,
+}
 
 
 def _base_fields(**overrides: object) -> dict:
@@ -53,6 +67,41 @@ def _base_fields(**overrides: object) -> dict:
     }
     fields.update(overrides)
     return fields
+
+
+def _name_only_stages_with_post_pool_preprocess(
+    design: str,
+) -> Tuple[Stage, ...]:
+    """
+    Build name-only stages (no ``role=``) with pool then cohort preprocess.
+
+    Args:
+        design: ``"direct_pooling"`` or ``"two_step"``.
+
+    Returns:
+        Ordered stages ending in assign + volume quantify.
+    """
+    voxel = Stage("voxel", Spec("raw", {"modalities": ["T1", "T2"]}))
+    pool = Stage("pool", Spec("pool"))
+    # Post-pool preprocess becomes cohort_feature_preprocessors after resolve.
+    cohort_prep = Stage("cohort_prep", Spec("zscore"))
+    fit = Stage("fit", Spec("kmeans", dict(_FITTER_PARAMS)))
+    assign = Stage("assign", Spec("nearest_centroid"))
+    quantify = Stage("quantify", Spec("volume"))
+    if design == "direct_pooling":
+        return (voxel, pool, cohort_prep, fit, assign, quantify)
+    if design == "two_step":
+        return (
+            voxel,
+            Stage("partition", Spec("kmeans", {"n_supervoxels": 6, "n_init": 3})),
+            Stage("svx_feat", Spec("mean")),
+            pool,
+            cohort_prep,
+            fit,
+            assign,
+            quantify,
+        )
+    raise ValueError(f"Unsupported design for this fixture: {design!r}")
 
 
 @pytest.mark.unit
@@ -361,3 +410,82 @@ def test_temporary_plugin_stage_component_runs() -> None:
     finally:
         # Best-effort cleanup: registry has no public unregister; overwrite is fine.
         pass
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize("design", ["direct_pooling", "two_step"])
+def test_habitat_model_save_load_apply_with_post_pool_preprocess(
+    design: str,
+    tmp_path: Path,
+) -> None:
+    """
+    F.9 gate: stages fit with post-pool preprocess round-trips through
+    ``.habitatmodel`` and ``apply_habitat_model`` without label drift.
+
+    Also pins the invariant that cohort preprocess state travels with the
+    model and ``with_cohort_preprocessing`` recomputes ``model_id``.
+    """
+    cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=5)
+    stages = _name_only_stages_with_post_pool_preprocess(design)
+    # Assert every stage is name-only (no authored role=).
+    assert all(stage.role is None for stage in stages)
+    spec = HabitatSpec(name=f"saveload_{design}", stages=stages, random_seed=11)
+    resolved = resolve_habitat_stages(spec)
+    assert design_from_stages(resolved) == design
+    # Name-only stages keep named fields empty until normalize (executor path).
+    normalized = normalize_spec_for_execution(spec, resolved)
+    assert normalized.cohort_feature_preprocessors
+    assert all(s.name == "zscore" for s in normalized.cohort_feature_preprocessors)
+
+    trained = recipes.fit_habitat(cohort, spec)
+    model = trained.habitat_model
+    assert model is not None
+    assert "cohort_feature_preprocessor" in model.preprocessing_state
+    assert "cohort_preprocessing" in model.provenance.produced_by
+
+    # Binding a different cohort chain must mint a new definition identity.
+    rebound = model.with_cohort_preprocessing(
+        state={"methods": ["sentinel"]},
+        spec_payload={
+            "name": "cohort_feature_preprocessor",
+            "params": {"steps": [{"name": "sentinel", "params": {}}]},
+        },
+    )
+    assert rebound.model_id != model.model_id
+    assert rebound.model_id.startswith(model.model_id.split("-", 1)[0] + "-")
+
+    archive = model.save(tmp_path / f"{design}.habitatmodel")
+    loaded = HabitatModel.load(archive)
+    assert loaded.model_id == model.model_id
+    np.testing.assert_array_equal(loaded.centroids, model.centroids)
+    assert loaded.feature_names == model.feature_names
+    assert (
+        loaded.preprocessing_state["cohort_feature_preprocessor"]
+        == model.preprocessing_state["cohort_feature_preprocessor"]
+    )
+
+    applied = recipes.apply_habitat_model(cohort, spec, loaded)
+    trained_maps = {m.subject_id: m.label_array for m in trained.habitat_maps}
+    for habitat_map in applied.habitat_maps:
+        np.testing.assert_array_equal(
+            habitat_map.label_array,
+            trained_maps[habitat_map.subject_id],
+        )
+    assert trained.features is not None and applied.features is not None
+    feature_cols = list(trained.features.feature_columns)
+    assert feature_cols
+    np.testing.assert_allclose(
+        applied.features.frame.loc[:, feature_cols].to_numpy(dtype=float),
+        trained.features.frame.loc[:, feature_cols].to_numpy(dtype=float),
+        rtol=1e-6,
+        atol=0.0,
+    )
+
+
+@pytest.mark.unit
+def test_habitat_model_load_rejects_non_archive_clearly(tmp_path: Path) -> None:
+    """Incompatible bytes must fail loudly, never yield a plausible model."""
+    bogus = tmp_path / "legacy_pipeline.pkl"
+    bogus.write_bytes(b"not-a-habitatmodel-archive")
+    with pytest.raises(CompatibilityError, match="habitat_pipeline|habit.habitatmodel"):
+        HabitatModel.load(bogus)
