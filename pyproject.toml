@@ -75,6 +75,10 @@ dependencies = [
     # .cluster_selection). 0.1 MB with no transitive dependencies of its own,
     # and it is habitat kernel logic rather than an optional backend.
     "kneed>=0.8,<1",
+    # Graph-topology habitat features (habit.kernels.habitat_graph): every
+    # region-graph metric is a NetworkX computation. Pure Python, ~3 MB, no
+    # required transitive dependencies of its own.
+    "networkx>=3.0,<4",
 ]
 
 [project.scripts]
@@ -114,6 +118,8 @@ view = [
     "napari[pyqt5]>=0.4.19,<0.8",
     "npe2>=0.8.2",
     "pydantic!=2.11.*,>=2.8,<3",
+    # Off-screen 3D habitat-graph surfaces/networks (habit.viz.habitat_graph).
+    "pyvista>=0.43,<1",
 ]
 # Every figure HABIT can draw. ~57.8 MB installed, of which ~31.4 MB is
 # matplotlib's own transitive tail (pillow, fonttools, kiwisolver, contourpy).

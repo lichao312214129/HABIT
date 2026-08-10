@@ -60,6 +60,7 @@ _FAMILY_CSV_STEM: Mapping[str, str] = {
     "non_radiomics": "habitat_basic_features",
     "traditional": "raw_image_radiomics",
     "whole_habitat": "whole_habitat_radiomics",
+    "graph": "habitat_graph_features",
 }
 
 #: Domain ITH summary columns remapped to the v0.1 CSV names.

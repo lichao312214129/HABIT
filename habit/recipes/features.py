@@ -27,7 +27,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, FrozenSet, List, Mapping, Optional, Sequence, Tuple
 
 from habit.api.contracts import WorkflowResult, coerce_config
 from habit.api.provenance import create_run_manifest, write_run_manifest
@@ -43,19 +43,40 @@ __all__ = ["extract_habitat_features", "traditional_radiomics"]
 
 _LOG = get_module_logger(__name__)
 
-#: Built-in feature families that have domain extractors. Anything else
-#: (e.g. optional ``graph`` plugins) falls back to the compat analyzer.
-_DOMAIN_FEATURE_TYPES = frozenset(
-    {
-        "msi",
-        "ith_score",
-        "non_radiomics",
-        "traditional",
-        "whole_habitat",
-        "each_habitat",
-        "volume",
-    }
-)
+def _domain_feature_type_names() -> FrozenSet[str]:
+    """
+    Feature family names routable to the domain extract path.
+
+    The set is read from the
+    :class:`~habit.domain.habitat_features.HabitatFeatureExtractorRegistry`
+    after loading ``habit.habitat_feature_extractor`` entry points, so
+    third-party domain plugins dispatch exactly like the built-in families.
+
+    Returns:
+        Registered domain extractor names (built-ins plus entry points).
+    """
+    import habit.domain.habitat_features  # noqa: F401  (register built-ins)
+    from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
+
+    HabitatFeatureExtractorRegistry.load_entry_points()
+    return frozenset(HabitatFeatureExtractorRegistry.available())
+
+
+def _legacy_feature_type_names() -> FrozenSet[str]:
+    """
+    Feature family names the v0.1 ``HabitatFeatureFactory`` provides.
+
+    Imported lazily so the domain path never pays for -- or triggers -- a
+    ``habit.compat`` import; only a genuine compat fallback calls this.
+
+    Returns:
+        Registered v0.1 handler names (built-ins plus legacy optional packages).
+    """
+    from habit.compat.engines.habitat_extraction.feature_registry import (
+        HabitatFeatureFactory,
+    )
+
+    return frozenset(HabitatFeatureFactory.registered_feature_names())
 
 
 @dataclass(frozen=True)
@@ -149,6 +170,7 @@ def _build_domain_extractors(
     use_torch_radiomics: Any = "auto",
     torch_device: str = "auto",
     torch_dtype: str = "float32",
+    plugin_configs: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Instantiate domain extractors for the requested built-in feature types.
@@ -161,21 +183,29 @@ def _build_domain_extractors(
             defaults unchanged; only the compute path may switch).
         torch_device: Torch device string or ``"auto"``.
         torch_dtype: Torch dtype name for the torch path.
+        plugin_configs: Optional plugin settings; the ``graph`` entry carries
+            the validated graph-extraction parameters from the YAML
+            ``graph:`` block.
 
     Returns:
         Mapping of feature type name to extractor instance.
     """
-    # Ensure built-in extractors are registered.
+    # Ensure built-in extractors are registered, then read the routable set
+    # from the registry so third-party entry-point plugins dispatch like
+    # built-ins.
     import habit.domain.habitat_features  # noqa: F401
     from habit.domain.habitat_features import HabitatFeatureExtractorRegistry
     from habit.utils.radiomics_preset_utils import resolve_params_file
+
+    HabitatFeatureExtractorRegistry.load_entry_points()
+    available = set(HabitatFeatureExtractorRegistry.available())
 
     roi_params = resolve_params_file(params_file_of_non_habitat, preset="roi")
     habitat_params = resolve_params_file(params_file_of_habitat, preset="habitat")
 
     extractors: Dict[str, Any] = {}
     for name in feature_types:
-        if name not in _DOMAIN_FEATURE_TYPES:
+        if name not in available:
             continue
         if name == "traditional":
             extractors[name] = HabitatFeatureExtractorRegistry.create(
@@ -201,9 +231,89 @@ def _build_domain_extractors(
                 torch_device=torch_device,
                 torch_dtype=torch_dtype,
             )
+        elif name == "graph":
+            extractors[name] = HabitatFeatureExtractorRegistry.create(
+                name,
+                **_graph_params_from_plugin_configs(plugin_configs),
+            )
         else:
             extractors[name] = HabitatFeatureExtractorRegistry.create(name)
     return extractors
+
+
+def _graph_params_from_plugin_configs(
+    plugin_configs: Optional[Mapping[str, Any]],
+) -> Dict[str, Any]:
+    """
+    Extract graph-extraction parameters from the plugin config mapping.
+
+    The ``graph`` entry may be a validated
+    :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock` (YAML path), a
+    plain mapping (direct API callers), or the deprecated extraction-only
+    params model (compat shim). Visualization and legacy block keys are
+    steering metadata for the recipe's figure hook, not extractor constructor
+    parameters, so they are filtered out here; every other key reaches the
+    registry, which rejects unknown names with a precise error.
+
+    Args:
+        plugin_configs: Plugin settings keyed by plugin name.
+
+    Returns:
+        Keyword arguments for the ``graph`` domain extractor; empty when no
+        graph settings were provided (extractor defaults apply).
+    """
+    if not plugin_configs or "graph" not in plugin_configs:
+        return {}
+    graph_cfg = plugin_configs["graph"]
+    if hasattr(graph_cfg, "model_dump"):
+        data = dict(graph_cfg.model_dump())
+    elif isinstance(graph_cfg, Mapping):
+        data = dict(graph_cfg)
+    else:
+        return {}
+
+    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+    from habit.schemas.workflows.habitat import GraphFeatureBlock
+
+    non_extraction = set(GraphFeatureBlock.model_fields) - set(
+        GraphHabitatFeaturesParams.model_fields
+    )
+    return {key: value for key, value in data.items() if key not in non_extraction}
+
+
+def _graph_block_from_plugin_configs(
+    plugin_configs: Optional[Mapping[str, Any]],
+) -> Optional[Any]:
+    """
+    Coerce the graph plugin config into the validated block schema.
+
+    Accepts the block model itself (YAML path), a plain mapping (direct API
+    callers, coerced so the same defaults apply), or the deprecated
+    extraction-only params model from the compat shim -- the last carries no
+    visualization fields, so the figure hook stays off on that path.
+
+    Args:
+        plugin_configs: Plugin settings keyed by plugin name.
+
+    Returns:
+        The validated ``GraphFeatureBlock``, or ``None`` when no graph
+        settings exist.
+    """
+    if not plugin_configs or "graph" not in plugin_configs:
+        return None
+    from habit.schemas.workflows.habitat import GraphFeatureBlock
+
+    graph_cfg = plugin_configs["graph"]
+    if isinstance(graph_cfg, GraphFeatureBlock):
+        return graph_cfg
+    if isinstance(graph_cfg, Mapping):
+        return GraphFeatureBlock.model_validate(dict(graph_cfg))
+    if hasattr(graph_cfg, "model_dump"):
+        # The deprecated compat shim passes the extraction-only params model:
+        # keep its extraction values (so the drawn graph still matches the
+        # measured features) and let the visualization fields default.
+        return GraphFeatureBlock.model_validate(graph_cfg.model_dump())
+    return GraphFeatureBlock()
 
 
 def _map_extract_items(
@@ -272,11 +382,218 @@ def _map_extract_items(
     return ordered, failures
 
 
+def _write_graph_visualizations(
+    items: Sequence[_ExtractItem],
+    *,
+    block: Any,
+    out_dir: Path,
+    logger: logging.Logger,
+) -> List[Path]:
+    """
+    Render per-subject habitat graph topology figures (``graph.visualize``).
+
+    Figures are rendered serially in the main process after the CSV export:
+    rendering is cheap relative to feature extraction, and serial execution
+    sidesteps Windows process-pool pickling of matplotlib figures. A missing
+    optional rendering backend (matplotlib for 2D, pyvista for 3D) skips the
+    affected figures with a warning instead of failing the completed
+    extraction. All figure text is English-only.
+
+    Args:
+        items: Per-subject payloads (habitat maps are re-read from disk).
+        block: Validated ``GraphFeatureBlock`` carrying the visualization
+            settings.
+        out_dir: Extraction output directory; figures land in
+            ``visualizations/graph/`` under it (v0.1 layout convention).
+        logger: Run logger.
+
+    Returns:
+        Paths of the figure files written.
+    """
+    from habit.exceptions import OptionalDependencyError
+    from habit.utils.optional_deps import require
+
+    purpose = "habitat graph topology figures"
+    try:
+        # Force the headless Agg canvas before pyplot loads, mirroring
+        # habit.viz.habitat_graph._plt: figure export must work on machines
+        # without a display.
+        matplotlib = require("matplotlib", extra="viz", purpose=purpose)
+        if matplotlib.get_backend().lower() not in (
+            "agg",
+            "module://matplotlib_inline.backend_inline",
+        ):
+            matplotlib.use("Agg")
+        plt = require("matplotlib.pyplot", extra="viz", purpose=purpose)
+    except OptionalDependencyError as exc:
+        logger.warning("Graph visualization skipped: %s", exc)
+        return []
+
+    from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+    from habit.kernels.habitat_graph import HabitatGraphFeatureOptions
+
+    # The drawn graph must match the measured features, so the renderers get
+    # the same construction options as the extractor.
+    options = HabitatGraphFeatureOptions(
+        **{
+            field: getattr(block, field)
+            for field in GraphHabitatFeaturesParams.model_fields
+        }
+    )
+
+    formats = (
+        ("png", "pdf")
+        if block.visualization_format == "both"
+        else (block.visualization_format,)
+    )
+    figure_dir = out_dir / "visualizations" / "graph"
+    figure_dir.mkdir(parents=True, exist_ok=True)
+
+    render_3d = bool(block.visualization_save_3d)
+    if render_3d:
+        try:
+            require("pyvista", extra="view", purpose="3D habitat graph rendering")
+            require("skimage", extra="slic", purpose="3D habitat graph rendering")
+        except OptionalDependencyError as exc:
+            logger.warning("3D graph rendering skipped: %s", exc)
+            render_3d = False
+
+    written: List[Path] = []
+    bar = CustomTqdm(total=len(items), desc="Rendering Graph Figures")
+    try:
+        for item in items:
+            bar.update(1)
+            try:
+                written.extend(
+                    _render_one_subject_graph_figures(
+                        item,
+                        options=options,
+                        block=block,
+                        formats=formats,
+                        render_3d=render_3d,
+                        figure_dir=figure_dir,
+                        plt=plt,
+                    )
+                )
+            except Exception as exc:  # noqa: BLE001
+                # A degenerate map must not void the cohort's figures.
+                logger.warning(
+                    "Graph visualization failed for subject %s: %s",
+                    item.subject_id,
+                    exc,
+                )
+    finally:
+        bar.close()
+    if written:
+        logger.info(
+            "Wrote %d graph figure file(s) under %s", len(written), figure_dir
+        )
+    return written
+
+
+def _render_one_subject_graph_figures(
+    item: _ExtractItem,
+    *,
+    options: Any,
+    block: Any,
+    formats: Sequence[str],
+    render_3d: bool,
+    figure_dir: Path,
+    plt: Any,
+) -> List[Path]:
+    """
+    Render and save every graph figure for one subject.
+
+    Args:
+        item: Subject payload with the habitat map path.
+        options: ``HabitatGraphFeatureOptions`` shared with the extractor.
+        block: Validated ``GraphFeatureBlock`` (visualization settings).
+        formats: 2D file formats to write (``png`` / ``pdf``).
+        render_3d: Whether 3D renders are requested AND their optional
+            dependencies are present.
+        figure_dir: Destination directory (``visualizations/graph/``).
+        plt: The matplotlib pyplot module (figure cleanup and imsave).
+
+    Returns:
+        Paths of the figure files written for this subject.
+    """
+    import numpy as np
+
+    from habit.adapters.extract_io import read_habitat_map
+    from habit.viz.habitat_graph import (
+        plot_habitat_graph_network_2d,
+        plot_habitat_graph_slice,
+    )
+
+    habitat_map = read_habitat_map(
+        item.habitat_path,
+        subject_id=item.subject.subject_id,
+        habitat_ids=item.habitat_ids,
+    )
+    labels = np.asarray(habitat_map.label_array)
+
+    written: List[Path] = []
+    figures = (
+        ("graph_slice", plot_habitat_graph_slice(labels)),
+        (
+            "graph_network_2d",
+            plot_habitat_graph_network_2d(
+                labels,
+                options=options,
+                show_background=block.visualization_show_background,
+            ),
+        ),
+    )
+    for stem, figure in figures:
+        if figure is None:
+            continue
+        for fmt in formats:
+            destination = figure_dir / f"{item.subject_id}_{stem}.{fmt}"
+            figure.savefig(
+                destination, dpi=block.visualization_dpi, bbox_inches="tight"
+            )
+            written.append(destination)
+        plt.close(figure)
+
+    if render_3d and labels.ndim == 3:
+        from habit.viz.habitat_graph import (
+            render_habitat_graph_network_3d,
+            render_habitat_graph_surface_3d,
+        )
+
+        # Geometry spacing is SimpleITK-ordered (x, y, z); the renderers
+        # expect array-axis order (z, y, x).
+        spacing = tuple(
+            float(v) for v in reversed(habitat_map.geometry.spacing)
+        )
+        # 3D renders are raster RGB arrays; they are always written as PNG.
+        renders = (
+            (
+                "graph_surface_3d",
+                render_habitat_graph_surface_3d(labels, spacing=spacing),
+            ),
+            (
+                "graph_network_3d",
+                render_habitat_graph_network_3d(
+                    labels, options=options, spacing=spacing
+                ),
+            ),
+        )
+        for stem, rgb in renders:
+            if rgb is None:
+                continue
+            destination = figure_dir / f"{item.subject_id}_{stem}.png"
+            plt.imsave(destination, rgb, dpi=block.visualization_dpi)
+            written.append(destination)
+    return written
+
+
 def _run_domain_extract(
     config: Any,
     *,
     logger: logging.Logger,
     backend: Optional[ExecutionBackend],
+    plugin_configs: Optional[Mapping[str, Any]] = None,
 ) -> WorkflowResult[None]:
     """
     Domain-native extract path for built-in feature families.
@@ -343,6 +660,7 @@ def _run_domain_extract(
         use_torch_radiomics=use_torch,
         torch_device=str(torch_device),
         torch_dtype=str(torch_dtype),
+        plugin_configs=plugin_configs,
     )
     if not extractors:
         raise HABITAPIError(
@@ -381,6 +699,14 @@ def _run_domain_extract(
         logger=logger,
     )
 
+    # Figure hook: ``graph: {visualize: true}`` renders per-subject topology
+    # figures after the CSV export, keeping the v0.1 plugin's output layout.
+    graph_block = _graph_block_from_plugin_configs(plugin_configs)
+    if "graph" in extractors and graph_block is not None and graph_block.visualize:
+        _write_graph_visualizations(
+            items, block=graph_block, out_dir=out_dir, logger=logger
+        )
+
     manifest = create_run_manifest(
         "feature_extraction",
         config,
@@ -411,7 +737,7 @@ def _run_compat_extract(
     logger: logging.Logger,
 ) -> WorkflowResult[None]:
     """
-    Compat fallback for optional plugins (e.g. ``graph``) not in domain.
+    Compat fallback for legacy-only feature families not in the domain registry.
 
     Args:
         config: Validated feature-extraction config.
@@ -463,11 +789,19 @@ def extract_habitat_features(
     """
     Extract features from pre-computed habitat maps (``habit extract`` recipe).
 
-    Built-in families run through domain
+    Families registered in the domain
+    :class:`~habit.domain.habitat_features.HabitatFeatureExtractorRegistry`
+    (built-ins plus ``habit.habitat_feature_extractor`` entry points) run
+    through domain
     :class:`~habit.domain.protocols.HabitatFeatureExtractor` instances and an
-    optional :class:`~habit.contracts.ops.ExecutionBackend`. Optional plugins
-    that are not registered in the domain registry fall back to the compat
-    ``HabitatMapAnalyzer`` so CLI YAML that requests them keeps working.
+    optional :class:`~habit.contracts.ops.ExecutionBackend`. A name found only
+    in the v0.1 ``HabitatFeatureFactory`` routes the whole request to the
+    compat ``HabitatMapAnalyzer`` so legacy plugin YAML keeps working; a name
+    known to neither registry raises :class:`~habit.exceptions.HABITAPIError`.
+
+    When the ``graph`` family runs and its settings block has
+    ``visualize: true``, per-subject topology figures are rendered under
+    ``<out_dir>/visualizations/graph/`` after the CSV export.
 
     Args:
         config: Validated feature-extraction configuration (schema object or
@@ -481,6 +815,9 @@ def extract_habitat_features(
     Returns:
         :class:`~habit.api.contracts.WorkflowResult` with output directory
         metadata and a run manifest path.
+
+    Raises:
+        HABITAPIError: If a requested feature type is registered nowhere.
     """
     from habit.api.habitat import build_feature_extraction_config
     from habit.schemas.workflows.habitat import FeatureExtractionConfig
@@ -499,15 +836,26 @@ def extract_habitat_features(
         )
 
     feature_types = list(validated_config.feature_types)
-    needs_compat = any(name not in _DOMAIN_FEATURE_TYPES for name in feature_types)
-    if needs_compat:
-        return _run_compat_extract(
-            validated_config,
-            plugin_configs=resolved_plugins,
-            logger=log,
+    domain_names = _domain_feature_type_names()
+    unknown = [name for name in feature_types if name not in domain_names]
+    if unknown:
+        legacy_names = _legacy_feature_type_names()
+        if all(name in legacy_names for name in unknown):
+            return _run_compat_extract(
+                validated_config,
+                plugin_configs=resolved_plugins,
+                logger=log,
+            )
+        raise HABITAPIError(
+            f"Unknown feature_types: {unknown}. Available domain families: "
+            f"{sorted(domain_names)}; legacy compat families: "
+            f"{sorted(legacy_names)}."
         )
     return _run_domain_extract(
-        validated_config, logger=log, backend=backend
+        validated_config,
+        logger=log,
+        backend=backend,
+        plugin_configs=resolved_plugins,
     )
 
 

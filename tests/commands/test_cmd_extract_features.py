@@ -73,6 +73,49 @@ def test_extract_features_cli_dispatches_to_recipe(
 
 
 @pytest.mark.cli
+def test_extract_features_cli_forwards_graph_block(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A YAML ``graph:`` block reaches the recipe as a validated block."""
+    from habit.schemas.workflows.habitat import GraphFeatureBlock
+
+    out_dir = tmp_path / "out_extract_graph"
+    config_path = tmp_path / "config_extract_graph.yaml"
+    config_path.write_text(
+        f"""out_dir: "{out_dir.as_posix()}"
+debug: false
+feature_types:
+  - graph
+raw_img_folder: "images"
+habitats_map_folder: "habitats"
+n_habitats: 2
+graph:
+  distance_threshold: 8.0
+  visualize: true
+""",
+        encoding="utf-8",
+    )
+
+    calls: List[Dict[str, Any]] = []
+
+    def _spy(*args: Any, **kwargs: Any) -> MagicMock:
+        calls.append({"args": args, "kwargs": kwargs})
+        return MagicMock()
+
+    monkeypatch.setattr(
+        "habit.commands.cmd_extract_features.extract_habitat_features", _spy
+    )
+
+    run_extract_features(str(config_path))
+
+    assert len(calls) == 1
+    block = calls[0]["kwargs"]["plugin_configs"]["graph"]
+    assert isinstance(block, GraphFeatureBlock)
+    assert block.distance_threshold == 8.0
+    assert block.visualize is True
+
+
+@pytest.mark.cli
 def test_radiomics_cli_dispatches_to_recipe(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

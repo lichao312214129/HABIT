@@ -1,0 +1,823 @@
+# Copyright (c) 2024-2026 Li Chao, Dong Mengshi and HABIT Contributors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""Habitat graph (topology) figures.
+
+Pure functions following the ``habit.viz`` contract: label arrays in, a
+matplotlib ``Figure`` (2D) or an RGB render array (3D, PyVista) out, no
+filesystem and no ``show``. Where a figure ends up is the caller's decision.
+
+The graph nodes and edges use the SAME construction algorithms as the numeric
+feature extractor (:func:`habit.kernels.habitat_graph.extract_habitat_nodes`
+with erosion / subdivision / connectivity, and
+:func:`~habit.kernels.habitat_graph.build_centroid_distance_graph` /
+:func:`~habit.kernels.habitat_graph.build_adjacency_graph` with the configured
+parameters), so the drawn graph matches the measured features. The 2D network
+figure is built from the representative cross-section so the overlay matches
+the slice figure; describe this slice-local 2D graph separately in
+publications when 3D volumetric features are also reported.
+
+All text drawn on the figures is English-only.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
+
+import numpy as np
+
+from habit.kernels.habitat_graph import (
+    HabitatGraphFeatureOptions,
+    HabitatGraphNode,
+    HabitatNodeExtractionResult,
+    build_adjacency_graph,
+    build_centroid_distance_graph,
+    extract_habitat_nodes,
+    iter_label_pairs,
+)
+from habit.utils.optional_deps import require
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+
+__all__ = [
+    "plot_habitat_graph_slice",
+    "plot_habitat_graph_network_2d",
+    "render_habitat_graph_surface_3d",
+    "render_habitat_graph_network_3d",
+]
+
+#: What habit.viz needs matplotlib for.
+_VIZ_PURPOSE = "habitat graph topology figures"
+#: What the 3D renderers need PyVista / scikit-image for.
+_VIEW_PURPOSE = "3D habitat graph rendering"
+
+#: Accent color for inter-habitat edges; intra-habitat edges use neutral gray.
+_INTER_EDGE_COLOR = "#8E44AD"
+_INTRA_EDGE_COLOR = "#9AA0A6"
+_BACKGROUND_COLOR = "#D9DCE1"
+#: Alpha for semi-transparent habitat partitions drawn behind 2D network graphs.
+_HABITAT_OVERLAY_ALPHA = 0.3
+
+#: Color-blind-safe qualitative palette (Okabe-Ito) reused for habitat labels;
+#: matches the default style preset so figures stay journal-safe in greyscale.
+_HABITAT_PALETTE: Tuple[str, ...] = (
+    "#0072B2",  # blue
+    "#D55E00",  # vermillion
+    "#009E73",  # bluish green
+    "#CC79A7",  # reddish purple
+    "#E69F00",  # orange
+    "#56B4E9",  # sky blue
+    "#F0E442",  # yellow
+    "#000000",  # black
+)
+
+#: Type alias for an undirected edge expressed as a pair of node ids.
+_EdgePair = Tuple[str, str]
+
+
+def _plt():
+    """
+    Return the pyplot module with the Agg canvas guaranteed headless.
+
+    Returns:
+        The ``matplotlib.pyplot`` module, with a non-interactive backend
+        already active.
+
+    Raises:
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    matplotlib = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
+    if matplotlib.get_backend().lower() not in (
+        "agg",
+        "module://matplotlib_inline.backend_inline",
+    ):
+        matplotlib.use("Agg")
+    return require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
+
+
+# ---------------------------------------------------------------------------
+# Array preparation helpers
+# ---------------------------------------------------------------------------
+
+
+def _as_label_array(label_array: np.ndarray) -> np.ndarray:
+    """
+    Coerce input to a 2D or 3D integer label array.
+
+    Args:
+        label_array: Habitat label map (background encoded as 0).
+
+    Returns:
+        np.ndarray: Integer label array with ndim in ``{2, 3}``.
+
+    Raises:
+        ValueError: When the array is not 2D or 3D.
+    """
+    array = np.asarray(label_array)
+    if array.ndim not in (2, 3):
+        raise ValueError(
+            f"label_array must be 2D or 3D; got shape {tuple(array.shape)}."
+        )
+    return array.astype(np.int32, copy=False)
+
+
+def _crop_to_foreground(label_array: np.ndarray, pad: int = 3) -> np.ndarray:
+    """Crop an array to the non-background bounding box with padding."""
+    mask = label_array > 0
+    if not mask.any():
+        return label_array
+    slices = []
+    for axis, axis_size in enumerate(label_array.shape):
+        axis_mask = mask.any(axis=tuple(i for i in range(label_array.ndim) if i != axis))
+        idx = np.where(axis_mask)[0]
+        start = max(0, int(idx[0]) - pad)
+        stop = min(axis_size, int(idx[-1]) + 1 + pad)
+        slices.append(slice(start, stop))
+    return label_array[tuple(slices)]
+
+
+def _largest_slice_index(label_array: np.ndarray) -> int:
+    """Return the axis-0 slice index with the most non-background voxels."""
+    counts = (label_array > 0).reshape(label_array.shape[0], -1).sum(axis=1)
+    if not counts.any():
+        return label_array.shape[0] // 2
+    return int(np.argmax(counts))
+
+
+def _representative_slice(
+    label_array: np.ndarray,
+    slice_index: Optional[int],
+) -> Tuple[np.ndarray, int, Optional[np.ndarray]]:
+    """
+    Return the 2D slice to draw, its index, and the cropped 3D volume.
+
+    Args:
+        label_array: 2D or 3D habitat label map.
+        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
+            largest cross-section. Ignored for 2D input.
+
+    Returns:
+        Tuple: ``(label_2d, slice_index, cropped_3d_or_None)``.
+    """
+    if label_array.ndim == 3:
+        cropped = _crop_to_foreground(label_array)
+        index = _largest_slice_index(cropped) if slice_index is None else int(slice_index)
+        return cropped[index], index, cropped
+    return _crop_to_foreground(label_array), 0, None
+
+
+# ---------------------------------------------------------------------------
+# Feature-aligned graph construction (mirrors the numeric extractor)
+# ---------------------------------------------------------------------------
+
+
+def _extract_nodes(
+    label_array: np.ndarray, options: HabitatGraphFeatureOptions
+) -> HabitatNodeExtractionResult:
+    """Extract graph nodes using the exact feature-extractor options."""
+    return extract_habitat_nodes(
+        label_array=label_array,
+        connectivity=options.connectivity,
+        min_region_voxels=options.min_region_voxels,
+        erosion_radius=options.erosion_radius,
+        subdivide_region_voxels=options.subdivide_region_voxels,
+        block_size=options.block_size,
+        block_min_coverage=options.block_min_coverage,
+    )
+
+
+def _single_intra_edges(
+    nodes: Sequence[HabitatGraphNode],
+    label: int,
+    options: HabitatGraphFeatureOptions,
+    node_result: Optional[HabitatNodeExtractionResult] = None,
+) -> List[_EdgePair]:
+    """Build within-habitat edges for one habitat (same as the feature graph)."""
+    if options.edge_method == "adjacency" and node_result is not None:
+        graph = build_adjacency_graph(
+            node_result=node_result,
+            labels=(label,),
+            graph_kind="single",
+            adjacency_connectivity=options.adjacency_connectivity,
+            adjacency_min_voxels=options.adjacency_min_voxels,
+            edge_weight=options.edge_weight,
+        )
+    else:
+        graph = build_centroid_distance_graph(
+            nodes=nodes,
+            labels=(label,),
+            graph_kind="single",
+            distance_threshold=options.distance_threshold,
+            edge_weight=options.edge_weight,
+        )
+    return [(edge.source, edge.target) for edge in graph.edges]
+
+
+def _pair_inter_edges(
+    node_result: HabitatNodeExtractionResult,
+    label_a: int,
+    label_b: int,
+    options: HabitatGraphFeatureOptions,
+) -> List[_EdgePair]:
+    """Build between-habitat edges for one pair (same as the feature graph)."""
+    if options.edge_method == "adjacency":
+        graph = build_adjacency_graph(
+            node_result=node_result,
+            labels=(label_a, label_b),
+            graph_kind="pairwise",
+            adjacency_connectivity=options.adjacency_connectivity,
+            adjacency_min_voxels=options.adjacency_min_voxels,
+            edge_weight=options.edge_weight,
+            include_intra_edges=False,
+        )
+    else:
+        pair_nodes = list(node_result.nodes_by_habitat.get(label_a, [])) + list(
+            node_result.nodes_by_habitat.get(label_b, [])
+        )
+        graph = build_centroid_distance_graph(
+            nodes=pair_nodes,
+            labels=(label_a, label_b),
+            graph_kind="pairwise",
+            distance_threshold=options.distance_threshold,
+            edge_weight=options.edge_weight,
+            include_intra_edges=False,
+        )
+    return [
+        (edge.source, edge.target)
+        for edge in graph.edges
+        if edge.edge_type != "intra"
+    ]
+
+
+def _combined_graph(
+    node_result: HabitatNodeExtractionResult,
+    options: HabitatGraphFeatureOptions,
+) -> Tuple[Dict[str, HabitatGraphNode], List[_EdgePair], List[_EdgePair]]:
+    """
+    Assemble the feature-aligned combined graph.
+
+    Returns:
+        Tuple: (node lookup by id, intra edges, inter edges). Intra edges are
+        the union of every habitat's single-habitat graph; inter edges are the
+        union of every habitat pair's between-habitat edges.
+    """
+    labels = sorted(node_result.nodes_by_habitat.keys())
+    id_to_node: Dict[str, HabitatGraphNode] = {}
+    for label in labels:
+        for node in node_result.nodes_by_habitat[label]:
+            id_to_node[node.node_id] = node
+
+    intra_edges: List[_EdgePair] = []
+    if options.include_single_habitat_graph:
+        for label in labels:
+            intra_edges.extend(
+                _single_intra_edges(
+                    node_result.nodes_by_habitat[label], label, options, node_result
+                )
+            )
+    inter_edges: List[_EdgePair] = []
+    if options.include_pairwise_habitat_graph:
+        for label_a, label_b in iter_label_pairs(labels):
+            inter_edges.extend(_pair_inter_edges(node_result, label_a, label_b, options))
+    return id_to_node, intra_edges, inter_edges
+
+
+# ---------------------------------------------------------------------------
+# Color and styling helpers
+# ---------------------------------------------------------------------------
+
+
+def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
+    """Map habitat labels to stable color-blind-safe colors."""
+    ordered = sorted(set(int(v) for v in labels))
+    return {
+        label: _HABITAT_PALETTE[index % len(_HABITAT_PALETTE)]
+        for index, label in enumerate(ordered)
+    }
+
+
+def _node_sizes(
+    nodes: Sequence[HabitatGraphNode], base: float = 18.0, span: float = 90.0
+) -> np.ndarray:
+    """Scale 2D marker sizes by sqrt of region voxel count for readability."""
+    areas = np.asarray([max(1, n.voxel_count) for n in nodes], dtype=float)
+    if not areas.size:
+        return areas
+    scaled = np.sqrt(areas / areas.max())
+    return base + span * scaled
+
+
+def _centroid_xy_display(node: HabitatGraphNode) -> Tuple[float, float]:
+    """
+    Return (x, y) image coordinates for 2D network plotting.
+
+    For 2D label maps the centroid is ``(row, col)``; for 3D maps it is
+    ``(z, row, col)`` and the z axis is dropped so the graph is projected
+    onto the representative cross-section plane.
+    """
+    centroid = node.centroid
+    if centroid.shape[0] == 2:
+        return float(centroid[1]), float(centroid[0])
+    return float(centroid[2]), float(centroid[1])
+
+
+def _phys_xyz(
+    node: HabitatGraphNode, spacing: Tuple[float, float, float]
+) -> np.ndarray:
+    """Convert a (z, y, x) centroid to physical (x, y, z) coordinates."""
+    sz, sy, sx = spacing
+    if node.centroid.shape[0] == 2:
+        cy, cx = float(node.centroid[0]), float(node.centroid[1])
+        cz = 0.0
+    else:
+        cz, cy, cx = (
+            float(node.centroid[0]),
+            float(node.centroid[1]),
+            float(node.centroid[2]),
+        )
+    return np.array([cx * sx, cy * sy, cz * sz], dtype=float)
+
+
+def _draw_background_2d(
+    ax,
+    label_2d: np.ndarray,
+    colors: Optional[Dict[int, str]],
+    show_background: bool,
+) -> None:
+    """
+    Draw spatial context behind 2D network graphs.
+
+    When ``colors`` is provided, each habitat partition is shown as a
+    semi-transparent overlay (same palette as the slice figure). Otherwise a
+    faint gray tissue silhouette is drawn.
+    """
+    if not show_background:
+        return
+    plt = _plt()
+    from matplotlib.colors import ListedColormap
+
+    if colors:
+        ordered = sorted(colors)
+        if not ordered:
+            return
+        display = np.zeros_like(label_2d, dtype=float)
+        for new_value, label in enumerate(ordered, start=1):
+            display[label_2d == label] = new_value
+        overlay = np.where(display > 0, display, np.nan)
+        habitat_cmap = ListedColormap([colors[label] for label in ordered])
+        ax.imshow(
+            overlay,
+            cmap=habitat_cmap,
+            vmin=1,
+            vmax=len(ordered),
+            interpolation="nearest",
+            alpha=_HABITAT_OVERLAY_ALPHA,
+            zorder=0,
+        )
+        return
+    silhouette = np.where(label_2d > 0, 1.0, np.nan)
+    ax.imshow(
+        silhouette,
+        cmap=ListedColormap([_BACKGROUND_COLOR]),
+        interpolation="nearest",
+        alpha=0.5,
+        zorder=0,
+    )
+
+
+def _style_axis_2d(ax, label_2d: np.ndarray, title: str) -> None:
+    """Apply consistent journal styling to a 2D graph/image axis."""
+    ax.set_title(title)
+    ax.set_xlim(-0.5, label_2d.shape[1] - 0.5)
+    ax.set_ylim(label_2d.shape[0] - 0.5, -0.5)  # image coordinates
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+
+def _draw_edges_2d(
+    ax,
+    id_to_node: Dict[str, HabitatGraphNode],
+    edges: Sequence[_EdgePair],
+    color: str,
+    linewidth: float,
+    alpha: float,
+    zorder: int,
+) -> None:
+    """Draw a set of 2D edges given node-id pairs (centroid projected to x/y)."""
+    for source, target in edges:
+        node_a = id_to_node.get(source)
+        node_b = id_to_node.get(target)
+        if node_a is None or node_b is None:
+            continue
+        x_a, y_a = _centroid_xy_display(node_a)
+        x_b, y_b = _centroid_xy_display(node_b)
+        ax.plot(
+            (x_a, x_b),
+            (y_a, y_b),
+            color=color, linewidth=linewidth, alpha=alpha, zorder=zorder,
+        )
+
+
+def _draw_nodes_2d(
+    ax,
+    nodes: Sequence[HabitatGraphNode],
+    colors: Dict[int, str],
+) -> None:
+    """Scatter 2D graph nodes at projected region centroids, colored by habitat."""
+    if not nodes:
+        return
+    xs = [_centroid_xy_display(n)[0] for n in nodes]
+    ys = [_centroid_xy_display(n)[1] for n in nodes]
+    node_colors = [colors.get(int(n.habitat_label), "#444444") for n in nodes]
+    ax.scatter(
+        xs, ys, s=_node_sizes(nodes), c=node_colors,
+        edgecolors="white", linewidths=0.4, zorder=4,
+    )
+
+
+# ---------------------------------------------------------------------------
+# 2D figure builders (matplotlib)
+# ---------------------------------------------------------------------------
+
+
+def plot_habitat_graph_slice(
+    label_array: np.ndarray,
+    *,
+    slice_index: Optional[int] = None,
+    panel_size: float = 3.2,
+) -> "Figure":
+    """
+    Draw the colored habitat map at the largest cross-section (2D).
+
+    Args:
+        label_array: 2D or 3D habitat label map (background encoded as 0).
+        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
+            largest cross-section. Ignored for 2D input.
+        panel_size: Base panel edge length in inches.
+
+    Returns:
+        The matplotlib ``Figure``; the caller decides where it goes.
+
+    Raises:
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    plt = _plt()
+    from matplotlib.colors import ListedColormap
+    from matplotlib.patches import Patch
+
+    labels_array = _as_label_array(label_array)
+    label_2d, index, _ = _representative_slice(labels_array, slice_index)
+    colors = _habitat_colors(np.unique(label_2d[label_2d > 0]))
+
+    ordered = sorted(colors)
+    display = np.zeros_like(label_2d)
+    for new_value, label in enumerate(ordered, start=1):
+        display[label_2d == label] = new_value
+    cmap = ListedColormap(["#FFFFFF"] + [colors[label] for label in ordered])
+    fig, ax = plt.subplots(figsize=(panel_size * 1.4, panel_size * 1.4))
+    ax.imshow(display, cmap=cmap, vmin=0, vmax=len(ordered), interpolation="nearest")
+    _style_axis_2d(ax, label_2d, f"Habitat map (max cross-section, slice {index})")
+    handles = [
+        Patch(facecolor=colors[label], edgecolor="none", label=f"Habitat {label}")
+        for label in ordered
+    ]
+    ax.legend(handles=handles, loc="center left", bbox_to_anchor=(1.01, 0.5))
+    fig.tight_layout()
+    return fig
+
+
+def plot_habitat_graph_network_2d(
+    label_array: np.ndarray,
+    *,
+    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    slice_index: Optional[int] = None,
+    show_background: bool = True,
+    panel_size: float = 3.2,
+    max_cols: int = 4,
+) -> Optional["Figure"]:
+    """
+    Draw the intra/inter habitat graphs built from the 2D slice habitat map.
+
+    Node extraction and edge construction reuse the same configured algorithms
+    as the feature extractor, but the input is the representative cross-section
+    rather than the full 3D volume.
+
+    Args:
+        label_array: 2D or 3D habitat label map (background encoded as 0).
+        options: Graph construction options shared with the feature extractor.
+        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
+            largest cross-section. Ignored for 2D input.
+        show_background: Whether to draw the faint habitat partitions behind
+            the graph.
+        panel_size: Base panel edge length in inches.
+        max_cols: Maximum number of panels per row in the grid.
+
+    Returns:
+        The matplotlib ``Figure``, or ``None`` when the slice holds no habitat
+        nodes to draw.
+
+    Raises:
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    plt = _plt()
+    from matplotlib.lines import Line2D
+
+    labels_array = _as_label_array(label_array)
+    label_2d, index, _ = _representative_slice(labels_array, slice_index)
+    colors = _habitat_colors(np.unique(label_2d[label_2d > 0]))
+
+    node_result = _extract_nodes(label_2d, options)
+    labels = sorted(node_result.nodes_by_habitat.keys())
+    if not labels:
+        return None
+    id_to_node, intra_edges, inter_edges = _combined_graph(node_result, options)
+
+    n_panels = len(labels) + 1
+    cols = min(max_cols, max(1, n_panels))
+    rows = int(np.ceil(n_panels / cols))
+    fig, axes = plt.subplots(
+        rows, cols, figsize=(cols * panel_size, rows * panel_size), squeeze=False
+    )
+    flat = [ax for row in axes for ax in row]
+    for ax in flat[n_panels:]:
+        ax.axis("off")
+    axes_list = flat[:n_panels]
+
+    for ax, label in zip(axes_list, labels):
+        sub = node_result.nodes_by_habitat[label]
+        _draw_background_2d(ax, label_2d, colors, show_background)
+        edges = _single_intra_edges(sub, label, options, node_result)
+        _draw_edges_2d(ax, id_to_node, edges, _INTRA_EDGE_COLOR, 0.7, 0.6, 2)
+        _draw_nodes_2d(ax, sub, colors)
+        _style_axis_2d(
+            ax,
+            label_2d,
+            f"Intra-habitat graph: H{label} (n={len(sub)}, e={len(edges)}, slice {index})",
+        )
+    ax_cross = axes_list[-1]
+    _draw_background_2d(ax_cross, label_2d, colors, show_background)
+    _draw_edges_2d(ax_cross, id_to_node, intra_edges, _INTRA_EDGE_COLOR, 0.7, 0.5, 2)
+    _draw_edges_2d(ax_cross, id_to_node, inter_edges, _INTER_EDGE_COLOR, 1.1, 0.95, 3)
+    all_nodes = [node for label in labels for node in node_result.nodes_by_habitat[label]]
+    _draw_nodes_2d(ax_cross, all_nodes, colors)
+    _style_axis_2d(
+        ax_cross,
+        label_2d,
+        (
+            f"Inter-habitat graph (n={len(all_nodes)}, intra e={len(intra_edges)}, "
+            f"inter e={len(inter_edges)}, slice {index})"
+        ),
+    )
+    handles = [
+        Line2D([0], [0], color=_INTER_EDGE_COLOR, lw=1.6, label="Inter-habitat edge"),
+        Line2D([0], [0], color=_INTRA_EDGE_COLOR, lw=1.2, label="Intra-habitat edge"),
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=2)
+    fig.suptitle(
+        f"2D habitat graphs from representative cross-section (slice {index})"
+    )
+    fig.tight_layout(rect=(0, 0.05, 1, 0.97))
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# 3D renderers (PyVista; return RGB arrays, never touch the filesystem)
+# ---------------------------------------------------------------------------
+
+
+def _check_3d_dependencies() -> None:
+    """
+    Verify the optional packages required for PyVista 3D rendering.
+
+    Raises:
+        OptionalDependencyError: When pyvista or scikit-image is missing.
+    """
+    require("pyvista", extra="view", purpose=_VIEW_PURPOSE)
+    require("skimage", extra="slic", purpose=_VIEW_PURPOSE)
+
+
+def _new_plotter(render_window: int, black_background: bool):
+    """Create an off-screen PyVista plotter with journal styling."""
+    import pyvista as pv
+
+    pv.OFF_SCREEN = True
+    plotter = pv.Plotter(off_screen=True, window_size=(render_window, render_window))
+    plotter.set_background("black" if black_background else "white")
+    return plotter
+
+
+def _add_habitat_surfaces(
+    plotter,
+    label_3d: np.ndarray,
+    colors: Dict[int, str],
+    spacing: Tuple[float, float, float],
+    surface_smooth_iter: int,
+) -> bool:
+    """
+    Add opaque marching-cubes habitat surfaces to a PyVista plotter.
+
+    Args:
+        plotter: Target PyVista plotter.
+        label_3d: Cropped 3D habitat label map.
+        colors: Habitat label to display color mapping.
+        spacing: Voxel spacing as ``(sz, sy, sx)``.
+        surface_smooth_iter: Laplacian smoothing iterations; 0 disables.
+
+    Returns:
+        bool: ``True`` when at least one habitat surface was added.
+    """
+    import pyvista as pv
+    from skimage import measure
+
+    drew_any = False
+    for label in sorted(colors):
+        binary = (label_3d == label).astype(np.float32)
+        if binary.sum() < 8:
+            continue
+        padded = np.pad(binary, 1, mode="constant")
+        try:
+            verts, faces, _, _ = measure.marching_cubes(
+                padded, level=0.5, spacing=spacing
+            )
+        except Exception:
+            continue
+        verts = verts - np.array(spacing)  # undo the 1-voxel pad
+        verts_xyz = verts[:, [2, 1, 0]]  # (z, y, x) -> (x, y, z)
+        faces_pv = np.hstack(
+            [np.full((len(faces), 1), 3, dtype=np.int64), faces.astype(np.int64)]
+        ).ravel()
+        mesh = pv.PolyData(verts_xyz, faces_pv)
+        if surface_smooth_iter > 0:
+            mesh = mesh.smooth(n_iter=surface_smooth_iter)
+        plotter.add_mesh(
+            mesh,
+            color=colors[label],
+            smooth_shading=True,
+            ambient=0.25,
+            diffuse=0.7,
+            specular=0.4,
+            specular_power=15,
+        )
+        drew_any = True
+    return drew_any
+
+
+def _screenshot_rgb(plotter) -> np.ndarray:
+    """Render the scene off-screen and return it as an RGB array."""
+    plotter.camera_position = "iso"
+    image = plotter.screenshot(return_img=True)
+    plotter.close()
+    return np.asarray(image)
+
+
+def render_habitat_graph_surface_3d(
+    label_array: np.ndarray,
+    *,
+    spacing: Tuple[float, float, float] = (1.0, 1.0, 1.0),
+    black_background: bool = True,
+    render_window: int = 1600,
+    surface_smooth_iter: int = 30,
+) -> Optional[np.ndarray]:
+    """
+    Render a 3D surface view of the habitat volume (PyVista).
+
+    Args:
+        label_array: 3D habitat label map (background encoded as 0).
+        spacing: Voxel spacing as ``(sz, sy, sx)``.
+        black_background: Whether the scene uses a black background.
+        render_window: Off-screen render window edge length in pixels.
+        surface_smooth_iter: Laplacian smoothing iterations; 0 disables.
+
+    Returns:
+        Optional[np.ndarray]: RGB render of shape ``(H, W, 3)``, or ``None``
+        when the volume holds no renderable habitat surface.
+
+    Raises:
+        ValueError: When ``label_array`` is not 3D.
+        OptionalDependencyError: When pyvista or scikit-image is missing.
+    """
+    _check_3d_dependencies()
+    labels_array = _as_label_array(label_array)
+    if labels_array.ndim != 3:
+        raise ValueError(
+            f"render_habitat_graph_surface_3d requires a 3D volume; "
+            f"got shape {tuple(labels_array.shape)}."
+        )
+    cropped = _crop_to_foreground(labels_array)
+    colors = _habitat_colors(np.unique(cropped[cropped > 0]))
+
+    plotter = _new_plotter(render_window, black_background)
+    if not _add_habitat_surfaces(plotter, cropped, colors, spacing, surface_smooth_iter):
+        plotter.close()
+        return None
+    plotter.add_axes(color="white" if black_background else "black")
+    return _screenshot_rgb(plotter)
+
+
+def render_habitat_graph_network_3d(
+    label_array: np.ndarray,
+    *,
+    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
+    spacing: Tuple[float, float, float] = (1.0, 1.0, 1.0),
+    black_background: bool = True,
+    render_window: int = 1600,
+) -> Optional[np.ndarray]:
+    """
+    Render the 3D feature-aligned spatial graph on a dark scene (PyVista).
+
+    Nodes are spheres at region centroids colored by habitat; intra-habitat
+    edges are thin gray tubes and inter-habitat edges are thicker accent tubes.
+
+    Args:
+        label_array: 3D habitat label map (background encoded as 0).
+        options: Graph construction options shared with the feature extractor.
+        spacing: Voxel spacing as ``(sz, sy, sx)``.
+        black_background: Whether the scene uses a black background.
+        render_window: Off-screen render window edge length in pixels.
+
+    Returns:
+        Optional[np.ndarray]: RGB render of shape ``(H, W, 3)``, or ``None``
+        when the volume yields no graph nodes.
+
+    Raises:
+        ValueError: When ``label_array`` is not 3D.
+        OptionalDependencyError: When pyvista or scikit-image is missing.
+    """
+    _check_3d_dependencies()
+    import pyvista as pv
+
+    labels_array = _as_label_array(label_array)
+    if labels_array.ndim != 3:
+        raise ValueError(
+            f"render_habitat_graph_network_3d requires a 3D volume; "
+            f"got shape {tuple(labels_array.shape)}."
+        )
+    cropped = _crop_to_foreground(labels_array)
+    colors = _habitat_colors(np.unique(cropped[cropped > 0]))
+
+    node_result = _extract_nodes(cropped, options)
+    labels = sorted(node_result.nodes_by_habitat.keys())
+    id_to_node, intra_edges, inter_edges = _combined_graph(node_result, options)
+    if len(id_to_node) < 1:
+        return None
+
+    # Approximate node radius from the median region size and the scene scale.
+    all_points = np.array([_phys_xyz(n, spacing) for n in id_to_node.values()])
+    scene_extent = float(np.ptp(all_points, axis=0).max()) if len(all_points) > 1 else 10.0
+    node_radius = max(scene_extent * 0.012, 0.5)
+    intra_radius = node_radius * 0.25
+    inter_radius = node_radius * 0.4
+
+    plotter = _new_plotter(render_window, black_background)
+
+    def _add_tubes(edges: Sequence[_EdgePair], color: str, radius: float) -> None:
+        points: List[np.ndarray] = []
+        lines: List[int] = []
+        for source, target in edges:
+            node_a = id_to_node.get(source)
+            node_b = id_to_node.get(target)
+            if node_a is None or node_b is None:
+                continue
+            index = len(points)
+            points.append(_phys_xyz(node_a, spacing))
+            points.append(_phys_xyz(node_b, spacing))
+            lines.extend([2, index, index + 1])
+        if not points:
+            return
+        poly = pv.PolyData()
+        poly.points = np.asarray(points, dtype=float)
+        poly.lines = np.asarray(lines, dtype=np.int64)
+        tube = poly.tube(radius=radius, n_sides=12)
+        plotter.add_mesh(tube, color=color, smooth_shading=True, specular=0.3)
+
+    _add_tubes(intra_edges, _INTRA_EDGE_COLOR, intra_radius)
+    _add_tubes(inter_edges, _INTER_EDGE_COLOR, inter_radius)
+
+    for label in labels:
+        nodes = node_result.nodes_by_habitat[label]
+        if not nodes:
+            continue
+        pts = np.array([_phys_xyz(n, spacing) for n in nodes])
+        cloud = pv.PolyData(pts)
+        glyphs = cloud.glyph(geom=pv.Sphere(radius=node_radius), scale=False, orient=False)
+        plotter.add_mesh(
+            glyphs, color=colors[label], smooth_shading=True,
+            specular=0.5, specular_power=20, ambient=0.3, diffuse=0.7,
+        )
+    plotter.add_axes(color="white" if black_background else "black")
+    return _screenshot_rgb(plotter)

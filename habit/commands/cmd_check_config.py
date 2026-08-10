@@ -212,7 +212,15 @@ def run_check_config(
 
     config_cls = _WORKFLOW_LOADERS[alias]()
     try:
-        config = config_cls.from_file(str(path))  # type: ignore[attr-defined]
+        if alias == "extract":
+            # Plugin-aware path: the optional top-level ``graph:`` block is
+            # stripped before the shared schema check and validated against
+            # its own model, so field errors point at the right section.
+            from habit.api.habitat import load_feature_extraction_config
+
+            config = load_feature_extraction_config(path)[0]
+        else:
+            config = config_cls.from_file(str(path))  # type: ignore[attr-defined]
     except Exception as exc:  # noqa: BLE001
         echo_error(format_config_load_error(exc, str(path)))
         exit_with_error(

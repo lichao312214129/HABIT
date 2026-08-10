@@ -64,6 +64,12 @@ REQUIRED_DEPENDENCIES: Dict[str, str] = {
         "cluster_selection -- kernel logic rather than a backend, and 0.1 MB "
         "with no transitive dependencies."
     ),
+    "networkx": (
+        "Every region-graph metric of the built-in graph habitat-feature "
+        "family (habit.kernels.habitat_graph) is a NetworkX computation -- "
+        "kernel mathematics, not an optional backend. Pure Python, ~3 MB, "
+        "no required transitive dependencies of its own."
+    ),
 }
 
 #: Optional packages the bare-install smoke test hides from the interpreter.

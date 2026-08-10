@@ -18,7 +18,7 @@ Uses Pydantic for robust validation and type safety.
 """
 
 from typing import List, Dict, Any, Optional, Union, Literal, FrozenSet
-from pydantic import BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, field_validator
 
 from habit.schemas.base import BaseConfig
 
@@ -646,6 +646,168 @@ class ResultColumns:
 # -----------------------------------------------------------------------------
 # Habitat Feature Extraction Schemas
 # -----------------------------------------------------------------------------
+
+class GraphFeatureBlock(BaseModel):
+    """Settings of the optional top-level ``graph:`` block in the
+    feature-extraction YAML.
+
+    The extraction fields mirror
+    :class:`habit.domain.habitat_features.GraphHabitatFeaturesParams`
+    field-for-field (a regression test guards the correspondence); the schema
+    lives here rather than in the domain layer because it is part of the YAML
+    configuration surface, not of the extractor contract. The
+    ``visualization_*`` fields are consumed by the L4 recipe's figure hook and
+    never reach the domain extractor, so the extractor's spec fingerprint
+    stays extraction-only. ``enabled`` / ``n_workers`` are tolerated legacy
+    keys from the v0.1 plugin block: family activation is governed by
+    ``feature_types`` and figure rendering runs in the main process.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    # --- Extraction parameters (mirror GraphHabitatFeaturesParams) ---------
+    include_single_habitat_graph: bool = Field(
+        True, description="Compute within-habitat region graphs per habitat label."
+    )
+    include_pairwise_habitat_graph: bool = Field(
+        True, description="Compute pairwise inter-habitat region graphs."
+    )
+    edge_method: Literal["centroid_distance", "adjacency"] = Field(
+        "centroid_distance", description="Rule used to identify graph edges."
+    )
+    distance_threshold: float = Field(
+        5.0, ge=0.0, description="Centroid distance threshold in pixel units."
+    )
+    adjacency_connectivity: Literal["face", "edge", "corner"] = Field(
+        "face",
+        description=(
+            "Neighbor definition for the 'adjacency' edge method: 'face' = "
+            "6-connectivity in 3D, 'edge' = 18, 'corner' = 26."
+        ),
+    )
+    adjacency_min_voxels: int = Field(
+        1,
+        ge=1,
+        description=(
+            "Minimum number of adjacent voxel pairs required to create an "
+            "edge when edge_method is 'adjacency'."
+        ),
+    )
+    edge_weight: Literal["none", "distance", "inverse_distance", "contact_voxels"] = Field(
+        "none", description="Optional edge weight source."
+    )
+    min_region_voxels: int = Field(
+        1, ge=1, description="Minimum connected-region size retained as a graph node."
+    )
+    connectivity: Literal["face", "full"] = Field(
+        "face", description="Connected-component neighborhood rule."
+    )
+    erosion_radius: int = Field(
+        1,
+        ge=0,
+        description=(
+            "Binary erosion iterations applied before component labeling to "
+            "remove boundary noise. Set 0 to disable erosion."
+        ),
+    )
+    subdivide_region_voxels: int = Field(
+        1000,
+        ge=0,
+        description=(
+            "Split connected components larger than this voxel count into grid "
+            "blocks so large habitats do not collapse into a single node. "
+            "Set 0 to disable."
+        ),
+    )
+    block_size: int = Field(
+        5,
+        ge=1,
+        description=(
+            "Grid block edge length (voxels) used when subdividing. Keep it "
+            "close to distance_threshold so adjacent blocks connect into a lattice."
+        ),
+    )
+    block_min_coverage: float = Field(
+        0.5,
+        ge=0.0,
+        le=1.0,
+        description="Minimum covered fraction of a block volume to keep it as a node.",
+    )
+    pairwise_include_intra_edges: bool = Field(
+        True,
+        description=(
+            "Add same-habitat proximity edges to pairwise graphs so whole-graph "
+            "metrics reflect real tissue organization; interface metrics still "
+            "use inter-class edges only."
+        ),
+    )
+    include_extended_metrics: bool = Field(
+        True,
+        description=(
+            "Compute extended graph metrics: global/local efficiency, "
+            "small-world sigma, rich-club coefficient, and node-level "
+            "distribution summaries."
+        ),
+    )
+    extended_min_nodes: int = Field(
+        10,
+        ge=3,
+        description=(
+            "Minimum node count in the analysis subgraph required to compute "
+            "small-world sigma; smaller graphs return 0 for that metric."
+        ),
+    )
+
+    # --- Figure rendering (consumed by the L4 recipe, not the extractor) ---
+    visualize: bool = Field(
+        False,
+        description=(
+            "Render per-subject habitat graph topology figures under "
+            "<out_dir>/visualizations/graph/ after the CSV export."
+        ),
+    )
+    visualization_format: Literal["png", "pdf", "both"] = Field(
+        "both",
+        description=(
+            "File format for the 2D figures; 'both' writes PNG and PDF. "
+            "3D renders are raster-only and always written as PNG."
+        ),
+    )
+    visualization_dpi: int = Field(
+        600, gt=0, description="Raster resolution (DPI) for saved figures."
+    )
+    visualization_show_background: bool = Field(
+        True,
+        description="Draw the faint habitat partitions behind 2D network graphs.",
+    )
+    visualization_save_3d: bool = Field(
+        True,
+        description=(
+            "Also render 3D surface / network views for 3D habitat maps. "
+            "Requires the optional pyvista stack; missing dependencies skip "
+            "3D rendering with a warning instead of failing the run."
+        ),
+    )
+
+    # --- Tolerated legacy keys from the v0.1 plugin block ------------------
+    enabled: bool = Field(
+        True,
+        description=(
+            "Legacy v0.1 plugin switch, accepted for config compatibility. "
+            "Has no effect: the graph family runs when 'graph' is listed in "
+            "feature_types."
+        ),
+    )
+    n_workers: int = Field(
+        1,
+        ge=1,
+        description=(
+            "Legacy v0.1 rendering parallelism knob, accepted for config "
+            "compatibility. Has no effect: figure rendering runs serially in "
+            "the main process after the CSV export."
+        ),
+    )
+
 
 class FeatureExtractionConfig(BaseConfig):
     """Configuration for habitat feature extraction workflow."""

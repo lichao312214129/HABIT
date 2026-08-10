@@ -11,22 +11,50 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-"""Load feature-extraction YAML with optional private plugin sections (L1)."""
+
+"""Deprecated shim for the feature-extraction plugin config loader (L1 compat).
+
+The real implementation lives in :mod:`habit.api.habitat`
+(:func:`~habit.api.habitat.load_feature_extraction_config` /
+:func:`~habit.api.habitat.build_feature_extraction_config`), which validates
+the optional ``graph:`` YAML block without touching the compat layer. These
+wrappers keep the historical import paths working for the deprecation period
+and will be removed in a future release.
+"""
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
-from habit.schemas.workflows.habitat import FeatureExtractionConfig
-from habit.utils.config_loader import load_config
+from habit.schemas.workflows.habitat import FeatureExtractionConfig, GraphFeatureBlock
 
 __all__ = [
     "load_feature_extraction_config_from_file",
     "parse_feature_extraction_config",
     "plugin_configs_for_feature_types",
 ]
+
+_DEPRECATION_MESSAGE = (
+    "habit.compat.feature_extraction_loader is deprecated and will be removed "
+    "in a future release; use "
+    "habit.api.habitat.load_feature_extraction_config / "
+    "habit.api.habitat.build_feature_extraction_config instead."
+)
+
+#: Process-local flag so the deprecation warning is emitted once per module,
+#: not on every call (the v0.1 configurators call these wrappers per run).
+_WARNED: bool = False
+
+
+def _warn_deprecated_once() -> None:
+    """Emit the module deprecation warning on first use only."""
+    global _WARNED
+    if _WARNED:
+        return
+    _WARNED = True
+    warnings.warn(_DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=3)
 
 
 def parse_feature_extraction_config(
@@ -35,8 +63,8 @@ def parse_feature_extraction_config(
     """
     Split a feature-extraction config into shared schema and plugin configs.
 
-    The ``graph:`` YAML block is stripped before validating
-    ``FeatureExtractionConfig`` so the public schema stays plugin-free.
+    .. deprecated::
+        Use :func:`habit.api.habitat.build_feature_extraction_config`.
 
     Args:
         raw: Parsed YAML dict or an already validated config object.
@@ -44,27 +72,21 @@ def parse_feature_extraction_config(
     Returns:
         Tuple of (validated FeatureExtractionConfig, plugin_configs mapping).
     """
-    if isinstance(raw, FeatureExtractionConfig):
-        return raw, plugin_configs_for_feature_types(raw.feature_types)
+    _warn_deprecated_once()
+    from habit.api.habitat import build_feature_extraction_config
 
-    data = dict(raw)
-    graph_data = data.pop("graph", None)
-    cfg = FeatureExtractionConfig.model_validate(data)
-    plugin_configs: Dict[str, Any] = {}
-
-    if graph_data is not None:
-        plugin_configs["graph"] = _load_graph_config(graph_data)
-    elif "graph" in cfg.feature_types:
-        plugin_configs["graph"] = _load_graph_config({})
-
-    return cfg, plugin_configs
+    return build_feature_extraction_config(raw)
 
 
 def plugin_configs_for_feature_types(
-    feature_types: list[str],
+    feature_types: List[str],
 ) -> Dict[str, Any]:
     """
     Build default plugin configs when only feature_types are known.
+
+    .. deprecated::
+        Use :func:`habit.api.habitat.build_feature_extraction_config` on a
+        full mapping, which derives the same defaults.
 
     Args:
         feature_types: Requested extraction feature type names.
@@ -72,31 +94,11 @@ def plugin_configs_for_feature_types(
     Returns:
         Plugin name to config object mapping (may be empty).
     """
+    _warn_deprecated_once()
     plugin_configs: Dict[str, Any] = {}
     if "graph" in feature_types:
-        plugin_configs["graph"] = _load_graph_config({})
+        plugin_configs["graph"] = GraphFeatureBlock()
     return plugin_configs
-
-
-def _ensure_graph_plugin_available() -> None:
-    """
-    Raise ValueError when the graph plugin is requested but not installed.
-
-    Graph handlers still live in the optional v0.1 habitat_features package;
-    this check delegates through ``habit.compat.graph_plugin`` so this loader
-    stays free of direct ``habit.core`` imports.
-    """
-    from habit.compat.graph_plugin import ensure_graph_plugin_available
-
-    ensure_graph_plugin_available()
-
-
-def _load_graph_config(graph_data: Any) -> Any:
-    """Load graph plugin config or raise when the plugin is unavailable."""
-    from habit.compat.graph_plugin import load_graph_feature_config
-
-    _ensure_graph_plugin_available()
-    return load_graph_feature_config(graph_data)
 
 
 def load_feature_extraction_config_from_file(
@@ -105,14 +107,16 @@ def load_feature_extraction_config_from_file(
     """
     Load and validate a feature extraction YAML including plugin sections.
 
+    .. deprecated::
+        Use :func:`habit.api.habitat.load_feature_extraction_config`.
+
     Args:
         config_path: Path to the YAML configuration file.
 
     Returns:
         Tuple of (FeatureExtractionConfig, plugin_configs mapping).
     """
-    path = Path(config_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"Configuration file not found: {path}")
-    config_dict = load_config(str(path), resolve_paths=True)
-    return parse_feature_extraction_config(config_dict)
+    _warn_deprecated_once()
+    from habit.api.habitat import load_feature_extraction_config
+
+    return load_feature_extraction_config(config_path)

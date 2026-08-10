@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Backward-compatible re-export of the L1 feature-extraction loader."""
+"""Backward-compatible re-export of the deprecated L1 feature-extraction loader.
+
+The symbols re-exported here emit a ``DeprecationWarning`` on first use; new
+code should call :func:`habit.api.habitat.load_feature_extraction_config` /
+:func:`habit.api.habitat.build_feature_extraction_config` directly.
+"""
 
 from __future__ import annotations
 

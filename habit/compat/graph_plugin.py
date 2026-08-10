@@ -11,48 +11,82 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-"""Optional graph habitat-feature plugin loader (L1 compat)."""
+
+"""Deprecated shim for the v0.1 graph feature-plugin config loader (L1 compat).
+
+Graph topology features are built into HABIT as the ``graph`` domain feature
+family (:class:`habit.domain.habitat_features.GraphHabitatFeatures`), and the
+``graph:`` YAML block is validated as
+:class:`habit.schemas.workflows.habitat.GraphFeatureBlock` by
+:func:`habit.api.habitat.load_feature_extraction_config` without touching the
+compat layer. These wrappers keep the historical import paths working for the
+deprecation period and will be removed in a future release.
+"""
 
 from __future__ import annotations
 
-from typing import Any
+import warnings
+from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from habit.domain.habitat_features.graph import GraphHabitatFeaturesParams
+from habit.schemas.workflows.habitat import GraphFeatureBlock
 
 __all__ = ["ensure_graph_plugin_available", "load_graph_feature_config"]
 
+_DEPRECATION_MESSAGE = (
+    "habit.compat.graph_plugin is deprecated and will be removed in a future "
+    "release; the graph feature family is built into the domain registry and "
+    "its YAML block is validated by "
+    "habit.api.habitat.load_feature_extraction_config."
+)
 
-class GraphFeatureConfig(BaseModel):
-    """Minimal validated config for the optional graph habitat-feature plugin."""
+#: Process-local flag so the deprecation warning is emitted once per module.
+_WARNED: bool = False
 
-    enabled: bool = Field(default=True)
+
+def _warn_deprecated_once() -> None:
+    """Emit the module deprecation warning on first use only."""
+    global _WARNED
+    if _WARNED:
+        return
+    _WARNED = True
+    warnings.warn(_DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=3)
 
 
 def ensure_graph_plugin_available() -> None:
     """
-    Raise ``ValueError`` when the graph plugin is requested but not installed.
+    Deprecated no-op kept for backward compatibility.
+
+    Graph topology features shipped as an optional v0.1 plugin; they are now a
+    built-in domain feature family, so there is nothing left to check.
     """
-    from habit.compat.plugin_registries import get_legacy_habitat_feature_factory
-
-    HabitatFeatureFactory = get_legacy_habitat_feature_factory()
-    if HabitatFeatureFactory.get("graph") is None:
-        raise ValueError(
-            "feature_types includes 'graph' but the graph feature plugin is "
-            "not installed. Graph topology features are only available in "
-            "the private HABIT-v2 distribution."
-        )
+    _warn_deprecated_once()
+    return None
 
 
-def load_graph_feature_config(graph_data: Any) -> GraphFeatureConfig:
+def load_graph_feature_config(graph_data: Any) -> GraphHabitatFeaturesParams:
     """
-    Validate graph plugin configuration.
+    Validate a v0.1 ``graph:`` YAML block as domain extractor parameters.
+
+    .. deprecated::
+        Use :func:`habit.api.habitat.load_feature_extraction_config`, which
+        preserves the block's visualization settings instead of dropping them.
 
     Args:
-        graph_data: Mapping parsed from the YAML ``graph:`` block.
+        graph_data: Mapping parsed from the YAML ``graph:`` block. Extraction
+            parameter names match
+            :class:`~habit.domain.habitat_features.GraphHabitatFeaturesParams`
+            one-to-one; visualization keys are validated (through
+            :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`) but
+            not part of the returned extraction-only model.
 
     Returns:
-        Validated ``GraphFeatureConfig`` instance.
+        Validated ``GraphHabitatFeaturesParams`` instance.
     """
-    ensure_graph_plugin_available()
-    return GraphFeatureConfig.model_validate(graph_data or {})
+    _warn_deprecated_once()
+    block = GraphFeatureBlock.model_validate(dict(graph_data or {}))
+    extraction_data: Dict[str, Any] = {
+        field: getattr(block, field)
+        for field in GraphHabitatFeaturesParams.model_fields
+    }
+    return GraphHabitatFeaturesParams.model_validate(extraction_data)
