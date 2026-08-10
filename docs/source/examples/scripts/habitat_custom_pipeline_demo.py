@@ -91,7 +91,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 3) Same design as HabitatSpec.stages (YAML-isomorphic)
     #    Swap any Stage Spec name/params to customise without rewriting
-    #    Python callables — then fit_habitat runs the stage executor.
+    #    Python callables — then Study.fit_predict runs the stage executor.
     # ------------------------------------------------------------------
     spec = HabitatSpec(
         name="custom_two_step",
@@ -128,10 +128,10 @@ def main() -> None:
     )
     print(f"Spec fingerprint: {spec.fingerprint()}")
 
-    result = recipes.fit_habitat(cohort, spec)
+    result = recipes.Study(spec=spec).fit_predict(cohort)
     assert result.habitat_model is not None
     print(
-        f"fit_habitat: habitats={result.habitat_model.n_habitats}, "
+        f"Study.fit_predict: habitats={result.habitat_model.n_habitats}, "
         f"feature_cols={len(result.features.feature_columns)}"
     )
 

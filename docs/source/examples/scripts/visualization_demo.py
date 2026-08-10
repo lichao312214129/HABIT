@@ -57,7 +57,7 @@ spec = HabitatSpec(
     ),
     random_seed=3,
 )
-result = recipes.fit_habitat(cohort, spec)
+result = recipes.Study(spec=spec).fit_predict(cohort)
 arrays = result._population_clustering_arrays()
 if arrays is None:
     raise RuntimeError("Expected pooled clustering arrays from two-step result.")

@@ -7,7 +7,7 @@ anywhere (no files on disk, fixed seeds) and prints the objects a real study
 inspects: the fitted HabitatModel, the per-subject habitat maps, and the
 habitat feature table.
 
-Primary API: HabitatSpec.stages + recipes.fit_habitat (partition + pool).
+Primary API: HabitatSpec.stages + recipes.Study(...).fit_predict (partition + pool).
 
 Run from the repository root:
 
@@ -72,9 +72,9 @@ print(f"Spec fingerprint: {spec.fingerprint()}")
 # 3. Train: fit the cohort-level habitat definition and label every subject.
 #    Non-batch alternative after training:
 #      habitat_map = result.pipeline(cohort[0])
-#    Compat aliases recipes.two_step / one_step / direct_pooling also call
-#    fit_habitat after validating the design their name promises.
-result = recipes.fit_habitat(cohort, spec)
+#    Convenience factories two_step_habitat / one_step_habitat /
+#    direct_pooling_habitat build a Study for the same executor.
+result = recipes.Study(spec=spec).fit_predict(cohort)
 
 print("\n--- Fitted habitat model ---")
 print(result.habitat_model.summary())

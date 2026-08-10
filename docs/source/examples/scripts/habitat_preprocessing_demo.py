@@ -17,7 +17,7 @@ Design rules exercised here:
   clusters independently; state lives in ``subject_models``).
 * **Two-step / direct-pooling** — cohort chain is fitted on pooled units,
   frozen into ``HabitatModel.preprocessing_state``, and replayed at apply.
-* **Batch** — ``recipes.fit_habitat(cohort, spec)`` (sugar expands to
+* **Batch** — ``recipes.Study(spec=spec).fit_predict(cohort)`` (sugar expands to
   stages; partition+pool / pool only / neither).
 * **Non-batch (atomic)** — ``SubjectPipeline.units(subject)`` before fit,
   ``SubjectPipeline(subject)`` after a model is attached (train or apply).
@@ -83,7 +83,7 @@ cohort_chain = (
 )
 
 # Sugar form mirrors YAML chain field names (see table in the rst).
-# Batch entry is still recipes.fit_habitat; strategy from pooling + partition.
+# Batch entry is Study(spec=...).fit_predict; strategy from pooling + partition.
 two_step_spec = HabitatSpec(
     name="two_step_with_chains",
     voxel_feature_extractor=Spec("raw", {"modalities": list(modalities)}),
@@ -168,8 +168,8 @@ print(f"  {subject.subject_id}: {summary['n_units']} units, "
       f"range [{summary['feature_min']:.3f}, {summary['feature_max']:.3f}]")
 
 # --- Batch: two-step train (all three chains) --------------------------------
-print("\n=== Batch: fit_habitat two_step stages (voxel + supervoxel + cohort) ===")
-two_step_result = recipes.fit_habitat(cohort, two_step_spec)
+print("\n=== Batch: Study fit_predict two_step stages (voxel + supervoxel + cohort) ===")
+two_step_result = recipes.Study(spec=two_step_spec).fit_predict(cohort)
 model = two_step_result.habitat_model
 assert model is not None
 print(model.summary())
@@ -185,15 +185,15 @@ print(f"Atomic predict_pipeline({subject.subject_id!r}): "
       f"{len(unique_labels)} habitat labels in ROI")
 
 # --- Batch: direct-pooling (voxel + cohort; no supervoxel chain) --------------
-print("\n=== Batch: fit_habitat direct_pooling stages (voxel + cohort) ===")
-dp_result = recipes.fit_habitat(cohort, direct_pooling_spec)
+print("\n=== Batch: Study fit_predict direct_pooling stages (voxel + cohort) ===")
+dp_result = recipes.Study(spec=direct_pooling_spec).fit_predict(cohort)
 assert dp_result.habitat_model is not None
 print(f"  habitats={dp_result.habitat_model.n_habitats}, "
       f"state keys={sorted(dp_result.habitat_model.preprocessing_state.keys())}")
 
 # --- Batch: one-step (voxel chain only; per-subject models) ------------------
-print("\n=== Batch: fit_habitat one_step stages (voxel chain only) ===")
-one_step_result = recipes.fit_habitat(cohort, one_step_spec)
+print("\n=== Batch: Study fit_predict one_step stages (voxel chain only) ===")
+one_step_result = recipes.Study(spec=one_step_spec).fit_predict(cohort)
 print(f"  subject_models: {len(one_step_result.subject_models)}")
 print(f"  cohort habitat_model: {one_step_result.habitat_model}")
 first_model = next(iter(one_step_result.subject_models.values()))
@@ -207,8 +207,8 @@ archive.parent.mkdir(parents=True, exist_ok=True)
 try:
     model.save(archive)
     reloaded = HabitatModel.load(archive)
-    apply_batch = recipes.apply_habitat_model(cohort, two_step_spec, reloaded)
-    apply_atomic = recipes.apply_habitat_model(single, two_step_spec, reloaded)
+    apply_batch = recipes.Study.from_model(reloaded, two_step_spec).predict(cohort)
+    apply_atomic = recipes.Study.from_model(reloaded, two_step_spec).predict(single)
     print(f"  apply batch: {len(apply_batch.habitat_maps)} maps")
     print(f"  apply atomic (1 subject): {apply_atomic.habitat_maps[0].subject_id}")
     replay_map = apply_batch.pipeline(subject)

@@ -34,18 +34,9 @@ from typing import Dict, Tuple
 #: defined in that module. Keys beginning with ``api.`` are the v0.1 facade
 #: modules; the remaining keys are the v1.0 layered packages. Name clashes
 #: bind to the v1.0 contract symbols: top-level ``Cohort`` is the imaging
-#: cohort (``habit.contracts.subject.Cohort``) since v1.0.0, and the v0.1
-#: clinical cohort was renamed ``ClinicalCohort`` (its old name stays
-#: importable from ``habit.api.clinical`` as a deprecated alias until v1.2.0).
+#: cohort (``habit.contracts.subject.Cohort``) since v1.0.0.
 _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     "api.contracts": ("WorkflowResult",),
-    "api.clinical": (
-        "ClinicalCohort",
-        "PreparedCohort",
-        "HabitatResult",
-        "ClinicalPreprocessor",
-        "HabitatSegmenter",
-    ),
     "api.provenance": (
         "RunManifest",
         "create_run_manifest",
@@ -137,13 +128,6 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "run_icc_analysis",
         "run_test_retest_analysis",
     ),
-    "api.estimators": (
-        "EstimatorPersistenceMixin",
-        "HabitatClusterer",
-        "HabitClassifier",
-        "OutcomeClassifier",
-        "SubjectFeatureAggregator",
-    ),
     # ------------------------------------------------------------------
     # v1.0 layered packages (additive; see developer/api_upgrade/06-08).
     # ------------------------------------------------------------------
@@ -195,7 +179,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "DirectoryResultWriter",
         "FileImageRef",
     ),
-    # L4 recipes: the named study designs plus the objects they return.
+    # L4 recipes: Study factories plus the objects they return.
     "recipes": (
         "Study",
         "StudyResult",
@@ -203,14 +187,9 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "CVResult",
         "PredictionResult",
         "SearchResult",
-        "two_step",
-        "one_step",
-        "direct_pooling",
-        "fit_habitat",
         "two_step_habitat",
         "one_step_habitat",
         "direct_pooling_habitat",
-        "apply_habitat_model",
         "extract_habitat_features",
         "traditional_radiomics",
         "identify_precise_voxel_features",

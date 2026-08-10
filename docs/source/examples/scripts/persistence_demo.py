@@ -6,7 +6,7 @@ Writes NRRD habitat maps, ``habitat_model.habitatmodel``, feature tables
 (parquet/csv), ``habitats.parquet`` unit table, run manifest, and optional
 clustering figures — the same layout the CLI produces.
 
-Primary API: HabitatSpec.stages + recipes.fit_habitat.
+Primary API: HabitatSpec.stages + recipes.Study(...).fit_predict.
 
 This script accompanies ``docs/source/examples/persistence.rst``.
 
@@ -56,7 +56,7 @@ spec = HabitatSpec(
     random_seed=99,
 )
 
-result = recipes.fit_habitat(cohort, spec)
+result = recipes.Study(spec=spec).fit_predict(cohort)
 
 with tempfile.TemporaryDirectory(prefix="habit_persist_") as tmp:
     out_dir = Path(tmp) / "study_out"
@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory(prefix="habit_persist_") as tmp:
     model = HabitatModel.load(out_dir / "habitat_model.habitatmodel")
     print(f"\nReloaded HabitatModel: {model.model_id}, {model.n_habitats} habitats")
 
-    prediction = recipes.apply_habitat_model(cohort, spec, model)
+    prediction = recipes.Study.from_model(model, spec).predict(cohort)
     print(f"Apply round-trip maps: {len(prediction.habitat_maps)}")
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.

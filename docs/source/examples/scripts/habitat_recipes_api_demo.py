@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Habitat recipe API: stages-first fit_habitat + apply + StudyResult / model I/O.
+Habitat recipe API: stages-first Study.fit_predict / predict + StudyResult / model I/O.
 
-* **Primary** — ``HabitatSpec.stages`` + ``recipes.fit_habitat`` (strategy
+* **Primary** — ``HabitatSpec.stages`` + ``recipes.Study(...).fit_predict`` (strategy
   inferred: partition+pool → two_step; pool only → direct_pooling;
   neither → one_step).
-* **Compat** — thin aliases ``two_step`` / ``one_step`` / ``direct_pooling``
-  and named-field sugar still call the same executor.
-* **Atomic** — ``result.pipeline(subject)`` and ``apply_habitat_model``.
+* **Factories** — ``two_step_habitat`` / ``one_step_habitat`` / ``direct_pooling_habitat``
+  build a :class:`~habit.recipes.Study` for the same executor.
+* **Atomic** — ``result.pipeline(subject)`` and ``Study.from_model(...).predict``.
 * **Persistence** — ``StudyResult.save`` and ``HabitatModel.save/load``.
 
 Accompanies ``docs/source/examples/habitat_recipes_api.rst``.
@@ -54,7 +54,7 @@ def _fit_stage() -> Stage:
 
 cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=11)
 
-print("=== fit_habitat two_step shape (partition + pool) ===")
+print("=== Study.fit_predict two_step shape (partition + pool) ===")
 two_step_spec = HabitatSpec(
     name="two_step",
     stages=(
@@ -86,17 +86,17 @@ two_step_spec = HabitatSpec(
     ),
     random_seed=11,
 )
-two = recipes.fit_habitat(cohort, two_step_spec)
+two = recipes.Study(spec=two_step_spec).fit_predict(cohort)
 assert two.habitat_model is not None
 print(f"  habitats={two.habitat_model.n_habitats}, "
       f"features={len(two.features.feature_columns)}")
 
-print("=== apply_habitat_model + .habitatmodel round-trip ===")
+print("=== Study.predict + .habitatmodel round-trip ===")
 with tempfile.TemporaryDirectory(prefix="habit_api_habitat_") as tmp:
     archive = Path(tmp) / "demo.habitatmodel"
     two.habitat_model.save(archive)
     reloaded: HabitatModel = HabitatModel.load(archive)
-    predicted = recipes.apply_habitat_model(cohort, two_step_spec, reloaded)
+    predicted = recipes.Study.from_model(reloaded, two_step_spec).predict(cohort)
     print(f"  reloaded model_id={reloaded.model_id}")
     print(f"  predict maps={len(predicted.habitat_maps)}")
 
@@ -110,7 +110,7 @@ one_map = pipeline(cohort[0])
 print(f"  pipeline({cohort[0].subject_id}) labels="
       f"{sorted(set(int(v) for v in one_map.label_array.ravel() if v > 0))}")
 
-print("=== fit_habitat one_step shape (neither partition nor pool) ===")
+print("=== Study.fit_predict one_step shape (neither partition nor pool) ===")
 one_step_spec = HabitatSpec(
     name="one_step",
     stages=(
@@ -129,10 +129,10 @@ one_step_spec = HabitatSpec(
     ),
     random_seed=11,
 )
-one = recipes.fit_habitat(cohort, one_step_spec)
+one = recipes.Study(spec=one_step_spec).fit_predict(cohort)
 print(f"  subject_models={list(one.subject_models)}")
 
-print("=== fit_habitat direct_pooling shape (pool only) ===")
+print("=== Study.fit_predict direct_pooling shape (pool only) ===")
 direct_spec = HabitatSpec(
     name="direct_pooling",
     stages=(
@@ -163,12 +163,12 @@ direct_spec = HabitatSpec(
     ),
     random_seed=11,
 )
-pool = recipes.fit_habitat(cohort, direct_spec)
+pool = recipes.Study(spec=direct_spec).fit_predict(cohort)
 assert pool.habitat_model is not None
 print(f"  habitats={pool.habitat_model.n_habitats}")
 
-print("=== Compat aliases (thin validators → same fit_habitat) ===")
-# Named-field sugar + mode-named aliases remain supported.
+print("=== Design Study + named-field sugar ===")
+# Named-field sugar + Study(design=...) remains supported.
 sugar = HabitatSpec(
     name="two_step_sugar",
     voxel_feature_extractor=Spec("raw", {"modalities": ["T1", "T2"]}),
@@ -186,8 +186,8 @@ sugar = HabitatSpec(
     habitat_features=(Spec("volume"),),
     random_seed=11,
 )
-alias = recipes.two_step(cohort, sugar)
-print(f"  recipes.two_step sugar: habitats={alias.habitat_model.n_habitats}")
+alias = recipes.Study(spec=sugar, design='two_step').fit_predict(cohort)
+print(f"  Study(design=two_step) sugar: habitats={alias.habitat_model.n_habitats}")
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
 import sys

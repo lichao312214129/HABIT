@@ -49,7 +49,7 @@ spec = HabitatSpec(
     ),
     random_seed=3,
 )
-result = recipes.fit_habitat(cohort, spec)
+result = recipes.Study(spec=spec).fit_predict(cohort)
 print(f"  feature columns ({len(result.features.feature_columns)}):")
 for name in result.features.feature_columns:
     print(f"    - {name}")

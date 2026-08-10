@@ -6,7 +6,7 @@ All ROI voxels from all subjects are pooled before cohort-level clustering.
 Preprocess stages may run before and after the ``pool`` marker (post-pool
 feature preprocess is first-class).
 
-Primary API: HabitatSpec.stages + recipes.fit_habitat (pool only ⇒
+Primary API: HabitatSpec.stages + recipes.Study(...).fit_predict (pool only ⇒
 direct_pooling).
 
 This script accompanies ``docs/source/examples/direct_pooling_habitat.rst``.
@@ -75,7 +75,7 @@ spec = HabitatSpec(
     random_seed=42,
 )
 
-result = recipes.fit_habitat(cohort, spec)
+result = recipes.Study(spec=spec).fit_predict(cohort)
 
 print("\n--- Cohort-level habitat model ---")
 print(result.habitat_model.summary())
