@@ -80,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
 </ul>
@@ -124,6 +125,12 @@
 <li class="toctree-l3"><a class="reference internal" href="how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#layouts">Layouts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="how_to/voxel_texture.html#also-see">Also see</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="how_to/radiomics.html">Traditional radiomics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="how_to/radiomics.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="how_to/radiomics.html#your-data">Your data</a></li>
@@ -149,19 +156,21 @@
 <li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="examples/index.html#gallery-map">Gallery map</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/index.html#featured-graph-topology">Featured — graph topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#featured-voxel-texture-maps">Featured — voxel texture maps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/index.html#data-cohorts">1. Data &amp; cohorts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/index.html#image-preprocessing">2. Image preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/index.html#graph-topology-features">4. Graph topology features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#habitat-design-spec-features">5. Habitat design (Spec &amp; features)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#quantification">6. Quantification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#machine-learning">7. Machine learning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#visualization">8. Visualization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#persistence-provenance">9. Persistence &amp; provenance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#execution-reliability">10. Execution &amp; reliability</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#extending-habit">11. Extending HABIT</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#yaml-cli-shells">12. YAML &amp; CLI shells</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/index.html#qc-auxiliary">13. QC &amp; auxiliary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#voxel-texture-maps">5. Voxel texture maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#habitat-design-spec-features">6. Habitat design (Spec &amp; features)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#quantification">7. Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#machine-learning">8. Machine learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#visualization">9. Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#persistence-provenance">10. Persistence &amp; provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#execution-reliability">11. Execution &amp; reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#extending-habit">12. Extending HABIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#yaml-cli-shells">13. YAML &amp; CLI shells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/index.html#qc-auxiliary">14. QC &amp; auxiliary</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="examples/data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/image_preprocessing.html">Batch image preprocessing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
@@ -174,6 +183,7 @@
 <li class="toctree-l4"><a class="reference internal" href="examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/graph_features.html">Graph topology features (demo_data)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/voxel_texture.html">Voxel texture maps (demo_data)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
@@ -910,6 +920,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1365,7 +1377,8 @@
 </ol>
 <p>Python users: <a class="reference internal" href="tutorial/quickstart_python.html"><span class="doc">Quickstart: Python API</span></a>. Stuck: <a class="reference internal" href="troubleshooting/faq.html"><span class="doc">FAQ</span></a>.</p>
 <p>Also: habitat <strong>graph topology</strong> features — <a class="reference internal" href="how_to/graph_features.html"><span class="doc">Graph topology features</span></a>
-(how-to) · <a class="reference internal" href="examples/graph_features.html"><span class="doc">Graph topology features (demo_data)</span></a> (gallery).</p>
+(how-to) · <a class="reference internal" href="examples/graph_features.html"><span class="doc">Graph topology features (demo_data)</span></a> (gallery). Voxel <strong>texture</strong> maps —
+<a class="reference internal" href="how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a> · <a class="reference internal" href="examples/voxel_texture.html"><span class="doc">Voxel texture maps (demo_data)</span></a>.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
 <ul>
@@ -1397,6 +1410,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#apply-a-saved-model">3. Apply a saved model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#extract-habitat-features">4. Extract habitat features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#tabular-ml">5. Tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
 </ul>

@@ -55,6 +55,23 @@ figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
 
    Demo ``subj001`` habitat overlay used by :doc:`graph_features`.
 
+Featured — voxel texture maps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
+``VoxelFeatureField`` columns) with publication 2D slices from real
+``demo_data`` (subj001 LAP + ROI).
+
+* How-to: :doc:`../how_to/voxel_texture`
+* Runnable example + gallery: :doc:`voxel_texture`
+
+.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
+   :alt: Demo subj001 LAP anatomy beside local-entropy texture map
+   :width: 420
+   :target: voxel_texture.html
+
+   Demo ``subj001`` local-entropy panels used by :doc:`voxel_texture`.
+
 1. Data & cohorts
 ~~~~~~~~~~~~~~~~~
 
@@ -83,7 +100,12 @@ figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
 
 * :doc:`graph_features` — kernel + domain API; demo_data figures (2D + 3D)
 
-5. Habitat design (Spec & features)
+5. Voxel texture maps
+~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`voxel_texture` — local entropy + ``plot_voxel_texture_slice``; demo_data figures
+
+6. Habitat design (Spec & features)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`feature_composition`
@@ -93,49 +115,49 @@ figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
 * :doc:`precise_features`
 * :doc:`custom_voxel_features`
 
-6. Quantification
+7. Quantification
 ~~~~~~~~~~~~~~~~~
 
 * :doc:`feature_extraction`
 * :doc:`features_radiomics_api`
 
-7. Machine learning
+8. Machine learning
 ~~~~~~~~~~~~~~~~~~~
 
 * :doc:`tabular_ml`
 * :doc:`tabular_ml_api`
 * :doc:`ml_advanced`
 
-8. Visualization
+9. Visualization
 ~~~~~~~~~~~~~~~~
 
 * :doc:`visualization`
 * :doc:`viz_parallel_extras_api`
 
-9. Persistence & provenance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+10. Persistence & provenance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`persistence`
 * :doc:`provenance_methods`
 
-10. Execution & reliability
+11. Execution & reliability
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`parallel_execution`
 * :doc:`fault_tolerance`
 
-11. Extending HABIT
+12. Extending HABIT
 ~~~~~~~~~~~~~~~~~~~
 
 * :doc:`plugin_entry_points`
 
-12. YAML & CLI shells
+13. YAML & CLI shells
 ~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`run_from_yaml`
 * :doc:`cli_yaml_workflows`
 
-13. QC & auxiliary
+14. QC & auxiliary
 ~~~~~~~~~~~~~~~~~~
 
 * :doc:`cohort_plugins_auxiliary`
@@ -156,6 +178,7 @@ figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
    habitat_atomic_ops
    habitat_custom_pipeline
    graph_features
+   voxel_texture
    feature_composition
    habitat_feature_routes
    habitat_preprocessing

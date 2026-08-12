@@ -80,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#apply-a-saved-model">3. Apply a saved model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extract-habitat-features">4. Extract habitat features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tabular-ml">5. Tabular ML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
 </ul>
 </li>
 </ul>
@@ -124,6 +125,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#your-data">Your data</a></li>
@@ -149,19 +156,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/index.html#gallery-map">Gallery map</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/index.html#featured-graph-topology">Featured — graph topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#featured-voxel-texture-maps">Featured — voxel texture maps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/index.html#data-cohorts">1. Data &amp; cohorts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/index.html#image-preprocessing">2. Image preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/index.html#graph-topology-features">4. Graph topology features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#habitat-design-spec-features">5. Habitat design (Spec &amp; features)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#quantification">6. Quantification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#machine-learning">7. Machine learning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#visualization">8. Visualization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#persistence-provenance">9. Persistence &amp; provenance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#execution-reliability">10. Execution &amp; reliability</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#extending-habit">11. Extending HABIT</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#yaml-cli-shells">12. YAML &amp; CLI shells</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#qc-auxiliary">13. QC &amp; auxiliary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#voxel-texture-maps">5. Voxel texture maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#habitat-design-spec-features">6. Habitat design (Spec &amp; features)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#quantification">7. Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#machine-learning">8. Machine learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#visualization">9. Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#persistence-provenance">10. Persistence &amp; provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#execution-reliability">11. Execution &amp; reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#extending-habit">12. Extending HABIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#yaml-cli-shells">13. YAML &amp; CLI shells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#qc-auxiliary">14. QC &amp; auxiliary</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../examples/data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/image_preprocessing.html">Batch image preprocessing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
@@ -174,6 +183,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/graph_features.html">Graph topology features (demo_data)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../examples/voxel_texture.html">Voxel texture maps (demo_data)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
@@ -910,6 +920,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1531,13 +1543,37 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> or
 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">…/effective_config.yaml</span></code> for <strong>voxel-identical</strong>
 habitat maps (same seed, data, and policy).</p>
+<p>Static matplotlib overlay of the same demo subject (no napari; needs
+<code class="docutils literal notranslate"><span class="pre">[viz]</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span><span class="p">,</span> <span class="n">use_style</span>
+
+<span class="n">volume</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
+        <span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
+        <span class="n">spacing</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="c1"># fig.savefig(&quot;habitat_overlay.png&quot;, dpi=200, bbox_inches=&quot;tight&quot;)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/habitat_two_step_overlay.png"><img alt="Demo subj001 LAP with two-step habitat labels overlaid" src="../_images/habitat_two_step_overlay.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Publication-style habitat overlay for demo <code class="docutils literal notranslate"><span class="pre">subj001</span></code> (same science as
+the CLI two-step run). Gallery asset from
+<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <p>Further notebook-oriented patterns (synthetic cohorts, custom extractors)
 live under <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a>.</p>
 </section>
 <section id="view">
 <h2>2. View<a class="headerlink" href="#view" title="Link to this heading"></a></h2>
 <p>CLI twin (one line — conda / Windows terminals do not support <code class="docutils literal notranslate"><span class="pre">\</span></code> continuation):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/...</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
 </pre></div>
 </div>
 <p>Append inside the same <code class="docutils literal notranslate"><span class="pre">main()</span></code> from step 1 (uses <code class="docutils literal notranslate"><span class="pre">cohort</span></code> /
@@ -1555,8 +1591,35 @@ live under <a class="reference internal" href="../examples/index.html"><span cla
 </pre></div>
 </div>
 <p>Needs napari (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). Blocks until you close the window.
-For fuller 3D review, also open the source volume and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
-in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer.</p>
+In napari, select the habitats Labels layer (Contour <code class="docutils literal notranslate"><span class="pre">0</span></code> = filled regions).</p>
+<p>For fuller 3D review, also open the source volume and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>
+in <strong>ITK-SNAP</strong>, <strong>3D Slicer</strong>, or a <strong>SimpleITK</strong>-based viewer — not only
+the napari 2D slice slider.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/habitat_view_napari_region.png"><img alt="napari habitat view with filled region labels" src="../_images/habitat_view_napari_region.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Filled labels.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/habitat_view_napari_contour.png"><img alt="napari habitat view with contour outlines" src="../_images/habitat_view_napari_contour.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Contour outlines.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="apply-a-saved-model">
 <h2>3. Apply a saved model<a class="headerlink" href="#apply-a-saved-model" title="Link to this heading"></a></h2>
@@ -1624,6 +1687,9 @@ demo YAML, as a Python <code class="docutils literal notranslate"><span class="p
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>) to also extract habitat graph topology
 features — see <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a> and
 <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph topology features (demo_data)</span></a>.</p>
+<p>Voxel <strong>texture</strong> maps (local entropy on anatomy + ROI) are a separate
+<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> path — see <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a> and
+<a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture maps (demo_data)</span></a>.</p>
 </section>
 <section id="tabular-ml">
 <h2>5. Tabular ML<a class="headerlink" href="#tabular-ml" title="Link to this heading"></a></h2>
@@ -1702,7 +1768,16 @@ here, but harmless to keep):</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">ml_result</span><span class="o">.</span><span class="n">test_metrics</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Next: <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a> / <a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a> / <a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a></p>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Examples gallery: <a class="reference internal" href="../examples/index.html"><span class="doc">Examples</span></a></p></li>
+<li><p>Graph topology / voxel texture: <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a> ·
+<a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a></p></li>
+<li><p>API reference: <a class="reference internal" href="../api/index.html"><span class="doc">API Reference</span></a></p></li>
+<li><p>Your own data: <a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a></p></li>
+</ul>
 </section>
 </section>
 

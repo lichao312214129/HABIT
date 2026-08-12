@@ -159,5 +159,6 @@ Next
 
 * Your own data: :doc:`../how_to/prepare_data` then :doc:`../how_to/index`
 * Graph topology features: :doc:`../how_to/graph_features`
+* Voxel texture maps: :doc:`../how_to/voxel_texture`
 * Python API: :doc:`quickstart_python`
 * All commands: :doc:`../reference/cli`

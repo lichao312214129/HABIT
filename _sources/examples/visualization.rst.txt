@@ -63,6 +63,16 @@ construction is available as pure plotters (``[viz]``; 3D also needs
 
 See :doc:`graph_features` and :doc:`../reference/features/graph`.
 
+Voxel texture / feature-map slices
+----------------------------------
+
+Local entropy (and densified ``VoxelFeatureField`` columns such as
+``voxel_radiomics``) use the same pure-figure contract::
+
+   from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice
+
+See :doc:`voxel_texture` and :doc:`../how_to/voxel_texture`.
+
 What to read next
 -----------------
 

@@ -822,6 +822,8 @@ Habitat clustering and overlay
    habit.viz.plot_habitat_graph_network_2d
    habit.viz.render_habitat_graph_surface_3d
    habit.viz.render_habitat_graph_network_3d
+   habit.viz.dense_voxel_feature_map
+   habit.viz.plot_voxel_texture_slice
    habit.viz.view_habitat_napari
 
 .. _api-exceptions:

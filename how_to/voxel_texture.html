@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview: module code &mdash; HABIT Documentation</title>
+  <title>Voxel texture feature maps &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=39329a72" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/index.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/how_to/voxel_texture.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -20,365 +21,11 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
-
-
-
-const initStyles = () => {
-    const defaultStyle = document.createElement('style');
-    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
-    document.head.appendChild(defaultStyle);
-
-    const fullscreenStyle = document.createElement('style');
-    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
-    document.head.appendChild(fullscreenStyle);
-}
-
-// Detect if page has dark background
-const isDarkTheme = () => {
-    // We use a set of heuristics:
-    // 1. Check for common dark mode classes or attributes
-    // 2. Check computed background color brightness
-    if (document.documentElement.classList.contains('dark') ||
-        document.documentElement.getAttribute('data-theme') === 'dark' ||
-        document.body.classList.contains('dark') ||
-        document.body.getAttribute('data-theme') === 'dark') {
-        // console.log("Dark theme detected via class/attribute");
-        return true;
-    }
-    if (document.documentElement.classList.contains('light') ||
-        document.documentElement.getAttribute('data-theme') === 'light' ||
-        document.body.classList.contains('light') ||
-        document.body.getAttribute('data-theme') === 'light') {
-        // console.log("Light theme detected via class/attribute");
-        return false;
-    }
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // console.log("Dark theme detected via prefers-color-scheme");
-        return true;
-    }
-    const bgColor = window.getComputedStyle(document.body).backgroundColor;
-    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
-    if (match) {
-        const r = parseInt(match[1]);
-        const g = parseInt(match[2]);
-        const b = parseInt(match[3]);
-        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        // console.log("Background color brightness:", brightness);
-        return brightness < 128;
-    }
-    // console.log("No dark or light theme detected, defaulting to light theme");
-    return false;
-};
-
-let darkTheme = isDarkTheme();
-let modal = null;
-let modalContent = null;
-let previousScrollOffset = [window.scrollX, window.scrollY];
-let _lazyObserver = null;
-let _renderQueue = Promise.resolve();
-let closeModal = () => {};
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal?.classList.contains('active')) {
-        closeModal();
-    }
-});
-
-// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
-// so this is safe to call both for the initial batch and for diagrams that
-// render lazily once they become visible.
-const addZoomToSvgs = (svgs) => {
-    svgs.each(function() {
-        if (this.getAttribute('data-zoom-applied') === 'true') return;
-        var svg = d3.select(this);
-        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-        var inner = svg.select("g");
-        var zoom = d3.zoom().on("zoom", function(event) {
-            inner.attr("transform", event.transform);
-        });
-        svg.call(zoom);
-        this.setAttribute('data-zoom-applied', 'true');
-    });
-};
-
-const runMermaid = async (rerun) => {
-    console.log("Running mermaid diagrams, rerun =", rerun);
-    // clear all existing mermaid charts
-    let all_mermaids = document.querySelectorAll(".mermaid");
-
-    if (rerun) {
-        // Disconnect any previous lazy rendering observer
-        if (_lazyObserver) {
-            _lazyObserver.disconnect();
-            _lazyObserver = null;
-        }
-
-        all_mermaids.forEach((el) => {
-            el.removeAttribute('data-mermaid-deferred');
-            el.removeAttribute('data-mermaid-render-failed');
-            if(!el.hasAttribute("data-original-code")) {
-                // store original code
-                // console.log(`Storing original code for first run: `, el.innerHTML);
-                el.setAttribute('data-original-code', el.innerHTML);
-            }
-            if(el.getAttribute("data-processed") === "true") {
-                // remove and restore original
-                el.removeAttribute("data-processed");
-                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
-                el.innerHTML = el.getAttribute('data-original-code');
-            } else {
-                // store original code
-                // console.log(`Storing original code for re-run: `, el.innerHTML);
-                el.setAttribute('data-original-code', el.innerHTML);
-            }
-        });
-
-        // Separate visible and hidden elements. Mermaid's layout engine measures
-        // text dimensions via the DOM, which fails for elements hidden by a parent
-        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
-        // producing broken SVGs. Render visible elements now, defer hidden ones.
-        const visible = [];
-        const hidden = [];
-        all_mermaids.forEach((el) => {
-            // offsetParent is null for display:none ancestors.
-            // getClientRects().length > 0 catches position:fixed elements
-            // (which also have null offsetParent but are still visible).
-            if (el.offsetParent !== null || el.getClientRects().length > 0) {
-                visible.push(el);
-            } else {
-                hidden.push(el);
-                el.setAttribute('data-mermaid-deferred', 'true');
-            }
-        });
-
-        if (visible.length > 0) {
-            try {
-                await mermaid.run({ nodes: visible });
-            } catch (e) {
-                console.error("Mermaid rendering failed:", e);
-            }
-        }
-
-        // Lazily render hidden elements when they become visible.
-        // Uses a promise chain (_renderQueue) to serialize rendering,
-        // since IntersectionObserver may report multiple entries at once
-        // and mermaid.run() is not safe to call concurrently.
-        if (hidden.length > 0) {
-            if (typeof IntersectionObserver === 'undefined') {
-                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
-            } else {
-                _renderQueue = Promise.resolve();
-                _lazyObserver = new IntersectionObserver((entries) => {
-                    for (const entry of entries) {
-                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
-                            _lazyObserver.unobserve(entry.target);
-                            const el = entry.target;
-                            _renderQueue = _renderQueue.then(async () => {
-                                try {
-                                    await mermaid.run({ nodes: [el] });
-                                    el.removeAttribute('data-mermaid-deferred');
-                                    // Apply zoom to the now-rendered diagram, matching
-                                    // the decoration visible diagrams receive.
-                                    if (false) {
-                                        addZoomToSvgs(d3.selectAll("").select(function() {
-                                            return this.querySelector("svg");
-                                        }));
-                                    }
-                                } catch (e) {
-                                    console.error("Mermaid deferred rendering failed:", e);
-                                    el.removeAttribute('data-mermaid-deferred');
-                                    el.setAttribute('data-mermaid-render-failed', 'true');
-                                }
-                            });
-                        }
-                    }
-                });
-                hidden.forEach((el) => _lazyObserver.observe(el));
-            }
-        }
-    }
-
-    all_mermaids = document.querySelectorAll(".mermaid");
-    // Exclude deferred (hidden) and render-failed elements from completion checks
-    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
-    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
-
-    if (false) {
-        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
-        if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("").select(function() {
-                return this.querySelector("svg");
-            });
-            // Wait until every active (visible) diagram has rendered. Deferred
-            // diagrams are excluded, so a fixed d3_node_count that counts a
-            // hidden diagram no longer loops forever waiting for its SVG.
-            if(mermaids_active.length !== mermaids_processed.length) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            }
-            addZoomToSvgs(svgs);
-        }
-    } else if(mermaids_active.length !== mermaids_processed.length) {
-        // Wait for mermaid to process all diagrams
-        setTimeout(() => runMermaid(false), 200);
-        return;
-    }
-
-    // Stop here if not adding fullscreen capability
-    if (!true) return;
-
-    if (modal !== null ) {
-        // Destroy existing modal
-        modal.remove();
-        modal = null;
-        modalContent = null;
-    }
-
-    modal = document.createElement('div');
-    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
-    modal.innerHTML = `
-        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
-        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
-    `;
-    document.body.appendChild(modal);
-
-    modalContent = modal.querySelector('.mermaid-container-fullscreen');
-    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
-
-    closeModal = () => {
-        modal.classList.remove('active');
-        modalContent.innerHTML = '';
-        document.body.style.overflow = ''
-        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
-    };
-
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
-        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
-            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
-            // Already processed, adjust button class if needed
-            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
-            if (existingBtn) {
-                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
-            }
-            return;
-        }
-
-        const container = document.createElement('div');
-        container.className = 'mermaid-container';
-        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
-        container.appendChild(mermaidDiv);
-
-        const fullscreenBtn = document.createElement('button');
-        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
-        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
-        fullscreenBtn.textContent = "\u26f6";
-        fullscreenBtn.style.opacity = "50%";
-
-        // Calculate dynamic position based on diagram's margin and padding
-        const diagramStyle = window.getComputedStyle(mermaidDiv);
-        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
-        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
-        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
-        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
-        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
-        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
-
-        fullscreenBtn.addEventListener('click', () => {
-            previousScrollOffset = [window.scrollX, window.scrollY];
-            const clone = mermaidDiv.cloneNode(true);
-            modalContent.innerHTML = '';
-            modalContent.appendChild(clone);
-
-            const svg = clone.querySelector('svg');
-            if (svg) {
-                svg.removeAttribute('width');
-                svg.removeAttribute('height');
-                svg.style.width = '100%';
-                svg.style.height = 'auto';
-                svg.style.maxWidth = '100%';
-                svg.style.display = 'block';
-
-                if (false) {
-                    setTimeout(() => {
-                        const g = svg.querySelector('g');
-                        if (g) {
-                            var svgD3 = d3.select(svg);
-                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
-                            var inner = svgD3.select("g");
-                            var zoom = d3.zoom().on("zoom", function(event) {
-                                inner.attr("transform", event.transform);
-                            });
-                            svgD3.call(zoom);
-                        }
-                    }, 100);
-                }
-            }
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-        container.appendChild(fullscreenBtn);
-    });
-};
-
-
-
-const load = async () => {
-    initStyles();
-
-
-    await runMermaid(true);
-
-    const reRunIfThemeChanges = async () => {
-        const newDarkTheme = isDarkTheme();
-        if (newDarkTheme !== darkTheme) {
-            darkTheme = newDarkTheme;
-            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
-            await mermaid.initialize(
-                {...{"startOnLoad": false},
-                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
-                }
-            );
-            await runMermaid(true);
-        }
-    };
-
-    // Update theme classes when theme changes
-    const themeObserver = new MutationObserver(reRunIfThemeChanges);
-    themeObserver.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
-    });
-    themeObserver.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
-    });
-};
-
-
-
-
-
-console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
-mermaid.initialize(
-    {...{"startOnLoad": false},
-    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
-    }
-);
-
-window.addEventListener("load", load);
-window.runMermaid = runMermaid;</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Traditional radiomics" href="radiomics.html" />
+    <link rel="prev" title="Graph topology features" href="graph_features.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -438,69 +85,69 @@ window.runMermaid = runMermaid;</script>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/index.html">How-to guides</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/before_you_start.html">Before you start</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#terminal-env">1. Terminal + env</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">How-to guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="before_you_start.html">Before you start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#terminal-env">1. Terminal + env</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#work-directory-demo-configs">2. Work directory + demo configs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#demo-data-first-run">3. Demo data (first run)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#paths-in-yaml">4. Paths in YAML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="before_you_start.html#safe-yaml-edits">5. Safe YAML edits</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/prepare_data.html">Prepare data</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#before-you-start">Before you start</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#two-ways-to-provide-data">Two ways to provide data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#option-a-path-list-yaml-recommended">Option A — path list YAML (recommended)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#option-b-folder-tree">Option B — folder tree</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/prepare_data.html#what-success-looks-like">What success looks like</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prepare_data.html">Prepare data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#two-ways-to-provide-data">Two ways to provide data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#option-a-path-list-yaml-recommended">Option A — path list YAML (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#option-b-folder-tree">Option B — folder tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="prepare_data.html#what-success-looks-like">What success looks like</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocess.html">Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#run">Run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="preprocess.html#your-data">Your data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/segment_habitat.html#before-you-start">Before you start</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/segment_habitat.html#run-the-demo">Run the demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/segment_habitat.html#use-your-own-data">Use your own data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="segment_habitat.html">Habitat segmentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#before-you-start">Before you start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="segment_habitat.html#use-your-own-data">Use your own data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/extract_features.html">Feature extraction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#run-the-demo">Run the demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#your-data">Your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extract_features.html">Feature extraction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="extract_features.html#your-data">Your data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_features.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#cli-yaml">CLI / YAML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/voxel_texture.html">Voxel texture feature maps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#python-api">Python API</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#layouts">Layouts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/voxel_texture.html#also-see">Also see</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Voxel texture feature maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layouts">Layouts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#also-see">Also see</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#run-the-demo">Run the demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#your-data">Your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="radiomics.html">Traditional radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiomics.html#your-data">Your data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/train_model.html">Machine learning</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#demo-tabular-data">Demo tabular data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#run-fast-demo">Run (fast demo)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/train_model.html#your-data">Your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="train_model.html">Machine learning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#demo-tabular-data">Demo tabular data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#run-fast-demo">Run (fast demo)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="train_model.html#your-data">Your data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/compare_models.html">Model comparison</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/compare_models.html#run-the-demo">Run the demo</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../how_to/compare_models.html#your-data">Your data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compare_models.html">Model comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#run-the-demo">Run the demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compare_models.html#your-data">Your data</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../how_to/auxiliary_tools.html">Auxiliary tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="auxiliary_tools.html">Auxiliary tools</a></li>
 </ul>
 </li>
 </ul>
@@ -1703,8 +1350,10 @@ window.runMermaid = runMermaid;</script>
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Overview: module code</li>
+          <li class="breadcrumb-item"><a href="index.html">How-to guides</a></li>
+      <li class="breadcrumb-item active">Voxel texture feature maps</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/how_to/voxel_texture.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1712,130 +1361,90 @@ window.runMermaid = runMermaid;</script>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="habit/adapters/directory.html">habit.adapters.directory</a></li>
-<li><a href="habit/adapters/image_refs.html">habit.adapters.image_refs</a></li>
-<li><a href="habit/adapters/writers.html">habit.adapters.writers</a></li>
-<li><a href="habit/api/analysis.html">habit.api.analysis</a></li>
-<li><a href="habit/api/contracts.html">habit.api.contracts</a></li>
-<li><a href="habit/api/dicom_sort.html">habit.api.dicom_sort</a></li>
-<li><a href="habit/api/habitat.html">habit.api.habitat</a></li>
-<li><a href="habit/api/image.html">habit.api.image</a></li>
-<li><a href="habit/api/machine_learning.html">habit.api.machine_learning</a></li>
-<li><a href="habit/api/plugins.html">habit.api.plugins</a></li>
-<li><a href="habit/api/preprocessing.html">habit.api.preprocessing</a></li>
-<li><a href="habit/api/provenance.html">habit.api.provenance</a></li>
-<li><a href="habit/api/radiomics.html">habit.api.radiomics</a></li>
-<li><a href="habit/api/utils.html">habit.api.utils</a></li>
-<li><a href="habit/compat/monai.html">habit.compat.monai</a></li>
-<li><a href="habit/compat/nnunet.html">habit.compat.nnunet</a></li>
-<li><a href="habit/compat/sklearn.html">habit.compat.sklearn</a></li>
-<li><a href="habit/contracts/geometry.html">habit.contracts.geometry</a></li>
-<li><a href="habit/contracts/habitat.html">habit.contracts.habitat</a></li>
-<li><a href="habit/contracts/image.html">habit.contracts.image</a></li>
-<li><a href="habit/contracts/manifest.html">habit.contracts.manifest</a></li>
-<li><a href="habit/contracts/ops.html">habit.contracts.ops</a></li>
-<li><a href="habit/contracts/outcome.html">habit.contracts.outcome</a></li>
-<li><a href="habit/contracts/provenance.html">habit.contracts.provenance</a></li>
-<li><a href="habit/contracts/subject.html">habit.contracts.subject</a></li>
-<li><a href="habit/contracts/table.html">habit.contracts.table</a></li>
-<li><a href="habit/datasets/synthetic.html">habit.datasets.synthetic</a></li>
-<li><a href="habit/domain/assignment/nearest_centroid.html">habit.domain.assignment.nearest_centroid</a></li>
-<li><a href="habit/domain/assignment/registry.html">habit.domain.assignment.registry</a></li>
-<li><a href="habit/domain/classification/autogluon.html">habit.domain.classification.autogluon</a></li>
-<li><a href="habit/domain/classification/models.html">habit.domain.classification.models</a></li>
-<li><a href="habit/domain/classification/registry.html">habit.domain.classification.registry</a></li>
-<li><a href="habit/domain/evaluation/metrics.html">habit.domain.evaluation.metrics</a></li>
-<li><a href="habit/domain/evaluation/registry.html">habit.domain.evaluation.registry</a></li>
-<li><a href="habit/domain/evaluation/statistics.html">habit.domain.evaluation.statistics</a></li>
-<li><a href="habit/domain/feature_preprocessing/chains.html">habit.domain.feature_preprocessing.chains</a></li>
-<li><a href="habit/domain/feature_preprocessing/methods.html">habit.domain.feature_preprocessing.methods</a></li>
-<li><a href="habit/domain/feature_preprocessing/registry.html">habit.domain.feature_preprocessing.registry</a></li>
-<li><a href="habit/domain/feature_selection/registry.html">habit.domain.feature_selection.registry</a></li>
-<li><a href="habit/domain/feature_selection/selectors.html">habit.domain.feature_selection.selectors</a></li>
-<li><a href="habit/domain/habitat_features/each_habitat.html">habit.domain.habitat_features.each_habitat</a></li>
-<li><a href="habit/domain/habitat_features/graph.html">habit.domain.habitat_features.graph</a></li>
-<li><a href="habit/domain/habitat_features/ith.html">habit.domain.habitat_features.ith</a></li>
-<li><a href="habit/domain/habitat_features/msi.html">habit.domain.habitat_features.msi</a></li>
-<li><a href="habit/domain/habitat_features/non_radiomics.html">habit.domain.habitat_features.non_radiomics</a></li>
-<li><a href="habit/domain/habitat_features/registry.html">habit.domain.habitat_features.registry</a></li>
-<li><a href="habit/domain/habitat_features/traditional.html">habit.domain.habitat_features.traditional</a></li>
-<li><a href="habit/domain/habitat_features/volume.html">habit.domain.habitat_features.volume</a></li>
-<li><a href="habit/domain/habitat_features/whole_habitat.html">habit.domain.habitat_features.whole_habitat</a></li>
-<li><a href="habit/domain/habitat_model/gmm.html">habit.domain.habitat_model.gmm</a></li>
-<li><a href="habit/domain/habitat_model/kmeans.html">habit.domain.habitat_model.kmeans</a></li>
-<li><a href="habit/domain/habitat_model/registry.html">habit.domain.habitat_model.registry</a></li>
-<li><a href="habit/domain/pipeline.html">habit.domain.pipeline</a></li>
-<li><a href="habit/domain/precision/analysis.html">habit.domain.precision.analysis</a></li>
-<li><a href="habit/domain/precision/chain.html">habit.domain.precision.chain</a></li>
-<li><a href="habit/domain/precision/perturbations.html">habit.domain.precision.perturbations</a></li>
-<li><a href="habit/domain/precision/precise_set.html">habit.domain.precision.precise_set</a></li>
-<li><a href="habit/domain/precision/registry.html">habit.domain.precision.registry</a></li>
-<li><a href="habit/domain/precision/stability.html">habit.domain.precision.stability</a></li>
-<li><a href="habit/domain/protocols.html">habit.domain.protocols</a></li>
-<li><a href="habit/domain/supervoxel/feature_clustering.html">habit.domain.supervoxel.feature_clustering</a></li>
-<li><a href="habit/domain/supervoxel/registry.html">habit.domain.supervoxel.registry</a></li>
-<li><a href="habit/domain/supervoxel/slic.html">habit.domain.supervoxel.slic</a></li>
-<li><a href="habit/domain/supervoxel_features/mean.html">habit.domain.supervoxel_features.mean</a></li>
-<li><a href="habit/domain/supervoxel_features/radiomics.html">habit.domain.supervoxel_features.radiomics</a></li>
-<li><a href="habit/domain/supervoxel_features/registry.html">habit.domain.supervoxel_features.registry</a></li>
-<li><a href="habit/domain/table_preprocessing/methods.html">habit.domain.table_preprocessing.methods</a></li>
-<li><a href="habit/domain/table_preprocessing/registry.html">habit.domain.table_preprocessing.registry</a></li>
-<li><a href="habit/domain/table_protocols.html">habit.domain.table_protocols</a></li>
-<li><a href="habit/domain/voxel_features/raw.html">habit.domain.voxel_features.raw</a></li>
-<li><a href="habit/domain/voxel_features/registry.html">habit.domain.voxel_features.registry</a></li>
-<li><a href="habit/exceptions.html">habit.exceptions</a></li>
-<li><a href="habit/execution/backends.html">habit.execution.backends</a></li>
-<li><a href="habit/execution/checkpoint.html">habit.execution.checkpoint</a></li>
-<li><a href="habit/execution/process_pool.html">habit.execution.process_pool</a></li>
-<li><a href="habit/kernels/cluster_selection.html">habit.kernels.cluster_selection</a></li>
-<li><a href="habit/kernels/habitat_graph/edges.html">habit.kernels.habitat_graph.edges</a></li>
-<li><a href="habit/kernels/habitat_graph/features.html">habit.kernels.habitat_graph.features</a></li>
-<li><a href="habit/kernels/habitat_graph/nodes.html">habit.kernels.habitat_graph.nodes</a></li>
-<li><a href="habit/kernels/habitat_metrics.html">habit.kernels.habitat_metrics</a></li>
-<li><a href="habit/kernels/icc.html">habit.kernels.icc</a></li>
-<li><a href="habit/kernels/image_perturbation.html">habit.kernels.image_perturbation</a></li>
-<li><a href="habit/kernels/statistics.html">habit.kernels.statistics</a></li>
-<li><a href="habit/kernels/voxel_icc.html">habit.kernels.voxel_icc</a></li>
-<li><a href="habit/kernels/voxel_texture.html">habit.kernels.voxel_texture</a></li>
-<li><a href="habit/recipes/auxiliary.html">habit.recipes.auxiliary</a></li>
-<li><a href="habit/recipes/comparison.html">habit.recipes.comparison</a></li>
-<li><a href="habit/recipes/features.html">habit.recipes.features</a></li>
-<li><a href="habit/recipes/icc.html">habit.recipes.icc</a></li>
-<li><a href="habit/recipes/modeling.html">habit.recipes.modeling</a></li>
-<li><a href="habit/recipes/precision.html">habit.recipes.precision</a></li>
-<li><a href="habit/recipes/preprocess.html">habit.recipes.preprocess</a></li>
-<li><a href="habit/recipes/result.html">habit.recipes.result</a></li>
-<li><a href="habit/recipes/sort_dicom.html">habit.recipes.sort_dicom</a></li>
-<li><a href="habit/recipes/study.html">habit.recipes.study</a></li>
-<li><a href="habit/recipes/test_retest.html">habit.recipes.test_retest</a></li>
-<li><a href="habit/recipes/yaml_runner.html">habit.recipes.yaml_runner</a></li>
-<li><a href="habit/registry/core.html">habit.registry.core</a></li>
-<li><a href="habit/schemas/workflows/dicom_sort.html">habit.schemas.workflows.dicom_sort</a></li>
-<li><a href="habit/schemas/workflows/habitat.html">habit.schemas.workflows.habitat</a></li>
-<li><a href="habit/schemas/workflows/icc.html">habit.schemas.workflows.icc</a></li>
-<li><a href="habit/schemas/workflows/ml.html">habit.schemas.workflows.ml</a></li>
-<li><a href="habit/schemas/workflows/preprocessing.html">habit.schemas.workflows.preprocessing</a></li>
-<li><a href="habit/spec/document.html">habit.spec.document</a></li>
-<li><a href="habit/spec/legacy.html">habit.spec.legacy</a></li>
-<li><a href="habit/spec/policy.html">habit.spec.policy</a></li>
-<li><a href="habit/spec/specs.html">habit.spec.specs</a></li>
-<li><a href="habit/spec/yaml_io.html">habit.spec.yaml_io</a></li>
-<li><a href="habit/utils/log_utils.html">habit.utils.log_utils</a></li>
-<li><a href="habit/viz/habitat_clustering.html">habit.viz.habitat_clustering</a></li>
-<li><a href="habit/viz/habitat_graph.html">habit.viz.habitat_graph</a></li>
-<li><a href="habit/viz/habitat_napari.html">habit.viz.habitat_napari</a></li>
-<li><a href="habit/viz/habitat_overlay.html">habit.viz.habitat_overlay</a></li>
-<li><a href="habit/viz/labels.html">habit.viz.labels</a></li>
-<li><a href="habit/viz/regression.html">habit.viz.regression</a></li>
-<li><a href="habit/viz/style.html">habit.viz.style</a></li>
-<li><a href="habit/viz/survival.html">habit.viz.survival</a></li>
-<li><a href="habit/viz/voxel_texture.html">habit.viz.voxel_texture</a></li>
+  <section id="voxel-texture-feature-maps">
+<h1>Voxel texture feature maps<a class="headerlink" href="#voxel-texture-feature-maps" title="Link to this heading"></a></h1>
+<p>Goal: compute and display <strong>voxel-level texture</strong> maps (local neighbourhood
+entropy, or densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> / custom <code class="docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code>
+columns) as publication 2D slices.</p>
+<p><code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> is a built-in voxel feature extractor (fast; no
+PyRadiomics). Heavy per-voxel radiomics maps use the same plotter once you
+have a dense volume or a <a class="reference internal" href="../api/generated/habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.habitat.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a>.</p>
+<p>Runnable gallery (demo_data figures):
+<a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture maps (demo_data)</span></a>.</p>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading"></a></h2>
+<p>Kernel path (arrays in, same-shaped map out):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_entropy_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span><span class="p">,</span> <span class="n">use_style</span>
+
+<span class="n">entropy</span> <span class="o">=</span> <span class="n">local_entropy_map</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+        <span class="n">entropy</span><span class="p">,</span>
+        <span class="n">anatomy</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;side_by_side&quot;</span><span class="p">,</span>
+        <span class="n">feature_label</span><span class="o">=</span><span class="s2">&quot;Local entropy (bits)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="c1"># caller owns fig.savefig(...)</span>
+</pre></div>
+</div>
+<p>Domain path (<code class="docutils literal notranslate"><span class="pre">Subject</span></code> → <code class="docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code> → dense map):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">habit.domain</span>  <span class="c1"># registers built-ins</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelFeatureExtractorRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">dense_voxel_feature_map</span><span class="p">,</span> <span class="n">plot_voxel_texture_slice</span>
+
+<span class="n">fx</span> <span class="o">=</span> <span class="n">VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;local_entropy&quot;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span>
+    <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">bins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">field</span> <span class="o">=</span> <span class="n">fx</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+<span class="n">dense</span> <span class="o">=</span> <span class="n">dense_voxel_feature_map</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;local_entropy-LAP&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">,</span>  <span class="c1"># or dense</span>
+    <span class="n">anatomy</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">feature</span><span class="o">=</span><span class="s2">&quot;local_entropy-LAP&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;overlay&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (and any other extractor that returns a
+<code class="docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code>) uses the same densify + plot path — pick the feature
+column by name or index.</p>
+</section>
+<section id="layouts">
+<h2>Layouts<a class="headerlink" href="#layouts" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> is <strong>2D-slice only</strong> (matplotlib
+<code class="docutils literal notranslate"><span class="pre">[viz]</span></code> extra):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> — anatomy | feature (default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> — translucent feature on greyscale anatomy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode=&quot;feature_only&quot;</span></code> — feature map alone</p></li>
 </ul>
+<p>For 3D volumes, omit <code class="docutils literal notranslate"><span class="pre">axis</span></code> to get three orthogonal panels through the
+densest ROI slice. There is no built-in 3D volume renderer for texture maps;
+use ITK-SNAP / 3D Slicer / napari if you need full volumetric browsing.</p>
+</section>
+<section id="also-see">
+<h2>Also see<a class="headerlink" href="#also-see" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Examples gallery: <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture maps (demo_data)</span></a></p></li>
+<li><p>Kernel: <a class="reference internal" href="../api/generated/habit.kernels.local_entropy_map.html#habit.kernels.local_entropy_map" title="habit.kernels.local_entropy_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">local_entropy_map()</span></code></a></p></li>
+<li><p>Habitat graph figures (different product): <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a></p></li>
+</ul>
+</section>
+</section>
+
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="graph_features.html" class="btn btn-neutral float-left" title="Graph topology features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="radiomics.html" class="btn btn-neutral float-right" title="Traditional radiomics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

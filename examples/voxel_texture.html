@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview: module code &mdash; HABIT Documentation</title>
+  <title>Voxel texture maps (demo_data) &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=39329a72" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/_modules/index.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/examples/voxel_texture.html" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -20,365 +21,11 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
-
-
-
-const initStyles = () => {
-    const defaultStyle = document.createElement('style');
-    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
-    document.head.appendChild(defaultStyle);
-
-    const fullscreenStyle = document.createElement('style');
-    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
-    document.head.appendChild(fullscreenStyle);
-}
-
-// Detect if page has dark background
-const isDarkTheme = () => {
-    // We use a set of heuristics:
-    // 1. Check for common dark mode classes or attributes
-    // 2. Check computed background color brightness
-    if (document.documentElement.classList.contains('dark') ||
-        document.documentElement.getAttribute('data-theme') === 'dark' ||
-        document.body.classList.contains('dark') ||
-        document.body.getAttribute('data-theme') === 'dark') {
-        // console.log("Dark theme detected via class/attribute");
-        return true;
-    }
-    if (document.documentElement.classList.contains('light') ||
-        document.documentElement.getAttribute('data-theme') === 'light' ||
-        document.body.classList.contains('light') ||
-        document.body.getAttribute('data-theme') === 'light') {
-        // console.log("Light theme detected via class/attribute");
-        return false;
-    }
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // console.log("Dark theme detected via prefers-color-scheme");
-        return true;
-    }
-    const bgColor = window.getComputedStyle(document.body).backgroundColor;
-    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
-    if (match) {
-        const r = parseInt(match[1]);
-        const g = parseInt(match[2]);
-        const b = parseInt(match[3]);
-        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        // console.log("Background color brightness:", brightness);
-        return brightness < 128;
-    }
-    // console.log("No dark or light theme detected, defaulting to light theme");
-    return false;
-};
-
-let darkTheme = isDarkTheme();
-let modal = null;
-let modalContent = null;
-let previousScrollOffset = [window.scrollX, window.scrollY];
-let _lazyObserver = null;
-let _renderQueue = Promise.resolve();
-let closeModal = () => {};
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal?.classList.contains('active')) {
-        closeModal();
-    }
-});
-
-// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
-// so this is safe to call both for the initial batch and for diagrams that
-// render lazily once they become visible.
-const addZoomToSvgs = (svgs) => {
-    svgs.each(function() {
-        if (this.getAttribute('data-zoom-applied') === 'true') return;
-        var svg = d3.select(this);
-        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-        var inner = svg.select("g");
-        var zoom = d3.zoom().on("zoom", function(event) {
-            inner.attr("transform", event.transform);
-        });
-        svg.call(zoom);
-        this.setAttribute('data-zoom-applied', 'true');
-    });
-};
-
-const runMermaid = async (rerun) => {
-    console.log("Running mermaid diagrams, rerun =", rerun);
-    // clear all existing mermaid charts
-    let all_mermaids = document.querySelectorAll(".mermaid");
-
-    if (rerun) {
-        // Disconnect any previous lazy rendering observer
-        if (_lazyObserver) {
-            _lazyObserver.disconnect();
-            _lazyObserver = null;
-        }
-
-        all_mermaids.forEach((el) => {
-            el.removeAttribute('data-mermaid-deferred');
-            el.removeAttribute('data-mermaid-render-failed');
-            if(!el.hasAttribute("data-original-code")) {
-                // store original code
-                // console.log(`Storing original code for first run: `, el.innerHTML);
-                el.setAttribute('data-original-code', el.innerHTML);
-            }
-            if(el.getAttribute("data-processed") === "true") {
-                // remove and restore original
-                el.removeAttribute("data-processed");
-                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
-                el.innerHTML = el.getAttribute('data-original-code');
-            } else {
-                // store original code
-                // console.log(`Storing original code for re-run: `, el.innerHTML);
-                el.setAttribute('data-original-code', el.innerHTML);
-            }
-        });
-
-        // Separate visible and hidden elements. Mermaid's layout engine measures
-        // text dimensions via the DOM, which fails for elements hidden by a parent
-        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
-        // producing broken SVGs. Render visible elements now, defer hidden ones.
-        const visible = [];
-        const hidden = [];
-        all_mermaids.forEach((el) => {
-            // offsetParent is null for display:none ancestors.
-            // getClientRects().length > 0 catches position:fixed elements
-            // (which also have null offsetParent but are still visible).
-            if (el.offsetParent !== null || el.getClientRects().length > 0) {
-                visible.push(el);
-            } else {
-                hidden.push(el);
-                el.setAttribute('data-mermaid-deferred', 'true');
-            }
-        });
-
-        if (visible.length > 0) {
-            try {
-                await mermaid.run({ nodes: visible });
-            } catch (e) {
-                console.error("Mermaid rendering failed:", e);
-            }
-        }
-
-        // Lazily render hidden elements when they become visible.
-        // Uses a promise chain (_renderQueue) to serialize rendering,
-        // since IntersectionObserver may report multiple entries at once
-        // and mermaid.run() is not safe to call concurrently.
-        if (hidden.length > 0) {
-            if (typeof IntersectionObserver === 'undefined') {
-                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
-            } else {
-                _renderQueue = Promise.resolve();
-                _lazyObserver = new IntersectionObserver((entries) => {
-                    for (const entry of entries) {
-                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
-                            _lazyObserver.unobserve(entry.target);
-                            const el = entry.target;
-                            _renderQueue = _renderQueue.then(async () => {
-                                try {
-                                    await mermaid.run({ nodes: [el] });
-                                    el.removeAttribute('data-mermaid-deferred');
-                                    // Apply zoom to the now-rendered diagram, matching
-                                    // the decoration visible diagrams receive.
-                                    if (false) {
-                                        addZoomToSvgs(d3.selectAll("").select(function() {
-                                            return this.querySelector("svg");
-                                        }));
-                                    }
-                                } catch (e) {
-                                    console.error("Mermaid deferred rendering failed:", e);
-                                    el.removeAttribute('data-mermaid-deferred');
-                                    el.setAttribute('data-mermaid-render-failed', 'true');
-                                }
-                            });
-                        }
-                    }
-                });
-                hidden.forEach((el) => _lazyObserver.observe(el));
-            }
-        }
-    }
-
-    all_mermaids = document.querySelectorAll(".mermaid");
-    // Exclude deferred (hidden) and render-failed elements from completion checks
-    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
-    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
-
-    if (false) {
-        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
-        if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("").select(function() {
-                return this.querySelector("svg");
-            });
-            // Wait until every active (visible) diagram has rendered. Deferred
-            // diagrams are excluded, so a fixed d3_node_count that counts a
-            // hidden diagram no longer loops forever waiting for its SVG.
-            if(mermaids_active.length !== mermaids_processed.length) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            }
-            addZoomToSvgs(svgs);
-        }
-    } else if(mermaids_active.length !== mermaids_processed.length) {
-        // Wait for mermaid to process all diagrams
-        setTimeout(() => runMermaid(false), 200);
-        return;
-    }
-
-    // Stop here if not adding fullscreen capability
-    if (!true) return;
-
-    if (modal !== null ) {
-        // Destroy existing modal
-        modal.remove();
-        modal = null;
-        modalContent = null;
-    }
-
-    modal = document.createElement('div');
-    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
-    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
-    modal.innerHTML = `
-        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
-        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
-    `;
-    document.body.appendChild(modal);
-
-    modalContent = modal.querySelector('.mermaid-container-fullscreen');
-    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
-
-    closeModal = () => {
-        modal.classList.remove('active');
-        modalContent.innerHTML = '';
-        document.body.style.overflow = ''
-        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
-    };
-
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
-        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
-            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
-            // Already processed, adjust button class if needed
-            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
-            if (existingBtn) {
-                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
-            }
-            return;
-        }
-
-        const container = document.createElement('div');
-        container.className = 'mermaid-container';
-        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
-        container.appendChild(mermaidDiv);
-
-        const fullscreenBtn = document.createElement('button');
-        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
-        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
-        fullscreenBtn.textContent = "\u26f6";
-        fullscreenBtn.style.opacity = "50%";
-
-        // Calculate dynamic position based on diagram's margin and padding
-        const diagramStyle = window.getComputedStyle(mermaidDiv);
-        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
-        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
-        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
-        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
-        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
-        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
-
-        fullscreenBtn.addEventListener('click', () => {
-            previousScrollOffset = [window.scrollX, window.scrollY];
-            const clone = mermaidDiv.cloneNode(true);
-            modalContent.innerHTML = '';
-            modalContent.appendChild(clone);
-
-            const svg = clone.querySelector('svg');
-            if (svg) {
-                svg.removeAttribute('width');
-                svg.removeAttribute('height');
-                svg.style.width = '100%';
-                svg.style.height = 'auto';
-                svg.style.maxWidth = '100%';
-                svg.style.display = 'block';
-
-                if (false) {
-                    setTimeout(() => {
-                        const g = svg.querySelector('g');
-                        if (g) {
-                            var svgD3 = d3.select(svg);
-                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
-                            var inner = svgD3.select("g");
-                            var zoom = d3.zoom().on("zoom", function(event) {
-                                inner.attr("transform", event.transform);
-                            });
-                            svgD3.call(zoom);
-                        }
-                    }, 100);
-                }
-            }
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-        container.appendChild(fullscreenBtn);
-    });
-};
-
-
-
-const load = async () => {
-    initStyles();
-
-
-    await runMermaid(true);
-
-    const reRunIfThemeChanges = async () => {
-        const newDarkTheme = isDarkTheme();
-        if (newDarkTheme !== darkTheme) {
-            darkTheme = newDarkTheme;
-            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
-            await mermaid.initialize(
-                {...{"startOnLoad": false},
-                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
-                }
-            );
-            await runMermaid(true);
-        }
-    };
-
-    // Update theme classes when theme changes
-    const themeObserver = new MutationObserver(reRunIfThemeChanges);
-    themeObserver.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
-    });
-    themeObserver.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
-    });
-};
-
-
-
-
-
-console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
-mermaid.initialize(
-    {...{"startOnLoad": false},
-    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
-    }
-);
-
-window.addEventListener("load", load);
-window.runMermaid = runMermaid;</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Feature composition: trees, combiners, and statistics" href="feature_composition.html" />
+    <link rel="prev" title="Graph topology features (demo_data)" href="graph_features.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -505,59 +152,59 @@ window.runMermaid = runMermaid;</script>
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Examples</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../examples/index.html#gallery-map">Gallery map</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#featured-graph-topology">Featured — graph topology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#featured-voxel-texture-maps">Featured — voxel texture maps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#data-cohorts">1. Data &amp; cohorts</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#image-preprocessing">2. Image preprocessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#graph-topology-features">4. Graph topology features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#voxel-texture-maps">5. Voxel texture maps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#habitat-design-spec-features">6. Habitat design (Spec &amp; features)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#quantification">7. Quantification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#machine-learning">8. Machine learning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#visualization">9. Visualization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#persistence-provenance">10. Persistence &amp; provenance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#execution-reliability">11. Execution &amp; reliability</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#extending-habit">12. Extending HABIT</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#yaml-cli-shells">13. YAML &amp; CLI shells</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/index.html#qc-auxiliary">14. QC &amp; auxiliary</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../examples/data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/image_preprocessing.html">Batch image preprocessing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_fit_modes.html">Habitat fit modes (Study fit/predict + I/O)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/graph_features.html">Graph topology features (demo_data)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/voxel_texture.html">Voxel texture maps (demo_data)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/feature_composition.html">Feature composition: trees, combiners, and statistics</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/precise_features.html">Precise features: screen before you cluster</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/visualization.html">Publication figures with habit.viz</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/persistence.html">Persisting study artefacts</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/provenance_methods.html">Provenance and methods paragraphs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/parallel_execution.html">Parallel execution with RunPolicy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/fault_tolerance.html">Fault tolerance patterns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/plugin_entry_points.html">Third-party plugins (entry points)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../examples/cohort_plugins_auxiliary.html">Cohort assembly, plugins, and auxiliary utilities</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#gallery-map">Gallery map</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#featured-graph-topology">Featured — graph topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#featured-voxel-texture-maps">Featured — voxel texture maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#data-cohorts">1. Data &amp; cohorts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#image-preprocessing">2. Image preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#graph-topology-features">4. Graph topology features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#voxel-texture-maps">5. Voxel texture maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#habitat-design-spec-features">6. Habitat design (Spec &amp; features)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#quantification">7. Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#machine-learning">8. Machine learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#visualization">9. Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#persistence-provenance">10. Persistence &amp; provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#execution-reliability">11. Execution &amp; reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#extending-habit">12. Extending HABIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#yaml-cli-shells">13. YAML &amp; CLI shells</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#qc-auxiliary">14. QC &amp; auxiliary</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a></li>
+<li class="toctree-l4"><a class="reference internal" href="one_step_habitat.html">One-step habitat analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="direct_pooling_habitat.html">Direct-pooling habitat analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_fit_modes.html">Habitat fit modes (Study fit/predict + I/O)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph_features.html">Graph topology features (demo_data)</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Voxel texture maps (demo_data)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="feature_composition.html">Feature composition: trees, combiners, and statistics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="precise_features.html">Precise features: screen before you cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visualization.html">Publication figures with habit.viz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a></li>
+<li class="toctree-l4"><a class="reference internal" href="persistence.html">Persisting study artefacts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="provenance_methods.html">Provenance and methods paragraphs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="parallel_execution.html">Parallel execution with RunPolicy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fault_tolerance.html">Fault tolerance patterns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="plugin_entry_points.html">Third-party plugins (entry points)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_yaml_workflows.html">CLI / YAML batch workflows on demo_data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cohort_plugins_auxiliary.html">Cohort assembly, plugins, and auxiliary utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -1703,8 +1350,10 @@ window.runMermaid = runMermaid;</script>
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Overview: module code</li>
+          <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Voxel texture maps (demo_data)</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/voxel_texture.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1712,130 +1361,439 @@ window.runMermaid = runMermaid;</script>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="habit/adapters/directory.html">habit.adapters.directory</a></li>
-<li><a href="habit/adapters/image_refs.html">habit.adapters.image_refs</a></li>
-<li><a href="habit/adapters/writers.html">habit.adapters.writers</a></li>
-<li><a href="habit/api/analysis.html">habit.api.analysis</a></li>
-<li><a href="habit/api/contracts.html">habit.api.contracts</a></li>
-<li><a href="habit/api/dicom_sort.html">habit.api.dicom_sort</a></li>
-<li><a href="habit/api/habitat.html">habit.api.habitat</a></li>
-<li><a href="habit/api/image.html">habit.api.image</a></li>
-<li><a href="habit/api/machine_learning.html">habit.api.machine_learning</a></li>
-<li><a href="habit/api/plugins.html">habit.api.plugins</a></li>
-<li><a href="habit/api/preprocessing.html">habit.api.preprocessing</a></li>
-<li><a href="habit/api/provenance.html">habit.api.provenance</a></li>
-<li><a href="habit/api/radiomics.html">habit.api.radiomics</a></li>
-<li><a href="habit/api/utils.html">habit.api.utils</a></li>
-<li><a href="habit/compat/monai.html">habit.compat.monai</a></li>
-<li><a href="habit/compat/nnunet.html">habit.compat.nnunet</a></li>
-<li><a href="habit/compat/sklearn.html">habit.compat.sklearn</a></li>
-<li><a href="habit/contracts/geometry.html">habit.contracts.geometry</a></li>
-<li><a href="habit/contracts/habitat.html">habit.contracts.habitat</a></li>
-<li><a href="habit/contracts/image.html">habit.contracts.image</a></li>
-<li><a href="habit/contracts/manifest.html">habit.contracts.manifest</a></li>
-<li><a href="habit/contracts/ops.html">habit.contracts.ops</a></li>
-<li><a href="habit/contracts/outcome.html">habit.contracts.outcome</a></li>
-<li><a href="habit/contracts/provenance.html">habit.contracts.provenance</a></li>
-<li><a href="habit/contracts/subject.html">habit.contracts.subject</a></li>
-<li><a href="habit/contracts/table.html">habit.contracts.table</a></li>
-<li><a href="habit/datasets/synthetic.html">habit.datasets.synthetic</a></li>
-<li><a href="habit/domain/assignment/nearest_centroid.html">habit.domain.assignment.nearest_centroid</a></li>
-<li><a href="habit/domain/assignment/registry.html">habit.domain.assignment.registry</a></li>
-<li><a href="habit/domain/classification/autogluon.html">habit.domain.classification.autogluon</a></li>
-<li><a href="habit/domain/classification/models.html">habit.domain.classification.models</a></li>
-<li><a href="habit/domain/classification/registry.html">habit.domain.classification.registry</a></li>
-<li><a href="habit/domain/evaluation/metrics.html">habit.domain.evaluation.metrics</a></li>
-<li><a href="habit/domain/evaluation/registry.html">habit.domain.evaluation.registry</a></li>
-<li><a href="habit/domain/evaluation/statistics.html">habit.domain.evaluation.statistics</a></li>
-<li><a href="habit/domain/feature_preprocessing/chains.html">habit.domain.feature_preprocessing.chains</a></li>
-<li><a href="habit/domain/feature_preprocessing/methods.html">habit.domain.feature_preprocessing.methods</a></li>
-<li><a href="habit/domain/feature_preprocessing/registry.html">habit.domain.feature_preprocessing.registry</a></li>
-<li><a href="habit/domain/feature_selection/registry.html">habit.domain.feature_selection.registry</a></li>
-<li><a href="habit/domain/feature_selection/selectors.html">habit.domain.feature_selection.selectors</a></li>
-<li><a href="habit/domain/habitat_features/each_habitat.html">habit.domain.habitat_features.each_habitat</a></li>
-<li><a href="habit/domain/habitat_features/graph.html">habit.domain.habitat_features.graph</a></li>
-<li><a href="habit/domain/habitat_features/ith.html">habit.domain.habitat_features.ith</a></li>
-<li><a href="habit/domain/habitat_features/msi.html">habit.domain.habitat_features.msi</a></li>
-<li><a href="habit/domain/habitat_features/non_radiomics.html">habit.domain.habitat_features.non_radiomics</a></li>
-<li><a href="habit/domain/habitat_features/registry.html">habit.domain.habitat_features.registry</a></li>
-<li><a href="habit/domain/habitat_features/traditional.html">habit.domain.habitat_features.traditional</a></li>
-<li><a href="habit/domain/habitat_features/volume.html">habit.domain.habitat_features.volume</a></li>
-<li><a href="habit/domain/habitat_features/whole_habitat.html">habit.domain.habitat_features.whole_habitat</a></li>
-<li><a href="habit/domain/habitat_model/gmm.html">habit.domain.habitat_model.gmm</a></li>
-<li><a href="habit/domain/habitat_model/kmeans.html">habit.domain.habitat_model.kmeans</a></li>
-<li><a href="habit/domain/habitat_model/registry.html">habit.domain.habitat_model.registry</a></li>
-<li><a href="habit/domain/pipeline.html">habit.domain.pipeline</a></li>
-<li><a href="habit/domain/precision/analysis.html">habit.domain.precision.analysis</a></li>
-<li><a href="habit/domain/precision/chain.html">habit.domain.precision.chain</a></li>
-<li><a href="habit/domain/precision/perturbations.html">habit.domain.precision.perturbations</a></li>
-<li><a href="habit/domain/precision/precise_set.html">habit.domain.precision.precise_set</a></li>
-<li><a href="habit/domain/precision/registry.html">habit.domain.precision.registry</a></li>
-<li><a href="habit/domain/precision/stability.html">habit.domain.precision.stability</a></li>
-<li><a href="habit/domain/protocols.html">habit.domain.protocols</a></li>
-<li><a href="habit/domain/supervoxel/feature_clustering.html">habit.domain.supervoxel.feature_clustering</a></li>
-<li><a href="habit/domain/supervoxel/registry.html">habit.domain.supervoxel.registry</a></li>
-<li><a href="habit/domain/supervoxel/slic.html">habit.domain.supervoxel.slic</a></li>
-<li><a href="habit/domain/supervoxel_features/mean.html">habit.domain.supervoxel_features.mean</a></li>
-<li><a href="habit/domain/supervoxel_features/radiomics.html">habit.domain.supervoxel_features.radiomics</a></li>
-<li><a href="habit/domain/supervoxel_features/registry.html">habit.domain.supervoxel_features.registry</a></li>
-<li><a href="habit/domain/table_preprocessing/methods.html">habit.domain.table_preprocessing.methods</a></li>
-<li><a href="habit/domain/table_preprocessing/registry.html">habit.domain.table_preprocessing.registry</a></li>
-<li><a href="habit/domain/table_protocols.html">habit.domain.table_protocols</a></li>
-<li><a href="habit/domain/voxel_features/raw.html">habit.domain.voxel_features.raw</a></li>
-<li><a href="habit/domain/voxel_features/registry.html">habit.domain.voxel_features.registry</a></li>
-<li><a href="habit/exceptions.html">habit.exceptions</a></li>
-<li><a href="habit/execution/backends.html">habit.execution.backends</a></li>
-<li><a href="habit/execution/checkpoint.html">habit.execution.checkpoint</a></li>
-<li><a href="habit/execution/process_pool.html">habit.execution.process_pool</a></li>
-<li><a href="habit/kernels/cluster_selection.html">habit.kernels.cluster_selection</a></li>
-<li><a href="habit/kernels/habitat_graph/edges.html">habit.kernels.habitat_graph.edges</a></li>
-<li><a href="habit/kernels/habitat_graph/features.html">habit.kernels.habitat_graph.features</a></li>
-<li><a href="habit/kernels/habitat_graph/nodes.html">habit.kernels.habitat_graph.nodes</a></li>
-<li><a href="habit/kernels/habitat_metrics.html">habit.kernels.habitat_metrics</a></li>
-<li><a href="habit/kernels/icc.html">habit.kernels.icc</a></li>
-<li><a href="habit/kernels/image_perturbation.html">habit.kernels.image_perturbation</a></li>
-<li><a href="habit/kernels/statistics.html">habit.kernels.statistics</a></li>
-<li><a href="habit/kernels/voxel_icc.html">habit.kernels.voxel_icc</a></li>
-<li><a href="habit/kernels/voxel_texture.html">habit.kernels.voxel_texture</a></li>
-<li><a href="habit/recipes/auxiliary.html">habit.recipes.auxiliary</a></li>
-<li><a href="habit/recipes/comparison.html">habit.recipes.comparison</a></li>
-<li><a href="habit/recipes/features.html">habit.recipes.features</a></li>
-<li><a href="habit/recipes/icc.html">habit.recipes.icc</a></li>
-<li><a href="habit/recipes/modeling.html">habit.recipes.modeling</a></li>
-<li><a href="habit/recipes/precision.html">habit.recipes.precision</a></li>
-<li><a href="habit/recipes/preprocess.html">habit.recipes.preprocess</a></li>
-<li><a href="habit/recipes/result.html">habit.recipes.result</a></li>
-<li><a href="habit/recipes/sort_dicom.html">habit.recipes.sort_dicom</a></li>
-<li><a href="habit/recipes/study.html">habit.recipes.study</a></li>
-<li><a href="habit/recipes/test_retest.html">habit.recipes.test_retest</a></li>
-<li><a href="habit/recipes/yaml_runner.html">habit.recipes.yaml_runner</a></li>
-<li><a href="habit/registry/core.html">habit.registry.core</a></li>
-<li><a href="habit/schemas/workflows/dicom_sort.html">habit.schemas.workflows.dicom_sort</a></li>
-<li><a href="habit/schemas/workflows/habitat.html">habit.schemas.workflows.habitat</a></li>
-<li><a href="habit/schemas/workflows/icc.html">habit.schemas.workflows.icc</a></li>
-<li><a href="habit/schemas/workflows/ml.html">habit.schemas.workflows.ml</a></li>
-<li><a href="habit/schemas/workflows/preprocessing.html">habit.schemas.workflows.preprocessing</a></li>
-<li><a href="habit/spec/document.html">habit.spec.document</a></li>
-<li><a href="habit/spec/legacy.html">habit.spec.legacy</a></li>
-<li><a href="habit/spec/policy.html">habit.spec.policy</a></li>
-<li><a href="habit/spec/specs.html">habit.spec.specs</a></li>
-<li><a href="habit/spec/yaml_io.html">habit.spec.yaml_io</a></li>
-<li><a href="habit/utils/log_utils.html">habit.utils.log_utils</a></li>
-<li><a href="habit/viz/habitat_clustering.html">habit.viz.habitat_clustering</a></li>
-<li><a href="habit/viz/habitat_graph.html">habit.viz.habitat_graph</a></li>
-<li><a href="habit/viz/habitat_napari.html">habit.viz.habitat_napari</a></li>
-<li><a href="habit/viz/habitat_overlay.html">habit.viz.habitat_overlay</a></li>
-<li><a href="habit/viz/labels.html">habit.viz.labels</a></li>
-<li><a href="habit/viz/regression.html">habit.viz.regression</a></li>
-<li><a href="habit/viz/style.html">habit.viz.style</a></li>
-<li><a href="habit/viz/survival.html">habit.viz.survival</a></li>
-<li><a href="habit/viz/voxel_texture.html">habit.viz.voxel_texture</a></li>
+  <section id="voxel-texture-maps-demo-data">
+<h1>Voxel texture maps (demo_data)<a class="headerlink" href="#voxel-texture-maps-demo-data" title="Link to this heading"></a></h1>
+<p><strong>Level:</strong> atomic · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> ·
+<strong>Time:</strong> ~10–40 s</p>
+<p>This demo loads real <strong>subj001</strong> LAP anatomy + ROI mask from local
+<code class="docutils literal notranslate"><span class="pre">demo_data/</span></code> (not shipped in git), computes <strong>local entropy</strong> (fast built-in
+texture; not PyRadiomics), and regenerates the gallery PNGs. The same plotter
+accepts densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> / custom <code class="docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code> columns.</p>
+<p><strong>Default inputs</strong> (first existing path wins):</p>
+<ul class="simple">
+<li><p>Image: <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/images/subj001/LAP/...Series0009.nrrd</span></code></p></li>
+<li><p>Mask: <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed/masks/subj001/LAP/..._mask.nrrd</span></code></p></li>
 </ul>
+<p>If <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> is missing, the script exits with a clear error. Committed
+PNGs below were generated on the maintainer machine so readers still see
+real-data figures without a local copy.</p>
+<section id="script">
+<h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Voxel-level texture maps on real demo_data anatomy + ROI masks.</span>
+
+<span class="sd">Shows the preferred public paths:</span>
+
+<span class="sd">* Kernel: ``habit.local_entropy_map`` (fast built-in neighbourhood entropy)</span>
+<span class="sd">* Domain: ``VoxelFeatureExtractorRegistry.create(&quot;local_entropy&quot;, ...)``</span>
+<span class="sd">* Viz: ``habit.viz.plot_voxel_texture_slice`` / ``dense_voxel_feature_map``</span>
+
+<span class="sd">Writes English-labelled PNGs under ``docs/source/_static/images/examples/``</span>
+<span class="sd">for the Sphinx Examples gallery. Requires local ``demo_data/`` (not shipped</span>
+<span class="sd">in git) plus matplotlib (``pip install &#39;habit[viz]&#39;``).</span>
+
+<span class="sd">Heavy ``voxel_radiomics`` maps are also accepted by the plotter once densified;</span>
+<span class="sd">this demo uses local entropy so the gallery regenerates in seconds.</span>
+
+<span class="sd">Accompanies ``docs/source/examples/voxel_texture.rst``.</span>
+
+<span class="sd">Run from the repository root::</span>
+
+<span class="sd">    python docs/source/examples/scripts/voxel_texture_demo.py</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">habit.domain</span>  <span class="c1"># registers built-in voxel feature extractors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">local_entropy_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayImageRef</span><span class="p">,</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">Subject</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelFeatureExtractorRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">dense_voxel_feature_map</span><span class="p">,</span>
+    <span class="n">plot_voxel_texture_slice</span><span class="p">,</span>
+    <span class="n">use_style</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">OUT_DIR</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;_static&quot;</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span>
+<span class="p">)</span>
+
+<span class="n">IMAGE_CANDIDATES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">REPO_ROOT</span>
+    <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;images&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;LAP&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd&quot;</span><span class="p">,</span>
+    <span class="n">REPO_ROOT</span>
+    <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;images&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;PVP&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;WATER__WATER__WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">MASK_CANDIDATES</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">REPO_ROOT</span>
+    <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;masks&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;LAP&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd&quot;</span><span class="p">,</span>
+    <span class="n">REPO_ROOT</span>
+    <span class="o">/</span> <span class="s2">&quot;demo_data&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;preprocessed&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;masks&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;subj001&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;PVP&quot;</span>
+    <span class="o">/</span> <span class="s2">&quot;WATER__BH_Ax_LAVA_Flex_10min_Series0017_mask.nrrd&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">BBOX_PAD</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">KERNEL_SIZE</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">BINS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_first_existing</span><span class="p">(</span><span class="n">paths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first path that exists, or ``None``.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_demo_data_missing_message</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a clear error when local demo_data volumes are absent.&quot;&quot;&quot;</span>
+    <span class="n">tried_img</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">IMAGE_CANDIDATES</span><span class="p">)</span>
+    <span class="n">tried_mask</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">MASK_CANDIDATES</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;demo_data anatomy / mask not found. This example requires local &quot;</span>
+        <span class="s2">&quot;demo_data (not committed to git).</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Looked for images:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tried_img</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Looked for masks:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tried_mask</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Committed gallery PNGs under docs/source/_static/images/examples/ &quot;</span>
+        <span class="s2">&quot;were produced from demo_data on the maintainer machine.&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_demo_volumes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load subj001 LAP anatomy and matching ROI mask from demo_data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of ``(image, mask, spacing_xyz, image_path, mask_path)``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: When neither image nor mask candidates exist.</span>
+<span class="sd">        RuntimeError: When shapes differ.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image_path</span> <span class="o">=</span> <span class="n">_first_existing</span><span class="p">(</span><span class="n">IMAGE_CANDIDATES</span><span class="p">)</span>
+    <span class="n">mask_path</span> <span class="o">=</span> <span class="n">_first_existing</span><span class="p">(</span><span class="n">MASK_CANDIDATES</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">image_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mask_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">_demo_data_missing_message</span><span class="p">())</span>
+
+    <span class="n">image_sitk</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">image_path</span><span class="p">))</span>
+    <span class="n">mask_sitk</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">mask_path</span><span class="p">))</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">image_sitk</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">mask_sitk</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Anatomy and mask shapes differ; cannot overlay. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;image=</span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> mask=</span><span class="si">{</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">mask_path</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+    <span class="n">spacing_xyz</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">image_sitk</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">())</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spacing_xyz</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected 3D spacing, got </span><span class="si">{</span><span class="n">spacing_xyz</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">,</span> <span class="n">image_path</span><span class="p">,</span> <span class="n">mask_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">crop_to_roi_bbox</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">BBOX_PAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Crop both volumes to the padded bounding box of the ROI.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Full anatomy volume ``(z, y, x)``.</span>
+<span class="sd">        mask: Matching ROI mask.</span>
+<span class="sd">        pad: Voxel padding on each side (clipped to array bounds).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Cropped ``(image, mask)`` arrays sharing the same shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">foreground</span> <span class="o">=</span> <span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">foreground</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ROI mask has no positive voxels.&quot;</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">foreground</span><span class="p">)</span>
+    <span class="n">mins</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">maxs</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">)):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span><span class="p">)</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
+    <span class="n">indexer</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image</span><span class="p">[</span><span class="n">indexer</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">mask</span><span class="p">[</span><span class="n">indexer</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">kernel_path</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute a dense local-entropy map (arrays in, same-shaped map out).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Intensity volume.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Float64 entropy map matching ``image.shape``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">local_entropy_map</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">KERNEL_SIZE</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">BINS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">domain_path</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute local entropy via the domain registry and densify one column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Cropped anatomy volume.</span>
+<span class="sd">        mask: Cropped ROI mask.</span>
+<span class="sd">        spacing_xyz: SimpleITK spacing ``(x, y, z)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of ``(dense_feature_map, feature_name)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">)</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">Subject</span><span class="p">(</span>
+        <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span>
+        <span class="n">images</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;LAP&quot;</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">masks</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;tumor&quot;</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span>
+                <span class="n">array</span><span class="o">=</span><span class="p">(</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">extractor</span> <span class="o">=</span> <span class="n">VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="s2">&quot;local_entropy&quot;</span><span class="p">,</span>
+        <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">,</span>
+        <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="n">KERNEL_SIZE</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="n">BINS</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">extractor</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+    <span class="n">feature_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">dense</span> <span class="o">=</span> <span class="n">dense_voxel_feature_map</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">feature_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dense</span><span class="p">,</span> <span class="n">feature_name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">save_publication_figures</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">entropy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">feature_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Render side-by-side and overlay panels for the docs gallery.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        image: Cropped anatomy.</span>
+<span class="sd">        mask: Cropped ROI.</span>
+<span class="sd">        entropy: Dense texture map (same shape).</span>
+<span class="sd">        spacing_xyz: SimpleITK spacing ``(x, y, z)``.</span>
+<span class="sd">        feature_label: English colourbar / panel label.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Mapping from asset stem to written PNG path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">OUT_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig_side</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+            <span class="n">entropy</span><span class="p">,</span>
+            <span class="n">anatomy</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+            <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;side_by_side&quot;</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
+            <span class="n">feature_label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Demo subj001 LAP local entropy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">side_path</span> <span class="o">=</span> <span class="n">OUT_DIR</span> <span class="o">/</span> <span class="s2">&quot;voxel_texture_side_by_side.png&quot;</span>
+    <span class="n">fig_side</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">side_path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_side</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">[</span><span class="s2">&quot;side_by_side&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">side_path</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;nature&quot;</span><span class="p">):</span>
+        <span class="n">fig_overlay</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+            <span class="n">entropy</span><span class="p">,</span>
+            <span class="n">anatomy</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+            <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;overlay&quot;</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;magma&quot;</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
+            <span class="n">feature_label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Local entropy on anatomy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">overlay_path</span> <span class="o">=</span> <span class="n">OUT_DIR</span> <span class="o">/</span> <span class="s2">&quot;voxel_texture_overlay.png&quot;</span>
+    <span class="n">fig_overlay</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">overlay_path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_overlay</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">[</span><span class="s2">&quot;overlay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">overlay_path</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig_trip</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
+            <span class="n">entropy</span><span class="p">,</span>
+            <span class="n">anatomy</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+            <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;side_by_side&quot;</span><span class="p">,</span>
+            <span class="n">spacing</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
+            <span class="n">feature_label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Local entropy (orthogonal)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">trip_path</span> <span class="o">=</span> <span class="n">OUT_DIR</span> <span class="o">/</span> <span class="s2">&quot;voxel_texture_orthogonal.png&quot;</span>
+    <span class="n">fig_trip</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">trip_path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_trip</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">[</span><span class="s2">&quot;orthogonal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trip_path</span>
+
+    <span class="k">return</span> <span class="n">written</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load demo_data, compute local entropy two ways, write gallery PNGs.&quot;&quot;&quot;</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">,</span> <span class="n">image_path</span><span class="p">,</span> <span class="n">mask_path</span> <span class="o">=</span> <span class="n">load_demo_volumes</span><span class="p">()</span>
+    <span class="n">image_c</span><span class="p">,</span> <span class="n">mask_c</span> <span class="o">=</span> <span class="n">crop_to_roi_bbox</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded anatomy: </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded mask:    </span><span class="si">{</span><span class="n">mask_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cropped shape:  </span><span class="si">{</span><span class="n">image_c</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">  spacing_xyz=</span><span class="si">{</span><span class="n">spacing_xyz</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">entropy_kernel</span> <span class="o">=</span> <span class="n">kernel_path</span><span class="p">(</span><span class="n">image_c</span><span class="p">)</span>
+    <span class="c1"># Restrict display to ROI so background neighbourhood damping stays hidden.</span>
+    <span class="n">entropy_display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">entropy_kernel</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="n">field_dense</span><span class="p">,</span> <span class="n">feature_name</span> <span class="o">=</span> <span class="n">domain_path</span><span class="p">(</span><span class="n">image_c</span><span class="p">,</span> <span class="n">mask_c</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">)</span>
+    <span class="c1"># Kernel vs domain should agree on ROI voxels (same local_entropy_map).</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="n">mask_c</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">max_abs</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">entropy_kernel</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span> <span class="o">-</span> <span class="n">field_dense</span><span class="p">[</span><span class="n">inside</span><span class="p">])))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Domain feature column: </span><span class="si">{</span><span class="n">feature_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Kernel vs domain max |diff| on ROI: </span><span class="si">{</span><span class="n">max_abs</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">written</span> <span class="o">=</span> <span class="n">save_publication_figures</span><span class="p">(</span>
+        <span class="n">image_c</span><span class="p">,</span>
+        <span class="n">mask_c</span><span class="p">,</span>
+        <span class="n">entropy_display</span><span class="p">,</span>
+        <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
+        <span class="n">feature_label</span><span class="o">=</span><span class="s2">&quot;Local entropy (bits)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">stem</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">written</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="si">}</span><span class="s2"> bytes)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done.&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Run from the repository root (one line; regenerates the gallery PNGs below):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">voxel_texture_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</section>
+<section id="what-it-shows">
+<h2>What it shows<a class="headerlink" href="#what-it-shows" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Kernel path</strong> — <code class="xref py py-func docutils literal notranslate"><span class="pre">local_entropy_map()</span></code> (arrays in, dense map out).</p></li>
+<li><p><strong>Domain path</strong> —
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code><code class="docutils literal notranslate"><span class="pre">(&quot;local_entropy&quot;,</span> <span class="pre">...)</span></code>
+→ <a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html#habit.viz.dense_voxel_feature_map" title="habit.viz.dense_voxel_feature_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">dense_voxel_feature_map()</span></code></a>.</p></li>
+<li><p><strong>Publication figures</strong> — <a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> with
+<a class="reference internal" href="../api/generated/habit.viz.use_style.html#habit.viz.use_style" title="habit.viz.use_style"><code class="xref py py-func docutils literal notranslate"><span class="pre">use_style()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">radiology</span></code> / <code class="docutils literal notranslate"><span class="pre">nature</span></code>). Volumes are
+cropped to the padded ROI bbox before rendering.</p></li>
+</ol>
+<p>For the how-to narrative see <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a>. For habitat
+<strong>graph</strong> topology figures (nodes/edges on habitat maps) see
+<a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features (demo_data)</span></a>.</p>
+</section>
+<section id="publication-figures">
+<h2>Publication figures<a class="headerlink" href="#publication-figures" title="Link to this heading"></a></h2>
+<p>The demo writes English-labelled PNGs under
+<code class="docutils literal notranslate"><span class="pre">docs/source/_static/images/examples/</span></code>.</p>
+<section id="side-by-side-anatomy-texture">
+<h3>Side-by-side (anatomy | texture)<a class="headerlink" href="#side-by-side-anatomy-texture" title="Link to this heading"></a></h3>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/voxel_texture_side_by_side.png"><img alt="Demo subj001 LAP anatomy next to local-entropy map" src="../_images/voxel_texture_side_by_side.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Densest axial slice: greyscale LAP and local entropy inside the ROI
+(<a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="overlay-on-anatomy">
+<h3>Overlay on anatomy<a class="headerlink" href="#overlay-on-anatomy" title="Link to this heading"></a></h3>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="Local entropy translucent overlay on LAP anatomy" src="../_images/voxel_texture_overlay.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Same slice with <code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code> and the <code class="docutils literal notranslate"><span class="pre">nature</span></code> style preset.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="orthogonal-triptych">
+<h3>Orthogonal triptych<a class="headerlink" href="#orthogonal-triptych" title="Link to this heading"></a></h3>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/voxel_texture_orthogonal.png"><img alt="Orthogonal local-entropy panels for demo subj001" src="../_images/voxel_texture_orthogonal.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Three orthogonal planes through the densest ROI support (default 3D
+layout when <code class="docutils literal notranslate"><span class="pre">axis</span></code> is omitted).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="also-see">
+<h2>Also see<a class="headerlink" href="#also-see" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>How-to: <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a></p></li>
+<li><p>API: <a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html#habit.viz.dense_voxel_feature_map" title="habit.viz.dense_voxel_feature_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">dense_voxel_feature_map()</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.kernels.local_entropy_map.html#habit.kernels.local_entropy_map" title="habit.kernels.local_entropy_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">local_entropy_map()</span></code></a></p></li>
+</ul>
+</section>
+</section>
+
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="graph_features.html" class="btn btn-neutral float-left" title="Graph topology features (demo_data)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="feature_composition.html" class="btn btn-neutral float-right" title="Feature composition: trees, combiners, and statistics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
