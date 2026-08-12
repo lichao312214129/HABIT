@@ -9,11 +9,11 @@ YAML + CLI operator path. Pattern on every page:
 
 Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
 
-**Also extract graph topology** after habitats exist:
-:doc:`graph_features` (built-in ``graph`` family; YAML + Python). Gallery:
+**Features from habitat maps** (after habitats exist): :doc:`extract_features`
+and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
 :doc:`../examples/graph_features`.
 
-**Voxel texture maps** (local entropy / densified voxel features):
+**Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
 
 .. toctree::

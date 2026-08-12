@@ -1,7 +1,7 @@
 Cohort assembly, plugins, and auxiliary utilities
 =================================================
 
-**Level:** shell / QC · **Data:** demo_data (partial) · **Extras:** none · **Time:** varies
+**Level:** shell · **Data:** demo_data (partial) · **Extras:** none · **Time:** varies
 
 API surfaces beyond the core habitat/ML recipes. Each utility below has a
 **batch** entry (directory or table) and, where applicable, an **atomic**

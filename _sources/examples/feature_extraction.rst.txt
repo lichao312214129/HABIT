@@ -10,8 +10,8 @@ Two extraction paths:
 2. **Standalone ROI radiomics** — :func:`~habit.recipes.traditional_radiomics`
    extracts PyRadiomics features without habitat segmentation.
 
-For a ``demo_data`` walkthrough of the ``graph`` family alone (subj001
-habitats + gallery figures), see :doc:`graph_features`.
+For a short end-to-end ``graph`` walkthrough (one subject → one-step → plot),
+see :doc:`graph_features`.
 
 Habitat extraction example
 ----------------------------
@@ -49,4 +49,4 @@ What to read next
 -----------------
 
 * :doc:`two_step_habitat` — producing the habitat maps first
-* :doc:`../reference/features/index` — feature definitions
+* :doc:`../reference/features/index` — features from habitat maps
