@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Habitat feature routes (raw, concat, radiomics, SLIC)" href="habitat_feature_routes.html" />
-    <link rel="prev" title="Custom habitat pipelines (operators + Spec stages)" href="habitat_custom_pipeline.html" /> 
+    <link rel="prev" title="Graph topology features (demo_data)" href="graph_features.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -118,6 +118,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#your-data">Your data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/radiomics.html#your-data">Your data</a></li>
@@ -142,18 +148,20 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#gallery-map">Gallery map</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#featured-graph-topology">Featured — graph topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#data-cohorts">1. Data &amp; cohorts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#image-preprocessing">2. Image preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#habitat-analysis-core">3. Habitat analysis (core)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#habitat-design-spec-features">4. Habitat design (Spec &amp; features)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#quantification">5. Quantification</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#machine-learning">6. Machine learning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#visualization">7. Visualization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#persistence-provenance">8. Persistence &amp; provenance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#execution-reliability">9. Execution &amp; reliability</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#extending-habit">10. Extending HABIT</a></li>
-<li class="toctree-l3"><a class="reference internal" href="index.html#yaml-cli-shells">11. YAML &amp; CLI shells</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="index.html#qc-auxiliary">12. QC &amp; auxiliary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="index.html#graph-topology-features">4. Graph topology features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#habitat-design-spec-features">5. Habitat design (Spec &amp; features)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#quantification">6. Quantification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#machine-learning">7. Machine learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#visualization">8. Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#persistence-provenance">9. Persistence &amp; provenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#execution-reliability">10. Execution &amp; reliability</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#extending-habit">11. Extending HABIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#yaml-cli-shells">12. YAML &amp; CLI shells</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#qc-auxiliary">13. QC &amp; auxiliary</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a></li>
@@ -165,6 +173,7 @@
 <li class="toctree-l4"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_atomic_ops.html">Atomic habitat operators (no YAML, no recipe)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_custom_pipeline.html">Custom habitat pipelines (operators + Spec stages)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="graph_features.html">Graph topology features (demo_data)</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Feature composition: trees, combiners, and statistics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a></li>
@@ -259,38 +268,6 @@
 <p class="caption" role="heading"><span class="caption-text">Feature reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../reference/features/index.html">Feature reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/traditional.html">Traditional Radiomics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/non_radiomics.html">Non-radiomics Morphology</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#formula">Formula</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output-columns">Output columns</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#implementation">Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output">Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#definition">Definition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output-columns">Output columns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#implementation">Implementation</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id1">Output</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id2">Definition</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id4">Output columns</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/msi.html">MSI Features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/msi.html#definition">Definition</a></li>
@@ -308,6 +285,48 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#notes">Notes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/non_radiomics.html">Non-radiomics Morphology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#formula">Formula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/non_radiomics.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/traditional.html">Traditional Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/traditional.html#feature-definitions">Feature definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/whole_each_habitat.html">Whole / Each Habitat Radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#whole-habitat">whole_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#output-columns">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#each-habitat">each_habitat</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id1">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id2">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id4">Output columns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -536,6 +555,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.IthHabitatFeaturesParams.html">IthHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MsiHabitatFeaturesParams.html">MsiHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GraphHabitatFeatures.html">GraphHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GraphHabitatFeaturesParams.html">GraphHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
@@ -795,6 +816,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.ith_score.html">ith_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#classification-and-agreement-statistics">Classification and agreement statistics</a><ul>
@@ -878,6 +906,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1094,6 +1126,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#habitat-metrics">Habitat metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#classification-statistics">Classification statistics</a></li>
@@ -1576,7 +1609,7 @@ signal. They compose with the same combiners:</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habitat_custom_pipeline.html" class="btn btn-neutral float-left" title="Custom habitat pipelines (operators + Spec stages)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="graph_features.html" class="btn btn-neutral float-left" title="Graph topology features (demo_data)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="habitat_feature_routes.html" class="btn btn-neutral float-right" title="Habitat feature routes (raw, concat, radiomics, SLIC)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

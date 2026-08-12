@@ -9,6 +9,10 @@ YAML + CLI operator path. Pattern on every page:
 
 Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
 
+**Also extract graph topology** after habitats exist:
+:doc:`graph_features` (built-in ``graph`` family; YAML + Python). Gallery:
+:doc:`../examples/graph_features`.
+
 .. toctree::
    :maxdepth: 1
 
@@ -17,6 +21,7 @@ Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
    preprocess
    segment_habitat
    extract_features
+   graph_features
    radiomics
    train_model
    compare_models
