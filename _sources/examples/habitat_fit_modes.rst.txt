@@ -38,6 +38,35 @@ Script
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Figures
+-------
+
+Illustrative overlays for each design (galleries from the recipe demos).
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Two-step habitat overlay
+   :width: 360
+
+   Two-step (:doc:`two_step_habitat`).
+
+.. figure:: ../_static/images/examples/one_step_overlay.png
+   :alt: One-step habitat overlay
+   :width: 360
+
+   One-step (:doc:`one_step_habitat`).
+
+.. figure:: ../_static/images/examples/direct_pooling_overlay.png
+   :alt: Direct-pooling habitat overlay
+   :width: 360
+
+   Direct pooling (:doc:`direct_pooling_habitat`).
+
+.. figure:: ../_static/images/examples/apply_train_label_compare.png
+   :alt: Train versus predict label compare
+   :width: 640
+
+   ``Study.from_model(...).predict`` compare (:doc:`apply_saved_model`).
+
 What to read next
 -----------------
 

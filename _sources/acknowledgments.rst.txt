@@ -68,14 +68,10 @@ We extend our sincere respect and gratitude to the developers and maintainers of
 How to contribute
 -----------------
 
-If you would like to contribute to HABIT:
-
-* Submit bug reports and feature requests
-* Contribute code and documentation improvements
-* Share usage experiences and case studies
-* Participate in clinical validation and algorithm optimization
-
-GitHub repository: |github_repo|
+To contribute code, docs, or extensions, start with the
+:doc:`development/index` (environment, architecture, and pull-request
+conventions). Bug reports and feature requests belong on GitHub Issues:
+|link_github_issues|.
 
 Contact
 -------

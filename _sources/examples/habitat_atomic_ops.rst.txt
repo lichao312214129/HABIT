@@ -34,6 +34,24 @@ Run::
 
    python docs/source/examples/scripts/habitat_atomic_ops_demo.py
 
+Figures
+-------
+
+Same scientific product as the two-step recipe, built operator-by-operator.
+Illustrative panels from the two-step gallery (:doc:`two_step_habitat`).
+
+.. figure:: ../_static/images/examples/two_step_triptych.png
+   :alt: Anatomy, supervoxels, and habitats
+   :width: 720
+
+   Supervoxels then habitats from atomic ``voxel`` / ``svx`` / ``assigner``.
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Habitat overlay from atomic operators
+   :width: 420
+
+   ``SubjectPipeline(...)(subject)`` → habitat labels.
+
 What to read next
 -----------------
 

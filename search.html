@@ -7,7 +7,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=77646bb8" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=211e58f4" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/search.html" />
@@ -531,6 +531,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/habitat_analysis_overview.html">Habitat analysis overview (recipes → atoms → custom)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_analysis_overview.html#dataflow-classical-two-step">Dataflow (classical two-step)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_analysis_overview.html#what-the-core-path-looks-like">What the core path looks like</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_analysis_overview.html#three-recipe-shapes-same-executor">Three recipe shapes (same executor)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_analysis_overview.html#what-must-stay-paired">What must stay paired</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_analysis_overview.html#reading-order">Reading order</a></li>
@@ -539,6 +540,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/two_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -546,23 +548,27 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/one_step_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/direct_pooling_habitat.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/direct_pooling_habitat.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/direct_pooling_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/habitat_fit_modes.html">Habitat fit modes (Study fit/predict + I/O)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_fit_modes.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_fit_modes.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_fit_modes.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/apply_saved_model.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/apply_saved_model.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/apply_saved_model.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/apply_saved_model.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -570,6 +576,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_atomic_ops.html#pipeline-shown">Pipeline shown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_atomic_ops.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -578,6 +585,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_custom_pipeline.html#recommended-customisation-checklist">Recommended customisation checklist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_custom_pipeline.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_custom_pipeline.html#common-swaps">Common swaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_custom_pipeline.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_custom_pipeline.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -600,6 +608,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_feature_routes.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_feature_routes.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_feature_routes.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -607,6 +616,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing.html#design-rules">Design rules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -641,6 +651,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/feature_extraction.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/feature_extraction.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -672,8 +683,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/visualization.html">Publication figures with habit.viz</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -686,6 +699,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/persistence.html">Persisting study artefacts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/persistence.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -717,6 +731,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/run_from_yaml.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/run_from_yaml.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/run_from_yaml.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/run_from_yaml.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -886,13 +901,6 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/faq.html#install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/faq.html#run">Run</a></li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting/faq.html#data">Data</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Background</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="explanation/concepts.html">Habitats and clustering</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="explanation/concepts.html#clustering-strategies">Clustering strategies</a></li>
 </ul>
 </li>
 </ul>
@@ -1442,6 +1450,13 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_cluster_validation_curves.html">plot_cluster_validation_curves</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_cluster_validation_from_report.html">plot_cluster_validation_from_report</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_volume_fractions.html">plot_habitat_volume_fractions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_msi_matrix.html">plot_msi_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -1700,7 +1715,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer</span></p>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="development/philosophy.html">Design Philosophy</a><ul>
@@ -1837,6 +1852,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="reference/upstream_libraries.html#roi-delineation-external-tools">ROI delineation (external tools)</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#version-2-0-2026-01-25">Version 2.0 (2026-01-25)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#metrics-module-major-optimization">Metrics Module Major Optimization</a></li>
@@ -1850,6 +1868,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#see-also">See Also</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Acknowledgments</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="acknowledgments.html#core-developers">Core developers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="acknowledgments.html#future-developers">Future developers</a></li>

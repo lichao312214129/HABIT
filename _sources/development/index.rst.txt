@@ -69,6 +69,10 @@ Recommended reading order
    copy-ready component templates are available in
    :doc:`../customization/index`.
 
-Environment summary: Python 3.10, ``pip install -e .``, and ``pytest tests/``.
+Environment summary: Python 3.10–3.14 (day-to-day: ``py310``),
+``pip install -e .``, and ``pytest tests/``.
 
-See the **Developer** sidebar for the API and third-party library references.
+Related top-level docs under **Development**:
+:doc:`../customization/index` (copy-ready extension templates) and
+:doc:`../reference/upstream_libraries` (third-party library notes).
+Public Python symbols live under **Python API** (:doc:`../api/index`).

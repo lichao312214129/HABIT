@@ -74,6 +74,24 @@ with translation handled transparently.
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Figures
+-------
+
+Same artefact layout as CLI ``get-habitat`` / :meth:`~habit.recipes.StudyResult.save`.
+Illustrative panels from the two-step gallery (:doc:`two_step_habitat`).
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Habitat overlay from a YAML-driven two-step run
+   :width: 420
+
+   Habitat map persisted under the YAML ``out`` directory.
+
+.. figure:: ../_static/images/examples/two_step_volume_fractions.png
+   :alt: Habitat volume fractions
+   :width: 420
+
+   Volume fractions after habitats exist (optional viz on the same maps).
+
 What to read next
 -----------------
 

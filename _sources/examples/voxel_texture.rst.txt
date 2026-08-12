@@ -4,15 +4,18 @@ Voxel texture maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]``;
 PyRadiomics for GLCM · **Time:** ~10–90 s
 
-End-to-end: load one subject → compute **several** voxel-level maps
-(fast :func:`~habit.local_entropy_map` plus a small ``voxel_radiomics`` GLCM
-set) → plot with :func:`~habit.viz.plot_voxel_texture_slice`.
+End-to-end: one subject → :func:`~habit.local_entropy_map` plus a small
+``voxel_radiomics`` GLCM set → :func:`~habit.viz.plot_voxel_texture_slice`.
 
-Default layout is ``mode="side_by_side"``: **anatomy + ROI contour** on the
-left, **texture map** on the right (no alpha-blended texture on anatomy).
+Default ``mode="side_by_side"``: anatomy + ROI contour | texture map
+(no alpha blend on anatomy). The script shows ``VoxelFeatureExtractorRegistry.create``
+for a small GLCM set — edit ``featureClass`` for more columns.
 
 Script
 ------
+
+Change ``DATA`` / ``MODALITY`` / ``ROI`` to your preprocessed tree. Figures
+land under ``out/``.
 
 .. literalinclude:: scripts/voxel_texture_demo.py
    :language: python

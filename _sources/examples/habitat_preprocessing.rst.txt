@@ -78,6 +78,24 @@ Output (abbreviated)
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Figures
+-------
+
+Preprocessing changes the feature space; the visible product is still habitat
+maps. Illustrative overlays from the recipe galleries.
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Two-step habitats after preprocessing chains
+   :width: 360
+
+   Two-step with voxel + supervoxel + cohort chains.
+
+.. figure:: ../_static/images/examples/one_step_overlay.png
+   :alt: One-step habitats with voxel preprocessing only
+   :width: 360
+
+   One-step (voxel chain only; no cohort model).
+
 What to read next
 -----------------
 

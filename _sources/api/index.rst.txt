@@ -818,6 +818,13 @@ Habitat clustering and overlay
    habit.viz.plot_habitat_clustering_pca_3d
    habit.viz.plot_habitat_clustering_pca_3d_interactive
    habit.viz.plot_habitat_overlay
+   habit.viz.plot_cluster_validation_curves
+   habit.viz.plot_cluster_validation_from_report
+   habit.viz.plot_habitat_volume_fractions
+   habit.viz.plot_msi_matrix
+   habit.viz.plot_ith_summary
+   habit.viz.plot_habitat_label_compare
+   habit.viz.plot_partition_triptych
    habit.viz.plot_habitat_graph_slice
    habit.viz.plot_habitat_graph_network_2d
    habit.viz.render_habitat_graph_surface_3d

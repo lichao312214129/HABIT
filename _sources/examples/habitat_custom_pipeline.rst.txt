@@ -59,6 +59,24 @@ Common swaps
   before ``partition``
 * Quantify: add ``Stage("quantifyN", Spec("msi"|"ith_score"|...))``
 
+Figures
+-------
+
+Custom pipelines still produce the same habitat products. Illustrative panels
+from the two-step gallery (:doc:`two_step_habitat`).
+
+.. figure:: ../_static/images/examples/two_step_triptych.png
+   :alt: Anatomy, supervoxels, and habitats
+   :width: 720
+
+   Partition + assign after swapping components.
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Habitat overlay from a customised pipeline
+   :width: 420
+
+   Habitat overlay on anatomy.
+
 What to read next
 -----------------
 
