@@ -3,6 +3,10 @@ Examples
 
 Runnable Python scripts with captured narrative. Prefer the How-to chapter for
 **YAML + demo_data** operators; this gallery is the **Python API** surface.
+
+Habitat examples load ``demo_data/preprocessed`` via
+:func:`~habit.cohort_from_directory`. Edit ``DATA`` / ``MODALITIES`` / ``ROI``
+(and ``out/`` paths) to point at your own preprocessed tree — same layout.
 Examples use explicit ``demo_data/preprocessed`` paths — change
 ``DATA`` / modalities / ROI to your own tree and re-run.
 
