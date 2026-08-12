@@ -343,6 +343,8 @@ Habitat feature extractors
    habit.domain.IthHabitatFeaturesParams
    habit.domain.MsiHabitatFeatures
    habit.domain.MsiHabitatFeaturesParams
+   habit.domain.GraphHabitatFeatures
+   habit.domain.GraphHabitatFeaturesParams
    habit.domain.NonRadiomicsHabitatFeatures
    habit.domain.NonRadiomicsHabitatFeaturesParams
    habit.domain.EachHabitatRadiomicsFeatures
@@ -673,6 +675,13 @@ Habitat metrics
    habit.kernels.habitat_volume_fractions
    habit.kernels.habitat_region_stats
    habit.kernels.ith_score
+   habit.kernels.HabitatGraphFeatureOptions
+   habit.kernels.extract_graph_features
+   habit.kernels.extract_graph_features_for_labels
+   habit.kernels.extract_habitat_nodes
+   habit.kernels.build_centroid_distance_graph
+   habit.kernels.build_adjacency_graph
+   habit.kernels.pair_count
 
 Classification and agreement statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -809,6 +818,10 @@ Habitat clustering and overlay
    habit.viz.plot_habitat_clustering_pca_3d
    habit.viz.plot_habitat_clustering_pca_3d_interactive
    habit.viz.plot_habitat_overlay
+   habit.viz.plot_habitat_graph_slice
+   habit.viz.plot_habitat_graph_network_2d
+   habit.viz.render_habitat_graph_surface_3d
+   habit.viz.render_habitat_graph_network_3d
    habit.viz.view_habitat_napari
 
 .. _api-exceptions:

@@ -34,6 +34,7 @@ LIGHTWEIGHT = (
     "persistence_demo.py",
     "apply_saved_model_demo.py",
     "feature_composition_demo.py",
+    "graph_features_demo.py",
     "tabular_ml_quickstart.py",
 )
 

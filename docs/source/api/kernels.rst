@@ -6,9 +6,11 @@ Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
 .. code-block:: python
 
    from habit.kernels import (
+       HabitatGraphFeatureOptions,
        delong_roc_ci,
        delong_roc_test,
        delong_roc_variance,
+       extract_graph_features,
        fast_delong,
        habitat_region_stats,
        habitat_volume_fractions,
@@ -41,6 +43,35 @@ Habitat metrics
    ith = ith_score(labels)                         # float
    fractions = habitat_volume_fractions(labels, habitat_ids=(1, 2))
    stats = habitat_region_stats(labels)            # id -> (voxels, components)
+
+Graph topology kernels
+----------------------
+
+Region graphs + NetworkX metrics (same definitions as the built-in
+``graph`` habitat feature family). Arrays in, ``dict`` out — no YAML / IO.
+
+.. code-block:: python
+
+   from habit import HabitatGraphFeatureOptions, extract_graph_features
+
+   options = HabitatGraphFeatureOptions(
+       edge_method="centroid_distance",
+       distance_threshold=5.0,
+       erosion_radius=1,
+       subdivide_region_voxels=1000,
+   )
+   graph_feats = extract_graph_features(
+       labels,
+       options=options,
+       expected_labels=(1, 2),
+   )
+   # Keys look like single_h1_n_nodes, pair_h1_h2_modularity, ...
+
+Also exported: :func:`~habit.extract_graph_features_for_labels`,
+:func:`~habit.extract_habitat_nodes`,
+:func:`~habit.build_centroid_distance_graph`,
+:func:`~habit.build_adjacency_graph`, :func:`~habit.pair_count`.
+See :doc:`../reference/features/graph`.
 
 ICC kernels
 -----------
