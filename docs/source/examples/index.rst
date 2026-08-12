@@ -101,7 +101,7 @@ Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
 * :doc:`graph_features` — kernel + domain API; demo_data figures (2D + 3D)
 
 5. Voxel texture maps
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`voxel_texture` — local entropy + ``plot_voxel_texture_slice``; demo_data figures
 
