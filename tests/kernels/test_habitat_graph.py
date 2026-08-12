@@ -24,7 +24,9 @@ from habit.kernels.habitat_graph import (
     build_adjacency_graph,
     build_centroid_distance_graph,
     extract_graph_features,
+    extract_graph_features_for_labels,
     extract_habitat_nodes,
+    pair_count,
 )
 
 
@@ -552,3 +554,281 @@ def test_expected_labels_produce_stable_columns_for_missing_habitats() -> None:
     assert features["pair_h1_h2_n_nodes_2"] == 0.0
     # The present-habitat count still reflects what is actually in the map.
     assert features["graph_num_habitats"] == 1.0
+
+
+@pytest.mark.unit
+def test_face_vs_full_connectivity_merges_diagonal_touch() -> None:
+    """Full connectivity merges diagonal-touching voxels; face keeps them apart."""
+    # Two habitat-1 voxels touch only at a corner.
+    label_array: np.ndarray = np.array(
+        [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0],
+        ],
+        dtype=np.int32,
+    )
+
+    face = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    full = extract_habitat_nodes(label_array=label_array, connectivity="full")
+
+    assert len(face.nodes_by_habitat[1]) == 2
+    assert len(full.nodes_by_habitat[1]) == 1
+    assert full.nodes_by_habitat[1][0].voxel_count == 2
+
+
+@pytest.mark.unit
+def test_erosion_splits_thin_bridge_into_separate_nodes() -> None:
+    """Erosion removes a one-voxel face bridge so one blob becomes two nodes."""
+    # Two thick blobs joined by a single face-adjacent bridge voxel.
+    label_array: np.ndarray = np.zeros((7, 11), dtype=np.int32)
+    label_array[1:6, 1:5] = 1
+    label_array[1:6, 6:10] = 1
+    label_array[3, 5] = 1
+
+    intact = extract_habitat_nodes(
+        label_array=label_array, connectivity="face", erosion_radius=0
+    )
+    eroded = extract_habitat_nodes(
+        label_array=label_array, connectivity="face", erosion_radius=1
+    )
+
+    assert len(intact.nodes_by_habitat[1]) == 1
+    assert len(eroded.nodes_by_habitat[1]) == 2
+
+
+@pytest.mark.unit
+def test_min_region_voxels_drops_tiny_components() -> None:
+    """Components below ``min_region_voxels`` must not become graph nodes."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 0, 1],
+            [1, 1, 0, 0],
+            [0, 0, 0, 0],
+        ],
+        dtype=np.int32,
+    )
+
+    kept = extract_habitat_nodes(label_array=label_array, min_region_voxels=2)
+    assert len(kept.nodes_by_habitat[1]) == 1
+    assert kept.nodes_by_habitat[1][0].voxel_count == 4
+
+
+@pytest.mark.unit
+def test_block_min_coverage_filters_partial_blocks() -> None:
+    """Low-coverage subdivision blocks are discarded; high coverage keeps them."""
+    # 6x6 ones: with block_size=4, corner blocks are only partly covered.
+    label_array: np.ndarray = np.ones((6, 6), dtype=np.int32)
+
+    strict = extract_habitat_nodes(
+        label_array=label_array,
+        subdivide_region_voxels=1,
+        block_size=4,
+        block_min_coverage=0.9,
+    )
+    loose = extract_habitat_nodes(
+        label_array=label_array,
+        subdivide_region_voxels=1,
+        block_size=4,
+        block_min_coverage=0.1,
+    )
+
+    assert len(strict.nodes_by_habitat[1]) < len(loose.nodes_by_habitat[1])
+    assert len(loose.nodes_by_habitat[1]) >= 1
+
+
+@pytest.mark.unit
+def test_adjacency_corner_connects_diagonal_habitats_face_does_not() -> None:
+    """Corner adjacency creates an edge for diagonal contact; face does not."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 0],
+            [0, 2],
+        ],
+        dtype=np.int32,
+    )
+    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+
+    face_graph = build_adjacency_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        adjacency_connectivity="face",
+        adjacency_min_voxels=1,
+        edge_weight="contact_voxels",
+    )
+    corner_graph = build_adjacency_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        adjacency_connectivity="corner",
+        adjacency_min_voxels=1,
+        edge_weight="contact_voxels",
+    )
+
+    assert len(face_graph.edges) == 0
+    assert len(corner_graph.edges) == 1
+    assert corner_graph.edges[0].contact_voxels == 1
+    assert corner_graph.edges[0].weight == 1.0
+
+
+@pytest.mark.unit
+def test_adjacency_edge_connectivity_counts_more_contacts_than_face() -> None:
+    """In 3D, edge connectivity includes more neighbor offsets than face."""
+    # Two habitats share a face contact and an edge (diagonal-in-plane) contact.
+    label_array: np.ndarray = np.zeros((3, 3, 3), dtype=np.int32)
+    label_array[1, 1, 1] = 1
+    label_array[1, 1, 2] = 2  # face neighbor of habitat 1
+    label_array[1, 2, 2] = 2  # also edge-adjacent to habitat 1 via (0,+1,+1)
+
+    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    face_graph = build_adjacency_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        adjacency_connectivity="face",
+        adjacency_min_voxels=1,
+        edge_weight="contact_voxels",
+        include_intra_edges=False,
+    )
+    edge_graph = build_adjacency_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        adjacency_connectivity="edge",
+        adjacency_min_voxels=1,
+        edge_weight="contact_voxels",
+        include_intra_edges=False,
+    )
+
+    assert len(face_graph.edges) == 1
+    assert face_graph.edges[0].contact_voxels == 1
+    assert len(edge_graph.edges) == 1
+    assert edge_graph.edges[0].contact_voxels >= face_graph.edges[0].contact_voxels
+
+
+@pytest.mark.unit
+def test_empty_label_array_returns_zero_habitat_summary() -> None:
+    """An all-background map yields summary zeros and no single/pair columns."""
+    label_array: np.ndarray = np.zeros((4, 4), dtype=np.int32)
+    features = _extract(label_array, erosion_radius=0, subdivide_region_voxels=0)
+
+    assert features["graph_num_habitats"] == 0.0
+    assert features["graph_num_nodes_total"] == 0.0
+    assert not any(key.startswith("single_") for key in features)
+    assert not any(key.startswith("pair_") for key in features)
+
+
+@pytest.mark.unit
+def test_single_node_graph_has_zero_edges_and_key_columns() -> None:
+    """A lone connected region reports one node, zero edges, and core metrics."""
+    label_array: np.ndarray = np.array(
+        [
+            [0, 1, 1],
+            [0, 1, 1],
+            [0, 0, 0],
+        ],
+        dtype=np.int32,
+    )
+    features = _extract(
+        label_array,
+        distance_threshold=5.0,
+        erosion_radius=0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+
+    assert features["single_h1_n_nodes"] == 1.0
+    assert features["single_h1_n_edges"] == 0.0
+    assert "single_h1_avg_degree" in features
+    assert "single_h1_edge_density" in features
+    assert features["single_h1_avg_degree"] == 0.0
+
+
+@pytest.mark.unit
+def test_extract_graph_features_for_labels_restricts_habitats() -> None:
+    """Restricting labels zeros out non-selected habitats before extraction."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 2, 2],
+            [1, 0, 0, 2],
+            [3, 3, 0, 0],
+        ],
+        dtype=np.int32,
+    )
+    options = HabitatGraphFeatureOptions(
+        distance_threshold=3.0,
+        erosion_radius=0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+
+    features = extract_graph_features_for_labels(
+        label_array, labels=(1, 2), options=options
+    )
+
+    assert features["graph_num_habitats"] == 2.0
+    assert "single_h1_n_nodes" in features
+    assert "single_h2_n_nodes" in features
+    assert "single_h3_n_nodes" not in features
+    assert "pair_h1_h2_n_nodes_1" in features
+
+
+@pytest.mark.unit
+def test_expected_labels_align_columns_across_subjects() -> None:
+    """Two subjects with different present habitats share the same column keys."""
+    options = HabitatGraphFeatureOptions(
+        distance_threshold=3.0,
+        erosion_radius=0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+    labels_a: np.ndarray = np.array([[1, 1, 0], [1, 0, 0]], dtype=np.int32)
+    labels_b: np.ndarray = np.array([[2, 2, 0], [0, 2, 0]], dtype=np.int32)
+
+    feats_a = extract_graph_features(
+        labels_a, options=options, expected_labels=(1, 2)
+    )
+    feats_b = extract_graph_features(
+        labels_b, options=options, expected_labels=(1, 2)
+    )
+
+    assert set(feats_a.keys()) == set(feats_b.keys())
+    assert feats_a["single_h2_n_nodes"] == 0.0
+    assert feats_b["single_h1_n_nodes"] == 0.0
+    assert feats_a["graph_num_habitats"] == 1.0
+    assert feats_b["graph_num_habitats"] == 1.0
+
+
+@pytest.mark.unit
+def test_3d_synthetic_volume_extracts_single_and_pairwise_columns() -> None:
+    """A compact 3D multi-habitat volume produces the expected key columns."""
+    label_array: np.ndarray = np.zeros((8, 8, 8), dtype=np.int32)
+    label_array[1:4, 1:4, 1:4] = 1
+    label_array[1:4, 5:7, 5:7] = 1
+    label_array[4:7, 3:6, 3:6] = 2
+
+    features = _extract(
+        label_array,
+        distance_threshold=6.0,
+        erosion_radius=0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+
+    assert features["graph_num_habitats"] == 2.0
+    assert features["single_h1_n_nodes"] == 2.0
+    assert features["single_h2_n_nodes"] == 1.0
+    assert "pair_h1_h2_n_nodes_1" in features
+    assert "pair_h1_h2_edge_density" in features
+    assert features["graph_num_nodes_total"] == 3.0
+
+
+@pytest.mark.unit
+def test_pair_count_matches_unordered_pairs() -> None:
+    """``pair_count`` is the binomial coefficient C(n, 2)."""
+    assert pair_count(0) == 0
+    assert pair_count(1) == 0
+    assert pair_count(2) == 1
+    assert pair_count(3) == 3
+    assert pair_count(4) == 6

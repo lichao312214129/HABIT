@@ -127,3 +127,29 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.pairwise_include_intra_edges is (
         kernel.pairwise_include_intra_edges
     )
+
+
+@pytest.mark.unit
+def test_graph_spec_fingerprint_changes_with_params() -> None:
+    """Changing extraction params must change the provenance fingerprint."""
+    baseline = GraphHabitatFeatures(**_KERNEL_OVERRIDES)
+    altered = GraphHabitatFeatures(**{**_KERNEL_OVERRIDES, "distance_threshold": 9.0})
+
+    assert baseline.spec.fingerprint() != altered.spec.fingerprint()
+    assert baseline.spec.fingerprint() == GraphHabitatFeatures(
+        **_KERNEL_OVERRIDES
+    ).spec.fingerprint()
+
+
+@pytest.mark.unit
+def test_graph_feature_table_is_one_row_with_subject_id() -> None:
+    """The domain extractor returns a one-row FeatureTable keyed by subject."""
+    subject = make_subject("P_graph")
+    habitat_map = make_habitat_map("P_graph")
+    table = GraphHabitatFeatures(**_KERNEL_OVERRIDES)(subject, habitat_map)
+
+    assert table.frame.shape[0] == 1
+    assert "subject" in table.id_columns
+    assert table.frame["subject"].iloc[0] == "P_graph"
+    assert len(table.feature_columns) > 0
+    assert set(table.feature_columns).isdisjoint(set(table.id_columns))
