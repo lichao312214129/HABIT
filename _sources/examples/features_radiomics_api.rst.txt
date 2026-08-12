@@ -24,7 +24,27 @@ Coverage
 ``demo_data/results/api/05_extract_features`` and
 ``06_traditional_radiomics``.
 
-The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+The script writes ``out/features_radiomics_api_overlay.png`` and may open a
+**napari eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
+
+Figures
+-------
+
+Habitat feature tables sit on top of habitat maps. Illustrative panels from
+the feature-extraction gallery (:doc:`feature_extraction`).
+
+.. figure:: ../_static/images/examples/feature_extract_overlay.png
+   :alt: Habitat overlay before feature table extraction
+   :width: 420
+
+   Habitats that feed ``habitat_features`` /
+   :func:`~habit.recipes.extract_habitat_features`.
+
+.. figure:: ../_static/images/examples/feature_extract_volume_fractions.png
+   :alt: Habitat volume fractions from the feature table path
+   :width: 420
+
+   Volume fractions (:func:`~habit.viz.plot_habitat_volume_fractions`).
 
 What to read next
 -----------------

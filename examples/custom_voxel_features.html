@@ -265,9 +265,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#why-extract-and-preprocess-look-different">Why extract and preprocess look different</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -282,6 +284,7 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">DIY voxel features (expression + custom plugin)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a></li>
 </ul>
 </li>
@@ -303,6 +306,7 @@
 <li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -337,6 +341,7 @@
 <li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -357,6 +362,7 @@
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#failure-policy-note">Failure policy note</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1762,15 +1768,45 @@ the same recipes (<code class="docutils literal notranslate"><span class="pre">t
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  batch: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">custom_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> maps, &quot;</span>
       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">custom_result</span><span class="o">.</span><span class="n">habitat_model</span><span class="o">.</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2"> habitats&quot;</span><span class="p">)</span>
 
+<span class="c1"># Short viz of the habitat product (synthetic anatomy)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="n">custom_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom voxel extractor habitats&quot;</span>
+<span class="p">)</span>
+<span class="n">out_png</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;custom_voxel_overlay.png&quot;</span>
+<span class="n">out_png</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_png</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Wrote </span><span class="si">{</span><span class="n">out_png</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 <span class="c1"># Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">_habitat_eye_check</span><span class="w"> </span><span class="kn">import</span> <span class="n">eye_check_study</span>
+
 <span class="n">eye_check_study</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">custom_result</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The script ends with a <strong>napari eye-check</strong>. <code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips it.</p>
+<p>The script writes <code class="docutils literal notranslate"><span class="pre">out/custom_voxel_overlay.png</span></code> and may open a <strong>napari
+eye-check</strong>. <code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips the viewer.</p>
+</section>
+<section id="figures">
+<h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
+<p>Custom extractors still produce ordinary habitat maps. Illustrative overlay
+from the two-step gallery (<a class="reference internal" href="two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>).</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/two_step_overlay.png"><img alt="Habitat overlay after a custom voxel feature extractor" src="../_images/two_step_overlay.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Habitats after <code class="docutils literal notranslate"><span class="pre">Study(...).fit_predict</span></code> with a DIY extractor
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>

@@ -265,9 +265,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing_api.html">Habitat feature-preprocessing API (subject + cohort chains)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#why-extract-and-preprocess-look-different">Why extract and preprocess look different</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -282,6 +284,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -303,6 +306,7 @@
 <li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -337,6 +341,7 @@
 <li class="toctree-l2"><a class="reference internal" href="viz_parallel_extras_api.html">Visualization, RunPolicy parallelism, and extras API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#coverage">Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="viz_parallel_extras_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -357,6 +362,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#failure-policy-note">Failure policy note</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1618,6 +1624,8 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">RunPolicy</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span><span class="p">,</span> <span class="n">make_synthetic_cohort</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.execution.process_pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolBackend</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
@@ -1693,11 +1701,25 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML twin: add a top-level ``policy:`` block (see config/habitat/*_wsl.yaml)&quot;</span><span class="p">)</span>
 
+    <span class="c1"># Short viz of the parallel habitat product</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">parallel_result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">)))</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
+        <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Parallel two-step habitats&quot;</span>
+    <span class="p">)</span>
+    <span class="n">out_png</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;parallel_execution_overlay.png&quot;</span>
+    <span class="n">out_png</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">out_png</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">out_png</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="c1"># Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">_habitat_eye_check</span><span class="w"> </span><span class="kn">import</span> <span class="n">eye_check_study</span>
+
     <span class="n">eye_check_study</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">parallel_result</span><span class="p">)</span>
 
 
@@ -1726,7 +1748,21 @@ backend. Default <a class="reference internal" href="../api/generated/habit.cont
 <a class="reference internal" href="../api/generated/habit.exceptions.ProcessingError.html#habit.exceptions.ProcessingError" title="habit.exceptions.ProcessingError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessingError</span></code></a>; recipes pass
 <code class="docutils literal notranslate"><span class="pre">raise_on_failure=False</span></code> so a partial cohort can finish. Soft failure and
 geometry / plugin / batch switches are covered in <a class="reference internal" href="fault_tolerance.html"><span class="doc">Fault tolerance patterns</span></a>.</p>
-<p>The script ends with a <strong>napari eye-check</strong>. <code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips it.</p>
+<p>The script writes <code class="docutils literal notranslate"><span class="pre">out/parallel_execution_overlay.png</span></code> and may open a
+<strong>napari eye-check</strong>. <code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips the viewer.</p>
+</section>
+<section id="figures">
+<h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
+<p>Parallel scheduling does not change the habitat product under a fixed seed.
+Illustrative overlay from the two-step gallery (<a class="reference internal" href="two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>).</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/two_step_overlay.png"><img alt="Habitat overlay identical under serial and parallel scheduling" src="../_images/two_step_overlay.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Habitats after <code class="docutils literal notranslate"><span class="pre">Study.fit_predict</span></code> (serial or process-pool)
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>

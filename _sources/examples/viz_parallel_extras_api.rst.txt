@@ -34,6 +34,26 @@ Coverage
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Figures
+-------
+
+Publication-style panels from the visualization gallery
+(:doc:`visualization`).
+
+.. figure:: ../_static/images/examples/viz_habitat_pca_2d.png
+   :alt: Habitat clustering PCA from a StudyResult
+   :width: 420
+
+   Population clustering PCA
+   (:func:`~habit.viz.plot_habitat_clustering_pca_2d`).
+
+.. figure:: ../_static/images/examples/one_step_overlay.png
+   :alt: One-step habitat overlay used by the parallel extras demo
+   :width: 420
+
+   One-step habitats behind the PCA demo
+   (:func:`~habit.viz.plot_habitat_overlay`).
+
 What to read next
 -----------------
 

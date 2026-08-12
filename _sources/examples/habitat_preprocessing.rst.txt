@@ -29,6 +29,11 @@ Assembled live objects use the same vocabulary on
 (``voxel_feature_preprocessor``, ``cohort_feature_preprocessor``, …);
 see :doc:`habitat_preprocessing_api` (API deep dive) and :doc:`../api/domain`.
 
+Extractors and preprocessors keep **different** call shapes on purpose:
+``extractor(subject).feature_frame()`` is subject-level; ``preprocessor(X)``
+is sklearn-like on a feature table. Prefer the assembled components from
+``build_habitat_components(spec)`` for that handoff (see the API page).
+
 * **One-step** — ``voxel_feature_preprocessors`` only. No cohort chain at
   train: each subject clusters independently; frozen state lives in
   ``subject_models[*].preprocessing_state``.
@@ -60,6 +65,9 @@ Output (abbreviated)
      (two-step only, subject)                 -> supervoxel_feature_preprocessors
      preprocessing_for_group_level            -> cohort_feature_preprocessors
 
+   === Extract → preprocess handoff (assembled components) ===
+     subj001: raw (N, F) -> after voxel chain (N, F)
+
    === Non-batch: SubjectPipeline.units (fit-time, no assigner) ===
      subj001: 42 units, 3 features, range [0.000, 1.000]
 
@@ -76,7 +84,8 @@ Output (abbreviated)
      apply batch: 2 maps
      apply atomic (1 subject): subj001
 
-The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+Running the script may open a **napari eye-check**. ``HABIT_NO_VIEW=1``
+skips the viewer. It also writes ``out/habitat_preprocessing_overlay.png``.
 
 Figures
 -------
@@ -88,7 +97,8 @@ maps. Illustrative overlays from the recipe galleries.
    :alt: Two-step habitats after preprocessing chains
    :width: 360
 
-   Two-step with voxel + supervoxel + cohort chains.
+   Two-step with voxel + supervoxel + cohort chains
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 .. figure:: ../_static/images/examples/one_step_overlay.png
    :alt: One-step habitats with voxel preprocessing only
