@@ -17,6 +17,9 @@ Start here
 
 Python users: :doc:`tutorial/quickstart_python`. Stuck: :doc:`troubleshooting/faq`.
 
+Also: habitat **graph topology** features — :doc:`how_to/graph_features`
+(how-to) · :doc:`examples/graph_features` (gallery).
+
 .. toctree::
    :maxdepth: 2
    :caption: Tutorial

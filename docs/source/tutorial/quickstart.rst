@@ -115,11 +115,16 @@ results and clustering curves)::
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-The last command needs the **ML pack** (``ml_data.zip``). If you
-skipped it in step 2: |download_ml_data| — extract code: |ml_data_code|.
-Extract so ``demo_data/ml_data/`` sits next to ``demo_data/preprocessed/``
-under ``<work_dir>`` (if the zip top level is ``ml_data/``, extract into
-``demo_data/``)::
+**Also extract graph topology features** (built-in ``graph`` family — nodes,
+edges, and metrics from habitat maps). Add ``graph`` under ``feature_types``
+or follow :doc:`../how_to/graph_features`. Runnable demo + figures:
+:doc:`../examples/graph_features`.
+
+The ``habit extract`` / ``habit model`` steps need the **ML pack**
+(``ml_data.zip``). If you skipped it in step 2: |download_ml_data| — extract
+code: |ml_data_code|. Extract so ``demo_data/ml_data/`` sits next to
+``demo_data/preprocessed/`` under ``<work_dir>`` (if the zip top level is
+``ml_data/``, extract into ``demo_data/``)::
 
    habit model --config config/machine_learning/config_machine_learning_radiomics_minimal.yaml --mode train
 
@@ -153,5 +158,6 @@ Next
 ----
 
 * Your own data: :doc:`../how_to/prepare_data` then :doc:`../how_to/index`
+* Graph topology features: :doc:`../how_to/graph_features`
 * Python API: :doc:`quickstart_python`
 * All commands: :doc:`../reference/cli`

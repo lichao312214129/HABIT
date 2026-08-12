@@ -38,6 +38,23 @@ The numbered modules below are the reading order. Sphinx **Next** / **Previous**
 and the sidebar follow the single hidden ``toctree`` at the bottom of this page
 (same order as this map).
 
+Featured — graph topology
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Built-in habitat **graph** features (nodes, edges, metrics) with publication
+figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
+
+* How-to (YAML / CLI / API): :doc:`../how_to/graph_features`
+* Runnable example + 2D/3D gallery: :doc:`graph_features`
+* Column reference: :doc:`../reference/features/graph`
+
+.. figure:: ../_static/images/examples/graph_habitat_slice_2d.png
+   :alt: Demo subj001 LAP slice with habitat overlay for graph features
+   :width: 420
+   :target: graph_features.html
+
+   Demo ``subj001`` habitat overlay used by :doc:`graph_features`.
+
 1. Data & cohorts
 ~~~~~~~~~~~~~~~~~
 
@@ -61,7 +78,12 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
 * :doc:`habitat_atomic_ops`
 * :doc:`habitat_custom_pipeline`
 
-4. Habitat design (Spec & features)
+4. Graph topology features
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :doc:`graph_features` — kernel + domain API; demo_data figures (2D + 3D)
+
+5. Habitat design (Spec & features)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`feature_composition`
@@ -71,50 +93,49 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
 * :doc:`precise_features`
 * :doc:`custom_voxel_features`
 
-5. Quantification
+6. Quantification
 ~~~~~~~~~~~~~~~~~
 
 * :doc:`feature_extraction`
-* :doc:`graph_features`
 * :doc:`features_radiomics_api`
 
-6. Machine learning
+7. Machine learning
 ~~~~~~~~~~~~~~~~~~~
 
 * :doc:`tabular_ml`
 * :doc:`tabular_ml_api`
 * :doc:`ml_advanced`
 
-7. Visualization
+8. Visualization
 ~~~~~~~~~~~~~~~~
 
 * :doc:`visualization`
 * :doc:`viz_parallel_extras_api`
 
-8. Persistence & provenance
+9. Persistence & provenance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`persistence`
 * :doc:`provenance_methods`
 
-9. Execution & reliability
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+10. Execution & reliability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`parallel_execution`
 * :doc:`fault_tolerance`
 
-10. Extending HABIT
+11. Extending HABIT
 ~~~~~~~~~~~~~~~~~~~
 
 * :doc:`plugin_entry_points`
 
-11. YAML & CLI shells
+12. YAML & CLI shells
 ~~~~~~~~~~~~~~~~~~~~~
 
 * :doc:`run_from_yaml`
 * :doc:`cli_yaml_workflows`
 
-12. QC & auxiliary
+13. QC & auxiliary
 ~~~~~~~~~~~~~~~~~~
 
 * :doc:`cohort_plugins_auxiliary`
@@ -134,6 +155,7 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
    apply_saved_model
    habitat_atomic_ops
    habitat_custom_pipeline
+   graph_features
    feature_composition
    habitat_feature_routes
    habitat_preprocessing
@@ -141,7 +163,6 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
    precise_features
    custom_voxel_features
    feature_extraction
-   graph_features
    features_radiomics_api
    tabular_ml
    tabular_ml_api

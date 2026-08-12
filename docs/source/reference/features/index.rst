@@ -5,6 +5,10 @@ HABIT-native feature definitions, formulas, and output CSV columns. PyRadiomics 
 
 Each page: **Output** → **Definition** → **Formula** (if any) → **Output columns** → **Implementation** → **References** (if any).
 
+Light built-in families (``volume``, ``msi``, ``ith_score``, ``graph``) are
+peers in ``feature_types``. Dedicated how-to for topology:
+:doc:`../../how_to/graph_features`.
+
 .. list-table:: Feature types
    :header-rows: 1
    :widths: 22 28 50
@@ -38,9 +42,9 @@ Each page: **Output** → **Definition** → **Formula** (if any) → **Output c
    :maxdepth: 2
    :caption: Habitat features
 
-   traditional
-   non_radiomics
-   whole_each_habitat
    msi
    ith_score
    graph
+   non_radiomics
+   traditional
+   whole_each_habitat

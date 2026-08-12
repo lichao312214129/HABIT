@@ -251,6 +251,8 @@ demo YAML, as a Python ``dict`` (still no config file).
                    "msi",
                    "ith_score",
                    "non_radiomics",
+                   # Built-in graph topology (opt-in):
+                   # "graph",
                    # Heavy PyRadiomics (opt-in):
                    # "traditional",
                    # "whole_habitat",
@@ -263,6 +265,11 @@ demo YAML, as a Python ``dict`` (still no config file).
 
    if __name__ == "__main__":
        main()
+
+Uncomment ``"graph"`` (or call
+:func:`~habit.extract_graph_features`) to also extract habitat graph topology
+features — see :doc:`../how_to/graph_features` and
+:doc:`../examples/graph_features`.
 
 5. Tabular ML
 -------------
