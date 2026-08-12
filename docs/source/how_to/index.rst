@@ -13,6 +13,9 @@ Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
 :doc:`graph_features` (built-in ``graph`` family; YAML + Python). Gallery:
 :doc:`../examples/graph_features`.
 
+**Voxel texture maps** (local entropy / densified voxel features):
+:doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
+
 .. toctree::
    :maxdepth: 1
 
@@ -22,6 +25,7 @@ Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
    segment_habitat
    extract_features
    graph_features
+   voxel_texture
    radiomics
    train_model
    compare_models

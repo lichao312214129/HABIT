@@ -18,7 +18,8 @@ Start here
 Python users: :doc:`tutorial/quickstart_python`. Stuck: :doc:`troubleshooting/faq`.
 
 Also: habitat **graph topology** features — :doc:`how_to/graph_features`
-(how-to) · :doc:`examples/graph_features` (gallery).
+(how-to) · :doc:`examples/graph_features` (gallery). Voxel **texture** maps —
+:doc:`how_to/voxel_texture` · :doc:`examples/voxel_texture`.
 
 .. toctree::
    :maxdepth: 2

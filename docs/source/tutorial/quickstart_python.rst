@@ -173,6 +173,29 @@ Outputs land under ``demo_data/results/habitat_two_step/`` (including
 ``habit get-habitat --config …/effective_config.yaml`` for **voxel-identical**
 habitat maps (same seed, data, and policy).
 
+Static matplotlib overlay of the same demo subject (no napari; needs
+``[viz]``)::
+
+   from habit.viz import plot_habitat_overlay, use_style
+
+   volume = cohort[0].image("LAP")
+   with use_style("radiology"):
+       fig = plot_habitat_overlay(
+           volume.data,
+           result.habitat_maps[0].label_array,
+           spacing=volume.spacing,
+           direction=volume.direction,
+       )
+   # fig.savefig("habitat_overlay.png", dpi=200, bbox_inches="tight")
+
+.. figure:: ../_static/images/examples/habitat_two_step_overlay.png
+   :alt: Demo subj001 LAP with two-step habitat labels overlaid
+   :width: 480
+
+   Publication-style habitat overlay for demo ``subj001`` (same science as
+   the CLI two-step run). Gallery asset from
+   :doc:`../examples/two_step_habitat`.
+
 Further notebook-oriented patterns (synthetic cohorts, custom extractors)
 live under :doc:`../examples/index`.
 
@@ -181,7 +204,7 @@ live under :doc:`../examples/index`.
 
 CLI twin (one line — conda / Windows terminals do not support ``\`` continuation)::
 
-   habit view demo_data/preprocessed/images/subj001/LAP/...nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
 Append inside the same ``main()`` from step 1 (uses ``cohort`` /
 ``result``)::
@@ -198,8 +221,27 @@ Append inside the same ``main()`` from step 1 (uses ``cohort`` /
    )
 
 Needs napari (:doc:`installation`). Blocks until you close the window.
+In napari, select the habitats Labels layer (Contour ``0`` = filled regions).
+
 For fuller 3D review, also open the source volume and ``*_habitats.nrrd``
-in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer.
+in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer — not only
+the napari 2D slice slider.
+
+.. list-table::
+   :widths: 50 50
+   :align: center
+
+   * - .. figure:: ../_static/images/habitat_view_napari_region.png
+          :alt: napari habitat view with filled region labels
+          :width: 100%
+
+          Filled labels.
+
+     - .. figure:: ../_static/images/habitat_view_napari_contour.png
+          :alt: napari habitat view with contour outlines
+          :width: 100%
+
+          Contour outlines.
 
 3. Apply a saved model
 ----------------------
@@ -270,6 +312,10 @@ Uncomment ``"graph"`` (or call
 :func:`~habit.extract_graph_features`) to also extract habitat graph topology
 features — see :doc:`../how_to/graph_features` and
 :doc:`../examples/graph_features`.
+
+Voxel **texture** maps (local entropy on anatomy + ROI) are a separate
+``habit.viz`` path — see :doc:`../how_to/voxel_texture` and
+:doc:`../examples/voxel_texture`.
 
 5. Tabular ML
 -------------
@@ -349,4 +395,11 @@ here, but harmless to keep)::
    )
    print(ml_result.test_metrics)
 
-Next: :doc:`../examples/index` / :doc:`../api/index` / :doc:`../how_to/prepare_data`
+Next
+----
+
+* Examples gallery: :doc:`../examples/index`
+* Graph topology / voxel texture: :doc:`../how_to/graph_features` ·
+  :doc:`../how_to/voxel_texture`
+* API reference: :doc:`../api/index`
+* Your own data: :doc:`../how_to/prepare_data`

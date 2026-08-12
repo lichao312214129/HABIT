@@ -9,6 +9,11 @@ Light built-in families (``volume``, ``msi``, ``ith_score``, ``graph``) are
 peers in ``feature_types``. Dedicated how-to for topology:
 :doc:`../../how_to/graph_features`.
 
+Voxel-level texture used as **habitat inputs** (``local_entropy``,
+``voxel_radiomics``) is a different product surface — slice figures live under
+:doc:`../../how_to/voxel_texture` / :doc:`../../examples/voxel_texture`, not
+as a ``feature_types`` CSV family.
+
 .. list-table:: Feature types
    :header-rows: 1
    :widths: 22 28 50
