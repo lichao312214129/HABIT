@@ -31,135 +31,6 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    $env:HABIT_NO_VIEW = "1"
    python docs/source/examples/scripts/_smoke_examples.py
 
-Gallery map
------------
-
-The numbered modules below are the reading order. Sphinx **Next** / **Previous**
-and the sidebar follow the single hidden ``toctree`` at the bottom of this page
-(same order as this map).
-
-Featured: graph features from habitat maps
-------------------------------------------
-
-One subject → one-step habitats → built-in **graph** topology features and
-publication figures.
-
-* How-to (YAML / CLI / API): :doc:`../how_to/graph_features`
-* Runnable example + gallery: :doc:`graph_features`
-* Column reference: :doc:`../reference/features/graph`
-
-.. figure:: ../_static/images/examples/graph_habitat_slice_2d.png
-   :alt: One-step habitat overlay used by the graph features example
-   :width: 420
-   :target: graph_features.html
-
-   Habitat overlay from :doc:`graph_features`.
-
-Featured: voxel texture maps
-----------------------------
-
-Voxel-level **texture** (local entropy + a small GLCM set via
-``voxel_radiomics``) with ``side_by_side`` figures: anatomy + ROI contour |
-texture map.
-
-* How-to: :doc:`../how_to/voxel_texture`
-* Runnable example + gallery: :doc:`voxel_texture`
-
-.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Anatomy with ROI contour beside local-entropy texture map
-   :width: 420
-   :target: voxel_texture.html
-
-   Local-entropy panels from :doc:`voxel_texture`.
-
-1. Data and cohorts
--------------------
-
-* :doc:`data_from_arrays`
-
-2. Image preprocessing
-----------------------
-
-* :doc:`image_preprocessing`
-* :doc:`image_preprocessing_api`
-
-3. Habitat analysis (core)
---------------------------
-
-* :doc:`habitat_analysis_overview`
-* :doc:`two_step_habitat`
-* :doc:`one_step_habitat`
-* :doc:`direct_pooling_habitat`
-* :doc:`habitat_fit_modes`
-* :doc:`apply_saved_model`
-* :doc:`habitat_atomic_ops`
-* :doc:`habitat_custom_pipeline`
-
-4. Habitat design (Spec and voxel inputs)
------------------------------------------
-
-* :doc:`voxel_texture` — local entropy + GLCM maps; anatomy + ROI contour plots
-* :doc:`feature_composition`
-* :doc:`habitat_feature_routes`
-* :doc:`habitat_preprocessing`
-* :doc:`habitat_preprocessing_api`
-* :doc:`precise_features`
-* :doc:`custom_voxel_features`
-
-5. Features from habitat maps
------------------------------
-
-Quantification **on habitat labels** (see also
-:doc:`../reference/features/index`).
-
-* :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
-* :doc:`feature_extraction` — light families + radiomics extract recipes
-* :doc:`features_radiomics_api`
-
-6. Machine learning
--------------------
-
-* :doc:`tabular_ml`
-* :doc:`tabular_ml_api`
-* :doc:`ml_advanced`
-
-7. Visualization
-----------------
-
-* :doc:`visualization`
-* :doc:`viz_parallel_extras_api`
-
-8. Persistence and provenance
------------------------------
-
-* :doc:`persistence`
-* :doc:`provenance_methods`
-
-9. Execution and reliability
-----------------------------
-
-* :doc:`parallel_execution`
-* :doc:`fault_tolerance`
-
-10. Extending HABIT
--------------------
-
-* :doc:`plugin_entry_points`
-
-11. YAML and CLI shells
------------------------
-
-* :doc:`run_from_yaml`
-* :doc:`cli_yaml_workflows`
-
-12. Quality control, plugins, and auxiliary tools
--------------------------------------------------
-
-Cohort assembly, plugin listing, Dice / ICC / DICOM helpers, and config
-check/migrate twins of the CLI — not cryptic “QC” shorthand.
-
-* :doc:`cohort_plugins_auxiliary`
-
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -198,3 +69,78 @@ check/migrate twins of the CLI — not cryptic “QC” shorthand.
    run_from_yaml
    cli_yaml_workflows
    cohort_plugins_auxiliary
+
+.. rubric:: Gallery map
+
+Reading order matches Sphinx **Next** / **Previous** and the sidebar (single
+flat ``toctree`` above — no nested TOC groups). Featured cards are links only;
+rubrics below are visual labels and do not create sidebar levels.
+
+.. rubric:: Featured: graph features from habitat maps
+
+One subject → one-step habitats → built-in **graph** topology features and
+publication figures.
+
+* How-to (YAML / CLI / API): :doc:`../how_to/graph_features`
+* Runnable example + gallery: :doc:`graph_features`
+* Column reference: :doc:`../reference/features/graph`
+
+.. figure:: ../_static/images/examples/graph_habitat_slice_2d.png
+   :alt: One-step habitat overlay used by the graph features example
+   :width: 420
+   :target: graph_features.html
+
+   Habitat overlay from :doc:`graph_features`.
+
+.. rubric:: Featured: voxel texture maps
+
+Voxel-level **texture** (local entropy + a small GLCM set via
+``voxel_radiomics``) with ``side_by_side`` figures: anatomy + ROI contour |
+texture map.
+
+* How-to: :doc:`../how_to/voxel_texture`
+* Runnable example + gallery: :doc:`voxel_texture`
+
+.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
+   :alt: Anatomy with ROI contour beside local-entropy texture map
+   :width: 420
+   :target: voxel_texture.html
+
+   Local-entropy panels from :doc:`voxel_texture`.
+
+.. rubric:: All examples (flat)
+
+* :doc:`data_from_arrays` — data and cohorts
+* :doc:`image_preprocessing` — batch image preprocessing
+* :doc:`image_preprocessing_api` — image preprocessing API
+* :doc:`habitat_analysis_overview` — habitat analysis overview
+* :doc:`two_step_habitat` — two-step habitat
+* :doc:`one_step_habitat` — one-step habitat
+* :doc:`direct_pooling_habitat` — direct-pooling habitat
+* :doc:`habitat_fit_modes` — habitat fit modes
+* :doc:`apply_saved_model` — apply a saved model
+* :doc:`habitat_atomic_ops` — atomic habitat operators
+* :doc:`habitat_custom_pipeline` — custom habitat pipeline
+* :doc:`voxel_texture` — local entropy + GLCM maps; anatomy + ROI contour plots
+* :doc:`feature_composition` — feature composition
+* :doc:`habitat_feature_routes` — habitat feature routes
+* :doc:`habitat_preprocessing` — habitat preprocessing
+* :doc:`habitat_preprocessing_api` — habitat preprocessing API
+* :doc:`precise_features` — precise features
+* :doc:`custom_voxel_features` — custom voxel features
+* :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
+* :doc:`feature_extraction` — light families + radiomics extract recipes
+* :doc:`features_radiomics_api` — radiomics features API
+* :doc:`tabular_ml` — tabular ML
+* :doc:`tabular_ml_api` — tabular ML API
+* :doc:`ml_advanced` — advanced ML
+* :doc:`visualization` — visualization
+* :doc:`viz_parallel_extras_api` — viz / parallel extras API
+* :doc:`persistence` — persistence
+* :doc:`provenance_methods` — provenance / methods text
+* :doc:`parallel_execution` — parallel execution
+* :doc:`fault_tolerance` — fault tolerance
+* :doc:`plugin_entry_points` — plugin entry points
+* :doc:`run_from_yaml` — run from YAML
+* :doc:`cli_yaml_workflows` — CLI / YAML workflows
+* :doc:`cohort_plugins_auxiliary` — cohort, plugins, Dice / ICC / DICOM helpers, config check/migrate
