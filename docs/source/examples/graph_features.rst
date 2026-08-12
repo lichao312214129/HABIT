@@ -1,12 +1,25 @@
-Graph topology features (synthetic)
+Graph topology features (demo_data)
 ===================================
 
-**Level:** atomic · **Data:** synthetic · **Extras:** ``[viz]`` / ``[view]`` for
-figures · **Time:** ~10–30 s (3D off-screen)
+**Level:** atomic · **Data:** ``demo_data`` · **Extras:** ``[viz]`` / ``[view]`` for
+figures · **Time:** ~20–60 s (3D off-screen)
 
-``graph`` is a **built-in** habitat feature family. This demo uses synthetic
-labels only (no ``demo_data/``). Prefer the domain / kernel API shown here;
-``habit.compat.graph_plugin`` is a deprecated transitional shim.
+``graph`` is a **built-in** habitat feature family. This demo loads a real
+two-step habitat map for **subj001** from local ``demo_data/`` (not shipped in
+git), extracts graph features, and regenerates the gallery PNGs. Prefer the
+domain / kernel API shown here; ``habit.compat.graph_plugin`` is a deprecated
+transitional shim.
+
+**Default inputs** (first existing path wins):
+
+* Habitats: ``demo_data/results/habitat_two_step/subj001_habitats.nrrd``
+  (fallback: ``habitat_two_step_v1/``, ``examples/habitat_v1_two_step_demo/``)
+* Anatomy overlay: ``demo_data/preprocessed/images/subj001/LAP/...Series0009.nrrd``
+
+If ``demo_data`` is missing, the script exits with a clear error listing the
+paths it tried. The committed PNGs below were generated from ``demo_data`` on
+the maintainer machine so readers still see real-data figures without a local
+copy.
 
 Script
 ------
@@ -18,6 +31,10 @@ Run from the repository root (one line; regenerates the gallery PNGs below)::
 
    python docs/source/examples/scripts/graph_features_demo.py
 
+Generate the habitat map first if needed (one line)::
+
+   habit get-habitat -c config/habitat/config_habitat_two_step.yaml
+
 What it shows
 -------------
 
@@ -26,8 +43,9 @@ What it shows
 2. **Domain path** —
    :meth:`~habit.domain.HabitatFeatureExtractorRegistry.create`\ ``("graph", ...)``
    on a :class:`~habit.contracts.Subject` + :class:`~habit.contracts.HabitatMap`.
-3. **Publication figures** — :mod:`habit.viz.habitat_graph` with
-   :func:`~habit.viz.use_style` (2D matplotlib; 3D PyVista off-screen).
+3. **Publication figures** — :mod:`habit.viz` with :func:`~habit.viz.use_style`
+   (2D matplotlib overlay + network; 3D PyVista off-screen). Volumes are
+   cropped to the padded tumour bbox before rendering.
 
 For CLI / YAML (``feature_types: [graph]`` + optional ``graph:`` block) see
 :doc:`../how_to/extract_features` and
@@ -42,15 +60,15 @@ The demo writes English-labelled PNGs under
 ``radiology`` / ``nature`` style presets; 3D scenes use a white academic
 background (requires ``pyvista`` and ``scikit-image``).
 
-2D habitat slice
-~~~~~~~~~~~~~~~~
+2D habitat overlay
+~~~~~~~~~~~~~~~~~~
 
 .. figure:: ../_static/images/examples/graph_habitat_slice_2d.png
-   :alt: Synthetic habitat label map at the largest cross-section
+   :alt: Demo subj001 LAP image with habitat labels overlaid
    :width: 480
 
-   Habitat labels on the representative cross-section
-   (:func:`~habit.viz.plot_habitat_graph_slice`).
+   Habitat labels on the densest axial LAP slice for demo ``subj001``
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 2D region network
 ~~~~~~~~~~~~~~~~~
@@ -66,10 +84,10 @@ background (requires ``pyvista`` and ``scikit-image``).
 ~~~~~~~~~~~~~~~~~~~
 
 .. figure:: ../_static/images/examples/graph_habitat_surface_3d.png
-   :alt: Off-screen PyVista surface render of three synthetic habitats
+   :alt: Off-screen PyVista surface render of demo subj001 habitats
    :width: 520
 
-   Marching-cubes habitat surfaces
+   Marching-cubes habitat surfaces from the cropped demo ROI
    (:func:`~habit.viz.render_habitat_graph_surface_3d`).
 
 3D spatial network
