@@ -49,7 +49,7 @@ Also: habitat **graph topology** features — :doc:`how_to/graph_features`
 
 .. toctree::
    :maxdepth: 2
-   :caption: Feature reference
+   :caption: Features from habitat maps
 
    reference/features/index
 

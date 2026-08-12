@@ -1,7 +1,9 @@
-Feature reference
-=================
+Features from habitat maps
+==========================
 
-HABIT-native feature definitions, formulas, and output CSV columns. PyRadiomics features: `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_ .
+HABIT-native definitions, formulas, and output CSV columns for features
+extracted **on habitat maps** (after habitats exist). PyRadiomics ROI/voxel
+feature catalogues: `PyRadiomics Feature Reference <https://pyradiomics.readthedocs.io/en/latest/features.html>`_ .
 
 Each page: **Output** → **Definition** → **Formula** (if any) → **Output columns** → **Implementation** → **References** (if any).
 
@@ -45,7 +47,7 @@ as a ``feature_types`` CSV family.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Habitat features
+   :caption: Features from habitat maps
 
    msi
    ith_score

@@ -40,7 +40,7 @@ hand-edit them). Users materialize with `habit copy-demo-config` /
 | Tutorial | `tutorial/` |
 | How-to | `how_to/` |
 | Configuration | `configuration/` |
-| Feature reference | `reference/features/` |
+| Features from habitat maps | `reference/features/` |
 | CLI / auxiliary | `reference/cli.rst`, `reference/auxiliary.rst` |
 | API (autodoc) | `api/` |
 | Developer | `development/`, `customization/` |

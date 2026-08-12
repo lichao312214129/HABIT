@@ -38,53 +38,53 @@ The numbered modules below are the reading order. Sphinx **Next** / **Previous**
 and the sidebar follow the single hidden ``toctree`` at the bottom of this page
 (same order as this map).
 
-Featured — graph topology
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Featured: graph features from habitat maps
+------------------------------------------
 
-Built-in habitat **graph** features (nodes, edges, metrics) with publication
-figures from real ``demo_data`` (subj001 two-step habitats + LAP overlay).
+One subject → one-step habitats → built-in **graph** topology features and
+publication figures.
 
 * How-to (YAML / CLI / API): :doc:`../how_to/graph_features`
-* Runnable example + 2D/3D gallery: :doc:`graph_features`
+* Runnable example + gallery: :doc:`graph_features`
 * Column reference: :doc:`../reference/features/graph`
 
 .. figure:: ../_static/images/examples/graph_habitat_slice_2d.png
-   :alt: Demo subj001 LAP slice with habitat overlay for graph features
+   :alt: One-step habitat overlay used by the graph features example
    :width: 420
    :target: graph_features.html
 
-   Demo ``subj001`` habitat overlay used by :doc:`graph_features`.
+   Habitat overlay from :doc:`graph_features`.
 
-Featured — voxel texture maps
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Featured: voxel texture maps
+----------------------------
 
-Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
-``VoxelFeatureField`` columns) with publication 2D slices from real
-``demo_data`` (subj001 LAP + ROI).
+Voxel-level **texture** (local entropy + a small GLCM set via
+``voxel_radiomics``) with ``side_by_side`` figures: anatomy + ROI contour |
+texture map.
 
 * How-to: :doc:`../how_to/voxel_texture`
 * Runnable example + gallery: :doc:`voxel_texture`
 
 .. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Demo subj001 LAP anatomy beside local-entropy texture map
+   :alt: Anatomy with ROI contour beside local-entropy texture map
    :width: 420
    :target: voxel_texture.html
 
-   Demo ``subj001`` local-entropy panels used by :doc:`voxel_texture`.
+   Local-entropy panels from :doc:`voxel_texture`.
 
-1. Data & cohorts
-~~~~~~~~~~~~~~~~~
+1. Data and cohorts
+-------------------
 
 * :doc:`data_from_arrays`
 
 2. Image preprocessing
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 * :doc:`image_preprocessing`
 * :doc:`image_preprocessing_api`
 
 3. Habitat analysis (core)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 * :doc:`habitat_analysis_overview`
 * :doc:`two_step_habitat`
@@ -95,19 +95,10 @@ Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
 * :doc:`habitat_atomic_ops`
 * :doc:`habitat_custom_pipeline`
 
-4. Graph topology features
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+4. Habitat design (Spec and voxel inputs)
+-----------------------------------------
 
-* :doc:`graph_features` — kernel + domain API; demo_data figures (2D + 3D)
-
-5. Voxel texture maps
-~~~~~~~~~~~~~~~~~~~~~
-
-* :doc:`voxel_texture` — local entropy + ``plot_voxel_texture_slice``; demo_data figures
-
-6. Habitat design (Spec & features)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+* :doc:`voxel_texture` — local entropy + GLCM maps; anatomy + ROI contour plots
 * :doc:`feature_composition`
 * :doc:`habitat_feature_routes`
 * :doc:`habitat_preprocessing`
@@ -115,50 +106,57 @@ Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
 * :doc:`precise_features`
 * :doc:`custom_voxel_features`
 
-7. Quantification
-~~~~~~~~~~~~~~~~~
+5. Features from habitat maps
+-----------------------------
 
-* :doc:`feature_extraction`
+Quantification **on habitat labels** (see also
+:doc:`../reference/features/index`).
+
+* :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
+* :doc:`feature_extraction` — light families + radiomics extract recipes
 * :doc:`features_radiomics_api`
 
-8. Machine learning
-~~~~~~~~~~~~~~~~~~~
+6. Machine learning
+-------------------
 
 * :doc:`tabular_ml`
 * :doc:`tabular_ml_api`
 * :doc:`ml_advanced`
 
-9. Visualization
-~~~~~~~~~~~~~~~~
+7. Visualization
+----------------
 
 * :doc:`visualization`
 * :doc:`viz_parallel_extras_api`
 
-10. Persistence & provenance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8. Persistence and provenance
+-----------------------------
 
 * :doc:`persistence`
 * :doc:`provenance_methods`
 
-11. Execution & reliability
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+9. Execution and reliability
+----------------------------
 
 * :doc:`parallel_execution`
 * :doc:`fault_tolerance`
 
-12. Extending HABIT
-~~~~~~~~~~~~~~~~~~~
+10. Extending HABIT
+-------------------
 
 * :doc:`plugin_entry_points`
 
-13. YAML & CLI shells
-~~~~~~~~~~~~~~~~~~~~~
+11. YAML and CLI shells
+-----------------------
 
 * :doc:`run_from_yaml`
 * :doc:`cli_yaml_workflows`
 
-14. QC & auxiliary
-~~~~~~~~~~~~~~~~~~
+12. Quality control, plugins, and auxiliary tools
+-------------------------------------------------
+
+Cohort assembly, plugin listing, Dice / ICC / DICOM helpers, and config
+check/migrate twins of the CLI — not cryptic “QC” shorthand.
 
 * :doc:`cohort_plugins_auxiliary`
 
@@ -177,7 +175,6 @@ Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
    apply_saved_model
    habitat_atomic_ops
    habitat_custom_pipeline
-   graph_features
    voxel_texture
    feature_composition
    habitat_feature_routes
@@ -185,6 +182,7 @@ Voxel-level **texture** (local entropy; also densified ``voxel_radiomics`` /
    habitat_preprocessing_api
    precise_features
    custom_voxel_features
+   graph_features
    feature_extraction
    features_radiomics_api
    tabular_ml

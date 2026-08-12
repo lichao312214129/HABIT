@@ -1,87 +1,58 @@
-Voxel texture maps (demo_data)
-==============================
+Voxel texture maps
+==================
 
-**Level:** atomic · **Data:** ``demo_data`` · **Extras:** ``[viz]`` ·
-**Time:** ~10–40 s
+**Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]``;
+PyRadiomics for GLCM · **Time:** ~10–90 s
 
-This demo loads real **subj001** LAP anatomy + ROI mask from local
-``demo_data/`` (not shipped in git), computes **local entropy** (fast built-in
-texture; not PyRadiomics), and regenerates the gallery PNGs. The same plotter
-accepts densified ``voxel_radiomics`` / custom ``VoxelFeatureField`` columns.
+End-to-end: load one subject → compute **several** voxel-level maps
+(fast :func:`~habit.local_entropy_map` plus a small ``voxel_radiomics`` GLCM
+set) → plot with :func:`~habit.viz.plot_voxel_texture_slice`.
 
-**Default inputs** (first existing path wins):
-
-* Image: ``demo_data/preprocessed/images/subj001/LAP/...Series0009.nrrd``
-* Mask: ``demo_data/preprocessed/masks/subj001/LAP/..._mask.nrrd``
-
-If ``demo_data`` is missing, the script exits with a clear error. Committed
-PNGs below were generated on the maintainer machine so readers still see
-real-data figures without a local copy.
+Default layout is ``mode="side_by_side"``: **anatomy + ROI contour** on the
+left, **texture map** on the right (no alpha-blended texture on anatomy).
 
 Script
 ------
 
 .. literalinclude:: scripts/voxel_texture_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
-Run from the repository root (one line; regenerates the gallery PNGs below)::
+Run from the repository root (one line)::
 
    python docs/source/examples/scripts/voxel_texture_demo.py
 
-What it shows
--------------
-
-1. **Kernel path** — :func:`~habit.local_entropy_map` (arrays in, dense map out).
-2. **Domain path** —
-   :meth:`~habit.domain.VoxelFeatureExtractorRegistry.create`\ ``("local_entropy", ...)``
-   → :func:`~habit.viz.dense_voxel_feature_map`.
-3. **Publication figures** — :func:`~habit.viz.plot_voxel_texture_slice` with
-   :func:`~habit.viz.use_style` (``radiology`` / ``nature``). Volumes are
-   cropped to the padded ROI bbox before rendering.
-
-For the how-to narrative see :doc:`../how_to/voxel_texture`. For habitat
-**graph** topology figures (nodes/edges on habitat maps) see
-:doc:`graph_features`.
-
-Publication figures
--------------------
-
-The demo writes English-labelled PNGs under
-``docs/source/_static/images/examples/``.
-
-Side-by-side (anatomy | texture)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Local entropy (anatomy | texture)
+---------------------------------
 
 .. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Demo subj001 LAP anatomy next to local-entropy map
+   :alt: Anatomy with ROI contour beside local-entropy map
    :width: 720
 
-   Densest axial slice: greyscale LAP and local entropy inside the ROI
-   (:func:`~habit.viz.plot_voxel_texture_slice`, ``mode="side_by_side"``).
+   Left: greyscale anatomy with ROI outline. Right: local entropy inside the ROI.
 
-Overlay on anatomy
-~~~~~~~~~~~~~~~~~~
+GLCM Contrast (anatomy | texture)
+---------------------------------
 
 .. figure:: ../_static/images/examples/voxel_texture_overlay.png
-   :alt: Local entropy translucent overlay on LAP anatomy
-   :width: 480
+   :alt: Anatomy with ROI contour beside GLCM Contrast map
+   :width: 720
 
-   Same slice with ``mode="overlay"`` and the ``nature`` style preset.
+   Same layout for a densified ``voxel_radiomics`` GLCM Contrast column.
 
-Orthogonal triptych
-~~~~~~~~~~~~~~~~~~~
+Orthogonal local entropy
+------------------------
 
 .. figure:: ../_static/images/examples/voxel_texture_orthogonal.png
-   :alt: Orthogonal local-entropy panels for demo subj001
+   :alt: Orthogonal local-entropy side-by-side panels
    :width: 520
 
-   Three orthogonal planes through the densest ROI support (default 3D
-   layout when ``axis`` is omitted).
+   Three orthogonal planes (anatomy + contour | entropy) when ``axis`` is omitted.
 
-Also see
---------
+What to read next
+-----------------
 
-* How-to: :doc:`../how_to/voxel_texture`
-* API: :func:`~habit.viz.plot_voxel_texture_slice`,
-  :func:`~habit.viz.dense_voxel_feature_map`,
-  :func:`~habit.kernels.local_entropy_map`
+* :doc:`../how_to/voxel_texture` — layouts and registry path
+* :doc:`graph_features` — graph topology **on habitat maps** (different product)
+* :doc:`habitat_feature_routes` — using voxel textures inside habitat recipes

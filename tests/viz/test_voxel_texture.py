@@ -130,6 +130,8 @@ def test_plot_voxel_texture_slice_returns_figure_and_saves(tmp_path) -> None:
     )
     assert joined.isascii()
     assert "entropy" in joined.lower() or "Anatomy" in joined
+    # side_by_side draws ROI as contour collections (not a filled alpha mask).
+    assert any(getattr(ax, "collections", None) for ax in fig.axes)
 
     import matplotlib.pyplot as plt
 

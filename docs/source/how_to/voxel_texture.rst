@@ -1,61 +1,54 @@
 Voxel texture feature maps
 ==========================
 
-Goal: compute and display **voxel-level texture** maps (local neighbourhood
-entropy, or densified ``voxel_radiomics`` / custom ``VoxelFeatureField``
-columns) as publication 2D slices.
+Goal: compute and display **voxel-level texture** maps — local neighbourhood
+entropy and densified ``voxel_radiomics`` columns (e.g. GLCM) — as publication
+2D slices.
 
-``local_entropy`` is a built-in voxel feature extractor (fast; no
-PyRadiomics). Heavy per-voxel radiomics maps use the same plotter once you
-have a dense volume or a :class:`~habit.contracts.habitat.VoxelFeatureField`.
+``local_entropy`` is a built-in extractor (fast; no PyRadiomics).
+``voxel_radiomics`` uses PyRadiomics / TorchRadiomics for per-voxel maps; keep
+the enabled ``featureClass`` list small for interactive demos.
 
-Runnable gallery (demo_data figures):
-:doc:`../examples/voxel_texture`.
+Runnable gallery: :doc:`../examples/voxel_texture`.
 
-Python API
-----------
+Python API (sklearn-short)
+--------------------------
 
-Kernel path (arrays in, same-shaped map out)::
+::
 
+   import habit.domain
    from habit import local_entropy_map
-   from habit.viz import plot_voxel_texture_slice, use_style
+   from habit.domain import VoxelFeatureExtractorRegistry
+   from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice, use_style
 
    entropy = local_entropy_map(image, kernel_size=5, bins=32)
+   field = VoxelFeatureExtractorRegistry.create(
+       "voxel_radiomics",
+       modality="LAP",
+       kernel_radius=1,
+       params={
+           "imageType": {"Original": {}},
+           "featureClass": {"glcm": ["Contrast", "Correlation", "JointEntropy"]},
+           "setting": {"binWidth": 25},
+       },
+   )(subject)
+   contrast = dense_voxel_feature_map(
+       field, next(n for n in field.feature_names if "Contrast" in n)
+   )
+
    with use_style("radiology"):
        fig = plot_voxel_texture_slice(
            entropy,
            anatomy=image,
            roi_mask=mask,
            axis=0,
-           mode="side_by_side",
+           mode="side_by_side",  # anatomy + ROI contour | texture
            feature_label="Local entropy (bits)",
        )
-   # caller owns fig.savefig(...)
 
-Domain path (``Subject`` → ``VoxelFeatureField`` → dense map)::
-
-   import habit.domain  # registers built-ins
-   from habit.domain import VoxelFeatureExtractorRegistry
-   from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice
-
-   fx = VoxelFeatureExtractorRegistry.create(
-       "local_entropy",
-       modality="LAP",
-       kernel_size=5,
-       bins=32,
-   )
-   field = fx(subject)
-   dense = dense_voxel_feature_map(field, "local_entropy-LAP")
-   fig = plot_voxel_texture_slice(
-       field,  # or dense
-       anatomy=subject.image("LAP").data,
-       feature="local_entropy-LAP",
-       mode="overlay",
-   )
-
-``voxel_radiomics`` (and any other extractor that returns a
-``VoxelFeatureField``) uses the same densify + plot path — pick the feature
-column by name or index.
+``mode="side_by_side"`` (default) draws the ROI as a **contour** on the anatomy
+panel; the texture map is a separate panel (no alpha blend onto anatomy).
+``mode="overlay"`` still exists for translucent texture-on-anatomy when needed.
 
 Layouts
 -------
@@ -63,17 +56,17 @@ Layouts
 :func:`~habit.viz.plot_voxel_texture_slice` is **2D-slice only** (matplotlib
 ``[viz]`` extra):
 
-* ``mode="side_by_side"`` — anatomy | feature (default)
+* ``mode="side_by_side"`` — anatomy + ROI contour | feature (recommended)
 * ``mode="overlay"`` — translucent feature on greyscale anatomy
 * ``mode="feature_only"`` — feature map alone
 
-For 3D volumes, omit ``axis`` to get three orthogonal panels through the
-densest ROI slice. There is no built-in 3D volume renderer for texture maps;
-use ITK-SNAP / 3D Slicer / napari if you need full volumetric browsing.
+Omit ``axis`` on 3D volumes for three orthogonal panel rows. There is no
+built-in 3D volume renderer for texture maps; use ITK-SNAP / 3D Slicer / napari
+for full volumetric browsing.
 
 Also see
 --------
 
 * Examples gallery: :doc:`../examples/voxel_texture`
 * Kernel: :func:`~habit.kernels.local_entropy_map`
-* Habitat graph figures (different product): :doc:`graph_features`
+* Habitat-map graph figures: :doc:`graph_features`

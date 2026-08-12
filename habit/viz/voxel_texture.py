@@ -437,6 +437,40 @@ def _masked_feature_slice(
     return np.ma.array(data, mask=mask)
 
 
+def _draw_roi_contour(
+    ax,
+    roi_slice: Optional[np.ndarray],
+    *,
+    extent: Tuple[float, float, float, float],
+    color: str = "#00E5FF",
+    linewidth: float = 1.35,
+) -> None:
+    """
+    Draw the ROI as a closed outline (not a filled alpha overlay).
+
+    Args:
+        ax: Matplotlib axes already showing anatomy or a feature map.
+        roi_slice: 2D ROI mask (``> 0`` inside); ``None`` or empty skips.
+        extent: Same physical ``imshow`` extent as the underlay.
+        color: Contour colour (default cyan; English figures only).
+        linewidth: Contour line width in points.
+    """
+    if roi_slice is None:
+        return
+    binary = (np.asarray(roi_slice) > 0).astype(np.float64)
+    if not np.any(binary):
+        return
+    # Match imshow(origin='upper', extent=...) so the outline sits on the ROI.
+    ax.contour(
+        binary,
+        levels=[0.5],
+        colors=[color],
+        linewidths=float(linewidth),
+        origin="upper",
+        extent=extent,
+    )
+
+
 def _draw_single_axis_figure(
     *,
     anatomy: Optional[np.ndarray],
@@ -454,6 +488,8 @@ def _draw_single_axis_figure(
     direction: Optional[np.ndarray],
     convention: DisplayConvention,
     spacing_xyz: Sequence[float],
+    roi_contour: bool,
+    feature_contour: bool,
 ) -> "Figure":
     """Build a one- or two-panel figure for a single orthogonal slice."""
     plt = _plt()
@@ -500,6 +536,8 @@ def _draw_single_axis_figure(
             extent=extent,
             aspect="equal",
         )
+        if roi_contour or feature_contour:
+            _draw_roi_contour(ax, roi_slice, extent=extent)
         ax.set_aspect("equal", adjustable="box")
         ax.set_title(
             sanitize_label(title if title is not None else default_title)
@@ -517,6 +555,8 @@ def _draw_single_axis_figure(
     )
 
     if mode == "overlay":
+        # Kept for callers who want a blended view; gallery demos prefer
+        # side_by_side with an ROI contour instead of alpha texture on anatomy.
         fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
         ax.imshow(
             anat_slice,
@@ -537,6 +577,8 @@ def _draw_single_axis_figure(
             extent=extent,
             aspect="equal",
         )
+        if roi_contour:
+            _draw_roi_contour(ax, roi_slice, extent=extent)
         ax.set_aspect("equal", adjustable="box")
         ax.set_title(
             sanitize_label(title if title is not None else default_title)
@@ -546,7 +588,7 @@ def _draw_single_axis_figure(
         cbar.set_label(sanitize_label(feature_label))
         return fig
 
-    # side_by_side
+    # side_by_side: anatomy (+ ROI outline) | texture map (no alpha blend)
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 5.0), constrained_layout=True)
     axes[0].imshow(
         anat_slice,
@@ -556,8 +598,10 @@ def _draw_single_axis_figure(
         extent=extent,
         aspect="equal",
     )
+    if roi_contour:
+        _draw_roi_contour(axes[0], roi_slice, extent=extent)
     axes[0].set_aspect("equal", adjustable="box")
-    axes[0].set_title(sanitize_label("Anatomy"))
+    axes[0].set_title(sanitize_label("Anatomy + ROI contour"))
     axes[0].axis("off")
 
     image = axes[1].imshow(
@@ -570,6 +614,8 @@ def _draw_single_axis_figure(
         extent=extent,
         aspect="equal",
     )
+    if feature_contour:
+        _draw_roi_contour(axes[1], roi_slice, extent=extent)
     axes[1].set_aspect("equal", adjustable="box")
     axes[1].set_title(sanitize_label(feature_label))
     axes[1].axis("off")
@@ -598,6 +644,8 @@ def _draw_triptych(
     direction: Optional[np.ndarray],
     convention: DisplayConvention,
     spacing_xyz: Sequence[float],
+    roi_contour: bool,
+    feature_contour: bool,
 ) -> "Figure":
     """Three orthogonal panels through the densest support region."""
     plt = _plt()
@@ -657,8 +705,12 @@ def _draw_triptych(
                 extent=extent,
                 aspect="equal",
             )
+            if roi_contour:
+                _draw_roi_contour(axes[axis_id, 0], roi_slice, extent=extent)
             axes[axis_id, 0].set_aspect("equal", adjustable="box")
-            axes[axis_id, 0].set_title(sanitize_label(f"Anatomy — {row_title}"))
+            axes[axis_id, 0].set_title(
+                sanitize_label(f"Anatomy + ROI contour — {row_title}")
+            )
             axes[axis_id, 0].axis("off")
             image = axes[axis_id, 1].imshow(
                 masked,
@@ -670,6 +722,8 @@ def _draw_triptych(
                 extent=extent,
                 aspect="equal",
             )
+            if feature_contour:
+                _draw_roi_contour(axes[axis_id, 1], roi_slice, extent=extent)
             axes[axis_id, 1].set_aspect("equal", adjustable="box")
             axes[axis_id, 1].set_title(
                 sanitize_label(f"{feature_label} — {row_title}")
@@ -702,6 +756,8 @@ def _draw_triptych(
                 extent=extent,
                 aspect="equal",
             )
+            if roi_contour:
+                _draw_roi_contour(axes[axis_id, 0], roi_slice, extent=extent)
             axes[axis_id, 0].set_aspect("equal", adjustable="box")
             axes[axis_id, 0].set_title(
                 sanitize_label(f"{feature_label} — {row_title}")
@@ -719,6 +775,8 @@ def _draw_triptych(
                 extent=extent,
                 aspect="equal",
             )
+            if roi_contour or feature_contour:
+                _draw_roi_contour(axes[axis_id, 0], roi_slice, extent=extent)
             axes[axis_id, 0].set_aspect("equal", adjustable="box")
             axes[axis_id, 0].set_title(
                 sanitize_label(f"{feature_label} — {row_title}")
@@ -751,6 +809,8 @@ def plot_voxel_texture_slice(
     direction: Optional[Sequence[float]] = None,
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+    roi_contour: bool = True,
+    feature_contour: bool = True,
 ) -> "Figure":
     """
     Display a voxel-level texture / feature map as 2D publication panels.
@@ -758,9 +818,12 @@ def plot_voxel_texture_slice(
     Accepts either a dense 2D/3D map (e.g. output of
     :func:`~habit.kernels.local_entropy_map`) or a sparse
     :class:`~habit.contracts.habitat.VoxelFeatureField` (e.g. from the
-    ``local_entropy`` / ``voxel_radiomics`` extractors). Optional anatomy is
-    shown side-by-side or as a translucent underlay. Outside-ROI / non-finite
-    voxels stay transparent.
+    ``local_entropy`` / ``voxel_radiomics`` extractors). Prefer
+    ``mode=\"side_by_side\"``: left panel is raw anatomy with an ROI **contour**
+    (outline, not a filled mask overlay); right panel is the texture map alone
+    (optionally with the same contour). ``mode=\"overlay\"`` remains available
+    for translucent texture-on-anatomy but is not the recommended gallery path.
+    Outside-ROI / non-finite voxels stay transparent on the feature panel.
 
     For 3D volumes the default is three orthogonal panels through the densest
     ROI (or densest finite-feature) slice. Pass ``axis`` / ``index`` to pin one
@@ -774,9 +837,9 @@ def plot_voxel_texture_slice(
         feature_map: Dense feature volume, or a ``VoxelFeatureField``. Objects
             with a ``.data`` attribute (e.g. ``ImageVolume``) are also accepted
             as dense maps.
-        anatomy: Optional greyscale underlay / companion panel (same shape).
+        anatomy: Optional greyscale companion panel (same shape).
         roi_mask: Optional ROI mask (``> 0`` inside). Used for auto slice
-            selection and to hide outside-ROI feature values.
+            selection, to hide outside-ROI feature values, and for contours.
         feature: Column name or index when ``feature_map`` is a field.
         axis: If set, draw only this NumPy axis (``0``, ``1``, or ``2``).
         index: Slice index along ``axis``; densest support when omitted.
@@ -793,6 +856,10 @@ def plot_voxel_texture_slice(
         spacing: Optional SimpleITK voxel spacing ``(x, y[, z])`` in mm.
         display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
             or ``\"native\"``.
+        roi_contour: When ``True`` and ``roi_mask`` is set, draw the ROI as a
+            cyan outline on the anatomy panel (``side_by_side`` / ``overlay``).
+        feature_contour: When ``True`` and ``roi_mask`` is set, also outline
+            the ROI on the feature panel.
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -896,6 +963,8 @@ def plot_voxel_texture_slice(
             direction=direction_matrix,
             convention=convention,
             spacing_xyz=spacing_xyz,
+            roi_contour=bool(roi_contour),
+            feature_contour=bool(feature_contour),
         )
 
     return _draw_triptych(
@@ -913,4 +982,6 @@ def plot_voxel_texture_slice(
         direction=direction_matrix,
         convention=convention,
         spacing_xyz=spacing_xyz,
+        roi_contour=bool(roi_contour),
+        feature_contour=bool(feature_contour),
     )
