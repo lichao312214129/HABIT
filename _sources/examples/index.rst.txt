@@ -75,6 +75,7 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
 ~~~~~~~~~~~~~~~~~
 
 * :doc:`feature_extraction`
+* :doc:`graph_features`
 * :doc:`features_radiomics_api`
 
 6. Machine learning
@@ -140,6 +141,7 @@ and the sidebar follow the single hidden ``toctree`` at the bottom of this page
    precise_features
    custom_voxel_features
    feature_extraction
+   graph_features
    features_radiomics_api
    tabular_ml
    tabular_ml_api

@@ -235,20 +235,34 @@ Domain: ``habitat_feature_extractor``
    msi = HabitatFeatureExtractorRegistry.create("msi")
    ith = HabitatFeatureExtractorRegistry.create("ith_score")
    vol = HabitatFeatureExtractorRegistry.create("volume")
+   # Built-in graph topology family (not a private plugin).
+   graph = HabitatFeatureExtractorRegistry.create(
+       "graph",
+       edge_method="centroid_distance",
+       distance_threshold=5.0,
+   )
    non_rad = HabitatFeatureExtractorRegistry.create("non_radiomics")
    trad = HabitatFeatureExtractorRegistry.create("traditional")
    whole = HabitatFeatureExtractorRegistry.create("whole_habitat")
    each = HabitatFeatureExtractorRegistry.create("each_habitat")
 
    table = msi(subject, habitat_map)
+   graph_table = graph(subject, habitat_map)
 
 * ``msi`` → ``MsiHabitatFeatures``
 * ``ith_score`` → ``IthHabitatFeatures``
 * ``volume`` → ``HabitatVolumeFeatures``
+* ``graph`` → ``GraphHabitatFeatures`` (built-in; see
+  :doc:`../reference/features/graph`)
 * ``non_radiomics`` → ``NonRadiomicsHabitatFeatures``
 * ``traditional`` → ``TraditionalRadiomicsHabitatFeatures``
 * ``whole_habitat`` → ``WholeHabitatRadiomicsFeatures``
 * ``each_habitat`` → ``EachHabitatRadiomicsFeatures``
+
+For array-only callers, use the public kernel helpers
+:func:`~habit.extract_graph_features` /
+:class:`~habit.HabitatGraphFeatureOptions` (same numeric definitions). Prefer
+this domain / kernel path over deprecated ``habit.compat.graph_plugin`` shims.
 
 ``SubjectPipeline``
 -------------------

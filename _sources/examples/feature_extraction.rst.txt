@@ -4,10 +4,14 @@ Habitat and radiomics feature extraction
 Two extraction paths:
 
 1. **After habitat maps exist** — :func:`~habit.recipes.extract_habitat_features`
-   computes ``traditional``, ``non_radiomics``, ``whole_habitat``,
-   ``each_habitat``, ``msi``, and ``ith_score`` families from NRRD maps.
+   computes light families (``volume``, ``msi``, ``ith_score``, ``non_radiomics``,
+   built-in ``graph``) and optional heavy radiomics (``traditional``,
+   ``whole_habitat``, ``each_habitat``) from NRRD maps.
 2. **Standalone ROI radiomics** — :func:`~habit.recipes.traditional_radiomics`
    extracts PyRadiomics features without habitat segmentation.
+
+For a synthetic (no ``demo_data/``) walkthrough of the ``graph`` family alone,
+see :doc:`graph_features`.
 
 Habitat extraction example
 ----------------------------

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -8,20 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ModelComparisonConfig &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
-      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=39329a72" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.api.machine_learning.ModelComparisonConfig.html" />
-      <script src="../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=cb7bf70b"></script>
-      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="../../_static/copybutton.js?v=f281be69"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=cb7bf70b"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -40,6 +39,9 @@
           <a href="../../index.html" class="icon icon-home">
             HABIT
           </a>
+              <div class="version">
+                1.1.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -114,6 +116,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/extract_features.html">Feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/extract_features.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/extract_features.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/extract_features.html#graph-topology-features-built-in">Graph topology features (built-in)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/extract_features.html#cli-yaml">CLI / YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/extract_features.html#python-api">Python API</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/radiomics.html">Traditional radiomics</a><ul>
@@ -170,6 +177,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../examples/graph_features.html">Graph topology features (synthetic)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
@@ -306,6 +314,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#notes">Notes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
 </ul>
@@ -534,6 +552,8 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.IthHabitatFeaturesParams.html">IthHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.MsiHabitatFeaturesParams.html">MsiHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GraphHabitatFeatures.html">GraphHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GraphHabitatFeaturesParams.html">GraphHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
@@ -793,6 +813,13 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.ith_score.html">ith_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#classification-and-agreement-statistics">Classification and agreement statistics</a><ul>
@@ -876,6 +903,10 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1092,6 +1123,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#habitat-metrics">Habitat metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../kernels.html#classification-statistics">Classification statistics</a></li>
@@ -1318,7 +1350,7 @@
 <h1>ModelComparisonConfig<a class="headerlink" href="#modelcomparisonconfig" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="habit.api.machine_learning.ModelComparisonConfig">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ModelComparisonConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">config_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">config_version:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">output_dir:</span> <span class="pre">str,</span> <span class="pre">files_config:</span> <span class="pre">~typing.Annotated[~typing.List[~habit.schemas.workflows.ml.ComparisonFileConfig],</span> <span class="pre">~annotated_types.MinLen(min_length=1)],</span> <span class="pre">merged_data:</span> <span class="pre">~habit.schemas.workflows.ml.MergedDataConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">split:</span> <span class="pre">~habit.schemas.workflows.ml.SplitConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">visualization:</span> <span class="pre">~habit.schemas.workflows.ml.ComparisonVisualizationConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">delong_test:</span> <span class="pre">~habit.schemas.workflows.ml.DelongTestConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">metrics:</span> <span class="pre">~habit.schemas.workflows.ml.MetricsConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">**data:</span> <span class="pre">~typing.Any</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/schemas/workflows/ml.html#ModelComparisonConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.api.machine_learning.ModelComparisonConfig" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ModelComparisonConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">config_file:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">config_version:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">output_dir:</span> <span class="pre">str,</span> <span class="pre">files_config:</span> <span class="pre">~typing.Annotated[~typing.List[~habit.schemas.workflows.ml.ComparisonFileConfig],</span> <span class="pre">~annotated_types.MinLen(min_length=1)],</span> <span class="pre">merged_data:</span> <span class="pre">~habit.schemas.workflows.ml.MergedDataConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">split:</span> <span class="pre">~habit.schemas.workflows.ml.SplitConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">visualization:</span> <span class="pre">~habit.schemas.workflows.ml.ComparisonVisualizationConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">delong_test:</span> <span class="pre">~habit.schemas.workflows.ml.DelongTestConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">metrics:</span> <span class="pre">~habit.schemas.workflows.ml.MetricsConfig</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">**data:</span> <span class="pre">~typing.Any</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/habit/schemas/workflows/ml.html#ModelComparisonConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.api.machine_learning.ModelComparisonConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></p>
 </dd></dl>
 

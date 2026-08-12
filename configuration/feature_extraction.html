@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -8,20 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feature Extraction Configuration &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
-      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=39329a72" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/configuration/feature_extraction.html" />
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="../_static/copybutton.js?v=f281be69"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -40,6 +39,9 @@
           <a href="../index.html" class="icon icon-home">
             HABIT
           </a>
+              <div class="version">
+                1.1.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -114,6 +116,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/extract_features.html">Feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#graph-topology-features-built-in">Graph topology features (built-in)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/extract_features.html#cli-yaml">CLI / YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/extract_features.html#python-api">Python API</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
@@ -170,6 +177,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/precise_features.html">Precise features: screen before you cluster</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../examples/graph_features.html">Graph topology features (synthetic)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
@@ -306,6 +314,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#notes">Notes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
 </ul>
@@ -534,6 +552,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.IthHabitatFeaturesParams.html">IthHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MsiHabitatFeaturesParams.html">MsiHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GraphHabitatFeatures.html">GraphHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GraphHabitatFeaturesParams.html">GraphHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
@@ -793,6 +813,13 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.ith_score.html">ith_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#classification-and-agreement-statistics">Classification and agreement statistics</a><ul>
@@ -876,6 +903,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1092,6 +1123,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#habitat-metrics">Habitat metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/kernels.html#classification-statistics">Classification statistics</a></li>
@@ -1333,10 +1365,19 @@
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">msi</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ith_score</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_radiomics</span>
+<span class="w">  </span><span class="c1"># Built-in graph topology family (opt-in light family):</span>
+<span class="w">  </span><span class="c1"># - graph</span>
 <span class="w">  </span><span class="c1"># Heavy PyRadiomics families (opt-in; require pyradiomics):</span>
 <span class="w">  </span><span class="c1"># - traditional</span>
 <span class="w">  </span><span class="c1"># - whole_habitat</span>
 <span class="w">  </span><span class="c1"># - each_habitat</span>
+
+<span class="c1"># Optional settings when feature_types includes graph (stripped before</span>
+<span class="c1"># FeatureExtractionConfig validation; see GraphFeatureBlock):</span>
+<span class="c1"># graph:</span>
+<span class="c1">#   edge_method: centroid_distance</span>
+<span class="c1">#   distance_threshold: 5.0</span>
+<span class="c1">#   visualize: false</span>
 
 <span class="nt">n_habitats</span><span class="p">:</span>
 
@@ -1414,9 +1455,46 @@ habitat <a class="reference internal" href="../api/generated/habit.execution.Pro
 <li><p><strong>Required</strong>: yes</p></li>
 <li><p><strong>Default</strong>: none (required; at least one item)</p></li>
 <li><p><strong>Description</strong>: types not in the list are not extracted</p></li>
-<li><p><strong>Allowed values</strong>: <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">traditional</span></code>, <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code></p></li>
-<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">[volume,</span> <span class="pre">msi,</span> <span class="pre">ith_score,</span> <span class="pre">non_radiomics]</span></code> (uncomment heavy radiomics when needed)</p></li>
+<li><p><strong>Allowed values</strong>: <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>, <code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code>, <code class="docutils literal notranslate"><span class="pre">traditional</span></code>, <code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code>, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code></p></li>
+<li><p><strong>Example</strong>: <code class="docutils literal notranslate"><span class="pre">[volume,</span> <span class="pre">msi,</span> <span class="pre">ith_score,</span> <span class="pre">non_radiomics]</span></code> (add <code class="docutils literal notranslate"><span class="pre">graph</span></code> or heavy radiomics when needed)</p></li>
 <li><p><strong>Meanings and references per type</strong>: see <a class="reference internal" href="../reference/features/index.html"><span class="doc">Feature reference</span></a></p></li>
+</ul>
+<p><strong>graph</strong>: optional top-level block for the built-in graph topology family</p>
+<ul class="simple">
+<li><p><strong>Type</strong>: mapping (validated as <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code>)</p></li>
+<li><p><strong>Required</strong>: no (defaults apply when <code class="docutils literal notranslate"><span class="pre">graph</span></code> is listed in <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> without a block)</p></li>
+<li><p><strong>Description</strong>: extraction options mirror
+<a class="reference internal" href="../api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams" title="habit.domain.GraphHabitatFeaturesParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphHabitatFeaturesParams</span></code></a>; visualization fields are
+consumed by the extract recipe only. <code class="docutils literal notranslate"><span class="pre">graph</span></code> is a <strong>built-in</strong> family — not
+a private plugin. Prefer domain / API paths; <code class="docutils literal notranslate"><span class="pre">habit.compat.graph_plugin</span></code> is
+deprecated.</p></li>
+<li><p><strong>Key extraction fields</strong> (defaults in parentheses):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>) / <code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code>: <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">adjacency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">5.0</span></code>, pixel units) — used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">face</span></code>) / <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>) — used by <code class="docutils literal notranslate"><span class="pre">adjacency</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code>: <code class="docutils literal notranslate"><span class="pre">none</span></code> | <code class="docutils literal notranslate"><span class="pre">distance</span></code> | <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> | <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">face</span></code> | <code class="docutils literal notranslate"><span class="pre">full</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables), <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">5</span></code>), <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (<code class="docutils literal notranslate"><span class="pre">0.5</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>), <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
+</ul>
+</li>
+<li><p><strong>Visualization fields</strong> (recipe hook; not part of the extractor <code class="docutils literal notranslate"><span class="pre">Spec</span></code>):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualize</span></code> (<code class="docutils literal notranslate"><span class="pre">false</span></code>) → writes <code class="docutils literal notranslate"><span class="pre">&lt;out_dir&gt;/visualizations/graph/</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_format</span></code>: <code class="docutils literal notranslate"><span class="pre">png</span></code> | <code class="docutils literal notranslate"><span class="pre">pdf</span></code> | <code class="docutils literal notranslate"><span class="pre">both</span></code> (default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_dpi</span></code> (<code class="docutils literal notranslate"><span class="pre">600</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_show_background</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>; 3D needs optional <code class="docutils literal notranslate"><span class="pre">[view]</span></code> stack)</p></li>
+</ul>
+</li>
+<li><p><strong>Legacy keys</strong> <code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code>: accepted, ignored (activation is
+<code class="docutils literal notranslate"><span class="pre">feature_types</span></code>; figures run serially in the main process)</p></li>
+<li><p><strong>Output CSV</strong>: <code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code></p></li>
+<li><p><strong>Reference</strong>: <a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a></p></li>
 </ul>
 <p><strong>n_habitats</strong>: number of habitats</p>
 <ul class="simple">

@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -8,20 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Reference &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
-      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=39329a72" />
 
   
     <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/index.html" />
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
-      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="../_static/copybutton.js?v=f281be69"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -40,6 +39,9 @@
           <a href="../index.html" class="icon icon-home">
             HABIT
           </a>
+              <div class="version">
+                1.1.3
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -114,6 +116,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/extract_features.html">Feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/extract_features.html#graph-topology-features-built-in">Graph topology features (built-in)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/extract_features.html#cli-yaml">CLI / YAML</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/extract_features.html#python-api">Python API</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/radiomics.html">Traditional radiomics</a><ul>
@@ -170,6 +177,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../examples/precise_features.html">Precise features: screen before you cluster</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../examples/graph_features.html">Graph topology features (synthetic)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../examples/tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a></li>
@@ -306,6 +314,16 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#notes">Notes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/ith_score.html#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
 </ul>
@@ -534,6 +552,8 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.IthHabitatFeaturesParams.html">IthHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MsiHabitatFeatures.html">MsiHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MsiHabitatFeaturesParams.html">MsiHabitatFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GraphHabitatFeatures.html">GraphHabitatFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GraphHabitatFeaturesParams.html">GraphHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.NonRadiomicsHabitatFeatures.html">NonRadiomicsHabitatFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
@@ -793,6 +813,13 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ith_score.html">ith_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#classification-and-agreement-statistics">Classification and agreement statistics</a><ul>
@@ -876,6 +903,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html">plot_habitat_overlay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
 </li>
@@ -1092,6 +1123,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="kernels.html">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#habitat-metrics">Habitat metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="kernels.html#graph-topology-kernels">Graph topology kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#icc-kernels">ICC kernels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#image-perturbation">Image perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="kernels.html#classification-statistics">Classification statistics</a></li>
@@ -1848,6 +1880,12 @@ two pipeline families, and <a class="reference internal" href="plugins.html"><sp
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.MsiHabitatFeaturesParams.html#habit.domain.MsiHabitatFeaturesParams" title="habit.domain.MsiHabitatFeaturesParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.MsiHabitatFeaturesParams</span></code></a>()</p></td>
 <td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">MsiHabitatFeatures</span></code> (none).</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures" title="habit.domain.GraphHabitatFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.GraphHabitatFeatures</span></code></a>([...])</p></td>
+<td><p>Graph-topology features of one subject's habitat map.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams" title="habit.domain.GraphHabitatFeaturesParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.GraphHabitatFeaturesParams</span></code></a>(*[, ...])</p></td>
+<td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphHabitatFeatures</span></code>.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.NonRadiomicsHabitatFeatures.html#habit.domain.NonRadiomicsHabitatFeatures" title="habit.domain.NonRadiomicsHabitatFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.NonRadiomicsHabitatFeatures</span></code></a>()</p></td>
 <td><p>Basic spatial features of one subject's habitat map.</p></td>
 </tr>
@@ -2522,6 +2560,27 @@ only pick up their documentation there.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.ith_score.html#habit.kernels.ith_score" title="habit.kernels.ith_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.ith_score</span></code></a>(label_array)</p></td>
 <td><p>Compute the ITH score (topological fragmentation) of a habitat map.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.HabitatGraphFeatureOptions</span></code></a>([...])</p></td>
+<td><p>Runtime options for graph-based habitat feature extraction.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features</span></code></a>(...[, ...])</p></td>
+<td><p>Extract subject-level graph features from a habitat label map.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features_for_labels.html#habit.kernels.extract_graph_features_for_labels" title="habit.kernels.extract_graph_features_for_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features_for_labels</span></code></a>(...)</p></td>
+<td><p>Extract graph features after restricting the habitat map to selected labels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes" title="habit.kernels.extract_habitat_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_habitat_nodes</span></code></a>(label_array)</p></td>
+<td><p>Convert each connected habitat region into one or more graph nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.build_centroid_distance_graph.html#habit.kernels.build_centroid_distance_graph" title="habit.kernels.build_centroid_distance_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_centroid_distance_graph</span></code></a>(...)</p></td>
+<td><p>Build a graph by connecting nodes whose centroid distance is within threshold.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.build_adjacency_graph.html#habit.kernels.build_adjacency_graph" title="habit.kernels.build_adjacency_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_adjacency_graph</span></code></a>(...[, ...])</p></td>
+<td><p>Build a graph by connecting spatially adjacent habitat-region nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.pair_count.html#habit.kernels.pair_count" title="habit.kernels.pair_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.pair_count</span></code></a>(label_count)</p></td>
+<td><p>Return the number of pairwise graphs for a given habitat-label count.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -2751,6 +2810,18 @@ panel aspect follows voxel spacing).</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_overlay</span></code></a>(image, labels, *)</p></td>
 <td><p>Draw habitat labels as a translucent colour overlay on the source image.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice" title="habit.viz.plot_habitat_graph_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_slice</span></code></a>(...[, ...])</p></td>
+<td><p>Draw the colored habitat map at the largest cross-section (2D).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_network_2d</span></code></a>(...)</p></td>
+<td><p>Draw the intra/inter habitat graphs built from the 2D slice habitat map.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_surface_3d</span></code></a>(...)</p></td>
+<td><p>Render a 3D surface view of the habitat volume (PyVista).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_network_3d</span></code></a>(...)</p></td>
+<td><p>Render the 3D feature-aligned spatial graph on a dark scene (PyVista).</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.view_habitat_napari.html#habit.viz.view_habitat_napari" title="habit.viz.view_habitat_napari"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.view_habitat_napari</span></code></a>(images, labels, *)</p></td>
 <td><p>Open (or populate) a napari viewer with image layer(s) + habitat labels.</p></td>
 </tr>
@@ -2810,7 +2881,7 @@ v1 contracts of the same name documented under <a class="reference internal" hre
 <h3>Image and geometry<a class="headerlink" href="#image-and-geometry" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryPolicy.html#habit.api.image.GeometryPolicy" title="habit.api.image.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.GeometryPolicy</span></code></a>(*values)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryPolicy.html#habit.api.image.GeometryPolicy" title="habit.api.image.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.GeometryPolicy</span></code></a>(value)</p></td>
 <td><p>Define how an image/mask geometry mismatch is handled.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryReport.html#habit.api.image.GeometryReport" title="habit.api.image.GeometryReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.GeometryReport</span></code></a>(compatible[, ...])</p></td>

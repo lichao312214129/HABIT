@@ -46,6 +46,23 @@ Output
    All figures under .../habit_viz_demo_...
    Binary ML ROC/calibration plots: see ml_advanced_demo.py (compare_models).
 
+Habitat graph topology figures
+------------------------------
+
+When extracting the built-in ``graph`` family with ``graph.visualize: true``,
+the recipe writes optional figures under ``visualizations/graph/``. The same
+construction is available as pure plotters (``[viz]``; 3D also needs
+``[view]``)::
+
+   from habit.viz import (
+       plot_habitat_graph_network_2d,
+       plot_habitat_graph_slice,
+       render_habitat_graph_network_3d,
+       render_habitat_graph_surface_3d,
+   )
+
+See :doc:`graph_features` and :doc:`../reference/features/graph`.
+
 What to read next
 -----------------
 

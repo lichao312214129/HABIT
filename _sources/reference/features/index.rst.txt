@@ -21,6 +21,9 @@ Each page: **Output** → **Definition** → **Formula** (if any) → **Output c
    * - ``ith_score``
      - ``ith_scores.csv``
      - :doc:`ith_score`
+   * - ``graph``
+     - ``habitat_graph_features.csv``
+     - :doc:`graph` (built-in topology family)
    * - ``non_radiomics``
      - ``habitat_basic_features.csv``
      - :doc:`non_radiomics`
@@ -40,3 +43,4 @@ Each page: **Output** → **Definition** → **Formula** (if any) → **Output c
    whole_each_habitat
    msi
    ith_score
+   graph

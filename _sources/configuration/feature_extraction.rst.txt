@@ -22,10 +22,19 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
      - msi
      - ith_score
      - non_radiomics
+     # Built-in graph topology family (opt-in light family):
+     # - graph
      # Heavy PyRadiomics families (opt-in; require pyradiomics):
      # - traditional
      # - whole_habitat
      # - each_habitat
+
+   # Optional settings when feature_types includes graph (stripped before
+   # FeatureExtractionConfig validation; see GraphFeatureBlock):
+   # graph:
+   #   edge_method: centroid_distance
+   #   distance_threshold: 5.0
+   #   visualize: false
 
    n_habitats:
 
@@ -102,9 +111,44 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Required**: yes
 - **Default**: none (required; at least one item)
 - **Description**: types not in the list are not extracted
-- **Allowed values**: ``volume``, ``msi``, ``ith_score``, ``non_radiomics``, ``traditional``, ``whole_habitat``, ``each_habitat``
-- **Example**: ``[volume, msi, ith_score, non_radiomics]`` (uncomment heavy radiomics when needed)
+- **Allowed values**: ``volume``, ``msi``, ``ith_score``, ``non_radiomics``, ``graph``, ``traditional``, ``whole_habitat``, ``each_habitat``
+- **Example**: ``[volume, msi, ith_score, non_radiomics]`` (add ``graph`` or heavy radiomics when needed)
 - **Meanings and references per type**: see :doc:`../reference/features/index`
+
+**graph**: optional top-level block for the built-in graph topology family
+
+- **Type**: mapping (validated as ``GraphFeatureBlock``)
+- **Required**: no (defaults apply when ``graph`` is listed in ``feature_types`` without a block)
+- **Description**: extraction options mirror
+  :class:`~habit.domain.GraphHabitatFeaturesParams`; visualization fields are
+  consumed by the extract recipe only. ``graph`` is a **built-in** family — not
+  a private plugin. Prefer domain / API paths; ``habit.compat.graph_plugin`` is
+  deprecated.
+- **Key extraction fields** (defaults in parentheses):
+
+  - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)
+  - ``edge_method``: ``centroid_distance`` (default) or ``adjacency``
+  - ``distance_threshold`` (``5.0``, pixel units) — used by ``centroid_distance``
+  - ``adjacency_connectivity`` (``face``) / ``adjacency_min_voxels`` (``1``) — used by ``adjacency``
+  - ``edge_weight``: ``none`` | ``distance`` | ``inverse_distance`` | ``contact_voxels``
+  - ``min_region_voxels`` (``1``), ``connectivity`` (``face`` | ``full``)
+  - ``erosion_radius`` (``1``; ``0`` disables), ``subdivide_region_voxels`` (``1000``; ``0`` disables)
+  - ``block_size`` (``5``), ``block_min_coverage`` (``0.5``)
+  - ``pairwise_include_intra_edges`` (``true``)
+  - ``include_extended_metrics`` (``true``), ``extended_min_nodes`` (``10``)
+
+- **Visualization fields** (recipe hook; not part of the extractor ``Spec``):
+
+  - ``visualize`` (``false``) → writes ``<out_dir>/visualizations/graph/``
+  - ``visualization_format``: ``png`` | ``pdf`` | ``both`` (default)
+  - ``visualization_dpi`` (``600``)
+  - ``visualization_show_background`` (``true``)
+  - ``visualization_save_3d`` (``true``; 3D needs optional ``[view]`` stack)
+
+- **Legacy keys** ``enabled`` / ``n_workers``: accepted, ignored (activation is
+  ``feature_types``; figures run serially in the main process)
+- **Output CSV**: ``habitat_graph_features.csv``
+- **Reference**: :doc:`../reference/features/graph`
 
 **n_habitats**: number of habitats
 

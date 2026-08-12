@@ -335,7 +335,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - ``gaussian_noise``, ``translation``, ``rotation``
    * - ``HabitatFeatureExtractorRegistry``
      - ``habitat_feature_extractor``
-     - ``volume``, ``msi``, ``ith_score``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)
+     - ``volume``, ``msi``, ``ith_score``, ``graph``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)
    * - ``TablePreprocessorRegistry``
      - ``table_preprocessor``
      - ``zscore``, ``minmax``, ``binning``, …
