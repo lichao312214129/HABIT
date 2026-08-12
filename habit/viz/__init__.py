@@ -15,8 +15,9 @@
 """Publication figures and image overlays for HABIT results.
 
 This package is the home for HABIT visualization: ROC / survival / regression
-panels, habitat-clustering scatters, and habitat-on-image overlays
-(:func:`plot_habitat_overlay`) and the optional napari viewer
+panels, habitat-clustering scatters, habitat-on-image overlays
+(:func:`plot_habitat_overlay`), voxel texture / feature-map slices
+(:func:`plot_voxel_texture_slice`), and the optional napari viewer
 (:func:`view_habitat_napari`). New drawing / viewing code should land here
 rather than in CLI or ``habit.api`` helpers.
 
@@ -82,6 +83,7 @@ from habit.viz.habitat_graph import (
 )
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
+from habit.viz.voxel_texture import dense_voxel_feature_map, plot_voxel_texture_slice
 from habit.viz.survival import (
     plot_brier_curve,
     plot_cox_forest,
@@ -135,6 +137,9 @@ __all__ = [
     "plot_habitat_graph_network_2d",
     "render_habitat_graph_surface_3d",
     "render_habitat_graph_network_3d",
+    # voxel texture / feature-map slices (local entropy, voxel radiomics, ...)
+    "dense_voxel_feature_map",
+    "plot_voxel_texture_slice",
     # optional interactive napari viewer (requires [view] extra)
     "view_habitat_napari",
 ]
