@@ -38,6 +38,15 @@ Script
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Output
+------
+
+Illustrative (synthetic)::
+
+   Study.fit_predict two_step: habitats=3
+   Study.fit_predict one_step: habitats=3
+   Study.fit_predict direct_pooling: habitats=3
+
 Figures
 -------
 
@@ -66,6 +75,17 @@ Illustrative overlays for each design (galleries from the recipe demos).
    :width: 640
 
    ``Study.from_model(...).predict`` compare (:doc:`apply_saved_model`).
+
+Empty feature chains and habitat count
+--------------------------------------
+
+Two-step / direct-pooling with **no** voxel feature preprocessing can
+under-express habitats when raw intensity scales differ across subjects.
+On the demo pack the empty chain left a mean of 2.8 habitats per map
+versus 4/4 after ``winsorize`` + ``minmax``. Prefer that feature chain
+(or image ``zscore_normalization`` via :func:`~habit.api.preprocess_subject`
+when you need harmonization before extraction). Numbers and the copy-paste
+recipe: :doc:`habitat_preprocessing`.
 
 What to read next
 -----------------

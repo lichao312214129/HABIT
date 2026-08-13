@@ -210,6 +210,10 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
         Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
         Reference: Prior O, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
+        The simulated-retest perturbation used to *define* those precise features
+        is :func:`~habit.domain.precision.prior2024_retest_perturbation` (MIRP 1.2.0
+        Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
+        See :doc:`../examples/precise_features`.
 
       - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 

@@ -67,10 +67,9 @@ Figures
 -------
 
 Parallel scheduling does not change the habitat product under a fixed seed.
-Illustrative overlay from the two-step gallery (:doc:`two_step_habitat`).
 
-.. figure:: ../_static/images/examples/two_step_overlay.png
-   :alt: Habitat overlay identical under serial and parallel scheduling
+.. figure:: ../_static/images/examples/parallel_execution_overlay.png
+   :alt: Habitat overlay from the parallel execution demo
    :width: 420
 
    Habitats after ``Study.fit_predict`` (serial or process-pool)

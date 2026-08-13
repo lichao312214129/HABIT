@@ -52,11 +52,18 @@ Runnable demo
 
 The demo uses raw intensities so it runs without PyRadiomics; with the
 default voxel-radiomics factory the same call is the full paper design.
+Synthetic data is enough to produce the ICC evidence figure and a habitat
+overlay after the whitelist.
 
 .. literalinclude:: scripts/precise_features_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
-Output::
+Output
+------
+
+Illustrative (ICC values depend on the synthetic draw)::
 
    === precision screen (repeatability experiment) ===
      precise features: ['T1', 'T2']
@@ -66,19 +73,50 @@ Output::
 
    === whitelist bridge into a habitat spec ===
      whitelist spec: {'name': 'feature_whitelist', 'params': {'features': ['T1', 'T2']}, 'version': '1.0'}
-     habitat spec fingerprint: ed7eafe731aeac8cda189e29a4ba9146e77415d3063d71505f398cacaaff4790
+     habitat maps: 3
 
    === artefact round trip ===
      saved precise_features.json; reloaded features: ['T1', 'T2']
 
+Figures
+-------
+
+This page previously had no gallery because the demo only printed an ICC
+table (no spatial product). The screen's scientific figure is the LCL
+panel; the overlay is the habitat map after clustering **only** those
+precise features — not a borrowed triptych from another recipe.
+
+.. figure:: ../_static/images/examples/precise_features_icc_lcl.png
+   :alt: ICC and LCL bars for the precision screen
+   :width: 520
+
+   Repeatability ICC and lower confidence limit per feature, with the
+   0.5 LCL threshold (matplotlib; the screen's tabular product).
+
+.. figure:: ../_static/images/examples/precise_features_overlay.png
+   :alt: Habitat overlay after clustering only precise features
+   :width: 420
+
+   Habitats after the whitelist
+   (:func:`~habit.viz.plot_habitat_overlay`).
+
 Custom perturbations
 --------------------
 
-The simulated retest is a composable chain of ``ImagePerturbation``
-components (domain ``image_perturbation``): ``gaussian_noise``,
-``translation``, ``rotation``. Third-party perturbations registered through
-the ``habit.image_perturbation`` entry-point group slot into the same
-chain — pass any chain (or single component) as ``perturbation=``.
+The default recipe chain is :func:`~habit.domain.precision.prior2024_retest_perturbation`:
+the simulated retest of Prior et al. (*Radiol Artif Intell* 2024;6(2):e230118,
+Appendix S2) as implemented in MIRP 1.2.0 — Gaussian noise (Chang wavelet
+sigma), a 0.5-voxel translation fraction (MIRP
+``perturbation_translation_fraction``), and a 0.5° in-plane (z) rotation.
+Images use B-spline interpolation; masks use nearest neighbour. Two geometric
+resamples match MIRP 1.2.0; pass ``single_resample=True`` to compose them
+into one affine (MIRP ≥ 2 / :class:`~habit.domain.precision.RigidPerturbation`).
+
+The chain is still composable (domain ``image_perturbation``):
+``gaussian_noise``, ``translation``, ``rotation``, ``rigid``. Third-party
+perturbations registered through the ``habit.image_perturbation`` entry-point
+group slot into the same chain — pass any chain (or single component) as
+``perturbation=``.
 
 .. code-block:: python
 
@@ -86,12 +124,19 @@ chain — pass any chain (or single component) as ``perturbation=``.
        GaussianNoisePerturbation,
        PerturbationChain,
        TranslationPerturbation,
+       prior2024_retest_perturbation,
    )
 
+   paper = prior2024_retest_perturbation()  # Appendix S2 defaults
    gentler = PerturbationChain(
-       [GaussianNoisePerturbation(), TranslationPerturbation(max_shift_voxels=0.5)]
+       [GaussianNoisePerturbation(), TranslationPerturbation(shift_fraction=0.25)]
    )
    precise = identify_precise_voxel_features(cohort, perturbation=gentler)
+
+Follow-up (not in the Prior 2024 protocol, not implemented here): MIRP
+``perturbation_roi_adapt_size`` (ROI morphological grow/shrink) and MONAI
+B-spline / diffeomorphic deformation of the image or mask. Use a third-party
+``ImagePerturbation`` plugin when those are required.
 
 Habitat stability under perturbation
 ------------------------------------

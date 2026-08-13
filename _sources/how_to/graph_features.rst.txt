@@ -65,6 +65,13 @@ Optional: ``HabitatGraphFeatureOptions(distance_threshold=...)``, registry
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).
 See :doc:`../examples/graph_features`.
 
+.. figure:: ../_static/images/examples/graph_habitat_network_2d.png
+   :alt: Habitat graph network on a 2D slice
+   :width: 520
+
+   2D intra- / inter-habitat graph
+   (:func:`~habit.viz.plot_habitat_graph_network_2d`).
+
 Also see
 --------
 

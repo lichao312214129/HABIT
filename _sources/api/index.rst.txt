@@ -405,7 +405,10 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.TranslationPerturbationParams
    habit.domain.RotationPerturbation
    habit.domain.RotationPerturbationParams
+   habit.domain.RigidPerturbation
+   habit.domain.RigidPerturbationParams
    habit.domain.PerturbationChain
+   habit.domain.prior2024_retest_perturbation
    habit.domain.PreciseFeatureSet
    habit.domain.precision_panel
    habit.domain.aggregate_panels
@@ -710,6 +713,7 @@ Image perturbation and voxel reliability
    habit.kernels.add_gaussian_noise
    habit.kernels.translate_image
    habit.kernels.rotate_image
+   habit.kernels.rigid_transform_image
    habit.kernels.ICCEstimate
    habit.kernels.icc3a_1
    habit.kernels.icc3c_1
@@ -768,7 +772,8 @@ Interactive habitat overlay (optional ``[view]`` extra; default
 ``habit view``): :func:`~habit.viz.view_habitat_napari`. Without napari the
 CLI falls back to a PNG. Static PNG overlays:
 :func:`~habit.viz.plot_habitat_overlay` (``habit view --backend matplotlib``;
-panel aspect follows voxel spacing).
+panel aspect follows voxel spacing; ``display_convention`` defaults to
+radiological — pass an ``ImageVolume`` so coronal/sagittal keep superior up).
 
 Styles
 ~~~~~~

@@ -18,3 +18,15 @@ Your data
 probability column names).
 
 Success: plots and ``metrics/`` under ``output_dir``.
+
+Python twin of the ROC panel::
+
+   from habit.viz import plot_roc
+
+   fig = plot_roc(y_true, y_prob, model_name="model_a", title="Compare ROC")
+
+.. figure:: ../_static/images/examples/ml_advanced_roc.png
+   :alt: Staged-selection ROC
+   :width: 420
+
+   ROC from the advanced ML example (:func:`~habit.viz.plot_roc`).

@@ -58,6 +58,23 @@ Output (abbreviated)
    [OK] Config OK (workflow=habitat)
    migrate-config wrote: habitat_two_step.v1.yaml (1741 bytes)
 
+Figures
+-------
+
+Dice is a table; the demo also draws the compared ROI as a label overlay.
+
+.. figure:: ../_static/images/examples/cohort_plugins_dice.png
+   :alt: Pairwise mask Dice bar chart
+   :width: 420
+
+   Pairwise Dice from :func:`~habit.recipes.dice`.
+
+.. figure:: ../_static/images/examples/cohort_plugins_overlay.png
+   :alt: ROI mask used in the Dice demo
+   :width: 420
+
+   Batch-A ROI as labels (:func:`~habit.viz.plot_habitat_overlay`).
+
 What to read next
 -----------------
 

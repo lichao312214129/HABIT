@@ -8,7 +8,13 @@ region vs contour screenshots in :doc:`../tutorial/quickstart`. It needs the
 optional ``[view]`` extra (recommended at :doc:`../tutorial/installation`);
 without it the CLI falls back to a matplotlib PNG. Force the static path with
 ``habit view --backend matplotlib`` (:func:`~habit.viz.plot_habitat_overlay`,
-needs ``[viz]``).
+needs ``[viz]``). Orthogonal panels follow the radiological display
+convention (anterior / superior up; patient's right on the viewer's left)
+via ``display_convention`` (``\"radiological\"`` default,
+``\"neurological\"``, or ``\"native\"`` to skip flips). Pass an
+:class:`~habit.api.image.ImageVolume` rather than ``.data`` so direction and
+spacing travel with the array — otherwise coronal / sagittal superior-inferior
+can look flipped relative to ITK-SNAP. See :mod:`habit.viz.orientation`.
 
 For fuller **3D** review, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer

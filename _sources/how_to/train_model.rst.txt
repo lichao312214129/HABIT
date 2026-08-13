@@ -38,4 +38,16 @@ SHAP plots).
 
 Success: metrics / predictions under the YAML output folder.
 
+Hold-out ROC from the fitted pipeline (Python)::
+
+   from habit.viz import plot_roc
+
+   fig = plot_roc(y_true, y_prob, model_name="LogisticRegression", title="Hold-out ROC")
+
+.. figure:: ../_static/images/examples/tabular_ml_roc.png
+   :alt: Hold-out ROC
+   :width: 420
+
+   ROC from the tabular ML example (:func:`~habit.viz.plot_roc`).
+
 Next: :doc:`compare_models`.

@@ -43,6 +43,15 @@ Output
    single-model figures from habit model / habit cv use
    output/visualizations/ with train_ / test_ / cv_ prefixes.
 
+Figures
+-------
+
+.. figure:: ../_static/images/examples/ml_advanced_roc.png
+   :alt: ROC after staged feature selection
+   :width: 420
+
+   Staged-selection hold-out ROC (:func:`~habit.viz.plot_roc`).
+
 What to read next
 -----------------
 

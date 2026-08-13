@@ -40,9 +40,17 @@ Layouts
 * ``mode="overlay"`` — translucent feature on greyscale anatomy
 * ``mode="feature_only"`` — feature map alone
 
-Omit ``axis`` on 3D volumes for three orthogonal panel rows. There is no
-built-in 3D volume renderer for texture maps; use ITK-SNAP / 3D Slicer / napari
-for full volumetric browsing.
+Omit ``axis`` on 3D volumes for three orthogonal panel rows. Panels use
+``display_convention="radiological"`` (pass anatomy as an ``ImageVolume`` so
+direction is not dropped). There is no built-in 3D volume renderer for
+texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.
+
+.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
+   :alt: Anatomy beside local-entropy texture
+   :width: 520
+
+   Default ``side_by_side`` layout
+   (:func:`~habit.viz.plot_voxel_texture_slice`).
 
 Also see
 --------

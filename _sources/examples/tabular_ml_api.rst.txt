@@ -30,6 +30,28 @@ Coverage
 ``demo_data/results/api/07_ml`` (train / CV / predict / compare on real
 ``demo_data/ml_data`` tables).
 
+Output
+------
+
+Illustrative (metrics depend on the synthetic table)::
+
+   === train_model (hold-out) ===
+     test metrics: {'accuracy': 1.0, 'auc': 1.0}
+   === cross_validate ===
+     mean metrics: {'accuracy': 0.988, 'auc': 1.0}
+   === Atomic: single-row predict ===
+     row id=subj001, pred=0
+
+Figures
+-------
+
+.. figure:: ../_static/images/examples/tabular_ml_api_roc.png
+   :alt: ROC from the tabular ML API demo
+   :width: 420
+
+   ROC from :func:`~habit.recipes.predict_model` probabilities
+   (:func:`~habit.viz.plot_roc`).
+
 What to read next
 -----------------
 

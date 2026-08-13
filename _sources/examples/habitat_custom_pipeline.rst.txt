@@ -50,6 +50,14 @@ Run::
 
    python docs/source/examples/scripts/habitat_custom_pipeline_demo.py
 
+Output
+------
+
+::
+
+   Study.fit_predict: habitats=3, feature_cols=6
+   Wrote out/habitat_custom_overlay.png
+
 Common swaps
 ------------
 
@@ -62,20 +70,14 @@ Common swaps
 Figures
 -------
 
-Custom pipelines still produce the same habitat products. Illustrative panels
-from the two-step gallery (:doc:`two_step_habitat`).
+Custom pipelines still produce ordinary habitat maps.
 
-.. figure:: ../_static/images/examples/two_step_triptych.png
-   :alt: Anatomy, supervoxels, and habitats
-   :width: 720
-
-   Partition + assign after swapping components.
-
-.. figure:: ../_static/images/examples/two_step_overlay.png
+.. figure:: ../_static/images/examples/habitat_custom_overlay.png
    :alt: Habitat overlay from a customised pipeline
    :width: 420
 
-   Habitat overlay on anatomy.
+   Habitat overlay after swapping components
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 What to read next
 -----------------

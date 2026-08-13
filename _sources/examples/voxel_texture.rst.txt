@@ -26,6 +26,14 @@ Run from the repository root (one line)::
 
    python docs/source/examples/scripts/voxel_texture_demo.py
 
+Output
+------
+
+::
+
+   Wrote out/voxel_texture_side_by_side.png
+   Wrote out/voxel_texture_overlay.png
+
 Local entropy (anatomy | texture)
 ---------------------------------
 

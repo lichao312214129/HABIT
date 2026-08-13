@@ -63,21 +63,15 @@ The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 Figures
 -------
 
-Each route still ends in habitat maps. Illustrative panels from the two-step
-gallery (``raw`` / ``slic`` path in :doc:`two_step_habitat`); texture routes
-add per-voxel maps as in :doc:`voxel_texture`.
+Each route still ends in habitat maps. Overlay from the ``raw`` route in
+this demo:
 
-.. figure:: ../_static/images/examples/two_step_overlay.png
+.. figure:: ../_static/images/examples/habitat_feature_routes_overlay.png
    :alt: Habitat overlay after a feature-route batch fit
    :width: 420
 
-   Habitats after ``Study(...).fit_predict`` with a chosen extractor.
-
-.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Anatomy beside a voxel texture map
-   :width: 420
-
-   ``voxel_radiomics`` describes voxels before clustering (see :doc:`voxel_texture`).
+   Habitats after ``Study(...).fit_predict`` with ``raw`` intensities
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 What to read next
 -----------------

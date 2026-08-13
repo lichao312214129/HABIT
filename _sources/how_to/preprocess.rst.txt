@@ -31,4 +31,24 @@ and modality names. Then ``habit check-config`` + ``habit preprocess``.
 
 Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
 
+Anatomy | processed intensity (Python)::
+
+   from habit.viz import plot_voxel_texture_slice
+
+   fig = plot_voxel_texture_slice(
+       processed, anatomy=original, roi_mask=mask, axis=0,
+       feature_label="Z-scored T1",
+   )
+
+.. figure:: ../_static/images/examples/image_preprocess_slice.png
+   :alt: Anatomy beside z-scored T1
+   :width: 520
+
+   Atomic z-score panel from the image-preprocessing example.
+
+Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
+not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
+chain on two-step runs under-expresses habitats — see
+:doc:`../examples/habitat_preprocessing`.
+
 Next: :doc:`segment_habitat`.

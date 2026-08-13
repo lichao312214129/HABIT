@@ -40,6 +40,18 @@ Output (abbreviated)
    === Batch: demo_data DCE-MRI (resample only) ===
      NIfTI files: 12
 
+Figures
+-------
+
+Atomic resample of one synthetic subject (anatomy | processed intensity):
+
+.. figure:: ../_static/images/examples/image_preprocess_slice.png
+   :alt: Anatomy beside resampled T1
+   :width: 720
+
+   :func:`~habit.viz.plot_voxel_texture_slice` with the z-scored volume as
+   the feature panel (same grid as anatomy).
+
 What to read next
 -----------------
 

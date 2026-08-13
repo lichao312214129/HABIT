@@ -45,6 +45,16 @@ workflow, not the score::
    Saved demo.habitpipeline (...)
    Reloaded classifier: LogisticRegression
 
+Figures
+-------
+
+.. figure:: ../_static/images/examples/tabular_ml_roc.png
+   :alt: Hold-out ROC from train_model
+   :width: 420
+
+   Hold-out ROC from the fitted :class:`~habit.domain.pipeline.TablePipeline`
+   (:func:`~habit.viz.plot_roc`).
+
 What to read next
 -----------------
 

@@ -91,20 +91,55 @@ Figures
 -------
 
 Preprocessing changes the feature space; the visible product is still habitat
-maps. Illustrative overlays from the recipe galleries.
+maps from this demo.
 
-.. figure:: ../_static/images/examples/two_step_overlay.png
+.. figure:: ../_static/images/examples/habitat_preprocessing_overlay.png
    :alt: Two-step habitats after preprocessing chains
-   :width: 360
+   :width: 420
 
    Two-step with voxel + supervoxel + cohort chains
    (:func:`~habit.viz.plot_habitat_overlay`).
 
-.. figure:: ../_static/images/examples/one_step_overlay.png
-   :alt: One-step habitats with voxel preprocessing only
-   :width: 360
+Skipping the feature chain (raw intensities)
+--------------------------------------------
 
-   One-step (voxel chain only; no cohort model).
+On ``demo_data/preprocessed`` (5 subjects, ``LAP``, auto-K 2–10, two-step
+with 20 supervoxels, seed 0) an **empty** ``voxel_feature_preprocessors``
+chain does not fail — it under-expresses habitats. Cohort ``model_k`` was
+still 4, but per-subject maps used a mean of **2.8** labels (one subject
+only 2). The YAML-style voxel chain ``winsorize`` then ``minmax`` restored
+**4 / 4** habitats on every subject. Image-level
+``zscore_normalization`` via :func:`~habit.api.preprocess_subject` (ROI
+masked) before the same empty chain recovered a mean of **3.8**, but
+k-means then warned that distinct intensities were fewer than
+``n_supervoxels`` — z-scoring a single modality can collapse the
+supervoxel feature space.
+
+**Recipe (do not duplicate a second scaler):** keep the feature chain for
+clustering; use image z-score only when you need intensity harmonization
+*before* extraction::
+
+   from dataclasses import replace
+   from habit import Cohort, Spec, preprocess_subject, two_step_habitat
+
+   processed = Cohort([
+       preprocess_subject(
+           s, {"zscore_normalization": {"only_inmask": True}}, mask_roi="LAP"
+       )
+       for s in cohort
+   ])
+   spec = replace(
+       two_step_habitat(modalities=("LAP",), roi="LAP").spec,
+       voxel_feature_preprocessors=(
+           Spec("winsorize", params={"winsor_limits": (0.05, 0.05)}),
+           Spec("minmax"),
+       ),
+   )
+
+One-step (habitats defined inside each subject) was insensitive to the
+feature chain on this demo (all 4 habitats either way); image z-score
+slightly *lowered* the mean (3.6). Inter-subject scale is a two-step /
+direct-pooling problem.
 
 What to read next
 -----------------

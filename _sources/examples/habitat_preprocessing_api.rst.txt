@@ -72,6 +72,15 @@ Feature chains are enabled in
 Running the script also regenerates gallery PNGs and may open a **napari
 eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
 
+Output
+------
+
+Illustrative (voxel counts depend on ``demo_data``)::
+
+   Voxel features after subject chain: (34694, 1)
+   Habitats: 3
+   Wrote out/habitat_prep_api_overlay.png
+
 Figures
 -------
 

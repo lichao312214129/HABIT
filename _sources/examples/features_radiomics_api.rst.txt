@@ -30,21 +30,14 @@ The script writes ``out/features_radiomics_api_overlay.png`` and may open a
 Figures
 -------
 
-Habitat feature tables sit on top of habitat maps. Illustrative panels from
-the feature-extraction gallery (:doc:`feature_extraction`).
+Habitat feature tables sit on top of habitat maps from this demo.
 
-.. figure:: ../_static/images/examples/feature_extract_overlay.png
+.. figure:: ../_static/images/examples/features_radiomics_api_overlay.png
    :alt: Habitat overlay before feature table extraction
    :width: 420
 
-   Habitats that feed ``habitat_features`` /
-   :func:`~habit.recipes.extract_habitat_features`.
-
-.. figure:: ../_static/images/examples/feature_extract_volume_fractions.png
-   :alt: Habitat volume fractions from the feature table path
-   :width: 420
-
-   Volume fractions (:func:`~habit.viz.plot_habitat_volume_fractions`).
+   Habitats that feed ``habitat_features``
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 What to read next
 -----------------

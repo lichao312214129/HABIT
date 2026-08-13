@@ -30,6 +30,28 @@ Exercised by ``demo_data/results/api/run_api_coverage.py`` step
 ``01_preprocess`` (batch under ``01_preprocess/batch/`` plus in-memory
 atomic checks).
 
+Output
+------
+
+::
+
+   === Atomic: preprocess_subject (in-memory) ===
+     subj001: shape=(16, 16, 16), spacing=(2.0, 2.0, 2.0)
+   === Atomic: preprocess_image (single volume) ===
+     single volume spacing=(2.0, 2.0, 2.0)
+   === Batch: preprocess_images (directory pipeline) ===
+     written files≈4
+
+Figures
+-------
+
+.. figure:: ../_static/images/examples/image_preprocess_api_slice.png
+   :alt: Anatomy beside z-scored T1
+   :width: 720
+
+   :func:`~habit.viz.plot_voxel_texture_slice` after
+   :func:`~habit.preprocess_subject` (z-score; same grid).
+
 What to read next
 -----------------
 
