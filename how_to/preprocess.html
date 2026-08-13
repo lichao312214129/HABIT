@@ -1653,17 +1653,17 @@ and modality names. Then <code class="docutils literal notranslate"><span class=
 
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
     <span class="n">processed</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="n">original</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span>
+    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored LAP&quot;</span><span class="p">,</span> <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Original T1 beside whole-volume z-scored T1" src="../_images/image_preprocess_slice.png" width="520" />
+<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Original LAP beside whole-volume z-scored LAP" src="../_images/image_preprocess_slice.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Whole-FOV greyscale z-score panel from the image-preprocessing example.
-Independent colorbars show raw intensity versus z-score (native units;
-not a shared <span class="math notranslate nohighlight">\([0, 1]\)</span> window).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Whole-FOV greyscale z-score panel from <code class="docutils literal notranslate"><span class="pre">subj001</span></code> LAP
+(<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>). Independent colorbars show raw intensity
+versus z-score (native units; not a shared <span class="math notranslate nohighlight">\([0, 1]\)</span> window).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>Image z-score here is <strong>per-volume intensity</strong> (DICOM/NIfTI tree). It is
@@ -1677,14 +1677,14 @@ chain on two-step runs under-expresses habitats — see
 <code class="docutils literal notranslate"><span class="pre">Subject</span></code> or one volume. Copy from <a class="reference internal" href="../examples/image_preprocessing_api.html"><span class="doc">Image preprocessing API (batch + atomic)</span></a>
 and swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code>. Per-step figures:</p>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled T1" src="../_images/preprocess_resample.png" width="360" />
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled LAP" src="../_images/preprocess_resample.png" width="360" />
 </a>
 <figcaption>
-<p><span class="caption-text">Resample (full FOV).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Resample (full FOV, <code class="docutils literal notranslate"><span class="pre">subj001</span></code> LAP).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Whole-volume z-scored T1" src="../_images/preprocess_zscore.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Whole-volume z-scored LAP" src="../_images/preprocess_zscore.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Z-score (whole volume; optional ROI stats). Independent colorbars show
@@ -1692,7 +1692,7 @@ raw intensity versus z-score.</span><a class="headerlink" href="#id3" title="Lin
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Whole-volume N4-corrected T1" src="../_images/preprocess_n4.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Whole-volume N4-corrected LAP" src="../_images/preprocess_n4.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">N4 bias-field correction. Independent colorbars keep the intensity
@@ -1700,7 +1700,7 @@ scale visible.</span><a class="headerlink" href="#id4" title="Link to this image
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Whole-volume histogram-standardized T1" src="../_images/preprocess_histogram.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Whole-volume histogram-standardized LAP" src="../_images/preprocess_histogram.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Nyúl histogram standardization. Independent colorbars show the mapped
@@ -1716,14 +1716,14 @@ intensity scale.</span><a class="headerlink" href="#id6" title="Link to this ima
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented T1" src="../_images/preprocess_reorient.png" width="360" />
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented LAP" src="../_images/preprocess_reorient.png" width="360" />
 </a>
 <figcaption>
 <p><span class="caption-text">Reorient to RAS.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Registered T1 with ROI contour overlay" src="../_images/preprocess_register.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Registered LAP with ROI contour overlay" src="../_images/preprocess_register.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">SimpleITK affine registration (ROI contour follows the transform).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>

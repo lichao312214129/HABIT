@@ -1624,6 +1624,8 @@
              
   <section id="image-preprocessing-api-batch-atomic">
 <h1>Image preprocessing API (batch + atomic)<a class="headerlink" href="#image-preprocessing-api-batch-atomic" title="Link to this heading"></a></h1>
+<p><strong>Level:</strong> atomic / recipe · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> ·
+<strong>Extras:</strong> none · <strong>Time:</strong> ~1–4 min</p>
 <p>Public symbols (registered in <code class="docutils literal notranslate"><span class="pre">habit.api.registry</span></code>):</p>
 <ul class="simple">
 <li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">run_preprocess()</span></code> / recipe <a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_images()</span></code></a>
@@ -1640,97 +1642,55 @@ accepting HABIT’s directory conventions.</p>
 block (<code class="docutils literal notranslate"><span class="pre">resample</span></code>, <code class="docutils literal notranslate"><span class="pre">zscore_normalization</span></code>, <code class="docutils literal notranslate"><span class="pre">n4_correction</span></code>, …).</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Image preprocessing API: batch directory pipeline + atomic in-memory operators.</span>
-
-<span class="sd">* **Batch** — :func:`habit.recipes.preprocess_images` (CLI twin of</span>
-<span class="sd">  ``habit preprocess``).</span>
-<span class="sd">* **Atomic subject** — :func:`habit.preprocess_subject` / recipe twin</span>
-<span class="sd">  ``recipes.preprocess_subject``: one :class:`~habit.contracts.Subject` in,</span>
-<span class="sd">  one Subject out. No ``data_dir`` / ``out_dir`` / YAML.</span>
-<span class="sd">* **Atomic volume** — :func:`habit.preprocess_image` for a single</span>
-<span class="sd">  :class:`~habit.api.image.ImageVolume`.</span>
-
-<span class="sd">Accompanies ``docs/source/examples/image_preprocessing_api.rst``.</span>
-
-<span class="sd">Run from the repository root::</span>
-
-<span class="sd">    python docs/source/examples/scripts/image_preprocessing_api_demo.py</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">SimpleITK</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sitk</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_image</span><span class="p">,</span> <span class="n">preprocess_subject</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_synthetic_cohort</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span><span class="p">,</span> <span class="n">preprocess_image</span><span class="p">,</span> <span class="n">preprocess_subject</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_images</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_intensity_slice</span>
 
-<span class="n">REPO_ROOT</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_tiny_dataset</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">n_subjects</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a minimal HABIT images/masks layout for the batch path.&quot;&quot;&quot;</span>
-    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">modalities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_subjects</span><span class="p">):</span>
-        <span class="n">subject_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">modalities</span><span class="p">:</span>
-            <span class="n">folder</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;images&quot;</span> <span class="o">/</span> <span class="n">subject_id</span> <span class="o">/</span> <span class="n">modality</span>
-            <span class="n">folder</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">array</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-            <span class="n">image</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">((</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
-            <span class="n">sitk</span><span class="o">.</span><span class="n">WriteImage</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">folder</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">.nrrd&quot;</span><span class="p">))</span>
-        <span class="n">mask_folder</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;masks&quot;</span> <span class="o">/</span> <span class="n">subject_id</span> <span class="o">/</span> <span class="s2">&quot;tumor&quot;</span>
-        <span class="n">mask_folder</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-        <span class="n">mask</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">mask_image</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
-        <span class="n">mask_image</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">((</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
-        <span class="n">sitk</span><span class="o">.</span><span class="n">WriteImage</span><span class="p">(</span><span class="n">mask_image</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">mask_folder</span> <span class="o">/</span> <span class="s2">&quot;mask.nrrd&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">modalities</span>
-
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">modality</span> <span class="o">=</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Atomic: preprocess_subject (in-memory) ===&quot;</span><span class="p">)</span>
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">steps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">},</span>
 <span class="p">}</span>
 <span class="n">processed</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
-<span class="n">vol</span> <span class="o">=</span> <span class="n">processed</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">: shape=</span><span class="si">{</span><span class="n">vol</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;spacing=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">vol</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">vol</span> <span class="o">=</span> <span class="n">processed</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">: shape=</span><span class="si">{</span><span class="n">vol</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;spacing=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">vol</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Atomic: preprocess_image (single volume) ===&quot;</span><span class="p">)</span>
 <span class="n">single</span> <span class="o">=</span> <span class="n">preprocess_image</span><span class="p">(</span>
-    <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+    <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">),</span>
     <span class="p">{</span><span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">}},</span>
-    <span class="n">mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;tumor&quot;</span><span class="p">),</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span>
+    <span class="n">mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">),</span>
+    <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  single volume spacing=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">single</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Batch: preprocess_images (directory pipeline) ===&quot;</span><span class="p">)</span>
-<span class="n">work</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_preprocess_api_&quot;</span><span class="p">))</span>
-<span class="n">modalities</span> <span class="o">=</span> <span class="n">_write_tiny_dataset</span><span class="p">(</span><span class="n">work</span> <span class="o">/</span> <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-<span class="n">out_dir</span> <span class="o">=</span> <span class="n">work</span> <span class="o">/</span> <span class="s2">&quot;processed&quot;</span>
+<span class="n">out_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_preprocess_api_&quot;</span><span class="p">))</span>
 <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">work</span> <span class="o">/</span> <span class="s2">&quot;dataset&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="n">DATA</span><span class="p">,</span>
     <span class="s2">&quot;out_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_dir</span><span class="p">),</span>
     <span class="s2">&quot;auto_select_first_file&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s2">&quot;processes&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;preprocessing&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="n">modalities</span><span class="p">,</span>
-            <span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+            <span class="s2">&quot;images&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">),</span>
+            <span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">],</span>
             <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
@@ -1740,21 +1700,19 @@ block (<code class="docutils literal notranslate"><span class="pre">resample</sp
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  output_dir=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  written files≈</span><span class="si">{</span><span class="n">n_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_intensity_slice</span>
-
 <span class="c1"># Z-score keeps the grid, so original | processed is an honest before/after.</span>
 <span class="c1"># Resample (above) changes spacing/shape and cannot share one slice figure.</span>
 <span class="c1"># Whole-FOV greyscale: do not pass roi_mask (that would imply an ROI crop).</span>
 <span class="n">zscored</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
-    <span class="n">subject</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">}}</span>
+    <span class="n">subject</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="n">ROI</span><span class="p">}}</span>
 <span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
-    <span class="n">zscored</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
-    <span class="n">before</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+    <span class="n">zscored</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">),</span>
+    <span class="n">before</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">),</span>
     <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
-    <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original T1&quot;</span><span class="p">,</span>
+    <span class="n">image_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Z-scored </span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">before_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Original </span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: original | z-scored&quot;</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span>
     <span class="n">before_colorbar_label</span><span class="o">=</span><span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
@@ -1762,14 +1720,6 @@ block (<code class="docutils literal notranslate"><span class="pre">resample</sp
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/image_preprocess_api_slice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/image_preprocess_api_slice.png&quot;</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">_example_roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_example_figure</span>
-
-    <span class="n">save_example_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;image_preprocess_api_slice.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1782,99 +1732,118 @@ atomic checks).</p>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>=== Atomic: preprocess_subject (in-memory) ===
-  subj001: shape=(16, 16, 16), spacing=(2.0, 2.0, 2.0)
+  subj001: shape=(...), spacing=(2.0, 2.0, 2.0)
 === Atomic: preprocess_image (single volume) ===
   single volume spacing=(2.0, 2.0, 2.0)
 === Batch: preprocess_images (directory pipeline) ===
-  written files≈4
+  written files≈...
 </pre></div>
 </div>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/image_preprocess_api_slice.png"><img alt="Original T1 beside whole-volume z-scored T1" src="../_images/image_preprocess_api_slice.png" width="720" />
+<a class="reference internal image-reference" href="../_images/image_preprocess_api_slice.png"><img alt="Original LAP beside whole-volume z-scored LAP" src="../_images/image_preprocess_api_slice.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a> after
 <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> (z-score; same grid, greyscale,
-whole FOV). Independent colorbars show raw intensity versus z-score.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+whole FOV) on <code class="docutils literal notranslate"><span class="pre">subj001</span></code> LAP. Independent colorbars show raw
+intensity versus z-score.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="atomic-steps-copy-swap-data">
 <h2>Atomic steps (copy, swap DATA)<a class="headerlink" href="#atomic-steps-copy-swap-data" title="Link to this heading"></a></h2>
-<p>Each registered preprocessor is one mapping key. The snippets below use
-<code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_image()</span></code> on a
-subject you already loaded (<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> or synthetic).
-Full runnable generator:
-<code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/image_preprocessing_steps_demo.py</span></code>.
-YAML field reference: <a class="reference internal" href="../configuration/preprocessing.html"><span class="doc">Preprocessing Configuration</span></a>.</p>
-<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> in that script to your tree.
-<code class="docutils literal notranslate"><span class="pre">dcm2nii</span></code> is a <strong>file</strong> converter (CLI), not an in-memory volume operator
+<p>Each registered preprocessor is one mapping key. The snippets below are
+the runnable blocks from
+<code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/image_preprocessing_steps_demo.py</span></code>
+(same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> load). YAML field reference:
+<a class="reference internal" href="../configuration/preprocessing.html"><span class="doc">Preprocessing Configuration</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dcm2nii</span></code> is a <strong>file</strong> converter (CLI), not an in-memory volume operator
 — see <a class="reference internal" href="../how_to/preprocess.html"><span class="doc">Preprocessing</span></a>.</p>
-<p><strong>Resample</strong> (target spacing in mm; masks use nearest neighbour):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_image</span>
+<p><strong>Load</strong> (one subject from the preprocessed tree):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 
-<span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_image</span><span class="p">(</span>
-    <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
-    <span class="p">{</span><span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">}},</span>
-    <span class="n">mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;tumor&quot;</span><span class="p">),</span>
-    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">modality</span> <span class="o">=</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>Resample</strong> (target spacing in mm; masks use nearest neighbour):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">resampled</span> <span class="o">=</span> <span class="n">preprocess_image</span><span class="p">(</span>
+    <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">),</span>
+    <span class="p">{</span><span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">}},</span>
+    <span class="n">mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span> <span class="k">if</span> <span class="n">ROI</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">masks</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="n">modality</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;resample: spacing </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">resampled</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled T1 (greyscale)" src="../_images/preprocess_resample.png" width="520" />
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled LAP (greyscale)" src="../_images/preprocess_resample.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Resample to 2 mm isotropic (synthetic or demo subject). Whole-image
-geometry step: the figure is the full FOV, not an ROI panel.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Resample to 2 mm isotropic (<code class="docutils literal notranslate"><span class="pre">subj001</span></code> LAP). Whole-image geometry
+step: the figure is the full FOV, not an ROI panel.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p><strong>Z-score</strong> (per-volume intensity; optional ROI stats and clip):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_subject</span>
-
-<span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+<p><strong>Z-score</strong> (per-volume intensity; optional ROI stats):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">zscored</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">subject</span><span class="p">,</span>
-    <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">,</span> <span class="s2">&quot;clip_values&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}},</span>
+    <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="n">ROI</span><span class="p">}},</span>
 <span class="p">)</span>
+<span class="n">roi_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">zscored</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;zscore: mean (ROI stats)=</span><span class="si">{</span><span class="n">roi_mean</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Original beside whole-volume z-scored T1" src="../_images/preprocess_zscore.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Original beside whole-volume z-scored LAP" src="../_images/preprocess_zscore.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Whole-volume z-score, clipped to <span class="math notranslate nohighlight">\([-3, 3]\)</span>. Mean/std may be
-estimated inside the ROI (<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the transform is still
-applied to the full image. Independent colorbars show raw intensity
-versus z-score (native units, not a shared <span class="math notranslate nohighlight">\([0, 1]\)</span> window).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Whole-volume z-score. Mean/std may be estimated inside the ROI
+(<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the transform is still applied to the full
+image. Independent colorbars show raw intensity versus z-score
+(native units, not a shared <span class="math notranslate nohighlight">\([0, 1]\)</span> window). Optional
+<code class="docutils literal notranslate"><span class="pre">clip_values</span></code> (for example <code class="docutils literal notranslate"><span class="pre">[-3,</span> <span class="pre">3]</span></code>) is a separate intensity
+clip after the affine map.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>N4 bias-field correction</strong> (SimpleITK N4):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n4_correction&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;num_fitting_levels&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n4</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;n4_correction&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;num_fitting_levels&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;shrink_factor&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}},</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;n4_correction: done&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Original beside whole-volume N4-corrected T1" src="../_images/preprocess_n4.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Original beside whole-volume N4-corrected LAP" src="../_images/preprocess_n4.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">N4 correction on the full volume. On a nearly flat synthetic volume the
-visual change can be small; independent colorbars still show the
-intensity scale. On MRI with a real bias field it is the
+<p><span class="caption-text">N4 correction on the full volume. Independent colorbars show the
+intensity scale. On MRI with a real bias field this is the
 intensity-homogeneity step of the literature chain (N4 → register →
 resample → z-score).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Histogram standardization</strong> (Nyúl landmarks → <code class="docutils literal notranslate"><span class="pre">[target_min,</span> <span class="pre">target_max]</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">hist</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">subject</span><span class="p">,</span>
     <span class="p">{</span><span class="s2">&quot;histogram_standardization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_min&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;target_max&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">}},</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;histogram_standardization: &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;range=(</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Original beside whole-volume histogram-standardized T1" src="../_images/preprocess_histogram.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Original beside whole-volume histogram-standardized LAP" src="../_images/preprocess_histogram.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Percentile landmarks mapped to 0–100 on the full volume. Independent
@@ -1882,10 +1851,11 @@ colorbars show original units versus the mapped range.</span><a class="headerlin
 </figcaption>
 </figure>
 <p><strong>Adaptive histogram equalization</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">clahe</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">subject</span><span class="p">,</span>
     <span class="p">{</span><span class="s2">&quot;adaptive_histogram_equalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}},</span>
 <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;adaptive_histogram_equalization: done&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id6">
@@ -1898,14 +1868,18 @@ contrast, not when you still need quantitative MRI units.</span><a class="header
 </figcaption>
 </figure>
 <p><strong>Reorientation</strong> (canonical axis code; <code class="docutils literal notranslate"><span class="pre">closest</span></code> = flip/permute only):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">reoriented</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">subject</span><span class="p">,</span>
     <span class="p">{</span><span class="s2">&quot;reorientation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;RAS&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;closest&quot;</span><span class="p">}},</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;reorientation: direction[0:3]=&quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">reoriented</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">direction</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented T1 (greyscale)" src="../_images/preprocess_reorient.png" width="520" />
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented LAP (greyscale)" src="../_images/preprocess_reorient.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Reorient to RAS. <code class="docutils literal notranslate"><span class="pre">strict</span></code> additionally resamples; <code class="docutils literal notranslate"><span class="pre">closest</span></code> does not
@@ -1913,20 +1887,29 @@ interpolate intensities. Whole-image geometry: no ROI crop.</span><a class="head
 </figcaption>
 </figure>
 <p><strong>Registration</strong> (SimpleITK affine here; ANTs SyN needs <code class="docutils literal notranslate"><span class="pre">habit[registration]</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
-    <span class="n">subject</span><span class="p">,</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fixed_image&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;simpleitk&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;type_of_transform&quot;</span><span class="p">:</span> <span class="s2">&quot;Affine&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">},</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># SimpleITK affine (no ANTs extra). Fixed = first modality; others move.</span>
+<span class="c1"># The same transform is applied to the mask (contour overlay on the figure).</span>
+<span class="n">reg_ok</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">registered</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+        <span class="n">subject</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fixed_image&quot;</span><span class="p">:</span> <span class="n">modality</span><span class="p">,</span>
+                <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;simpleitk&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;type_of_transform&quot;</span><span class="p">:</span> <span class="s2">&quot;Affine&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;registration: SimpleITK Affine done&quot;</span><span class="p">)</span>
+    <span class="n">reg_ok</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="n">registered</span> <span class="o">=</span> <span class="n">subject</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;registration skipped: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Original beside registered T1 with ROI contour overlay" src="../_images/preprocess_register.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Original beside registered LAP with ROI contour overlay" src="../_images/preprocess_register.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Affine registration onto the fixed modality. Cyan contour: the ROI after

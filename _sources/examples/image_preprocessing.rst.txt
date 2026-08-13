@@ -1,6 +1,9 @@
 Batch image preprocessing
 =========================
 
+**Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** none ·
+**Time:** ~1–4 min
+
 :func:`~habit.recipes.preprocess_images` is the programmatic twin of
 ``habit preprocess``. The full literature-aligned pipeline on real MRI is
 **N4 → registration → resample → z-score** (see
@@ -12,42 +15,45 @@ Entry points
 
 * **Batch (directory pipeline)** — ``preprocess_images(config)`` scans
   ``data_dir`` and writes ``processed_images/`` under ``out_dir``.
-* **Atomic (in-memory)** — no separate subject-level image recipe yet; embed
-  HABIT by preprocessing one subject into the conventional layout, or operate
-  on :class:`~habit.api.image.ImageVolume` upstream and pass the result to
+* **Atomic (in-memory)** — :func:`~habit.preprocess_subject` on one
+  :class:`~habit.contracts.Subject`, or operate on
+  :class:`~habit.api.image.ImageVolume` and pass the result to
   :func:`~habit.cohort_from_directory`.
 
-This example runs **resample + z-score** on a synthetic cohort (seconds
-anywhere) and, when ``demo_data/`` is present, the **resample-only** path
-mirroring ``demo_data/results/api/01_preprocess``.
+This example runs **resample + z-score** on ``demo_data/preprocessed``
+(LAP) and an atomic z-score of ``subj001``.
 
 Script
 ------
 
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
+
 .. literalinclude:: scripts/image_preprocessing_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
 Output (abbreviated)
 --------------------
 
 ::
 
-   === Batch: synthetic cohort (resample + z-score) ===
-   Wrote synthetic cohort under .../dataset
-     output: .../processed
-     NIfTI files: 6
+   === Batch: demo_data (resample + z-score) ===
+     output: .../habit_preprocess_demo_...
+     image files: ...
 
-   === Batch: demo_data DCE-MRI (resample only) ===
-     NIfTI files: 12
+   === Atomic: z-score one subject ===
+     subj001 LAP: shape=(200, 360, 360)
+   Wrote out/image_preprocess_slice.png
 
 Figures
 -------
 
-Atomic z-score of one synthetic subject (original | processed, whole FOV,
+Atomic z-score of ``subj001`` LAP (original | processed, whole FOV,
 greyscale — not an ROI crop):
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
-   :alt: Original T1 beside whole-volume z-scored T1
+   :alt: Original LAP beside whole-volume z-scored LAP
    :width: 720
 
    :func:`~habit.viz.plot_intensity_slice` after a same-grid z-score.

@@ -37,16 +37,16 @@ Anatomy | processed intensity (Python)::
 
    fig = plot_intensity_slice(
        processed, before=original, axis=0, cmap="gray",
-       image_label="Z-scored T1", colorbar_label="Z-score",
+       image_label="Z-scored LAP", colorbar_label="Z-score",
    )
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
-   :alt: Original T1 beside whole-volume z-scored T1
+   :alt: Original LAP beside whole-volume z-scored LAP
    :width: 520
 
-   Whole-FOV greyscale z-score panel from the image-preprocessing example.
-   Independent colorbars show raw intensity versus z-score (native units;
-   not a shared :math:`[0, 1]` window).
+   Whole-FOV greyscale z-score panel from ``subj001`` LAP
+   (``demo_data/preprocessed``). Independent colorbars show raw intensity
+   versus z-score (native units; not a shared :math:`[0, 1]` window).
 
 Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
 not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
@@ -61,27 +61,27 @@ Atomic Python (same steps, no YAML)
 and swap ``DATA``. Per-step figures:
 
 .. figure:: ../_static/images/examples/preprocess_resample.png
-   :alt: Whole-volume resampled T1
+   :alt: Whole-volume resampled LAP
    :width: 360
 
-   Resample (full FOV).
+   Resample (full FOV, ``subj001`` LAP).
 
 .. figure:: ../_static/images/examples/preprocess_zscore.png
-   :alt: Whole-volume z-scored T1
+   :alt: Whole-volume z-scored LAP
    :width: 480
 
    Z-score (whole volume; optional ROI stats). Independent colorbars show
    raw intensity versus z-score.
 
 .. figure:: ../_static/images/examples/preprocess_n4.png
-   :alt: Whole-volume N4-corrected T1
+   :alt: Whole-volume N4-corrected LAP
    :width: 480
 
    N4 bias-field correction. Independent colorbars keep the intensity
    scale visible.
 
 .. figure:: ../_static/images/examples/preprocess_histogram.png
-   :alt: Whole-volume histogram-standardized T1
+   :alt: Whole-volume histogram-standardized LAP
    :width: 480
 
    Nyúl histogram standardization. Independent colorbars show the mapped
@@ -95,13 +95,13 @@ and swap ``DATA``. Per-step figures:
    intensity scale.
 
 .. figure:: ../_static/images/examples/preprocess_reorient.png
-   :alt: Whole-volume RAS-reoriented T1
+   :alt: Whole-volume RAS-reoriented LAP
    :width: 360
 
    Reorient to RAS.
 
 .. figure:: ../_static/images/examples/preprocess_register.png
-   :alt: Registered T1 with ROI contour overlay
+   :alt: Registered LAP with ROI contour overlay
    :width: 480
 
    SimpleITK affine registration (ROI contour follows the transform).

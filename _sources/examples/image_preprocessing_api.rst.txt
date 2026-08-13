@@ -1,6 +1,9 @@
 Image preprocessing API (batch + atomic)
 ========================================
 
+**Level:** atomic / recipe · **Data:** ``demo_data/preprocessed`` ·
+**Extras:** none · **Time:** ~1–4 min
+
 Public symbols (registered in ``habit.api.registry``):
 
 * :func:`~habit.run_preprocess` / recipe :func:`~habit.recipes.preprocess_images`
@@ -20,8 +23,12 @@ block (``resample``, ``zscore_normalization``, ``n4_correction``, …).
 Script
 ------
 
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
+
 .. literalinclude:: scripts/image_preprocessing_api_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
 Coverage
 --------
@@ -36,107 +43,115 @@ Output
 ::
 
    === Atomic: preprocess_subject (in-memory) ===
-     subj001: shape=(16, 16, 16), spacing=(2.0, 2.0, 2.0)
+     subj001: shape=(...), spacing=(2.0, 2.0, 2.0)
    === Atomic: preprocess_image (single volume) ===
      single volume spacing=(2.0, 2.0, 2.0)
    === Batch: preprocess_images (directory pipeline) ===
-     written files≈4
+     written files≈...
 
 Figures
 -------
 
 .. figure:: ../_static/images/examples/image_preprocess_api_slice.png
-   :alt: Original T1 beside whole-volume z-scored T1
+   :alt: Original LAP beside whole-volume z-scored LAP
    :width: 720
 
    :func:`~habit.viz.plot_intensity_slice` after
    :func:`~habit.preprocess_subject` (z-score; same grid, greyscale,
-   whole FOV). Independent colorbars show raw intensity versus z-score.
+   whole FOV) on ``subj001`` LAP. Independent colorbars show raw
+   intensity versus z-score.
 
 Atomic steps (copy, swap DATA)
 ------------------------------
 
-Each registered preprocessor is one mapping key. The snippets below use
-:func:`~habit.preprocess_subject` / :func:`~habit.preprocess_image` on a
-subject you already loaded (``demo_data/preprocessed`` or synthetic).
-Full runnable generator:
-``docs/source/examples/scripts/image_preprocessing_steps_demo.py``.
-YAML field reference: :doc:`../configuration/preprocessing`.
+Each registered preprocessor is one mapping key. The snippets below are
+the runnable blocks from
+``docs/source/examples/scripts/image_preprocessing_steps_demo.py``
+(same ``DATA`` / ``MODALITIES`` / ``ROI`` load). YAML field reference:
+:doc:`../configuration/preprocessing`.
 
-Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
 ``dcm2nii`` is a **file** converter (CLI), not an in-memory volume operator
 — see :doc:`../how_to/preprocess`.
 
-**Resample** (target spacing in mm; masks use nearest neighbour)::
+**Load** (one subject from the preprocessed tree)::
 
-   from habit import preprocess_image
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
 
-   out = preprocess_image(
-       subject.image("T1"),
-       {"resample": {"target_spacing": [1.0, 1.0, 1.0], "img_mode": "bilinear"}},
-       mask=subject.mask("tumor"),
-       modality="T1",
-   )
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+   subject = cohort[0]
+   modality = MODALITIES[0]
+
+**Resample** (target spacing in mm; masks use nearest neighbour):
+
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN resample
+   :end-before: # END resample
 
 .. figure:: ../_static/images/examples/preprocess_resample.png
-   :alt: Whole-volume resampled T1 (greyscale)
+   :alt: Whole-volume resampled LAP (greyscale)
    :width: 520
 
-   Resample to 2 mm isotropic (synthetic or demo subject). Whole-image
-   geometry step: the figure is the full FOV, not an ROI panel.
+   Resample to 2 mm isotropic (``subj001`` LAP). Whole-image geometry
+   step: the figure is the full FOV, not an ROI panel.
 
-**Z-score** (per-volume intensity; optional ROI stats and clip)::
+**Z-score** (per-volume intensity; optional ROI stats):
 
-   from habit import preprocess_subject
-
-   out = preprocess_subject(
-       subject,
-       {"zscore_normalization": {"only_inmask": True, "mask_key": "tumor", "clip_values": [-3, 3]}},
-   )
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN zscore
+   :end-before: # END zscore
 
 .. figure:: ../_static/images/examples/preprocess_zscore.png
-   :alt: Original beside whole-volume z-scored T1
+   :alt: Original beside whole-volume z-scored LAP
    :width: 720
 
-   Whole-volume z-score, clipped to :math:`[-3, 3]`. Mean/std may be
-   estimated inside the ROI (``only_inmask=True``); the transform is still
-   applied to the full image. Independent colorbars show raw intensity
-   versus z-score (native units, not a shared :math:`[0, 1]` window).
+   Whole-volume z-score. Mean/std may be estimated inside the ROI
+   (``only_inmask=True``); the transform is still applied to the full
+   image. Independent colorbars show raw intensity versus z-score
+   (native units, not a shared :math:`[0, 1]` window). Optional
+   ``clip_values`` (for example ``[-3, 3]``) is a separate intensity
+   clip after the affine map.
 
-**N4 bias-field correction** (SimpleITK N4)::
+**N4 bias-field correction** (SimpleITK N4):
 
-   out = preprocess_subject(subject, {"n4_correction": {"num_fitting_levels": 4}})
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN n4
+   :end-before: # END n4
 
 .. figure:: ../_static/images/examples/preprocess_n4.png
-   :alt: Original beside whole-volume N4-corrected T1
+   :alt: Original beside whole-volume N4-corrected LAP
    :width: 720
 
-   N4 correction on the full volume. On a nearly flat synthetic volume the
-   visual change can be small; independent colorbars still show the
-   intensity scale. On MRI with a real bias field it is the
+   N4 correction on the full volume. Independent colorbars show the
+   intensity scale. On MRI with a real bias field this is the
    intensity-homogeneity step of the literature chain (N4 → register →
    resample → z-score).
 
-**Histogram standardization** (Nyúl landmarks → ``[target_min, target_max]``)::
+**Histogram standardization** (Nyúl landmarks → ``[target_min, target_max]``):
 
-   out = preprocess_subject(
-       subject,
-       {"histogram_standardization": {"target_min": 0.0, "target_max": 100.0}},
-   )
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN histogram
+   :end-before: # END histogram
 
 .. figure:: ../_static/images/examples/preprocess_histogram.png
-   :alt: Original beside whole-volume histogram-standardized T1
+   :alt: Original beside whole-volume histogram-standardized LAP
    :width: 720
 
    Percentile landmarks mapped to 0–100 on the full volume. Independent
    colorbars show original units versus the mapped range.
 
-**Adaptive histogram equalization**::
+**Adaptive histogram equalization**:
 
-   out = preprocess_subject(
-       subject,
-       {"adaptive_histogram_equalization": {"alpha": 0.3, "beta": 0.3, "radius": 5}},
-   )
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN clahe
+   :end-before: # END clahe
 
 .. figure:: ../_static/images/examples/preprocess_clahe.png
    :alt: Original beside whole-volume adaptive histogram equalization
@@ -146,35 +161,29 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    show the intensity scale. Use when the scientific question needs local
    contrast, not when you still need quantitative MRI units.
 
-**Reorientation** (canonical axis code; ``closest`` = flip/permute only)::
+**Reorientation** (canonical axis code; ``closest`` = flip/permute only):
 
-   out = preprocess_subject(
-       subject,
-       {"reorientation": {"target_orientation": "RAS", "mode": "closest"}},
-   )
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN reorient
+   :end-before: # END reorient
 
 .. figure:: ../_static/images/examples/preprocess_reorient.png
-   :alt: Whole-volume RAS-reoriented T1 (greyscale)
+   :alt: Whole-volume RAS-reoriented LAP (greyscale)
    :width: 520
 
    Reorient to RAS. ``strict`` additionally resamples; ``closest`` does not
    interpolate intensities. Whole-image geometry: no ROI crop.
 
-**Registration** (SimpleITK affine here; ANTs SyN needs ``habit[registration]``)::
+**Registration** (SimpleITK affine here; ANTs SyN needs ``habit[registration]``):
 
-   out = preprocess_subject(
-       subject,
-       {
-           "registration": {
-               "fixed_image": "T1",
-               "backend": "simpleitk",
-               "type_of_transform": "Affine",
-           }
-       },
-   )
+.. literalinclude:: scripts/image_preprocessing_steps_demo.py
+   :language: python
+   :start-after: # BEGIN registration
+   :end-before: # END registration
 
 .. figure:: ../_static/images/examples/preprocess_register.png
-   :alt: Original beside registered T1 with ROI contour overlay
+   :alt: Original beside registered LAP with ROI contour overlay
    :width: 720
 
    Affine registration onto the fixed modality. Cyan contour: the ROI after
