@@ -83,6 +83,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -106,6 +115,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -175,6 +185,7 @@
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -520,10 +531,19 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1403,7 +1423,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#see-also">See also</a></li>
@@ -1675,7 +1696,7 @@ where figures go. All text is English/ASCII via
                 <span class="p">{</span>
                     <span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
                     <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;silhouette&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">),</span>
@@ -1731,19 +1752,6 @@ where figures go. All text is English/ASCII via
     <span class="s2">&quot;(train_/test_/cv_ under output/visualizations/); &quot;</span>
     <span class="s2">&quot;multi-model compare: ml_advanced_demo.py (compare_models).&quot;</span>
 <span class="p">)</span>
-
-<span class="c1"># Refresh Sphinx gallery assets when run from the repo root.</span>
-<span class="n">_gallery</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/source/_static/images/examples&quot;</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">_gallery</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-    <span class="n">_gallery</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">_src</span><span class="p">,</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">pca_path</span><span class="p">,</span> <span class="s2">&quot;viz_habitat_pca_2d.png&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">km_path</span><span class="p">,</span> <span class="s2">&quot;viz_kaplan_meier.png&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="n">reg_path</span><span class="p">,</span> <span class="s2">&quot;viz_predicted_vs_observed.png&quot;</span><span class="p">),</span>
-    <span class="p">):</span>
-        <span class="n">_dest</span> <span class="o">=</span> <span class="n">_gallery</span> <span class="o">/</span> <span class="n">_name</span>
-        <span class="n">_dest</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">_src</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gallery: </span><span class="si">{</span><span class="n">_dest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

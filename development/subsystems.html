@@ -439,6 +439,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -462,6 +471,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -531,6 +541,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -876,10 +887,19 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1759,7 +1779,8 @@ window.runMermaid = runMermaid;</script>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="philosophy.html#see-also">See also</a></li>

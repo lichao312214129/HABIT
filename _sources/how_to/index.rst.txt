@@ -16,6 +16,10 @@ and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
 **Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
 
+**Precise voxel features** (morphology-aware screen before clustering):
+:doc:`../tutorial/precise_screening`. Gallery:
+:doc:`../examples/precise_features`.
+
 .. toctree::
    :maxdepth: 1
 

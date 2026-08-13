@@ -50,10 +50,9 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
      habitat:
        algorithm: kmeans
+       min_clusters: 2
        max_clusters: 10
-       habitat_cluster_selection_method:
-         - inertia
-         - silhouette
+       habitat_cluster_selection_method: elbow
        fixed_n_clusters: null
        random_state: 42
        max_iter: 300
@@ -821,7 +820,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
     - ``bic``: Bayesian information criterion (lower better; gmm only)
 
   - **Description**: Multiple metrics may be specified; system combines them to pick best habitat count.
-  - **Example**: ``[inertia, silhouette]``
+  - **Example**: ``elbow`` (schema default; k-means). GMM studies typically use ``bic``.
 
 - ``fixed_n_clusters``: Fixed habitat count
 
@@ -849,14 +848,12 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
   .. code-block:: yaml
 
-     # Auto-select habitat count (recommended)
+     # Auto-select habitat count (recommended: elbow, k in 2–10)
      habitat:
        algorithm: kmeans
        max_clusters: 10
        min_clusters: 2
-       habitat_cluster_selection_method:
-         - inertia
-         - silhouette
+       habitat_cluster_selection_method: elbow
        fixed_n_clusters: null
        random_state: 42
      

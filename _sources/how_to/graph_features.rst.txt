@@ -4,9 +4,10 @@ Graph topology features
 Goal: extract built-in habitat **graph topology** features (nodes / edges /
 metrics) from habitat label maps, optionally with 2D/3D figures.
 
-Need habitat maps first (:doc:`segment_habitat`). Full column definitions:
-:doc:`../reference/features/graph`. Short end-to-end gallery (one subject →
-one-step → graph plot): :doc:`../examples/graph_features`.
+Need habitat maps first (:doc:`segment_habitat`). Reviewer-grade formulas
+(nodes, edges, metrics, VOI normalization):
+:doc:`../reference/features/graph`. Short end-to-end gallery:
+:doc:`../examples/graph_features`.
 
 ``graph`` is a **built-in** light family under
 :doc:`../reference/features/index` (same tier as ``volume`` / ``msi`` /

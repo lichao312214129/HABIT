@@ -40,7 +40,8 @@ Recommended reading order
 
 **New to HABIT**
 
-1. :doc:`philosophy` — The five design principles and their trade-offs.
+1. :doc:`philosophy` — Limitations of the research setting, and why the
+   API is the product (CLI / YAML are shells).
 2. :doc:`mental_model` — Core terminology and the system mental model.
 3. :doc:`architecture` — Layers, configuration assembly, and CLI-to-core
    mapping.

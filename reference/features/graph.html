@@ -21,6 +21,7 @@
         <script src="../../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../../_static/doctools.js?v=9a2dae69"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -83,6 +84,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -106,6 +116,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -175,6 +186,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -520,10 +532,19 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a></li>
 </ul>
@@ -1403,7 +1424,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../development/philosophy.html#see-also">See also</a></li>
@@ -1598,38 +1620,364 @@
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">habitat_graph_features.csv</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">graph</span></code> is a <strong>built-in</strong> light habitat feature family (registered as
-<code class="docutils literal notranslate"><span class="pre">habitat_feature_extractor</span></code> name <code class="docutils literal notranslate"><span class="pre">graph</span></code>). It is not a private HABIT-v2-only
-plugin. Prefer the domain / public API path below; <code class="docutils literal notranslate"><span class="pre">habit.compat.graph_plugin</span></code>
-and related loaders are deprecated transitional shims.</p>
-</section>
-<section id="definition">
-<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading"></a></h2>
-<p>Each connected habitat region (optionally eroded and subdivided into grid
-blocks) becomes a graph node. Edges connect region centroids within a distance
-threshold (<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">centroid_distance</span></code>) or region pairs that share enough
-face / edge / corner-adjacent voxels (<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code>). NetworkX-derived
-topology metrics are reported:</p>
-<ul class="simple">
-<li><p>per habitat: <code class="docutils literal notranslate"><span class="pre">single_h{label}_*</span></code> columns</p></li>
-<li><p>per unordered habitat pair: <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_*</span></code> columns</p></li>
-</ul>
-<p>Absent labels still emit zero-valued empty-graph metrics so cohort tables keep
-stable columns (same contract as <a class="reference internal" href="ith_score.html"><span class="doc">ITH Score</span></a>). Size-dependent features also
-carry VOI-normalized companions (<code class="docutils literal notranslate"><span class="pre">*_norm</span></code> / <code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> /
-<code class="docutils literal notranslate"><span class="pre">*_fraction</span></code>).</p>
+<code class="docutils literal notranslate"><span class="pre">habitat_feature_extractor</span></code> name <code class="docutils literal notranslate"><span class="pre">graph</span></code>). Prefer the domain / public API
+path; <code class="docutils literal notranslate"><span class="pre">habit.compat.graph_plugin</span></code> and related loaders are deprecated
+transitional shims.</p>
 <p>Numeric definitions live in L0 <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.kernels.habitat_graph</span></code> and are
 identical for the domain extractor, the kernel helper
 <a class="reference internal" href="../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code></a>, and the optional
-<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> graph figures (same node / edge construction).</p>
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> graph figures (same node / edge construction). This page
+matches that source. It does not invent a second theory.</p>
 </section>
-<section id="graph-construction-options">
-<h2>Graph construction options<a class="headerlink" href="#graph-construction-options" title="Link to this heading"></a></h2>
-<p>These fields are shared by:</p>
+<section id="notation-and-domains">
+<h2>Notation and domains<a class="headerlink" href="#notation-and-domains" title="Link to this heading"></a></h2>
+<p>Let <span class="math notranslate nohighlight">\(L:\Omega\to\{0,1,\ldots,K\}\)</span> be an integer habitat label map on a
+2-D or 3-D voxel lattice <span class="math notranslate nohighlight">\(\Omega\subset\mathbb{Z}^{d}\)</span> with
+<span class="math notranslate nohighlight">\(d\in\{2,3\}\)</span>.</p>
 <ul class="simple">
-<li><p>YAML top-level <code class="docutils literal notranslate"><span class="pre">graph:</span></code> block (<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code>)</p></li>
-<li><p>Domain params (<a class="reference internal" href="../../api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams" title="habit.domain.GraphHabitatFeaturesParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphHabitatFeaturesParams</span></code></a>)</p></li>
-<li><p>Kernel options (<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a>)</p></li>
+<li><p><strong>Background.</strong> Label <span class="math notranslate nohighlight">\(0\)</span> is background and is <strong>excluded</strong> from node
+extraction, graph construction, and the tumour VOI measure
+<span class="math notranslate nohighlight">\(V\)</span> below. It is not a graph node.</p></li>
+<li><p><strong>Habitat labels.</strong> <span class="math notranslate nohighlight">\(\mathcal{H}=\{k\in\mathbb{Z}:k&gt;0,\;
+\exists\mathbf{x}\in\Omega,\; L(\mathbf{x})=k\}\)</span>. When the caller supplies
+<code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>, every listed id still emits columns even if it is
+absent from this map (empty graph → all metrics <code class="docutils literal notranslate"><span class="pre">0</span></code>), so cohort tables
+keep a stable schema (same contract as <a class="reference internal" href="ith_score.html"><span class="doc">ITH Score</span></a>).</p></li>
+<li><p><strong>Coordinates.</strong> Centroids and distances are in <strong>index / voxel units</strong>,
+not millimetres. Spacing is not applied inside the kernel.</p></li>
+<li><p><strong>Undefined arithmetic.</strong> Empty sequences, zero denominators, non-finite
+NetworkX outputs, and graphs below a metric’s minimum size return
+<code class="docutils literal notranslate"><span class="pre">0.0</span></code> (never NaN in the exported table).</p></li>
 </ul>
+<p>Tumour VOI (used only for size-normalized companions):</p>
+<div class="math notranslate nohighlight">
+\[V = \#\{\mathbf{x}\in\Omega: L(\mathbf{x})\ne 0\},
+\qquad
+\delta_{\mathrm{bbox}}
+= \bigl\|(\mathbf{u}_{\max}-\mathbf{u}_{\min}+\mathbf{1})\bigr\|_{2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{u}_{\min},\mathbf{u}_{\max}\)</span> are the inclusive index
+bounds of non-background voxels. If <span class="math notranslate nohighlight">\(V=0\)</span>, no <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions
+are written.</p>
+</section>
+<section id="graph-construction">
+<h2>Graph construction<a class="headerlink" href="#graph-construction" title="Link to this heading"></a></h2>
+<section id="nodes-connected-regions">
+<h3>Nodes (connected regions)<a class="headerlink" href="#nodes-connected-regions" title="Link to this heading"></a></h3>
+<p>For each habitat <span class="math notranslate nohighlight">\(k\in\mathcal{H}\)</span>:</p>
+<ol class="arabic">
+<li><p>Build the binary mask <span class="math notranslate nohighlight">\(M_k=\mathbf{1}[L=k]\)</span>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> <span class="math notranslate nohighlight">\(r\ge 1\)</span>, replace <span class="math notranslate nohighlight">\(M_k\)</span> by
+<span class="math notranslate nohighlight">\(r\)</span> iterations of binary erosion with structuring element
+<span class="math notranslate nohighlight">\(S\)</span> and <code class="docutils literal notranslate"><span class="pre">border_value=0</span></code>. Default in
+<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> is <span class="math notranslate nohighlight">\(r=1\)</span>
+(one-voxel shell removed to suppress segmentation-edge noise).
+<span class="math notranslate nohighlight">\(r=0\)</span> disables erosion.</p></li>
+<li><p>Label connected components of the (possibly eroded) mask with
+<code class="docutils literal notranslate"><span class="pre">scipy.ndimage.label</span></code> and structure <span class="math notranslate nohighlight">\(S\)</span>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">connectivity='face'</span></code>: 4-neighbourhood in 2-D / 6-neighbourhood in
+3-D (<code class="docutils literal notranslate"><span class="pre">generate_binary_structure(rank=d,</span> <span class="pre">connectivity=1)</span></code>);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectivity='full'</span></code>: diagonal-inclusive
+(<code class="docutils literal notranslate"><span class="pre">connectivity=d</span></code>).</p></li>
+</ul>
+</li>
+<li><p>Drop a component <span class="math notranslate nohighlight">\(C\)</span> if <span class="math notranslate nohighlight">\(|C| &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code>
+(default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> and <span class="math notranslate nohighlight">\(|C|&gt;s\)</span>, split
+<span class="math notranslate nohighlight">\(C\)</span> into axis-aligned grid blocks of edge length <code class="docutils literal notranslate"><span class="pre">block_size</span></code>
+<span class="math notranslate nohighlight">\(b\)</span> (default <span class="math notranslate nohighlight">\(s=1000\)</span>, <span class="math notranslate nohighlight">\(b=5\)</span>). A block with voxel
+set <span class="math notranslate nohighlight">\(B\)</span> is <strong>kept</strong> only when</p>
+<div class="math notranslate nohighlight">
+\[|B| / b^{d} \;&gt;\; \texttt{block\_min\_coverage}\]</div>
+<p>(strict inequality; default coverage <code class="docutils literal notranslate"><span class="pre">0.5</span></code>). Each kept block becomes
+its own node. If no block passes, or subdivision is off, the whole
+component is one node.</p>
+</li>
+</ol>
+<p>Each kept region (component or block) is a node</p>
+<div class="math notranslate nohighlight">
+\[v=(k,\;\mathrm{id},\;\mathbf{c}_{v},\;n_{v},\;\mathrm{bbox}_{v})\]</div>
+<p>with centroid <span class="math notranslate nohighlight">\(\mathbf{c}_{v}\)</span> = mean of the region’s voxel
+<strong>indices</strong> (float), <span class="math notranslate nohighlight">\(n_{v}=|B|\)</span> or <span class="math notranslate nohighlight">\(|C|\)</span>, and a half-open
+bounding box. Node ids are stable strings <code class="docutils literal notranslate"><span class="pre">h{k}_c{id}</span></code>.</p>
+</section>
+<section id="edges-centroid-distance-default">
+<h3>Edges: centroid distance (default)<a class="headerlink" href="#edges-centroid-distance-default" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='centroid_distance'</span></code>. Let <span class="math notranslate nohighlight">\(\tau=\)</span>
+<code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code> voxel units). An undirected edge
+exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when</p>
+<div class="math notranslate nohighlight">
+\[d(u,v)=\|\mathbf{c}_{u}-\mathbf{c}_{v}\|_{2} \le \tau\]</div>
+<p>Implemented with a KD-tree (<code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree.query_pairs</span></code> /
+<code class="docutils literal notranslate"><span class="pre">query_ball_point</span></code>).</p>
+<ul class="simple">
+<li><p><strong>Single-habitat graph</strong> for label <span class="math notranslate nohighlight">\(k\)</span>: nodes of habitat <span class="math notranslate nohighlight">\(k\)</span>
+only; every pair with <span class="math notranslate nohighlight">\(d\le\tau\)</span> is an edge of type
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>.</p></li>
+<li><p><strong>Pairwise graph</strong> for unordered labels <span class="math notranslate nohighlight">\((a,b)\)</span>, <span class="math notranslate nohighlight">\(a&lt;b\)</span>:
+<strong>inter</strong> edges between a node of <span class="math notranslate nohighlight">\(a\)</span> and a node of <span class="math notranslate nohighlight">\(b\)</span>
+with <span class="math notranslate nohighlight">\(d\le\tau\)</span>. If <code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> is true
+(default), <strong>intra</strong> edges are also added within each label under the
+same <span class="math notranslate nohighlight">\(\tau\)</span>. Interface metrics below use <strong>inter edges only</strong>;
+whole-graph metrics (modularity, assortativity, betweenness, components,
+extended efficiency) use the <strong>full</strong> graph (inter + optional intra).</p></li>
+</ul>
+<p>Edge weight <code class="docutils literal notranslate"><span class="pre">w</span></code> from <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}w =
+\begin{cases}
+1 &amp; \text{``none'' (default)}\\
+d(u,v) &amp; \text{``distance''}\\
+1/(d(u,v)+10^{-6}) &amp; \text{``inverse_distance''}
+\end{cases}\end{split}\]</div>
+<p><code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused for this method (stored as missing).</p>
+</section>
+<section id="edges-voxel-adjacency">
+<h3>Edges: voxel adjacency<a class="headerlink" href="#edges-voxel-adjacency" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code>. Paint every node onto an integer id array
+(background and non-requested labels stay <code class="docutils literal notranslate"><span class="pre">0</span></code>). For each unique
+neighbour offset in a <strong>half-space</strong> (first non-zero component <span class="math notranslate nohighlight">\(=+1\)</span>,
+so each unordered voxel pair is counted once):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">face</span></code>: one non-zero offset (4-conn / 6-conn);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge</span></code>: up to two non-zero offsets (8-conn / 18-conn);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">corner</span></code>: up to <span class="math notranslate nohighlight">\(d\)</span> non-zero offsets (8-conn in 2-D, 26-conn in
+3-D). In 2-D, <code class="docutils literal notranslate"><span class="pre">edge</span></code> and <code class="docutils literal notranslate"><span class="pre">corner</span></code> coincide.</p></li>
+</ul>
+<p>Let <span class="math notranslate nohighlight">\(N_{\mathrm{adj}}(u,v)\)</span> be the number of neighbouring voxel
+pairs whose ids are <span class="math notranslate nohighlight">\((u,v)\)</span>. An edge exists iff</p>
+<div class="math notranslate nohighlight">
+\[N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}\]</div>
+<p>(default <code class="docutils literal notranslate"><span class="pre">1</span></code>). <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> <span class="math notranslate nohighlight">\(=N_{\mathrm{adj}}\)</span>. Distance on
+the edge is still the centroid Euclidean distance (used by distance
+summaries). Weight is <code class="docutils literal notranslate"><span class="pre">1</span></code> unless <code class="docutils literal notranslate"><span class="pre">edge_weight='contact_voxels'</span></code>, in
+which case <span class="math notranslate nohighlight">\(w=N_{\mathrm{adj}}\)</span>. Pairwise intra / inter filtering
+matches the centroid-distance case.</p>
+</section>
+</section>
+<section id="single-habitat-metrics">
+<h2>Single-habitat metrics<a class="headerlink" href="#single-habitat-metrics" title="Link to this heading"></a></h2>
+<p>Prefix <code class="docutils literal notranslate"><span class="pre">single_h{k}_</span></code>. Let <span class="math notranslate nohighlight">\(G=(V_G,E_G)\)</span> be the undirected
+NetworkX graph of habitat <span class="math notranslate nohighlight">\(k\)</span> (<span class="math notranslate nohighlight">\(n=|V_G|\)</span>, <span class="math notranslate nohighlight">\(m=|E_G|\)</span>).
+Degree of node <span class="math notranslate nohighlight">\(v\)</span> is <span class="math notranslate nohighlight">\(\deg(v)\)</span> (unweighted). Let
+<span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> be a copy of the largest connected component
+(by node count).</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\texttt{n\_nodes} &amp;= n \\
+\texttt{n\_edges} &amp;= m \\
+\texttt{edge\_density} &amp;=
+   \begin{cases}
+   m\big/\binom{n}{2} &amp; n\ge 2\\
+   0 &amp; \text{otherwise}
+   \end{cases} \\
+\texttt{connected\_components} &amp;=
+   c(G) \quad\text{(0 if }n=0\text{)} \\
+\texttt{connected\_components\_ratio} &amp;= c(G)/n \quad(0\text{ if }n=0) \\
+\texttt{largest\_component\_ratio} &amp;= |V(G_{\mathrm{LCC}})|/n
+   \quad(0\text{ if }n=0)\end{split}\]</div>
+<p>Degree statistics (<code class="docutils literal notranslate"><span class="pre">avg</span></code> / <code class="docutils literal notranslate"><span class="pre">max</span></code> / <code class="docutils literal notranslate"><span class="pre">min</span></code> over <span class="math notranslate nohighlight">\(\{\deg(v)\}\)</span>;
+<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n=0\)</span>). Hop-normalized companions divide by
+<span class="math notranslate nohighlight">\(n-1\)</span> (<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n\le 1\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\texttt{avg\_degree\_norm}
+= \overline{\deg}/(n-1),\quad
+\texttt{degree\_cv}
+= \mathrm{sd}(\deg)/\overline{\deg}\]</div>
+<p>(<code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code> if the mean is <span class="math notranslate nohighlight">\(&lt;10^{-12}\)</span>). Shannon
+entropy of the <strong>empirical degree histogram</strong>, in bits:</p>
+<div class="math notranslate nohighlight">
+\[\texttt{degree\_entropy}
+= -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
+\qquad
+p_{t} = \#\{v:\deg(v)=t\}/n\]</div>
+<p>Edge-length summaries use the list of centroid distances on <strong>all</strong> edges
+of <span class="math notranslate nohighlight">\(G\)</span> (population mean / standard deviation; <code class="docutils literal notranslate"><span class="pre">0</span></code> if no edges).</p>
+<p>Node-size summaries use <span class="math notranslate nohighlight">\(\{n_{v}:v\in V_G\}\)</span> (mean, sd, CV).</p>
+<p><strong>Spatial dispersion.</strong> Mean of the per-axis standard deviations of
+centroids; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than two nodes:</p>
+<div class="math notranslate nohighlight">
+\[\texttt{spatial\_dispersion}
+= \frac{1}{d}\sum_{\alpha=1}^{d}
+  \mathrm{sd}\bigl(\{c_{v,\alpha}\}_{v\in V_G}\bigr)\]</div>
+<p><strong>Nearest-neighbour ratio</strong> (Clark–Evans <span class="math notranslate nohighlight">\(R\)</span>). Let <span class="math notranslate nohighlight">\(d_{\mathrm{NN}}\)</span>
+be the mean Euclidean distance from each centroid to its nearest <strong>other</strong>
+centroid (KD-tree, <span class="math notranslate nohighlight">\(k=2\)</span>). The study-region measure is the sum of
+node voxel counts <span class="math notranslate nohighlight">\(A=\sum_{v}n_{v}\)</span> (not the centroid bounding box;
+absolute values are therefore <strong>not</strong> comparable to PathPrism’s 2-D
+bounding-box form). Density <span class="math notranslate nohighlight">\(\rho=n/A\)</span>. Expected CSR nearest-neighbour
+distance:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}d_{\mathrm{CSR}}
+=
+\begin{cases}
+1\big/(2\sqrt{\rho}) &amp; d=2\\
+0.5539602785\big/\rho^{1/3} &amp; d=3
+\end{cases}\end{split}\]</div>
+<p>The constant <span class="math notranslate nohighlight">\(0.5539602785\)</span> is <span class="math notranslate nohighlight">\(\Gamma(4/3)/(4\pi/3)^{1/3}\)</span>.
+Then <span class="math notranslate nohighlight">\(R=d_{\mathrm{NN}}/d_{\mathrm{CSR}}\)</span> (<span class="math notranslate nohighlight">\(R&lt;1\)</span> clustering,
+<span class="math notranslate nohighlight">\(R=1\)</span> CSR, <span class="math notranslate nohighlight">\(R&gt;1\)</span> regularity). Returns <code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;2\)</span> or
+<span class="math notranslate nohighlight">\(A\le 0\)</span>.</p>
+<p><strong>Clustering coefficient.</strong> <code class="docutils literal notranslate"><span class="pre">nx.average_clustering(G)</span></code> (unweighted) when
+<span class="math notranslate nohighlight">\(n&gt;0\)</span>, else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p><strong>Path metrics</strong> are computed on <span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> only, and only
+when that component has at least two nodes. They are <strong>hop counts</strong>, not
+physical millimetres:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\texttt{avg\_path\_length}
+&amp;= \text{mean shortest-path length on }G_{\mathrm{LCC}} \\
+\texttt{diameter}
+&amp;= \mathrm{diam}(G_{\mathrm{LCC}}) \\
+\texttt{avg\_path\_length\_norm}
+&amp;= \texttt{avg\_path\_length}/(|V_{\mathrm{LCC}}|-1) \\
+\texttt{diameter\_norm}
+&amp;= \texttt{diameter}/(|V_{\mathrm{LCC}}|-1)\end{split}\]</div>
+<p><strong>Centrality</strong> (same LCC, <span class="math notranslate nohighlight">\(|V_{\mathrm{LCC}}|&gt;1\)</span>): mean of
+<code class="docutils literal notranslate"><span class="pre">betweenness_centrality</span></code> and <code class="docutils literal notranslate"><span class="pre">closeness_centrality</span></code> (NetworkX defaults:
+betweenness is normalized). <strong>Degree assortativity</strong>:
+<code class="docutils literal notranslate"><span class="pre">degree_assortativity_coefficient(G)</span></code>; non-finite or exception → <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p><strong>Modularity.</strong> If <span class="math notranslate nohighlight">\(m=0\)</span>, <code class="docutils literal notranslate"><span class="pre">0</span></code>. Otherwise Louvain communities
+(<code class="docutils literal notranslate"><span class="pre">louvain_communities(G,</span> <span class="pre">weight='weight',</span> <span class="pre">seed=0)</span></code>) then
+<code class="docutils literal notranslate"><span class="pre">modularity(G,</span> <span class="pre">communities,</span> <span class="pre">weight='weight')</span></code>. Typical range roughly
+<span class="math notranslate nohighlight">\([-0.5,1]\)</span>.</p>
+</section>
+<section id="pairwise-metrics">
+<h2>Pairwise metrics<a class="headerlink" href="#pairwise-metrics" title="Link to this heading"></a></h2>
+<p>Prefix <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_</span></code> with <span class="math notranslate nohighlight">\(a&lt;b\)</span>. Let <span class="math notranslate nohighlight">\(V_a,V_b\)</span> be the
+node sets of the two labels, <span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>, and
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class edges only
+(<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>).</p>
+<div class="math notranslate nohighlight">
+\[\texttt{n\_nodes\_1}=n_1,\quad
+\texttt{n\_nodes\_2}=n_2,\quad
+\texttt{n\_edges}=|E_{\mathrm{inter}}|\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\texttt{edge\_density}
+=
+\begin{cases}
+|E_{\mathrm{inter}}|/(n_1 n_2) &amp; n_1 n_2&gt;0\\
+0 &amp; \text{otherwise}
+\end{cases}\end{split}\]</div>
+<p>Distance summaries (mean / sd) use centroid distances on
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only.</p>
+<p><strong>Contact voxels</strong> (adjacency method; <code class="docutils literal notranslate"><span class="pre">0</span></code> under centroid-distance):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\texttt{contact\_voxels\_sum}
+&amp;= \sum_{e\in E_{\mathrm{inter}}} N_{\mathrm{adj}}(e) \\
+\texttt{contact\_voxels\_mean}
+&amp;= \text{mean of those counts} \\
+\texttt{contact\_voxels\_max}
+&amp;= \text{max, or 0 if none}\end{split}\]</div>
+<p><strong>Cross degree</strong> of a node in <span class="math notranslate nohighlight">\(V_a\)</span> is the number of neighbours in
+<span class="math notranslate nohighlight">\(V_b\)</span> (other-class only). Isolated ratio:</p>
+<div class="math notranslate nohighlight">
+\[\texttt{isolated\_ratio\_1}
+= \#\{v\in V_a:\deg_{\mathrm{cross}}(v)=0\}/n_1\]</div>
+<p>(and symmetrically <code class="docutils literal notranslate"><span class="pre">_2</span></code>). <strong>R21 / R12</strong> (mean other-class neighbours):</p>
+<div class="math notranslate nohighlight">
+\[\texttt{avg\_h\{b\}\_per\_h\{a\}}
+= \overline{\deg_{\mathrm{cross}}}(V_a),
+\qquad
+\texttt{avg\_h\{b\}\_per\_h\{a\}\_norm}
+= \overline{\deg_{\mathrm{cross}}}(V_a)/n_2\]</div>
+<p><strong>AD / CV / EN</strong> use <strong>total</strong> degree (intra + inter) so the triple shares
+one basis: <code class="docutils literal notranslate"><span class="pre">avg_degree_1</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_cv_1</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_entropy_1</span></code> (and
+<code class="docutils literal notranslate"><span class="pre">_2</span></code>). Hop-normalized AD divides by <span class="math notranslate nohighlight">\(n_1+n_2-1\)</span>.</p>
+<p><strong>Connected components</strong> and modularity use the <strong>full</strong> pairwise graph.
+<code class="docutils literal notranslate"><span class="pre">connected_components_norm</span></code> divides component count by
+<span class="math notranslate nohighlight">\(n_1+n_2\)</span>. Mean betweenness is reported per class. Habitat-label
+assortativity is <code class="docutils literal notranslate"><span class="pre">attribute_assortativity_coefficient(G,</span> <span class="pre">'habitat_label')</span></code>
+when the graph has at least two nodes and one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</section>
+<section id="extended-metrics">
+<h2>Extended metrics<a class="headerlink" href="#extended-metrics" title="Link to this heading"></a></h2>
+<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>). Integration
+metrics run on the <strong>analysis subgraph</strong>: the input graph if it is
+connected and has edges; otherwise the largest connected component (empty
+/ edgeless graphs stay as they are).</p>
+<p>Let <span class="math notranslate nohighlight">\(G^{\star}\)</span> be that analysis subgraph.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">global_efficiency</span></code> / <code class="docutils literal notranslate"><span class="pre">local_efficiency</span></code>:
+<code class="docutils literal notranslate"><span class="pre">nx.global_efficiency</span></code> / <code class="docutils literal notranslate"><span class="pre">nx.local_efficiency</span></code> on <span class="math notranslate nohighlight">\(G^{\star}\)</span>
+when it has at least two nodes and one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code>: <code class="docutils literal notranslate"><span class="pre">networkx.algorithms.smallworld.sigma</span></code> with
+<code class="docutils literal notranslate"><span class="pre">niter=5</span></code>, <code class="docutils literal notranslate"><span class="pre">nrand=3</span></code>, <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>, <strong>only if</strong>
+<span class="math notranslate nohighlight">\(|V(G^{\star})|\ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default <code class="docutils literal notranslate"><span class="pre">10</span></code>), the
+graph is connected, and it has at least one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>. This is a
+Monte-Carlo estimate relative to random graphs; treat it as a
+<strong>descriptor</strong>, not a hypothesis test.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code>: mean of the <strong>finite</strong> values of
+<code class="docutils literal notranslate"><span class="pre">nx.rich_club_coefficient(G^*,</span> <span class="pre">normalized=True)</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> on failure or
+no edges.</p></li>
+<li><p>Betweenness distribution: <code class="docutils literal notranslate"><span class="pre">betweenness_max</span></code> / <code class="docutils literal notranslate"><span class="pre">betweenness_std</span></code> of
+<code class="docutils literal notranslate"><span class="pre">betweenness_centrality(G^*)</span></code>. Normalized companions divide by the
+theoretical maximum betweenness of an undirected graph,
+<span class="math notranslate nohighlight">\((n-1)(n-2)/2\)</span> (<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;3\)</span>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">degree_skewness</span></code>: unbiased sample skewness (<code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span>
+<span class="pre">bias=False)</span></code>) of degrees on <span class="math notranslate nohighlight">\(G^{\star}\)</span>; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than
+three nodes. Pairwise graphs report <code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> /
+<code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> per class instead of a single skewness.</p></li>
+<li><p>Per-node local efficiency: for each node, global efficiency of the
+subgraph induced by its neighbours (<code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than two neighbours
+or no edges among them). Summaries: <code class="docutils literal notranslate"><span class="pre">node_local_efficiency_min</span></code> /
+<code class="docutils literal notranslate"><span class="pre">node_local_efficiency_std</span></code>.</p></li>
+</ul>
+<p>Pairwise extended metrics reuse the whole-graph efficiency / small-world /
+rich-club block, then add per-class <code class="docutils literal notranslate"><span class="pre">betweenness_max_{1,2}</span></code> (and
+<code class="docutils literal notranslate"><span class="pre">_norm</span></code> using the <strong>full-graph</strong> <span class="math notranslate nohighlight">\(n\)</span> in the betweenness scale).</p>
+</section>
+<section id="voi-normalized-companions">
+<h2>VOI-normalized companions<a class="headerlink" href="#voi-normalized-companions" title="Link to this heading"></a></h2>
+<p>After base metrics, size-dependent keys receive extra columns. Original
+keys are <strong>kept</strong>. Let <span class="math notranslate nohighlight">\(V\)</span> and <span class="math notranslate nohighlight">\(\delta_{\mathrm{bbox}}\)</span> be as
+above, and <span class="math notranslate nohighlight">\(V_k=\#\{\mathbf{x}:L(\mathbf{x})=k\}\)</span>.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Matching suffix</p></th>
+<th class="head"><p>Companion</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/\delta_{\mathrm{bbox}}\)</span> (length / bbox diagonal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_sum</span></code>, <code class="docutils literal notranslate"><span class="pre">*_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">*_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x\big/V^{(d-1)/d}\)</span> (interface ~ area scaling)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_node_voxels</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_n_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_1</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_2</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span> (counts as densities)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes_per_habitat_volume</span></code> <span class="math notranslate nohighlight">\(= n/V_k\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_node_voxels</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> <span class="math notranslate nohighlight">\(= x/V_k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair_*_n_nodes_1</span></code> / <code class="docutils literal notranslate"><span class="pre">_n_nodes_2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> using <span class="math notranslate nohighlight">\(V_a\)</span> or <span class="math notranslate nohighlight">\(V_b\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Hop-normalized path / degree companions (<code class="docutils literal notranslate"><span class="pre">*_avg_path_length_norm</span></code>,
+<code class="docutils literal notranslate"><span class="pre">*_diameter_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">*_avg_degree_norm</span></code>, …) are <strong>already</strong> scaled by
+graph size and are <strong>not</strong> divided by <span class="math notranslate nohighlight">\(V\)</span>.</p>
+<p>Subject-level extras (always written): <code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> = number of
+habitats <strong>present</strong> in this map; <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code> = total nodes
+across present habitats (independent of <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>).</p>
+</section>
+<section id="construction-options">
+<h2>Construction options<a class="headerlink" href="#construction-options" title="Link to this heading"></a></h2>
+<p>These fields are shared by the YAML <code class="docutils literal notranslate"><span class="pre">graph:</span></code> block
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code>), domain
+params (<a class="reference internal" href="../../api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams" title="habit.domain.GraphHabitatFeaturesParams"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphHabitatFeaturesParams</span></code></a>), and kernel
+options (<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a>). Defaults
+below match the kernel dataclass.</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34.0%" />
@@ -1651,7 +1999,7 @@ identical for the domain extractor, the kernel helper
 <td><p><code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">adjacency</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code></p></td>
-<td><p>Centroid distance threshold in <strong>pixel / voxel</strong> units (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code>)</p></td>
+<td><p>Centroid distance threshold in <strong>voxel</strong> units (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code></p></td>
 <td><p>For <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>: <code class="docutils literal notranslate"><span class="pre">face</span></code> (6-conn), <code class="docutils literal notranslate"><span class="pre">edge</span></code> (18), <code class="docutils literal notranslate"><span class="pre">corner</span></code> (26); default <code class="docutils literal notranslate"><span class="pre">face</span></code></p></td>
@@ -1678,7 +2026,7 @@ identical for the domain extractor, the kernel helper
 <td><p>Subdivision block edge length in voxels (default <code class="docutils literal notranslate"><span class="pre">5</span></code>; keep near <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
-<td><p>Minimum fraction of a block that must be occupied (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>)</p></td>
+<td><p>Minimum <strong>strict</strong> fraction of a block that must be occupied (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
@@ -1687,7 +2035,7 @@ identical for the domain extractor, the kernel helper
 <td><p>Efficiency, small-world sigma, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
-<td><p>Minimum analysis-subgraph node count for small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code> for that metric)</p></td>
+<td><p>Minimum analysis-subgraph node count for small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
 </tbody>
 </table>
@@ -1717,7 +2065,7 @@ identical for the domain extractor, the kernel helper
 <td><p>Draw faint habitat partitions behind 2D networks (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code></p></td>
-<td><p>Also render 3D surface / network views when deps allow (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code> extras for PyVista / skimage)</p></td>
+<td><p>Also render 3D surface / network views when deps allow (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code> extras)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
 <td><p>Legacy v0.1 keys accepted for compatibility; <strong>no effect</strong> (activation is <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>, figures run serially)</p></td>
@@ -1725,73 +2073,30 @@ identical for the domain extractor, the kernel helper
 </tbody>
 </table>
 </section>
-<section id="normalization-companions">
-<h2>Normalization companions<a class="headerlink" href="#normalization-companions" title="Link to this heading"></a></h2>
-<p>After base metrics are computed, size-dependent keys receive VOI-normalized
-companions (tumor VOI = non-background voxel count <code class="docutils literal notranslate"><span class="pre">V</span></code>):</p>
+<section id="what-this-family-does-not-claim">
+<h2>What this family does not claim<a class="headerlink" href="#what-this-family-does-not-claim" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>length-like suffixes (<code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code>,
-<code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code>) → <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> by tumor bounding-box diagonal</p></li>
-<li><p>contact suffixes (<code class="docutils literal notranslate"><span class="pre">*_contact_voxels_*</span></code>) → <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> by
-<code class="docutils literal notranslate"><span class="pre">V**((ndim-1)/ndim)</span></code></p></li>
-<li><p>count / voxel suffixes (<code class="docutils literal notranslate"><span class="pre">*_n_nodes*</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">*_avg_node_voxels</span></code>,
-<code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code>) → <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> by <code class="docutils literal notranslate"><span class="pre">V</span></code>, plus selected
-<code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> / <code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> helpers</p></li>
+<li><p>Distances are <strong>voxel hops in index space</strong>, not physical millimetres.
+Do not interpret <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> as a millimetre length unless the
+map is isotropic with 1 mm spacing.</p></li>
+<li><p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is a NetworkX Monte-Carlo ratio on a possibly
+tiny habitat graph. It is not Watts–Strogatz inference for a brain
+connectome, and it is forced to <code class="docutils literal notranslate"><span class="pre">0</span></code> below <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code>.</p></li>
+<li><p>Empty or missing habitats emit <strong>zeros</strong>, not missing values. A cohort
+mean of a <code class="docutils literal notranslate"><span class="pre">single_h3_*</span></code> column therefore mixes true structure with
+absent-label zeros unless you filter on <code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> / presence.</p></li>
+<li><p>Graph features describe the <strong>partition geometry</strong>. They do not identify
+a biological cell type or prove that a habitat is a clonal region.</p></li>
 </ul>
-</section>
-<section id="output-columns">
-<h2>Output columns<a class="headerlink" href="#output-columns" title="Link to this heading"></a></h2>
-<p>Column prefixes follow habitat label ids present in the map’s
-<code class="docutils literal notranslate"><span class="pre">habitat_ids</span></code> (or the explicit <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code> argument of the kernel).</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 36.0%" />
-<col style="width: 64.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Column pattern</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">_edge_density</span></code></p></td>
-<td><p>Region-graph size and density for habitat <code class="docutils literal notranslate"><span class="pre">k</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_connected_components*</span></code>, <code class="docutils literal notranslate"><span class="pre">_largest_component_ratio</span></code></p></td>
-<td><p>Component structure</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_degree*</span></code>, <code class="docutils literal notranslate"><span class="pre">_degree_cv</span></code>, <code class="docutils literal notranslate"><span class="pre">_degree_entropy</span></code></p></td>
-<td><p>Degree statistics (some already hop-normalized)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_edge_distance*</span></code>, <code class="docutils literal notranslate"><span class="pre">_spatial_dispersion*</span></code></p></td>
-<td><p>Geometry of edges / node spread</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_clustering</span></code>, <code class="docutils literal notranslate"><span class="pre">_avg_path_length*</span></code>, <code class="docutils literal notranslate"><span class="pre">_diameter*</span></code></p></td>
-<td><p>Clustering and path metrics on the largest component</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_betweenness</span></code>, <code class="docutils literal notranslate"><span class="pre">_avg_closeness</span></code>, <code class="docutils literal notranslate"><span class="pre">_modularity</span></code></p></td>
-<td><p>Centrality / community structure</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_nearest_neighbor_ratio</span></code>, node-voxel stats</p></td>
-<td><p>Spatial packing / region size summaries</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_global_efficiency</span></code>, <code class="docutils literal notranslate"><span class="pre">_local_efficiency</span></code>, <code class="docutils literal notranslate"><span class="pre">_small_world_sigma</span></code>, rich-club / betweenness distribution (when extended)</p></td>
-<td><p>Extended NetworkX metrics</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_*</span></code></p></td>
-<td><p>Analogous pairwise interface / bipartite-aware metrics (contact voxels, cross-degree ratios, assortativity, …)</p></td>
-</tr>
-</tbody>
-</table>
-<p>Exact key sets depend on <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code>,
-<code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code>, and <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code>.</p>
 </section>
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Domain: <code class="docutils literal notranslate"><span class="pre">habit/domain/habitat_features/graph.py</span></code>
 (<code class="docutils literal notranslate"><span class="pre">GraphHabitatFeatures</span></code> / <code class="docutils literal notranslate"><span class="pre">GraphHabitatFeaturesParams</span></code>)</p></li>
-<li><p>Kernels: <code class="docutils literal notranslate"><span class="pre">habit/kernels/habitat_graph/</span></code></p></li>
+<li><p>Kernels: <code class="docutils literal notranslate"><span class="pre">habit/kernels/habitat_graph/</span></code>
+(<code class="docutils literal notranslate"><span class="pre">nodes.py</span></code>, <code class="docutils literal notranslate"><span class="pre">edges.py</span></code>, <code class="docutils literal notranslate"><span class="pre">metrics.py</span></code>, <code class="docutils literal notranslate"><span class="pre">extended_metrics.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">features.py</span></code>)</p></li>
 <li><p>YAML block: <code class="docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code> in <code class="docutils literal notranslate"><span class="pre">habit/schemas/workflows/habitat.py</span></code></p></li>
 <li><p>Recipe + CSV name: <code class="docutils literal notranslate"><span class="pre">habit/recipes/features.py</span></code>,
 <code class="docutils literal notranslate"><span class="pre">habit/adapters/extract_io.py</span></code> (stem <code class="docutils literal notranslate"><span class="pre">habitat_graph_features</span></code>)</p></li>
@@ -1802,7 +2107,7 @@ companions (tumor VOI = non-background voxel count <code class="docutils literal
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>How-to: <a class="reference internal" href="../../how_to/extract_features.html"><span class="doc">Feature extraction</span></a></p></li>
+<li><p>How-to: <a class="reference internal" href="../../how_to/graph_features.html"><span class="doc">Graph topology features</span></a></p></li>
 <li><p>Configuration: <a class="reference internal" href="../../configuration/feature_extraction.html"><span class="doc">Feature Extraction Configuration</span></a></p></li>
 <li><p>Example: <a class="reference internal" href="../../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a></p></li>
 </ul>

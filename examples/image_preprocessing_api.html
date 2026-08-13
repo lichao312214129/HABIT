@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -83,6 +84,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -106,6 +116,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -175,6 +186,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -520,10 +532,19 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1403,7 +1424,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#see-also">See also</a></li>
@@ -1766,6 +1788,135 @@ atomic checks).</p>
 <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> (z-score; same grid).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+</section>
+<section id="atomic-steps-copy-swap-data">
+<h2>Atomic steps (copy, swap DATA)<a class="headerlink" href="#atomic-steps-copy-swap-data" title="Link to this heading"></a></h2>
+<p>Each registered preprocessor is one mapping key. The snippets below use
+<code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_image()</span></code> on a
+subject you already loaded (<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> or synthetic).
+Full runnable generator:
+<code class="docutils literal notranslate"><span class="pre">docs/source/examples/scripts/image_preprocessing_steps_demo.py</span></code>.
+YAML field reference: <a class="reference internal" href="../configuration/preprocessing.html"><span class="doc">Preprocessing Configuration</span></a>.</p>
+<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> in that script to your tree.
+<code class="docutils literal notranslate"><span class="pre">dcm2nii</span></code> is a <strong>file</strong> converter (CLI), not an in-memory volume operator
+— see <a class="reference internal" href="../how_to/preprocess.html"><span class="doc">Preprocessing</span></a>.</p>
+<p><strong>Resample</strong> (target spacing in mm; masks use nearest neighbour):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_image</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_image</span><span class="p">(</span>
+    <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+    <span class="p">{</span><span class="s2">&quot;resample&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_spacing&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="s2">&quot;img_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">}},</span>
+    <span class="n">mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;tumor&quot;</span><span class="p">),</span>
+    <span class="n">modality</span><span class="o">=</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Resampled intensity volume" src="../_images/preprocess_resample.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Resample to 2 mm isotropic (synthetic or demo subject).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Z-score</strong> (per-volume intensity; optional ROI stats and clip):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_subject</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">,</span> <span class="s2">&quot;clip_values&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Anatomy beside z-scored intensity" src="../_images/preprocess_zscore.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Z-score inside the ROI, clipped to <span class="math notranslate nohighlight">\([-3, 3]\)</span>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>N4 bias-field correction</strong> (SimpleITK N4):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n4_correction&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;num_fitting_levels&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}})</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Anatomy beside N4-corrected intensity" src="../_images/preprocess_n4.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">N4 correction. On a nearly flat synthetic volume the visual change can
+be small; on MRI with a real bias field it is the intensity-homogeneity
+step of the literature chain (N4 → register → resample → z-score).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Histogram standardization</strong> (Nyúl landmarks → <code class="docutils literal notranslate"><span class="pre">[target_min,</span> <span class="pre">target_max]</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;histogram_standardization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_min&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;target_max&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">}},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Histogram-standardized intensity" src="../_images/preprocess_histogram.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Percentile landmarks mapped to 0–100.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Adaptive histogram equalization</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;adaptive_histogram_equalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Local contrast (CLAHE-style). Use when the scientific question needs
+local contrast, not when you still need quantitative MRI units.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Reorientation</strong> (canonical axis code; <code class="docutils literal notranslate"><span class="pre">closest</span></code> = flip/permute only):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;reorientation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;target_orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;RAS&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;closest&quot;</span><span class="p">}},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Volume after RAS reorientation" src="../_images/preprocess_reorient.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Reorient to RAS. <code class="docutils literal notranslate"><span class="pre">strict</span></code> additionally resamples; <code class="docutils literal notranslate"><span class="pre">closest</span></code> does not
+interpolate intensities.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Registration</strong> (SimpleITK affine here; ANTs SyN needs <code class="docutils literal notranslate"><span class="pre">habit[registration]</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;registration&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fixed_image&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;simpleitk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;type_of_transform&quot;</span><span class="p">:</span> <span class="s2">&quot;Affine&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="After SimpleITK affine registration" src="../_images/preprocess_register.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Affine registration onto the fixed modality. Multi-modal MRI in the
+bundled demo is often already on one grid; the call is still the
+embedding-API shape. Deformable SyN: <code class="docutils literal notranslate"><span class="pre">backend='ants'</span></code> after
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habit[registration]</span></code>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>These image steps are <strong>not</strong> the clustering-time
+<code class="docutils literal notranslate"><span class="pre">winsorize</span></code> / <code class="docutils literal notranslate"><span class="pre">minmax</span></code> chain. Mixing the two silently changes the
+habitat definition — see <a class="reference internal" href="habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a>.</p>
 </section>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>

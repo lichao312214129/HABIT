@@ -51,4 +51,57 @@ not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
 chain on two-step runs under-expresses habitats — see
 :doc:`../examples/habitat_preprocessing`.
 
+Atomic Python (same steps, no YAML)
+-----------------------------------
+
+:func:`~habit.preprocess_subject` / :func:`~habit.preprocess_image` take a
+``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing_api`
+and swap ``DATA``. Per-step figures:
+
+.. figure:: ../_static/images/examples/preprocess_resample.png
+   :alt: Resampled volume
+   :width: 360
+
+   Resample.
+
+.. figure:: ../_static/images/examples/preprocess_zscore.png
+   :alt: Z-scored volume
+   :width: 480
+
+   Z-score (ROI).
+
+.. figure:: ../_static/images/examples/preprocess_n4.png
+   :alt: N4-corrected volume
+   :width: 480
+
+   N4 bias-field correction.
+
+.. figure:: ../_static/images/examples/preprocess_histogram.png
+   :alt: Histogram-standardized volume
+   :width: 480
+
+   Nyúl histogram standardization.
+
+.. figure:: ../_static/images/examples/preprocess_clahe.png
+   :alt: Adaptive histogram equalization
+   :width: 480
+
+   Adaptive histogram equalization.
+
+.. figure:: ../_static/images/examples/preprocess_reorient.png
+   :alt: RAS-reoriented volume
+   :width: 360
+
+   Reorient to RAS.
+
+.. figure:: ../_static/images/examples/preprocess_register.png
+   :alt: Affine-registered volume
+   :width: 480
+
+   SimpleITK affine registration.
+
+``dcm2nii`` is CLI-only (needs a DICOM tree)::
+
+   habit preprocess --config config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+
 Next: :doc:`segment_habitat`.

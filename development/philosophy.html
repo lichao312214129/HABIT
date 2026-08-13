@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
 
@@ -439,6 +440,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -462,6 +472,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -531,6 +542,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -876,10 +888,19 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1759,7 +1780,8 @@ window.runMermaid = runMermaid;</script>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a></li>
@@ -1951,75 +1973,94 @@ window.runMermaid = runMermaid;</script>
   <section id="design-philosophy">
 <h1>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h1>
 <p>This page explains why HABIT has its current architecture. The architecture
-page describes what the system is, while the extension guide describes how to
-change it. Understanding the intent and trade-offs behind the design helps
-contributors make decisions consistent with the rest of the project.</p>
-<section id="research-constraints">
-<h2>Research constraints<a class="headerlink" href="#research-constraints" title="Link to this heading"></a></h2>
-<p>Medical-image habitat analysis has five recurring engineering constraints:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Constraint</p></th>
-<th class="head"><p>Meaning</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><strong>Reproducibility</strong></p></td>
-<td><p>The same data and parameters must reproduce the same result.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Batch processing</strong></p></td>
-<td><p>Large cohorts require parallel execution, checkpoints, and isolated
-subject failures.</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>Pluggable algorithms</strong></p></td>
-<td><p>Clustering, feature, model, and selector implementations must be
-replaceable without rewriting the workflow.</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>Train/predict consistency</strong></p></td>
-<td><p>Inference must reuse exactly the processing learned during training.</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>CLI/API parity</strong></p></td>
-<td><p>The command line and Python API must use the same behavior.</p></td>
-</tr>
-</tbody>
-</table>
-<p>HABIT addresses these constraints through five design pillars.</p>
+page describes what the system is; the extension guide describes how to
+change it. The section below is written as <strong>limitations of the research
+setting HABIT is built for</strong>, not as a feature list.</p>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading"></a></h2>
+<p>Imaging papers that survive peer review have to be <strong>repeatable</strong> (same
+operator, same protocol, similar numbers) and <strong>reproducible</strong> (independent
+group, same scientific conclusion). Habitat analysis sits where both fail
+easily: voxel intensities depend on scanner, reconstruction, and
+preprocessing; clustering depends on <span class="math notranslate nohighlight">\(k\)</span>, the feature vector, and the
+validation rule; a one-voxel shift of a mask can rewrite a radiomic map.
+HABIT does not remove that physics. It makes the choices that <em>do</em> change
+the map <strong>explicit, typed, and carried with the result</strong>
+(<a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>, <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a>,
+<a class="reference internal" href="../api/generated/habit.contracts.RunManifest.html#habit.contracts.RunManifest.describe_methods" title="habit.contracts.RunManifest.describe_methods"><code class="xref py py-meth docutils literal notranslate"><span class="pre">describe_methods()</span></code></a>) so a reviewer can see what was fixed
+and a second lab can run the same chain. A green unit test is not a
+multi-centre replication.</p>
+<p>A second limitation is who has to implement the chain. Many
+clinician-researchers cannot program, or can write code that runs but is
+wrong in ways that never raise: a leakage-prone split, a silhouette search
+that is re-tuned after seeing the outcome, a YAML key that is silently
+ignored. HABIT’s answer is not “everyone should become a software engineer”.
+It is to put the scientific objects in a <strong>library API</strong> that can be copied,
+and to keep CLI / YAML as <strong>shells</strong> over that API (see below). The
+limitation remains: a GUI or a config file cannot invent a clinical
+question, an endpoint, or an external validation set.</p>
+<p>A third limitation is the state of typical pipelines. Preprocessing,
+habitat definition, feature extraction, and modelling are often four
+unrelated scripts with parameters chosen because they “looked reasonable”
+or because a previous paper used them on a different organ. HABIT ships
+<strong>one ordered chain</strong> with schema-checked parameters and registry-selected
+algorithms, and it documents community-used defaults (for k-means habitat
+count: inertia <strong>elbow</strong>, <span class="math notranslate nohighlight">\(k\in[2,10]\)</span>). Defaults are a starting
+protocol, not a claim that elbow-2–10 is optimal for every tumour. If a
+study changes <span class="math notranslate nohighlight">\(k\)</span>, the feature set, or the preprocessor after
+unblinding the endpoint, HABIT will still run — it cannot police that
+scientific error.</p>
+</section>
+<section id="api-first-cli-and-yaml-are-not-the-architecture">
+<h2>API-first (CLI and YAML are not the architecture)<a class="headerlink" href="#api-first-cli-and-yaml-are-not-the-architecture" title="Link to this heading"></a></h2>
+<p>HABIT is designed so that <strong>the Python API is the product</strong>. CLI subcommands
+and YAML files are interfaces that assemble the same operators. The test
+is: if <code class="docutils literal notranslate"><span class="pre">habit/cli.py</span></code> and <code class="docutils literal notranslate"><span class="pre">habit/commands/</span></code> were deleted, the scientific
+capability should still be callable as <code class="docutils literal notranslate"><span class="pre">op(subject)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">Study(spec).fit_predict(cohort)</span></code>. Configuration is not a layer of the
+architecture; it is a serialisation of <a class="reference internal" href="../api/generated/habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a>.</p>
+<p>That choice has costs. Contributors must keep schemas, registries, and
+public symbols in sync. Third parties who only want a one-line CLI still
+have to accept that the meaning of a run lives in the spec and the
+manifest, not in the filename of a YAML. The gain is that a notebook, a
+MONAI loop, or another product can embed one habitat step without HABIT’s
+directory layout.</p>
 </section>
 <section id="five-design-pillars">
 <h2>Five design pillars<a class="headerlink" href="#five-design-pillars" title="Link to this heading"></a></h2>
+<p>These pillars are how HABIT responds to the limitations above; they are
+not a claim that the limitations are solved.</p>
 <pre  class="mermaid">
         flowchart LR
-  P1[&quot;Reproducible&quot;] --&gt; S1[&quot;Config as interface&quot;]
+  P1[&quot;Reproducible choices&quot;] --&gt; S1[&quot;Config as interface&quot;]
   P1 --&gt; S2[&quot;Typed schema&quot;]
-  P2[&quot;Batch subjects&quot;] --&gt; S5[&quot;Thin command, thick core&quot;]
-  P3[&quot;Pluggable algorithms&quot;] --&gt; S3[&quot;Registry decoupling&quot;]
+  P2[&quot;Cohort execution&quot;] --&gt; S5[&quot;Thin command, thick operators&quot;]
+  P3[&quot;Replaceable algorithms&quot;] --&gt; S3[&quot;Registry decoupling&quot;]
   P4[&quot;Train = predict&quot;] --&gt; S4[&quot;Unified contracts&quot;]
-  P5[&quot;CLI = API&quot;] --&gt; S5
+  P5[&quot;CLI = API shells&quot;] --&gt; S5
     </pre><ol class="arabic simple">
-<li><p><strong>Configuration is the interface.</strong> Workflow parameters are represented by
-a versionable configuration object. YAML files and Python dictionaries use
-the same validation path.</p></li>
-<li><p><strong>Schemas fail fast.</strong> Pydantic validates configuration before computation.
-Unknown fields are rejected where the schema uses <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code>.</p></li>
-<li><p><strong>Registries decouple algorithms.</strong> Components are registered by name, so
-a workflow can select an implementation from configuration.</p></li>
-<li><p><strong>Contracts unify execution.</strong> Factories and orchestrators expose stable
-interfaces such as <code class="docutils literal notranslate"><span class="pre">run()</span></code> or <code class="docutils literal notranslate"><span class="pre">fit()</span></code>/<code class="docutils literal notranslate"><span class="pre">predict()</span></code>.</p></li>
-<li><p><strong>Commands remain thin.</strong> CLI and Python API entry points delegate to the
-same core workflow implementation.</p></li>
+<li><p><strong>Configuration is an interface, not the core.</strong> YAML and Python dicts
+share one validation path so a CLI user and an API user are not running
+two products.</p></li>
+<li><p><strong>Schemas fail fast.</strong> Pydantic validates before computation. Unknown
+fields are rejected where the schema uses <code class="docutils literal notranslate"><span class="pre">extra='forbid'</span></code>.</p></li>
+<li><p><strong>Registries decouple algorithms.</strong> Clustering, features, and models are
+selected by name so a study can swap an implementation without rewriting
+the workflow.</p></li>
+<li><p><strong>Train and predict share a contract.</strong> Inference must reuse the
+processing fitted on the training cohort, including cohort-level
+preprocessing state on <a class="reference internal" href="../api/generated/habit.contracts.HabitatModel.html#habit.contracts.HabitatModel" title="habit.contracts.habitat.HabitatModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatModel</span></code></a>.</p></li>
+<li><p><strong>Commands remain thin.</strong> CLI entry points delegate to
+<code class="docutils literal notranslate"><span class="pre">habit.api</span></code> / <code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>. They must not grow a second copy of
+the science.</p></li>
 </ol>
 </section>
 <section id="trade-offs">
 <h2>Trade-offs<a class="headerlink" href="#trade-offs" title="Link to this heading"></a></h2>
-<p>These rules deliberately constrain implementation freedom in exchange for
-reproducibility, testability, and consistent behavior across subsystems.
-Configuration requires explicit schema maintenance, registries require import
-discipline, and standardized orchestrators must expose the declared terminal
-methods. The non-negotiable rules are documented in <a class="reference internal" href="invariants.html"><span class="doc">Invariants and Architecture Contracts</span></a>.</p>
+<p>Typed schemas, registries, and frozen specs constrain implementation
+freedom in exchange for a result that can be named in a methods section.
+They do not replace a protocol, an endpoint, or an external test set. The
+non-negotiable engineering rules are documented in <a class="reference internal" href="invariants.html"><span class="doc">Invariants and Architecture Contracts</span></a>.</p>
 </section>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
@@ -2027,6 +2068,8 @@ methods. The non-negotiable rules are documented in <a class="reference internal
 <li><p><a class="reference internal" href="configuration_system.html"><span class="doc">Configuration System</span></a> for configuration assembly.</p></li>
 <li><p><a class="reference internal" href="request_lifecycle.html"><span class="doc">Complete Request Lifecycle</span></a> for a complete command lifecycle.</p></li>
 <li><p><a class="reference internal" href="mental_model.html"><span class="doc">Core Concepts and Mental Model</span></a> for the core vocabulary.</p></li>
+<li><p><a class="reference internal" href="../tutorial/precise_screening.html"><span class="doc">Morphology-aware precise screening</span></a> for morphology-aware feature
+screening before clustering (Prior et al., 2024).</p></li>
 </ul>
 </section>
 </section>

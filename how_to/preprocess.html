@@ -83,6 +83,15 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul class="current">
@@ -106,6 +115,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="segment_habitat.html">Habitat segmentation</a><ul>
@@ -175,6 +185,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -520,10 +531,19 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1403,7 +1423,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../development/philosophy.html#see-also">See also</a></li>
@@ -1638,6 +1659,65 @@ and modality names. Then <code class="docutils literal notranslate"><span class=
 not the clustering-time <code class="docutils literal notranslate"><span class="pre">winsorize</span></code> / <code class="docutils literal notranslate"><span class="pre">minmax</span></code> chain; skipping that
 chain on two-step runs under-expresses habitats — see
 <a class="reference internal" href="../examples/habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a>.</p>
+</section>
+<section id="atomic-python-same-steps-no-yaml">
+<h2>Atomic Python (same steps, no YAML)<a class="headerlink" href="#atomic-python-same-steps-no-yaml" title="Link to this heading"></a></h2>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_image()</span></code> take a
+<code class="docutils literal notranslate"><span class="pre">Subject</span></code> or one volume. Copy from <a class="reference internal" href="../examples/image_preprocessing_api.html"><span class="doc">Image preprocessing API (batch + atomic)</span></a>
+and swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code>. Per-step figures:</p>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Resampled volume" src="../_images/preprocess_resample.png" width="360" />
+</a>
+<figcaption>
+<p><span class="caption-text">Resample.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Z-scored volume" src="../_images/preprocess_zscore.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Z-score (ROI).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="N4-corrected volume" src="../_images/preprocess_n4.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">N4 bias-field correction.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Histogram-standardized volume" src="../_images/preprocess_histogram.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Nyúl histogram standardization.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Adaptive histogram equalization.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="RAS-reoriented volume" src="../_images/preprocess_reorient.png" width="360" />
+</a>
+<figcaption>
+<p><span class="caption-text">Reorient to RAS.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Affine-registered volume" src="../_images/preprocess_register.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">SimpleITK affine registration.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><code class="docutils literal notranslate"><span class="pre">dcm2nii</span></code> is CLI-only (needs a DICOM tree):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">preprocess</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">preprocessing</span><span class="o">/</span><span class="n">config_preprocessing_dcm2nii_demo</span><span class="o">.</span><span class="n">yaml</span>
+</pre></div>
+</div>
 <p>Next: <a class="reference internal" href="segment_habitat.html"><span class="doc">Habitat segmentation</span></a>.</p>
 </section>
 </section>

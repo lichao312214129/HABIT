@@ -148,7 +148,8 @@ with the Hungarian algorithm and compared by Dice coefficient, per habitat.
 What to read next
 -----------------
 
-* :doc:`../api/domain` — the ``ImagePerturbation`` protocol and registry
+* Tutorial (principle + claims): :doc:`../tutorial/precise_screening`
+* Domain API: :doc:`../api/domain` — the ``ImagePerturbation`` protocol and registry
 * :doc:`../api/kernels` — the perturbation and voxel-ICC numeric kernels
 * :doc:`habitat_preprocessing` / :doc:`habitat_preprocessing_api` — chains the whitelist
   joins
