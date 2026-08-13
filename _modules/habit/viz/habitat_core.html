@@ -1519,6 +1519,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -2036,6 +2037,13 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: Perceptually uniform sequential map (greyscale-safe; no rainbow).</span>
 <span class="n">_MSI_CMAP</span> <span class="o">=</span> <span class="s2">&quot;cividis&quot;</span>
 
+<span class="c1">#: Light grey for masked MSI diagonal cells (connected-subregion size, not</span>
+<span class="c1">#: an interface count). Must stay distinct from the sequential map.</span>
+<span class="n">_MSI_DIAGONAL_FACE</span> <span class="o">=</span> <span class="s2">&quot;#D0D0D0&quot;</span>
+
+<span class="c1">#: Accepted ``plot_msi_matrix(..., scale=)`` keys.</span>
+<span class="n">_MSI_SCALES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;log1p&quot;</span><span class="p">,</span> <span class="s2">&quot;normalized&quot;</span><span class="p">,</span> <span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+
 <span class="c1">#: Default bar width as a fraction of the category slot (thinner than</span>
 <span class="c1">#: matplotlib&#39;s 0.8 so a few habitats do not look like a solid block).</span>
 <span class="n">_BAR_WIDTH</span> <span class="o">=</span> <span class="mf">0.55</span>
@@ -2076,87 +2084,154 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">palette</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)])</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_percentile_vmax</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">99.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_msi_robust_limits</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a colour-scale ceiling that is not dominated by a single peak.</span>
+<span class="sd">    Return ``(vmin, vmax)`` from the 2nd–98th percentiles of finite cells.</span>
+
+<span class="sd">    Falls back to the true min/max when there are too few cells or the</span>
+<span class="sd">    percentiles collapse. A constant sample returns equal limits (honest:</span>
+<span class="sd">    no fake stretch). Callers must put these same numbers on the colorbar.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        values: Finite samples (already filtered).</span>
-<span class="sd">        percentile: Upper percentile of positive values.</span>
+<span class="sd">        values: Samples already filtered to the cells that should set the</span>
+<span class="sd">            colour scale (typically finite off-diagonal entries).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        float: Strictly positive vmax, or 1.0 when there is no signal.</span>
+<span class="sd">        Tuple of ``(vmin, vmax)``. ``vmax &gt;= vmin``; both finite.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">finite</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span>
-    <span class="n">positive</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">finite</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">positive</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">peak</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span> <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
-        <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">peak</span> <span class="o">&lt;=</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">peak</span>
-    <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">positive</span><span class="p">,</span> <span class="n">percentile</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="ow">or</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">positive</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">vmax</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">98.0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmin</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmax</span><span class="p">))</span> <span class="ow">or</span> <span class="n">vmax</span> <span class="o">&lt;</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">vmin</span>
+    <span class="k">return</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_msi_extend_mode</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a colorbar ``extend`` mode for cells outside ``[vmin, vmax]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        values: Finite samples that were coloured (NaN/masked excluded).</span>
+<span class="sd">        vmin: Lower colour limit shown on the colorbar.</span>
+<span class="sd">        vmax: Upper colour limit shown on the colorbar.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``&quot;neither&quot;``, ``&quot;min&quot;``, ``&quot;max&quot;``, or ``&quot;both&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;neither&quot;</span>
+    <span class="c1"># Integer counts can sit exactly on a percentile; use a tiny absolute</span>
+    <span class="c1"># tolerance so extend triangles appear only for true clipping.</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-12</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmin</span><span class="p">))</span>
+    <span class="n">below</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">vmin</span> <span class="o">-</span> <span class="n">tol</span><span class="p">)))</span>
+    <span class="n">above</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">vmax</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">below</span> <span class="ow">and</span> <span class="n">above</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;both&quot;</span>
+    <span class="k">if</span> <span class="n">below</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;min&quot;</span>
+    <span class="k">if</span> <span class="n">above</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;max&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;neither&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_msi_normalized_probability</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return ``P = M / D`` with the same ``D`` as the MSI feature kernel.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arr: Square non-negative interaction matrix.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Probability matrix, all zeros when ``D &lt;= 0``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">denominator_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">denominator_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">denominator_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">denominator_mat</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">denominator</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span> <span class="o">/</span> <span class="n">denominator</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_msi_display_matrix</span><span class="p">(</span>
     <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">scale</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mask_diagonal</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a raw MSI count matrix into a display array with a colour ceiling.</span>
+<span class="sd">    Convert a raw MSI count matrix into a display array and colour limits.</span>
 
-<span class="sd">    The scientific matrix ``M`` (row/column 0 = background) is often dominated</span>
-<span class="sd">    by the diagonal (connected subregion size). Plotting raw counts with</span>
-<span class="sd">    ``vmin=min, vmax=max`` therefore collapses off-diagonal interface structure</span>
-<span class="sd">    to one colour. This helper exposes three reviewer-defensible scales:</span>
+<span class="sd">    Diagonal entries of ``M`` are connected-subregion size (and ``M[0, 0]``</span>
+<span class="sd">    is the background–background pair count inside the padded bbox). They</span>
+<span class="sd">    are a different quantity from off-diagonal interface counts and typically</span>
+<span class="sd">    dominate a linear or log scale, collapsing real but smaller border</span>
+<span class="sd">    differences to one colour. When ``mask_diagonal`` is true those cells</span>
+<span class="sd">    are set to NaN so the colour scale is fitted to finite off-diagonal</span>
+<span class="sd">    values only; the plot still annotates the true diagonal numbers.</span>
 
-<span class="sd">    * ``&quot;log1p&quot;`` (default) — :math:`\\log(1+M)`, vmax at the 99th percentile</span>
-<span class="sd">      of positive entries;</span>
-<span class="sd">    * ``&quot;normalized&quot;`` — the probability matrix :math:`P=M/D` used by</span>
-<span class="sd">      second-order MSI features, with :math:`D` the lower-triangle sum after</span>
-<span class="sd">      dropping the background row (same denominator as the kernel);</span>
-<span class="sd">    * ``&quot;raw&quot;`` — counts, still clipped at the 99th percentile so one huge</span>
-<span class="sd">      diagonal cell cannot saturate the scale.</span>
+<span class="sd">    ``log1p`` is retained as an opt-in. On an already-narrow off-diagonal</span>
+<span class="sd">    range it compresses contrast further; the default is linear.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        matrix: Square non-negative interaction matrix.</span>
-<span class="sd">        scale: ``&quot;log1p&quot;``, ``&quot;normalized&quot;``, or ``&quot;raw&quot;``.</span>
+<span class="sd">        scale: ``&quot;linear&quot;``, ``&quot;log1p&quot;``, ``&quot;normalized&quot;``, or ``&quot;raw&quot;``.</span>
+<span class="sd">        mask_diagonal: If True, diagonal cells are NaN in the display array</span>
+<span class="sd">            and excluded from ``vmin`` / ``vmax``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple of (display array, colorbar label, vmax).</span>
+<span class="sd">        Tuple of ``(display, colorbar_label, vmin, vmax, extend)``.</span>
+<span class="sd">        ``vmin`` / ``vmax`` are the limits that must appear on the colorbar.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        HABITAPIError: If ``scale`` is unknown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;log1p&quot;</span><span class="p">:</span>
-        <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="n">_percentile_vmax</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">display</span><span class="p">,</span> <span class="s2">&quot;log1p(neighbour-pair count)&quot;</span><span class="p">,</span> <span class="n">vmax</span>
-    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
         <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="n">_percentile_vmax</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">display</span><span class="p">,</span> <span class="s2">&quot;Neighbour-pair count&quot;</span><span class="p">,</span> <span class="n">vmax</span>
-    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;normalized&quot;</span><span class="p">:</span>
-        <span class="c1"># Same D as habit.kernels.habitat_metrics.msi_features_from_matrix.</span>
-        <span class="n">denominator_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">denominator_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">denominator_mat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">denominator</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">denominator_mat</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">denominator</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">display</span> <span class="o">=</span> <span class="n">arr</span> <span class="o">/</span> <span class="n">denominator</span>
-        <span class="n">vmax</span> <span class="o">=</span> <span class="n">_percentile_vmax</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">vmax</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
-            <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="k">return</span> <span class="n">display</span><span class="p">,</span> <span class="s2">&quot;Normalized interaction P&quot;</span><span class="p">,</span> <span class="n">vmax</span>
-    <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;plot_msi_matrix: scale must be &#39;log1p&#39;, &#39;normalized&#39;, or &#39;raw&#39;; &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">scale</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-    <span class="p">)</span>
+        <span class="n">cbar_label</span> <span class="o">=</span> <span class="s2">&quot;Neighbour-pair count&quot;</span>
+    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;log1p&quot;</span><span class="p">:</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">cbar_label</span> <span class="o">=</span> <span class="s2">&quot;log1p(neighbour-pair count)&quot;</span>
+    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;raw&quot;</span><span class="p">:</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">cbar_label</span> <span class="o">=</span> <span class="s2">&quot;Neighbour-pair count&quot;</span>
+    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;normalized&quot;</span><span class="p">:</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">_msi_normalized_probability</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">cbar_label</span> <span class="o">=</span> <span class="s2">&quot;Normalized interaction P&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;plot_msi_matrix: scale must be </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">_MSI_SCALES</span><span class="p">)</span><span class="si">!r}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">scale</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">display</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask_diagonal</span> <span class="ow">and</span> <span class="n">display</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">cbar_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cbar_label</span><span class="si">}</span><span class="s2"> (diagonal masked)&quot;</span>
+
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">display</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">display</span><span class="p">)]</span>
+    <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">_msi_robust_limits</span><span class="p">(</span><span class="n">finite</span><span class="p">)</span>
+    <span class="n">extend</span> <span class="o">=</span> <span class="n">_msi_extend_mode</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">display</span><span class="p">,</span> <span class="n">cbar_label</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">extend</span>
 
 
 <div class="viewcode-block" id="plot_cluster_validation_curves">
@@ -2411,24 +2486,32 @@ window.runMermaid = runMermaid;</script>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">scale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;log1p&quot;</span><span class="p">,</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">mask_diagonal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Heatmap of a spatial interaction (MSI) matrix.</span>
 
-<span class="sd">    Row/column 0 is background. Raw neighbour-pair counts are typically</span>
-<span class="sd">    dominated by the diagonal (connected subregion size), which saturates a</span>
-<span class="sd">    naive ``vmin/vmax`` scale. The default ``scale=&#39;log1p&#39;`` uses</span>
-<span class="sd">    :math:`\\log(1+M)` with vmax at the 99th percentile of positive cells so</span>
-<span class="sd">    off-diagonal interfaces remain visible. ``scale=&#39;normalized&#39;`` shows the</span>
-<span class="sd">    probability matrix :math:`P=M/D` used by second-order MSI features</span>
-<span class="sd">    (same :math:`D` as :func:`habit.kernels.habitat_metrics.msi_features_from_matrix`).</span>
+<span class="sd">    Row/column 0 is background. Diagonal entries are connected-subregion</span>
+<span class="sd">    size (``M[0, 0]`` is background–background pairs in the padded bbox and</span>
+<span class="sd">    is not exported as an MSI feature). Off-diagonal entries are interface</span>
+<span class="sd">    counts. A shared linear colour scale over the full matrix is dominated</span>
+<span class="sd">    by the diagonal, so the default ``scale=&#39;linear&#39;`` masks the diagonal</span>
+<span class="sd">    and stretches colour over the 2nd–98th percentiles of finite</span>
+<span class="sd">    off-diagonal cells. The colorbar shows those same numeric limits.</span>
+<span class="sd">    ``log1p`` is opt-in: on a nearly-constant off-diagonal block it</span>
+<span class="sd">    flattens contrast further.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        matrix: Square 2D array (row/column 0 is typically background).</span>
 <span class="sd">        habitat_ids: Optional labels for axes ``1..K`` (background stays ``BG``).</span>
 <span class="sd">        title: Optional figure title.</span>
-<span class="sd">        scale: ``&quot;log1p&quot;`` (default), ``&quot;normalized&quot;``, or ``&quot;raw&quot;``.</span>
+<span class="sd">        scale: ``&quot;linear&quot;`` (default), ``&quot;normalized&quot;``, ``&quot;raw&quot;``, or</span>
+<span class="sd">            ``&quot;log1p&quot;``. ``&quot;normalized&quot;`` is :math:`P=M/D` with the same</span>
+<span class="sd">            :math:`D` as :func:`habit.kernels.habitat_metrics.msi_features_from_matrix`.</span>
+<span class="sd">        mask_diagonal: Mask the main diagonal in the colour scale. Default</span>
+<span class="sd">            is True for ``linear`` / ``log1p`` / ``normalized``, False for</span>
+<span class="sd">            ``raw`` (full-matrix linear stretch).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``.</span>
@@ -2451,8 +2534,25 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="n">tick_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BG&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span>
 
+    <span class="n">scale_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">mask_diagonal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hide_diag</span> <span class="o">=</span> <span class="n">scale_key</span> <span class="o">!=</span> <span class="s2">&quot;raw&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hide_diag</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mask_diagonal</span><span class="p">)</span>
+
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
-    <span class="n">display</span><span class="p">,</span> <span class="n">cbar_label</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">_msi_display_matrix</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">display</span><span class="p">,</span> <span class="n">cbar_label</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">extend</span> <span class="o">=</span> <span class="n">_msi_display_matrix</span><span class="p">(</span>
+        <span class="n">arr</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">mask_diagonal</span><span class="o">=</span><span class="n">hide_diag</span>
+    <span class="p">)</span>
+    <span class="c1"># imshow requires vmax &gt; vmin; a one-count bump is only for the</span>
+    <span class="c1"># degenerate constant-matrix case and is not shown as a fake range</span>
+    <span class="c1"># when we override colorbar ticks below.</span>
+    <span class="n">plot_vmax</span> <span class="o">=</span> <span class="n">vmax</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">&gt;</span> <span class="n">vmin</span> <span class="k">else</span> <span class="n">vmin</span> <span class="o">+</span> <span class="mf">1.0</span>
+    <span class="n">annot</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_msi_normalized_probability</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">scale_key</span> <span class="o">==</span> <span class="s2">&quot;normalized&quot;</span>
+        <span class="k">else</span> <span class="n">arr</span>
+    <span class="p">)</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">style</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
             <span class="mi">1</span><span class="p">,</span>
@@ -2460,15 +2560,22 @@ window.runMermaid = runMermaid;</script>
             <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">78.0</span><span class="p">),</span>
             <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">_MSI_CMAP</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="n">_MSI_DIAGONAL_FACE</span><span class="p">)</span>
         <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-            <span class="n">display</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="n">_MSI_CMAP</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">display</span><span class="p">),</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">plot_vmax</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+            <span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="n">extend</span>
+        <span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="n">vmin</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="n">vmin</span><span class="p">])</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">vmin</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
@@ -2482,19 +2589,23 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;Spatial interaction (MSI)&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="c1"># Annotate small matrices so a reviewer can read the cells.</span>
+        <span class="c1"># Annotate small matrices so a reviewer can read the cells,</span>
+        <span class="c1"># including masked diagonal counts.</span>
         <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">8</span><span class="p">:</span>
-            <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.55</span> <span class="o">*</span> <span class="p">(</span><span class="n">vmax</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">plot_vmax</span> <span class="o">-</span> <span class="n">vmin</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
                     <span class="n">cell</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">display</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cell</span><span class="p">):</span>
-                        <span class="k">continue</span>
-                    <span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="n">cell</span> <span class="o">&gt;=</span> <span class="n">threshold</span> <span class="k">else</span> <span class="s2">&quot;#222222&quot;</span>
-                    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;normalized&quot;</span><span class="p">:</span>
-                        <span class="n">cell_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cell</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span> <span class="ow">and</span> <span class="n">span</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="n">norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell</span> <span class="o">-</span> <span class="n">vmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">span</span>
+                        <span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="n">norm</span> <span class="o">&gt;=</span> <span class="mf">0.55</span> <span class="k">else</span> <span class="s2">&quot;#222222&quot;</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">cell_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">])</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">text_color</span> <span class="o">=</span> <span class="s2">&quot;#222222&quot;</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">annot</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">scale_key</span> <span class="o">==</span> <span class="s2">&quot;normalized&quot;</span><span class="p">:</span>
+                        <span class="n">cell_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cell_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
                         <span class="n">j</span><span class="p">,</span>
                         <span class="n">i</span><span class="p">,</span>

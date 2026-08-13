@@ -1166,6 +1166,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1763,19 +1764,21 @@ mirroring <code class="docutils literal notranslate"><span class="pre">demo_data
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_subject</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_synthetic_cohort</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_intensity_slice</span>
 
 <span class="n">atomic</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">3</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">processed_atomic</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">atomic</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">}}</span>
 <span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
-    <span class="n">processed_atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">anatomy</span><span class="o">=</span><span class="n">atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">roi_mask</span><span class="o">=</span><span class="n">atomic</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;tumor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+<span class="c1"># Whole-FOV greyscale: z-score is an intensity transform, not an ROI crop.</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
+    <span class="n">processed_atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+    <span class="n">before</span><span class="o">=</span><span class="n">atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
     <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">feature_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: anatomy | z-scored&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
+    <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original T1&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: original | z-scored&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/image_preprocess_slice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1805,13 +1808,15 @@ mirroring <code class="docutils literal notranslate"><span class="pre">demo_data
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>Atomic resample of one synthetic subject (anatomy | processed intensity):</p>
+<p>Atomic z-score of one synthetic subject (original | processed, whole FOV,
+greyscale — not an ROI crop):</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Anatomy beside resampled T1" src="../_images/image_preprocess_slice.png" width="720" />
+<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Original T1 beside whole-volume z-scored T1" src="../_images/image_preprocess_slice.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> with the z-scored volume as
-the feature panel (same grid as anatomy).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a> after a same-grid z-score.
+Mean/std may be estimated inside the ROI (<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the
+displayed volume is still the full slice.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

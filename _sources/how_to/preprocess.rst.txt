@@ -33,18 +33,18 @@ Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
 
 Anatomy | processed intensity (Python)::
 
-   from habit.viz import plot_voxel_texture_slice
+   from habit.viz import plot_intensity_slice
 
-   fig = plot_voxel_texture_slice(
-       processed, anatomy=original, roi_mask=mask, axis=0,
-       feature_label="Z-scored T1",
+   fig = plot_intensity_slice(
+       processed, before=original, axis=0, cmap="gray",
+       image_label="Z-scored T1",
    )
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
-   :alt: Anatomy beside z-scored T1
+   :alt: Original T1 beside whole-volume z-scored T1
    :width: 520
 
-   Atomic z-score panel from the image-preprocessing example.
+   Whole-FOV greyscale z-score panel from the image-preprocessing example.
 
 Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
 not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
@@ -59,46 +59,46 @@ Atomic Python (same steps, no YAML)
 and swap ``DATA``. Per-step figures:
 
 .. figure:: ../_static/images/examples/preprocess_resample.png
-   :alt: Resampled volume
+   :alt: Whole-volume resampled T1
    :width: 360
 
-   Resample.
+   Resample (full FOV).
 
 .. figure:: ../_static/images/examples/preprocess_zscore.png
-   :alt: Z-scored volume
+   :alt: Whole-volume z-scored T1
    :width: 480
 
-   Z-score (ROI).
+   Z-score (whole volume; optional ROI stats).
 
 .. figure:: ../_static/images/examples/preprocess_n4.png
-   :alt: N4-corrected volume
+   :alt: Whole-volume N4-corrected T1
    :width: 480
 
    N4 bias-field correction.
 
 .. figure:: ../_static/images/examples/preprocess_histogram.png
-   :alt: Histogram-standardized volume
+   :alt: Whole-volume histogram-standardized T1
    :width: 480
 
    Nyúl histogram standardization.
 
 .. figure:: ../_static/images/examples/preprocess_clahe.png
-   :alt: Adaptive histogram equalization
+   :alt: Whole-volume adaptive histogram equalization
    :width: 480
 
    Adaptive histogram equalization.
 
 .. figure:: ../_static/images/examples/preprocess_reorient.png
-   :alt: RAS-reoriented volume
+   :alt: Whole-volume RAS-reoriented T1
    :width: 360
 
    Reorient to RAS.
 
 .. figure:: ../_static/images/examples/preprocess_register.png
-   :alt: Affine-registered volume
+   :alt: Registered T1 with ROI contour overlay
    :width: 480
 
-   SimpleITK affine registration.
+   SimpleITK affine registration (ROI contour follows the transform).
 
 ``dcm2nii`` is CLI-only (needs a DICOM tree)::
 

@@ -1166,6 +1166,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1640,19 +1641,19 @@
 and modality names. Then <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span></code> + <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code>.</p>
 <p>Success: <code class="docutils literal notranslate"><span class="pre">out_dir/processed_images/images/&lt;subject&gt;/&lt;modality&gt;/</span></code> has NIfTI.</p>
 <p>Anatomy | processed intensity (Python):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_intensity_slice</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
-    <span class="n">processed</span><span class="p">,</span> <span class="n">anatomy</span><span class="o">=</span><span class="n">original</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">feature_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
+    <span class="n">processed</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="n">original</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Anatomy beside z-scored T1" src="../_images/image_preprocess_slice.png" width="520" />
+<a class="reference internal image-reference" href="../_images/image_preprocess_slice.png"><img alt="Original T1 beside whole-volume z-scored T1" src="../_images/image_preprocess_slice.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Atomic z-score panel from the image-preprocessing example.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Whole-FOV greyscale z-score panel from the image-preprocessing example.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>Image z-score here is <strong>per-volume intensity</strong> (DICOM/NIfTI tree). It is
@@ -1666,52 +1667,52 @@ chain on two-step runs under-expresses habitats — see
 <code class="docutils literal notranslate"><span class="pre">Subject</span></code> or one volume. Copy from <a class="reference internal" href="../examples/image_preprocessing_api.html"><span class="doc">Image preprocessing API (batch + atomic)</span></a>
 and swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code>. Per-step figures:</p>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Resampled volume" src="../_images/preprocess_resample.png" width="360" />
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled T1" src="../_images/preprocess_resample.png" width="360" />
 </a>
 <figcaption>
-<p><span class="caption-text">Resample.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Resample (full FOV).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Z-scored volume" src="../_images/preprocess_zscore.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Whole-volume z-scored T1" src="../_images/preprocess_zscore.png" width="480" />
 </a>
 <figcaption>
-<p><span class="caption-text">Z-score (ROI).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Z-score (whole volume; optional ROI stats).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="N4-corrected volume" src="../_images/preprocess_n4.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Whole-volume N4-corrected T1" src="../_images/preprocess_n4.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">N4 bias-field correction.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Histogram-standardized volume" src="../_images/preprocess_histogram.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Whole-volume histogram-standardized T1" src="../_images/preprocess_histogram.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Nyúl histogram standardization.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Whole-volume adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Adaptive histogram equalization.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="RAS-reoriented volume" src="../_images/preprocess_reorient.png" width="360" />
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented T1" src="../_images/preprocess_reorient.png" width="360" />
 </a>
 <figcaption>
 <p><span class="caption-text">Reorient to RAS.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Affine-registered volume" src="../_images/preprocess_register.png" width="480" />
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Registered T1 with ROI contour overlay" src="../_images/preprocess_register.png" width="480" />
 </a>
 <figcaption>
-<p><span class="caption-text">SimpleITK affine registration.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+<p><span class="caption-text">SimpleITK affine registration (ROI contour follows the transform).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><code class="docutils literal notranslate"><span class="pre">dcm2nii</span></code> is CLI-only (needs a DICOM tree):</p>

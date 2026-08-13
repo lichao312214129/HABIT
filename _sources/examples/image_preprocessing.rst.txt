@@ -43,14 +43,16 @@ Output (abbreviated)
 Figures
 -------
 
-Atomic resample of one synthetic subject (anatomy | processed intensity):
+Atomic z-score of one synthetic subject (original | processed, whole FOV,
+greyscale — not an ROI crop):
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
-   :alt: Anatomy beside resampled T1
+   :alt: Original T1 beside whole-volume z-scored T1
    :width: 720
 
-   :func:`~habit.viz.plot_voxel_texture_slice` with the z-scored volume as
-   the feature panel (same grid as anatomy).
+   :func:`~habit.viz.plot_intensity_slice` after a same-grid z-score.
+   Mean/std may be estimated inside the ROI (``only_inmask=True``); the
+   displayed volume is still the full slice.
 
 What to read next
 -----------------

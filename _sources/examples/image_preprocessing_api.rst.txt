@@ -46,11 +46,12 @@ Figures
 -------
 
 .. figure:: ../_static/images/examples/image_preprocess_api_slice.png
-   :alt: Anatomy beside z-scored T1
+   :alt: Original T1 beside whole-volume z-scored T1
    :width: 720
 
-   :func:`~habit.viz.plot_voxel_texture_slice` after
-   :func:`~habit.preprocess_subject` (z-score; same grid).
+   :func:`~habit.viz.plot_intensity_slice` after
+   :func:`~habit.preprocess_subject` (z-score; same grid, greyscale,
+   whole FOV).
 
 Atomic steps (copy, swap DATA)
 ------------------------------
@@ -78,10 +79,11 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_resample.png
-   :alt: Resampled intensity volume
+   :alt: Whole-volume resampled T1 (greyscale)
    :width: 520
 
-   Resample to 2 mm isotropic (synthetic or demo subject).
+   Resample to 2 mm isotropic (synthetic or demo subject). Whole-image
+   geometry step: the figure is the full FOV, not an ROI panel.
 
 **Z-score** (per-volume intensity; optional ROI stats and clip)::
 
@@ -93,22 +95,25 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_zscore.png
-   :alt: Anatomy beside z-scored intensity
+   :alt: Original beside whole-volume z-scored T1
    :width: 720
 
-   Z-score inside the ROI, clipped to :math:`[-3, 3]`.
+   Whole-volume z-score, clipped to :math:`[-3, 3]`. Mean/std may be
+   estimated inside the ROI (``only_inmask=True``); the transform is still
+   applied to the full image.
 
 **N4 bias-field correction** (SimpleITK N4)::
 
    out = preprocess_subject(subject, {"n4_correction": {"num_fitting_levels": 4}})
 
 .. figure:: ../_static/images/examples/preprocess_n4.png
-   :alt: Anatomy beside N4-corrected intensity
+   :alt: Original beside whole-volume N4-corrected T1
    :width: 720
 
-   N4 correction. On a nearly flat synthetic volume the visual change can
-   be small; on MRI with a real bias field it is the intensity-homogeneity
-   step of the literature chain (N4 → register → resample → z-score).
+   N4 correction on the full volume. On a nearly flat synthetic volume the
+   visual change can be small; on MRI with a real bias field it is the
+   intensity-homogeneity step of the literature chain (N4 → register →
+   resample → z-score).
 
 **Histogram standardization** (Nyúl landmarks → ``[target_min, target_max]``)::
 
@@ -118,10 +123,10 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_histogram.png
-   :alt: Histogram-standardized intensity
+   :alt: Original beside whole-volume histogram-standardized T1
    :width: 720
 
-   Percentile landmarks mapped to 0–100.
+   Percentile landmarks mapped to 0–100 on the full volume.
 
 **Adaptive histogram equalization**::
 
@@ -131,11 +136,12 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_clahe.png
-   :alt: Adaptive histogram equalization
+   :alt: Original beside whole-volume adaptive histogram equalization
    :width: 720
 
-   Local contrast (CLAHE-style). Use when the scientific question needs
-   local contrast, not when you still need quantitative MRI units.
+   Local contrast (CLAHE-style) on the full volume. Use when the scientific
+   question needs local contrast, not when you still need quantitative MRI
+   units.
 
 **Reorientation** (canonical axis code; ``closest`` = flip/permute only)::
 
@@ -145,11 +151,11 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_reorient.png
-   :alt: Volume after RAS reorientation
+   :alt: Whole-volume RAS-reoriented T1 (greyscale)
    :width: 520
 
    Reorient to RAS. ``strict`` additionally resamples; ``closest`` does not
-   interpolate intensities.
+   interpolate intensities. Whole-image geometry: no ROI crop.
 
 **Registration** (SimpleITK affine here; ANTs SyN needs ``habit[registration]``)::
 
@@ -165,13 +171,14 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    )
 
 .. figure:: ../_static/images/examples/preprocess_register.png
-   :alt: After SimpleITK affine registration
+   :alt: Original beside registered T1 with ROI contour overlay
    :width: 720
 
-   Affine registration onto the fixed modality. Multi-modal MRI in the
-   bundled demo is often already on one grid; the call is still the
-   embedding-API shape. Deformable SyN: ``backend='ants'`` after
-   ``pip install habit[registration]``.
+   Affine registration onto the fixed modality. Cyan contour: the ROI after
+   the **same** transform (overlay on anatomy, not a standalone ROI panel).
+   Multi-modal MRI in the bundled demo is often already on one grid; the
+   call is still the embedding-API shape. Deformable SyN:
+   ``backend='ants'`` after ``pip install habit[registration]``.
 
 These image steps are **not** the clustering-time
 ``winsorize`` / ``minmax`` chain. Mixing the two silently changes the

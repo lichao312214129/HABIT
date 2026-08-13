@@ -1166,6 +1166,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1644,96 +1645,176 @@ probabilities from <code class="docutils literal notranslate"><span class="pre">
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="c1"># BEGIN example</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">make_synthetic_feature_table</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLSpec</span><span class="p">,</span> <span class="n">Spec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">BinaryOutcome</span><span class="p">,</span> <span class="n">FeatureTable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">TablePipeline</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_calibration</span><span class="p">,</span>
+    <span class="n">plot_decision_curve</span><span class="p">,</span>
+    <span class="n">plot_precision_recall</span><span class="p">,</span>
+    <span class="n">plot_roc</span><span class="p">,</span>
+    <span class="n">use_style</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+<span class="c1"># Change DATA / ID_COL / LABEL_COL / FEATURES to your table</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/ml_data/breast_cancer_dataset.csv&quot;</span>
+<span class="n">ID_COL</span> <span class="o">=</span> <span class="s2">&quot;subject_id&quot;</span>
+<span class="n">LABEL_COL</span> <span class="o">=</span> <span class="s2">&quot;label&quot;</span>
+<span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;compactness error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;concavity error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;symmetry error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fractal dimension error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst texture&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst smoothness&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Weaker subset for the second compare_models curve</span>
+<span class="n">FEATURES_B</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;compactness error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;symmetry error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fractal dimension error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;worst texture&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">table</span> <span class="o">=</span> <span class="n">make_synthetic_feature_table</span><span class="p">(</span><span class="n">n_rows</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
-<span class="c1"># steps runs in list order: variance on the RAW table, then z-score.</span>
+<span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="n">ID_COL</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+    <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">[[</span><span class="n">ID_COL</span><span class="p">,</span> <span class="n">LABEL_COL</span><span class="p">,</span> <span class="o">*</span><span class="n">FEATURES</span><span class="p">]],</span>
+    <span class="n">id_columns</span><span class="o">=</span><span class="p">(</span><span class="n">ID_COL</span><span class="p">,),</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="n">BinaryOutcome</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="n">LABEL_COL</span><span class="p">,</span> <span class="n">positive_label</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">table_b</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+    <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">[[</span><span class="n">ID_COL</span><span class="p">,</span> <span class="n">LABEL_COL</span><span class="p">,</span> <span class="o">*</span><span class="n">FEATURES_B</span><span class="p">]],</span>
+    <span class="n">id_columns</span><span class="o">=</span><span class="p">(</span><span class="n">ID_COL</span><span class="p">,),</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="n">FEATURES_B</span><span class="p">,</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="n">BinaryOutcome</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="n">LABEL_COL</span><span class="p">,</span> <span class="n">positive_label</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+
 <span class="n">spec</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ml_api_demo&quot;</span><span class="p">,</span>
     <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">}),</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">}),</span>
         <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),</span>
     <span class="p">),</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
 <span class="p">)</span>
+<span class="n">spec_b</span> <span class="o">=</span> <span class="n">MLSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ml_api_demo_b&quot;</span><span class="p">,</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">),),</span>
+    <span class="n">classifier</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">}),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">(</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">),</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;auc&quot;</span><span class="p">)),</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">table_for_ids</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a FeatureTable containing only the given row ids.&quot;&quot;&quot;</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">id_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">FeatureTable</span><span class="p">(</span>
+        <span class="n">frame</span><span class="o">=</span><span class="n">source</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">id_columns</span><span class="o">=</span><span class="n">source</span><span class="o">.</span><span class="n">id_columns</span><span class="p">,</span>
+        <span class="n">feature_columns</span><span class="o">=</span><span class="n">source</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">,</span>
+        <span class="n">outcome</span><span class="o">=</span><span class="n">source</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">positive_scores</span><span class="p">(</span><span class="n">probabilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Positive-class probabilities from a predict_model probability frame.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="mi">1</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">probabilities</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;1&quot;</span> <span class="ow">in</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">probabilities</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">probabilities</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== train_model (hold-out) ===&quot;</span><span class="p">)</span>
 <span class="n">fitted</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">train_model</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  test metrics: </span><span class="si">{</span><span class="w"> </span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">test_metrics</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">fitted_b</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">train_model</span><span class="p">(</span><span class="n">table_b</span><span class="p">,</span> <span class="n">spec_b</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  model_a test metrics: </span><span class="si">{</span><span class="w"> </span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">test_metrics</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  model_b test metrics: </span><span class="si">{</span><span class="w"> </span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">(</span><span class="n">fitted_b</span><span class="o">.</span><span class="n">test_metrics</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== cross_validate ===&quot;</span><span class="p">)</span>
 <span class="n">cv</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">cross_validate</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  mean metrics: </span><span class="si">{</span><span class="w"> </span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">mean_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  fold AUCs:   &quot;</span><span class="p">,</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fold</span><span class="p">[</span><span class="s2">&quot;auc&quot;</span><span class="p">]),</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">fold</span> <span class="ow">in</span> <span class="n">cv</span><span class="o">.</span><span class="n">fold_metrics</span><span class="p">])</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== predict_model + .habitpipeline ===&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_ml_api_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-    <span class="n">archive</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;demo.habitpipeline&quot;</span>
-    <span class="n">fitted</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
-    <span class="n">reloaded</span> <span class="o">=</span> <span class="n">TablePipeline</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
-    <span class="n">prediction</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">predict_model</span><span class="p">(</span><span class="n">reloaded</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  predictions=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">predictions</span><span class="p">)</span><span class="si">}</span><span class="s2">, &quot;</span>
-          <span class="sa">f</span><span class="s2">&quot;proba_cols=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">probabilities</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">archive</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;demo.habitpipeline&quot;</span>
+<span class="n">fitted</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
+<span class="n">reloaded</span> <span class="o">=</span> <span class="n">TablePipeline</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
+<span class="n">holdout</span> <span class="o">=</span> <span class="n">table_for_ids</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">fitted</span><span class="o">.</span><span class="n">test_row_ids</span><span class="p">)</span>
+<span class="n">holdout_b</span> <span class="o">=</span> <span class="n">table_for_ids</span><span class="p">(</span><span class="n">table_b</span><span class="p">,</span> <span class="n">fitted_b</span><span class="o">.</span><span class="n">test_row_ids</span><span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">predict_model</span><span class="p">(</span><span class="n">reloaded</span><span class="p">,</span> <span class="n">holdout</span><span class="p">)</span>
+<span class="n">prediction_b</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">predict_model</span><span class="p">(</span><span class="n">fitted_b</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">holdout_b</span><span class="p">)</span>
+<span class="n">y_true</span> <span class="o">=</span> <span class="n">holdout</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">LABEL_COL</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">y_prob_a</span> <span class="o">=</span> <span class="n">positive_scores</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">probabilities</span><span class="p">)</span>
+<span class="n">y_prob_b</span> <span class="o">=</span> <span class="n">positive_scores</span><span class="p">(</span><span class="n">prediction_b</span><span class="o">.</span><span class="n">probabilities</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;  hold-out AUC model_a=</span><span class="si">{</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_prob_a</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;model_b=</span><span class="si">{</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_prob_b</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 
-    <span class="c1"># Build two prediction CSVs for compare_models (needs prob_col).</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-        <span class="n">proba</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">probabilities</span>
-        <span class="n">positive</span> <span class="o">=</span> <span class="n">proba</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;1&quot;</span> <span class="ow">in</span> <span class="n">proba</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">proba</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">ids</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">label_col</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">outcome_column</span>
-        <span class="k">assert</span> <span class="n">label_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">id_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ids</span><span class="p">,</span> <span class="n">label_col</span><span class="p">]</span>
-        <span class="c1"># Perturb second model slightly so DeLong has two distinct curves.</span>
-        <span class="n">noise</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="k">if</span> <span class="n">name_suffix</span> <span class="o">==</span> <span class="s2">&quot;a&quot;</span> <span class="k">else</span> <span class="mf">0.02</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">,</span>
-                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
-                <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">predictions</span><span class="p">),</span>
-                <span class="s2">&quot;probability&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">positive</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">+</span> <span class="n">noise</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
-            <span class="p">}</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">path</span>
 
-    <span class="n">csv_a</span> <span class="o">=</span> <span class="n">_to_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;model_a.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
-    <span class="n">csv_b</span> <span class="o">=</span> <span class="n">_to_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;model_b.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">)</span>
-    <span class="n">compare_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;comparison&quot;</span>
-    <span class="n">comparison</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">compare_models</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_pred_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a compare_models input CSV (needs prob_col).&quot;&quot;&quot;</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">compare_dir</span><span class="p">),</span>
-            <span class="s2">&quot;files_config&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">csv_a</span><span class="p">),</span>
-                    <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;model_a&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">csv_b</span><span class="p">),</span>
-                    <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;model_b&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">],</span>
+            <span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="s2">&quot;prediction&quot;</span><span class="p">:</span> <span class="n">pred</span><span class="p">,</span>
+            <span class="s2">&quot;probability&quot;</span><span class="p">:</span> <span class="n">prob</span><span class="p">,</span>
         <span class="p">}</span>
-    <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=== compare_models -&gt; </span><span class="si">{</span><span class="n">comparison</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2"> ===&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+
+<span class="n">csv_a</span> <span class="o">=</span> <span class="n">write_pred_csv</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;model_a.csv&quot;</span><span class="p">,</span>
+    <span class="n">holdout</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">ID_COL</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="n">y_true</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prediction</span><span class="o">.</span><span class="n">predictions</span><span class="p">),</span>
+    <span class="n">y_prob_a</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">csv_b</span> <span class="o">=</span> <span class="n">write_pred_csv</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;model_b.csv&quot;</span><span class="p">,</span>
+    <span class="n">holdout_b</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">ID_COL</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="n">holdout_b</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">LABEL_COL</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prediction_b</span><span class="o">.</span><span class="n">predictions</span><span class="p">),</span>
+    <span class="n">y_prob_b</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">comparison</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">compare_models</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;out/comparison&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;files_config&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">csv_a</span><span class="p">),</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;LR (6 features)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">csv_b</span><span class="p">),</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;LR (4 features)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subject_id_col&quot;</span><span class="p">:</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label_col&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;prob_col&quot;</span><span class="p">:</span> <span class="s2">&quot;probability&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pred_col&quot;</span><span class="p">:</span> <span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=== compare_models -&gt; </span><span class="si">{</span><span class="n">comparison</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2"> ===&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== Atomic: single-row predict ===&quot;</span><span class="p">)</span>
 <span class="n">one_row</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1744,30 +1825,40 @@ probabilities from <code class="docutils literal notranslate"><span class="pre">
     <span class="n">outcome</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">outcome</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">one_pred</span> <span class="o">=</span> <span class="n">recipes</span><span class="o">.</span><span class="n">predict_model</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">one_table</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  row id=</span><span class="si">{</span><span class="n">one_pred</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;pred=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">one_pred</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  row id=</span><span class="si">{</span><span class="n">one_pred</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, pred=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">one_pred</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_roc</span>
+<span class="n">curves</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;LR (6 features)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_prob_a</span><span class="p">),</span>
+    <span class="s2">&quot;LR (4 features)&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_prob_b</span><span class="p">),</span>
+<span class="p">}</span>
 
-<span class="n">id_col</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">id_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">ids</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">predictions</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="n">y_true</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">id_col</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ids</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">outcome_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="n">proba</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">probabilities</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span> <span class="k">if</span> <span class="s2">&quot;1&quot;</span> <span class="ow">in</span> <span class="n">proba</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">proba</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_roc</span><span class="p">(</span>
-    <span class="n">y_true</span><span class="p">,</span> <span class="n">proba</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;LogisticRegression&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ML API ROC&quot;</span>
-<span class="p">)</span>
-<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/tabular_ml_api_roc.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/tabular_ml_api_roc.png&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a figure under out/ and close it.&quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">_save</span><span class="p">(</span><span class="n">plot_roc</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out ROC&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_roc.png&quot;</span><span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span><span class="n">plot_precision_recall</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out PR&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_pr.png&quot;</span><span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span><span class="n">plot_calibration</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out calibration&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_calibration.png&quot;</span><span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span><span class="n">plot_decision_curve</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out DCA&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_dca.png&quot;</span><span class="p">)</span>
+<span class="c1"># END example</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">_example_roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_example_figure</span>
-
-    <span class="n">save_example_figure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">&quot;tabular_ml_api_roc.png&quot;</span><span class="p">)</span>
+    <span class="n">gallery</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/source/_static/images/examples&quot;</span><span class="p">)</span>
+    <span class="n">gallery</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;out/tabular_ml_api_roc.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_roc.png&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;out/tabular_ml_api_pr.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_pr.png&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;out/tabular_ml_api_calibration.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_calibration.png&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;out/tabular_ml_api_dca.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_dca.png&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="p">(</span><span class="n">gallery</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Copied gallery PNGs&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

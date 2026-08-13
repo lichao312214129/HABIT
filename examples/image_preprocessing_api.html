@@ -1167,6 +1167,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1732,20 +1733,22 @@ block (<code class="docutils literal notranslate"><span class="pre">resample</sp
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  output_dir=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  written files≈</span><span class="si">{</span><span class="n">n_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_voxel_texture_slice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_intensity_slice</span>
 
-<span class="c1"># Z-score keeps the grid, so anatomy | processed is an honest before/after.</span>
+<span class="c1"># Z-score keeps the grid, so original | processed is an honest before/after.</span>
 <span class="c1"># Resample (above) changes spacing/shape and cannot share one slice figure.</span>
+<span class="c1"># Whole-FOV greyscale: do not pass roi_mask (that would imply an ROI crop).</span>
 <span class="n">zscored</span> <span class="o">=</span> <span class="n">preprocess_subject</span><span class="p">(</span>
     <span class="n">subject</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">}}</span>
 <span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span>
-    <span class="n">zscored</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">anatomy</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">roi_mask</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;tumor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
+    <span class="n">zscored</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
+    <span class="n">before</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
     <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">feature_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: anatomy | z-scored&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
+    <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original T1&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: original | z-scored&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/image_preprocess_api_slice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1781,11 +1784,12 @@ atomic checks).</p>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/image_preprocess_api_slice.png"><img alt="Anatomy beside z-scored T1" src="../_images/image_preprocess_api_slice.png" width="720" />
+<a class="reference internal image-reference" href="../_images/image_preprocess_api_slice.png"><img alt="Original T1 beside whole-volume z-scored T1" src="../_images/image_preprocess_api_slice.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a> after
-<code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> (z-score; same grid).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a> after
+<code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> (z-score; same grid, greyscale,
+whole FOV).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1812,10 +1816,11 @@ YAML field reference: <a class="reference internal" href="../configuration/prepr
 </pre></div>
 </div>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Resampled intensity volume" src="../_images/preprocess_resample.png" width="520" />
+<a class="reference internal image-reference" href="../_images/preprocess_resample.png"><img alt="Whole-volume resampled T1 (greyscale)" src="../_images/preprocess_resample.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Resample to 2 mm isotropic (synthetic or demo subject).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Resample to 2 mm isotropic (synthetic or demo subject). Whole-image
+geometry step: the figure is the full FOV, not an ROI panel.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Z-score</strong> (per-volume intensity; optional ROI stats and clip):</p>
@@ -1828,10 +1833,12 @@ YAML field reference: <a class="reference internal" href="../configuration/prepr
 </pre></div>
 </div>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Anatomy beside z-scored intensity" src="../_images/preprocess_zscore.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_zscore.png"><img alt="Original beside whole-volume z-scored T1" src="../_images/preprocess_zscore.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Z-score inside the ROI, clipped to <span class="math notranslate nohighlight">\([-3, 3]\)</span>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Whole-volume z-score, clipped to <span class="math notranslate nohighlight">\([-3, 3]\)</span>. Mean/std may be
+estimated inside the ROI (<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the transform is still
+applied to the full image.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>N4 bias-field correction</strong> (SimpleITK N4):</p>
@@ -1839,12 +1846,13 @@ YAML field reference: <a class="reference internal" href="../configuration/prepr
 </pre></div>
 </div>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Anatomy beside N4-corrected intensity" src="../_images/preprocess_n4.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_n4.png"><img alt="Original beside whole-volume N4-corrected T1" src="../_images/preprocess_n4.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">N4 correction. On a nearly flat synthetic volume the visual change can
-be small; on MRI with a real bias field it is the intensity-homogeneity
-step of the literature chain (N4 → register → resample → z-score).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">N4 correction on the full volume. On a nearly flat synthetic volume the
+visual change can be small; on MRI with a real bias field it is the
+intensity-homogeneity step of the literature chain (N4 → register →
+resample → z-score).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Histogram standardization</strong> (Nyúl landmarks → <code class="docutils literal notranslate"><span class="pre">[target_min,</span> <span class="pre">target_max]</span></code>):</p>
@@ -1855,10 +1863,10 @@ step of the literature chain (N4 → register → resample → z-score).</span><
 </pre></div>
 </div>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Histogram-standardized intensity" src="../_images/preprocess_histogram.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Original beside whole-volume histogram-standardized T1" src="../_images/preprocess_histogram.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Percentile landmarks mapped to 0–100.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">Percentile landmarks mapped to 0–100 on the full volume.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Adaptive histogram equalization</strong>:</p>
@@ -1869,11 +1877,12 @@ step of the literature chain (N4 → register → resample → z-score).</span><
 </pre></div>
 </div>
 <figure class="align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Original beside whole-volume adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Local contrast (CLAHE-style). Use when the scientific question needs
-local contrast, not when you still need quantitative MRI units.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<p><span class="caption-text">Local contrast (CLAHE-style) on the full volume. Use when the scientific
+question needs local contrast, not when you still need quantitative MRI
+units.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Reorientation</strong> (canonical axis code; <code class="docutils literal notranslate"><span class="pre">closest</span></code> = flip/permute only):</p>
@@ -1884,11 +1893,11 @@ local contrast, not when you still need quantitative MRI units.</span><a class="
 </pre></div>
 </div>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Volume after RAS reorientation" src="../_images/preprocess_reorient.png" width="520" />
+<a class="reference internal image-reference" href="../_images/preprocess_reorient.png"><img alt="Whole-volume RAS-reoriented T1 (greyscale)" src="../_images/preprocess_reorient.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Reorient to RAS. <code class="docutils literal notranslate"><span class="pre">strict</span></code> additionally resamples; <code class="docutils literal notranslate"><span class="pre">closest</span></code> does not
-interpolate intensities.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+interpolate intensities. Whole-image geometry: no ROI crop.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Registration</strong> (SimpleITK affine here; ANTs SyN needs <code class="docutils literal notranslate"><span class="pre">habit[registration]</span></code>):</p>
@@ -1905,13 +1914,14 @@ interpolate intensities.</span><a class="headerlink" href="#id7" title="Link to 
 </pre></div>
 </div>
 <figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="After SimpleITK affine registration" src="../_images/preprocess_register.png" width="720" />
+<a class="reference internal image-reference" href="../_images/preprocess_register.png"><img alt="Original beside registered T1 with ROI contour overlay" src="../_images/preprocess_register.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Affine registration onto the fixed modality. Multi-modal MRI in the
-bundled demo is often already on one grid; the call is still the
-embedding-API shape. Deformable SyN: <code class="docutils literal notranslate"><span class="pre">backend='ants'</span></code> after
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habit[registration]</span></code>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+<p><span class="caption-text">Affine registration onto the fixed modality. Cyan contour: the ROI after
+the <strong>same</strong> transform (overlay on anatomy, not a standalone ROI panel).
+Multi-modal MRI in the bundled demo is often already on one grid; the
+call is still the embedding-API shape. Deformable SyN:
+<code class="docutils literal notranslate"><span class="pre">backend='ants'</span></code> after <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">habit[registration]</span></code>.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>These image steps are <strong>not</strong> the clustering-time

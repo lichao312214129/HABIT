@@ -52,7 +52,8 @@ Figures
    :alt: MSI matrix before extract
    :width: 420
 
-   MSI matrix (:func:`~habit.viz.plot_msi_matrix`).
+   MSI matrix (:func:`~habit.viz.plot_msi_matrix`); linear colour scale on
+   off-diagonal neighbour-pair counts (diagonal / BG–BG masked).
 
 .. figure:: ../_static/images/examples/feature_extract_ith_summary.png
    :alt: ITH summary before extract
