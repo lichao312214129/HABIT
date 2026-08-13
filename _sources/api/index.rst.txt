@@ -812,6 +812,12 @@ Regression and classification
    habit.viz.plot_residual_qq
    habit.viz.plot_bland_altman
    habit.viz.plot_coefficient_forest
+   habit.viz.plot_roc
+   habit.viz.plot_precision_recall
+   habit.viz.plot_calibration
+   habit.viz.plot_decision_curve
+   habit.viz.plot_confusion_matrix
+   habit.viz.plot_permutation_importance
 
 Habitat clustering and overlay
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -37,7 +37,7 @@ Anatomy | processed intensity (Python)::
 
    fig = plot_intensity_slice(
        processed, before=original, axis=0, cmap="gray",
-       image_label="Z-scored T1",
+       image_label="Z-scored T1", colorbar_label="Z-score",
    )
 
 .. figure:: ../_static/images/examples/image_preprocess_slice.png
@@ -45,6 +45,8 @@ Anatomy | processed intensity (Python)::
    :width: 520
 
    Whole-FOV greyscale z-score panel from the image-preprocessing example.
+   Independent colorbars show raw intensity versus z-score (native units;
+   not a shared :math:`[0, 1]` window).
 
 Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
 not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
@@ -68,25 +70,29 @@ and swap ``DATA``. Per-step figures:
    :alt: Whole-volume z-scored T1
    :width: 480
 
-   Z-score (whole volume; optional ROI stats).
+   Z-score (whole volume; optional ROI stats). Independent colorbars show
+   raw intensity versus z-score.
 
 .. figure:: ../_static/images/examples/preprocess_n4.png
    :alt: Whole-volume N4-corrected T1
    :width: 480
 
-   N4 bias-field correction.
+   N4 bias-field correction. Independent colorbars keep the intensity
+   scale visible.
 
 .. figure:: ../_static/images/examples/preprocess_histogram.png
    :alt: Whole-volume histogram-standardized T1
    :width: 480
 
-   Nyúl histogram standardization.
+   Nyúl histogram standardization. Independent colorbars show the mapped
+   intensity range.
 
 .. figure:: ../_static/images/examples/preprocess_clahe.png
    :alt: Whole-volume adaptive histogram equalization
    :width: 480
 
-   Adaptive histogram equalization.
+   Adaptive histogram equalization. Independent colorbars show the
+   intensity scale.
 
 .. figure:: ../_static/images/examples/preprocess_reorient.png
    :alt: Whole-volume RAS-reoriented T1

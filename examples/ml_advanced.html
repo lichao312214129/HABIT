@@ -303,6 +303,7 @@
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1147,6 +1148,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1632,30 +1639,16 @@ it, including <em>between</em> two selectors;</p></li>
 <code class="docutils literal notranslate"><span class="pre">table_preprocessors</span></code> and <code class="docutils literal notranslate"><span class="pre">feature_selectors</span></code> are deprecated aliases kept
 for all of v1.x; they are folded into <code class="docutils literal notranslate"><span class="pre">steps</span></code> in that order.</p>
 <p><a class="reference internal" href="../api/generated/habit.recipes.compare_models.html#habit.recipes.compare_models" title="habit.recipes.compare_models"><code class="xref py py-func docutils literal notranslate"><span class="pre">compare_models()</span></code></a> compares saved prediction CSVs and writes
-ROC / calibration figures (the programmatic twin of <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>).</p>
+ROC / calibration figures (the programmatic twin of <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">compare</span></code>). The
+demo writes those CSVs from two <strong>fitted</strong> hold-out models (staged logistic
+regression vs a shallow random forest), not from oracle label-as-score files.</p>
+<p>The gallery table is <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/breast_cancer_dataset.csv</span></code>. Edit
+<code class="docutils literal notranslate"><span class="pre">DATA</span></code> / column names / <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code> to your own CSV. This is a software
+demo, not a clinical claim.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Advanced tabular ML: ordered feature selection and model comparison.</span>
-
-<span class="sd">* ``MLSpec.steps`` — one ordered list of table steps; the list order IS the</span>
-<span class="sd">  execution order, so a selector can sit before, between or after</span>
-<span class="sd">  preprocessors (v0.1&#39;s ``before_z_score`` is just &quot;put it first&quot;).</span>
-<span class="sd">* :func:`~habit.recipes.compare_models` — ROC/AUC comparison across saved</span>
-<span class="sd">  prediction CSVs (the programmatic twin of ``habit compare``).</span>
-
-<span class="sd">This script accompanies ``docs/source/examples/ml_advanced.rst``.</span>
-
-<span class="sd">Run from the repository root::</span>
-
-<span class="sd">    python docs/source/examples/scripts/ml_advanced_demo.py</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="c1"># BEGIN example</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / column names to your table. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1830,47 +1823,71 @@ ROC / calibration figures (the programmatic twin of <code class="docutils litera
         <span class="p">),</span>
         <span class="s2">&quot;ml_advanced_confusion.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-<span class="c1"># END example</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">gallery</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/source/_static/images/examples&quot;</span><span class="p">)</span>
-    <span class="n">gallery</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;out/ml_advanced_roc.png&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_advanced_roc.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/ml_advanced_pr.png&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_advanced_pr.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/ml_advanced_calibration.png&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_advanced_calibration.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/ml_advanced_dca.png&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_advanced_dca.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/ml_advanced_confusion.png&quot;</span><span class="p">:</span> <span class="s2">&quot;ml_advanced_confusion.png&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="p">(</span><span class="n">gallery</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Copied gallery PNGs&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run from the repository root (one line):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">ml_advanced_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Table</span><span class="p">:</span> <span class="mi">60</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">10</span> <span class="n">features</span>
+<p>Real output of the script above (seed 42):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Table</span><span class="p">:</span> <span class="mi">569</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">6</span> <span class="n">features</span>
 
-<span class="o">---</span> <span class="n">Staged</span> <span class="n">pipeline</span> <span class="p">(</span><span class="n">pre</span><span class="o">-</span><span class="n">variance</span> <span class="o">-&gt;</span> <span class="n">zscore</span> <span class="o">-&gt;</span> <span class="n">k</span><span class="o">-</span><span class="n">best</span> <span class="o">-&gt;</span> <span class="n">LR</span><span class="p">)</span> <span class="o">---</span>
-<span class="n">Train</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
-<span class="n">Test</span> <span class="n">metrics</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="o">---</span> <span class="n">Staged</span> <span class="n">pipeline</span> <span class="p">(</span><span class="n">variance</span> <span class="o">-&gt;</span> <span class="n">zscore</span> <span class="o">-&gt;</span> <span class="n">ANOVA</span> <span class="n">k</span><span class="o">=</span><span class="mi">3</span> <span class="o">-&gt;</span> <span class="n">LR</span><span class="p">)</span> <span class="o">---</span>
+<span class="n">Train</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.789</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.856</span><span class="p">}</span>
+<span class="n">Test</span> <span class="n">metrics</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.783</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.847</span><span class="p">}</span>
 
-<span class="o">---</span> <span class="n">compare_models</span> <span class="n">output</span><span class="p">:</span> <span class="o">.../</span><span class="n">comparison</span> <span class="o">---</span>
+<span class="o">---</span> <span class="n">Shallow</span> <span class="n">random</span> <span class="n">forest</span> <span class="o">---</span>
+<span class="n">Test</span> <span class="n">metrics</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.839</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.881</span><span class="p">}</span>
+<span class="n">Hold</span><span class="o">-</span><span class="n">out</span> <span class="n">AUC</span> <span class="n">staged</span><span class="o">-</span><span class="n">LR</span><span class="o">=</span><span class="mf">0.847</span> <span class="n">RF</span><span class="o">=</span><span class="mf">0.881</span>
+
+<span class="o">---</span> <span class="n">compare_models</span> <span class="n">output</span><span class="p">:</span> <span class="n">out</span><span class="o">/</span><span class="n">comparison</span> <span class="o">---</span>
 <span class="n">Multi</span><span class="o">-</span><span class="n">model</span> <span class="n">figures</span> <span class="p">(</span><span class="n">ROC</span><span class="p">,</span> <span class="n">DCA</span><span class="p">,</span> <span class="n">calibration</span><span class="p">,</span> <span class="n">PR</span><span class="p">)</span> <span class="ow">and</span> <span class="n">metrics</span> <span class="n">land</span> <span class="n">under</span>
-<span class="n">output_dir</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">roc_curves</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span> <span class="n">metrics</span><span class="o">/</span><span class="n">metrics</span><span class="o">.</span><span class="n">json</span><span class="p">)</span><span class="o">.</span> <span class="n">Train</span><span class="o">/</span><span class="n">CV</span>
-<span class="n">single</span><span class="o">-</span><span class="n">model</span> <span class="n">figures</span> <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span> <span class="n">model</span> <span class="o">/</span> <span class="n">habit</span> <span class="n">cv</span> <span class="n">use</span>
+<span class="n">output_dir</span><span class="o">.</span> <span class="n">Train</span><span class="o">/</span><span class="n">CV</span> <span class="n">single</span><span class="o">-</span><span class="n">model</span> <span class="n">figures</span> <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span> <span class="n">model</span> <span class="o">/</span> <span class="n">habit</span> <span class="n">cv</span> <span class="n">use</span>
 <span class="n">output</span><span class="o">/</span><span class="n">visualizations</span><span class="o">/</span> <span class="k">with</span> <span class="n">train_</span> <span class="o">/</span> <span class="n">test_</span> <span class="o">/</span> <span class="n">cv_</span> <span class="n">prefixes</span><span class="o">.</span>
 </pre></div>
 </div>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
+<p>Hold-out overlay from the demo subset (not a clinical claim).</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/ml_advanced_roc.png"><img alt="ROC after staged feature selection" src="../_images/ml_advanced_roc.png" width="420" />
+<a class="reference internal image-reference" href="../_images/ml_advanced_roc.png"><img alt="Two-model hold-out ROC after staged selection" src="../_images/ml_advanced_roc.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">Staged-selection hold-out ROC (<code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Hold-out ROC overlay (<a class="reference internal" href="../api/generated/habit.viz.plot_roc.html#habit.viz.plot_roc" title="habit.viz.plot_roc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code></a>). Staged LR AUC 0.85,
+shallow RF AUC 0.88.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/ml_advanced_pr.png"><img alt="Two-model hold-out precision-recall" src="../_images/ml_advanced_pr.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out precision-recall (<a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html#habit.viz.plot_precision_recall" title="habit.viz.plot_precision_recall"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_recall()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/ml_advanced_calibration.png"><img alt="Two-model hold-out calibration" src="../_images/ml_advanced_calibration.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out calibration (<a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html#habit.viz.plot_calibration" title="habit.viz.plot_calibration"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_calibration()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/ml_advanced_dca.png"><img alt="Two-model hold-out decision curve" src="../_images/ml_advanced_dca.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out decision-curve analysis (<a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html#habit.viz.plot_decision_curve" title="habit.viz.plot_decision_curve"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_decision_curve()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/ml_advanced_confusion.png"><img alt="Staged logistic-regression confusion matrix" src="../_images/ml_advanced_confusion.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Staged-LR hold-out confusion matrix
+(<a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html#habit.viz.plot_confusion_matrix" title="habit.viz.plot_confusion_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_confusion_matrix()</span></code></a>).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

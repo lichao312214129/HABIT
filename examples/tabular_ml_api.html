@@ -303,6 +303,7 @@
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1147,6 +1148,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1630,23 +1637,15 @@ each file <strong>must</strong> declare <code class="docutils literal notranslat
 probabilities from <code class="docutils literal notranslate"><span class="pre">PredictionResult.probabilities</span></code> when exporting CSVs.</p>
 <p><strong>Atomic</strong> — call <code class="docutils literal notranslate"><span class="pre">predict_model</span></code> on a one-row
 <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a> (or any held-out id slice).</p>
+<p>The gallery table is <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/breast_cancer_dataset.csv</span></code>. Edit
+<code class="docutils literal notranslate"><span class="pre">DATA</span></code> / column names / <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code> (and the weaker <code class="docutils literal notranslate"><span class="pre">FEATURES_B</span></code> subset)
+to your own CSV. Two logistic models on overlapping but unequal feature sets
+give distinct hold-out curves (AUC about 0.86 vs 0.81 here) — not an oracle
+CSV. This is a software demo, not a clinical claim.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Tabular ML API: train / CV / predict / compare_models + .habitpipeline I/O.</span>
-
-<span class="sd">* **Batch** — recipes on a full :class:`~habit.contracts.FeatureTable`.</span>
-<span class="sd">* **Atomic** — predict on a one-row table or a held-out id slice.</span>
-<span class="sd">* **compare_models** — requires ``prob_col`` (positive-class probability).</span>
-
-<span class="sd">Accompanies ``docs/source/examples/tabular_ml_api.rst``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="c1"># BEGIN example</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / column names to your table. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1845,20 +1844,10 @@ probabilities from <code class="docutils literal notranslate"><span class="pre">
     <span class="n">_save</span><span class="p">(</span><span class="n">plot_precision_recall</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out PR&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_pr.png&quot;</span><span class="p">)</span>
     <span class="n">_save</span><span class="p">(</span><span class="n">plot_calibration</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out calibration&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_calibration.png&quot;</span><span class="p">)</span>
     <span class="n">_save</span><span class="p">(</span><span class="n">plot_decision_curve</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out DCA&quot;</span><span class="p">),</span> <span class="s2">&quot;tabular_ml_api_dca.png&quot;</span><span class="p">)</span>
-<span class="c1"># END example</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">gallery</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;docs/source/_static/images/examples&quot;</span><span class="p">)</span>
-    <span class="n">gallery</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;out/tabular_ml_api_roc.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_roc.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/tabular_ml_api_pr.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_pr.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/tabular_ml_api_calibration.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_calibration.png&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;out/tabular_ml_api_dca.png&quot;</span><span class="p">:</span> <span class="s2">&quot;tabular_ml_api_dca.png&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="k">for</span> <span class="n">src</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="p">(</span><span class="n">gallery</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Copied gallery PNGs&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run from the repository root (one line):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">tabular_ml_api_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 </section>
@@ -1869,24 +1858,48 @@ probabilities from <code class="docutils literal notranslate"><span class="pre">
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (metrics depend on the synthetic table):</p>
+<p>Real output of the script above (seed 42):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">===</span> <span class="n">train_model</span> <span class="p">(</span><span class="n">hold</span><span class="o">-</span><span class="n">out</span><span class="p">)</span> <span class="o">===</span>
-  <span class="n">test</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+  <span class="n">model_a</span> <span class="n">test</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.797</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.861</span><span class="p">}</span>
+  <span class="n">model_b</span> <span class="n">test</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.748</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.814</span><span class="p">}</span>
 <span class="o">===</span> <span class="n">cross_validate</span> <span class="o">===</span>
-  <span class="n">mean</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.988</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+  <span class="n">mean</span> <span class="n">metrics</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="mf">0.819</span><span class="p">,</span> <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="mf">0.877</span><span class="p">}</span>
+  <span class="n">fold</span> <span class="n">AUCs</span><span class="p">:</span>    <span class="p">[</span><span class="mf">0.851</span><span class="p">,</span> <span class="mf">0.889</span><span class="p">,</span> <span class="mf">0.911</span><span class="p">,</span> <span class="mf">0.862</span><span class="p">,</span> <span class="mf">0.872</span><span class="p">]</span>
+  <span class="n">hold</span><span class="o">-</span><span class="n">out</span> <span class="n">AUC</span> <span class="n">model_a</span><span class="o">=</span><span class="mf">0.861</span> <span class="n">model_b</span><span class="o">=</span><span class="mf">0.814</span>
 <span class="o">===</span> <span class="n">Atomic</span><span class="p">:</span> <span class="n">single</span><span class="o">-</span><span class="n">row</span> <span class="n">predict</span> <span class="o">===</span>
-  <span class="n">row</span> <span class="nb">id</span><span class="o">=</span><span class="n">subj001</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="mi">0</span>
+  <span class="n">row</span> <span class="nb">id</span><span class="o">=</span><span class="n">subj001</span><span class="p">,</span> <span class="n">pred</span><span class="o">=</span><span class="mi">1</span>
 </pre></div>
 </div>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
+<p>Two-model hold-out overlay from the demo subset (not a clinical claim).</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/tabular_ml_api_roc.png"><img alt="ROC from the tabular ML API demo" src="../_images/tabular_ml_api_roc.png" width="420" />
+<a class="reference internal image-reference" href="../_images/tabular_ml_api_roc.png"><img alt="Two-model hold-out ROC" src="../_images/tabular_ml_api_roc.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">ROC from <a class="reference internal" href="../api/generated/habit.recipes.predict_model.html#habit.recipes.predict_model" title="habit.recipes.predict_model"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_model()</span></code></a> probabilities
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Hold-out ROC overlay (<a class="reference internal" href="../api/generated/habit.viz.plot_roc.html#habit.viz.plot_roc" title="habit.viz.plot_roc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code></a>). AUC 0.86 vs 0.81.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/tabular_ml_api_pr.png"><img alt="Two-model hold-out precision-recall" src="../_images/tabular_ml_api_pr.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out precision-recall (<a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html#habit.viz.plot_precision_recall" title="habit.viz.plot_precision_recall"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_recall()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/tabular_ml_api_calibration.png"><img alt="Two-model hold-out calibration" src="../_images/tabular_ml_api_calibration.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out calibration (<a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html#habit.viz.plot_calibration" title="habit.viz.plot_calibration"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_calibration()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/tabular_ml_api_dca.png"><img alt="Two-model hold-out decision curve" src="../_images/tabular_ml_api_dca.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out decision-curve analysis (<a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html#habit.viz.plot_decision_curve" title="habit.viz.plot_decision_curve"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_decision_curve()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

@@ -407,6 +407,10 @@ data. Tabular building blocks are documented in :doc:`domain_table`.
    print(result.train_metrics)   # in-sample readout
    print(result.test_metrics)    # held-out rows
 
+``make_synthetic_feature_table`` is built for golden tests (one strong
+``signal`` column) and will often print AUC 1.0. For publication-style ROC
+on swappable CSVs see :doc:`../examples/tabular_ml`.
+
 Steps interleave freely, which the three predecessor fields could not
 express. ``zscore`` → ``variance`` → ``minmax`` → ``lasso`` is a plain list:
 

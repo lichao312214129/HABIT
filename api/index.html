@@ -304,6 +304,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1148,6 +1149,12 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -3072,6 +3079,24 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_coefficient_forest.html#habit.viz.plot_coefficient_forest" title="habit.viz.plot_coefficient_forest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_coefficient_forest</span></code></a>(names, ...)</p></td>
 <td><p>Forest-style plot of regression coefficients with optional CIs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_roc.html#habit.viz.plot_roc" title="habit.viz.plot_roc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_roc</span></code></a>([y_true, y_prob, curves, ...])</p></td>
+<td><p>Receiver-operating-characteristic curve(s) with AUC in the legend.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_precision_recall.html#habit.viz.plot_precision_recall" title="habit.viz.plot_precision_recall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_precision_recall</span></code></a>([y_true, ...])</p></td>
+<td><p>Precision-recall curve(s) with average precision in the legend.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_calibration.html#habit.viz.plot_calibration" title="habit.viz.plot_calibration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_calibration</span></code></a>([y_true, y_prob, ...])</p></td>
+<td><p>Reliability diagram (calibration curve) against the identity line.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_decision_curve.html#habit.viz.plot_decision_curve" title="habit.viz.plot_decision_curve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_decision_curve</span></code></a>([y_true, ...])</p></td>
+<td><p>Decision-curve analysis with Treat-All / Treat-None references.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_confusion_matrix.html#habit.viz.plot_confusion_matrix" title="habit.viz.plot_confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_confusion_matrix</span></code></a>(y_true, ...)</p></td>
+<td><p>Confusion-matrix heatmap for discrete class predictions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_permutation_importance.html#habit.viz.plot_permutation_importance" title="habit.viz.plot_permutation_importance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_permutation_importance</span></code></a>(...[, ...])</p></td>
+<td><p>Horizontal bar chart of permutation importances (pure; no filesystem).</p></td>
 </tr>
 </tbody>
 </table>

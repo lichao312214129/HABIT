@@ -51,7 +51,7 @@ Figures
 
    :func:`~habit.viz.plot_intensity_slice` after
    :func:`~habit.preprocess_subject` (z-score; same grid, greyscale,
-   whole FOV).
+   whole FOV). Independent colorbars show raw intensity versus z-score.
 
 Atomic steps (copy, swap DATA)
 ------------------------------
@@ -100,7 +100,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
 
    Whole-volume z-score, clipped to :math:`[-3, 3]`. Mean/std may be
    estimated inside the ROI (``only_inmask=True``); the transform is still
-   applied to the full image.
+   applied to the full image. Independent colorbars show raw intensity
+   versus z-score (native units, not a shared :math:`[0, 1]` window).
 
 **N4 bias-field correction** (SimpleITK N4)::
 
@@ -111,7 +112,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    :width: 720
 
    N4 correction on the full volume. On a nearly flat synthetic volume the
-   visual change can be small; on MRI with a real bias field it is the
+   visual change can be small; independent colorbars still show the
+   intensity scale. On MRI with a real bias field it is the
    intensity-homogeneity step of the literature chain (N4 → register →
    resample → z-score).
 
@@ -126,7 +128,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    :alt: Original beside whole-volume histogram-standardized T1
    :width: 720
 
-   Percentile landmarks mapped to 0–100 on the full volume.
+   Percentile landmarks mapped to 0–100 on the full volume. Independent
+   colorbars show original units versus the mapped range.
 
 **Adaptive histogram equalization**::
 
@@ -139,9 +142,9 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` in that script to your tree.
    :alt: Original beside whole-volume adaptive histogram equalization
    :width: 720
 
-   Local contrast (CLAHE-style) on the full volume. Use when the scientific
-   question needs local contrast, not when you still need quantitative MRI
-   units.
+   Local contrast (CLAHE-style) on the full volume. Independent colorbars
+   show the intensity scale. Use when the scientific question needs local
+   contrast, not when you still need quantitative MRI units.
 
 **Reorientation** (canonical axis code; ``closest`` = flip/permute only)::
 

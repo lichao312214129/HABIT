@@ -7,8 +7,9 @@ the precision screen of Prior et al. (*Radiol Artif Intell*
 2024;6(2):e230118) as implemented in HABIT, with an explicit morphological
 reading of what the screen does and what it does **not** claim.
 
-Runnable gallery (ICC table + overlay): :doc:`../examples/precise_features`.
-Public recipe: :func:`~habit.recipes.identify_precise_voxel_features`.
+Runnable gallery (ICC table, overlay, and per-perturbation anatomy):
+:doc:`../examples/precise_features`. Public recipe:
+:func:`~habit.recipes.identify_precise_voxel_features`.
 
 What is screened
 ----------------
@@ -43,7 +44,10 @@ noise (Chang wavelet :math:`\sigma`), a 0.5-voxel translation fraction,
 and a 0.5° in-plane rotation (Prior et al. 2024, Appendix S2 / MIRP
 1.2.0). Images use B-spline interpolation; masks use nearest neighbour.
 Perturbed volumes stay on the **original grid** so maps remain
-voxel-wise comparable.
+voxel-wise comparable. The figures below apply each component to one
+subject from ``demo_data/preprocessed`` (swap ``DATA`` / ``MODALITIES`` /
+``ROI`` in the gallery script). They are a teaching demo, not a clinical
+claim.
 
 Why "morphology-aware"
 ----------------------
@@ -72,26 +76,64 @@ after clustering, habitat *maps* from a perturbed re-run are matched
 (Hungarian algorithm) and compared by Dice. That is a map-level
 morphological check. It is **not** the Prior 2024 feature screen.
 
-.. figure:: ../_static/images/examples/precise_screen_perturbation.png
-   :alt: Original anatomy slice beside the Prior 2024 simulated retest
+.. figure:: ../_static/images/examples/precise_perturb_noise.png
+   :alt: Original greyscale slice, Chang-estimated Gaussian noise, and absolute difference
    :width: 720
 
-   Simulated retest: original (left) vs noise + sub-voxel translation +
-   0.5° rotation (right). Same voxel grid.
+   Intensity perturbation: original (left), Gaussian noise with Chang
+   wavelet :math:`\sigma` (middle), absolute difference (right). Noise is
+   added to the **whole** image. Demo subject from
+   ``demo_data/preprocessed``; not a clinical claim.
+
+.. figure:: ../_static/images/examples/precise_perturb_translation.png
+   :alt: Original greyscale slice, 0.5-voxel translation, and absolute difference
+   :width: 720
+
+   Geometric perturbation: sub-voxel translation of 0.5 voxel along x and
+   y (B-spline on the image). The difference panel shows the interpolation
+   residual. Same voxel grid as the original.
+
+.. figure:: ../_static/images/examples/precise_perturb_rotation.png
+   :alt: Original greyscale slice, 0.5-degree z rotation, and absolute difference
+   :width: 720
+
+   Geometric perturbation: 0.5° in-plane rotation about z (axial),
+   B-spline, resampled back onto the original grid.
+
+.. figure:: ../_static/images/examples/precise_screen_perturbation.png
+   :alt: Original anatomy beside the full Prior 2024 simulated-retest chain
+   :width: 720
+
+   Full Prior 2024 / MIRP 1.2.0 chain: Gaussian noise, then 0.5-voxel
+   translation, then 0.5° z rotation (two geometric resamples). Demo
+   subject; not a clinical claim.
+
+.. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
+   :alt: ROI contours before and after nearest-neighbour geometric resampling
+   :width: 720
+
+   **Mask edge (what HABIT actually applies).** Geometric perturbations
+   resample the ROI with nearest neighbour; cyan = original contour,
+   dashed vermillion = perturbed contour, yellow = voxels whose ROI
+   membership changed. Display is cropped around the ROI so a one-voxel
+   shift is visible; the transform still runs on the full grid. HABIT
+   does **not** morphologically dilate or erode the mask (MIRP
+   ``perturbation_roi_adapt_size`` is not in Prior 2024 Appendix S2 and
+   is not implemented).
 
 .. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
-   :alt: Local entropy at two kernel radii
+   :alt: Local entropy at two kernel radii on real anatomy
    :width: 720
 
-   Morphological scale: local entropy at kernel size 3 vs 7 (same slice).
-   Features whose pattern disagrees across scales fail the kernel-radius
-   experiment.
+   Morphological scale: local entropy at kernel size 3 vs 7 (same slice,
+   same demo subject). Features whose pattern disagrees across scales
+   fail the kernel-radius experiment.
 
 How to apply
 ------------
 
 Work from a directory that has images in HABIT's preprocessed layout
-(or a synthetic cohort while learning the API). One physical line per
+(``demo_data/preprocessed`` in the gallery). One physical line per
 shell command.
 
 **1. Screen.** Copy-ready shape (swap ``DATA`` / extractor)::
@@ -160,9 +202,12 @@ What is not claimed
 * **Not ROI grow/shrink.** MIRP ``perturbation_roi_adapt_size``
   (morphological dilation/erosion of the mask) is **not** in Prior 2024
   Appendix S2 and is **not** implemented in HABIT. Neither is MONAI
-  B-spline / diffeomorphic deformation. If a study needs those, register
-  a third-party ``ImagePerturbation`` plugin; do not report HABIT's
-  default chain as having done them.
+  B-spline / diffeomorphic deformation. The mask-edge figure above is
+  nearest-neighbour resampling of the ROI under translation / rotation —
+  the real mask operation in the default chain. If a study needs
+  morphological grow/shrink, register a third-party
+  ``ImagePerturbation`` plugin; do not report HABIT's default chain as
+  having done it.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a
   discovery analysis. An external test set is a different protocol.

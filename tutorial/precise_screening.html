@@ -304,6 +304,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1148,6 +1149,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1167,6 +1174,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1620,8 +1628,9 @@ cluster only those features. This is not a new clustering algorithm. It is
 the precision screen of Prior et al. (<em>Radiol Artif Intell</em>
 2024;6(2):e230118) as implemented in HABIT, with an explicit morphological
 reading of what the screen does and what it does <strong>not</strong> claim.</p>
-<p>Runnable gallery (ICC table + overlay): <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a>.
-Public recipe: <a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>.</p>
+<p>Runnable gallery (ICC table, overlay, and per-perturbation anatomy):
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a>. Public recipe:
+<a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>.</p>
 <section id="what-is-screened">
 <h2>What is screened<a class="headerlink" href="#what-is-screened" title="Link to this heading"></a></h2>
 <p>A voxel radiomic map <span class="math notranslate nohighlight">\(F(\mathbf{x})\)</span> is a <strong>local morphological
@@ -1652,7 +1661,10 @@ noise (Chang wavelet <span class="math notranslate nohighlight">\(\sigma\)</span
 and a 0.5° in-plane rotation (Prior et al. 2024, Appendix S2 / MIRP
 1.2.0). Images use B-spline interpolation; masks use nearest neighbour.
 Perturbed volumes stay on the <strong>original grid</strong> so maps remain
-voxel-wise comparable.</p>
+voxel-wise comparable. The figures below apply each component to one
+subject from <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> (swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> /
+<code class="docutils literal notranslate"><span class="pre">ROI</span></code> in the gallery script). They are a teaching demo, not a clinical
+claim.</p>
 </section>
 <section id="why-morphology-aware">
 <h2>Why “morphology-aware”<a class="headerlink" href="#why-morphology-aware" title="Link to this heading"></a></h2>
@@ -1680,27 +1692,69 @@ after clustering, habitat <em>maps</em> from a perturbed re-run are matched
 (Hungarian algorithm) and compared by Dice. That is a map-level
 morphological check. It is <strong>not</strong> the Prior 2024 feature screen.</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/precise_screen_perturbation.png"><img alt="Original anatomy slice beside the Prior 2024 simulated retest" src="../_images/precise_screen_perturbation.png" width="720" />
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_noise.png"><img alt="Original greyscale slice, Chang-estimated Gaussian noise, and absolute difference" src="_static/images/examples/precise_perturb_noise.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Simulated retest: original (left) vs noise + sub-voxel translation +
-0.5° rotation (right). Same voxel grid.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Intensity perturbation: original (left), Gaussian noise with Chang
+wavelet <span class="math notranslate nohighlight">\(\sigma\)</span> (middle), absolute difference (right). Noise is
+added to the <strong>whole</strong> image. Demo subject from
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>; not a clinical claim.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/precise_screen_kernel_scale.png"><img alt="Local entropy at two kernel radii" src="../_images/precise_screen_kernel_scale.png" width="720" />
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_translation.png"><img alt="Original greyscale slice, 0.5-voxel translation, and absolute difference" src="_static/images/examples/precise_perturb_translation.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Morphological scale: local entropy at kernel size 3 vs 7 (same slice).
-Features whose pattern disagrees across scales fail the kernel-radius
-experiment.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Geometric perturbation: sub-voxel translation of 0.5 voxel along x and
+y (B-spline on the image). The difference panel shows the interpolation
+residual. Same voxel grid as the original.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_rotation.png"><img alt="Original greyscale slice, 0.5-degree z rotation, and absolute difference" src="_static/images/examples/precise_perturb_rotation.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Geometric perturbation: 0.5° in-plane rotation about z (axial),
+B-spline, resampled back onto the original grid.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/precise_screen_perturbation.png"><img alt="Original anatomy beside the full Prior 2024 simulated-retest chain" src="../_images/precise_screen_perturbation.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Full Prior 2024 / MIRP 1.2.0 chain: Gaussian noise, then 0.5-voxel
+translation, then 0.5° z rotation (two geometric resamples). Demo
+subject; not a clinical claim.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_mask_edge.png"><img alt="ROI contours before and after nearest-neighbour geometric resampling" src="_static/images/examples/precise_perturb_mask_edge.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Mask edge (what HABIT actually applies).</strong> Geometric perturbations
+resample the ROI with nearest neighbour; cyan = original contour,
+dashed vermillion = perturbed contour, yellow = voxels whose ROI
+membership changed. Display is cropped around the ROI so a one-voxel
+shift is visible; the transform still runs on the full grid. HABIT
+does <strong>not</strong> morphologically dilate or erode the mask (MIRP
+<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> is not in Prior 2024 Appendix S2 and
+is not implemented).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/precise_screen_kernel_scale.png"><img alt="Local entropy at two kernel radii on real anatomy" src="../_images/precise_screen_kernel_scale.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Morphological scale: local entropy at kernel size 3 vs 7 (same slice,
+same demo subject). Features whose pattern disagrees across scales
+fail the kernel-radius experiment.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="how-to-apply">
 <h2>How to apply<a class="headerlink" href="#how-to-apply" title="Link to this heading"></a></h2>
 <p>Work from a directory that has images in HABIT’s preprocessed layout
-(or a synthetic cohort while learning the API). One physical line per
+(<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> in the gallery). One physical line per
 shell command.</p>
 <p><strong>1. Screen.</strong> Copy-ready shape (swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / extractor):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
@@ -1743,20 +1797,20 @@ and clustering:</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id7">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC and LCL bars for the precision screen" src="../_images/precise_features_icc_lcl.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Repeatability ICC and lower confidence limit per feature, with the
-0.5 LCL threshold.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+0.5 LCL threshold.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id8">
 <a class="reference internal image-reference" href="../_images/precise_features_overlay.png"><img alt="Habitat overlay after clustering only precise features" src="../_images/precise_features_overlay.png" width="420" />
 </a>
 <figcaption>
 <p><span class="caption-text">Habitats after the whitelist
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1769,9 +1823,12 @@ cell type, a driver mutation, or a clinical outcome.</p></li>
 <li><p><strong>Not ROI grow/shrink.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
 (morphological dilation/erosion of the mask) is <strong>not</strong> in Prior 2024
 Appendix S2 and is <strong>not</strong> implemented in HABIT. Neither is MONAI
-B-spline / diffeomorphic deformation. If a study needs those, register
-a third-party <code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin; do not report HABIT’s
-default chain as having done them.</p></li>
+B-spline / diffeomorphic deformation. The mask-edge figure above is
+nearest-neighbour resampling of the ROI under translation / rotation —
+the real mask operation in the default chain. If a study needs
+morphological grow/shrink, register a third-party
+<code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin; do not report HABIT’s default chain as
+having done it.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
 discovery analysis. An external test set is a different protocol.</p></li>

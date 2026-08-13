@@ -303,6 +303,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
@@ -1147,6 +1148,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1166,6 +1173,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1615,6 +1623,8 @@
              
   <section id="precise-features-screen-before-you-cluster">
 <h1>Precise features: screen before you cluster<a class="headerlink" href="#precise-features-screen-before-you-cluster" title="Link to this heading"></a></h1>
+<p><strong>Level:</strong> recipe · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> ·
+<strong>Time:</strong> ~1–3 min</p>
 <p>Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
 or bin width — does not yield the same numbers twice. Clustering features
@@ -1659,11 +1669,16 @@ clustering.</p>
 </section>
 <section id="runnable-demo">
 <h2>Runnable demo<a class="headerlink" href="#runnable-demo" title="Link to this heading"></a></h2>
-<p>The demo uses raw intensities so it runs without PyRadiomics; with the
-default voxel-radiomics factory the same call is the full paper design.
-Synthetic data is enough to produce the ICC evidence figure and a habitat
-overlay after the whitelist.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<p>The demo loads one subject from <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> (swap
+<code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>) and uses raw intensities so it runs
+without PyRadiomics; with the default voxel-radiomics factory the same
+call is the full paper design.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_factory</span><span class="p">(</span><span class="n">kernel_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RawVoxelFeatures</span><span class="p">:</span>
@@ -1674,7 +1689,7 @@ overlay after the whitelist.</p>
 <span class="sd">    and ``bin_width`` would be forwarded (the default factory does exactly</span>
 <span class="sd">    that with the bundled CT preset).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">RawVoxelFeatures</span><span class="p">(</span><span class="n">modalities</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">RawVoxelFeatures</span><span class="p">(</span><span class="n">modalities</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">))</span>
 
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== precision screen (repeatability experiment) ===&quot;</span><span class="p">)</span>
@@ -1721,7 +1736,7 @@ overlay after the whitelist.</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  whitelist spec: </span><span class="si">{</span><span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
     <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precise_demo&quot;</span><span class="p">,</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}),</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">)}),</span>
     <span class="c1"># The whitelist goes FIRST: only precise features reach scaling/clustering.</span>
     <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
         <span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
@@ -1739,7 +1754,7 @@ overlay after the whitelist.</p>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat maps: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">fig_overlay</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitats after precise-feature whitelist&quot;</span>
@@ -1774,16 +1789,19 @@ overlay after the whitelist.</p>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>This page previously had no gallery because the demo only printed an ICC
-table (no spatial product). The screen’s scientific figure is the LCL
-panel; the overlay is the habitat map after clustering <strong>only</strong> those
-precise features — not a borrowed triptych from another recipe.</p>
+<p>The screen’s scientific figure is the LCL panel; the overlay is the
+habitat map after clustering <strong>only</strong> those precise features. The
+perturbation panels below are the <strong>same</strong> Prior 2024 / MIRP 1.2.0
+components applied to one <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> subject (not a
+clinical claim). Regenerated by
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/source/examples/scripts/precise_screening_tutorial_demo.py</span></code>.</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC and LCL bars for the precision screen" src="../_images/precise_features_icc_lcl.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Repeatability ICC and lower confidence limit per feature, with the
-0.5 LCL threshold (matplotlib; the screen’s tabular product).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+0.5 LCL threshold (matplotlib; the screen’s tabular product). Demo
+subject; values depend on the image and extractor.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
@@ -1792,6 +1810,60 @@ precise features — not a borrowed triptych from another recipe.</p>
 <figcaption>
 <p><span class="caption-text">Habitats after the whitelist
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="simulated-retest-components">
+<h2>Simulated-retest components<a class="headerlink" href="#simulated-retest-components" title="Link to this heading"></a></h2>
+<p>Each row is original | perturbed | absolute difference on greyscale
+anatomy (shared intensity window). Images stay on the original voxel
+grid.</p>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_noise.png"><img alt="Chang-estimated Gaussian noise on real greyscale anatomy" src="_static/images/examples/precise_perturb_noise.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Gaussian noise, sigma from Chang’s wavelet estimator (whole image).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_translation.png"><img alt="0.5-voxel translation on real greyscale anatomy" src="_static/images/examples/precise_perturb_translation.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Translation of 0.5 voxel along x and y (B-spline). MIRP
+<code class="docutils literal notranslate"><span class="pre">perturbation_translation_fraction</span></code>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_rotation.png"><img alt="0.5-degree z rotation on real greyscale anatomy" src="_static/images/examples/precise_perturb_rotation.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">In-plane rotation of 0.5° about z (B-spline).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/precise_screen_perturbation.png"><img alt="Full Prior 2024 noise plus translation plus rotation chain" src="../_images/precise_screen_perturbation.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Composed chain: noise → translation → rotation (MIRP 1.2.0 order).</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_mask_edge.png"><img alt="Original vs nearest-neighbour resampled ROI contours" src="_static/images/examples/precise_perturb_mask_edge.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Mask edge under geometric perturbation. HABIT resamples the ROI with
+nearest neighbour (cyan original, dashed perturbed, yellow voxels
+that changed). This is <strong>not</strong> morphological dilation/erosion (MIRP
+<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> is not implemented). Display cropped
+around the ROI.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/precise_screen_kernel_scale.png"><img alt="Local entropy at two kernel radii on real anatomy" src="../_images/precise_screen_kernel_scale.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Kernel-radius reproducibility analogue: local entropy at kernel size
+3 vs 7 on the same demo slice.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1824,10 +1896,13 @@ group slot into the same chain — pass any chain (or single component) as
 <span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">perturbation</span><span class="o">=</span><span class="n">gentler</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Follow-up (not in the Prior 2024 protocol, not implemented here): MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink) and MONAI
-B-spline / diffeomorphic deformation of the image or mask. Use a third-party
-<code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin when those are required.</p>
+<p>Follow-up (not in the Prior 2024 protocol, <strong>not implemented</strong> in HABIT):
+MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink) and
+MONAI B-spline / diffeomorphic deformation of the image or mask. The
+mask-edge figure on this page is nearest-neighbour resampling of the ROI
+during translation / rotation — the real mask operation in the default
+chain. Use a third-party <code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin when morphological
+grow/shrink is required.</p>
 </section>
 <section id="habitat-stability-under-perturbation">
 <h2>Habitat stability under perturbation<a class="headerlink" href="#habitat-stability-under-perturbation" title="Link to this heading"></a></h2>

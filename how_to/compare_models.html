@@ -303,6 +303,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1147,6 +1148,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1166,6 +1173,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1629,17 +1637,40 @@
 <p>★ Edit <code class="docutils literal notranslate"><span class="pre">output_dir</span></code> and each <code class="docutils literal notranslate"><span class="pre">files_config</span></code> entry (path + ID / label /
 probability column names).</p>
 <p>Success: plots and <code class="docutils literal notranslate"><span class="pre">metrics/</span></code> under <code class="docutils literal notranslate"><span class="pre">output_dir</span></code>.</p>
-<p>Python twin of the ROC panel:</p>
+<p>Python overlay from two fitted hold-out models (staged LR vs shallow RF on
+the gallery subset; AUC 0.85 vs 0.88 — not a clinical claim). See
+<a class="reference internal" href="../examples/ml_advanced.html"><span class="doc">Advanced tabular ML: ordered selection and model comparison</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_roc</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_roc</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_prob</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;model_a&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Compare ROC&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_roc</span><span class="p">(</span><span class="n">curves</span><span class="o">=</span><span class="n">curves</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out ROC&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/ml_advanced_roc.png"><img alt="Staged-selection ROC" src="../_images/ml_advanced_roc.png" width="420" />
+<a class="reference internal image-reference" href="../_images/ml_advanced_roc.png"><img alt="Two-model hold-out ROC" src="../_images/ml_advanced_roc.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">ROC from the advanced ML example (<code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Hold-out ROC overlay (<a class="reference internal" href="../api/generated/habit.viz.plot_roc.html#habit.viz.plot_roc" title="habit.viz.plot_roc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_roc()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/ml_advanced_pr.png"><img alt="Two-model hold-out precision-recall" src="../_images/ml_advanced_pr.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out precision-recall (<a class="reference internal" href="../api/generated/habit.viz.plot_precision_recall.html#habit.viz.plot_precision_recall" title="habit.viz.plot_precision_recall"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_recall()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/ml_advanced_calibration.png"><img alt="Two-model hold-out calibration" src="../_images/ml_advanced_calibration.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out calibration (<a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html#habit.viz.plot_calibration" title="habit.viz.plot_calibration"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_calibration()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/ml_advanced_dca.png"><img alt="Two-model hold-out decision curve" src="../_images/ml_advanced_dca.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out DCA (<a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html#habit.viz.plot_decision_curve" title="habit.viz.plot_decision_curve"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_decision_curve()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

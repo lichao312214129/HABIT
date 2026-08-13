@@ -656,6 +656,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1500,6 +1501,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1988,6 +1995,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">anatomy. This plotter never crops the display to an ROI and never uses a</span>
 <span class="sd">sequential colourmap on MR/CT intensities.</span>
 
+<span class="sd">Each panel is windowed independently in native intensity units; an</span>
+<span class="sd">independent colorbar shows those limits so an affine change (z-score)</span>
+<span class="sd">is visible as a scale change even when greyscale contrast looks similar.</span>
+
 <span class="sd">Optional ``roi_mask`` is a **contour overlay on anatomy only**, for the</span>
 <span class="sd">rare teaching case where the same transform follows the mask</span>
 <span class="sd">(registration; optionally resample/reorient). It does not hide voxels</span>
@@ -2078,31 +2089,68 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_grey</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_panel_clim</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Scale a 2D slice to ``[0, 1]`` using robust percentiles.</span>
+<span class="sd">    Return independent ``(vmin, vmax)`` in native intensity units.</span>
 
-<span class="sd">    Each panel is windowed independently so z-score / histogram / N4</span>
-<span class="sd">    contrast changes remain visible under ``cmap=&#39;gray&#39;``.</span>
+<span class="sd">    Uses the 1st–99th percentiles of finite voxels so a few outliers do</span>
+<span class="sd">    not collapse the window. A constant slice returns equal limits</span>
+<span class="sd">    (honest: no fake stretch). Callers must put these same numbers on</span>
+<span class="sd">    the colorbar — never remap the array to ``[0, 1]``, which would hide</span>
+<span class="sd">    an affine intensity change such as z-score.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        slice_2d: Single greyscale slice.</span>
+<span class="sd">        slice_2d: Single greyscale slice in native units.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Float32 array in ``[0, 1]``.</span>
+<span class="sd">        Tuple of ``(vmin, vmax)``. ``vmax &gt;= vmin``; both finite.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">finite</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="ow">or</span> <span class="n">high</span> <span class="o">&lt;=</span> <span class="n">low</span><span class="p">:</span>
-        <span class="n">low</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
-        <span class="n">high</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">high</span> <span class="o">&lt;=</span> <span class="n">low</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">scaled</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmin</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">vmax</span><span class="p">))</span> <span class="ow">or</span> <span class="n">vmax</span> <span class="o">&lt;</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="n">vmin</span>
+    <span class="k">return</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clim_extend</span><span class="p">(</span>
+    <span class="n">slice_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a colorbar ``extend`` mode for voxels outside ``[vmin, vmax]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        slice_2d: Slice whose finite voxels were windowed.</span>
+<span class="sd">        vmin: Lower colour limit shown on the colorbar.</span>
+<span class="sd">        vmax: Upper colour limit shown on the colorbar.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``\&quot;neither\&quot;``, ``\&quot;min\&quot;``, ``\&quot;max\&quot;``, or ``\&quot;both\&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;neither&quot;</span>
+    <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-12</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmax</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmin</span><span class="p">))</span>
+    <span class="n">below</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">vmin</span> <span class="o">-</span> <span class="n">tol</span><span class="p">)))</span>
+    <span class="n">above</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">finite</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">vmax</span> <span class="o">+</span> <span class="n">tol</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">below</span> <span class="ow">and</span> <span class="n">above</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;both&quot;</span>
+    <span class="k">if</span> <span class="n">below</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;min&quot;</span>
+    <span class="k">if</span> <span class="n">above</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;max&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;neither&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_take_slice</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2239,29 +2287,33 @@ window.runMermaid = runMermaid;</script>
     <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">panel_title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">roi_slice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw one oriented greyscale slice; optional contour, never ROI crop.&quot;&quot;&quot;</span>
+    <span class="c1"># Keep native units so the colorbar can show raw intensity vs z-score.</span>
     <span class="n">grey</span> <span class="o">=</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
-        <span class="n">_normalize_grey</span><span class="p">(</span><span class="n">_take_slice</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)),</span>
+        <span class="n">_take_slice</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">),</span>
         <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
         <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
         <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">_panel_clim</span><span class="p">(</span><span class="n">grey</span><span class="p">)</span>
     <span class="n">extent</span> <span class="o">=</span> <span class="n">_imshow_extent</span><span class="p">(</span>
         <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">grey</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">grey</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
         <span class="n">spacing_xyz</span><span class="p">,</span>
         <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
         <span class="n">ndim</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
         <span class="n">grey</span><span class="p">,</span>
         <span class="n">cmap</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">cmap</span><span class="p">),</span>
         <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
         <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
         <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
         <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
-        <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">roi_slice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">oriented_roi</span> <span class="o">=</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
@@ -2275,6 +2327,16 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">panel_title</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span>
+            <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
+            <span class="n">extend</span><span class="o">=</span><span class="n">_clim_extend</span><span class="p">(</span><span class="n">grey</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">colorbar_label</span><span class="p">))</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="plot_intensity_slice">
@@ -2294,6 +2356,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">display_convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
     <span class="n">roi_contour</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
+    <span class="n">before_colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display a whole-FOV greyscale anatomy / intensity slice.</span>
@@ -2306,6 +2371,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    volumes share a grid (z-score, N4, histogram, CLAHE). After resample /</span>
 <span class="sd">    reorient the grid often changes — omit ``before`` and show the processed</span>
 <span class="sd">    volume alone.</span>
+
+<span class="sd">    Each panel is windowed independently in **native units** (1st–99th</span>
+<span class="sd">    percentile). The colorbar shows those same limits, so a z-score</span>
+<span class="sd">    (approximately :math:`N(0,1)`) is distinguishable from raw MR/CT</span>
+<span class="sd">    intensity even when ``cmap=&#39;gray&#39;`` greyscale contrast looks similar.</span>
+<span class="sd">    Do not share ``vmin``/``vmax`` across a z-score before/after pair:</span>
+<span class="sd">    that would hide the affine change again.</span>
 
 <span class="sd">    ``roi_mask`` is drawn only when ``roi_contour=True``, and then only as a</span>
 <span class="sd">    cyan outline on the anatomy. Outside-ROI voxels stay visible. Whole-image</span>
@@ -2331,6 +2403,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            or ``\&quot;native\&quot;``.</span>
 <span class="sd">        roi_contour: When ``True`` and ``roi_mask`` is set, outline the ROI</span>
 <span class="sd">            on every anatomy panel.</span>
+<span class="sd">        colorbar: Draw an independent colorbar per panel (default ``True``).</span>
+<span class="sd">        colorbar_label: Colorbar label for the processed (or only) panel.</span>
+<span class="sd">        before_colorbar_label: Colorbar label for the original panel when</span>
+<span class="sd">            ``before`` is set.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``. The caller owns persistence / display.</span>
@@ -2396,10 +2472,11 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
     <span class="n">n_panels</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">before_vol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">panel_width</span> <span class="o">=</span> <span class="mf">6.2</span> <span class="k">if</span> <span class="n">colorbar</span> <span class="k">else</span> <span class="mf">5.4</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
         <span class="mi">1</span><span class="p">,</span>
         <span class="n">n_panels</span><span class="p">,</span>
-        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.4</span> <span class="o">*</span> <span class="n">n_panels</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">panel_width</span> <span class="o">*</span> <span class="n">n_panels</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span>
         <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -2418,6 +2495,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">panel_title</span><span class="o">=</span><span class="n">before_label</span><span class="p">,</span>
             <span class="n">roi_slice</span><span class="o">=</span><span class="n">roi_slice</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">colorbar</span><span class="p">),</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">before_colorbar_label</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">_show_grey_panel</span><span class="p">(</span>
             <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
@@ -2430,6 +2509,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">panel_title</span><span class="o">=</span><span class="n">image_label</span><span class="p">,</span>
             <span class="n">roi_slice</span><span class="o">=</span><span class="n">roi_slice</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">colorbar</span><span class="p">),</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_show_grey_panel</span><span class="p">(</span>
@@ -2443,6 +2524,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">panel_title</span><span class="o">=</span><span class="n">image_label</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">image_label</span><span class="p">,</span>
             <span class="n">roi_slice</span><span class="o">=</span><span class="n">roi_slice</span><span class="p">,</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">colorbar</span><span class="p">),</span>
+            <span class="n">colorbar_label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

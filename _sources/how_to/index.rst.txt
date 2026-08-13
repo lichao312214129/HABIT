@@ -17,7 +17,9 @@ and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
 
 **Precise voxel features** (morphology-aware screen before clustering):
-:doc:`../tutorial/precise_screening`. Gallery:
+:doc:`../tutorial/precise_screening` (Gaussian noise, 0.5-voxel
+translation, 0.5° rotation, and the real mask-edge effect of
+nearest-neighbour ROI resampling — not MIRP ROI grow/shrink). Gallery:
 :doc:`../examples/precise_features`.
 
 .. toctree::

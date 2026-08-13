@@ -52,7 +52,8 @@ greyscale — not an ROI crop):
 
    :func:`~habit.viz.plot_intensity_slice` after a same-grid z-score.
    Mean/std may be estimated inside the ROI (``only_inmask=True``); the
-   displayed volume is still the full slice.
+   displayed volume is still the full slice. Independent colorbars show
+   raw intensity versus z-score (do not share ``vmin``/``vmax``).
 
 What to read next
 -----------------
