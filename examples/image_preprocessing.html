@@ -1778,6 +1778,7 @@ mirroring <code class="docutils literal notranslate"><span class="pre">demo_data
     <span class="n">atomic</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;zscore_normalization&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;only_inmask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;mask_key&quot;</span><span class="p">:</span> <span class="s2">&quot;tumor&quot;</span><span class="p">}}</span>
 <span class="p">)</span>
 <span class="c1"># Whole-FOV greyscale: z-score is an intensity transform, not an ROI crop.</span>
+<span class="c1"># Independent colorbars show raw intensity vs z-score (do not share clim).</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_intensity_slice</span><span class="p">(</span>
     <span class="n">processed_atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
     <span class="n">before</span><span class="o">=</span><span class="n">atomic</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">),</span>
@@ -1786,6 +1787,8 @@ mirroring <code class="docutils literal notranslate"><span class="pre">demo_data
     <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
     <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original T1&quot;</span><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: original | z-scored&quot;</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span>
+    <span class="n">before_colorbar_label</span><span class="o">=</span><span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/image_preprocess_slice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1823,7 +1826,8 @@ greyscale — not an ROI crop):</p>
 <figcaption>
 <p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a> after a same-grid z-score.
 Mean/std may be estimated inside the ROI (<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the
-displayed volume is still the full slice.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+displayed volume is still the full slice. Independent colorbars show
+raw intensity versus z-score (do not share <code class="docutils literal notranslate"><span class="pre">vmin</span></code>/<code class="docutils literal notranslate"><span class="pre">vmax</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

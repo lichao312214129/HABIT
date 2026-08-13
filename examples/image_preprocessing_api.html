@@ -1756,6 +1756,8 @@ block (<code class="docutils literal notranslate"><span class="pre">resample</sp
     <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Z-scored T1&quot;</span><span class="p">,</span>
     <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original T1&quot;</span><span class="p">,</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Image preprocess: original | z-scored&quot;</span><span class="p">,</span>
+    <span class="n">colorbar_label</span><span class="o">=</span><span class="s2">&quot;Z-score&quot;</span><span class="p">,</span>
+    <span class="n">before_colorbar_label</span><span class="o">=</span><span class="s2">&quot;Intensity&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/image_preprocess_api_slice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1796,7 +1798,7 @@ atomic checks).</p>
 <figcaption>
 <p><span class="caption-text"><a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a> after
 <code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code> (z-score; same grid, greyscale,
-whole FOV).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+whole FOV). Independent colorbars show raw intensity versus z-score.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1845,7 +1847,8 @@ geometry step: the figure is the full FOV, not an ROI panel.</span><a class="hea
 <figcaption>
 <p><span class="caption-text">Whole-volume z-score, clipped to <span class="math notranslate nohighlight">\([-3, 3]\)</span>. Mean/std may be
 estimated inside the ROI (<code class="docutils literal notranslate"><span class="pre">only_inmask=True</span></code>); the transform is still
-applied to the full image.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+applied to the full image. Independent colorbars show raw intensity
+versus z-score (native units, not a shared <span class="math notranslate nohighlight">\([0, 1]\)</span> window).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>N4 bias-field correction</strong> (SimpleITK N4):</p>
@@ -1857,7 +1860,8 @@ applied to the full image.</span><a class="headerlink" href="#id3" title="Link t
 </a>
 <figcaption>
 <p><span class="caption-text">N4 correction on the full volume. On a nearly flat synthetic volume the
-visual change can be small; on MRI with a real bias field it is the
+visual change can be small; independent colorbars still show the
+intensity scale. On MRI with a real bias field it is the
 intensity-homogeneity step of the literature chain (N4 → register →
 resample → z-score).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
@@ -1873,7 +1877,8 @@ resample → z-score).</span><a class="headerlink" href="#id4" title="Link to th
 <a class="reference internal image-reference" href="../_images/preprocess_histogram.png"><img alt="Original beside whole-volume histogram-standardized T1" src="../_images/preprocess_histogram.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Percentile landmarks mapped to 0–100 on the full volume.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">Percentile landmarks mapped to 0–100 on the full volume. Independent
+colorbars show original units versus the mapped range.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Adaptive histogram equalization</strong>:</p>
@@ -1887,9 +1892,9 @@ resample → z-score).</span><a class="headerlink" href="#id4" title="Link to th
 <a class="reference internal image-reference" href="../_images/preprocess_clahe.png"><img alt="Original beside whole-volume adaptive histogram equalization" src="../_images/preprocess_clahe.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Local contrast (CLAHE-style) on the full volume. Use when the scientific
-question needs local contrast, not when you still need quantitative MRI
-units.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<p><span class="caption-text">Local contrast (CLAHE-style) on the full volume. Independent colorbars
+show the intensity scale. Use when the scientific question needs local
+contrast, not when you still need quantitative MRI units.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Reorientation</strong> (canonical axis code; <code class="docutils literal notranslate"><span class="pre">closest</span></code> = flip/permute only):</p>

@@ -1768,22 +1768,30 @@ call is the full paper design.</p>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  saved </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; reloaded features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Run from the repository root (one line):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">precise_features_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Perturbation anatomy figures (same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">precise_screening_tutorial_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (ICC values depend on the synthetic draw):</p>
+<p>Illustrative (ICC depends on the subject and extractor; this is one
+<code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject with raw LAP intensity, not a clinical claim):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">===</span> <span class="n">precision</span> <span class="n">screen</span> <span class="p">(</span><span class="n">repeatability</span> <span class="n">experiment</span><span class="p">)</span> <span class="o">===</span>
-  <span class="n">precise</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;T1&#39;</span><span class="p">,</span> <span class="s1">&#39;T2&#39;</span><span class="p">]</span>
+  <span class="n">precise</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LAP&#39;</span><span class="p">]</span>
    <span class="n">experiment</span> <span class="n">feature</span>  <span class="n">value</span>   <span class="n">lcl</span>   <span class="n">ucl</span>  <span class="n">n_voxels</span>  <span class="n">precise</span>
-<span class="n">repeatability</span>      <span class="n">T1</span>  <span class="mf">0.884</span> <span class="mf">0.878</span> <span class="mf">0.890</span>    <span class="mf">5326.0</span>     <span class="kc">True</span>
-<span class="n">repeatability</span>      <span class="n">T2</span>  <span class="mf">0.868</span> <span class="mf">0.862</span> <span class="mf">0.875</span>    <span class="mf">5326.0</span>     <span class="kc">True</span>
+<span class="n">repeatability</span>     <span class="n">LAP</span>   <span class="mf">0.88</span> <span class="mf">0.877</span> <span class="mf">0.882</span>   <span class="mf">31814.0</span>     <span class="kc">True</span>
 
 <span class="o">===</span> <span class="n">whitelist</span> <span class="n">bridge</span> <span class="n">into</span> <span class="n">a</span> <span class="n">habitat</span> <span class="n">spec</span> <span class="o">===</span>
-  <span class="n">whitelist</span> <span class="n">spec</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;feature_whitelist&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;features&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;T1&#39;</span><span class="p">,</span> <span class="s1">&#39;T2&#39;</span><span class="p">]},</span> <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">}</span>
-  <span class="n">habitat</span> <span class="n">maps</span><span class="p">:</span> <span class="mi">3</span>
+  <span class="n">whitelist</span> <span class="n">spec</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;feature_whitelist&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;features&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LAP&#39;</span><span class="p">]},</span> <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">}</span>
+  <span class="n">habitat</span> <span class="n">maps</span><span class="p">:</span> <span class="mi">1</span>
 
 <span class="o">===</span> <span class="n">artefact</span> <span class="nb">round</span> <span class="n">trip</span> <span class="o">===</span>
-  <span class="n">saved</span> <span class="n">precise_features</span><span class="o">.</span><span class="n">json</span><span class="p">;</span> <span class="n">reloaded</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;T1&#39;</span><span class="p">,</span> <span class="s1">&#39;T2&#39;</span><span class="p">]</span>
+  <span class="n">saved</span> <span class="n">precise_features</span><span class="o">.</span><span class="n">json</span><span class="p">;</span> <span class="n">reloaded</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LAP&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -1819,14 +1827,14 @@ subject; values depend on the image and extractor.</span><a class="headerlink" h
 anatomy (shared intensity window). Images stay on the original voxel
 grid.</p>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_noise.png"><img alt="Chang-estimated Gaussian noise on real greyscale anatomy" src="_static/images/examples/precise_perturb_noise.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_noise.png"><img alt="Chang-estimated Gaussian noise on real greyscale anatomy" src="../_images/precise_perturb_noise.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Gaussian noise, sigma from Chang’s wavelet estimator (whole image).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_translation.png"><img alt="0.5-voxel translation on real greyscale anatomy" src="_static/images/examples/precise_perturb_translation.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_translation.png"><img alt="0.5-voxel translation on real greyscale anatomy" src="../_images/precise_perturb_translation.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Translation of 0.5 voxel along x and y (B-spline). MIRP
@@ -1834,7 +1842,7 @@ grid.</p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_rotation.png"><img alt="0.5-degree z rotation on real greyscale anatomy" src="_static/images/examples/precise_perturb_rotation.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_rotation.png"><img alt="0.5-degree z rotation on real greyscale anatomy" src="../_images/precise_perturb_rotation.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">In-plane rotation of 0.5° about z (B-spline).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
@@ -1848,7 +1856,7 @@ grid.</p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="_static/images/examples/precise_perturb_mask_edge.png"><img alt="Original vs nearest-neighbour resampled ROI contours" src="_static/images/examples/precise_perturb_mask_edge.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original vs nearest-neighbour resampled ROI contours" src="../_images/precise_perturb_mask_edge.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Mask edge under geometric perturbation. HABIT resamples the ROI with
