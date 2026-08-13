@@ -1873,7 +1873,11 @@ al., <em>Radiol Artif Intell</em> 2024;6(2):e230118, Appendix S2 / MIRP 1.2.0):<
 </pre></div>
 </div>
 <p>Compose <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code> / <code class="docutils literal notranslate"><span class="pre">translation</span></code> / <code class="docutils literal notranslate"><span class="pre">rotation</span></code> / <code class="docutils literal notranslate"><span class="pre">rigid</span></code>
-when you need a different chain. Per-feature ICCs between the original
+when you need a different chain. Optional <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI
+<code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>; extra <code class="docutils literal notranslate"><span class="pre">monai</span></code>) warps image and ROI with one
+elastic / B-spline field — it is <strong>not</strong> part of
+<code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>.
+Per-feature ICCs between the original
 and perturbed feature maps (repeatability) and across kernel radius /
 bin width settings (reproducibility) decide which features may define
 habitats. The analysis functions work on any
@@ -1958,7 +1962,7 @@ so every stage shares one seeding surface.</p>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">image_perturbation</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">habitat_feature_extractor</span></code></p></td>

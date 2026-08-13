@@ -112,14 +112,14 @@ morphological check. It is **not** the Prior 2024 feature screen.
    :alt: ROI contours before and after nearest-neighbour geometric resampling
    :width: 720
 
-   **Mask edge (what HABIT actually applies).** Geometric perturbations
-   resample the ROI with nearest neighbour; cyan = original contour,
-   dashed vermillion = perturbed contour, yellow = voxels whose ROI
-   membership changed. Display is cropped around the ROI so a one-voxel
-   shift is visible; the transform still runs on the full grid. HABIT
-   does **not** morphologically dilate or erode the mask (MIRP
-   ``perturbation_roi_adapt_size`` is not in Prior 2024 Appendix S2 and
-   is not implemented).
+   **ROI contour (MONAI B-spline / elastic FFD).** Optional follow-up
+   :class:`~habit.domain.precision.BSplineDeformPerturbation` (MONAI
+   ``Rand3DElastic``): one displacement field warps the image (cubic
+   B-spline, order 3) and the ROI (nearest neighbour, order 0). Cyan =
+   original contour, dashed vermillion = warped contour, yellow = voxels
+   whose membership changed. Not the Prior 2024 default chain; not MIRP
+   morphological grow/shrink. Cropped for display; computed on the full
+   volume. Requires ``pip install "habitat-analysis[monai]"``.
 
 .. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
    :alt: Local entropy at two kernel radii on real anatomy
@@ -201,13 +201,11 @@ What is not claimed
   cell type, a driver mutation, or a clinical outcome.
 * **Not ROI grow/shrink.** MIRP ``perturbation_roi_adapt_size``
   (morphological dilation/erosion of the mask) is **not** in Prior 2024
-  Appendix S2 and is **not** implemented in HABIT. Neither is MONAI
-  B-spline / diffeomorphic deformation. The mask-edge figure above is
-  nearest-neighbour resampling of the ROI under translation / rotation —
-  the real mask operation in the default chain. If a study needs
-  morphological grow/shrink, register a third-party
-  ``ImagePerturbation`` plugin; do not report HABIT's default chain as
-  having done it.
+  Appendix S2 and is **not** implemented. The mask-edge figure above is
+  the optional MONAI ``Rand3DElastic`` warp
+  (:class:`~habit.domain.precision.BSplineDeformPerturbation`), which is
+  also **not** in ``prior2024_retest_perturbation()``. Do not report the
+  default Precise chain as having done either grow/shrink or MONAI FFD.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a
   discovery analysis. An external test set is a different protocol.

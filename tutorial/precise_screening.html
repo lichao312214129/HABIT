@@ -1731,14 +1731,14 @@ subject; not a clinical claim.</span><a class="headerlink" href="#id4" title="Li
 <a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="ROI contours before and after nearest-neighbour geometric resampling" src="../_images/precise_perturb_mask_edge.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text"><strong>Mask edge (what HABIT actually applies).</strong> Geometric perturbations
-resample the ROI with nearest neighbour; cyan = original contour,
-dashed vermillion = perturbed contour, yellow = voxels whose ROI
-membership changed. Display is cropped around the ROI so a one-voxel
-shift is visible; the transform still runs on the full grid. HABIT
-does <strong>not</strong> morphologically dilate or erode the mask (MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> is not in Prior 2024 Appendix S2 and
-is not implemented).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text"><strong>ROI contour (MONAI B-spline / elastic FFD).</strong> Optional follow-up
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code> (MONAI
+<code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>): one displacement field warps the image (cubic
+B-spline, order 3) and the ROI (nearest neighbour, order 0). Cyan =
+original contour, dashed vermillion = warped contour, yellow = voxels
+whose membership changed. Not the Prior 2024 default chain; not MIRP
+morphological grow/shrink. Cropped for display; computed on the full
+volume. Requires <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">
@@ -1822,13 +1822,11 @@ reproducible under the stated perturbations</em>, not that it encodes a
 cell type, a driver mutation, or a clinical outcome.</p></li>
 <li><p><strong>Not ROI grow/shrink.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
 (morphological dilation/erosion of the mask) is <strong>not</strong> in Prior 2024
-Appendix S2 and is <strong>not</strong> implemented in HABIT. Neither is MONAI
-B-spline / diffeomorphic deformation. The mask-edge figure above is
-nearest-neighbour resampling of the ROI under translation / rotation —
-the real mask operation in the default chain. If a study needs
-morphological grow/shrink, register a third-party
-<code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin; do not report HABIT’s default chain as
-having done it.</p></li>
+Appendix S2 and is <strong>not</strong> implemented. The mask-edge figure above is
+the optional MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code> warp
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>), which is
+also <strong>not</strong> in <code class="docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>. Do not report the
+default Precise chain as having done either grow/shrink or MONAI FFD.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
 discovery analysis. An external test set is a different protocol.</p></li>

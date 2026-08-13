@@ -436,6 +436,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -459,6 +468,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -528,6 +538,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -645,6 +656,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -675,6 +687,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/features_radiomics_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/features_radiomics_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/features_radiomics_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/features_radiomics_api.html#what-to-read-next">What to read next</a></li>
@@ -872,10 +885,19 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1479,6 +1501,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1498,6 +1526,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1755,7 +1784,8 @@ window.runMermaid = runMermaid;</script>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../development/philosophy.html#see-also">See also</a></li>
@@ -1996,6 +2026,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;BSplineDeformPerturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BSplineDeformPerturbationParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;GaussianNoisePerturbation&quot;</span><span class="p">,</span>
     <span class="s2">&quot;GaussianNoisePerturbationParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TranslationPerturbation&quot;</span><span class="p">,</span>
@@ -2101,6 +2133,64 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># unchanged by construction.</span>
         <span class="n">masks</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">moved</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">mask_array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_numpy_volume</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a MONAI transform output to a ``(z, y, x)`` NumPy volume.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: Tensor or ndarray, either ``(z, y, x)`` or channel-first</span>
+<span class="sd">            ``(1, z, y, x)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A 3-D NumPy array.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When the rank is not a single 3-D volume.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;detach&quot;</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;bspline_deform: expected a 3-D volume or a single-channel &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(1, z, y, x) array; got shape </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">array</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pair_range</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a two-element numeric range ``(low, high)`` with ``low &lt;= high``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Parameter name for the error message.</span>
+<span class="sd">        values: Candidate pair.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The pair as floats.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When the length is not 2, a value is negative, or</span>
+<span class="sd">            ``low &gt; high``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pair</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be a (low, high) pair; got </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> values must be &gt;= 0; got </span><span class="si">{</span><span class="n">pair</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> low must be &lt;= high; got </span><span class="si">{</span><span class="n">pair</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="GaussianNoisePerturbationParams">
@@ -2586,8 +2676,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    neighbour. ``single_resample=True`` composes translation+rotation</span>
 <span class="sd">    (MIRP ≥ 2); the paper used two geometric resamples.</span>
 
-<span class="sd">    ROI morphological variation and MONAI B-spline deformation are not in</span>
-<span class="sd">    this protocol; see the precise-features documentation for the follow-up.</span>
+<span class="sd">    ROI morphological grow/shrink (MIRP ``perturbation_roi_adapt_size``)</span>
+<span class="sd">    is not in this protocol. MONAI elastic / B-spline free-form warps</span>
+<span class="sd">    are a separate optional component</span>
+<span class="sd">    (:class:`BSplineDeformPerturbation`), not part of this chain.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        shift_fraction: MIRP translation fraction in ``[0, 1]``.</span>
@@ -2626,6 +2718,196 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">BSplineDeformPerturbationParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`BSplineDeformPerturbation`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">)</span>
+    <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+    <span class="n">image_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">mask_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span>
+
+
+<span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;bspline_deform&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BSplineDeformPerturbation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MONAI elastic / B-spline free-form warp of every image and ROI.</span>
+
+<span class="sd">    This is **not** the Prior 2024 / MIRP 1.2.0 simulated-retest chain</span>
+<span class="sd">    (noise → translation → rotation). It is the optional follow-up that</span>
+<span class="sd">    actually changes ROI *shape*: one random 3-D displacement field is</span>
+<span class="sd">    drawn and applied to every modality and mask of the subject so the</span>
+<span class="sd">    contour and the anatomy stay paired.</span>
+
+<span class="sd">    Implementation (MONAI ``Rand3DElasticd``, optional extra ``monai``):</span>
+
+<span class="sd">    * A random offset grid is sampled, Gaussian-smoothed with a sigma</span>
+<span class="sd">      drawn from ``sigma_range``, and scaled by a magnitude drawn from</span>
+<span class="sd">      ``magnitude_range`` (voxel units). Optional extra affine terms are</span>
+<span class="sd">      left off so this component is a pure elastic warp.</span>
+<span class="sd">    * Intensities are resampled with spline order ``image_spline_order``</span>
+<span class="sd">      (default 3 = cubic B-spline). Labels use ``mask_spline_order``</span>
+<span class="sd">      (default 0 = nearest neighbour) so the ROI stays a discrete label.</span>
+<span class="sd">    * The output stays on the original grid (same shape and geometry).</span>
+
+<span class="sd">    This is MONAI&#39;s documented 3-D elastic deformation, not Rueckert</span>
+<span class="sd">    cubic-B-spline FFD with an explicit control-point mesh, and not MIRP</span>
+<span class="sd">    ``perturbation_roi_adapt_size`` (morphological grow/shrink).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sigma_range: Gaussian smoothing ``(low, high)`` of the offset</span>
+<span class="sd">            grid, in voxels. Wider sigma gives a smoother warp.</span>
+<span class="sd">        magnitude_range: Displacement magnitude ``(low, high)`` in</span>
+<span class="sd">            voxels. Larger values wrinkle the ROI more.</span>
+<span class="sd">        image_spline_order: Spline order for intensity volumes (0–5).</span>
+<span class="sd">        mask_spline_order: Spline order for ROI labels (0–5); 0 keeps</span>
+<span class="sd">            integer labels.</span>
+<span class="sd">        padding_mode: Out-of-grid padding (``reflection``, ``border``,</span>
+<span class="sd">            or ``zeros``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
+        <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>
+        <span class="n">image_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">mask_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;sigma_range&quot;</span><span class="p">,</span> <span class="n">sigma_range</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;magnitude_range&quot;</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image_spline_order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: image_spline_order must be in 0..5; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">image_spline_order</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask_spline_order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: mask_spline_order must be in 0..5; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">mask_spline_order</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">allowed_pad</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;reflection&quot;</span><span class="p">,</span> <span class="s2">&quot;border&quot;</span><span class="p">,</span> <span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">padding_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_pad</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: padding_mode must be one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">allowed_pad</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">padding_mode</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_spline_order</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask_spline_order</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">padding_mode</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification used for provenance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bspline_deform&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;sigma_range&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span><span class="p">,</span>
+                <span class="s2">&quot;magnitude_range&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">,</span>
+                <span class="s2">&quot;image_spline_order&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span><span class="p">,</span>
+                <span class="s2">&quot;mask_spline_order&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span><span class="p">,</span>
+                <span class="s2">&quot;padding_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of ``subject`` warped by one MONAI elastic field.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing images and/or masks on one grid.</span>
+<span class="sd">            rng: Random generator; one integer seed is drawn so every</span>
+<span class="sd">                volume of this subject shares the same displacement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The warped subject copy (same keys, same geometry).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            OptionalDependencyError: When the ``monai`` extra is missing.</span>
+<span class="sd">            HABITAPIError: When the subject has no volumes, or images</span>
+<span class="sd">                and masks do not share one 3-D shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
+
+        <span class="n">require</span><span class="p">(</span>
+            <span class="s2">&quot;monai.transforms&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;monai&quot;</span><span class="p">,</span>
+            <span class="n">purpose</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;MONAI Rand3DElastic free-form / elastic deformation of &quot;</span>
+                <span class="s2">&quot;images and ROI contours&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">monai.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rand3DElasticd</span>
+
+        <span class="n">image_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">mask_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">image_keys</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">mask_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: subject has no images or masks to warp.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">modes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reference_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">nonlocal</span> <span class="n">reference_shape</span>
+            <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">volume</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> must be 3-D (z, y, x); &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;got shape </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">volume</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">volume</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">reference_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">reference_shape</span> <span class="o">=</span> <span class="n">shape</span>
+            <span class="k">elif</span> <span class="n">shape</span> <span class="o">!=</span> <span class="n">reference_shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;bspline_deform: all images and masks must share one &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;grid; </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> is </span><span class="si">{</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">reference_shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="c1"># Channel-first float32 is what Rand3DElasticd resamples.</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">image_keys</span><span class="p">:</span>
+            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">mask_keys</span><span class="p">:</span>
+            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mask:</span><span class="si">{</span><span class="n">roi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">reference_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">Rand3DElasticd</span><span class="p">(</span>
+            <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span>
+            <span class="n">sigma_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span><span class="p">,</span>
+            <span class="n">magnitude_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">,</span>
+            <span class="n">spatial_size</span><span class="o">=</span><span class="n">reference_shape</span><span class="p">,</span>
+            <span class="n">prob</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">modes</span><span class="p">),</span>
+            <span class="n">padding_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># One seed drives the shared offset grid for every key.</span>
+        <span class="n">transform</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">warped</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">images</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">image_keys</span><span class="p">:</span>
+            <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">_as_numpy_volume</span><span class="p">(</span><span class="n">warped</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="n">masks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">mask_keys</span><span class="p">:</span>
+            <span class="n">mask_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">warped_mask</span> <span class="o">=</span> <span class="n">_as_numpy_volume</span><span class="p">(</span><span class="n">warped</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mask:</span><span class="si">{</span><span class="n">roi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+            <span class="c1"># Nearest-neighbour (order 0) is already discrete; rint absorbs</span>
+            <span class="c1"># residual float dust from the MONAI / scipy backend.</span>
+            <span class="n">masks</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">warped_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">mask_array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+
+
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
     <span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">GaussianNoisePerturbationParams</span>
 <span class="p">)</span>
@@ -2634,6 +2916,9 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span> <span class="n">RotationPerturbationParams</span><span class="p">)</span>
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;rigid&quot;</span><span class="p">,</span> <span class="n">RigidPerturbationParams</span><span class="p">)</span>
+<span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;bspline_deform&quot;</span><span class="p">,</span> <span class="n">BSplineDeformPerturbationParams</span>
+<span class="p">)</span>
 </pre></div>
 
            </div>

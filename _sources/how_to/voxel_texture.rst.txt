@@ -19,9 +19,9 @@ Python API (sklearn-short)
    from habit import local_entropy_map
    from habit.viz import plot_voxel_texture_slice
 
-   entropy = local_entropy_map(image, kernel_size=5, bins=32)
+   entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
    fig = plot_voxel_texture_slice(
-       entropy, anatomy=image, roi_mask=mask,  # side_by_side by default
+       entropy, anatomy=image_vol, roi_mask=mask_vol,
    )
 
 For ``voxel_radiomics`` GLCM columns, create a

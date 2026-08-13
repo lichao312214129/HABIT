@@ -244,7 +244,11 @@ al., *Radiol Artif Intell* 2024;6(2):e230118, Appendix S2 / MIRP 1.2.0):
    perturbed = retest(subject, rng=np.random.default_rng(0))  # Subject -> Subject
 
 Compose ``gaussian_noise`` / ``translation`` / ``rotation`` / ``rigid``
-when you need a different chain. Per-feature ICCs between the original
+when you need a different chain. Optional ``bspline_deform`` (MONAI
+``Rand3DElastic``; extra ``monai``) warps image and ROI with one
+elastic / B-spline field — it is **not** part of
+:func:`~habit.domain.precision.prior2024_retest_perturbation`.
+Per-feature ICCs between the original
 and perturbed feature maps (repeatability) and across kernel radius /
 bin width settings (reproducibility) decide which features may define
 habitats. The analysis functions work on any
@@ -323,7 +327,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - ``concat``, ``weighted_concat``, ``ratio``, …
    * - ``ImagePerturbationRegistry``
      - ``image_perturbation``
-     - ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``
+     - ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, ``bspline_deform``
    * - ``HabitatFeatureExtractorRegistry``
      - ``habitat_feature_extractor``
      - ``volume``, ``msi``, ``ith_score``, ``graph``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)

@@ -1663,7 +1663,10 @@ selection, to hide outside-ROI feature values, and for contours.</p></li>
 <li><p><strong>title</strong> – Optional figure title (ASCII-sanitised).</p></li>
 <li><p><strong>feature_label</strong> – Colourbar / panel label; defaults to the feature name
 or <code class="docutils literal notranslate"><span class="pre">&quot;Voxel</span> <span class="pre">texture&quot;</span></code>.</p></li>
-<li><p><strong>direction</strong> – Optional SimpleITK direction cosines (9 floats).</p></li>
+<li><p><strong>direction</strong> – Optional SimpleITK direction cosines (9 floats).
+Prefer passing <code class="docutils literal notranslate"><span class="pre">anatomy</span></code> / <code class="docutils literal notranslate"><span class="pre">roi_mask</span></code> as volume objects
+(not <code class="docutils literal notranslate"><span class="pre">.data</span></code>) so geometry is not dropped. When image and
+mask directions disagree, the mask wins (with a warning).</p></li>
 <li><p><strong>spacing</strong> – Optional SimpleITK voxel spacing <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y[,</span> <span class="pre">z])</span></code> in mm.</p></li>
 <li><p><strong>display_convention</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;radiological&quot;</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;neurological&quot;</span></code>,
 or <code class="docutils literal notranslate"><span class="pre">&quot;native&quot;</span></code>.</p></li>

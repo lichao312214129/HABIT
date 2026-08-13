@@ -206,8 +206,10 @@ Missing optional packages raise ``OptionalDependencyError`` with the exact
      - AutoGluon Tabular
    * - ``torch``
      - TorchRadiomics / GPU texture
+   * - ``monai``
+     - MONAI ``Rand3DElastic`` image / ROI warp (``BSplineDeformPerturbation``; pulls ``torch``)
    * - ``all``
-     - All of the above except ``torch`` and PyRadiomics
+     - All of the above except ``torch``, ``monai``, and PyRadiomics
    * - ``view``
      - napari for ``habit view`` (clone: ``pip install -e ".[view]"``)
 

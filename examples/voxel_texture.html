@@ -1650,9 +1650,12 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
 <span class="n">subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-<span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-<span class="n">spacing</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">)</span><span class="o">.</span><span class="n">spacing</span>
+<span class="c1"># Pass volume objects (not .data) so direction/spacing stay attached.</span>
+<span class="c1"># Image vs mask direction may disagree; plotters warn and use the mask.</span>
+<span class="n">image_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITY</span><span class="p">)</span>
+<span class="n">mask_vol</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">data</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">mask_vol</span><span class="o">.</span><span class="n">data</span>
 
 <span class="n">entropy</span> <span class="o">=</span> <span class="n">local_entropy_map</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 <span class="n">glcm</span> <span class="o">=</span> <span class="n">VoxelFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
@@ -1666,7 +1669,7 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
     <span class="p">},</span>
 <span class="p">)(</span><span class="n">subject</span><span class="p">)</span>
 
-<span class="n">kw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">anatomy</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">)</span>
+<span class="n">kw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">anatomy</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask_vol</span><span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span><span class="n">entropy</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_entropy.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>

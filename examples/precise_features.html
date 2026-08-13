@@ -1859,11 +1859,13 @@ grid.</p>
 <a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original vs nearest-neighbour resampled ROI contours" src="../_images/precise_perturb_mask_edge.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Mask edge under geometric perturbation. HABIT resamples the ROI with
-nearest neighbour (cyan original, dashed perturbed, yellow voxels
-that changed). This is <strong>not</strong> morphological dilation/erosion (MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> is not implemented). Display cropped
-around the ROI.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+<p><span class="caption-text">ROI contour change under MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code> (HABIT
+<code class="docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>): cyan = original, dashed vermillion =
+warped ROI, yellow = voxels whose membership changed. Image uses cubic
+B-spline resampling (order 3); the mask uses nearest neighbour (order
+0) on the <strong>same</strong> displacement field. This is <strong>not</strong> the Prior 2024
+default chain and <strong>not</strong> MIRP morphological grow/shrink. Display
+cropped around the ROI; the warp still runs on the full volume.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id8">
@@ -1886,9 +1888,11 @@ Images use B-spline interpolation; masks use nearest neighbour. Two geometric
 resamples match MIRP 1.2.0; pass <code class="docutils literal notranslate"><span class="pre">single_resample=True</span></code> to compose them
 into one affine (MIRP ≥ 2 / <code class="xref py py-class docutils literal notranslate"><span class="pre">RigidPerturbation</span></code>).</p>
 <p>The chain is still composable (domain <code class="docutils literal notranslate"><span class="pre">image_perturbation</span></code>):
-<code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>. Third-party
-perturbations registered through the <code class="docutils literal notranslate"><span class="pre">habit.image_perturbation</span></code> entry-point
-group slot into the same chain — pass any chain (or single component) as
+<code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, and the
+optional <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI elastic / B-spline FFD; requires
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>). Third-party perturbations
+registered through the <code class="docutils literal notranslate"><span class="pre">habit.image_perturbation</span></code> entry-point group
+slot into the same chain — pass any chain (or single component) as
 <code class="docutils literal notranslate"><span class="pre">perturbation=</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">GaussianNoisePerturbation</span><span class="p">,</span>
@@ -1904,13 +1908,11 @@ group slot into the same chain — pass any chain (or single component) as
 <span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">perturbation</span><span class="o">=</span><span class="n">gentler</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Follow-up (not in the Prior 2024 protocol, <strong>not implemented</strong> in HABIT):
-MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink) and
-MONAI B-spline / diffeomorphic deformation of the image or mask. The
-mask-edge figure on this page is nearest-neighbour resampling of the ROI
-during translation / rotation — the real mask operation in the default
-chain. Use a third-party <code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> plugin when morphological
-grow/shrink is required.</p>
+<p>The mask-edge figure on this page is <code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>
+(MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>). It is <strong>not</strong> in <code class="docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>.
+MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink) is
+still not implemented; do not report the default Precise chain as having
+done grow/shrink.</p>
 </section>
 <section id="habitat-stability-under-perturbation">
 <h2>Habitat stability under perturbation<a class="headerlink" href="#habitat-stability-under-perturbation" title="Link to this heading"></a></h2>

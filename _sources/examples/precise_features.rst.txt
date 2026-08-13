@@ -150,11 +150,13 @@ grid.
    :alt: Original vs nearest-neighbour resampled ROI contours
    :width: 720
 
-   Mask edge under geometric perturbation. HABIT resamples the ROI with
-   nearest neighbour (cyan original, dashed perturbed, yellow voxels
-   that changed). This is **not** morphological dilation/erosion (MIRP
-   ``perturbation_roi_adapt_size`` is not implemented). Display cropped
-   around the ROI.
+   ROI contour change under MONAI ``Rand3DElastic`` (HABIT
+   ``BSplineDeformPerturbation``): cyan = original, dashed vermillion =
+   warped ROI, yellow = voxels whose membership changed. Image uses cubic
+   B-spline resampling (order 3); the mask uses nearest neighbour (order
+   0) on the **same** displacement field. This is **not** the Prior 2024
+   default chain and **not** MIRP morphological grow/shrink. Display
+   cropped around the ROI; the warp still runs on the full volume.
 
 .. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
    :alt: Local entropy at two kernel radii on real anatomy
@@ -176,9 +178,11 @@ resamples match MIRP 1.2.0; pass ``single_resample=True`` to compose them
 into one affine (MIRP ≥ 2 / :class:`~habit.domain.precision.RigidPerturbation`).
 
 The chain is still composable (domain ``image_perturbation``):
-``gaussian_noise``, ``translation``, ``rotation``, ``rigid``. Third-party
-perturbations registered through the ``habit.image_perturbation`` entry-point
-group slot into the same chain — pass any chain (or single component) as
+``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, and the
+optional ``bspline_deform`` (MONAI elastic / B-spline FFD; requires
+``pip install "habitat-analysis[monai]"``). Third-party perturbations
+registered through the ``habit.image_perturbation`` entry-point group
+slot into the same chain — pass any chain (or single component) as
 ``perturbation=``.
 
 .. code-block:: python
@@ -196,13 +200,11 @@ group slot into the same chain — pass any chain (or single component) as
    )
    precise = identify_precise_voxel_features(cohort, perturbation=gentler)
 
-Follow-up (not in the Prior 2024 protocol, **not implemented** in HABIT):
-MIRP ``perturbation_roi_adapt_size`` (ROI morphological grow/shrink) and
-MONAI B-spline / diffeomorphic deformation of the image or mask. The
-mask-edge figure on this page is nearest-neighbour resampling of the ROI
-during translation / rotation — the real mask operation in the default
-chain. Use a third-party ``ImagePerturbation`` plugin when morphological
-grow/shrink is required.
+The mask-edge figure on this page is :class:`~habit.domain.precision.BSplineDeformPerturbation`
+(MONAI ``Rand3DElastic``). It is **not** in ``prior2024_retest_perturbation()``.
+MIRP ``perturbation_roi_adapt_size`` (ROI morphological grow/shrink) is
+still not implemented; do not report the default Precise chain as having
+done grow/shrink.
 
 Habitat stability under perturbation
 ------------------------------------

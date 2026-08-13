@@ -436,6 +436,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/quickstart_python.html#next">Next</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/precise_screening.html">Morphology-aware precise screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#see-also">See also</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
 <ul>
@@ -459,6 +468,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/preprocess.html">Preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/preprocess.html#run">Run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/preprocess.html#your-data">Your data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/preprocess.html#atomic-python-same-steps-no-yaml">Atomic Python (same steps, no YAML)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/segment_habitat.html">Habitat segmentation</a><ul>
@@ -528,6 +538,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/image_preprocessing_api.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/image_preprocessing_api.html#atomic-steps-copy-swap-data">Atomic steps (copy, swap DATA)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/image_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -645,6 +656,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -675,6 +687,7 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/features_radiomics_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/features_radiomics_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/features_radiomics_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/features_radiomics_api.html#what-to-read-next">What to read next</a></li>
@@ -872,10 +885,19 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../reference/features/graph.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#definition">Definition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#graph-construction-options">Graph construction options</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#normalization-companions">Normalization companions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#output-columns">Output columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#construction-options">Construction options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
@@ -1479,6 +1501,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1498,6 +1526,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1755,7 +1784,8 @@ window.runMermaid = runMermaid;</script>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../development/index.html">Developer Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../development/philosophy.html">Design Philosophy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#research-constraints">Research constraints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#limitations">Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#api-first-cli-and-yaml-are-not-the-architecture">API-first (CLI and YAML are not the architecture)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#five-design-pillars">Five design pillars</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#trade-offs">Trade-offs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../development/philosophy.html#see-also">See also</a></li>
@@ -1989,9 +2019,10 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">MIRP 1.2.0 (the paper) applied translation and rotation as two resamples.</span>
 <span class="sd">MIRP ≥ 2 composes them into one affine. :func:`rigid_transform_image` is</span>
-<span class="sd">that single-resample path. ROI morphological variation</span>
-<span class="sd">(``perturbation_roi_adapt_size``) and MONAI B-spline deformation are</span>
-<span class="sd">*not* part of the Prior 2024 protocol; they are documented as follow-up.</span>
+<span class="sd">that single-resample path. ROI morphological variation (``perturbation_roi_adapt_size``) is *not*</span>
+<span class="sd">part of the Prior 2024 protocol. MONAI elastic / B-spline free-form</span>
+<span class="sd">deformation of the image and ROI is a separate optional domain</span>
+<span class="sd">component (``BSplineDeformPerturbation``), not these L0 kernels.</span>
 
 <span class="sd">Implemented natively so HABIT does not depend on MIRP (EUPL-1.2 license,</span>
 <span class="sd">Python &gt;= 3.11 -- both incompatible with HABIT).</span>

@@ -1635,8 +1635,10 @@ Habitat Computation by Machine Learning in Cancer. Radiol Artif Intell.
 0.5° in-plane (z) rotation. Images use B-spline; masks nearest
 neighbour. <code class="docutils literal notranslate"><span class="pre">single_resample=True</span></code> composes translation+rotation
 (MIRP ≥ 2); the paper used two geometric resamples.</p>
-<p>ROI morphological variation and MONAI B-spline deformation are not in
-this protocol; see the precise-features documentation for the follow-up.</p>
+<p>ROI morphological grow/shrink (MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>)
+is not in this protocol. MONAI elastic / B-spline free-form warps
+are a separate optional component
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>), not part of this chain.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
