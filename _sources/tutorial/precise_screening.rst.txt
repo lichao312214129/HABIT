@@ -114,12 +114,13 @@ morphological check. It is **not** the Prior 2024 feature screen.
 
    **ROI contour (MONAI B-spline / elastic FFD).** Optional follow-up
    :class:`~habit.domain.precision.BSplineDeformPerturbation` (MONAI
-   ``Rand3DElastic``): one displacement field warps the image (cubic
-   B-spline, order 3) and the ROI (nearest neighbour, order 0). Cyan =
+   ``Rand3DElastic``): one displacement field warps the image (bilinear)
+   and the ROI (nearest neighbour). Cyan =
    original contour, dashed vermillion = warped contour, yellow = voxels
    whose membership changed. Not the Prior 2024 default chain; not MIRP
-   morphological grow/shrink. Cropped for display; computed on the full
-   volume. Requires ``pip install "habitat-analysis[monai]"``.
+   morphological grow/shrink. The demo crops to the ROI bounding box plus
+   pad (this LAP volume is 200×360×360); the public API warps a full
+   Subject. Requires ``pip install "habitat-analysis[monai]"``.
 
 .. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
    :alt: Local entropy at two kernel radii on real anatomy

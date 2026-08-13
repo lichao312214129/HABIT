@@ -1733,12 +1733,13 @@ subject; not a clinical claim.</span><a class="headerlink" href="#id4" title="Li
 <figcaption>
 <p><span class="caption-text"><strong>ROI contour (MONAI B-spline / elastic FFD).</strong> Optional follow-up
 <code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code> (MONAI
-<code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>): one displacement field warps the image (cubic
-B-spline, order 3) and the ROI (nearest neighbour, order 0). Cyan =
+<code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>): one displacement field warps the image (bilinear)
+and the ROI (nearest neighbour). Cyan =
 original contour, dashed vermillion = warped contour, yellow = voxels
 whose membership changed. Not the Prior 2024 default chain; not MIRP
-morphological grow/shrink. Cropped for display; computed on the full
-volume. Requires <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+morphological grow/shrink. The demo crops to the ROI bounding box plus
+pad (this LAP volume is 200×360×360); the public API warps a full
+Subject. Requires <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">

@@ -2007,7 +2007,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span>
@@ -2191,6 +2191,41 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> low must be &lt;= high; got </span><span class="si">{</span><span class="n">pair</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resample_mode</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a MONAI ``Rand3DElastic`` interpolator.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Parameter name for the error message.</span>
+<span class="sd">        mode: ``&quot;bilinear&quot;`` / ``&quot;nearest&quot;`` or spline order 0–5.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The validated mode.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: When ``mode`` is not an allowed interpolator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &#39;bilinear&#39;, &#39;nearest&#39;, or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;an integer spline order 0..5; got </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> spline order must be in 0..5; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span> <span class="s2">&quot;nearest&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bspline_deform: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &#39;bilinear&#39;, &#39;nearest&#39;, or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;an integer spline order 0..5; got </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
 
 
 <div class="viewcode-block" id="GaussianNoisePerturbationParams">
@@ -2722,11 +2757,12 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`BSplineDeformPerturbation`.&quot;&quot;&quot;</span>
 
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
-    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">)</span>
-    <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
-    <span class="n">image_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-    <span class="n">mask_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
+    <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">)</span>
+    <span class="n">image_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bilinear&quot;</span>
+    <span class="n">mask_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span>
     <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span>
+    <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
 
 
 <span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;bspline_deform&quot;</span><span class="p">)</span>
@@ -2746,9 +2782,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">      drawn from ``sigma_range``, and scaled by a magnitude drawn from</span>
 <span class="sd">      ``magnitude_range`` (voxel units). Optional extra affine terms are</span>
 <span class="sd">      left off so this component is a pure elastic warp.</span>
-<span class="sd">    * Intensities are resampled with spline order ``image_spline_order``</span>
-<span class="sd">      (default 3 = cubic B-spline). Labels use ``mask_spline_order``</span>
-<span class="sd">      (default 0 = nearest neighbour) so the ROI stays a discrete label.</span>
+<span class="sd">    * Intensities are resampled with ``image_mode`` (default</span>
+<span class="sd">      ``&quot;bilinear&quot;``, MONAI&#39;s torch grid-sample path). Labels use</span>
+<span class="sd">      ``mask_mode`` (default ``&quot;nearest&quot;``) so the ROI stays a discrete</span>
+<span class="sd">      label. Integer 0–5 selects scipy spline order instead (order 3 is</span>
+<span class="sd">      cubic B-spline resampling; it is much slower on full clinical</span>
+<span class="sd">      volumes).</span>
 <span class="sd">    * The output stays on the original grid (same shape and geometry).</span>
 
 <span class="sd">    This is MONAI&#39;s documented 3-D elastic deformation, not Rueckert</span>
@@ -2760,42 +2799,42 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            grid, in voxels. Wider sigma gives a smoother warp.</span>
 <span class="sd">        magnitude_range: Displacement magnitude ``(low, high)`` in</span>
 <span class="sd">            voxels. Larger values wrinkle the ROI more.</span>
-<span class="sd">        image_spline_order: Spline order for intensity volumes (0–5).</span>
-<span class="sd">        mask_spline_order: Spline order for ROI labels (0–5); 0 keeps</span>
-<span class="sd">            integer labels.</span>
+<span class="sd">        image_mode: Intensity interpolator (``&quot;bilinear&quot;`` / ``&quot;nearest&quot;``</span>
+<span class="sd">            or spline order 0–5).</span>
+<span class="sd">        mask_mode: ROI interpolator (``&quot;nearest&quot;`` recommended).</span>
 <span class="sd">        padding_mode: Out-of-grid padding (``reflection``, ``border``,</span>
 <span class="sd">            or ``zeros``).</span>
+<span class="sd">        device: Torch device (``&quot;cpu&quot;`` / ``&quot;cuda&quot;``). Default ``&quot;cpu&quot;``</span>
+<span class="sd">            is the portable path; pass ``&quot;cuda&quot;`` when a GPU is available</span>
+<span class="sd">            and the volume fits in memory.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
-        <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">),</span>
-        <span class="n">image_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-        <span class="n">mask_spline_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span>
+        <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>
+        <span class="n">image_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bilinear&quot;</span><span class="p">,</span>
+        <span class="n">mask_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
         <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;sigma_range&quot;</span><span class="p">,</span> <span class="n">sigma_range</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;magnitude_range&quot;</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">image_spline_order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;bspline_deform: image_spline_order must be in 0..5; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">image_spline_order</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">mask_spline_order</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;bspline_deform: mask_spline_order must be in 0..5; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">mask_spline_order</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_mode</span> <span class="o">=</span> <span class="n">_resample_mode</span><span class="p">(</span><span class="s2">&quot;image_mode&quot;</span><span class="p">,</span> <span class="n">image_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_mode</span> <span class="o">=</span> <span class="n">_resample_mode</span><span class="p">(</span><span class="s2">&quot;mask_mode&quot;</span><span class="p">,</span> <span class="n">mask_mode</span><span class="p">)</span>
         <span class="n">allowed_pad</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;reflection&quot;</span><span class="p">,</span> <span class="s2">&quot;border&quot;</span><span class="p">,</span> <span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">padding_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_pad</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
                 <span class="s2">&quot;bspline_deform: padding_mode must be one of &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">allowed_pad</span><span class="si">}</span><span class="s2">; got </span><span class="si">{</span><span class="n">padding_mode</span><span class="si">!r}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_spline_order</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask_spline_order</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">padding_mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="s2">&quot;cuda&quot;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: device must be &#39;cpu&#39; or &#39;cuda&#39;; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">device</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
@@ -2805,9 +2844,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;sigma_range&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span><span class="p">,</span>
                 <span class="s2">&quot;magnitude_range&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">,</span>
-                <span class="s2">&quot;image_spline_order&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span><span class="p">,</span>
-                <span class="s2">&quot;mask_spline_order&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span><span class="p">,</span>
+                <span class="s2">&quot;image_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_mode</span><span class="p">,</span>
+                <span class="s2">&quot;mask_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_mode</span><span class="p">,</span>
                 <span class="s2">&quot;padding_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
+                <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -2848,11 +2888,11 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
 
         <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">modes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">modes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">reference_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">nonlocal</span> <span class="n">reference_shape</span>
             <span class="n">volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">volume</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
@@ -2871,12 +2911,12 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Channel-first float32 is what Rand3DElasticd resamples.</span>
             <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
             <span class="n">keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+            <span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">image_keys</span><span class="p">:</span>
-            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_spline_order</span><span class="p">)</span>
+            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_mode</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">mask_keys</span><span class="p">:</span>
-            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mask:</span><span class="si">{</span><span class="n">roi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_spline_order</span><span class="p">)</span>
+            <span class="n">_add</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mask:</span><span class="si">{</span><span class="n">roi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_mode</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="n">reference_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">Rand3DElasticd</span><span class="p">(</span>
@@ -2887,7 +2927,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">prob</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">modes</span><span class="p">),</span>
             <span class="n">padding_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
-            <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># One seed drives the shared offset grid for every key.</span>
         <span class="n">transform</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>

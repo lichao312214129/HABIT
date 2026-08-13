@@ -152,11 +152,13 @@ grid.
 
    ROI contour change under MONAI ``Rand3DElastic`` (HABIT
    ``BSplineDeformPerturbation``): cyan = original, dashed vermillion =
-   warped ROI, yellow = voxels whose membership changed. Image uses cubic
-   B-spline resampling (order 3); the mask uses nearest neighbour (order
-   0) on the **same** displacement field. This is **not** the Prior 2024
+   warped ROI, yellow = voxels whose membership changed. Image uses
+   bilinear resampling; the mask uses nearest neighbour on the **same**
+   displacement field (demo: ``sigma_range=(1, 2)``,
+   ``magnitude_range=(10, 15)`` voxels). This is **not** the Prior 2024
    default chain and **not** MIRP morphological grow/shrink. Display
-   cropped around the ROI; the warp still runs on the full volume.
+   cropped to the ROI bounding box plus pad so the warp is runnable on
+   this 200×360×360 demo volume; the public API accepts a full Subject.
 
 .. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
    :alt: Local entropy at two kernel radii on real anatomy

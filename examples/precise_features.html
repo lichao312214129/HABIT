@@ -1861,11 +1861,13 @@ grid.</p>
 <figcaption>
 <p><span class="caption-text">ROI contour change under MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code> (HABIT
 <code class="docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>): cyan = original, dashed vermillion =
-warped ROI, yellow = voxels whose membership changed. Image uses cubic
-B-spline resampling (order 3); the mask uses nearest neighbour (order
-0) on the <strong>same</strong> displacement field. This is <strong>not</strong> the Prior 2024
+warped ROI, yellow = voxels whose membership changed. Image uses
+bilinear resampling; the mask uses nearest neighbour on the <strong>same</strong>
+displacement field (demo: <code class="docutils literal notranslate"><span class="pre">sigma_range=(1,</span> <span class="pre">2)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">magnitude_range=(10,</span> <span class="pre">15)</span></code> voxels). This is <strong>not</strong> the Prior 2024
 default chain and <strong>not</strong> MIRP morphological grow/shrink. Display
-cropped around the ROI; the warp still runs on the full volume.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+cropped to the ROI bounding box plus pad so the warp is runnable on
+this 200×360×360 demo volume; the public API accepts a full Subject.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id8">
