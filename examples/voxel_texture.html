@@ -322,6 +322,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#what-to-read-next">What to read next</a></li>
@@ -1641,9 +1642,11 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span><span class="n">entropy</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_entropy.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/voxel_texture_entropy.png&quot;</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span><span class="n">glcm</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_glcm_contrast.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/voxel_texture_glcm_contrast.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>
@@ -1653,8 +1656,8 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_side_by_side</span><span class="o">.</span><span class="n">png</span>
-<span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_overlay</span><span class="o">.</span><span class="n">png</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_entropy</span><span class="o">.</span><span class="n">png</span>
+<span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_glcm_contrast</span><span class="o">.</span><span class="n">png</span>
 </pre></div>
 </div>
 </section>

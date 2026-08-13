@@ -82,6 +82,8 @@ Traditional radiomics example
 Requires ``demo_data/preprocessed/`` and PyRadiomics.
 Use ``--dry-run`` to validate the config dict without running extraction.
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 .. literalinclude:: scripts/traditional_radiomics_demo.py
    :language: python
 

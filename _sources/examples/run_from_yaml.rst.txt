@@ -25,6 +25,8 @@ exactly what exists in Python. Scheduling lives under a sibling ``policy:``
 block (:class:`~habit.spec.RunPolicy` field names). A complete annotated v1
 document ships at ``config/habitat/config_habitat_two_step_v1.yaml``.
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 **Dual track with v0.1.** A v0.1 habitat YAML keeps parallel / checkpoint
 knobs at the **top level** (``processes``, ``individual_subject_*``, …).
 ``run_from_yaml`` translates them into ``policy`` before selecting

@@ -322,6 +322,7 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
@@ -1701,6 +1702,30 @@ for batch extraction over saved NRRD maps.</p>
     <span class="s2">&quot;  traditional_radiomics({paths.images_folder, paths.out_dir, &quot;</span>
     <span class="s2">&quot;processing.process_image_types})&quot;</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<p>Real output of the in-memory two-step path (column names are stable; counts
+depend on <code class="docutils literal notranslate"><span class="pre">n_habitats</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">===</span> <span class="n">In</span><span class="o">-</span><span class="n">memory</span><span class="p">:</span> <span class="n">habitat_features</span> <span class="n">on</span> <span class="n">two_step</span> <span class="o">===</span>
+  <span class="n">feature</span> <span class="n">columns</span> <span class="p">(</span><span class="mi">47</span><span class="p">):</span>
+    <span class="o">-</span> <span class="n">habitat_1_voxel_count</span>
+    <span class="o">-</span> <span class="n">habitat_1_volume_fraction</span>
+    <span class="o">-</span> <span class="n">habitat_2_voxel_count</span>
+    <span class="o">-</span> <span class="n">habitat_2_volume_fraction</span>
+    <span class="o">-</span> <span class="n">habitat_3_voxel_count</span>
+    <span class="o">-</span> <span class="n">habitat_3_volume_fraction</span>
+    <span class="o">-</span> <span class="n">firstorder_0_and_1</span>
+    <span class="o">...</span>
+    <span class="o">-</span> <span class="n">ith_score</span>
+    <span class="o">-</span> <span class="n">num_habitats</span>
+  <span class="n">wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">features_radiomics_api_overlay</span><span class="o">.</span><span class="n">png</span>
+<span class="o">===</span> <span class="n">Directory</span> <span class="n">recipes</span> <span class="p">(</span><span class="n">call</span> <span class="n">pattern</span><span class="p">;</span> <span class="n">full</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">coverage</span><span class="p">)</span> <span class="o">===</span>
+  <span class="n">imaging</span> <span class="n">present</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">habitat</span> <span class="n">maps</span> <span class="n">present</span><span class="o">=</span><span class="kc">False</span>
+  <span class="n">extract_habitat_features</span><span class="p">({</span><span class="n">raw_img_folder</span><span class="p">,</span> <span class="n">habitats_map_folder</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>
+  <span class="n">traditional_radiomics</span><span class="p">({</span><span class="n">paths</span><span class="o">.</span><span class="n">images_folder</span><span class="p">,</span> <span class="n">paths</span><span class="o">.</span><span class="n">out_dir</span><span class="p">,</span> <span class="o">...</span><span class="p">})</span>
 </pre></div>
 </div>
 </section>
