@@ -80,6 +80,20 @@ def demo_geometry_policies() -> None:
         f"RESAMPLE_MASK: action={report.action!r}, "
         f"mask_shape={aligned.mask.data.shape}, compatible={report.compatible}"
     )
+    from pathlib import Path
+
+    from habit.viz import plot_habitat_overlay
+
+    fig = plot_habitat_overlay(
+        aligned.image.data,
+        aligned.mask.data.astype(np.int32),
+        axis=0,
+        title="RESAMPLE_MASK: aligned ROI on image grid",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/fault_tolerance_align.png", dpi=150, bbox_inches="tight")
+    print("Wrote out/fault_tolerance_align.png")
+    return fig
 
 
 def demo_extract_batch_fail_fast() -> None:
@@ -185,7 +199,7 @@ def demo_habitatmodel_compatibility_error() -> None:
 def main() -> None:
     """Run all fault-tolerance demos and print English status lines."""
     print("=== GeometryPolicy ===")
-    demo_geometry_policies()
+    fig = demo_geometry_policies()
     print("\n=== extract_batch fail_fast ===")
     demo_extract_batch_fail_fast()
     print("\n=== PluginLoadReport ===")
@@ -195,7 +209,15 @@ def main() -> None:
     print("\n=== HabitatModel CompatibilityError ===")
     demo_habitatmodel_compatibility_error()
     print("\nDone. See docs/source/examples/fault_tolerance.rst")
+    return fig
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    from pathlib import Path
+
+    fig = main()
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "fault_tolerance_align.png")

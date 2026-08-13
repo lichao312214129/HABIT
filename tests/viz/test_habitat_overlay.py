@@ -184,13 +184,14 @@ def test_imshow_aspect_uses_physical_spacing() -> None:
     assert _imshow_aspect(spacing, slice_axis=2, ndim=3) == pytest.approx(5.0)
 
     # Coronal-like plane (n_z=30, n_x=40): physical height must exceed width
-    # when z-spacing is thick — extent bottom-top spans n_z * 5 mm.
+    # when z-spacing is thick — extent top-bottom spans n_z * 5 mm.
     left, right, bottom, top = _imshow_physical_extent(
         (30, 40), spacing, slice_axis=1, ndim=3
     )
     assert right - left == pytest.approx(40.0)  # 40 * 1 mm
-    assert bottom - top == pytest.approx(150.0)  # 30 * 5 mm
-    assert (bottom - top) / (right - left) == pytest.approx(150.0 / 40.0)
+    assert top - bottom == pytest.approx(150.0)  # 30 * 5 mm
+    assert bottom < top, "non-inverted ylim so aspect='equal' cannot flip S-I"
+    assert (top - bottom) / (right - left) == pytest.approx(150.0 / 40.0)
 
 
 def test_plot_habitat_overlay_anisotropic_spacing_sets_panel_aspects() -> None:
@@ -234,3 +235,121 @@ def test_plot_habitat_overlay_rejects_bad_spacing() -> None:
         plot_habitat_overlay(image, labels, spacing=(1.0, 1.0))
     with pytest.raises(HABITAPIError, match="spacing"):
         plot_habitat_overlay(image, labels, spacing=(1.0, 1.0, 0.0))
+
+
+def _marker_frac_from_bottom(
+    ax, row: int, col: int, nrows: int, ncols: int
+) -> float:
+    """Fraction of axes height from the bottom for an array (row, col) marker."""
+    left, right, bottom, top = ax.get_images()[0].get_extent()
+    x = left + (col + 0.5) / ncols * (right - left)
+    # origin='upper': row 0 sits at ``top`` in data coordinates.
+    y = top + (row + 0.5) / nrows * (bottom - top)
+    disp_x, disp_y = ax.transData.transform((x, y))
+    bbox = ax.get_window_extent()
+    return float((disp_y - bbox.y0) / bbox.height)
+
+
+def test_coronal_sagittal_superior_stays_upper_half_on_screen() -> None:
+    """After canvas.draw(), superior markers must sit in the upper axes half.
+
+    This catches the matplotlib ``extent`` + ``aspect='equal'`` trap that
+    flipped coronal/sagittal up-down on screen while axial still looked
+    right (array-only tests cannot see that).
+    """
+    import matplotlib.pyplot as plt
+
+    ras = (-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0)
+    # Thick slices so coronal/sagittal panels are tall (the failure mode).
+    spacing = (1.0, 1.0, 5.0)
+    image = np.zeros((20, 16, 16), dtype=np.float32)
+    image[:] = 50.0
+    labels = np.zeros((20, 16, 16), dtype=np.int32)
+    # Superior-most slab (max z) is habitat 1 — should be TOP of coronal/sag.
+    labels[-1, 6:10, 6:10] = 1
+    # Inferior-most slab is habitat 2 — should be BOTTOM.
+    labels[0, 6:10, 6:10] = 2
+
+    fig = plot_habitat_overlay(
+        image, labels, direction=ras, spacing=spacing, title="S-I screen test"
+    )
+    fig.canvas.draw()
+
+    # Panel 1 = coronal-like (axis 1): rows = z after orient (superior → row 0).
+    coronal_ax = fig.axes[1]
+    # After orient_slice, superior marker is in the upper array half; confirm
+    # it is also in the upper *screen* half (frac_from_bottom > 0.5).
+    from habit.viz.habitat_overlay import _orient_slice_for_display
+
+    direction = np.asarray(ras, dtype=np.float64).reshape(3, 3)
+    mid_y = labels.shape[1] // 2
+    coronal_raw = labels[:, mid_y, :]
+    oriented = _orient_slice_for_display(
+        coronal_raw.astype(np.float32), slice_axis=1, direction=direction
+    )
+    sup_row, sup_col = np.argwhere(oriented == 1)[0]
+    inf_row, inf_col = np.argwhere(oriented == 2)[0]
+    nrows, ncols = oriented.shape
+    sup_frac = _marker_frac_from_bottom(
+        coronal_ax, int(sup_row), int(sup_col), nrows, ncols
+    )
+    inf_frac = _marker_frac_from_bottom(
+        coronal_ax, int(inf_row), int(inf_col), nrows, ncols
+    )
+    assert sup_frac > 0.5, f"superior should be upper half; frac={sup_frac:.3f}"
+    assert inf_frac < 0.5, f"inferior should be lower half; frac={inf_frac:.3f}"
+    assert sup_frac > inf_frac
+
+    sagittal_ax = fig.axes[2]
+    mid_x = labels.shape[2] // 2
+    sag_raw = labels[:, :, mid_x]
+    sag_oriented = _orient_slice_for_display(
+        sag_raw.astype(np.float32), slice_axis=2, direction=direction
+    )
+    s_row, s_col = np.argwhere(sag_oriented == 1)[0]
+    i_row, i_col = np.argwhere(sag_oriented == 2)[0]
+    s_frac = _marker_frac_from_bottom(
+        sagittal_ax, int(s_row), int(s_col), *sag_oriented.shape
+    )
+    i_frac = _marker_frac_from_bottom(
+        sagittal_ax, int(i_row), int(i_col), *sag_oriented.shape
+    )
+    assert s_frac > 0.5 and i_frac < 0.5
+    plt.close(fig)
+
+
+def test_plot_habitat_overlay_reads_geometry_from_image_volume() -> None:
+    """Passing ImageVolume (not .data) must pick up RAS direction automatically."""
+    from habit.api.image import ImageVolume
+
+    ras = (-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0)
+    image = np.zeros((8, 10, 10), dtype=np.float32)
+    labels = np.zeros((8, 10, 10), dtype=np.int32)
+    labels[4, 8, 5] = 1  # high y = anterior under RAS
+    volume = ImageVolume.from_array(
+        image, spacing=(1.0, 1.0, 1.0), direction=ras
+    )
+    fig = plot_habitat_overlay(volume, labels, axis=0, index=4)
+    # Axial RAS: anterior (max y) must land in the upper array half after orient.
+    from habit.viz.habitat_overlay import _orient_slice_for_display
+
+    direction = np.asarray(ras, dtype=np.float64).reshape(3, 3)
+    oriented = _orient_slice_for_display(
+        labels[4].astype(np.float32), slice_axis=0, direction=direction
+    )
+    row, _ = np.argwhere(oriented == 1.0)[0]
+    assert row < 5
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_lps_coronal_flips_superior_to_top() -> None:
+    """LPS identity coronal: +z is superior, so flipud puts superior at row 0."""
+    from habit.viz.habitat_overlay import _orient_slice_for_display
+
+    lps = np.eye(3, dtype=np.float64)
+    coronal = np.zeros((10, 10), dtype=np.float32)
+    coronal[-1, 5] = 1.0  # max z = superior
+    out = _orient_slice_for_display(coronal, slice_axis=1, direction=lps)
+    assert np.argwhere(out == 1.0)[0, 0] < 5

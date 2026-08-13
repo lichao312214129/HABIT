@@ -188,7 +188,7 @@ Static matplotlib overlay of the same demo subject (no napari; needs
        )
    # fig.savefig("habitat_overlay.png", dpi=200, bbox_inches="tight")
 
-.. figure:: ../_static/images/examples/habitat_two_step_overlay.png
+.. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Demo subj001 LAP with two-step habitat labels overlaid
    :width: 480
 

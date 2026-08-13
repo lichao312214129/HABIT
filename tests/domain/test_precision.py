@@ -36,18 +36,21 @@ from habit.contracts import (
     VoxelFeatureField,
 )
 from habit.domain.precision import (
+    BSplineDeformPerturbation,
     GaussianNoisePerturbation,
     ImagePerturbationRegistry,
     PerturbationChain,
     PreciseFeatureSet,
+    RigidPerturbation,
     RotationPerturbation,
     TranslationPerturbation,
     aggregate_panels,
     habitat_stability,
     identify_precise_features,
     precision_panel,
+    prior2024_retest_perturbation,
 )
-from habit.exceptions import HABITAPIError
+from habit.exceptions import HABITAPIError, OptionalDependencyError
 from habit.kernels.voxel_icc import icc3a_1, icc3c_1
 
 from .conftest import make_habitat_map, make_subject, provenance
@@ -124,6 +127,8 @@ class TestPerturbationRegistry:
         assert "gaussian_noise" in available
         assert "translation" in available
         assert "rotation" in available
+        assert "rigid" in available
+        assert "bspline_deform" in available
 
     def test_create_validates_params(self) -> None:
         component = ImagePerturbationRegistry.create("rotation", angle_degrees=1.5)
@@ -226,6 +231,22 @@ class TestTranslationPerturbation:
         with pytest.raises(HABITAPIError, match="3 components"):
             TranslationPerturbation(shift_voxels=(1.0, 2.0))
 
+    def test_shift_fraction_is_subvoxel(self) -> None:
+        subject = _blob_subject()
+        perturbed = TranslationPerturbation(
+            shift_fraction=0.5, random_signs=False, interpolator="linear"
+        )(subject, rng=np.random.default_rng(0))
+        before = np.asarray(subject.image("T1").data)
+        after = np.asarray(perturbed.image("T1").data)
+        # +0.5 voxel along every SimpleITK axis; z is array axis 0.
+        assert _com_first_axis(after) == pytest.approx(
+            _com_first_axis(before) + 0.5, abs=0.05
+        )
+
+    def test_shift_voxels_and_fraction_conflict(self) -> None:
+        with pytest.raises(HABITAPIError, match="not both"):
+            TranslationPerturbation(shift_voxels=(0.1, 0.0, 0.0), shift_fraction=0.5)
+
 
 class TestRotationPerturbation:
     def test_zero_angle_is_identity(self) -> None:
@@ -251,6 +272,132 @@ class TestRotationPerturbation:
     def test_bad_axis_raises(self) -> None:
         with pytest.raises(HABITAPIError, match="axis"):
             RotationPerturbation(axis="w")
+
+
+class TestRigidPerturbation:
+    def test_zero_motion_is_identity(self) -> None:
+        subject = make_subject("P1")
+        perturbed = RigidPerturbation(
+            shift_voxels=(0.0, 0.0, 0.0),
+            angle_degrees=0.0,
+            interpolator="linear",
+        )(subject, rng=np.random.default_rng(0))
+        np.testing.assert_allclose(
+            np.asarray(perturbed.image("T1").data),
+            np.asarray(subject.image("T1").data),
+            atol=1e-12,
+        )
+
+    def test_create_from_registry(self) -> None:
+        component = ImagePerturbationRegistry.create(
+            "rigid", shift_fraction=0.25, angle_degrees=0.5
+        )
+        assert isinstance(component, RigidPerturbation)
+        assert component.shift_fraction == 0.25
+
+
+class TestPrior2024RetestPerturbation:
+    def test_paper_chain_has_three_steps(self) -> None:
+        chain = prior2024_retest_perturbation()
+        assert len(chain.steps) == 3
+        assert isinstance(chain.steps[0], GaussianNoisePerturbation)
+        assert isinstance(chain.steps[1], TranslationPerturbation)
+        assert isinstance(chain.steps[2], RotationPerturbation)
+        assert chain.steps[1].shift_fraction == 0.5
+        assert chain.steps[2].angle_degrees == 0.5
+        assert not any(
+            isinstance(step, BSplineDeformPerturbation) for step in chain.steps
+        )
+
+    def test_single_resample_uses_rigid(self) -> None:
+        chain = prior2024_retest_perturbation(single_resample=True)
+        assert len(chain.steps) == 2
+        assert isinstance(chain.steps[1], RigidPerturbation)
+
+    def test_runs_on_blob_subject(self) -> None:
+        subject = _blob_subject()
+        perturbed = prior2024_retest_perturbation()(
+            subject, rng=np.random.default_rng(0)
+        )
+        assert perturbed.image("T1").data.shape == subject.image("T1").data.shape
+
+
+class TestBSplineDeformPerturbation:
+    def test_rejects_inverted_range(self) -> None:
+        with pytest.raises(HABITAPIError, match="low must be"):
+            BSplineDeformPerturbation(sigma_range=(8.0, 5.0))
+
+    def test_create_from_registry(self) -> None:
+        component = ImagePerturbationRegistry.create(
+            "bspline_deform", magnitude_range=(1.0, 2.0)
+        )
+        assert isinstance(component, BSplineDeformPerturbation)
+        assert component.magnitude_range == (1.0, 2.0)
+
+    def _sphere_subject(self, side: int = 32) -> Subject:
+        """Subject whose ROI is an interior sphere so a warp can flip voxels."""
+        subject = make_subject("P1", shape=(side, side, side))
+        centre = side / 2.0
+        radius = side / 4.0
+        zz, yy, xx = np.ogrid[:side, :side, :side]
+        ball = (
+            (zz - centre) ** 2 + (yy - centre) ** 2 + (xx - centre) ** 2
+        ) <= radius**2
+        geometry = subject.mask("tumor").geometry
+        return Subject(
+            subject_id=subject.subject_id,
+            images=subject.images,
+            masks={
+                "tumor": ArrayImageRef(
+                    array=ball.astype(np.int32), geometry=geometry
+                )
+            },
+        )
+
+    def test_warps_image_and_mask_on_same_grid(self) -> None:
+        subject = self._sphere_subject(32)
+        step = BSplineDeformPerturbation(
+            sigma_range=(1.5, 2.5),
+            magnitude_range=(4.0, 6.0),
+            device="cpu",
+        )
+        try:
+            perturbed = step(subject, rng=np.random.default_rng(0))
+        except OptionalDependencyError:
+            pytest.skip("monai extra is not installed")
+        before_image = np.asarray(subject.image("T1").data)
+        after_image = np.asarray(perturbed.image("T1").data)
+        before_mask = np.asarray(subject.mask("tumor").data)
+        after_mask = np.asarray(perturbed.mask("tumor").data)
+        assert after_image.shape == before_image.shape
+        assert after_mask.shape == before_mask.shape
+        assert after_image.dtype == np.float64
+        assert set(np.unique(after_mask).tolist()) <= {0, 1}
+        assert not np.array_equal(after_mask, before_mask)
+        assert not np.allclose(after_image, before_image)
+
+    def test_same_seed_is_reproducible(self) -> None:
+        subject = self._sphere_subject(24)
+        step = BSplineDeformPerturbation(
+            sigma_range=(1.5, 2.0),
+            magnitude_range=(3.0, 4.0),
+            device="cpu",
+        )
+        try:
+            first = step(subject, rng=np.random.default_rng(11))
+            second = step(subject, rng=np.random.default_rng(11))
+        except OptionalDependencyError:
+            pytest.skip("monai extra is not installed")
+        np.testing.assert_allclose(
+            np.asarray(first.image("T1").data),
+            np.asarray(second.image("T1").data),
+            rtol=1e-6,
+            atol=1e-6,
+        )
+        np.testing.assert_array_equal(
+            np.asarray(first.mask("tumor").data),
+            np.asarray(second.mask("tumor").data),
+        )
 
 
 class TestPerturbationChain:

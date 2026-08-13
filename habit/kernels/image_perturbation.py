@@ -15,11 +15,41 @@
 """L0 kernels: image perturbation for simulated test-retest analysis.
 
 Pure functions that turn one image into a perturbed copy of itself:
-Gaussian noise addition, sub-voxel translation, small-angle rotation, and
-noise-level estimation. This is the perturbation family Prior et al. used
-to probe voxel-radiomics repeatability (Radiol Artif Intell 2024;6(2):
-e230118, Appendix E2), implemented natively so HABIT does not depend on
-MIRP (EUPL-1.2 license, Python >= 3.11 -- both incompatible with HABIT).
+Gaussian noise addition, sub-voxel translation, small-angle rotation, a
+composed rigid (translation + rotation) resample, and noise-level
+estimation.
+
+This is the perturbation family Prior et al. used to probe voxel-radiomics
+repeatability:
+
+    Prior O, Macarro C, Navarro V, et al. Identification of Precise 3D CT
+    Radiomics for Habitat Computation by Machine Learning in Cancer.
+    Radiol Artif Intell. 2024;6(2):e230118. doi:10.1148/ryai.230118
+
+Appendix S2 of that paper (and the matching MIRP 1.2.0 chain they ran)
+applies, in order:
+
+1. Additive Gaussian noise whose sigma is estimated from the image
+   (Chang's wavelet estimator when no level is configured; alternatively
+   the ROI standard deviation). Noise is added to the *whole* image.
+2. Sub-voxel translation: a fraction ``η`` of the voxel spacing along
+   x, y and z (MIRP ``perturbation_translation_fraction``, typically 0.5).
+   HABIT expresses the same shift in voxel units.
+3. In-plane rotation of 0.5 degrees about the z (axial) axis.
+
+Intensity images are resampled with B-spline interpolation; label masks
+use nearest neighbour. Geometric transforms are resampled back onto the
+ORIGINAL grid so perturbed maps stay voxel-wise comparable.
+
+MIRP 1.2.0 (the paper) applied translation and rotation as two resamples.
+MIRP ≥ 2 composes them into one affine. :func:`rigid_transform_image` is
+that single-resample path. ROI morphological variation (``perturbation_roi_adapt_size``) is *not*
+part of the Prior 2024 protocol. MONAI elastic / B-spline free-form
+deformation of the image and ROI is a separate optional domain
+component (``BSplineDeformPerturbation``), not these L0 kernels.
+
+Implemented natively so HABIT does not depend on MIRP (EUPL-1.2 license,
+Python >= 3.11 -- both incompatible with HABIT).
 
 Conventions
 -----------
@@ -52,6 +82,7 @@ __all__ = [
     "add_gaussian_noise",
     "translate_image",
     "rotate_image",
+    "rigid_transform_image",
 ]
 
 #: Interpolator names accepted by the geometric kernels, mapped to the SimpleITK
@@ -290,6 +321,76 @@ def rotate_image(
         image,
         image,
         transform,
+        _interpolator_code(interpolator),
+        float(default_value),
+    )
+
+
+def rigid_transform_image(
+    image: sitk.Image,
+    shift_voxels: Sequence[float],
+    angle_degrees: float,
+    axis: str = "z",
+    interpolator: str = "bspline",
+    default_value: float = 0.0,
+) -> sitk.Image:
+    """
+    Translate then rotate in ONE resample (MIRP ≥ 2 affine composition).
+
+    Prior et al. 2024 used MIRP 1.2.0, which applied translation and
+    rotation as two successive interpolations. Composing them avoids a
+    second B-spline pass. Content mapping is translate-then-rotate about
+    the image centre, matching HABIT's default chain order.
+
+    Args:
+        image: Source image.
+        shift_voxels: Translation in VOXEL units, SimpleITK ``(x, y, z)``.
+        angle_degrees: Rotation angle in degrees (paper default 0.5).
+        axis: Axis to rotate around: ``"x"``, ``"y"`` or ``"z"``.
+        interpolator: ``"bspline"`` (paper default), ``"linear"`` or
+            ``"nearest"`` (required for label masks).
+        default_value: Intensity for voxels mapped outside the source.
+
+    Returns:
+        The rigidly perturbed image on ``image``'s grid.
+
+    Raises:
+        ValueError: If ``shift_voxels`` is not length 3 or ``axis`` is unknown.
+    """
+    import SimpleITK as sitk
+
+    shift = np.asarray(shift_voxels, dtype=np.float64)
+    if shift.shape != (3,):
+        raise ValueError(
+            "rigid_transform_image: shift_voxels must have 3 components "
+            f"(x, y, z); got shape {shift.shape}."
+        )
+    axes = {"x": 0, "y": 1, "z": 2}
+    if axis not in axes:
+        raise ValueError(
+            f"rigid_transform_image: axis must be one of {sorted(axes)}; "
+            f"got {axis!r}."
+        )
+    spacing = np.asarray(image.GetSpacing(), dtype=np.float64)
+    direction = np.asarray(image.GetDirection(), dtype=np.float64).reshape(3, 3)
+    offset = direction @ (shift * spacing)
+    centre = image.TransformContinuousIndexToPhysicalPoint(
+        [(size - 1) / 2.0 for size in image.GetSize()]
+    )
+    # sitk.Resample maps output -> input. Content is translate then rotate,
+    # so the inverse is rotate^{-1} then translate^{-1}. CompositeTransform
+    # applies the last-added transform first.
+    translation_inv = sitk.TranslationTransform(3, (-offset).tolist())
+    angles = [0.0, 0.0, 0.0]
+    angles[axes[axis]] = -math.radians(float(angle_degrees))
+    rotation_inv = sitk.Euler3DTransform(centre, *angles)
+    composite = sitk.CompositeTransform(3)
+    composite.AddTransform(translation_inv)
+    composite.AddTransform(rotation_inv)
+    return sitk.Resample(
+        image,
+        image,
+        composite,
         _interpolator_code(interpolator),
         float(default_value),
     )

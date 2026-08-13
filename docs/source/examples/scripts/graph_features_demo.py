@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-One subject → one-step habitats → graph features + 2D plot (sklearn-short).
+One subject → one-step habitats → graph features + 2D plot.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -11,51 +11,46 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
-import matplotlib.pyplot as plt
+from pathlib import Path
 
-from habit import HabitatGraphFeatureOptions, HabitatSpec, Spec, Stage, extract_graph_features
-import habit.recipes as recipes
-from habit.viz import plot_habitat_graph_network_2d, use_style
+from habit import cohort_from_directory, extract_graph_features, one_step_habitat
+from habit.viz import plot_habitat_graph_network_2d
 
-from _example_roi import crop_pair, examples_image_dir, one_subject_cohort
+# Change DATA / MODALITIES / ROI to your preprocessed layout
+DATA = "demo_data/preprocessed"
+MODALITIES = ("LAP",)
+ROI = "LAP"
 
-# 1. One subject (demo_data/preprocessed if present, else synthetic)
-cohort, modalities, _ = one_subject_cohort()
-modality = modalities[0]
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+result = one_step_habitat(
+    modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+).fit_predict(cohort)
 
-# 2. One-step habitats
-spec = HabitatSpec(
-    name="one_step_graph",
-    stages=(
-        Stage("extract_voxel_features", Spec("raw", {"modalities": list(modalities)})),
-        Stage("fit", Spec("kmeans", {"n_habitats": 3, "n_init": 5})),
-        Stage("assign", Spec("nearest_centroid")),
-    ),
-    random_seed=0,
-)
-result = recipes.Study(spec=spec).fit_predict(cohort)
-image, labels = crop_pair(cohort[0].image(modality).data, result.habitat_maps[0].label_array)
+labels = result.habitat_maps[0].label_array
+feats = extract_graph_features(labels)
+print(len(feats), "graph features")
 
-# 3. Graph features + 2D network plot
-opts = HabitatGraphFeatureOptions(distance_threshold=8.0, subdivide_region_voxels=1000)
-feats = extract_graph_features(labels, options=opts)
-print(f"{len(feats)} graph features; sample:", list(feats.items())[:3])
-
-out = examples_image_dir()
-with use_style("nature"):
-    fig = plot_habitat_graph_network_2d(labels, options=opts)
-fig.savefig(out / "graph_habitat_network_2d.png", dpi=150, bbox_inches="tight", facecolor="white")
-plt.close(fig)
+fig = plot_habitat_graph_network_2d(labels)
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
 # END example
 
 if __name__ == "__main__":
-    from habit.viz import plot_habitat_overlay, use_style as _use_style
+    import matplotlib.pyplot as plt
 
-    with _use_style("radiology"):
-        fig = plot_habitat_overlay(
-            image, labels, axis=0, alpha=0.45, title="One-step habitats"
-        )
-    fig.savefig(out / "graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight", facecolor="white")
+    from habit.viz import plot_habitat_overlay
+
+    # Docs gallery assets (maintainers); not part of the user-facing recipe.
+    gallery = Path("docs/source/_static/images/examples")
+    gallery.mkdir(parents=True, exist_ok=True)
+    image = cohort[0].image(MODALITIES[0]).data
+    fig.savefig(gallery / "graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+    fig = plot_habitat_overlay(
+        image, labels, axis=0, alpha=0.45, title="One-step habitats"
+    )
+    fig.savefig(gallery / "graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     try:
@@ -64,7 +59,7 @@ if __name__ == "__main__":
             render_habitat_graph_surface_3d,
         )
 
-        vol = cohort[0].image(modality)
+        vol = cohort[0].image(MODALITIES[0])
         spacing_zyx = (1.0, 1.0, 1.0)
         if vol.spacing is not None and len(vol.spacing) == 3:
             sx, sy, sz = (float(v) for v in vol.spacing)
@@ -73,15 +68,11 @@ if __name__ == "__main__":
             labels, spacing=spacing_zyx, black_background=False, render_window=1200
         )
         network = render_habitat_graph_network_3d(
-            labels,
-            options=opts,
-            spacing=spacing_zyx,
-            black_background=False,
-            render_window=1200,
+            labels, spacing=spacing_zyx, black_background=False, render_window=1200
         )
         if surface is not None:
-            plt.imsave(out / "graph_habitat_surface_3d.png", surface)
+            plt.imsave(gallery / "graph_habitat_surface_3d.png", surface)
         if network is not None:
-            plt.imsave(out / "graph_habitat_network_3d.png", network)
+            plt.imsave(gallery / "graph_habitat_network_3d.png", network)
     except Exception as exc:  # pragma: no cover
         print(f"3D gallery assets skipped: {exc}")

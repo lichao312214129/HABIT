@@ -14,12 +14,14 @@
 #
 """Publication figures and image overlays for HABIT results.
 
-This package is the home for HABIT visualization: ROC / survival / regression
-panels, habitat-clustering scatters, habitat-on-image overlays
-(:func:`plot_habitat_overlay`), voxel texture / feature-map slices
-(:func:`plot_voxel_texture_slice`), and the optional napari viewer
-(:func:`view_habitat_napari`). New drawing / viewing code should land here
-rather than in CLI or ``habit.api`` helpers.
+This package is the home for HABIT visualization: habitat-core figures
+(overlays, partition triptych, auto-K curves, volume/MSI/ITH, label compare),
+graph / voxel-texture panels, greyscale intensity slices for image
+preprocessing (:func:`plot_intensity_slice`), habitat-clustering PCA,
+optional napari (:func:`view_habitat_napari`), plus ROC / survival /
+regression helpers.
+New drawing / viewing code should land here rather than in CLI or
+``habit.api`` helpers.
 
 Most functions in this package are PURE matplotlib helpers: they take contract
 objects (or plain arrays), draw on a ``Figure``, and return that figure.
@@ -81,8 +83,18 @@ from habit.viz.habitat_graph import (
     render_habitat_graph_network_3d,
     render_habitat_graph_surface_3d,
 )
+from habit.viz.habitat_core import (
+    plot_cluster_validation_curves,
+    plot_cluster_validation_from_report,
+    plot_habitat_label_compare,
+    plot_habitat_volume_fractions,
+    plot_ith_summary,
+    plot_msi_matrix,
+    plot_partition_triptych,
+)
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
+from habit.viz.intensity import plot_intensity_slice
 from habit.viz.voxel_texture import dense_voxel_feature_map, plot_voxel_texture_slice
 from habit.viz.survival import (
     plot_brier_curve,
@@ -132,11 +144,21 @@ __all__ = [
     "plot_habitat_clustering_pca_3d_interactive",
     # habitat overlay on source image
     "plot_habitat_overlay",
+    # habitat core analysis figures (validation / map features / compare)
+    "plot_cluster_validation_curves",
+    "plot_cluster_validation_from_report",
+    "plot_habitat_volume_fractions",
+    "plot_msi_matrix",
+    "plot_ith_summary",
+    "plot_habitat_label_compare",
+    "plot_partition_triptych",
     # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",
     "render_habitat_graph_surface_3d",
     "render_habitat_graph_network_3d",
+    # greyscale anatomy / intensity slices (image preprocessing, not texture)
+    "plot_intensity_slice",
     # voxel texture / feature-map slices (local entropy, voxel radiomics, ...)
     "dense_voxel_feature_map",
     "plot_voxel_texture_slice",

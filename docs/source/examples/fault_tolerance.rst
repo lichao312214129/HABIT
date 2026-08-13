@@ -45,6 +45,18 @@ Output
 
    Done. See docs/source/examples/fault_tolerance.rst
 
+Figures
+-------
+
+``RESAMPLE_MASK`` puts the ROI on the image grid. That aligned mask is the
+visual product of the geometry policy:
+
+.. figure:: ../_static/images/examples/fault_tolerance_align.png
+   :alt: Resampled ROI overlay after GeometryPolicy.RESAMPLE_MASK
+   :width: 420
+
+   :func:`~habit.viz.plot_habitat_overlay` on the aligned image/mask pair.
+
 Key contracts
 -------------
 

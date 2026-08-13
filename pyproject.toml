@@ -220,6 +220,13 @@ full = [
 torch = [
     "torch>=2.4,<3",
 ]
+# MONAI Rand3DElastic image / ROI warp (``BSplineDeformPerturbation``).
+# Cap below 1.6: MONAI 1.6 declares torch>=2.8, which would fight HABIT's
+# ``torch`` extra (2.4–<3) on a ``pip install habitat-analysis[monai]``.
+monai = [
+    "habitat-analysis[torch]",
+    "monai>=1.3.2,<1.6",
+]
 
 # Poetry remains able to identify the supported interpreter, but all runtime
 # package requirements live exclusively in ``project.dependencies`` above.

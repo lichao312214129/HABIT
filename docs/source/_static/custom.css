@@ -153,12 +153,6 @@
     margin-bottom: 0;
 }
 
-/* Feature-type summary cards on landing pages */
-.feature-overview-table td:first-child {
-    font-weight: 600;
-    white-space: nowrap;
-}
-
 /* Inline literals in tables */
 .wy-table-responsive code.literal {
     font-size: 0.88em;

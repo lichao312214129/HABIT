@@ -102,6 +102,18 @@ Output::
    === YAML dual form ===
      fingerprint equal: True
 
+Figures
+-------
+
+The composed tree is a normal voxel extractor. Overlay after
+``Study(spec).fit_predict`` on the same synthetic cohort:
+
+.. figure:: ../_static/images/examples/feature_composition_overlay.png
+   :alt: Habitats from a composed feature tree
+   :width: 420
+
+   :func:`~habit.viz.plot_habitat_overlay` on the composition demo map.
+
 What to read next
 -----------------
 

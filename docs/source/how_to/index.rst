@@ -16,6 +16,12 @@ and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
 **Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.
 
+**Precise voxel features** (morphology-aware screen before clustering):
+:doc:`../tutorial/precise_screening` (Gaussian noise, 0.5-voxel
+translation, 0.5° rotation; optional MONAI B-spline / elastic FFD of the
+ROI contour — not MIRP ROI grow/shrink). Gallery:
+:doc:`../examples/precise_features`.
+
 .. toctree::
    :maxdepth: 1
 

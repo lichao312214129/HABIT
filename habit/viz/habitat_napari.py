@@ -51,7 +51,9 @@ from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
     DisplayConvention,
     apply_radiological_flips,
+    array_from_display_input,
     normalize_display_convention,
+    resolve_display_geometry,
     volume_display_flips,
 )
 
@@ -158,12 +160,12 @@ def _require_napari() -> Any:
     return napari
 
 
-def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
+def _as_volume(array: object, name: str) -> np.ndarray:
     """
     Coerce ``array`` to a 2D or 3D volume (drop singleton leading axes).
 
     Args:
-        array: Candidate image or label array.
+        array: Candidate image or label array / volume object.
         name: Name used in error messages.
 
     Returns:
@@ -172,7 +174,7 @@ def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
     Raises:
         HABITAPIError: When the array cannot be interpreted as a volume.
     """
-    volume = np.asarray(array)
+    volume = array_from_display_input(array)
     while volume.ndim > 3 and volume.shape[0] == 1:
         volume = np.squeeze(volume, axis=0)
     if volume.ndim == 4:
@@ -204,6 +206,12 @@ def _normalize_images(images: ImageInput) -> List[np.ndarray]:
         HABITAPIError: When ``images`` is empty or not array-like.
     """
     if isinstance(images, np.ndarray):
+        return [_as_volume(images, "image")]
+
+    # ImageVolume / HabitatMap: one volume, not a sequence of fields.
+    if getattr(images, "data", None) is not None or getattr(
+        images, "label_array", None
+    ) is not None:
         return [_as_volume(images, "image")]
 
     if isinstance(images, (str, bytes)):
@@ -463,9 +471,19 @@ def view_habitat_napari(
                 f"{label_vol.shape}."
             )
 
+    geom_source: object = images
+    if not isinstance(images, np.ndarray) and getattr(images, "data", None) is None:
+        try:
+            geom_source = list(images)[0]  # type: ignore[arg-type]
+        except TypeError:
+            geom_source = images
+    resolved_direction, resolved_spacing = resolve_display_geometry(
+        geom_source, labels, direction=direction, spacing=spacing
+    )
+
     safe_title = sanitize_label(title) or "HABIT habitat"
     flips = napari_display_flips(
-        direction,
+        resolved_direction,
         ndim=label_vol.ndim,
         convention=display_convention,
         preserve_axial_index=True,
@@ -481,7 +499,7 @@ def view_habitat_napari(
         apply_radiological_flips(label_vol, flips), dtype=np.int32
     )
     layer_names = _resolve_image_names(len(image_vols), image_names)
-    scale = _napari_scale(spacing, label_vol.ndim)
+    scale = _napari_scale(resolved_spacing, label_vol.ndim)
 
     if viewer is None:
         # show=False keeps Qt from raising on headless CI while still

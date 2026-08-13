@@ -37,14 +37,12 @@ import numpy as np
 
 from habit.contracts.subject import Cohort, Subject
 from habit.domain.precision import (
-    GaussianNoisePerturbation,
     PerturbationChain,
     PreciseFeatureSet,
-    RotationPerturbation,
-    TranslationPerturbation,
     aggregate_panels,
     identify_precise_features,
     precision_panel,
+    prior2024_retest_perturbation,
 )
 from habit.domain.protocols import ImagePerturbation, VoxelFeatureExtractor
 from habit.domain.voxel_features import VoxelRadiomicsFeatures
@@ -87,14 +85,8 @@ def voxel_radiomics_factory(
 
 
 def _default_perturbation() -> PerturbationChain:
-    """Return the paper's simulated-retest chain: noise + shift + rotation."""
-    return PerturbationChain(
-        [
-            GaussianNoisePerturbation(),
-            TranslationPerturbation(),
-            RotationPerturbation(),
-        ]
-    )
+    """Return the Prior 2024 / MIRP 1.2.0 simulated-retest chain."""
+    return prior2024_retest_perturbation()
 
 
 def identify_precise_voxel_features(

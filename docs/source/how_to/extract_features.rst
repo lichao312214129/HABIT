@@ -31,4 +31,17 @@ Your data
 
 Success: CSVs under ``out_dir``.
 
+Volume / MSI / ITH from the same maps (Python)::
+
+   from habit.viz import plot_habitat_volume_fractions
+
+   fig = plot_habitat_volume_fractions(fractions)
+
+.. figure:: ../_static/images/examples/feature_extract_volume_fractions.png
+   :alt: Habitat volume fractions
+   :width: 420
+
+   Volume fractions from the feature-extraction gallery
+   (:func:`~habit.viz.plot_habitat_volume_fractions`).
+
 Next: :doc:`graph_features` (optional topology) or :doc:`train_model`.

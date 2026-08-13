@@ -19,3 +19,16 @@ Your data
 ``paths.out_dir``, and ``processing.process_image_types`` (modality names).
 
 Success: feature tables under ``paths.out_dir``.
+
+Habitat-wise tables (when you do have maps) overlay the same anatomy::
+
+   from habit.viz import plot_habitat_overlay
+
+   fig = plot_habitat_overlay(image, labels, axis=0)
+
+.. figure:: ../_static/images/examples/feature_extract_overlay.png
+   :alt: Habitat overlay used before feature tables
+   :width: 420
+
+   Overlay from the feature-extraction gallery. Whole-ROI radiomics has no
+   habitat labels — this figure is the habitat-wise twin.

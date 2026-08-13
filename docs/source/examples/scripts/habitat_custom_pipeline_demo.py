@@ -64,7 +64,7 @@ def main() -> None:
         n_init=5,
         min_habitats=2,
         max_habitats=3,
-        validation="silhouette",
+        validation="elbow",
     )
     if hasattr(fitter, "set_random_state"):
         fitter.set_random_state(21)
@@ -116,7 +116,7 @@ def main() -> None:
                         "n_init": 5,
                         "min_habitats": 2,
                         "max_habitats": 3,
-                        "validation": "silhouette",
+                        "validation": "elbow",
                     },
                 ),
             ),

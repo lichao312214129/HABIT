@@ -20,15 +20,16 @@ vocabulary appears on :class:`~habit.domain.assembly.HabitatComponents`
 (singular ``*_feature_preprocessor`` for the assembled chains). There is no
 abbreviated second naming (``voxel_extractor`` / ``cohort_chain`` / …).
 
-Atomic call without a recipe: build a
-:class:`~habit.domain.feature_preprocessing.SubjectPreprocessingChain` via
-:func:`~habit.domain.assembly.build_subject_chain` and invoke it on one
-feature matrix.
+Why extract and preprocess look different
+-----------------------------------------
 
-To inspect **raw** clustering units (no feature preprocessing), build a bare
-spec without the three preprocessor fields and call
-``components.pipeline(assigner=None).units(subject)``. For raw voxel features
-only: ``components.voxel_feature_extractor(subject).feature_frame()``.
+Do **not** force one call shape across layers. Subject-level extractors take a
+:class:`~habit.contracts.Subject` and return a field
+(``extractor(subject).feature_frame()``). Feature-table preprocessors take a
+matrix / DataFrame and return another (``preprocessor(X)``), like sklearn.
+The demo below is one pipeline with that explicit handoff — assembled from
+``build_habitat_components(spec)``, not a second mid-demo
+``build_subject_chain`` helper (that remains an optional atomic alternative).
 
 Inspect every step
 ------------------
@@ -55,8 +56,12 @@ serial / ``workers=1`` while debugging.
 Script
 ------
 
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
+
 .. literalinclude:: scripts/habitat_preprocessing_api_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
 Coverage
 --------
@@ -64,7 +69,34 @@ Coverage
 Feature chains are enabled in
 ``demo_data/results/api/run_api_coverage.py`` steps ``02`` / ``03`` / ``04``.
 
-The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+Running the script also regenerates gallery PNGs and may open a **napari
+eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
+
+Output
+------
+
+Illustrative (voxel counts depend on ``demo_data``)::
+
+   Voxel features after subject chain: (34694, 1)
+   Habitats: 3
+   Wrote out/habitat_prep_api_overlay.png
+
+Figures
+-------
+
+.. figure:: ../_static/images/examples/habitat_prep_api_overlay.png
+   :alt: Habitat overlay after subject and cohort feature chains
+   :width: 420
+
+   Habitats after the declared feature chains
+   (:func:`~habit.viz.plot_habitat_overlay`).
+
+.. figure:: ../_static/images/examples/habitat_prep_api_volume_fractions.png
+   :alt: Habitat volume fractions after feature preprocessing
+   :width: 420
+
+   Volume fractions on the same maps
+   (:func:`~habit.viz.plot_habitat_volume_fractions`).
 
 What to read next
 -----------------

@@ -1,7 +1,9 @@
-#.cursor/
-.cursor/
-# But keep the cloud-agent environment definition under version control.
+# Ignore Cursor workspace state, but keep selected teaching rules + env def.
+.cursor/*
 !.cursor/environment.json
+!.cursor/rules/
+.cursor/rules/*
+!.cursor/rules/docs-*.mdc
 
 # rar zip archive files
 *.rar

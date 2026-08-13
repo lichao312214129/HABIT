@@ -231,32 +231,27 @@ Precision screen: perturbations and precise features
 ----------------------------------------------------
 
 The ninth protocol, ``ImagePerturbation``, turns one subject into a
-perturbed copy of itself — a simulated re-acquisition:
+perturbed copy of itself — a simulated re-acquisition. The paper default
+is :func:`~habit.domain.precision.prior2024_retest_perturbation` (Prior et
+al., *Radiol Artif Intell* 2024;6(2):e230118, Appendix S2 / MIRP 1.2.0):
 
 .. code-block:: python
 
    import numpy as np
-   from habit.domain import (
-       GaussianNoisePerturbation,
-       PerturbationChain,
-       RotationPerturbation,
-       TranslationPerturbation,
-   )
+   from habit.domain import prior2024_retest_perturbation
 
-   retest = PerturbationChain(
-       [
-           GaussianNoisePerturbation(),                    # Chang-estimated sigma
-           TranslationPerturbation(max_shift_voxels=1.0),  # symmetric uniform
-           RotationPerturbation(angle_degrees=0.5),        # in-plane
-       ]
-   )
+   retest = prior2024_retest_perturbation()  # noise + 0.5-voxel fraction + 0.5°
    perturbed = retest(subject, rng=np.random.default_rng(0))  # Subject -> Subject
 
-This is the measurement apparatus of the precision screen (Prior et al.,
-*Radiol Artif Intell* 2024;6(2):e230118): per-feature ICCs between the
-original and perturbed feature maps (repeatability) and across kernel
-radius / bin width settings (reproducibility) decide which features may
-define habitats. The analysis functions work on any
+Compose ``gaussian_noise`` / ``translation`` / ``rotation`` / ``rigid``
+when you need a different chain. Optional ``bspline_deform`` (MONAI
+``Rand3DElastic``; extra ``monai``) warps image and ROI with one
+elastic / B-spline field — it is **not** part of
+:func:`~habit.domain.precision.prior2024_retest_perturbation`.
+Per-feature ICCs between the original
+and perturbed feature maps (repeatability) and across kernel radius /
+bin width settings (reproducibility) decide which features may define
+habitats. The analysis functions work on any
 ``{condition: VoxelFeatureField}`` mapping:
 
 .. code-block:: python
@@ -332,7 +327,7 @@ Discover names at runtime with :doc:`plugins` (``list_plugins(domain)``).
      - ``concat``, ``weighted_concat``, ``ratio``, …
    * - ``ImagePerturbationRegistry``
      - ``image_perturbation``
-     - ``gaussian_noise``, ``translation``, ``rotation``
+     - ``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, ``bspline_deform``
    * - ``HabitatFeatureExtractorRegistry``
      - ``habitat_feature_extractor``
      - ``volume``, ``msi``, ``ith_score``, ``graph``, ``non_radiomics`` (light); ``traditional``, ``whole_habitat``, ``each_habitat`` (heavy)

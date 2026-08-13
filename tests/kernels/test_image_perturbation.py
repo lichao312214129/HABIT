@@ -29,6 +29,7 @@ import SimpleITK as sitk
 from habit.kernels.image_perturbation import (
     add_gaussian_noise,
     estimate_noise_sigma,
+    rigid_transform_image,
     rotate_image,
     translate_image,
 )
@@ -190,3 +191,31 @@ class TestRotateImage:
     def test_bad_axis_raises(self) -> None:
         with pytest.raises(ValueError, match="axis"):
             rotate_image(_probe_image(), 1.0, axis="w")
+
+
+class TestRigidTransformImage:
+    def test_pure_translation_matches_translate_image(self) -> None:
+        image = _probe_image()
+        shift = (0.0, 0.0, 1.0)
+        sequential = translate_image(image, shift, interpolator="linear")
+        composed = rigid_transform_image(
+            image, shift, angle_degrees=0.0, interpolator="linear"
+        )
+        np.testing.assert_allclose(
+            sitk.GetArrayFromImage(composed),
+            sitk.GetArrayFromImage(sequential),
+            atol=1e-6,
+        )
+
+    def test_grid_is_preserved(self) -> None:
+        image = _probe_image(spacing=(2.0, 3.0, 4.0))
+        moved = rigid_transform_image(
+            image, (0.5, -0.25, 0.0), angle_degrees=0.5, interpolator="linear"
+        )
+        assert moved.GetSize() == image.GetSize()
+        assert moved.GetSpacing() == image.GetSpacing()
+        assert moved.GetOrigin() == image.GetOrigin()
+
+    def test_bad_shift_raises(self) -> None:
+        with pytest.raises(ValueError, match="3 components"):
+            rigid_transform_image(_probe_image(), (1.0, 2.0), 0.5)

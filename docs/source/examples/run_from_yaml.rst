@@ -25,6 +25,8 @@ exactly what exists in Python. Scheduling lives under a sibling ``policy:``
 block (:class:`~habit.spec.RunPolicy` field names). A complete annotated v1
 document ships at ``config/habitat/config_habitat_two_step_v1.yaml``.
 
+.. include:: ../_includes/windows_multiprocessing.rst
+
 **Dual track with v0.1.** A v0.1 habitat YAML keeps parallel / checkpoint
 knobs at the **top level** (``processes``, ``individual_subject_*``, …).
 ``run_from_yaml`` translates them into ``policy`` before selecting
@@ -73,6 +75,24 @@ Running a v0.1 document instead is the same call —
 with translation handled transparently.
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+
+Figures
+-------
+
+Same artefact layout as CLI ``get-habitat`` / :meth:`~habit.recipes.StudyResult.save`.
+Illustrative panels from the two-step gallery (:doc:`two_step_habitat`).
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Habitat overlay from a YAML-driven two-step run
+   :width: 420
+
+   Habitat map persisted under the YAML ``out`` directory.
+
+.. figure:: ../_static/images/examples/two_step_volume_fractions.png
+   :alt: Habitat volume fractions
+   :width: 420
+
+   Volume fractions after habitats exist (optional viz on the same maps).
 
 What to read next
 -----------------

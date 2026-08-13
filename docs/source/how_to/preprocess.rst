@@ -31,4 +31,83 @@ and modality names. Then ``habit check-config`` + ``habit preprocess``.
 
 Success: ``out_dir/processed_images/images/<subject>/<modality>/`` has NIfTI.
 
+Anatomy | processed intensity (Python)::
+
+   from habit.viz import plot_intensity_slice
+
+   fig = plot_intensity_slice(
+       processed, before=original, axis=0, cmap="gray",
+       image_label="Z-scored LAP", colorbar_label="Z-score",
+   )
+
+.. figure:: ../_static/images/examples/image_preprocess_slice.png
+   :alt: Original LAP beside whole-volume z-scored LAP
+   :width: 520
+
+   Whole-FOV greyscale z-score panel from ``subj001`` LAP
+   (``demo_data/preprocessed``). Independent colorbars show raw intensity
+   versus z-score (native units; not a shared :math:`[0, 1]` window).
+
+Image z-score here is **per-volume intensity** (DICOM/NIfTI tree). It is
+not the clustering-time ``winsorize`` / ``minmax`` chain; skipping that
+chain on two-step runs under-expresses habitats — see
+:doc:`../examples/habitat_preprocessing`.
+
+Atomic Python (same steps, no YAML)
+-----------------------------------
+
+:func:`~habit.preprocess_subject` / :func:`~habit.preprocess_image` take a
+``Subject`` or one volume. Copy from :doc:`../examples/image_preprocessing_api`
+and swap ``DATA``. Per-step figures:
+
+.. figure:: ../_static/images/examples/preprocess_resample.png
+   :alt: Whole-volume resampled LAP
+   :width: 360
+
+   Resample (full FOV, ``subj001`` LAP).
+
+.. figure:: ../_static/images/examples/preprocess_zscore.png
+   :alt: Whole-volume z-scored LAP
+   :width: 480
+
+   Z-score (whole volume; optional ROI stats). Independent colorbars show
+   raw intensity versus z-score.
+
+.. figure:: ../_static/images/examples/preprocess_n4.png
+   :alt: Whole-volume N4-corrected LAP
+   :width: 480
+
+   N4 bias-field correction. Independent colorbars keep the intensity
+   scale visible.
+
+.. figure:: ../_static/images/examples/preprocess_histogram.png
+   :alt: Whole-volume histogram-standardized LAP
+   :width: 480
+
+   Nyúl histogram standardization. Independent colorbars show the mapped
+   intensity range.
+
+.. figure:: ../_static/images/examples/preprocess_clahe.png
+   :alt: Whole-volume adaptive histogram equalization
+   :width: 480
+
+   Adaptive histogram equalization. Independent colorbars show the
+   intensity scale.
+
+.. figure:: ../_static/images/examples/preprocess_reorient.png
+   :alt: Whole-volume RAS-reoriented LAP
+   :width: 360
+
+   Reorient to RAS.
+
+.. figure:: ../_static/images/examples/preprocess_register.png
+   :alt: Registered LAP with ROI contour overlay
+   :width: 480
+
+   SimpleITK affine registration (ROI contour follows the transform).
+
+``dcm2nii`` is CLI-only (needs a DICOM tree)::
+
+   habit preprocess --config config/preprocessing/config_preprocessing_dcm2nii_demo.yaml
+
 Next: :doc:`segment_habitat`.

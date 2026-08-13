@@ -15,7 +15,9 @@ Start here
 3. :doc:`how_to/prepare_data` — point HABIT at **your** images
 4. :doc:`how_to/index` — each pipeline step (copy command → edit ★ → run)
 
-Python users: :doc:`tutorial/quickstart_python`. Stuck: :doc:`troubleshooting/faq`.
+Python users: :doc:`tutorial/quickstart_python`. Precise voxel features
+before clustering: :doc:`tutorial/precise_screening`.
+Stuck: :doc:`troubleshooting/faq`.
 
 Also: habitat **graph topology** features — :doc:`how_to/graph_features`
 (how-to) · :doc:`examples/graph_features` (gallery). Voxel **texture** maps —
@@ -28,6 +30,7 @@ Also: habitat **graph topology** features — :doc:`how_to/graph_features`
    tutorial/installation
    tutorial/quickstart
    tutorial/quickstart_python
+   tutorial/precise_screening
 
 .. toctree::
    :maxdepth: 1
@@ -67,12 +70,6 @@ Also: habitat **graph topology** features — :doc:`how_to/graph_features`
    troubleshooting/faq
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Background
-
-   explanation/concepts
-
-.. toctree::
    :maxdepth: 2
    :caption: Python API
 
@@ -80,12 +77,22 @@ Also: habitat **graph topology** features — :doc:`how_to/graph_features`
 
 .. toctree::
    :maxdepth: 2
-   :caption: Developer
+   :caption: Development
 
    development/index
    customization/index
    reference/upstream_libraries
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Changelog
+
    changelog
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Acknowledgments
+
    acknowledgments
 
 - GitHub: |github_repo|

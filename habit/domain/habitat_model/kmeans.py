@@ -63,7 +63,7 @@ class KMeansHabitatModelFitterParams(BaseModel):
     n_habitats: Optional[int] = Field(default=None, ge=2)
     min_habitats: int = Field(default=2, ge=2)
     max_habitats: int = Field(default=10, ge=3)
-    validation: Union[str, List[str]] = "silhouette"
+    validation: Union[str, List[str]] = "elbow"
     n_init: int = Field(default=50, gt=0)
     max_iter: int = Field(default=300, gt=0)
 
@@ -88,11 +88,14 @@ class KMeansHabitatModelFitter:
         min_habitats: Smallest candidate count during selection.
         max_habitats: Largest candidate count during selection.
         validation: Selection criterion, or a list of criteria that each cast
-            one vote: ``"silhouette"`` / ``"calinski_harabasz"`` / ``"gap"``
-            (maximise), ``"davies_bouldin"`` (minimise), or ``"inertia"`` /
-            ``"elbow"`` / ``"kneedle"`` (Kneedle knee of the inertia curve).
+            one vote: ``"elbow"`` / ``"kneedle"`` / ``"inertia"`` (Kneedle
+            knee of the inertia curve; default ``"elbow"``),
+            ``"silhouette"`` / ``"calinski_harabasz"`` / ``"gap"``
+            (maximise), or ``"davies_bouldin"`` (minimise).
             Since v1.0 ``elbow`` is an alias of ``kneedle``; see
-            :mod:`habit.kernels.cluster_selection`.
+            :mod:`habit.kernels.cluster_selection`. The default is the
+            community-used inertia elbow over ``min_habitats=2`` ..
+            ``max_habitats=10``.
         n_init: k-means restarts per candidate count.
         max_iter: Maximum k-means iterations per fit. Defaults to the
             scikit-learn default (300), which is also the value the v0.1
@@ -104,7 +107,7 @@ class KMeansHabitatModelFitter:
         n_habitats: Optional[int] = None,
         min_habitats: int = 2,
         max_habitats: int = 10,
-        validation: Union[str, Sequence[str]] = "silhouette",
+        validation: Union[str, Sequence[str]] = "elbow",
         n_init: int = 50,
         max_iter: int = 300,
     ) -> None:

@@ -34,9 +34,7 @@ LIGHTWEIGHT = (
     "persistence_demo.py",
     "apply_saved_model_demo.py",
     "feature_composition_demo.py",
-    # graph / voxel demos fall back to synthetic when demo_data/ is absent;
-    # voxel_radiomics GLCM needs PyRadiomics — keep them out of the fast list.
-    "tabular_ml_quickstart.py",
+    # graph / voxel / tabular ML demos need demo_data/ or heavier extras.
 )
 
 

@@ -29,7 +29,31 @@ Script
 .. literalinclude:: scripts/custom_voxel_feature_demo.py
    :language: python
 
-The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
+The script writes ``out/custom_voxel_overlay.png`` and may open a **napari
+eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
+
+Output
+------
+
+::
+
+   === expression: square(T1 / (T2^3 + eps)) ===
+     atomic features: ['t1_over_t2_sq']
+   === custom plugin: t1_t2_contrast ===
+     batch: 3 maps, 2 habitats
+   Wrote out/custom_voxel_overlay.png
+
+Figures
+-------
+
+Custom extractors still produce ordinary habitat maps.
+
+.. figure:: ../_static/images/examples/custom_voxel_overlay.png
+   :alt: Habitat overlay after a custom voxel feature extractor
+   :width: 420
+
+   Habitats after ``Study(...).fit_predict`` with a DIY extractor
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 See also
 --------

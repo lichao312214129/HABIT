@@ -41,6 +41,7 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
         cohort: Synthetic cohort used for the recipe run.
         subject: One subject used for atomic inspection calls.
     """
+    # BEGIN example
     # Sugar form keeps the documented chain field names for this page;
     # batch entry is Study(spec=...).fit_predict (stages expand under the hood).
     spec = HabitatSpec(
@@ -71,7 +72,7 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
             {
                 "min_habitats": 2,
                 "max_habitats": 3,
-                "validation": "silhouette",
+                "validation": "elbow",
                 "n_init": 3,
             },
         ),
@@ -138,11 +139,14 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     raw_units = build_habitat_components(bare).pipeline(assigner=None).units(subject)
     print("=== Raw supervoxel units (no feature preprocessing) ===")
     print(f"  features={raw_units.features.shape}")
+    # END example
 
-    # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_habitat_study_figures
     from _habitat_eye_check import eye_check_study
 
+    save_habitat_study_figures(cohort, result, prefix="habitat_prep_api")
+    # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
     eye_check_study(cohort, result)
 
 

@@ -23,8 +23,11 @@ must not invent their own axis flips.
 ``direction`` columns are SimpleITK index axes ``(x, y, z)`` in an LPS world
 (+x Left, +y Posterior, +z Superior). Raw array order therefore often shows
 posterior/inferior toward the top of a canvas that uses image coordinates
-(row 0 at the top). These helpers compute the per-axis flips that put
-axial / coronal / sagittal panels into the requested display convention.
+(row 0 at the top). These helpers compute the per-axis flips **and** the in-plane transpose
+that put axial / coronal / sagittal panels into the requested display
+convention. A raw ``np.take`` extract uses array-axis order, so when
+superior lies along the column axis the slice must be transposed before
+``flipud`` / ``fliplr`` — otherwise SI stays horizontal.
 
 Default display convention
 --------------------------
@@ -55,7 +58,8 @@ In-plane A-P / L-R still follow the same convention as matplotlib.
 
 from __future__ import annotations
 
-from typing import Literal, Optional, Sequence, Tuple
+import warnings
+from typing import List, Literal, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -70,12 +74,18 @@ __all__ = [
     "DisplayConvention",
     "apply_radiological_flips",
     "array_axis_lps_direction",
+    "array_from_display_input",
     "desired_screen_directions",
     "direction_matrix",
     "display_array_axis_flips",
+    "display_geometry_from_input",
+    "display_slice_row_col_axes",
+    "imshow_physical_extent",
     "normalize_display_convention",
     "orient_slice_for_display",
+    "plane_spacings_mm",
     "radiological_array_axis_flips",
+    "resolve_display_geometry",
     "slice_row_col_axes",
     "volume_display_flips",
 ]
@@ -214,6 +224,46 @@ def slice_row_col_axes(slice_axis: int) -> Tuple[int, int]:
     raise HABITAPIError(f"axis must be 0, 1, or 2; got {slice_axis}.")
 
 
+def display_slice_row_col_axes(
+    slice_axis: int,
+    *,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+) -> Tuple[int, int]:
+    """
+    Return display ``(row_array_axis, col_array_axis)`` after any SI transpose.
+
+    ``np.take(..., axis=slice_axis)`` always yields axes in array order
+    (coronal-like ``(z, x)``, sagittal-like ``(z, y)``). When the direction
+    matrix puts the desired screen-up vector (superior on coronal/sagittal,
+    anterior on axial) along the **column** axis, the 2D extract must be
+    transposed so that axis becomes rows — otherwise SI (or A-P) is drawn
+    horizontally.
+
+    Args:
+        slice_axis: NumPy axis removed by ``np.take``.
+        direction: ``(3, 3)`` LPS direction matrix, or ``None`` (no transpose).
+        convention: Display convention. ``\"native\"`` never transposes.
+
+    Returns:
+        Array axes that should be rows and columns after orientation.
+    """
+    row_axis, col_axis = slice_row_col_axes(slice_axis)
+    convention = normalize_display_convention(convention)
+    if convention == "native" or direction is None:
+        return row_axis, col_axis
+    row_dir = array_axis_lps_direction(direction, row_axis)
+    col_dir = array_axis_lps_direction(direction, col_axis)
+    desired_up, _desired_left = desired_screen_directions(
+        slice_axis, convention=convention
+    )
+    if abs(float(np.dot(col_dir, desired_up))) > abs(
+        float(np.dot(row_dir, desired_up))
+    ):
+        return col_axis, row_axis
+    return row_axis, col_axis
+
+
 def desired_screen_directions(
     slice_axis: int,
     *,
@@ -258,17 +308,31 @@ def orient_slice_for_display(
     convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> np.ndarray:
     """
-    Flip a 2D slice so image coordinates (origin upper-left) match ``convention``.
+    Transpose and flip a 2D slice so image coordinates match ``convention``.
 
     Used by matplotlib per orthogonal extract. Does not remap which volume
     index was selected — only the 2D panel layout.
+
+    Order of operations:
+
+    1. Transpose when the desired screen-up vector (superior on coronal /
+       sagittal) lies along the extract's column axis, so SI becomes rows.
+    2. ``flipud`` / ``fliplr`` so row 0 is screen-up and col 0 is screen-left
+       under ``origin='upper'``.
     """
     data = np.asarray(slice_2d)
     convention = normalize_display_convention(convention)
     if convention == "native" or direction is None or data.ndim != 2:
         return data
 
-    row_axis, col_axis = slice_row_col_axes(slice_axis)
+    raw_row, raw_col = slice_row_col_axes(slice_axis)
+    row_axis, col_axis = display_slice_row_col_axes(
+        slice_axis, direction=direction, convention=convention
+    )
+    if (row_axis, col_axis) != (raw_row, raw_col):
+        # np.take yields (raw_row, raw_col); swap so desired-up is rows.
+        data = np.transpose(data)
+
     row_dir = array_axis_lps_direction(direction, row_axis)
     col_dir = array_axis_lps_direction(direction, col_axis)
     desired_up, desired_left = desired_screen_directions(
@@ -311,7 +375,9 @@ def display_array_axis_flips(
 
     flips = [False, False, False]
     for slice_axis in (0, 1, 2):
-        row_axis, col_axis = slice_row_col_axes(slice_axis)
+        row_axis, col_axis = display_slice_row_col_axes(
+            slice_axis, direction=direction, convention=convention
+        )
         row_dir = array_axis_lps_direction(direction, row_axis)
         col_dir = array_axis_lps_direction(direction, col_axis)
         desired_up, desired_left = desired_screen_directions(
@@ -396,3 +462,275 @@ def apply_radiological_flips(
     if not axes:
         return data
     return np.flip(data, axis=tuple(axes))
+
+
+def array_from_display_input(value: object) -> np.ndarray:
+    """
+    Unwrap a display volume from an array, ``ImageVolume``, or label map.
+
+    ``plot_habitat_overlay`` callers often pass ``subject.image(...).data``
+    and drop ``direction`` / ``spacing``. Accepting the volume object itself
+    (or a :class:`~habit.contracts.habitat.HabitatMap`) keeps geometry
+    attached so coronal / sagittal panels can be oriented correctly.
+
+    Args:
+        value: NumPy array, object with ``.data`` (``ImageVolume``), or
+            object with ``.label_array`` (``HabitatMap`` / supervoxel map).
+
+    Returns:
+        The voxel array (not yet squeezed to 2D/3D).
+
+    Raises:
+        HABITAPIError: When ``value`` is ``None``.
+    """
+    if value is None:
+        raise HABITAPIError("display input must not be None.")
+    if isinstance(value, np.ndarray):
+        return np.asarray(value)
+    data_attr = getattr(value, "data", None)
+    if data_attr is not None:
+        return np.asarray(data_attr)
+    label_attr = getattr(value, "label_array", None)
+    if label_attr is not None:
+        return np.asarray(label_attr)
+    return np.asarray(value)
+
+
+def display_geometry_from_input(
+    value: object,
+) -> Tuple[Optional[Tuple[float, ...]], Optional[Tuple[float, ...]]]:
+    """
+    Read SimpleITK ``(direction, spacing)`` from a volume-like object.
+
+    Prefers ``.geometry.direction`` / ``.geometry.spacing`` (contracts
+    :class:`~habit.contracts.geometry.Geometry`), then ``.direction`` /
+    ``.spacing`` on :class:`~habit.api.image.ImageVolume`. Arrays have no
+    geometry; the caller then falls back to LPS identity.
+
+    Args:
+        value: Array or volume-like object.
+
+    Returns:
+        ``(direction, spacing)`` tuples, or ``(None, None)`` when absent.
+    """
+    if value is None or isinstance(value, np.ndarray):
+        return None, None
+    geometry = getattr(value, "geometry", None)
+    if geometry is not None:
+        direction = getattr(geometry, "direction", None)
+        spacing = getattr(geometry, "spacing", None)
+        if direction is not None and spacing is not None:
+            return (
+                tuple(float(v) for v in direction),
+                tuple(float(v) for v in spacing),
+            )
+    direction = getattr(value, "direction", None)
+    spacing = getattr(value, "spacing", None)
+    if direction is not None and spacing is not None:
+        return (
+            tuple(float(v) for v in direction),
+            tuple(float(v) for v in spacing),
+        )
+    return None, None
+
+
+def _is_label_like_volume(value: object) -> bool:
+    """
+    Return True when ``value`` looks like a mask / habitat / label map.
+
+    Used to break image-vs-mask direction conflicts: the labelled anatomy
+    (ITK-SNAP / 3D Slicer mask) is the geometry that matches what the user
+    drew, even when the intensity volume's direction cosines disagree.
+    """
+    if value is None or isinstance(value, np.ndarray):
+        return False
+    if getattr(value, "label_array", None) is not None:
+        return True
+    if getattr(value, "roi_name", None) is not None:
+        return True
+    labels = getattr(value, "labels", None)
+    return isinstance(labels, (tuple, list))
+
+
+def _directions_disagree(
+    first: Sequence[float],
+    second: Sequence[float],
+    *,
+    atol: float = 1e-5,
+) -> bool:
+    """Return True when two flattened direction cosine tuples differ."""
+    a = np.asarray(first, dtype=np.float64).reshape(-1)
+    b = np.asarray(second, dtype=np.float64).reshape(-1)
+    if a.size != b.size:
+        return True
+    return not np.allclose(a, b, atol=atol)
+
+
+def resolve_display_geometry(
+    *volumes: object,
+    direction: Optional[Sequence[float]] = None,
+    spacing: Optional[Sequence[float]] = None,
+) -> Tuple[Optional[Tuple[float, ...]], Optional[Tuple[float, ...]]]:
+    """
+    Resolve display ``direction`` / ``spacing``, preferring explicit kwargs.
+
+    Walks ``volumes`` and collects attached geometry. Explicit ``direction``
+    / ``spacing`` always win so callers can override stored metadata.
+
+    When two volumes disagree on ``direction`` (common on demo LAP: the
+    intensity NRRD claims LPS identity while the mask has ``+z = Inferior``
+    and matches the anatomy), a warning is emitted and the **mask / label**
+    geometry is used. That pairing puts superior toward row 0 on coronal
+    and sagittal after :func:`orient_slice_for_display`.
+
+    Args:
+        volumes: Volume-like objects that may carry geometry.
+        direction: Optional SimpleITK flattened direction cosines.
+        spacing: Optional SimpleITK spacing ``(x, y[, z])``.
+
+    Returns:
+        ``(direction, spacing)`` each either a tuple or ``None``.
+    """
+    resolved_direction: Optional[Tuple[float, ...]] = (
+        tuple(float(v) for v in direction) if direction is not None else None
+    )
+    resolved_spacing: Optional[Tuple[float, ...]] = (
+        tuple(float(v) for v in spacing) if spacing is not None else None
+    )
+    if resolved_direction is not None and resolved_spacing is not None:
+        return resolved_direction, resolved_spacing
+
+    candidates: List[Tuple[Optional[Tuple[float, ...]], Optional[Tuple[float, ...]], bool]] = []
+    for volume in volumes:
+        found_dir, found_sp = display_geometry_from_input(volume)
+        if found_dir is None and found_sp is None:
+            continue
+        candidates.append((found_dir, found_sp, _is_label_like_volume(volume)))
+
+    if resolved_direction is None:
+        dirs = [item[0] for item in candidates if item[0] is not None]
+        if len(dirs) >= 2 and any(
+            _directions_disagree(dirs[0], other) for other in dirs[1:]
+        ):
+            warnings.warn(
+                "Display geometry conflict: image/anatomy direction does not "
+                "match mask/label direction. Using the mask/label direction "
+                "so coronal/sagittal superior-up follows the labelled "
+                "anatomy. Pass direction= to override.",
+                UserWarning,
+                stacklevel=2,
+            )
+            label_dirs = [item[0] for item in candidates if item[2] and item[0] is not None]
+            resolved_direction = label_dirs[-1] if label_dirs else dirs[0]
+        elif dirs:
+            resolved_direction = dirs[0]
+
+    if resolved_spacing is None:
+        # Prefer spacing from the same volume that won the direction choice
+        # (label-like when directions conflict), else the first spacing found.
+        if resolved_direction is not None:
+            for found_dir, found_sp, is_label in candidates:
+                if (
+                    found_dir is not None
+                    and found_sp is not None
+                    and not _directions_disagree(found_dir, resolved_direction)
+                ):
+                    if is_label or resolved_spacing is None:
+                        resolved_spacing = found_sp
+                        if is_label:
+                            break
+        if resolved_spacing is None:
+            for _found_dir, found_sp, _is_label in candidates:
+                if found_sp is not None:
+                    resolved_spacing = found_sp
+                    break
+    return resolved_direction, resolved_spacing
+
+
+def plane_spacings_mm(
+    spacing_xyz: Sequence[float],
+    *,
+    slice_axis: int,
+    ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+) -> Tuple[float, float]:
+    """
+    Return ``(spacing_row_mm, spacing_col_mm)`` for a display plane.
+
+    When ``direction`` is set, row/col follow :func:`display_slice_row_col_axes`
+    (including an SI transpose) so physical extent matches the oriented slice.
+
+    Args:
+        spacing_xyz: SimpleITK spacing ``(x, y[, z])``.
+        slice_axis: NumPy axis removed by ``np.take`` (ignored when ``ndim==2``).
+        ndim: Array dimensionality.
+        direction: Optional ``(3, 3)`` LPS direction matrix.
+        convention: Display convention used for the SI-transpose decision.
+
+    Returns:
+        Physical size of one array row and one array column in millimetres.
+    """
+    if ndim == 2:
+        return float(spacing_xyz[1]), float(spacing_xyz[0])
+    row_axis, col_axis = display_slice_row_col_axes(
+        slice_axis, direction=direction, convention=convention
+    )
+    sitk_row = (2, 1, 0)[int(row_axis)]
+    sitk_col = (2, 1, 0)[int(col_axis)]
+    return float(spacing_xyz[sitk_row]), float(spacing_xyz[sitk_col])
+
+
+def imshow_physical_extent(
+    shape_hw: Tuple[int, int],
+    spacing_xyz: Sequence[float],
+    *,
+    slice_axis: int,
+    ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+) -> Tuple[float, float, float, float]:
+    """
+    ``imshow`` extent in millimetres so ``aspect='equal'`` is physically true.
+
+    Returns ``(left, right, bottom, top)`` with **bottom < top** (``0`` to
+    physical height). Combined with ``origin='upper'``, matplotlib maps
+    array row 0 to ``top`` — after :func:`orient_slice_for_display` that is
+    superior (coronal/sagittal) or anterior (axial).
+
+    An inverted extent (``top < bottom``) used to keep row 0 at the top of
+    an inverted y-axis. That fights ``ax.set_aspect('equal')`` on tall
+    coronal / sagittal panels (thick-slice z) and can silently flip
+    superior/inferior on screen while axial (near-square) still looks right.
+
+    Args:
+        shape_hw: ``(n_rows, n_cols)`` of the 2D extract after orientation.
+        spacing_xyz: SimpleITK spacing ``(x, y[, z])``.
+        slice_axis: NumPy axis removed by ``np.take``.
+        ndim: Array dimensionality of the parent volume.
+        direction: Optional ``(3, 3)`` LPS direction (same as the orient call)
+            so a transposed coronal/sagittal keeps the correct mm spacing.
+        convention: Display convention used for the SI-transpose decision.
+
+    Returns:
+        Extent ``(left, right, bottom, top)`` in millimetres.
+
+    Raises:
+        HABITAPIError: When the slice shape is not positive.
+    """
+    nrows, ncols = int(shape_hw[0]), int(shape_hw[1])
+    if nrows <= 0 or ncols <= 0:
+        raise HABITAPIError("slice shape must be positive for imshow extent.")
+    spacing_row, spacing_col = plane_spacings_mm(
+        spacing_xyz,
+        slice_axis=slice_axis,
+        ndim=ndim,
+        direction=direction,
+        convention=convention,
+    )
+    return (
+        0.0,
+        float(ncols) * spacing_col,
+        0.0,
+        float(nrows) * spacing_row,
+    )

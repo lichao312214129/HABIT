@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Voxel texture maps: local entropy + a few GLCM features, then plot (sklearn-short).
+Voxel texture maps: local entropy + GLCM Contrast, then plot.
 
 Accompanies ``docs/source/examples/voxel_texture.rst``.
 Run from the repository root::
@@ -11,25 +11,33 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
+from pathlib import Path
+
 import matplotlib.pyplot as plt
-import numpy as np
 
 import habit.domain  # registers built-in voxel extractors
-from habit import local_entropy_map
+from habit import cohort_from_directory, local_entropy_map
 from habit.domain import VoxelFeatureExtractorRegistry
-from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice, use_style
+from habit.viz import plot_voxel_texture_slice
 
-from _example_roi import cropped_subject_from, examples_image_dir, one_subject_cohort
+# Change DATA / MODALITY / ROI to your preprocessed layout
+DATA = "demo_data/preprocessed"
+MODALITY = "LAP"
+ROI = "LAP"
 
-cohort, modalities, _ = one_subject_cohort()
-modality = modalities[0]
-subject, image, mask, spacing = cropped_subject_from(cohort[0], modality)
+cohort = cohort_from_directory(DATA, modalities=(MODALITY,), roi=ROI)[:1]
+subject = cohort[0]
+# Pass volume objects (not .data) so direction/spacing stay attached.
+# Image vs mask direction may disagree; plotters warn and use the mask.
+image_vol = subject.image(MODALITY)
+mask_vol = subject.mask(ROI)
+image = image_vol.data
+mask = mask_vol.data
 
-# Fast local entropy + a small GLCM set (PyRadiomics / voxel_radiomics)
-entropy = np.where(mask > 0, local_entropy_map(image, kernel_size=5, bins=32), np.nan)
+entropy = local_entropy_map(image, kernel_size=5, bins=32)
 glcm = VoxelFeatureExtractorRegistry.create(
     "voxel_radiomics",
-    modality=modality,
+    modality=MODALITY,
     kernel_radius=1,
     params={
         "imageType": {"Original": {}},
@@ -37,37 +45,56 @@ glcm = VoxelFeatureExtractorRegistry.create(
         "setting": {"binWidth": 25},
     },
 )(subject)
-contrast = dense_voxel_feature_map(glcm, next(n for n in glcm.feature_names if "Contrast" in n))
-print("GLCM columns:", list(glcm.feature_names))
 
-# side_by_side: anatomy + ROI contour | texture (no alpha blend on anatomy)
-out = examples_image_dir()
-with use_style("radiology"):
-    fig = plot_voxel_texture_slice(
-        entropy, anatomy=image, roi_mask=mask, axis=0, mode="side_by_side",
-        spacing=spacing, feature_label="Local entropy (bits)",
-        title="Voxel texture: local entropy",
-    )
-fig.savefig(out / "voxel_texture_side_by_side.png", dpi=150, bbox_inches="tight")
+kw = dict(anatomy=image_vol, roi_mask=mask_vol)
+Path("out").mkdir(exist_ok=True)
+fig = plot_voxel_texture_slice(entropy, **kw)
+fig.savefig("out/voxel_texture_entropy.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
-
-with use_style("radiology"):
-    fig = plot_voxel_texture_slice(
-        contrast, anatomy=image, roi_mask=mask, axis=0, mode="side_by_side",
-        spacing=spacing, feature_label="GLCM Contrast",
-        title="Voxel texture: GLCM Contrast",
-    )
-fig.savefig(out / "voxel_texture_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/voxel_texture_entropy.png")
+fig = plot_voxel_texture_slice(glcm, feature=0, **kw)
+fig.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
+print("Wrote out/voxel_texture_glcm_contrast.png")
 # END example
 
+def _copy_gallery(src: Path, dest: Path) -> None:
+    """Copy a PNG into the Sphinx gallery; skip if the dest file is locked."""
+    import shutil
+
+    try:
+        shutil.copyfile(src, dest)
+    except OSError as exc:
+        # Windows Errno 22 when another process (preview / AV) holds the PNG.
+        print(f"Gallery copy skipped ({dest.name}): {exc}")
+
+
 if __name__ == "__main__":
-    with use_style("radiology"):
-        fig = plot_voxel_texture_slice(
-            entropy, anatomy=image, roi_mask=mask, mode="side_by_side",
-            spacing=spacing, feature_label="Local entropy (bits)",
-            title="Local entropy (orthogonal)",
+    # Docs gallery assets (maintainers); copy from out/ then orthogonal panel.
+    gallery = Path("docs/source/_static/images/examples")
+    gallery.mkdir(parents=True, exist_ok=True)
+    _copy_gallery(
+        Path("out/voxel_texture_entropy.png"),
+        gallery / "voxel_texture_side_by_side.png",
+    )
+    _copy_gallery(
+        Path("out/voxel_texture_glcm_contrast.png"),
+        gallery / "voxel_texture_overlay.png",
+    )
+    fig = plot_voxel_texture_slice(
+        entropy,
+        anatomy=image_vol,
+        roi_mask=mask_vol,
+        feature_label="Local entropy",
+        title="Local entropy (orthogonal)",
+    )
+    try:
+        fig.savefig(
+            gallery / "voxel_texture_orthogonal.png",
+            dpi=140,
+            bbox_inches="tight",
         )
-    fig.savefig(out / "voxel_texture_orthogonal.png", dpi=140, bbox_inches="tight")
+    except OSError as exc:
+        print(f"Gallery save skipped (voxel_texture_orthogonal.png): {exc}")
     plt.close(fig)
-    print("Wrote gallery PNGs under", out)
+    print("Wrote out/ and gallery PNGs")

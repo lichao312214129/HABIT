@@ -1,7 +1,8 @@
 Apply a saved .habitatmodel to new subjects
 ===========================================
 
-**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~20–60 s
+**Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
+``[view]`` · **Time:** ~20–60 s
 
 A fitted :class:`~habit.contracts.HabitatModel` is HABIT's primary
 scientific artefact: a self-describing habitat definition that can be
@@ -24,34 +25,66 @@ consistent.
 Script
 ------
 
+Train on the first subjects under ``demo_data/preprocessed``, save
+``.habitatmodel``, apply to later subjects. Change ``DATA`` /
+``MODALITIES`` / ``ROI`` (and the train/apply split) for your cohort.
+
 .. literalinclude:: scripts/apply_saved_model_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
 Output
 ------
 
-Real output of the script above (abridged; the feature table also includes
-``msi``, ``ith_score``, and ``non_radiomics`` columns)::
+Illustrative::
 
-   Trained on 5 subjects: 3 habitats
-   Saved habitat_model.habitatmodel (1531 bytes)
-   Reloaded model kmeans-c8e4410e018281c1 (3 habitats, features ['T1', 'T2'])
+   Train: ['subj001', 'subj002']; apply: ['subj003', 'subj004']
+   Saved out/habitat_model.habitatmodel
+     subj003: {...}
+     subj004: {...}
 
-   New cohort (batch apply): ['subj001', 'subj002', 'subj003']
-     subj001: voxels per habitat {1: 513, 2: 394, 3: 563}
-     subj002: voxels per habitat {1: 421, 2: 295, 3: 470}
-     subj003: voxels per habitat {1: 279, 2: 222, 3: 395}
+Running the script regenerates gallery PNGs; ``HABIT_NO_VIEW=1`` skips napari.
 
-   Per-subject habitat features (first volume columns shown):
-   subject  habitat_1_voxel_count  habitat_1_volume_fraction  ...  ith_score  ...  1_volume_ratio
-   subj001                  513.0                   0.348980  ...        0.0  ...       0.348980
-   subj002                  421.0                   0.354975  ...        0.0  ...       0.354975
-   subj003                  279.0                   0.311384  ...        0.0  ...       0.311384
+Figures
+-------
 
-On real data each subject's habitat composition and feature values differ.
+.. figure:: ../_static/images/examples/apply_overlay.png
+   :alt: Habitats after applying a saved model
+   :width: 420
 
-The script ends with a **napari eye-check** on the applied habitats.
-``HABIT_NO_VIEW=1`` skips it.
+   Habitats on a new subject after ``Study.from_model(...).predict``.
+
+.. figure:: ../_static/images/examples/apply_triptych.png
+   :alt: Anatomy, supervoxels, and applied habitats
+   :width: 720
+
+   Apply-time partitions (:func:`~habit.viz.plot_partition_triptych`).
+
+.. figure:: ../_static/images/examples/apply_train_label_compare.png
+   :alt: Train fit versus replay predict
+   :width: 720
+
+   Train fit vs replay predict on a discovery subject
+   (:func:`~habit.viz.plot_habitat_label_compare`).
+
+.. figure:: ../_static/images/examples/apply_volume_fractions.png
+   :alt: Volume fractions on an applied subject
+   :width: 420
+
+   Volume fractions on the applied map.
+
+.. figure:: ../_static/images/examples/apply_msi_matrix.png
+   :alt: MSI matrix on an applied subject
+   :width: 420
+
+   MSI matrix.
+
+.. figure:: ../_static/images/examples/apply_ith_summary.png
+   :alt: ITH summary on an applied subject
+   :width: 520
+
+   ITH summary.
 
 What to read next
 -----------------

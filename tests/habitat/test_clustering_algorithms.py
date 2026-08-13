@@ -123,7 +123,7 @@ class TestValidationMethodsMapping:
         assert "silhouette" in info["methods"]
 
     def test_default_methods_per_algorithm(self) -> None:
-        assert "silhouette" in get_default_methods("kmeans")
+        assert get_default_methods("kmeans") == ["elbow"]
         assert get_default_methods("gmm") == ["aic"]
 
     def test_optimization_directions(self) -> None:

@@ -52,6 +52,7 @@ from habit.kernels.icc import icc2_1, icc3_1, two_way_mean_squares
 from habit.kernels.image_perturbation import (
     add_gaussian_noise,
     estimate_noise_sigma,
+    rigid_transform_image,
     rotate_image,
     translate_image,
 )
@@ -105,6 +106,7 @@ __all__ = [
     "add_gaussian_noise",
     "translate_image",
     "rotate_image",
+    "rigid_transform_image",
     "ICCEstimate",
     "icc3a_1",
     "icc3c_1",

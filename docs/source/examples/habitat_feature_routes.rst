@@ -60,6 +60,19 @@ Output (abbreviated)
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Figures
+-------
+
+Each route still ends in habitat maps. Overlay from the ``raw`` route in
+this demo:
+
+.. figure:: ../_static/images/examples/habitat_feature_routes_overlay.png
+   :alt: Habitat overlay after a feature-route batch fit
+   :width: 420
+
+   Habitats after ``Study(...).fit_predict`` with ``raw`` intensities
+   (:func:`~habit.viz.plot_habitat_overlay`).
+
 What to read next
 -----------------
 

@@ -808,7 +808,7 @@ rg "habit\.core\.(habitat_analysis|machine_learning|preprocessing)" habit/kernel
 
 #### 3.4 文档（不阻塞 import，删除后须改）
 
-**2026-08-05 收尾已更新**：Sphinx RST（`docs/source/` 9 文件）、`CHANGELOG.md`、`docs/SPHINX_DESIGN.md`、本文件验收 checklist。仍待：`01_master_plan.md`、`02_public_api_design.md`、`04_ci_quality_governance.md`、`habit/utils/LOG_SYSTEM_README.md` 及生产代码 docstring 中的历史 `habit.core` 提及。
+**2026-08-05 收尾已更新**：Sphinx RST（`docs/source/` 9 文件）、`CHANGELOG.md`、本文件验收 checklist。仍待：`01_master_plan.md`、`02_public_api_design.md`、`04_ci_quality_governance.md`、`habit/utils/LOG_SYSTEM_README.md` 及生产代码 docstring 中的历史 `habit.core` 提及。
 
 #### 3.5 尚未关闭的非 import 项
 

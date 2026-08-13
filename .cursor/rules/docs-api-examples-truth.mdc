@@ -1,0 +1,50 @@
+---
+description: HABIT docs API examples must match params_model / real methods (no sklearn-shaped inventing)
+globs: docs/**/*.rst,docs/**/scripts/**/*.py
+alwaysApply: false
+---
+
+# Docs: API examples must be executable truth
+
+When editing Sphinx sources or demo scripts that teach Python / registry
+calls, **the running code is the authority** — not sklearn memory, old YAML
+field names, or “looks familiar”.
+
+## Authority order (do not invert)
+
+1. `SomeRegistry.params_model("name")` field names, or the component’s
+   `__init__` / params model in `habit/domain/**`
+2. Then write the doc / demo snippet
+3. Never invent synonyms (`n_clusters` / `n_components` for supervoxelizers
+   when the model field is `n_supervoxels`)
+
+## Protocols are optional, not universal
+
+- `Seedable.set_random_state` exists only on components that implement it
+  (e.g. kmeans/gmm supervoxelizers and stochastic fitters). **SLIC has no
+  `set_random_state`** — do not call it on `slic`.
+- Before documenting a method call, confirm with `hasattr(obj, "...")` or
+  the class body. Name the concrete component in the example.
+
+## Done gate for taught API snippets
+
+If you add or change a `code-block` / demo that contains
+`Registry.create(`, `set_random_state(`, or a public recipe call users will
+copy:
+
+1. Run the critical lines under `py310`
+   (`E:\conda\mconda\envs\py310\python.exe`) with synthetic data when needed.
+2. Sphinx green alone is **not** enough (rst `code-block` is not doctest).
+
+## When editing a page that already has examples
+
+Touching a nearby section is not enough: re-check other
+`create(` / method calls **on the same page** so stale wrong examples do
+not ship next to new text.
+
+## Out of scope here
+
+- Shell line-continuations → `docs-windows-shell.mdc`
+- gh-pages deploy → `docs-gh-pages-deploy.mdc`
+- YAML config keys under `configuration/` may still use v0.1 names
+  (`n_clusters`); that is schema translation, not `Registry.create` kwargs.

@@ -273,11 +273,15 @@ from habit.domain.evaluation import (
     repeat_measurement_matrix,
 )
 from habit.domain.precision import (
+    BSplineDeformPerturbation,
+    BSplineDeformPerturbationParams,
     GaussianNoisePerturbation,
     GaussianNoisePerturbationParams,
     ImagePerturbationRegistry,
     PerturbationChain,
     PreciseFeatureSet,
+    RigidPerturbation,
+    RigidPerturbationParams,
     RotationPerturbation,
     RotationPerturbationParams,
     TranslationPerturbation,
@@ -286,6 +290,7 @@ from habit.domain.precision import (
     habitat_stability,
     identify_precise_features,
     precision_panel,
+    prior2024_retest_perturbation,
 )
 
 __all__ = [
@@ -529,16 +534,21 @@ __all__ = [
     "icc_analysis",
     # Precision analysis (simulated test-retest and the precise-feature screen).
     "ImagePerturbationRegistry",
+    "BSplineDeformPerturbation",
+    "BSplineDeformPerturbationParams",
     "GaussianNoisePerturbation",
     "GaussianNoisePerturbationParams",
     "TranslationPerturbation",
     "TranslationPerturbationParams",
     "RotationPerturbation",
     "RotationPerturbationParams",
+    "RigidPerturbation",
+    "RigidPerturbationParams",
     "PerturbationChain",
     "PreciseFeatureSet",
     "precision_panel",
     "aggregate_panels",
     "identify_precise_features",
     "habitat_stability",
+    "prior2024_retest_perturbation",
 ]

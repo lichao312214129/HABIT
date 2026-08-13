@@ -1,0 +1,56 @@
+---
+description: Examples and taught API snippets must be clear end-to-end paths users can swap to their own data
+globs: docs/source/**/*.rst,docs/source/**/*.md,docs/source/examples/scripts/**/*.py
+alwaysApply: true
+---
+
+# Docs / examples: user-swappable data first
+
+HABIT examples and taught API snippets exist so a third party can **copy, swap
+paths, and get a result**. Clarity for that workflow beats clever helpers.
+
+## Principles
+
+1. **End-to-end and obvious** — shown code loads data → runs the habitat /
+   feature / viz step → produces a result (print, `Figure`, or `out/` file).
+2. **Swap-ready data paths** — use explicit roots such as
+   `"demo_data/preprocessed"` (or another path the page already teaches).
+   Name modalities / ROI as plain strings or short variables
+   (`DATA`, `MODALITIES`, `ROI`) the user can edit in one place.
+3. **No opaque gallery helpers in Sphinx-visible blocks** — do **not** call
+   `one_subject_cohort`, `examples_image_dir`, `save_example_figure`,
+   `save_habitat_study_figures`, `glcm_field`, etc. inside
+   `# BEGIN example` … `# END example` or in rst `code-block` / doctest the
+   user is meant to copy. Those may live only in `if __name__ == "__main__":`
+   (or a private regen script) to refresh `_static` assets.
+4. **Prefer public HABIT APIs** — `cohort_from_directory`, `one_step_habitat` /
+   `Study`, `extract_graph_features`, `plot_*`, registry `create`, …
+5. **Keep snippets short** — short and explicit beats short and hidden.
+   Comment one line: `# Change DATA / MODALITIES / ROI to your preprocessed layout`.
+6. **demo_data is the stand-in for the user's tree** — pick one subject or a
+   small slice (`cohort[:1]`) when enough; do not invent a second load path
+   that only maintainers understand.
+
+## Good / bad
+
+```python
+# ✅ GOOD — user sees what to replace
+DATA = "demo_data/preprocessed"  # your preprocessed root
+MODALITIES = ("LAP",)
+ROI = "LAP"
+cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+```
+
+```python
+# ❌ BAD — opaque; user cannot map this to their disk layout
+cohort, mods, _ = one_subject_cohort()
+save_example_figure(fig, "graph_habitat_network_2d.png")
+```
+
+## Related
+
+| Concern | Rule |
+| --- | --- |
+| Smoke-test before done | `docs-examples-must-be-tested.mdc` |
+| API / Registry kwargs truth | `docs-api-examples-truth.mdc` |
+| Windows one-line shells | `docs-windows-shell.mdc` |

@@ -98,13 +98,18 @@ Image perturbation
 Simulated-retest kernels behind the ``image_perturbation`` domain. Noise
 estimation and addition work on plain arrays; the geometric kernels take
 and return ``sitk.Image`` so spacing, origin and direction are honoured,
-and resample back onto the original grid:
+and resample back onto the original grid. The default recipe chain matches
+Prior et al. (*Radiol Artif Intell* 2024;6(2):e230118, Appendix S2 / MIRP
+1.2.0): Chang-estimated Gaussian noise, a 0.5-voxel translation fraction,
+and a 0.5° in-plane rotation. :func:`~habit.kernels.rigid_transform_image`
+composes translation+rotation into one affine (MIRP ≥ 2).
 
 .. code-block:: python
 
    from habit.kernels import (
        add_gaussian_noise,
        estimate_noise_sigma,
+       rigid_transform_image,
        rotate_image,
        translate_image,
    )
@@ -113,6 +118,8 @@ and resample back onto the original grid:
    noisy = add_gaussian_noise(array, sigma, rng)        # zero-mean Gaussian
    shifted = translate_image(image, shift_voxels=(0.3, -0.2, 0.0))
    rotated = rotate_image(image, angle_degrees=0.5, axis="z")
+   # MIRP ≥ 2: translation + rotation in one resample
+   rigid = rigid_transform_image(image, (0.5, 0.5, 0.5), angle_degrees=0.5)
 
 Classification statistics
 -------------------------

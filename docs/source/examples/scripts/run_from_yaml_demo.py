@@ -71,7 +71,7 @@ spec:
     params:
       min_habitats: 2
       max_habitats: 3
-      validation: silhouette
+      validation: elbow
       n_init: 5
   habitat_assigner:
     name: nearest_centroid

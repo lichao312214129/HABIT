@@ -27,9 +27,11 @@ from habit.viz.orientation import (
     apply_radiological_flips,
     direction_matrix,
     display_array_axis_flips,
+    display_slice_row_col_axes,
     normalize_display_convention,
     orient_slice_for_display,
     radiological_array_axis_flips,
+    resolve_display_geometry,
     volume_display_flips,
 )
 
@@ -191,3 +193,92 @@ def test_normalize_display_convention_rejects_unknown() -> None:
         normalize_display_convention("diagonal")
     assert normalize_display_convention(None) == "radiological"
     assert normalize_display_convention("Radiological") == "radiological"
+
+
+def test_imshow_physical_extent_uses_noninverted_ylim() -> None:
+    """Coronal/sagittal extent must keep bottom < top so aspect='equal' cannot flip S-I."""
+    from habit.viz.orientation import imshow_physical_extent
+
+    left, right, bottom, top = imshow_physical_extent(
+        (30, 40), (1.0, 1.0, 5.0), slice_axis=1, ndim=3
+    )
+    assert bottom < top
+    assert top - bottom == pytest.approx(150.0)
+    assert right - left == pytest.approx(40.0)
+
+
+def test_coronal_sagittal_superior_at_row0_high_or_low_z() -> None:
+    """imshow origin=upper: superior must land on row 0 for both z signs.
+
+    High-z superior is LPS identity (``+z = Superior``). Low-z superior is
+    the demo-mask convention (``+z = Inferior``). Both coronal and sagittal
+    extracts must put the superior marker at the top of the figure.
+    """
+    high_z_superior = direction_matrix(_LPS, ndim=3)
+    low_z_superior = direction_matrix(
+        (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0), ndim=3
+    )
+    assert high_z_superior is not None and low_z_superior is not None
+
+    for slice_axis in (1, 2):
+        high = np.zeros((10, 10), dtype=np.float32)
+        high[-1, 5] = 1.0  # max z = superior under LPS identity
+        out_high = orient_slice_for_display(
+            high, slice_axis=slice_axis, direction=high_z_superior
+        )
+        assert int(np.argwhere(out_high == 1.0)[0, 0]) == 0
+
+        low = np.zeros((10, 10), dtype=np.float32)
+        low[0, 5] = 1.0  # min z = superior when direction zz = -1
+        out_low = orient_slice_for_display(
+            low, slice_axis=slice_axis, direction=low_z_superior
+        )
+        assert int(np.argwhere(out_low == 1.0)[0, 0]) == 0
+
+
+def test_orient_transposes_when_superior_is_column_axis() -> None:
+    """Rotated direction: sitk x = Superior, so coronal (z, x) must transpose.
+
+    Without the transpose, SI stays on columns (horizontal). After
+    orientation, superior is row 0 and the 2D shape is swapped.
+    """
+    # sitk x = Superior, sitk y = Posterior, sitk z = Right.
+    rotated = direction_matrix(
+        (0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0), ndim=3
+    )
+    assert rotated is not None
+    assert display_slice_row_col_axes(1, direction=rotated) == (2, 0)
+
+    # Raw coronal extract is (z, x) = (8, 12); superior is max x (columns).
+    coronal = np.zeros((8, 12), dtype=np.float32)
+    coronal[3, -1] = 1.0
+    out = orient_slice_for_display(
+        coronal, slice_axis=1, direction=rotated, convention="radiological"
+    )
+    assert out.shape == (12, 8), "SI was columns; transpose must make it rows"
+    row, _col = np.argwhere(out == 1.0)[0]
+    assert int(row) == 0, "superior (max x) must sit at row 0 after flipud"
+
+
+def test_resolve_display_geometry_prefers_mask_on_conflict() -> None:
+    """Image LPS identity vs mask +z=Inferior: warn and keep the mask."""
+    from habit.api.image import ImageVolume, MaskVolume
+
+    image = ImageVolume.from_array(
+        np.zeros((4, 6, 6), dtype=np.float32),
+        spacing=(1.0, 1.0, 1.0),
+        direction=_LPS,
+    )
+    mask = MaskVolume.from_array(
+        np.zeros((4, 6, 6), dtype=np.uint8),
+        spacing=(1.0, 1.0, 1.0),
+        direction=(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0),
+        modality="LAP",
+    )
+    with pytest.warns(UserWarning, match="Display geometry conflict"):
+        direction, spacing = resolve_display_geometry(image, mask)
+    assert direction is not None
+    np.testing.assert_allclose(
+        direction, (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0)
+    )
+    assert spacing == (1.0, 1.0, 1.0)

@@ -121,12 +121,10 @@ def _run_view_matplotlib(
     image_vol = read_image(image_path)
     label_vol = read_mask(habitat_path)
     fig = plot_habitat_overlay(
-        image_vol.data,
-        label_vol.data,
+        image_vol,
+        label_vol,
         alpha=alpha,
         title=f"Habitat overlay — {habitat_path.name}",
-        direction=getattr(image_vol, "direction", None),
-        spacing=getattr(image_vol, "spacing", None),
         display_convention=display_convention,  # type: ignore[arg-type]
     )
     png_path.parent.mkdir(parents=True, exist_ok=True)

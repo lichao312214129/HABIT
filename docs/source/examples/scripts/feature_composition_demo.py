@@ -147,3 +147,27 @@ via_structured = HabitatSpec.from_dict(
 print("\n=== YAML dual form ===")
 print(f"  fingerprint equal: "
       f"{via_expression.fingerprint() == via_structured.fingerprint()}")
+
+import habit.recipes as recipes
+from pathlib import Path
+
+from habit.viz import plot_habitat_overlay
+
+result = recipes.Study(spec=spec).fit_predict(cohort)
+fig = plot_habitat_overlay(
+    subject.image("T1").data,
+    result.habitat_maps[0].label_array,
+    axis=0,
+    title="Habitats from composed feature tree",
+)
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/feature_composition_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/feature_composition_overlay.png")
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "feature_composition_overlay.png")

@@ -20,6 +20,27 @@ Run::
 
    python docs/source/examples/scripts/provenance_methods_demo.py
 
+Output
+------
+
+Illustrative (fingerprints change with stage params)::
+
+   spec_a fingerprint: ...
+   spec_b fingerprint: ...
+   fingerprints equal: False
+   Wrote out/provenance_methods_overlay.png
+
+Figures
+-------
+
+The study behind ``describe_methods()`` still produces habitat maps:
+
+.. figure:: ../_static/images/examples/provenance_methods_overlay.png
+   :alt: Habitat overlay from the provenance demo study
+   :width: 420
+
+   :func:`~habit.viz.plot_habitat_overlay` on the fingerprinted run.
+
 What to read next
 -----------------
 

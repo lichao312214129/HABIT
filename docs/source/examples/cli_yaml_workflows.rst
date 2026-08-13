@@ -52,6 +52,26 @@ Predict / migrate extras::
    habit get-habitat -c config/habitat/config_habitat_two_step_predict.yaml -m predict
    habit migrate-config -c config/habitat/config_habitat_two_step.yaml --dry-run
 
+Figures
+-------
+
+``habit get-habitat`` writes the same maps the Python recipes do. After a
+two-step run, overlay anatomy + ``*_habitats.nrrd``::
+
+   from habit.viz import plot_habitat_overlay
+   import SimpleITK as sitk
+
+   image = sitk.GetArrayFromImage(sitk.ReadImage("demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd"))
+   labels = sitk.GetArrayFromImage(sitk.ReadImage("demo_data/results/habitat_two_step/subj001_habitats.nrrd"))
+   fig = plot_habitat_overlay(image, labels, axis=0, title="CLI two-step habitats")
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Two-step habitat overlay from get-habitat
+   :width: 420
+
+   Overlay from the two-step gallery (same product as ``habit get-habitat``)
+   (:func:`~habit.viz.plot_habitat_overlay`).
+
 What to read next
 -----------------
 

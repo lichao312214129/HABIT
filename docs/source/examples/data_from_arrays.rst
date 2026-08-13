@@ -29,6 +29,29 @@ Run::
 
    python docs/source/examples/scripts/data_from_arrays_demo.py
 
+Output
+------
+
+::
+
+   Eager volumes: image.shape=(16, 16, 16), mask.roi=tumor, labels=(1,)
+   Cohort: n=3 ids=['P000', 'P001', 'P002']
+   RawVoxelFeatures: voxels=1728, names=['T1', 'T2']
+   Wrote out/data_from_arrays_overlay.png
+
+Figures
+-------
+
+The NumPy ``Subject`` is a normal habitat input. Overlay from
+:func:`~habit.one_step_habitat` on that in-memory cohort:
+
+.. figure:: ../_static/images/examples/data_from_arrays_overlay.png
+   :alt: Habitats from a NumPy-backed Subject
+   :width: 420
+
+   :func:`~habit.viz.plot_habitat_overlay` after wrapping arrays as
+   :class:`~habit.contracts.Subject`.
+
 What to read next
 -----------------
 

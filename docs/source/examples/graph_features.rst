@@ -4,14 +4,17 @@ Graph features from habitat maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]`` /
 ``[view]`` for figures · **Time:** ~20–90 s
 
-End-to-end: load **one subject** → **one-step** habitats
-(:meth:`~habit.recipes.Study.fit_predict`) → built-in ``graph`` features →
-2D publication plots. Graph topology is a habitat-map feature family (same
-tier as ``volume`` / ``msi``); column definitions live under
+End-to-end: one subject → :func:`~habit.one_step_habitat` →
+:func:`~habit.extract_graph_features` →
+:func:`~habit.viz.plot_habitat_graph_network_2d`. Graph topology is a
+habitat-map feature family (same tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
 
 Script
 ------
+
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree. Figures
+land under ``out/`` (swap that path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -21,6 +24,13 @@ Script
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/graph_features_demo.py
+
+Output
+------
+
+Illustrative (count depends on the habitat map)::
+
+   321 graph features
 
 Anatomy with habitats
 ---------------------

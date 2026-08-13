@@ -84,6 +84,7 @@ OPTIONAL_EXTRA_MODULES: Mapping[str, tuple[str, ...]] = {
     "automl": ("autogluon",),
     "registration": ("ants",),
     "torch": ("torch",),
+    "monai": ("monai",),
     "radiomics": ("radiomics",),
 }
 

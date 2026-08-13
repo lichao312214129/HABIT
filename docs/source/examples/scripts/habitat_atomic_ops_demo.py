@@ -78,7 +78,7 @@ def main() -> None:
     fitter = KMeansHabitatModelFitter(
         n_habitats=3,
         n_init=5,
-        validation="silhouette",
+        validation="elbow",
         min_habitats=2,
         max_habitats=3,
     )
@@ -121,6 +121,28 @@ def main() -> None:
     maps = cohort.map(apply_pipe, backend=SerialBackend())
     print(f"cohort.map -> {len(maps)} habitat maps")
 
+    from pathlib import Path
+
+    from habit.viz import plot_habitat_overlay
+
+    fig = plot_habitat_overlay(
+        subject0.image("T1").data,
+        habitat_map.label_array,
+        axis=0,
+        title="Atomic operators: habitat map",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/habitat_atomic_overlay.png", dpi=150, bbox_inches="tight")
+    print("Wrote out/habitat_atomic_overlay.png")
+    return fig
+
 
 if __name__ == "__main__":
-    main()
+    import sys
+    from pathlib import Path
+
+    fig = main()
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "habitat_atomic_overlay.png")

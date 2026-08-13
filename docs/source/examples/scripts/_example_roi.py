@@ -9,7 +9,7 @@ demos stay interactive. Synthetic cohorts are returned unchanged.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Dict, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -135,3 +135,242 @@ def examples_image_dir() -> Path:
     """Return ``docs/source/_static/images/examples`` (created if needed)."""
     EXAMPLES_IMG_DIR.mkdir(parents=True, exist_ok=True)
     return EXAMPLES_IMG_DIR
+
+
+def save_example_figure(fig: object, filename: str, *, dpi: int = 300) -> Path:
+    """
+    Save a matplotlib figure under the Examples gallery image directory.
+
+    Args:
+        fig: Matplotlib ``Figure`` (must expose ``savefig``).
+        filename: Basename only (e.g. ``graph_habitat_network_2d.png``).
+        dpi: Output resolution.
+
+    Returns:
+        Absolute path written.
+    """
+    import matplotlib.pyplot as plt
+
+    out = examples_image_dir() / filename
+    fig.savefig(out, dpi=dpi, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out
+
+
+def _bbox_indexer(
+    mask: np.ndarray,
+    *,
+    pad: int = 5,
+) -> Tuple[slice, ...]:
+    """
+    Build a padded bbox indexer for ``mask > 0``.
+
+    Args:
+        mask: Foreground indicator / label volume.
+        pad: Voxel padding on each side.
+
+    Returns:
+        Tuple of slices suitable for NumPy advanced indexing.
+    """
+    foreground = mask > 0
+    if not np.any(foreground):
+        raise RuntimeError("_bbox_indexer: no foreground voxels.")
+    coords = np.argwhere(foreground)
+    mins = coords.min(axis=0)
+    maxs = coords.max(axis=0)
+    slices = []
+    for axis, (lo, hi) in enumerate(zip(mins, maxs)):
+        start = max(0, int(lo) - pad)
+        stop = min(int(mask.shape[axis]), int(hi) + pad + 1)
+        slices.append(slice(start, stop))
+    return tuple(slices)
+
+
+def save_habitat_study_figures(
+    cohort: Cohort,
+    result: object,
+    *,
+    prefix: str,
+    modality: Optional[str] = None,
+    map_index: int = 0,
+    compare_labels: Optional[np.ndarray] = None,
+    compare_titles: Tuple[str, str] = ("Reference", "Predict"),
+) -> Dict[str, Path]:
+    """
+    Write the standard habitat-core gallery PNGs for one ``StudyResult``.
+
+    Produces (when data allows): overlay, partition triptych (two-step),
+    volume fractions, MSI heatmap, ITH summary, cluster-validation curves,
+    and optional label-compare.
+
+    Args:
+        cohort: Cohort used for the run (anatomy lookup).
+        result: ``StudyResult``-like object with ``habitat_maps`` / optional
+            ``units`` / ``habitat_model``.
+        prefix: Filename stem prefix (e.g. ``two_step`` → ``two_step_overlay.png``).
+        modality: Anatomy key; first image on the subject when omitted.
+        map_index: Which subject map to illustrate.
+        compare_labels: Optional second label map (same shape) for compare.
+        compare_titles: Panel titles for the compare figure.
+
+    Returns:
+        Mapping of logical name → written path.
+    """
+    from habit.kernels.habitat_metrics import (
+        habitat_region_stats,
+        habitat_volume_fractions,
+        ith_score,
+        spatial_interaction_matrix,
+    )
+    from habit.viz import (
+        plot_cluster_validation_from_report,
+        plot_habitat_label_compare,
+        plot_habitat_overlay,
+        plot_habitat_volume_fractions,
+        plot_ith_summary,
+        plot_msi_matrix,
+        plot_partition_triptych,
+    )
+
+    maps = list(getattr(result, "habitat_maps", ()) or ())
+    if not maps:
+        raise RuntimeError("save_habitat_study_figures: result has no habitat_maps.")
+    habitat_map = maps[map_index]
+    subject_id = getattr(habitat_map, "subject_id", None)
+    subject = cohort[0]
+    for item in cohort:
+        if getattr(item, "subject_id", None) == subject_id:
+            subject = item
+            break
+    if modality is None:
+        modality = next(iter(subject.images))
+    image = np.asarray(subject.image(modality).data)
+    labels = np.asarray(habitat_map.label_array, dtype=np.int32)
+    indexer = _bbox_indexer(labels)
+    image_c = image[indexer].copy()
+    labels_c = labels[indexer].copy()
+
+    written: Dict[str, Path] = {}
+    written["overlay"] = save_example_figure(
+        plot_habitat_overlay(
+            image_c, labels_c, axis=0, title=f"{prefix}: habitats"
+        ),
+        f"{prefix}_overlay.png",
+    )
+
+    units = list(getattr(result, "units", ()) or ())
+    if units and map_index < len(units):
+        sv = np.asarray(units[map_index].label_array, dtype=np.int32)
+        if sv.shape == labels.shape:
+            written["triptych"] = save_example_figure(
+                plot_partition_triptych(
+                    image_c, sv[indexer].copy(), labels_c, axis=0
+                ),
+                f"{prefix}_triptych.png",
+            )
+
+    ids = tuple(sorted({int(v) for v in labels_c.ravel() if int(v) != 0}))
+    if ids:
+        frac = habitat_volume_fractions(labels_c, ids)
+        written["volume"] = save_example_figure(
+            plot_habitat_volume_fractions(frac),
+            f"{prefix}_volume_fractions.png",
+        )
+        # MSI matrix is indexed 0..max_label; tick labels must cover every
+        # habitat slot even when some IDs are absent in this crop/subject.
+        n_classes = max(ids) + 1
+        msi_ids = tuple(range(1, n_classes))
+        msi = spatial_interaction_matrix(labels_c, n_classes=n_classes)
+        written["msi"] = save_example_figure(
+            plot_msi_matrix(msi, habitat_ids=msi_ids),
+            f"{prefix}_msi_matrix.png",
+        )
+        written["ith"] = save_example_figure(
+            plot_ith_summary(
+                ith_score(labels_c),
+                per_habitat=habitat_region_stats(labels_c),
+            ),
+            f"{prefix}_ith_summary.png",
+        )
+
+    report = None
+    model = getattr(result, "habitat_model", None)
+    if model is not None:
+        report = (getattr(model, "preprocessing_state", None) or {}).get(
+            "selection_report"
+        )
+    if report is None:
+        for _sid, sm in (getattr(result, "subject_models", None) or {}).items():
+            report = (getattr(sm, "preprocessing_state", None) or {}).get(
+                "selection_report"
+            )
+            if report:
+                break
+    if report:
+        written["validation"] = save_example_figure(
+            plot_cluster_validation_from_report(report),
+            f"{prefix}_cluster_validation.png",
+        )
+
+    if compare_labels is not None:
+        cmp = np.asarray(compare_labels, dtype=np.int32)
+        if cmp.shape != labels.shape:
+            raise RuntimeError(
+                "save_habitat_study_figures: compare_labels shape "
+                f"{cmp.shape} != labels {labels.shape}."
+            )
+        written["compare"] = save_example_figure(
+            plot_habitat_label_compare(
+                image_c,
+                labels_c,
+                cmp[indexer].copy(),
+                titles=compare_titles,
+                axis=0,
+            ),
+            f"{prefix}_label_compare.png",
+        )
+
+    print(
+        f"Gallery figures ({prefix}): "
+        + ", ".join(p.name for p in written.values())
+    )
+    return written
+
+
+def glcm_field(
+    subject: Subject,
+    modality: str,
+    *,
+    features: Sequence[str] = ("Contrast", "Correlation", "JointEntropy"),
+    kernel_radius: int = 1,
+    bin_width: float = 25.0,
+) -> object:
+    """
+    Run the built-in ``voxel_radiomics`` extractor for a small GLCM set.
+
+    Kept out of Sphinx literalincludes so gallery pages stay sklearn-short.
+
+    Args:
+        subject: Cropped single-modality subject.
+        modality: Image / mask key.
+        features: GLCM feature names passed to PyRadiomics.
+        kernel_radius: Voxel radiomics kernel radius.
+        bin_width: Intensity bin width.
+
+    Returns:
+        Sparse :class:`~habit.contracts.habitat.VoxelFeatureField`.
+    """
+    import habit.domain  # registers built-in extractors
+    from habit.domain import VoxelFeatureExtractorRegistry
+
+    return VoxelFeatureExtractorRegistry.create(
+        "voxel_radiomics",
+        modality=modality,
+        kernel_radius=kernel_radius,
+        params={
+            "imageType": {"Original": {}},
+            "featureClass": {"glcm": list(features)},
+            "setting": {"binWidth": bin_width},
+        },
+    )(subject)
+

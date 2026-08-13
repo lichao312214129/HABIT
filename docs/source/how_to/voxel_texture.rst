@@ -16,39 +16,19 @@ Python API (sklearn-short)
 
 ::
 
-   import habit.domain
    from habit import local_entropy_map
-   from habit.domain import VoxelFeatureExtractorRegistry
-   from habit.viz import dense_voxel_feature_map, plot_voxel_texture_slice, use_style
+   from habit.viz import plot_voxel_texture_slice
 
-   entropy = local_entropy_map(image, kernel_size=5, bins=32)
-   field = VoxelFeatureExtractorRegistry.create(
-       "voxel_radiomics",
-       modality="LAP",
-       kernel_radius=1,
-       params={
-           "imageType": {"Original": {}},
-           "featureClass": {"glcm": ["Contrast", "Correlation", "JointEntropy"]},
-           "setting": {"binWidth": 25},
-       },
-   )(subject)
-   contrast = dense_voxel_feature_map(
-       field, next(n for n in field.feature_names if "Contrast" in n)
+   entropy = local_entropy_map(image_vol.data, kernel_size=5, bins=32)
+   fig = plot_voxel_texture_slice(
+       entropy, anatomy=image_vol, roi_mask=mask_vol,
    )
 
-   with use_style("radiology"):
-       fig = plot_voxel_texture_slice(
-           entropy,
-           anatomy=image,
-           roi_mask=mask,
-           axis=0,
-           mode="side_by_side",  # anatomy + ROI contour | texture
-           feature_label="Local entropy (bits)",
-       )
-
-``mode="side_by_side"`` (default) draws the ROI as a **contour** on the anatomy
-panel; the texture map is a separate panel (no alpha blend onto anatomy).
-``mode="overlay"`` still exists for translucent texture-on-anatomy when needed.
+For ``voxel_radiomics`` GLCM columns, create a
+:class:`~habit.contracts.habitat.VoxelFeatureField` then pass it with
+``feature=0`` (or a column name) — see the :doc:`../examples/voxel_texture`
+script. ``mode="side_by_side"`` draws the ROI as a **contour** on anatomy;
+``mode="overlay"`` is translucent texture-on-anatomy when needed.
 
 Layouts
 -------
@@ -60,9 +40,17 @@ Layouts
 * ``mode="overlay"`` — translucent feature on greyscale anatomy
 * ``mode="feature_only"`` — feature map alone
 
-Omit ``axis`` on 3D volumes for three orthogonal panel rows. There is no
-built-in 3D volume renderer for texture maps; use ITK-SNAP / 3D Slicer / napari
-for full volumetric browsing.
+Omit ``axis`` on 3D volumes for three orthogonal panel rows. Panels use
+``display_convention="radiological"`` (pass anatomy as an ``ImageVolume`` so
+direction is not dropped). There is no built-in 3D volume renderer for
+texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.
+
+.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
+   :alt: Anatomy beside local-entropy texture
+   :width: 520
+
+   Default ``side_by_side`` layout
+   (:func:`~habit.viz.plot_voxel_texture_slice`).
 
 Also see
 --------

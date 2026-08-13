@@ -405,7 +405,10 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.TranslationPerturbationParams
    habit.domain.RotationPerturbation
    habit.domain.RotationPerturbationParams
+   habit.domain.RigidPerturbation
+   habit.domain.RigidPerturbationParams
    habit.domain.PerturbationChain
+   habit.domain.prior2024_retest_perturbation
    habit.domain.PreciseFeatureSet
    habit.domain.precision_panel
    habit.domain.aggregate_panels
@@ -710,6 +713,7 @@ Image perturbation and voxel reliability
    habit.kernels.add_gaussian_noise
    habit.kernels.translate_image
    habit.kernels.rotate_image
+   habit.kernels.rigid_transform_image
    habit.kernels.ICCEstimate
    habit.kernels.icc3a_1
    habit.kernels.icc3c_1
@@ -768,7 +772,8 @@ Interactive habitat overlay (optional ``[view]`` extra; default
 ``habit view``): :func:`~habit.viz.view_habitat_napari`. Without napari the
 CLI falls back to a PNG. Static PNG overlays:
 :func:`~habit.viz.plot_habitat_overlay` (``habit view --backend matplotlib``;
-panel aspect follows voxel spacing).
+panel aspect follows voxel spacing; ``display_convention`` defaults to
+radiological — pass an ``ImageVolume`` so coronal/sagittal keep superior up).
 
 Styles
 ~~~~~~
@@ -807,6 +812,12 @@ Regression and classification
    habit.viz.plot_residual_qq
    habit.viz.plot_bland_altman
    habit.viz.plot_coefficient_forest
+   habit.viz.plot_roc
+   habit.viz.plot_precision_recall
+   habit.viz.plot_calibration
+   habit.viz.plot_decision_curve
+   habit.viz.plot_confusion_matrix
+   habit.viz.plot_permutation_importance
 
 Habitat clustering and overlay
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -818,11 +829,19 @@ Habitat clustering and overlay
    habit.viz.plot_habitat_clustering_pca_3d
    habit.viz.plot_habitat_clustering_pca_3d_interactive
    habit.viz.plot_habitat_overlay
+   habit.viz.plot_cluster_validation_curves
+   habit.viz.plot_cluster_validation_from_report
+   habit.viz.plot_habitat_volume_fractions
+   habit.viz.plot_msi_matrix
+   habit.viz.plot_ith_summary
+   habit.viz.plot_habitat_label_compare
+   habit.viz.plot_partition_triptych
    habit.viz.plot_habitat_graph_slice
    habit.viz.plot_habitat_graph_network_2d
    habit.viz.render_habitat_graph_surface_3d
    habit.viz.render_habitat_graph_network_3d
    habit.viz.dense_voxel_feature_map
+   habit.viz.plot_intensity_slice
    habit.viz.plot_voxel_texture_slice
    habit.viz.view_habitat_napari
 

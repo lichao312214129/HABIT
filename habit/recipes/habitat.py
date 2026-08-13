@@ -736,7 +736,7 @@ def _fit_habitat(
         ...     habitat_model_fitter=Spec(
         ...         "kmeans",
         ...         {"min_habitats": 2, "max_habitats": 3,
-        ...          "validation": "silhouette", "n_init": 5},
+        ...          "validation": "elbow", "n_init": 5},
         ...     ),
         ...     habitat_assigner=Spec("nearest_centroid"),
         ...     habitat_features=(Spec("volume"),),
@@ -897,7 +897,7 @@ def _two_step(
         ...     habitat_model_fitter=Spec(
         ...         "kmeans",
         ...         {"min_habitats": 2, "max_habitats": 3,
-        ...          "validation": "silhouette", "n_init": 5},
+        ...          "validation": "elbow", "n_init": 5},
         ...     ),
         ...     habitat_assigner=Spec("nearest_centroid"),
         ...     habitat_features=(Spec("volume"),),
@@ -1120,7 +1120,7 @@ def _apply_habitat_model(
         ...     habitat_model_fitter=Spec(
         ...         "kmeans",
         ...         {"min_habitats": 2, "max_habitats": 3,
-        ...          "validation": "silhouette", "n_init": 5},
+        ...          "validation": "elbow", "n_init": 5},
         ...     ),
         ...     habitat_assigner=Spec("nearest_centroid"),
         ...     habitat_features=(Spec("volume"),),

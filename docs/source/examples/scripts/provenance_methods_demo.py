@@ -37,7 +37,7 @@ def _base_stages(n_supervoxels: int) -> tuple[Stage, ...]:
                 {
                     "min_habitats": 2,
                     "max_habitats": 3,
-                    "validation": "silhouette",
+                    "validation": "elbow",
                     "n_init": 3,
                 },
             ),

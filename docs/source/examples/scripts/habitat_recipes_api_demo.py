@@ -45,7 +45,7 @@ def _fit_stage() -> Stage:
             {
                 "min_habitats": 2,
                 "max_habitats": 3,
-                "validation": "silhouette",
+                "validation": "elbow",
                 "n_init": 3,
             },
         ),
@@ -178,7 +178,7 @@ sugar = HabitatSpec(
         {
             "min_habitats": 2,
             "max_habitats": 3,
-            "validation": "silhouette",
+            "validation": "elbow",
             "n_init": 3,
         },
     ),

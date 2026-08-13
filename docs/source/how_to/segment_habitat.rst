@@ -21,6 +21,23 @@ Run the demo
 
    habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
+Python overlay of the same maps::
+
+   from habit.viz import plot_habitat_overlay
+
+   fig = plot_habitat_overlay(image, labels, axis=0, title="Two-step habitats")
+
+Orthogonal 2D panels (omit ``axis``) use ``display_convention="radiological"``
+by default. Pass the ``ImageVolume`` (not ``image.data``) so coronal/sagittal
+superior-up matches ITK-SNAP; ``display_convention="native"`` skips flips.
+See :mod:`habit.viz.orientation`.
+
+.. figure:: ../_static/images/examples/two_step_overlay.png
+   :alt: Two-step habitat overlay
+   :width: 420
+
+   Overlay from the two-step gallery (:func:`~habit.viz.plot_habitat_overlay`).
+
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer
 (label overlay / segmentation).
@@ -56,5 +73,13 @@ Then::
    habit view path/to/image.nii.gz path/to/subj001_habitats.nrrd
 
 Success: ``*_habitats.nrrd`` under ``out_dir``.
+
+Do not skip clustering-time voxel scaling on two-step / direct-pooling
+runs. On the demo pack (5 subjects, ``LAP``, auto-K 2–10, seed 0) an
+empty ``voxel_feature_preprocessors`` chain still fitted ``model_k=4``
+but used a mean of **2.8** labels per map; ``winsorize`` then ``minmax``
+restored 4/4. Image-level ``zscore_normalization`` is a different step
+(:func:`~habit.api.preprocess_subject`) and is not a substitute. Numbers
+and the recommended recipe: :doc:`../examples/habitat_preprocessing`.
 
 Next: :doc:`extract_features`. Config details: :doc:`../configuration/habitat`.

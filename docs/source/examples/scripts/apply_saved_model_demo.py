@@ -23,6 +23,7 @@ import numpy as np
 from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
+# BEGIN example
 # The spec must match between training and application: the model stores the
 # cohort-level preprocessing state, but the upstream stages (voxel features,
 # partition) are re-declared here and must be the same.
@@ -39,7 +40,7 @@ spec = HabitatSpec(
                 {
                     "min_habitats": 2,
                     "max_habitats": 3,
-                    "validation": "silhouette",
+                    "validation": "elbow",
                     "n_init": 5,
                 },
             ),
@@ -98,9 +99,21 @@ with tempfile.TemporaryDirectory() as tmp:
 
     print("\nPer-subject habitat features:")
     print(prediction.features.frame.to_string(index=False))
+# END example
 
-    # Eye-check predicted habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_habitat_study_figures
     from _habitat_eye_check import eye_check_study
+
+    save_habitat_study_figures(new_cohort, prediction, prefix="apply")
+    replay = recipes.Study.from_model(model, spec).predict(train_cohort[:1])
+    save_habitat_study_figures(
+        train_cohort,
+        train_result,
+        prefix="apply_train",
+        compare_labels=replay.habitat_maps[0].label_array,
+        compare_titles=("Fit", "Replay"),
+    )
+    # Eye-check predicted habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
     eye_check_study(new_cohort, prediction)

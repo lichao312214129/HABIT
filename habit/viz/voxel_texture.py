@@ -37,9 +37,13 @@ from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
     DisplayConvention,
+    array_from_display_input,
     direction_matrix as _parse_direction_matrix,
+    imshow_physical_extent,
     normalize_display_convention,
     orient_slice_for_display,
+    plane_spacings_mm,
+    resolve_display_geometry,
     slice_row_col_axes,
 )
 
@@ -97,7 +101,7 @@ def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
     Raises:
         HABITAPIError: When the array cannot be interpreted as a volume.
     """
-    volume = np.asarray(array)
+    volume = array_from_display_input(array)
     while volume.ndim > 3 and volume.shape[0] == 1:
         volume = np.squeeze(volume, axis=0)
     if volume.ndim == 4:
@@ -139,8 +143,8 @@ def _coerce_array(
         )
     data_attr = getattr(value, "data", None)
     if data_attr is not None and not isinstance(value, np.ndarray):
-        return _as_volume(np.asarray(data_attr), name)
-    return _as_volume(np.asarray(value), name)
+        return _as_volume(array_from_display_input(value), name)
+    return _as_volume(array_from_display_input(value), name)
 
 
 def _normalize_grey(slice_2d: np.ndarray) -> np.ndarray:
@@ -255,13 +259,7 @@ def _plane_spacings(
     ndim: int,
 ) -> Tuple[float, float]:
     """Return ``(spacing_row_mm, spacing_col_mm)`` for a display plane."""
-    if ndim == 2:
-        return float(spacing_xyz[1]), float(spacing_xyz[0])
-    row_axis, col_axis = slice_row_col_axes(slice_axis)
-    return (
-        _array_axis_spacing(spacing_xyz, row_axis),
-        _array_axis_spacing(spacing_xyz, col_axis),
-    )
+    return plane_spacings_mm(spacing_xyz, slice_axis=slice_axis, ndim=ndim)
 
 
 def _imshow_physical_extent(
@@ -270,22 +268,21 @@ def _imshow_physical_extent(
     *,
     slice_axis: int,
     ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> Tuple[float, float, float, float]:
     """``imshow`` extent in millimetres so ``aspect='equal'`` is physical."""
-    nrows, ncols = int(shape_hw[0]), int(shape_hw[1])
-    if nrows <= 0 or ncols <= 0:
-        raise HABITAPIError(
-            "plot_voxel_texture_slice: slice shape must be positive for extent."
+    try:
+        return imshow_physical_extent(
+            shape_hw,
+            spacing_xyz,
+            slice_axis=slice_axis,
+            ndim=ndim,
+            direction=direction,
+            convention=convention,
         )
-    spacing_row, spacing_col = _plane_spacings(
-        spacing_xyz, slice_axis=slice_axis, ndim=ndim
-    )
-    return (
-        0.0,
-        float(ncols) * spacing_col,
-        float(nrows) * spacing_row,
-        0.0,
-    )
+    except HABITAPIError as exc:
+        raise HABITAPIError(f"plot_voxel_texture_slice: {exc}") from exc
 
 
 def _resolve_feature_column(
@@ -514,6 +511,8 @@ def _draw_single_axis_figure(
         spacing_xyz,
         slice_axis=axis_id,
         ndim=feature.ndim,
+        direction=direction,
+        convention=convention,
     )
     clim = _feature_display_limits(feat_slice, vmin, vmax)
     masked = _masked_feature_slice(feat_slice, roi_slice)
@@ -685,6 +684,8 @@ def _draw_triptych(
             spacing_xyz,
             slice_axis=axis_id,
             ndim=3,
+            direction=direction,
+            convention=convention,
         )
         clim = _feature_display_limits(feat_slice, vmin, vmax)
         masked = _masked_feature_slice(feat_slice, roi_slice)
@@ -853,6 +854,9 @@ def plot_voxel_texture_slice(
         feature_label: Colourbar / panel label; defaults to the feature name
             or ``\"Voxel texture\"``.
         direction: Optional SimpleITK direction cosines (9 floats).
+            Prefer passing ``anatomy`` / ``roi_mask`` as volume objects
+            (not ``.data``) so geometry is not dropped. When image and
+            mask directions disagree, the mask wins (with a warning).
         spacing: Optional SimpleITK voxel spacing ``(x, y[, z])`` in mm.
         display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
             or ``\"native\"``.
@@ -891,10 +895,9 @@ def plot_voxel_texture_slice(
         feature_vol = dense_voxel_feature_map(feature_map, feature)
         if resolved_label is None:
             resolved_label = name
-        if spacing is None:
-            spacing = tuple(float(v) for v in feature_map.geometry.spacing)
-        if direction is None:
-            direction = tuple(float(v) for v in feature_map.geometry.direction)
+        # Do not copy field.geometry into direction/spacing kwargs: that would
+        # short-circuit resolve_display_geometry and hide an image-vs-mask
+        # direction conflict. The field is still walked as a volume.
     else:
         feature_vol = _coerce_array(feature_map, name="feature_map")
         if feature is not None:
@@ -924,6 +927,10 @@ def plot_voxel_texture_slice(
                 f"the same shape; got roi {roi_vol.shape} vs feature "
                 f"{feature_vol.shape}."
             )
+
+    direction, spacing = resolve_display_geometry(
+        feature_map, anatomy, roi_mask, direction=direction, spacing=spacing
+    )
 
     # Support mask for auto slice selection: ROI if given, else finite voxels.
     if roi_vol is not None:

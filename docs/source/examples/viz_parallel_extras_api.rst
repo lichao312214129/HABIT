@@ -34,6 +34,38 @@ Coverage
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 
+Output
+------
+
+::
+
+   workers=2, backend='process'
+   Wrote out/viz_parallel_overlay.png and out/viz_parallel_pca_2d.png
+
+Figures
+-------
+
+Figures from this demo (PCA + overlay + coefficient forest):
+
+.. figure:: ../_static/images/examples/viz_parallel_overlay.png
+   :alt: One-step habitat overlay from the viz/parallel extras demo
+   :width: 420
+
+   One-step habitats (:func:`~habit.viz.plot_habitat_overlay`).
+
+.. figure:: ../_static/images/examples/viz_parallel_pca_2d.png
+   :alt: Habitat clustering PCA from the extras API demo
+   :width: 420
+
+   Population clustering PCA
+   (:func:`~habit.viz.plot_habitat_clustering_pca_2d`).
+
+.. figure:: ../_static/images/examples/viz_parallel_forest.png
+   :alt: Coefficient forest from habit.viz
+   :width: 420
+
+   :func:`~habit.viz.plot_coefficient_forest`.
+
 What to read next
 -----------------
 

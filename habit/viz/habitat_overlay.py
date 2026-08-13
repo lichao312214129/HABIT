@@ -35,10 +35,14 @@ from habit.viz.orientation import (
     DEFAULT_RAS_DIRECTION,
     DisplayConvention,
     array_axis_lps_direction,
+    array_from_display_input,
     desired_screen_directions,
     direction_matrix as _parse_direction_matrix,
+    imshow_physical_extent,
     normalize_display_convention,
     orient_slice_for_display,
+    plane_spacings_mm,
+    resolve_display_geometry,
     slice_row_col_axes,
 )
 
@@ -92,12 +96,15 @@ def _plt():
     return require("matplotlib.pyplot", extra="viz", purpose=_VIZ_PURPOSE)
 
 
-def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
+def _as_volume(array: object, name: str) -> np.ndarray:
     """
     Coerce ``array`` to a 2D or 3D float/int volume (drop singleton leading axes).
 
+    Accepts a NumPy array, :class:`~habit.api.image.ImageVolume` (``.data``),
+    or a habitat / supervoxel map (``.label_array``).
+
     Args:
-        array: Candidate image or label array.
+        array: Candidate image or label array / volume object.
         name: Name used in error messages.
 
     Returns:
@@ -106,7 +113,7 @@ def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
     Raises:
         HABITAPIError: When the array cannot be interpreted as a volume.
     """
-    volume = np.asarray(array)
+    volume = array_from_display_input(array)
     while volume.ndim > 3 and volume.shape[0] == 1:
         volume = np.squeeze(volume, axis=0)
     if volume.ndim == 4:
@@ -115,7 +122,7 @@ def _as_volume(array: np.ndarray, name: str) -> np.ndarray:
     if volume.ndim not in (2, 3):
         raise HABITAPIError(
             f"plot_habitat_overlay: {name} must be 2D or 3D after squeeze; "
-            f"got shape {tuple(np.asarray(array).shape)}."
+            f"got shape {tuple(volume.shape)}."
         )
     if volume.size == 0:
         raise HABITAPIError(f"plot_habitat_overlay: {name} must not be empty.")
@@ -301,21 +308,24 @@ def _imshow_aspect(
     *,
     slice_axis: int,
     ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> float:
     """
     Matplotlib data-unit aspect: ``(physical size of one row) / (one column)``.
 
-    This is ``spacing_along_row / spacing_along_col`` after any display flips
-    (``flipud`` / ``fliplr`` do not swap which array axis is row vs column).
+    This is ``spacing_along_row / spacing_along_col`` after display orientation
+    (including an SI transpose when superior lies along the extract columns).
     Prefer :func:`_imshow_physical_extent` + ``aspect='equal'`` for drawing so
     layout code cannot silently re-square anisotropic voxels.
     """
-    if ndim == 2:
-        # 2D arrays are ``(y, x)`` with SimpleITK spacing ``(x, y)``.
-        return float(spacing_xyz[1]) / float(spacing_xyz[0])
-    row_axis, col_axis = _slice_row_col_axes(slice_axis)
-    spacing_row = _array_axis_spacing(spacing_xyz, row_axis)
-    spacing_col = _array_axis_spacing(spacing_xyz, col_axis)
+    spacing_row, spacing_col = plane_spacings_mm(
+        spacing_xyz,
+        slice_axis=slice_axis,
+        ndim=ndim,
+        direction=direction,
+        convention=convention,
+    )
     return spacing_row / spacing_col
 
 
@@ -324,24 +334,16 @@ def _plane_spacings(
     *,
     slice_axis: int,
     ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> Tuple[float, float]:
-    """
-    Return ``(spacing_row_mm, spacing_col_mm)`` for a display plane.
-
-    Args:
-        spacing_xyz: SimpleITK spacing ``(x, y[, z])``.
-        slice_axis: NumPy axis removed by ``np.take`` (ignored when ``ndim==2``).
-        ndim: Array dimensionality.
-
-    Returns:
-        Physical size of one array row and one array column in millimetres.
-    """
-    if ndim == 2:
-        return float(spacing_xyz[1]), float(spacing_xyz[0])
-    row_axis, col_axis = _slice_row_col_axes(slice_axis)
-    return (
-        _array_axis_spacing(spacing_xyz, row_axis),
-        _array_axis_spacing(spacing_xyz, col_axis),
+    """Return ``(spacing_row_mm, spacing_col_mm)`` for a display plane."""
+    return plane_spacings_mm(
+        spacing_xyz,
+        slice_axis=slice_axis,
+        ndim=ndim,
+        direction=direction,
+        convention=convention,
     )
 
 
@@ -351,31 +353,26 @@ def _imshow_physical_extent(
     *,
     slice_axis: int,
     ndim: int,
+    direction: Optional[np.ndarray] = None,
+    convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
 ) -> Tuple[float, float, float, float]:
     """
     ``imshow`` extent in millimetres so ``aspect='equal'`` is physically true.
 
-    Uses ``origin='upper'`` convention: ``(left, right, bottom, top)`` with
-    ``top < bottom`` so row 0 stays at the top of the axes after radiological
-    flips. Thick-slice (large row spacing) then occupies more vertical millimetres
-    and appears longer on screen, not flatter.
+    Delegates to :func:`habit.viz.orientation.imshow_physical_extent`
+    (non-inverted ylim; see that docstring for the coronal/sagittal flip).
     """
-    nrows, ncols = int(shape_hw[0]), int(shape_hw[1])
-    if nrows <= 0 or ncols <= 0:
-        raise HABITAPIError(
-            "plot_habitat_overlay: slice shape must be positive for extent."
+    try:
+        return imshow_physical_extent(
+            shape_hw,
+            spacing_xyz,
+            slice_axis=slice_axis,
+            ndim=ndim,
+            direction=direction,
+            convention=convention,
         )
-    spacing_row, spacing_col = _plane_spacings(
-        spacing_xyz, slice_axis=slice_axis, ndim=ndim
-    )
-    # left, right, bottom, top — top=0 keeps superior/anterior at the top edge
-    # after _orient_slice_for_display; bottom is the full physical height.
-    return (
-        0.0,
-        float(ncols) * spacing_col,
-        float(nrows) * spacing_row,
-        0.0,
-    )
+    except HABITAPIError as exc:
+        raise HABITAPIError(f"plot_habitat_overlay: {exc}") from exc
 
 
 def _desired_screen_directions(
@@ -426,8 +423,8 @@ def _prepare_overlay_slice(
 
 
 def plot_habitat_overlay(
-    image: np.ndarray,
-    labels: np.ndarray,
+    image: object,
+    labels: object,
     *,
     alpha: float = 0.45,
     title: Optional[str] = None,
@@ -449,25 +446,34 @@ def plot_habitat_overlay(
 
     Slices are oriented using ``direction`` (SimpleITK flattened 3x3) and
     ``display_convention`` (default ``\"radiological\"``). When ``direction``
-    is omitted, LPS identity is assumed — the same default as
+    is omitted, HABIT reads it from an ``ImageVolume`` / ``HabitatMap`` if
+    you pass those objects rather than bare arrays; otherwise LPS identity
+    is assumed — the same default as
     :class:`~habit.api.image.ImageVolume` — not RAS.
 
     Panel aspect ratios follow ``spacing`` (SimpleITK ``(x, y, z)``) so thick
     slices are not squashed into square pixels on coronal / sagittal views.
+    Pass the volume object (not ``.data``) so coronal/sagittal superior-up
+    and left-right match ITK-SNAP / 3D Slicer. Override with
+    ``display_convention=\"native\"`` to skip display flips, or
+    ``\"neurological\"`` for patient-left on the viewer's left.
 
     Args:
-        image: Source image array (2D or 3D; SimpleITK/NumPy ``(z, y, x)`` order).
-        labels: Habitat label map with the same shape as ``image``.
+        image: Source image array (2D or 3D; SimpleITK/NumPy ``(z, y, x)``
+            order) or an :class:`~habit.api.image.ImageVolume`.
+        labels: Habitat label map with the same shape as ``image``, or a
+            :class:`~habit.contracts.habitat.HabitatMap`.
         alpha: Habitat colour opacity in ``(0, 1]``.
         title: Optional figure title (ASCII-sanitised).
         axis: If set, draw only this axis (``0``, ``1``, or ``2``).
         index: Slice index along ``axis``; densest habitat slice when omitted.
         direction: Optional SimpleITK direction cosines (9 floats). Same layout
             as ``ImageVolume.direction``. Controls anterior/posterior,
-            superior/inferior, and left/right flips per panel.
+            superior/inferior, and left/right flips per panel. Inferred from
+            ``image`` / ``labels`` when omitted.
         spacing: Optional SimpleITK voxel spacing ``(x, y[, z])`` in mm. Same
             layout as ``ImageVolume.spacing``. Controls true physical aspect
-            per panel; defaults to isotropic ``1.0`` when omitted.
+            per panel; inferred from the volume object, else isotropic ``1.0``.
         display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
             or ``\"native\"`` (no display flips). See
             :mod:`habit.viz.orientation`.
@@ -499,8 +505,11 @@ def plot_habitat_overlay(
 
     plt = _plt()
     label_int = np.asarray(label_vol, dtype=np.int32)
-    direction_matrix = _direction_matrix(direction, ndim=image_vol.ndim)
-    spacing_xyz = _spacing_xyz(spacing, ndim=image_vol.ndim)
+    resolved_direction, resolved_spacing = resolve_display_geometry(
+        image, labels, direction=direction, spacing=spacing
+    )
+    direction_matrix = _direction_matrix(resolved_direction, ndim=image_vol.ndim)
+    spacing_xyz = _spacing_xyz(resolved_spacing, ndim=image_vol.ndim)
 
     if image_vol.ndim == 2 or axis is not None:
         axis_id = 0 if image_vol.ndim == 2 else int(axis)
@@ -523,6 +532,8 @@ def plot_habitat_overlay(
             spacing_xyz,
             slice_axis=axis_id,
             ndim=image_vol.ndim,
+            direction=direction_matrix,
+            convention=convention,
         )
 
         fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
@@ -572,6 +583,8 @@ def plot_habitat_overlay(
             spacing_xyz,
             slice_axis=axis_id,
             ndim=image_vol.ndim,
+            direction=direction_matrix,
+            convention=convention,
         )
         ax.imshow(
             rgb,

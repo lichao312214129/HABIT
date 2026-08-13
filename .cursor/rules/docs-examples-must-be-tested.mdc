@@ -1,0 +1,61 @@
+---
+description: Docs examples / API snippets must be smoke-tested on py310 before done (Sphinx green is not enough)
+globs: docs/source/**/*.rst,docs/source/**/*.md,docs/source/examples/scripts/**/*.py
+alwaysApply: false
+---
+
+# Docs: examples must be tested before done
+
+文档会发布给终端用户（Sphinx → gh-pages）。新增、修改或优化
+`docs/source/**` 中的示例、API 文档或可复制代码片段后，**必须先实测再声称完成**。
+
+本规则管「能不能跑」；「用户能否替换成自己的数据」见
+`docs-examples-user-swappable-data.mdc`；「参数名是否与源码一致」见
+`docs-api-examples-truth.mdc`；产品功能可用性见 `verify-before-done.mdc`；
+解释器见 `runtime-environment.mdc`。
+
+## When this applies
+
+- Touched gallery pages under `docs/source/examples/`
+- Touched runnable scripts under `docs/source/examples/scripts/`
+- Added/changed inline `code-block` / doctest / taught CLI or Python paths
+  elsewhere in `docs/source/` that users will copy-run
+
+Sphinx build green alone is **not** enough (`code-block` is not execution).
+
+## Done gate (py310)
+
+Interpreter: `E:\conda\mconda\envs\py310\python.exe`.
+
+1. **Runnable gallery scripts** you added or changed: execute them with
+   `HABIT_NO_VIEW=1` (skip napari eye-check). Prefer the lightweight gallery
+   smoke when several scripts move together:
+
+```powershell
+$env:HABIT_NO_VIEW = "1"
+& "E:\conda\mconda\envs\py310\python.exe" docs/source/examples/scripts/_smoke_examples.py
+# Or a single script you edited:
+& "E:\conda\mconda\envs\py310\python.exe" docs/source/examples/scripts/<edited>_demo.py
+```
+
+2. **Inline / taught snippets** (API or CLI): run the critical lines on py310
+   with synthetic data when possible; use `demo_data/` only when the page
+   requires it.
+
+3. **GUI / napari / demo_data**: if the environment cannot open a GUI window,
+   still catch real `import` + viewer-construct errors (e.g. pydantic
+   `PluginManifest`). `HABIT_NO_VIEW=1` to skip the eye-check window is OK;
+   ignoring import/construct failures is not.
+
+4. **Blockers**: report explicitly (missing `demo_data/`, optional deps, GUI).
+   Do **not** claim docs done or ask users to try untested examples.
+
+## Related (do not duplicate)
+
+| Concern | Rule |
+| --- | --- |
+| `Registry.create` / `set_random_state` / recipe kwargs truth | `docs-api-examples-truth.mdc` |
+| User-visible product feature smoke | `verify-before-done.mdc` |
+| py310 path / Sphinx build env | `runtime-environment.mdc` |
+| Shell `\` continuations | `docs-windows-shell.mdc` |
+| Publish HTML to gh-pages | `docs-gh-pages-deploy.mdc` |

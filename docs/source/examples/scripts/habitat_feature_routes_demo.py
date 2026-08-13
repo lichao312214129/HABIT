@@ -76,7 +76,7 @@ raw_spec = HabitatSpec(
     supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 3}),
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(
@@ -119,7 +119,7 @@ concat_spec = HabitatSpec(
     supervoxelizer=Spec("kmeans", {"n_supervoxels": 5, "n_init": 3}),
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(
@@ -146,7 +146,7 @@ slic_spec = HabitatSpec(
     supervoxelizer=Spec("slic", {"n_supervoxels": 12, "compactness": 0.05}),
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(

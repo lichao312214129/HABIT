@@ -93,7 +93,7 @@ two_step_spec = HabitatSpec(
     cohort_feature_preprocessors=cohort_chain,
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(
@@ -113,7 +113,7 @@ direct_pooling_spec = HabitatSpec(
     cohort_feature_preprocessors=cohort_chain,
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(
@@ -133,7 +133,7 @@ one_step_spec = HabitatSpec(
     supervoxelizer=None,
     habitat_model_fitter=Spec(
         "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "silhouette", "n_init": 3},
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
     ),
     habitat_assigner=Spec("nearest_centroid"),
     habitat_features=(

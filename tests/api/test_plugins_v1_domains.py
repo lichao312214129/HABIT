@@ -60,7 +60,13 @@ _V1_BUILTINS = {
     },
     "habitat_model_fitter": {"kmeans", "gmm"},
     "habitat_assigner": {"nearest_centroid"},
-    "image_perturbation": {"gaussian_noise", "translation", "rotation"},
+    "image_perturbation": {
+        "gaussian_noise",
+        "translation",
+        "rotation",
+        "rigid",
+        "bspline_deform",
+    },
     "combiner": {
         "concat",
         "weighted_concat",

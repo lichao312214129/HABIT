@@ -79,6 +79,32 @@ for batch, label in [(1, "batch_a"), (2, "batch_b")]:
 dice_df = recipes.dice(str(work_dir / "batch_a"), str(work_dir / "batch_b"))
 print(f"\ndice(): {len(dice_df)} pairwise rows, mean Dice={dice_df['Dice'].mean():.3f}")
 
+from habit.viz import plot_habitat_overlay
+import matplotlib.pyplot as plt
+
+id_col = next(c for c in dice_df.columns if c.lower() != "dice")
+fig_dice, ax = plt.subplots(figsize=(5.2, 3.0))
+ax.bar(dice_df[id_col].astype(str), dice_df["Dice"], color="#4C78A8")
+ax.set_ylim(0.0, 1.05)
+ax.set_ylabel("Dice")
+ax.set_xlabel(id_col)
+ax.set_title("Pairwise mask Dice")
+fig_dice.tight_layout()
+Path("out").mkdir(exist_ok=True)
+fig_dice.savefig("out/cohort_plugins_dice.png", dpi=150, bbox_inches="tight")
+
+mask_a = sitk.GetArrayFromImage(
+    sitk.ReadImage(str(work_dir / "batch_a" / "masks" / "P001" / "tumor" / "P001_mask.nrrd"))
+)
+fig_overlay = plot_habitat_overlay(
+    np.ones_like(mask_a, dtype=np.float32),
+    mask_a.astype(np.int32),
+    axis=0,
+    title="Dice demo: batch_a ROI",
+)
+fig_overlay.savefig("out/cohort_plugins_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/cohort_plugins_dice.png and out/cohort_plugins_overlay.png")
+
 # --- merge_tables -------------------------------------------------------------
 left = pd.DataFrame({"subject_id": ["P001", "P002"], "feat_a": [1.0, 2.0]})
 right = pd.DataFrame({"subject_id": ["P001", "P002"], "feat_b": [3.0, 4.0]})
@@ -97,15 +123,23 @@ print("  CLI: habit sort-dicom / habit dicom-info — see config/sort_dicom/")
 RADIOMICS_CSV = ML_DATA / "breast_cancer_dataset.csv"
 RETEST_CSV = ML_DATA / "breast_cancer_dataset_retest_simulated.csv"
 if RADIOMICS_CSV.is_file() and RETEST_CSV.is_file():
+    icc_out = work_dir / "icc"
+    icc_out.mkdir(parents=True, exist_ok=True)
     icc_config: Dict[str, Any] = {
-        "files": [[str(RADIOMICS_CSV), str(RETEST_CSV)]],
+        "input": {
+            "type": "files",
+            "file_groups": [[str(RADIOMICS_CSV), str(RETEST_CSV)]],
+        },
+        "output": {"path": str(icc_out / "icc_results.json")},
         "metrics": ["icc2", "icc3"],
-        "out_dir": str(work_dir / "icc"),
     }
-    icc_result = recipes.icc_analysis(icc_config)
-    print(f"\nicc_analysis: {icc_result.output_dir}")
-    if icc_result.artifacts:
-        print(f"  icc_result: {icc_result.artifacts.get('icc_result', 'n/a')}")
+    try:
+        icc_result = recipes.icc_analysis(icc_config)
+        print(f"\nicc_analysis: {icc_result.output_dir}")
+        if icc_result.artifacts:
+            print(f"  icc_result: {icc_result.artifacts.get('icc_result', 'n/a')}")
+    except Exception as exc:  # noqa: BLE001 - demo continues if CSV ICC is heavy
+        print(f"\nicc_analysis: {exc}")
 else:
     print("\nicc_analysis: skipped (need demo_data/ml_data/*.csv)")
 
@@ -137,3 +171,12 @@ else:
 
 print("\nsort_dicom: batch DICOM reorganisation — recipes.sort_dicom(config)")
 print("  requires a DICOM tree; see config/sort_dicom/ and tests/examples/")
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig_dice, "cohort_plugins_dice.png")
+    save_example_figure(fig_overlay, "cohort_plugins_overlay.png")

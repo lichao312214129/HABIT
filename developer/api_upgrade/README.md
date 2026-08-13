@@ -64,7 +64,7 @@
 
 - 用户向 API 示例：`docs/source/api/python_api.rst`（升级后需与 `02_public_api_design.md` 对齐）。
 - 架构契约：`tests/test_architecture_contracts.py`（registry / orchestrator，已存在 sklearn 风格 `check_*` 思路）。
-- 并行可靠性：`docs/HABITAT_PARALLEL_RELIABILITY_PLAN.md`（与 API 升级正交，可并行）。
+- 并行可靠性：历史计划已从 ``docs/`` 移除（实现已并入执行后端；细节见 ``habit/execution/``）。
 
 ## 状态
 

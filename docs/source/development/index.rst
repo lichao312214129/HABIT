@@ -40,7 +40,8 @@ Recommended reading order
 
 **New to HABIT**
 
-1. :doc:`philosophy` — The five design principles and their trade-offs.
+1. :doc:`philosophy` — Limitations of the research setting, and why the
+   API is the product (CLI / YAML are shells).
 2. :doc:`mental_model` — Core terminology and the system mental model.
 3. :doc:`architecture` — Layers, configuration assembly, and CLI-to-core
    mapping.
@@ -69,6 +70,10 @@ Recommended reading order
    copy-ready component templates are available in
    :doc:`../customization/index`.
 
-Environment summary: Python 3.10, ``pip install -e .``, and ``pytest tests/``.
+Environment summary: Python 3.10–3.14 (day-to-day: ``py310``),
+``pip install -e .``, and ``pytest tests/``.
 
-See the **Developer** sidebar for the API and third-party library references.
+Related top-level docs under **Development**:
+:doc:`../customization/index` (copy-ready extension templates) and
+:doc:`../reference/upstream_libraries` (third-party library notes).
+Public Python symbols live under **Python API** (:doc:`../api/index`).

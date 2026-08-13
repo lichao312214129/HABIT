@@ -79,8 +79,8 @@ remain sugar that expands to the same sequence.
        Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]})),
        Stage("pool", Spec("pool")),
        Stage("fit", Spec("kmeans", {
-           "min_habitats": 2, "max_habitats": 3,
-           "validation": "silhouette", "n_init": 5,
+           "min_habitats": 2, "max_habitats": 10,
+           "validation": "elbow", "n_init": 5,
        })),
        Stage("assign", Spec("nearest_centroid")),
        Stage("quantify", Spec("volume")),

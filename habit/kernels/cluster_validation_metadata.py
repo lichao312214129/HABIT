@@ -30,7 +30,7 @@ from habit.kernels.cluster_selection import score_direction as _kernel_score_dir
 CLUSTERING_VALIDATION_METHODS = {
     # Methods supported by K-Means clustering
     'kmeans': {
-        'default': ['silhouette', 'calinski_harabasz', 'kneedle'],  # Default methods
+        'default': ['elbow'],  # Community-used inertia elbow; k in [2, 10]
         'methods': {
             'silhouette': {
                 'description': 'Silhouette Score, higher is better',

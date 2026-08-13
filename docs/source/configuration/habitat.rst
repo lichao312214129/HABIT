@@ -50,10 +50,9 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
 
      habitat:
        algorithm: kmeans
+       min_clusters: 2
        max_clusters: 10
-       habitat_cluster_selection_method:
-         - inertia
-         - silhouette
+       habitat_cluster_selection_method: elbow
        fixed_n_clusters: null
        random_state: 42
        max_iter: 300
@@ -210,6 +209,10 @@ This section covers **habitat analysis** configuration. CLI: ``habit get-habitat
         (R3B12 configuration; better repeatability and robustness to kernel/binning than R1B25).
         Omit ``params_file`` to use bundled ``params_voxel_radiomics.yaml``; ``kernel_radius`` defaults to 3.
         Reference: Prior O, et al. *Radiol Artif Intell*. 2024;6(2):e230118. https://doi.org/10.1148/ryai.230118
+        The simulated-retest perturbation used to *define* those precise features
+        is :func:`~habit.domain.precision.prior2024_retest_perturbation` (MIRP 1.2.0
+        Appendix S2: noise + 0.5-voxel translation fraction + 0.5° z-rotation).
+        See :doc:`../examples/precise_features`.
 
       - **Example**: ``concat(voxel_radiomics(T2))`` with ``params: {}`` (CT R3B12 defaults); override example: ``concat(voxel_radiomics(T2, kernel_radius))`` with ``kernel_radius: 1`` in ``params``
 
@@ -817,7 +820,7 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
     - ``bic``: Bayesian information criterion (lower better; gmm only)
 
   - **Description**: Multiple metrics may be specified; system combines them to pick best habitat count.
-  - **Example**: ``[inertia, silhouette]``
+  - **Example**: ``elbow`` (schema default; k-means). GMM studies typically use ``bic``.
 
 - ``fixed_n_clusters``: Fixed habitat count
 
@@ -845,14 +848,12 @@ is **read automatically** from the mask NIfTI header—**no** YAML entry require
 
   .. code-block:: yaml
 
-     # Auto-select habitat count (recommended)
+     # Auto-select habitat count (recommended: elbow, k in 2–10)
      habitat:
        algorithm: kmeans
        max_clusters: 10
        min_clusters: 2
-       habitat_cluster_selection_method:
-         - inertia
-         - silhouette
+       habitat_cluster_selection_method: elbow
        fixed_n_clusters: null
        random_state: 42
      

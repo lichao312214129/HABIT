@@ -50,6 +50,14 @@ Run::
 
    python docs/source/examples/scripts/habitat_custom_pipeline_demo.py
 
+Output
+------
+
+::
+
+   Study.fit_predict: habitats=3, feature_cols=6
+   Wrote out/habitat_custom_overlay.png
+
 Common swaps
 ------------
 
@@ -58,6 +66,18 @@ Common swaps
 * Insert subject preprocess: ``Stage("preprocess1", Spec("winsorize", {...}))``
   before ``partition``
 * Quantify: add ``Stage("quantifyN", Spec("msi"|"ith_score"|...))``
+
+Figures
+-------
+
+Custom pipelines still produce ordinary habitat maps.
+
+.. figure:: ../_static/images/examples/habitat_custom_overlay.png
+   :alt: Habitat overlay from a customised pipeline
+   :width: 420
+
+   Habitat overlay after swapping components
+   (:func:`~habit.viz.plot_habitat_overlay`).
 
 What to read next
 -----------------

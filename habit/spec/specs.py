@@ -699,7 +699,7 @@ class HabitatSpec:
         ...     supervoxelizer=Spec("kmeans", {"n_supervoxels": 50, "n_init": 10}),
         ...     habitat_model_fitter=Spec(
         ...         "kmeans",
-        ...         {"min_habitats": 2, "max_habitats": 10, "validation": "silhouette"},
+        ...         {"min_habitats": 2, "max_habitats": 10, "validation": "elbow"},
         ...     ),
         ...     habitat_assigner=Spec("nearest_centroid"),
         ...     habitat_features=(Spec("volume"), Spec("msi"), Spec("ith_score")),

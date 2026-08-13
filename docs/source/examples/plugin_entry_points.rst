@@ -33,6 +33,30 @@ Run::
 
    python docs/source/examples/scripts/plugin_entry_points_demo.py
 
+Output
+------
+
+::
+
+   load_plugins: loaded=0, failures=0
+   list_plugins('voxel_feature_extractor'): 6 entries
+     - concat
+     - expression
+     ...
+   Wrote out/plugin_entry_points_overlay.png
+
+Figures
+-------
+
+After ``load_plugins()``, built-in names such as ``raw`` are ready for a
+habitat run. Synthetic overlay from that one-step call:
+
+.. figure:: ../_static/images/examples/plugin_entry_points_overlay.png
+   :alt: One-step habitats after load_plugins
+   :width: 420
+
+   :func:`~habit.viz.plot_habitat_overlay` on the one-step map.
+
 What to read next
 -----------------
 

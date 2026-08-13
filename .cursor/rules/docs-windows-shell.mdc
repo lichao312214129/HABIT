@@ -1,0 +1,42 @@
+---
+description: HABIT docs shell examples must be Windows/conda-terminal safe (no line continuations, no cd /d)
+globs: docs/**/*.rst
+alwaysApply: true
+---
+
+# Docs: Windows / conda terminal shell examples
+
+HABIT’s primary teaching shell on Windows is **Anaconda Prompt** / **Anaconda
+PowerShell Prompt** (and similar conda terminals). Many users copy-paste from
+the docs into that shell.
+
+## No backslash line continuations
+
+Do **not** write CLI examples like::
+
+   habit view demo_data/.../image.nrrd \
+              demo_data/.../subj001_habitats.nrrd
+
+A trailing `\` newline is a Unix / cmd quirk. In conda PowerShell (and often
+when users paste into Anaconda Prompt), it **breaks** or is treated as a
+literal argument.
+
+**Always put one shell command on one physical line** in rst `::` / code
+blocks, even if the line is long::
+
+   habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
+
+If readability suffers, shorten paths with placeholders on the **same** line,
+or split into two separate one-line commands — never `\` continuation.
+
+## Related Windows shell constraints (same audience)
+
+- Prefer `cd D:\my_habit_work` — do **not** use `cd /d` (fails in conda
+  PowerShell).
+- Process-pool Python snippets need `if __name__ == "__main__":` (see
+  `docs/source/_includes/windows_multiprocessing.rst`).
+
+## When editing docs
+
+Before finishing a docs change that adds or touches CLI examples, search for
+trailing `\` line breaks in `docs/source/**/*.rst` and remove them.

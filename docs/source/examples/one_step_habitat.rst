@@ -1,7 +1,8 @@
 One-step habitat analysis
 =========================
 
-**Level:** recipe · **Data:** synthetic · **Extras:** optional ``[view]`` · **Time:** ~20–60 s
+**Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** optional
+``[view]`` · **Time:** ~20–60 s
 
 The one-step design clusters **voxels inside each subject independently**.
 Declare stages with **neither** ``partition`` **nor** ``pool``, then call
@@ -15,28 +16,57 @@ The factory :func:`~habit.recipes.one_step_habitat` remains for convenience.
 Script
 ------
 
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
+
 .. literalinclude:: scripts/one_step_habitat_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
 
 Output
 ------
 
-::
+Illustrative::
 
-   Cohort: 4 subjects
-
+   Cohort: 2 subjects
    Cohort-level habitat_model: None
-   Per-subject models: 4 subjects
-     subj001: 3 habitats, id=kmeans-...
-     subj002: 3 habitats, id=kmeans-...
-     subj003: 3 habitats, id=kmeans-...
-     subj004: 3 habitats, id=kmeans-...
+   Per-subject models: 2
+   Habitat maps: 2
 
-   Habitat maps: 4
-   Feature table: 4 rows x 47 columns
+Running the script regenerates gallery PNGs; ``HABIT_NO_VIEW=1`` skips napari.
 
-The script ends with a **napari eye-check**. Close the window to finish;
-``HABIT_NO_VIEW=1`` skips it. Prefer ITK-SNAP / 3D Slicer / SimpleITK for 3D.
+Figures
+-------
+
+.. figure:: ../_static/images/examples/one_step_overlay.png
+   :alt: One-step habitat overlay
+   :width: 420
+
+   Per-subject habitats (:func:`~habit.viz.plot_habitat_overlay`).
+
+.. figure:: ../_static/images/examples/one_step_volume_fractions.png
+   :alt: One-step volume fractions
+   :width: 420
+
+   Volume fractions.
+
+.. figure:: ../_static/images/examples/one_step_msi_matrix.png
+   :alt: One-step MSI heatmap
+   :width: 420
+
+   MSI matrix.
+
+.. figure:: ../_static/images/examples/one_step_ith_summary.png
+   :alt: One-step ITH summary
+   :width: 520
+
+   ITH summary.
+
+.. figure:: ../_static/images/examples/one_step_cluster_validation.png
+   :alt: One-step cluster validation curves
+   :width: 520
+
+   Auto-K curves from a per-subject ``selection_report`` when present.
 
 What to read next
 -----------------

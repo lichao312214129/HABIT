@@ -117,6 +117,31 @@ def main() -> None:
         "downstream habitat recipes stay unchanged."
     )
 
+    from pathlib import Path
+
+    from habit import one_step_habitat
+    from habit.viz import plot_habitat_overlay
+
+    result = one_step_habitat(
+        modalities=MODALITIES, n_habitats=3, random_seed=0, roi="tumor"
+    ).fit_predict(cohort)
+    fig = plot_habitat_overlay(
+        t1.data,
+        result.habitat_maps[0].label_array,
+        axis=0,
+        title="Habitats from NumPy Subject",
+    )
+    Path("out").mkdir(exist_ok=True)
+    fig.savefig("out/data_from_arrays_overlay.png", dpi=150, bbox_inches="tight")
+    print("Wrote out/data_from_arrays_overlay.png")
+
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "data_from_arrays_overlay.png")
+
 
 if __name__ == "__main__":
     main()

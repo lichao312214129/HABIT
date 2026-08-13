@@ -17,16 +17,46 @@ Run from the repository root::
 
 from __future__ import annotations
 
-import tempfile
+# BEGIN example
 from pathlib import Path
-from typing import Any, Dict
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+from sklearn.metrics import roc_auc_score
 
-from habit import MLSpec, Spec, make_synthetic_feature_table
+from habit import MLSpec, Spec
+from habit.contracts import BinaryOutcome, FeatureTable
 import habit.recipes as recipes
+from habit.viz import (
+    plot_calibration,
+    plot_confusion_matrix,
+    plot_decision_curve,
+    plot_precision_recall,
+    plot_roc,
+    use_style,
+)
 
-table = make_synthetic_feature_table(n_rows=60, n_features=10, rng=42)
+# Change DATA / ID_COL / LABEL_COL / FEATURES to your table
+DATA = "demo_data/ml_data/breast_cancer_dataset.csv"
+ID_COL = "subject_id"
+LABEL_COL = "label"
+FEATURES = (
+    "compactness error",
+    "concavity error",
+    "symmetry error",
+    "fractal dimension error",
+    "worst texture",
+    "worst smoothness",
+)
+
+frame = pd.read_csv(DATA, dtype={ID_COL: str})
+table = FeatureTable(
+    frame=frame[[ID_COL, LABEL_COL, *FEATURES]],
+    id_columns=(ID_COL,),
+    feature_columns=FEATURES,
+    outcome=BinaryOutcome(column=LABEL_COL, positive_label=1),
+)
 print(f"Table: {table.frame.shape[0]} rows x {len(table.feature_columns)} features")
 
 # Variance selection MUST run before z-score: after z-scoring every feature
@@ -34,67 +64,147 @@ print(f"Table: {table.frame.shape[0]} rows x {len(table.feature_columns)} featur
 staged_spec = MLSpec(
     name="staged_selection",
     steps=(
-        Spec("variance", {"threshold": 0.05}),
+        Spec("variance", {"threshold": 1e-8}),
         Spec("zscore"),
         Spec("anova", {"n_features_to_select": 3}),
     ),
     classifier=Spec("LogisticRegression", {"max_iter": 500}),
     metrics=(Spec("accuracy"), Spec("auc")),
 )
+forest_spec = MLSpec(
+    name="rf_shallow",
+    steps=(Spec("zscore"),),
+    classifier=Spec("RandomForest", {"n_estimators": 80, "max_depth": 3}),
+    metrics=(Spec("accuracy"), Spec("auc")),
+)
 
-result = recipes.train_model(table, staged_spec, test_size=0.25, seed=42)
-print("\n--- Staged pipeline (pre-variance -> zscore -> k-best -> LR) ---")
+
+def table_for_ids(source: FeatureTable, ids: tuple) -> FeatureTable:
+    """Return a FeatureTable containing only the given row ids."""
+    mask = source.frame[source.id_columns[0]].astype(str).isin(ids)
+    return FeatureTable(
+        frame=source.frame.loc[mask].reset_index(drop=True),
+        id_columns=source.id_columns,
+        feature_columns=source.feature_columns,
+        outcome=source.outcome,
+    )
+
+
+def positive_scores(probabilities: pd.DataFrame) -> np.ndarray:
+    """Positive-class probabilities from a predict_model probability frame."""
+    if 1 in probabilities.columns:
+        return probabilities[1].to_numpy()
+    if "1" in probabilities.columns:
+        return probabilities["1"].to_numpy()
+    return probabilities.iloc[:, -1].to_numpy()
+
+
+result = recipes.train_model(table, staged_spec, test_size=0.25, seed=42, stratify=True)
+result_rf = recipes.train_model(table, forest_spec, test_size=0.25, seed=42, stratify=True)
+print("\n--- Staged pipeline (variance -> zscore -> ANOVA k=3 -> LR) ---")
 print("Train metrics:", {k: round(v, 3) for k, v in result.train_metrics.items()})
-print("Test metrics: ", {k: round(v, 3) for k, v in result.test_metrics.items()})
+print("Test metrics: ", {k: round(v, 3) for k, v in (result.test_metrics or {}).items()})
+print("--- Shallow random forest ---")
+print("Test metrics: ", {k: round(v, 3) for k, v in (result_rf.test_metrics or {}).items()})
 
-# Build two synthetic prediction files for compare_models.
-work_dir = Path(tempfile.mkdtemp(prefix="habit_compare_demo_"))
-rows = table.frame[["subject", "label"]].copy()
-rows["prediction"] = table.frame["label"]
-rows["probability"] = table.frame["label"].astype(float)  # demo-only oracle scores
-model_a = work_dir / "model_a_predictions.csv"
-model_b = work_dir / "model_b_predictions.csv"
-rows.to_csv(model_a, index=False)
-noisy = rows.copy()
-flip_mask = noisy.index % 5 == 0
-noisy.loc[flip_mask, "prediction"] = 1 - noisy.loc[flip_mask, "prediction"]
-noisy.loc[flip_mask, "probability"] = 1.0 - noisy.loc[flip_mask, "probability"]
-noisy.to_csv(model_b, index=False)
+holdout = table_for_ids(table, result.test_row_ids)
+pred_lr = recipes.predict_model(result.pipeline, holdout)
+pred_rf = recipes.predict_model(result_rf.pipeline, holdout)
+y_true = holdout.frame[LABEL_COL].to_numpy()
+y_prob_lr = positive_scores(pred_lr.probabilities)
+y_prob_rf = positive_scores(pred_rf.probabilities)
+print(
+    f"Hold-out AUC staged-LR={roc_auc_score(y_true, y_prob_lr):.3f} "
+    f"RF={roc_auc_score(y_true, y_prob_rf):.3f}"
+)
 
-compare_config: Dict[str, Any] = {
-    "output_dir": str(work_dir / "comparison"),
-    "files_config": [
+Path("out").mkdir(exist_ok=True)
+
+
+def write_pred_csv(path: Path, ids: np.ndarray, labels: np.ndarray, pred: np.ndarray, prob: np.ndarray) -> Path:
+    """Write a compare_models input CSV (needs prob_col)."""
+    pd.DataFrame(
         {
-            "path": str(model_a),
-            "model_name": "oracle",
-            "subject_id_col": "subject",
-            "label_col": "label",
-            "pred_col": "prediction",
-            "prob_col": "probability",
-        },
-        {
-            "path": str(model_b),
-            "model_name": "noisy",
-            "subject_id_col": "subject",
-            "label_col": "label",
-            "pred_col": "prediction",
-            "prob_col": "probability",
-        },
-    ],
-}
+            "subject_id": ids,
+            "label": labels,
+            "prediction": pred,
+            "probability": prob,
+        }
+    ).to_csv(path, index=False)
+    return path
 
-compare_result = recipes.compare_models(compare_config)
+
+ids = holdout.frame[ID_COL].astype(str).to_numpy()
+csv_a = write_pred_csv(Path("out") / "model_staged.csv", ids, y_true, np.asarray(pred_lr.predictions), y_prob_lr)
+csv_b = write_pred_csv(Path("out") / "model_rf.csv", ids, y_true, np.asarray(pred_rf.predictions), y_prob_rf)
+compare_result = recipes.compare_models(
+    {
+        "output_dir": "out/comparison",
+        "files_config": [
+            {
+                "path": str(csv_a),
+                "model_name": "staged LR",
+                "subject_id_col": "subject_id",
+                "label_col": "label",
+                "pred_col": "prediction",
+                "prob_col": "probability",
+            },
+            {
+                "path": str(csv_b),
+                "model_name": "shallow RF",
+                "subject_id_col": "subject_id",
+                "label_col": "label",
+                "pred_col": "prediction",
+                "prob_col": "probability",
+            },
+        ],
+    }
+)
 print(f"\n--- compare_models output: {compare_result.output_dir} ---")
 if compare_result.data:
     for model_name, metrics in compare_result.data.items():
         if isinstance(metrics, dict):
-            print(f"  {model_name}: { {k: round(v, 3) if isinstance(v, float) else v for k, v in metrics.items()} }")
+            printable = {
+                k: round(v, 3) if isinstance(v, float) else v for k, v in metrics.items()
+            }
+            print(f"  {model_name}: {printable}")
 
-# compare_models writes multi-model curves at output_dir root (or per-split
-# subdirs when split.enabled). Single-model train/CV figures from habit model /
-# habit cv use <output>/visualizations/ with train_ / test_ / cv_ prefixes.
-out = Path(compare_result.output_dir)
-print(
-    "\ncompare_models artefacts (ROC/DCA/calibration/PR, metrics/metrics.json) "
-    f"under {out}"
-)
+curves = {"staged LR": (y_true, y_prob_lr), "shallow RF": (y_true, y_prob_rf)}
+
+
+def _save(fig: object, name: str) -> None:
+    """Save a figure under out/ and close it."""
+    fig.savefig(f"out/{name}", dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    print(f"Wrote out/{name}")
+
+
+with use_style("radiology"):
+    _save(plot_roc(curves=curves, title="Hold-out ROC"), "ml_advanced_roc.png")
+    _save(plot_precision_recall(curves=curves, title="Hold-out PR"), "ml_advanced_pr.png")
+    _save(plot_calibration(curves=curves, title="Hold-out calibration"), "ml_advanced_calibration.png")
+    _save(plot_decision_curve(curves=curves, title="Hold-out DCA"), "ml_advanced_dca.png")
+    _save(
+        plot_confusion_matrix(
+            y_true,
+            np.asarray(pred_lr.predictions),
+            title="Staged LR confusion",
+            class_names=("0", "1"),
+        ),
+        "ml_advanced_confusion.png",
+    )
+# END example
+
+if __name__ == "__main__":
+    gallery = Path("docs/source/_static/images/examples")
+    gallery.mkdir(parents=True, exist_ok=True)
+    mapping = {
+        "out/ml_advanced_roc.png": "ml_advanced_roc.png",
+        "out/ml_advanced_pr.png": "ml_advanced_pr.png",
+        "out/ml_advanced_calibration.png": "ml_advanced_calibration.png",
+        "out/ml_advanced_dca.png": "ml_advanced_dca.png",
+        "out/ml_advanced_confusion.png": "ml_advanced_confusion.png",
+    }
+    for src, name in mapping.items():
+        (gallery / name).write_bytes(Path(src).read_bytes())
+    print("Copied gallery PNGs")

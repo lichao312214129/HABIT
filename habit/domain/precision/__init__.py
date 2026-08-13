@@ -19,8 +19,9 @@ simulated re-acquisition produces habitats nobody can reproduce. This
 package implements the precision screen of Prior et al. (Radiol Artif
 Intell 2024;6(2):e230118) as composable domain components:
 
-* :class:`ImagePerturbation` implementations (noise, translation, rotation)
-  and the :class:`PerturbationChain` composing one simulated retest;
+* :class:`ImagePerturbation` implementations (noise, translation, rotation,
+  optional MONAI ``bspline_deform``) and the :class:`PerturbationChain`
+  composing one simulated retest;
 * :func:`precision_panel` / :func:`aggregate_panels` computing per-subject
   and cohort-level ICC tables on voxel feature fields;
 * :func:`identify_precise_features` applying the LCL screen across
@@ -37,23 +38,32 @@ from habit.domain.precision.analysis import (
 )
 from habit.domain.precision.chain import PerturbationChain
 from habit.domain.precision.perturbations import (
+    BSplineDeformPerturbation,
+    BSplineDeformPerturbationParams,
     GaussianNoisePerturbation,
     GaussianNoisePerturbationParams,
+    RigidPerturbation,
+    RigidPerturbationParams,
     RotationPerturbation,
     RotationPerturbationParams,
     TranslationPerturbation,
     TranslationPerturbationParams,
+    prior2024_retest_perturbation,
 )
 from habit.domain.precision.precise_set import PreciseFeatureSet
 from habit.domain.precision.registry import ImagePerturbationRegistry
 from habit.domain.precision.stability import habitat_stability
 
 __all__ = [
+    "BSplineDeformPerturbation",
+    "BSplineDeformPerturbationParams",
     "GaussianNoisePerturbation",
     "GaussianNoisePerturbationParams",
     "ImagePerturbationRegistry",
     "PerturbationChain",
     "PreciseFeatureSet",
+    "RigidPerturbation",
+    "RigidPerturbationParams",
     "RotationPerturbation",
     "RotationPerturbationParams",
     "TranslationPerturbation",
@@ -62,4 +72,5 @@ __all__ = [
     "habitat_stability",
     "identify_precise_features",
     "precision_panel",
+    "prior2024_retest_perturbation",
 ]
