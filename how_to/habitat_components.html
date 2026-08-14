@@ -128,6 +128,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#b-different-families-then-concat">B. Different families, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -140,6 +143,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -237,6 +243,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#figures">Figures</a></li>
@@ -246,6 +253,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
@@ -254,6 +262,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#figures">Figures</a></li>
@@ -1833,15 +1842,22 @@ round-trip. See <a class="reference internal" href="../api/spec.html"><span clas
 <section id="voxel-feature-extraction">
 <h2>1. Voxel feature extraction<a class="headerlink" href="#voxel-feature-extraction" title="Link to this heading"></a></h2>
 <p><strong>Required.</strong> Turns each subject’s images + ROI into a per-voxel feature
-field. <code class="docutils literal notranslate"><span class="pre">raw</span></code> is the usual start (one column per modality). Use
-<code class="docutils literal notranslate"><span class="pre">local_entropy</span></code> / <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> when texture should define
-habitats; <code class="docutils literal notranslate"><span class="pre">concat</span></code> / <code class="docutils literal notranslate"><span class="pre">expression</span></code> / <code class="docutils literal notranslate"><span class="pre">kinetic</span></code> to combine leaves.</p>
-<p>Python:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">]}))</span>
+field. There are <strong>three</strong> ways to fill this slot — pick the simplest that
+matches the science. Mixed families (raw on one series, texture on
+another) need a <strong>tree</strong>, not a longer <code class="docutils literal notranslate"><span class="pre">modalities</span></code> list.</p>
+<section id="a-one-family-one-or-more-modalities">
+<h3>A. One family, one or more modalities<a class="headerlink" href="#a-one-family-one-or-more-modalities" title="Link to this heading"></a></h3>
+<p>A single leaf already accepts a modality list. Same extractor, one column
+(or one block of columns) per series. No <code class="docutils literal notranslate"><span class="pre">concat</span></code> needed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># One series</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">]}))</span>
 <span class="n">Stage</span><span class="p">(</span>
     <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
-    <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;local_entropy&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;LAP&quot;</span><span class="p">],</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}),</span>
+    <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;local_entropy&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">],</span> <span class="s2">&quot;kernel_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}),</span>
 <span class="p">)</span>
+
+<span class="c1"># Same family on several series (columns T1, T2, …)</span>
+<span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">]}))</span>
 </pre></div>
 </div>
 <p>YAML:</p>
@@ -1849,9 +1865,97 @@ habitats; <code class="docutils literal notranslate"><span class="pre">concat</s
   <span class="n">component</span><span class="p">:</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
     <span class="n">params</span><span class="p">:</span>
-      <span class="n">modalities</span><span class="p">:</span> <span class="p">[</span><span class="n">LAP</span><span class="p">]</span>
+      <span class="n">modalities</span><span class="p">:</span> <span class="p">[</span><span class="n">T1</span><span class="p">,</span> <span class="n">T2</span><span class="p">]</span>
 </pre></div>
 </div>
+</section>
+<section id="b-different-families-then-concat">
+<h3>B. Different families, then concat<a class="headerlink" href="#b-different-families-then-concat" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">concat</span></code> joins <strong>different extractors</strong> on the same voxels (same ROI).
+Two equivalent spellings — expression string or nested <code class="docutils literal notranslate"><span class="pre">children</span></code> —
+share one fingerprint. Modalities in the expression form are <strong>quoted</strong>.</p>
+<p><strong>raw T1 + voxel radiomics T2</strong> (texture habitats on T2, intensity on T1):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_feature_expression</span>
+
+<span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(raw(&quot;T1&quot;), voxel_radiomics(&quot;T2&quot;, kernel_radius=3))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>entropy T1 + raw T2</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(local_entropy(&quot;T1&quot;, kernel_size=3, bins=32), raw(&quot;T2&quot;))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Structured form of the first tree (same Spec):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;concat&quot;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T1&quot;</span><span class="p">}},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;kernel_radius&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML (expression — shortest):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;concat(raw(&quot;T1&quot;), voxel_radiomics(&quot;T2&quot;, kernel_radius=3))&#39;</span>
+</pre></div>
+</div>
+<p>YAML (structured):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_voxel_features</span>
+  <span class="n">component</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">concat</span>
+    <span class="n">params</span><span class="p">:</span>
+      <span class="n">children</span><span class="p">:</span>
+        <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">raw</span>
+          <span class="n">params</span><span class="p">:</span> <span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">T1</span><span class="p">}</span>
+        <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">voxel_radiomics</span>
+          <span class="n">params</span><span class="p">:</span> <span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">T2</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> needs the <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code> extra and is much slower
+than <code class="docutils literal notranslate"><span class="pre">raw</span></code> / <code class="docutils literal notranslate"><span class="pre">local_entropy</span></code>.</p>
+</section>
+<section id="c-nested-combiners-weights-ratios-aliases">
+<h3>C. Nested combiners (weights, ratios, aliases)<a class="headerlink" href="#c-nested-combiners-weights-ratios-aliases" title="Link to this heading"></a></h3>
+<p>Combiners nest. Built-ins: <code class="docutils literal notranslate"><span class="pre">concat</span></code>, <code class="docutils literal notranslate"><span class="pre">weighted_concat</span></code>
+(<code class="docutils literal notranslate"><span class="pre">weights=[...]</span></code>), <code class="docutils literal notranslate"><span class="pre">average</span></code>, <code class="docutils literal notranslate"><span class="pre">ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">difference</span></code>, <code class="docutils literal notranslate"><span class="pre">kinetic</span></code>,
+<code class="docutils literal notranslate"><span class="pre">expression</span></code>. <code class="docutils literal notranslate"><span class="pre">as_=&quot;label&quot;</span></code> renames a <strong>single-column</strong> leaf so two
+branches do not collide:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_voxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(&#39;</span>
+        <span class="s1">&#39;weighted_concat(raw(&quot;T1&quot;, as_=&quot;t1w&quot;), raw(&quot;T2&quot;, as_=&quot;t2w&quot;), weights=[2.0, 1.0]), &#39;</span>
+        <span class="s1">&#39;ratio(raw(&quot;T1&quot;), raw(&quot;T2&quot;), as_=&quot;t1_over_t2&quot;), &#39;</span>
+        <span class="s1">&#39;local_entropy(&quot;T1&quot;, kernel_size=3))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Grammar (strict; bad input is rejected, not guessed): modalities are
+quoted (<code class="docutils literal notranslate"><span class="pre">raw(&quot;T1&quot;)</span></code>); parameters are <code class="docutils literal notranslate"><span class="pre">key=value</span></code>; a quoted string
+among children is an implicit <code class="docutils literal notranslate"><span class="pre">raw</span></code>. Bare <code class="docutils literal notranslate"><span class="pre">raw(T1)</span></code> is v0.1-only.</p>
+<p>Worked trees and column names: <a class="reference internal" href="../examples/feature_composition.html"><span class="doc">Feature composition: trees, combiners, and statistics</span></a>.
+Arithmetic beyond combiners: <a class="reference internal" href="../examples/custom_voxel_features.html"><span class="doc">DIY voxel features (expression + custom plugin)</span></a>
+(<code class="docutils literal notranslate"><span class="pre">expression</span></code> or a custom plugin).</p>
+</section>
 <section id="voxel-feature-extractor">
 <h3>voxel_feature_extractor<a class="headerlink" href="#voxel-feature-extractor" title="Link to this heading"></a></h3>
 <dl>
@@ -2651,10 +2755,15 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </section>
 <section id="supervoxel-features">
 <h2>4. Supervoxel features<a class="headerlink" href="#supervoxel-features" title="Link to this heading"></a></h2>
-<p><strong>two-step optional.</strong> Default science is <code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> (mean of
-the voxel field inside each supervoxel). Omit the stage unless you need
-radiomics or other statistics on the partition.</p>
-<p>Python:</p>
+<p><strong>two-step optional.</strong> This stage describes <strong>each supervoxel</strong>, after
+<code class="docutils literal notranslate"><span class="pre">partition</span></code>. It does <strong>not</strong> replace voxel extraction: mixed T1/T2
+science is usually built in section 1, then aggregated here.</p>
+<section id="a-default-mean-of-the-voxel-field">
+<h3>A. Default — mean of the voxel field<a class="headerlink" href="#a-default-mean-of-the-voxel-field" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">mean_voxel_features</span></code> averages whatever columns the voxel stage already
+produced (raw T1+T2, or a concat tree). Omit this stage unless you need
+something else; many two-step recipes rely on the partition’s attached
+means:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span><span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;mean_voxel_features&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -2665,6 +2774,45 @@ radiomics or other statistics on the partition.</p>
     <span class="n">params</span><span class="p">:</span> <span class="p">{}</span>
 </pre></div>
 </div>
+</section>
+<section id="b-per-modality-statistics-then-concat">
+<h3>B. Per-modality statistics, then concat<a class="headerlink" href="#b-per-modality-statistics-then-concat" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">mean</span></code> / <code class="docutils literal notranslate"><span class="pre">std</span></code> / <code class="docutils literal notranslate"><span class="pre">percentile</span></code> are <strong>one modality each</strong>. Compose
+them the same way as voxel leaves. <code class="docutils literal notranslate"><span class="pre">source=&quot;working&quot;</span></code> (default) uses
+the preprocessed voxel field; <code class="docutils literal notranslate"><span class="pre">source=&quot;original&quot;</span></code> uses the raw series
+the partition saw:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(mean(&quot;T1&quot;), std(&quot;T1&quot;, as_=&quot;t1_spread&quot;), percentile(&quot;T2&quot;, q=90))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">extract_supervoxel_features</span>
+  <span class="n">component</span><span class="p">:</span> <span class="s1">&#39;concat(mean(&quot;T1&quot;), std(&quot;T1&quot;, as_=&quot;t1_spread&quot;), percentile(&quot;T2&quot;, q=90))&#39;</span>
+</pre></div>
+</div>
+<p>Or structured <code class="docutils literal notranslate"><span class="pre">children</span></code> (same fingerprint) as in
+<a class="reference internal" href="../examples/feature_composition.html"><span class="doc">Feature composition: trees, combiners, and statistics</span></a>.</p>
+</section>
+<section id="c-supervoxel-radiomics-not-a-voxel-kernel">
+<h3>C. Supervoxel radiomics (not a voxel kernel)<a class="headerlink" href="#c-supervoxel-radiomics-not-a-voxel-kernel" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">supervoxel_radiomics</span></code> extracts <strong>whole-region</strong> texture per supervoxel
+label (not a sliding voxel kernel). Single series still sits in
+<code class="docutils literal notranslate"><span class="pre">concat</span></code> when you mix families:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Stage</span><span class="p">(</span>
+    <span class="s2">&quot;extract_supervoxel_features&quot;</span><span class="p">,</span>
+    <span class="n">parse_feature_expression</span><span class="p">(</span>
+        <span class="s1">&#39;concat(mean(&quot;T1&quot;), supervoxel_radiomics(&quot;T2&quot;))&#39;</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Needs <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code>. Values differ from <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> (different
+spatial support).</p>
+</section>
 <section id="supervoxel-feature-extractor">
 <h3>supervoxel_feature_extractor<a class="headerlink" href="#supervoxel-feature-extractor" title="Link to this heading"></a></h3>
 <dl>

@@ -13,7 +13,7 @@ stage below. Parameter tables are generated at Sphinx build time from each
 component's ``params_model`` (plus the class ``Args:`` text). Do not copy
 them into notebooks — look them up::
 
-   from habit import get_param_schema, list_plugins, plugin_catalog
+   from habit import get_param_schema, list_plugins, plugin_catalog, parse_feature_expression
 
    print([info.name for info in list_plugins("voxel_feature_extractor")])
    print(get_param_schema("raw", "voxel_feature_extractor").model_fields)
@@ -30,6 +30,7 @@ A habitat study is an **ordered list of stages**. Each
 :class:`~habit.spec.Stage` is a label plus a :class:`~habit.spec.Spec`::
 
    Stage("<label>", Spec("<registered name>", {<params>}))
+   Stage("<label>", parse_feature_expression('concat(raw("T1"), voxel_radiomics("T2"))'))
 
 Stage labels (``extract_voxel_features``, ``quantify2``, …) are **not**
 role keywords. HABIT infers the scientific role from position + the
@@ -134,17 +135,25 @@ round-trip. See :doc:`../api/spec` and
 ---------------------------
 
 **Required.** Turns each subject's images + ROI into a per-voxel feature
-field. ``raw`` is the usual start (one column per modality). Use
-``local_entropy`` / ``voxel_radiomics`` when texture should define
-habitats; ``concat`` / ``expression`` / ``kinetic`` to combine leaves.
+field. There are **three** ways to fill this slot — pick the simplest that
+matches the science. Mixed families (raw on one series, texture on
+another) need a **tree**, not a longer ``modalities`` list.
 
-Python::
+A. One family, one or more modalities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   Stage("extract_voxel_features", Spec("raw", {"modalities": ["LAP"]}))
+A single leaf already accepts a modality list. Same extractor, one column
+(or one block of columns) per series. No ``concat`` needed::
+
+   # One series
+   Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1"]}))
    Stage(
        "extract_voxel_features",
-       Spec("local_entropy", {"modalities": ["LAP"], "kernel_size": 3, "bins": 32}),
+       Spec("local_entropy", {"modalities": ["T1"], "kernel_size": 3, "bins": 32}),
    )
+
+   # Same family on several series (columns T1, T2, …)
+   Stage("extract_voxel_features", Spec("raw", {"modalities": ["T1", "T2"]}))
 
 YAML::
 
@@ -152,7 +161,98 @@ YAML::
      component:
        name: raw
        params:
-         modalities: [LAP]
+         modalities: [T1, T2]
+
+B. Different families, then concat
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``concat`` joins **different extractors** on the same voxels (same ROI).
+Two equivalent spellings — expression string or nested ``children`` —
+share one fingerprint. Modalities in the expression form are **quoted**.
+
+**raw T1 + voxel radiomics T2** (texture habitats on T2, intensity on T1)::
+
+   from habit import parse_feature_expression
+
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(raw("T1"), voxel_radiomics("T2", kernel_radius=3))'
+       ),
+   )
+
+**entropy T1 + raw T2**::
+
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(local_entropy("T1", kernel_size=3, bins=32), raw("T2"))'
+       ),
+   )
+
+Structured form of the first tree (same Spec)::
+
+   Stage(
+       "extract_voxel_features",
+       Spec(
+           "concat",
+           {
+               "children": [
+                   {"name": "raw", "params": {"modality": "T1"}},
+                   {
+                       "name": "voxel_radiomics",
+                       "params": {"modality": "T2", "kernel_radius": 3},
+                   },
+               ],
+           },
+       ),
+   )
+
+YAML (expression — shortest)::
+
+   - name: extract_voxel_features
+     component: 'concat(raw("T1"), voxel_radiomics("T2", kernel_radius=3))'
+
+YAML (structured)::
+
+   - name: extract_voxel_features
+     component:
+       name: concat
+       params:
+         children:
+           - name: raw
+             params: {modality: T1}
+           - name: voxel_radiomics
+             params: {modality: T2, kernel_radius: 3}
+
+``voxel_radiomics`` needs the ``pyradiomics`` extra and is much slower
+than ``raw`` / ``local_entropy``.
+
+C. Nested combiners (weights, ratios, aliases)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Combiners nest. Built-ins: ``concat``, ``weighted_concat``
+(``weights=[...]``), ``average``, ``ratio``, ``difference``, ``kinetic``,
+``expression``. ``as_="label"`` renames a **single-column** leaf so two
+branches do not collide::
+
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat('
+           'weighted_concat(raw("T1", as_="t1w"), raw("T2", as_="t2w"), weights=[2.0, 1.0]), '
+           'ratio(raw("T1"), raw("T2"), as_="t1_over_t2"), '
+           'local_entropy("T1", kernel_size=3))'
+       ),
+   )
+
+Grammar (strict; bad input is rejected, not guessed): modalities are
+quoted (``raw("T1")``); parameters are ``key=value``; a quoted string
+among children is an implicit ``raw``. Bare ``raw(T1)`` is v0.1-only.
+
+Worked trees and column names: :doc:`../examples/feature_composition`.
+Arithmetic beyond combiners: :doc:`../examples/custom_voxel_features`
+(``expression`` or a custom plugin).
 
 .. include:: _generated_catalog_voxel_feature_extractor.rst
 
@@ -214,11 +314,17 @@ YAML::
 4. Supervoxel features
 ----------------------
 
-**two-step optional.** Default science is ``mean_voxel_features`` (mean of
-the voxel field inside each supervoxel). Omit the stage unless you need
-radiomics or other statistics on the partition.
+**two-step optional.** This stage describes **each supervoxel**, after
+``partition``. It does **not** replace voxel extraction: mixed T1/T2
+science is usually built in section 1, then aggregated here.
 
-Python::
+A. Default — mean of the voxel field
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``mean_voxel_features`` averages whatever columns the voxel stage already
+produced (raw T1+T2, or a concat tree). Omit this stage unless you need
+something else; many two-step recipes rely on the partition's attached
+means::
 
    Stage("extract_supervoxel_features", Spec("mean_voxel_features"))
 
@@ -228,6 +334,46 @@ YAML::
      component:
        name: mean_voxel_features
        params: {}
+
+B. Per-modality statistics, then concat
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``mean`` / ``std`` / ``percentile`` are **one modality each**. Compose
+them the same way as voxel leaves. ``source="working"`` (default) uses
+the preprocessed voxel field; ``source="original"`` uses the raw series
+the partition saw::
+
+   Stage(
+       "extract_supervoxel_features",
+       parse_feature_expression(
+           'concat(mean("T1"), std("T1", as_="t1_spread"), percentile("T2", q=90))'
+       ),
+   )
+
+YAML::
+
+   - name: extract_supervoxel_features
+     component: 'concat(mean("T1"), std("T1", as_="t1_spread"), percentile("T2", q=90))'
+
+Or structured ``children`` (same fingerprint) as in
+:doc:`../examples/feature_composition`.
+
+C. Supervoxel radiomics (not a voxel kernel)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``supervoxel_radiomics`` extracts **whole-region** texture per supervoxel
+label (not a sliding voxel kernel). Single series still sits in
+``concat`` when you mix families::
+
+   Stage(
+       "extract_supervoxel_features",
+       parse_feature_expression(
+           'concat(mean("T1"), supervoxel_radiomics("T2"))'
+       ),
+   )
+
+Needs ``pyradiomics``. Values differ from ``voxel_radiomics`` (different
+spatial support).
 
 .. include:: _generated_catalog_supervoxel_feature_extractor.rst
 

@@ -128,6 +128,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -140,6 +143,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -237,6 +243,7 @@
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
@@ -246,6 +253,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#figures">Figures</a></li>
@@ -254,6 +262,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#figures">Figures</a></li>
@@ -1711,29 +1720,8 @@ definition is learned from all subjects’ supervoxels pooled together.</p>
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree (same
 layout as <code class="xref py py-func docutils literal notranslate"><span class="pre">cohort_from_directory()</span></code>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">HabitatSpec</span><span class="p">,</span>
-    <span class="n">Spec</span><span class="p">,</span>
-    <span class="n">Stage</span><span class="p">,</span>
-    <span class="n">cohort_from_directory</span><span class="p">,</span>
-    <span class="n">habitat_region_stats</span><span class="p">,</span>
-    <span class="n">habitat_volume_fractions</span><span class="p">,</span>
-    <span class="n">ith_score</span><span class="p">,</span>
-    <span class="n">spatial_interaction_matrix</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span><span class="p">,</span> <span class="n">Stage</span><span class="p">,</span> <span class="n">cohort_from_directory</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">recipes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">plot_cluster_validation_from_report</span><span class="p">,</span>
-    <span class="n">plot_habitat_overlay</span><span class="p">,</span>
-    <span class="n">plot_habitat_volume_fractions</span><span class="p">,</span>
-    <span class="n">plot_ith_summary</span><span class="p">,</span>
-    <span class="n">plot_msi_matrix</span><span class="p">,</span>
-    <span class="n">plot_partition_triptych</span><span class="p">,</span>
-<span class="p">)</span>
 
 <span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
 <span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
@@ -1782,6 +1770,32 @@ layout as <code class="xref py py-func docutils literal notranslate"><span class
 <span class="c1"># Persist wherever you like — swap this path for your project</span>
 <span class="n">out_dir</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;out/two_step_demo&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved study to </span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="draw-the-figures">
+<h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
+<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">result</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">ROI</span></code>). Writes <code class="docutils literal notranslate"><span class="pre">out/two_step_*.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cohort, result, and ROI from above.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">habitat_region_stats</span><span class="p">,</span>
+    <span class="n">habitat_volume_fractions</span><span class="p">,</span>
+    <span class="n">ith_score</span><span class="p">,</span>
+    <span class="n">spatial_interaction_matrix</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_cluster_validation_from_report</span><span class="p">,</span>
+    <span class="n">plot_habitat_overlay</span><span class="p">,</span>
+    <span class="n">plot_habitat_volume_fractions</span><span class="p">,</span>
+    <span class="n">plot_ith_summary</span><span class="p">,</span>
+    <span class="n">plot_msi_matrix</span><span class="p">,</span>
+    <span class="n">plot_partition_triptych</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># Figures: public habit.viz defaults. Edit the out/ filenames if you like.</span>
 <span class="c1"># Overlay uses the 3-D default (three orthogonal panels). Pass ImageVolume</span>
@@ -1888,12 +1902,9 @@ layout as <code class="xref py py-func docutils literal notranslate"><span class
 <span class="n">Saved</span> <span class="n">study</span> <span class="n">to</span> <span class="n">out</span><span class="o">/</span><span class="n">two_step_demo</span>
 </pre></div>
 </div>
-<p>The copied block prints these lines, calls <code class="docutils literal notranslate"><span class="pre">result.save(...)</span></code>, and
-writes the PNGs under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (<code class="docutils literal notranslate"><span class="pre">out/two_step_overlay.png</span></code>,
-<code class="docutils literal notranslate"><span class="pre">out/two_step_triptych.png</span></code>, <code class="docutils literal notranslate"><span class="pre">out/two_step_volume_fractions.png</span></code>,
-<code class="docutils literal notranslate"><span class="pre">out/two_step_msi_matrix.png</span></code>, <code class="docutils literal notranslate"><span class="pre">out/two_step_ith_summary.png</span></code>,
-<code class="docutils literal notranslate"><span class="pre">out/two_step_cluster_validation.png</span></code>). Edit those paths in the script
-if you want a different folder.</p>
+<p>The Script block prints these lines and calls <code class="docutils literal notranslate"><span class="pre">result.save(...)</span></code>. The
+<strong>Draw the figures</strong> block writes <code class="docutils literal notranslate"><span class="pre">out/two_step_*.png</span></code>. Edit those
+paths if you want a different folder.</p>
 <p><code class="docutils literal notranslate"><span class="pre">HABIT_NO_VIEW=1</span></code> skips the optional napari window when you run the
 full script from the repository root (maintainers then copy <code class="docutils literal notranslate"><span class="pre">out/*.png</span></code>
 into the docs gallery):</p>
@@ -1906,7 +1917,7 @@ matplotlib / OS / DPI.</p>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>These are the same files the copied block writes under <code class="docutils literal notranslate"><span class="pre">out/</span></code>. The site
+<p>These are the same files the <strong>Draw the figures</strong> block writes under <code class="docutils literal notranslate"><span class="pre">out/</span></code>. The site
 gallery is a copy of those PNGs (same composition; not a cropped re-plot).
 Overlay uses the public 3-D default: three orthogonal panels. The
 triptych uses <code class="docutils literal notranslate"><span class="pre">axis=0</span></code> (one axial slice), which is the public default
