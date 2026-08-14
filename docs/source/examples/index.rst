@@ -7,8 +7,11 @@ Runnable Python scripts with captured narrative. Prefer the How-to chapter for
 Habitat examples load ``demo_data/preprocessed`` via
 :func:`~habit.cohort_from_directory`. Edit ``DATA`` / ``MODALITIES`` / ``ROI``
 (and ``out/`` paths) to point at your own preprocessed tree — same layout.
-Examples use explicit ``demo_data/preprocessed`` paths — change
-``DATA`` / modalities / ROI to your own tree and re-run.
+Those three knobs are documented in :doc:`../how_to/prepare_data` Option C;
+the folder tree is Option B (``images/<sid>/<mod>/...``,
+``masks/<sid>/<roi>/...``). Path-list YAML (Option A) is the CLI twin when
+files are scattered — keep modality keys identical to ``MODALITIES``.
+``demo_data/preprocessed`` is only the stand-in; swap ``DATA`` and re-run.
 
 Fastest habitat start::
 

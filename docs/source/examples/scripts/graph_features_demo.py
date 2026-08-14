@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-One subject → one-step habitats → graph features + 2D plot.
+One subject → one-step habitats (K=10) → graph features + plots.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -21,8 +21,9 @@ MODALITIES = ("LAP",)
 ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+# Fixed K=10 (not "auto") so the graph has a known number of habitats.
 result = one_step_habitat(
-    modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+    modalities=MODALITIES, n_habitats=10, random_seed=0, roi=ROI
 ).fit_predict(cohort)
 
 labels = result.habitat_maps[0].label_array
@@ -31,39 +32,48 @@ print(len(feats), "graph features")
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses labels from the habitat map.
-from habit.viz import plot_habitat_graph_network_2d
+# Paste after the Script block. Uses cohort, result, labels, and MODALITIES.
+from habit.viz import plot_habitat_graph_network_2d, plot_habitat_overlay
 
-fig = plot_habitat_graph_network_2d(labels)
 Path("out").mkdir(exist_ok=True)
+# Overlay: ImageVolume + HabitatMap (3-panel orthogonal default).
+fig = plot_habitat_overlay(
+    cohort[0].image(MODALITIES[0]),
+    result.habitat_maps[0],
+    title="One-step habitats (K=10)",
+)
+fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
+# Network plot takes the label array (the public API requires an array).
+fig = plot_habitat_graph_network_2d(labels)
 fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
-print("Wrote out/graph_habitat_network_2d.png")
+print("Wrote out/graph_habitat_slice_2d.png and out/graph_habitat_network_2d.png")
 # END figures
 
 if __name__ == "__main__":
+    import sys
+
     import matplotlib.pyplot as plt
 
-    from habit.viz import plot_habitat_overlay
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import copy_out_figures_to_gallery
 
-    # Docs gallery assets (maintainers); not part of the user-facing recipe.
-    gallery = Path("docs/source/_static/images/examples")
-    gallery.mkdir(parents=True, exist_ok=True)
-    image = cohort[0].image(MODALITIES[0]).data
-    fig.savefig(gallery / "graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
-    plt.close(fig)
-
-    fig = plot_habitat_overlay(
-        image, labels, axis=0, title="One-step habitats"
+    # Gallery = copy of out/ from the visible block (same composition).
+    copy_out_figures_to_gallery(
+        (
+            "graph_habitat_slice_2d.png",
+            "graph_habitat_network_2d.png",
+        )
     )
-    fig.savefig(gallery / "graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
-    plt.close(fig)
 
+    # Optional 3D renders need [view] / PyVista; keep them out of the recipe.
     try:
         from habit.viz import (
             render_habitat_graph_network_3d,
             render_habitat_graph_surface_3d,
         )
 
+        gallery = Path("docs/source/_static/images/examples")
+        gallery.mkdir(parents=True, exist_ok=True)
         vol = cohort[0].image(MODALITIES[0])
         spacing_zyx = (1.0, 1.0, 1.0)
         if vol.spacing is not None and len(vol.spacing) == 3:

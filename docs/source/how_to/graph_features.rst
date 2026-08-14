@@ -7,7 +7,8 @@ metrics) from habitat label maps, optionally with 2D/3D figures.
 Need habitat maps first (:doc:`segment_habitat`). Reviewer-grade formulas
 (nodes, edges, metrics, VOI normalization):
 :doc:`../reference/features/graph`. Short end-to-end gallery:
-:doc:`../examples/graph_features`.
+:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=10``,
+then graph features + overlay / 2D network).
 
 ``graph`` is a **built-in** light family under
 :doc:`../reference/features/index` (same tier as ``volume`` / ``msi`` /

@@ -13,14 +13,17 @@ Before you start
 * Prefer **NIfTI** (``.nii`` / ``.nii.gz``). Draw ROIs in ITK-SNAP or
   3D Slicer. DICOM → NIfTI: see :doc:`preprocess`.
 
-Two ways to provide data
-------------------------
+Three ways to provide data
+--------------------------
 
-**Recommended:** list every image / mask path in a small YAML file, then set
-that file as ``data_dir`` or ``data.source`` in your workflow config.
+**CLI / YAML (Option A):** list every image / mask path in a small YAML file,
+then set that file as ``data_dir`` or ``data.source`` in your workflow config.
 
-**Alternative:** point ``data_dir`` / ``data.source`` at a folder that already
-follows the HABIT tree (shown below).
+**CLI / YAML (Option B):** point ``data_dir`` / ``data.source`` at a folder
+that already follows the HABIT tree (shown below).
+
+**Python API (Option C):** the same folder tree, loaded with
+:func:`~habit.cohort_from_directory`. Gallery scripts use this path.
 
 Option A — path list YAML (recommended)
 ---------------------------------------
@@ -113,15 +116,45 @@ Then in the workflow YAML::
    data:
      source: demo_data/preprocessed
 
+Option C — Python API (gallery / your own tree)
+-----------------------------------------------
+
+The same three knobs appear in every gallery script. Point them at the
+Option B folder tree (``images/<sid>/<mod>/...``,
+``masks/<sid>/<roi>/...``). ``demo_data/preprocessed`` is the stand-in;
+swap ``DATA`` to your preprocessed root.
+
+.. code-block:: python
+
+   from habit import cohort_from_directory
+
+   # Change DATA / MODALITIES / ROI to your preprocessed layout
+   DATA = "demo_data/preprocessed"  # folder with images/ and masks/
+   MODALITIES = ("LAP",)            # series keys under each subject
+   ROI = "LAP"                      # mask key (often same as a modality)
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
+
+Path-list YAML (Option A) is the CLI/YAML twin when files are scattered.
+Modality keys in that YAML must match ``MODALITIES``.
+
+Then run a habitat recipe: :doc:`../examples/one_step_habitat`,
+:doc:`../examples/two_step_habitat`, or apply a published definition
+(:doc:`../examples/apply_saved_model`).
+
 What success looks like
 -----------------------
 
 * ``data_dir`` / ``data.source`` is either a **path-list YAML** or a **folder
   root** — never a bare ``.nii.gz``.
-* Subject IDs and modality keys match your habitat config.
+* Python scripts use the same folder root as ``DATA`` in Option C.
+* Subject IDs and modality keys match your habitat config (and
+  ``MODALITIES``).
 * Each subject has a usable ROI when the workflow needs masks.
 * ``habit check-config`` on the path-list YAML (``--syntax-only``) succeeds.
 
 Next: :doc:`preprocess` (DICOM / raw) or :doc:`segment_habitat`.
+Python gallery: :doc:`../examples/one_step_habitat` /
+:doc:`../examples/two_step_habitat` /
+:doc:`../examples/apply_saved_model`.
 
 Templates: ``config/`` — catalogue in :doc:`../configuration/recipe_catalog`.

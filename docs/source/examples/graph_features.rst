@@ -4,8 +4,9 @@ Graph features from habitat maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]`` /
 ``[view]`` for figures · **Time:** ~20–90 s
 
-End-to-end: one subject → :func:`~habit.one_step_habitat` →
-:func:`~habit.extract_graph_features` →
+End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
+``n_habitats=10`` (not ``"auto"``) →
+:func:`~habit.extract_graph_features` → overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
@@ -13,7 +14,9 @@ habitat-map feature family (same tier as ``volume`` / ``msi``); columns under
 Script
 ------
 
-Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree. Figures
+Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
+(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=10**, then
+extracts graph topology and draws the overlay plus the 2D network. Figures
 land under ``out/`` (swap that path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
@@ -24,8 +27,9 @@ land under ``out/`` (swap that path too if you like).
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``labels``). Writes
-``out/graph_habitat_network_2d.png``.
+Paste this after the Script block (it uses ``cohort``, ``result``, and
+``labels``). Writes ``out/graph_habitat_slice_2d.png`` (orthogonal overlay)
+and ``out/graph_habitat_network_2d.png``.
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -39,9 +43,9 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (count depends on the habitat map)::
+Illustrative (fixed ``n_habitats=10``; count depends on the habitat map)::
 
-   321 graph features
+   2988 graph features
 
 Anatomy with habitats
 ---------------------
