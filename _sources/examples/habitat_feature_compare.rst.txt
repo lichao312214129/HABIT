@@ -1,40 +1,34 @@
 Habitat feature contrast (cohort or one subject)
 ================================================
 
-**Level:** recipe / atomic · **Data:** ``demo_data`` · **Extras:**
-``[tables,viz]`` + ``pyradiomics`` · **Time:** ~5 min (3 subjects;
-first NRRD load dominates)
+**Level:** recipe / atomic · **Data:** synthetic stand-in table (swap
+``table``) · **Extras:** ``[tables,viz]`` · **Time:** < 1 min
 
-After habitat maps exist, ``each_habitat`` (and ``volume``) store one row
-per subject with wide columns ``habitat_{id}_{feature}``. Reviewers
-typically need the opposite view: for each feature, do habitats differ,
-and by how much?
+After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
+:func:`~habit.compare_habitat_features` melts the wide block so you can
+ask: for each feature, do habitats differ, and by how much?
 
-This page loads **real** ``demo_data/preprocessed`` images and existing
-``demo_data/results/habitat_two_step/*_habitats.nrrd`` maps (the
-get-habitat demo output). It crops each pair to the habitat foreground
-(full-FOV demo volumes are large; the crop is in the taught script, not
-a hidden helper), then extracts a **small first-order** ``each_habitat``
-bank plus the default ``graph`` family on the first three subjects
-(paired tests need :math:`n \ge 3`; the full demo cohort is five). Then
-it melts the wide block and draws the publication figures.
+This page builds a **synthetic** stand-in table (two habitats; first-order
+Mean / Median / Energy / Kurtosis plus ``volume_fraction``). Swap
+``table`` for your ``each_habitat`` /
+:func:`~habit.recipes.extract_habitat_features`
+:class:`~habit.contracts.FeatureTable`. Then it draws the publication
+figures. Bars are **one panel per feature** (independent y-axis) so Energy
+and ``volume_fraction`` are not forced onto one linear scale.
 
-``graph`` columns (``single_h*`` / ``pair_h*_h*``) live on the **same**
+``graph`` columns (``single_h*`` / ``pair_h*_h*``) can live on the same
 joined :class:`~habit.contracts.FeatureTable`. They are subject-level
-topology metrics (per habitat and per habitat pair) and do **not** match
-``habitat_{id}_{feature}``, so :func:`~habit.to_habitat_feature_panel`
-ignores them. Contrast the wide radiomics / volume block; inspect graph
-values as a separate table. Do not force topology metrics into a fake
-wide schema.
+topology metrics and do **not** match ``habitat_{id}_{feature}``, so
+:func:`~habit.to_habitat_feature_panel` ignores them. Contrast the wide
+radiomics / volume block; inspect graph values as a separate table.
 
 This is a software demo, not a clinical claim.
 
 Script
 ------
 
-Change ``DATA`` / ``MAPS`` / ``MODALITIES`` / ``ROI`` (and ``N_SUBJECTS``)
-to your preprocessed tree and get-habitat output. Figures land under
-``out/``.
+Change the ``table`` construction (or load your extract). Figures land
+under ``out/``.
 
 .. literalinclude:: scripts/habitat_feature_compare_demo.py
    :language: python
@@ -44,8 +38,8 @@ to your preprocessed tree and get-habitat output. Figures land under
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``comparison`` and
-``subject_id``). Writes ``out/habitat_feature_compare_*.png``.
+Paste this after the Script block (it uses ``cmp``). Writes
+``out/habitat_feature_{heatmap_cohort,heatmap_subject,effect,violin,bars}.png``.
 
 .. literalinclude:: scripts/habitat_feature_compare_demo.py
    :language: python
@@ -59,43 +53,25 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (three demo subjects, first-order ``each_habitat`` + default
-``graph`` + ``volume``)::
+Illustrative (12 synthetic subjects, two habitats, five features)::
 
-   Subjects: ['subj001', 'subj002', 'subj003']; habitats 1..5
-   Joined table: 3 rows x 848 columns (35 wide habitat_*, 805 graph)
-   Panel: 3 subjects, habitats=(1, 2, 3, 4, 5), features=7
-   Cohort contrast: n=3, paired=True, effect=cliffs_delta
-   Top absolute-effect features: original_firstorder_Mean_of_LAP, ...
+   12 subjects; 5 features
+   Wrote habitat-feature contrast figures under out/
 
 Figures
 -------
 
-Cohort / single-subject figures from the demo slice (not a clinical
+Cohort / single-subject figures from the taught script (not a clinical
 claim).
 
-.. figure:: ../_static/images/examples/habitat_feature_compare_heatmap.png
+.. figure:: ../_static/images/examples/habitat_feature_heatmap_cohort.png
    :alt: Cohort mean habitat-by-feature heatmap
    :width: 520
 
    Cohort mean habitat x feature
    (:func:`~habit.viz.plot_habitat_feature_heatmap`, z-scored).
 
-.. figure:: ../_static/images/examples/habitat_feature_compare_effect.png
-   :alt: Cliff's delta effect-size forest
-   :width: 420
-
-   Ranked Cliff's delta
-   (:func:`~habit.viz.plot_habitat_feature_effect`).
-
-.. figure:: ../_static/images/examples/habitat_feature_compare_violin.png
-   :alt: Top-k habitat feature violins
-   :width: 520
-
-   Top-k distributions
-   (:func:`~habit.viz.plot_habitat_feature_violin`).
-
-.. figure:: ../_static/images/examples/habitat_feature_compare_subject_heatmap.png
+.. figure:: ../_static/images/examples/habitat_feature_heatmap_subject.png
    :alt: One-subject habitat feature heatmap
    :width: 520
 
@@ -103,11 +79,25 @@ claim).
    (:func:`~habit.viz.plot_habitat_feature_heatmap` with
    ``subject_id``).
 
-.. figure:: ../_static/images/examples/habitat_feature_compare_bars.png
-   :alt: One-subject grouped bars
+.. figure:: ../_static/images/examples/habitat_feature_effect.png
+   :alt: Cliff's delta effect-size forest
    :width: 420
 
-   One-subject top-k bars
+   Ranked Cliff's delta
+   (:func:`~habit.viz.plot_habitat_feature_effect`).
+
+.. figure:: ../_static/images/examples/habitat_feature_violin.png
+   :alt: Per-feature habitat distributions
+   :width: 520
+
+   Top-k distributions
+   (:func:`~habit.viz.plot_habitat_feature_violin`).
+
+.. figure:: ../_static/images/examples/habitat_feature_bars.png
+   :alt: Per-feature habitat means with independent y-axes
+   :width: 620
+
+   Faceted bars, one panel per feature
    (:func:`~habit.viz.plot_habitat_feature_bars`).
 
 What to read next

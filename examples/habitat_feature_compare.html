@@ -21,7 +21,6 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -1758,34 +1757,28 @@
              
   <section id="habitat-feature-contrast-cohort-or-one-subject">
 <h1>Habitat feature contrast (cohort or one subject)<a class="headerlink" href="#habitat-feature-contrast-cohort-or-one-subject" title="Link to this heading"></a></h1>
-<p><strong>Level:</strong> recipe / atomic · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> · <strong>Extras:</strong>
-<code class="docutils literal notranslate"><span class="pre">[tables,viz]</span></code> + <code class="docutils literal notranslate"><span class="pre">pyradiomics</span></code> · <strong>Time:</strong> ~5 min (3 subjects;
-first NRRD load dominates)</p>
-<p>After habitat maps exist, <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> (and <code class="docutils literal notranslate"><span class="pre">volume</span></code>) store one row
-per subject with wide columns <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>. Reviewers
-typically need the opposite view: for each feature, do habitats differ,
-and by how much?</p>
-<p>This page loads <strong>real</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> images and existing
-<code class="docutils literal notranslate"><span class="pre">demo_data/results/habitat_two_step/*_habitats.nrrd</span></code> maps (the
-get-habitat demo output). It crops each pair to the habitat foreground
-(full-FOV demo volumes are large; the crop is in the taught script, not
-a hidden helper), then extracts a <strong>small first-order</strong> <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code>
-bank plus the default <code class="docutils literal notranslate"><span class="pre">graph</span></code> family on the first three subjects
-(paired tests need <span class="math notranslate nohighlight">\(n \ge 3\)</span>; the full demo cohort is five). Then
-it melts the wide block and draws the publication figures.</p>
-<p><code class="docutils literal notranslate"><span class="pre">graph</span></code> columns (<code class="docutils literal notranslate"><span class="pre">single_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code>) live on the <strong>same</strong>
+<p><strong>Level:</strong> recipe / atomic · <strong>Data:</strong> synthetic stand-in table (swap
+<code class="docutils literal notranslate"><span class="pre">table</span></code>) · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[tables,viz]</span></code> · <strong>Time:</strong> &lt; 1 min</p>
+<p>After an <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> (or any wide <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>) table,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compare_habitat_features()</span></code> melts the wide block so you can
+ask: for each feature, do habitats differ, and by how much?</p>
+<p>This page builds a <strong>synthetic</strong> stand-in table (two habitats; first-order
+Mean / Median / Energy / Kurtosis plus <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code>). Swap
+<code class="docutils literal notranslate"><span class="pre">table</span></code> for your <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> /
+<a class="reference internal" href="../api/generated/habit.recipes.extract_habitat_features.html#habit.recipes.extract_habitat_features" title="habit.recipes.extract_habitat_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_habitat_features()</span></code></a>
+<a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a>. Then it draws the publication
+figures. Bars are <strong>one panel per feature</strong> (independent y-axis) so Energy
+and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code> are not forced onto one linear scale.</p>
+<p><code class="docutils literal notranslate"><span class="pre">graph</span></code> columns (<code class="docutils literal notranslate"><span class="pre">single_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code>) can live on the same
 joined <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a>. They are subject-level
-topology metrics (per habitat and per habitat pair) and do <strong>not</strong> match
-<code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>, so <code class="xref py py-func docutils literal notranslate"><span class="pre">to_habitat_feature_panel()</span></code>
-ignores them. Contrast the wide radiomics / volume block; inspect graph
-values as a separate table. Do not force topology metrics into a fake
-wide schema.</p>
+topology metrics and do <strong>not</strong> match <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>, so
+<code class="xref py py-func docutils literal notranslate"><span class="pre">to_habitat_feature_panel()</span></code> ignores them. Contrast the wide
+radiomics / volume block; inspect graph values as a separate table.</p>
 <p>This is a software demo, not a clinical claim.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
-<p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MAPS</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> (and <code class="docutils literal notranslate"><span class="pre">N_SUBJECTS</span></code>)
-to your preprocessed tree and get-habitat output. Figures land under
-<code class="docutils literal notranslate"><span class="pre">out/</span></code>.</p>
+<p>Change the <code class="docutils literal notranslate"><span class="pre">table</span></code> construction (or load your extract). Figures land
+under <code class="docutils literal notranslate"><span class="pre">out/</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1835,8 +1828,8 @@ to your preprocessed tree and get-habitat output. Figures land under
 </section>
 <section id="draw-the-figures">
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
-<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">comparison</span></code> and
-<code class="docutils literal notranslate"><span class="pre">subject_id</span></code>). Writes <code class="docutils literal notranslate"><span class="pre">out/habitat_feature_compare_*.png</span></code>.</p>
+<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">cmp</span></code>). Writes
+<code class="docutils literal notranslate"><span class="pre">out/habitat_feature_{heatmap_cohort,heatmap_subject,effect,violin,bars}.png</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cmp.</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
@@ -1873,22 +1866,18 @@ to your preprocessed tree and get-habitat output. Figures land under
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (three demo subjects, first-order <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> + default
-<code class="docutils literal notranslate"><span class="pre">graph</span></code> + <code class="docutils literal notranslate"><span class="pre">volume</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Subjects</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;subj001&#39;</span><span class="p">,</span> <span class="s1">&#39;subj002&#39;</span><span class="p">,</span> <span class="s1">&#39;subj003&#39;</span><span class="p">];</span> <span class="n">habitats</span> <span class="mf">1..5</span>
-<span class="n">Joined</span> <span class="n">table</span><span class="p">:</span> <span class="mi">3</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">848</span> <span class="n">columns</span> <span class="p">(</span><span class="mi">35</span> <span class="n">wide</span> <span class="n">habitat_</span><span class="o">*</span><span class="p">,</span> <span class="mi">805</span> <span class="n">graph</span><span class="p">)</span>
-<span class="n">Panel</span><span class="p">:</span> <span class="mi">3</span> <span class="n">subjects</span><span class="p">,</span> <span class="n">habitats</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">features</span><span class="o">=</span><span class="mi">7</span>
-<span class="n">Cohort</span> <span class="n">contrast</span><span class="p">:</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">paired</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">effect</span><span class="o">=</span><span class="n">cliffs_delta</span>
-<span class="n">Top</span> <span class="n">absolute</span><span class="o">-</span><span class="n">effect</span> <span class="n">features</span><span class="p">:</span> <span class="n">original_firstorder_Mean_of_LAP</span><span class="p">,</span> <span class="o">...</span>
+<p>Illustrative (12 synthetic subjects, two habitats, five features):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">12</span> <span class="n">subjects</span><span class="p">;</span> <span class="mi">5</span> <span class="n">features</span>
+<span class="n">Wrote</span> <span class="n">habitat</span><span class="o">-</span><span class="n">feature</span> <span class="n">contrast</span> <span class="n">figures</span> <span class="n">under</span> <span class="n">out</span><span class="o">/</span>
 </pre></div>
 </div>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>Cohort / single-subject figures from the demo slice (not a clinical
+<p>Cohort / single-subject figures from the taught script (not a clinical
 claim).</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/habitat_feature_compare_heatmap.png"><img alt="Cohort mean habitat-by-feature heatmap" src="../_images/habitat_feature_compare_heatmap.png" width="520" />
+<a class="reference internal image-reference" href="../_images/habitat_feature_heatmap_cohort.png"><img alt="Cohort mean habitat-by-feature heatmap" src="../_images/habitat_feature_heatmap_cohort.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Cohort mean habitat x feature
@@ -1896,35 +1885,35 @@ claim).</p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/habitat_feature_compare_effect.png"><img alt="Cliff's delta effect-size forest" src="../_images/habitat_feature_compare_effect.png" width="420" />
-</a>
-<figcaption>
-<p><span class="caption-text">Ranked Cliff’s delta
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/habitat_feature_compare_violin.png"><img alt="Top-k habitat feature violins" src="../_images/habitat_feature_compare_violin.png" width="520" />
-</a>
-<figcaption>
-<p><span class="caption-text">Top-k distributions
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/habitat_feature_compare_subject_heatmap.png"><img alt="One-subject habitat feature heatmap" src="../_images/habitat_feature_compare_subject_heatmap.png" width="520" />
+<a class="reference internal image-reference" href="../_images/habitat_feature_heatmap_subject.png"><img alt="One-subject habitat feature heatmap" src="../_images/habitat_feature_heatmap_subject.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">One-subject profile
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a> with
-<code class="docutils literal notranslate"><span class="pre">subject_id</span></code>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<code class="docutils literal notranslate"><span class="pre">subject_id</span></code>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/habitat_feature_effect.png"><img alt="Cliff's delta effect-size forest" src="../_images/habitat_feature_effect.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ranked Cliff’s delta
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/habitat_feature_violin.png"><img alt="Per-feature habitat distributions" src="../_images/habitat_feature_violin.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Top-k distributions
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/habitat_feature_compare_bars.png"><img alt="One-subject grouped bars" src="../_images/habitat_feature_compare_bars.png" width="420" />
+<a class="reference internal image-reference" href="../_images/habitat_feature_bars.png"><img alt="Per-feature habitat means with independent y-axes" src="../_images/habitat_feature_bars.png" width="620" />
 </a>
 <figcaption>
-<p><span class="caption-text">One-subject top-k bars
+<p><span class="caption-text">Faceted bars, one panel per feature
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>

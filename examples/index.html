@@ -1825,17 +1825,17 @@ publication figures.</p>
 </figcaption>
 </figure>
 <p class="rubric">Featured: habitat-feature contrast</p>
-<p>Melt a wide <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table and contrast habitats across a real
-demo slice (heatmap, Cliff’s delta, violin, one-subject bars). <code class="docutils literal notranslate"><span class="pre">graph</span></code>
-is extracted with the default light set; topology columns stay on the
-table and do not enter the melt.</p>
+<p>Melt a wide <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table and contrast habitats (heatmap,
+Cliff’s delta, violin, <strong>faceted</strong> bars with one y-axis per feature).
+<code class="docutils literal notranslate"><span class="pre">graph</span></code> topology columns can stay on the same table and do not enter
+the melt.</p>
 <ul class="simple">
 <li><p>How-to (YAML / CLI): <a class="reference internal" href="../how_to/extract_features.html"><span class="doc">Feature extraction</span></a></p></li>
 <li><p>Runnable example + gallery: <a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a></p></li>
 <li><p>Column reference: <a class="reference internal" href="../reference/features/whole_each_habitat.html"><span class="doc">Whole / Each Habitat Radiomics</span></a></p></li>
 </ul>
 <figure class="align-default" id="id4">
-<a class="reference external image-reference" href="habitat_feature_compare.html"><img alt="Cohort mean habitat-by-feature heatmap from the contrast example" src="../_images/habitat_feature_compare_heatmap.png" width="420" />
+<a class="reference external image-reference" href="habitat_feature_compare.html"><img alt="Cohort mean habitat-by-feature heatmap from the contrast example" src="../_images/habitat_feature_heatmap_cohort.png" width="420" />
 </a>
 <figcaption>
 <p><span class="caption-text">Cohort heatmap from <a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
@@ -1877,7 +1877,7 @@ the ROI, optional cyan contour.</p>
 <li><p><a class="reference internal" href="precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a> — precise features</p></li>
 <li><p><a class="reference internal" href="custom_voxel_features.html"><span class="doc">DIY voxel features (expression + custom plugin)</span></a> — custom voxel features</p></li>
 <li><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a> — graph topology; one-step → extract → 2D/3D figures</p></li>
-<li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — real-data each_habitat + graph contrast figures</p></li>
+<li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — each_habitat contrast figures (heatmap / effect / violin / faceted bars)</p></li>
 <li><p><a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a> — light families + radiomics extract recipes</p></li>
 <li><p><a class="reference internal" href="features_radiomics_api.html"><span class="doc">Feature extraction and traditional radiomics API</span></a> — radiomics features API</p></li>
 <li><p><a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a> — tabular ML</p></li>
