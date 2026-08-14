@@ -7,7 +7,7 @@ Demonstrates:
 * **Batch** — ``train_model`` / ``cross_validate`` / ``predict_model`` on a
   :class:`~habit.contracts.FeatureTable`.
 * **Hold-out figures** — ROC, PR, calibration, DCA, confusion, permutation
-  importance (scored on held-out rows only).
+  importance, and the SHAP family (scored on held-out rows only).
 * **Pipeline artefact** — save/load a fitted :class:`~habit.domain.TablePipeline`
   (``.habitpipeline`` archive).
 
@@ -149,7 +149,9 @@ for index, column in enumerate(FEATURES):
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses y_true, y_prob, y_pred, FEATURES, imp_*, cv.
+# Paste after the Script block. Uses y_true, y_prob, y_pred, FEATURES, imp_*,
+# cv, holdout_table, reloaded. SHAP figures need habitat-analysis[explain].
+import shap
 from habit.viz import (
     plot_calibration,
     plot_confusion_matrix,
@@ -157,6 +159,14 @@ from habit.viz import (
     plot_permutation_importance,
     plot_precision_recall,
     plot_roc,
+    plot_shap_bar,
+    plot_shap_decision,
+    plot_shap_dependence,
+    plot_shap_force,
+    plot_shap_heatmap,
+    plot_shap_summary,
+    plot_shap_violin,
+    plot_shap_waterfall,
     use_style,
 )
 
@@ -194,6 +204,66 @@ with use_style("radiology"):
     ax_cv.grid(True, axis="y", linestyle="--", alpha=0.6)
     fig_cv.tight_layout()
     _save(fig_cv, "tabular_ml_cv_auc.png")
+
+    X = holdout_table.feature_matrix().to_numpy()
+
+    def _proba(data: np.ndarray) -> np.ndarray:
+        """Positive-class probability for a SHAP explainer."""
+        frame = pd.DataFrame(np.asarray(data), columns=list(FEATURES))
+        frame.insert(0, ID_COL, [f"shap_row_{i}" for i in range(len(frame))])
+        mini = FeatureTable(
+            frame=frame,
+            id_columns=(ID_COL,),
+            feature_columns=FEATURES,
+        )
+        return positive_scores(reloaded.predict_proba(mini))
+
+    n_bg = min(50, int(X.shape[0]))
+    background = shap.sample(X, n_bg) if X.shape[0] > n_bg else X
+    explainer = shap.Explainer(_proba, background)
+    explanation = explainer(X)
+    shap_values = np.asarray(explanation.values, dtype=np.float64)
+    if shap_values.ndim == 3:
+        shap_values = shap_values[:, :, -1]
+    raw_base = getattr(explanation, "base_values", 0.0)
+    if isinstance(raw_base, (list, tuple, np.ndarray)):
+        base_arr = np.asarray(raw_base, dtype=np.float64).reshape(-1)
+        base_value = float(base_arr[-1]) if base_arr.size else 0.0
+    else:
+        base_value = float(raw_base)
+
+    _save(
+        plot_shap_summary(shap_values, X, feature_names=FEATURES, title="Hold-out SHAP summary"),
+        "tabular_ml_shap_summary.png",
+    )
+    _save(
+        plot_shap_bar(shap_values, X, feature_names=FEATURES, title="Hold-out SHAP bar", base_value=base_value),
+        "tabular_ml_shap_bar.png",
+    )
+    _save(
+        plot_shap_violin(shap_values, X, feature_names=FEATURES, title="Hold-out SHAP violin"),
+        "tabular_ml_shap_violin.png",
+    )
+    _save(
+        plot_shap_heatmap(shap_values, X, feature_names=FEATURES, title="Hold-out SHAP heatmap", base_value=base_value),
+        "tabular_ml_shap_heatmap.png",
+    )
+    _save(
+        plot_shap_dependence(shap_values, X, 0, feature_names=FEATURES),
+        "tabular_ml_shap_dependence.png",
+    )
+    _save(
+        plot_shap_waterfall(shap_values, X, 0, feature_names=FEATURES, base_value=base_value, title="Hold-out SHAP waterfall"),
+        "tabular_ml_shap_waterfall.png",
+    )
+    _save(
+        plot_shap_decision(shap_values, X, feature_names=FEATURES, sample_indices=[0, 1, 2], base_value=base_value, title="Hold-out SHAP decision"),
+        "tabular_ml_shap_decision.png",
+    )
+    _save(
+        plot_shap_force(shap_values, X, 0, feature_names=FEATURES, base_value=base_value, title="Hold-out SHAP force"),
+        "tabular_ml_shap_force.png",
+    )
 # END figures
 
 if __name__ == "__main__":
@@ -207,6 +277,14 @@ if __name__ == "__main__":
         "out/tabular_ml_confusion.png": "tabular_ml_confusion.png",
         "out/tabular_ml_importance.png": "tabular_ml_importance.png",
         "out/tabular_ml_cv_auc.png": "tabular_ml_cv_auc.png",
+        "out/tabular_ml_shap_summary.png": "tabular_ml_shap_summary.png",
+        "out/tabular_ml_shap_bar.png": "tabular_ml_shap_bar.png",
+        "out/tabular_ml_shap_violin.png": "tabular_ml_shap_violin.png",
+        "out/tabular_ml_shap_heatmap.png": "tabular_ml_shap_heatmap.png",
+        "out/tabular_ml_shap_dependence.png": "tabular_ml_shap_dependence.png",
+        "out/tabular_ml_shap_waterfall.png": "tabular_ml_shap_waterfall.png",
+        "out/tabular_ml_shap_decision.png": "tabular_ml_shap_decision.png",
+        "out/tabular_ml_shap_force.png": "tabular_ml_shap_force.png",
     }
     for src, name in mapping.items():
         (gallery / name).write_bytes(Path(src).read_bytes())

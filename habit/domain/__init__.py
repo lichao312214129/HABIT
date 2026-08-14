@@ -151,6 +151,10 @@ from habit.domain.assignment import (
 from habit.domain.habitat_features import (
     EachHabitatRadiomicsFeatures,
     EachHabitatRadiomicsFeaturesParams,
+    HabitatFeatureComparison,
+    HabitatFeaturePanel,
+    compare_habitat_features,
+    to_habitat_feature_panel,
     GraphHabitatFeatures,
     GraphHabitatFeaturesParams,
     HabitatFeatureExtractorRegistry,
@@ -441,6 +445,10 @@ __all__ = [
     "WholeHabitatRadiomicsFeaturesParams",
     "EachHabitatRadiomicsFeatures",
     "EachHabitatRadiomicsFeaturesParams",
+    "HabitatFeaturePanel",
+    "HabitatFeatureComparison",
+    "to_habitat_feature_panel",
+    "compare_habitat_features",
     "HabitatFeatureExtractorRegistry",
     # Built-in table preprocessors.
     "TablePreprocessorRegistry",

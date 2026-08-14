@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Habitat feature contrast API: ``to_habitat_feature_panel`` /
+  ``compare_habitat_features`` melt an ``each_habitat`` table and run
+  paired habitat-vs-habitat tests (Cliff's delta or Cohen's d, BH-FDR).
+  Publication figures: heatmap, effect-size forest, violin, grouped bars
+  (cohort mean or one subject). High-dimensional texture tables use the
+  heatmap + top-k effect plot, not one violin per feature.
+- SHAP figure family on ``habit.viz``: ``plot_shap_bar``,
+  ``plot_shap_violin``, ``plot_shap_heatmap``, ``plot_shap_decision``,
+  ``plot_shap_force`` (static matplotlib). YAML ``plot_types`` accepts
+  the new names; they stay opt-in (default still includes ``shap``
+  beeswarm only). ML gallery documents the full set.
+
 ### Changed
 
 - Graph topology default edge rule is now voxel adjacency with a minimum

@@ -231,6 +231,52 @@ def test_write_ml_figures_from_config_holdout(tmp_path: Path) -> None:
         assert (tmp_path / f"{prefix}calibration_curve.png").is_file()
 
 
+def test_shap_plot_family_returns_figures() -> None:
+    """Each public SHAP plotter returns a Figure when shap is installed."""
+    shap = pytest.importorskip("shap")
+    from habit.viz.classification import (
+        plot_shap_bar,
+        plot_shap_decision,
+        plot_shap_dependence,
+        plot_shap_force,
+        plot_shap_heatmap,
+        plot_shap_summary,
+        plot_shap_violin,
+        plot_shap_waterfall,
+    )
+
+    rng = np.random.RandomState(0)
+    features = rng.randn(40, 5)
+    shap_values = 0.3 * features + 0.05 * rng.randn(40, 5)
+    names = [f"feat_{i}" for i in range(5)]
+    plotters = [
+        lambda: plot_shap_summary(shap_values, features, feature_names=names),
+        lambda: plot_shap_bar(shap_values, features, feature_names=names),
+        lambda: plot_shap_violin(shap_values, features, feature_names=names),
+        lambda: plot_shap_heatmap(shap_values, features, feature_names=names),
+        lambda: plot_shap_dependence(
+            shap_values, features, 0, feature_names=names
+        ),
+        lambda: plot_shap_waterfall(
+            shap_values, features, 0, feature_names=names, base_value=0.1
+        ),
+        lambda: plot_shap_decision(
+            shap_values,
+            features,
+            feature_names=names,
+            sample_indices=[0, 1, 2],
+            base_value=0.1,
+        ),
+        lambda: plot_shap_force(
+            shap_values, features, 0, feature_names=names, base_value=0.1
+        ),
+    ]
+    for plotter in plotters:
+        fig = plotter()
+        assert isinstance(fig, Figure)
+    _ = shap
+
+
 def test_rank_and_permutation_plotters() -> None:
     """Explainability helpers return figures / ranked indices."""
     from habit.viz.classification import (

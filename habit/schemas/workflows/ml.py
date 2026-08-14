@@ -108,13 +108,18 @@ class ExplainabilityConfig(BaseModel):
     Tuning knobs for the explanation figures beyond the SHAP summary plots.
 
     The figures themselves are switched on through ``plot_types``
-    (``shap_dependence`` / ``shap_waterfall`` / ``permutation``); this block only
-    controls how much of each is produced.
+    (``shap_dependence`` / ``shap_waterfall`` / ``shap_decision`` /
+    ``shap_force`` / ``permutation``); this block only controls how much
+    of each is produced.
     """
     #: Number of highest-attribution features to draw dependence plots for.
     shap_dependence_top_k: int = 3
     #: Number of individual samples to export waterfall explanations for.
     shap_waterfall_samples: int = 3
+    #: Number of samples drawn on the SHAP decision plot.
+    shap_decision_samples: int = 10
+    #: Number of individual samples to export static force plots for.
+    shap_force_samples: int = 3
     #: Shuffles per feature for permutation importance.
     permutation_repeats: int = 10
     #: sklearn scoring name used as the permutation-importance reference metric.
@@ -132,8 +137,8 @@ class ExplainabilityConfig(BaseModel):
 
 class VisualizationConfig(BaseModel):
     #: Figures rendered through ``habit.viz.classification`` (CLI/recipe
-    #: reporting). The three explanation figures are opt-in because they are
-    #: markedly slower than the curve plots.
+    #: reporting). Extra SHAP types beyond ``shap`` are opt-in because they
+    #: are markedly slower than the curve plots.
     ALLOWED_PLOT_TYPES: ClassVar[Tuple[str, ...]] = (
         'roc',
         'dca',
@@ -141,8 +146,13 @@ class VisualizationConfig(BaseModel):
         'pr',
         'confusion',
         'shap',
+        'shap_bar',
+        'shap_violin',
+        'shap_heatmap',
         'shap_dependence',
         'shap_waterfall',
+        'shap_decision',
+        'shap_force',
         'permutation',
     )
 

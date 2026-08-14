@@ -16,6 +16,12 @@
 
 from __future__ import annotations
 
+from habit.domain.habitat_features.compare import (
+    HabitatFeatureComparison,
+    HabitatFeaturePanel,
+    compare_habitat_features,
+    to_habitat_feature_panel,
+)
 from habit.domain.habitat_features.each_habitat import (
     EachHabitatRadiomicsFeatures,
     EachHabitatRadiomicsFeaturesParams,
@@ -59,6 +65,10 @@ __all__ = [
     "WholeHabitatRadiomicsFeaturesParams",
     "EachHabitatRadiomicsFeatures",
     "EachHabitatRadiomicsFeaturesParams",
+    "HabitatFeaturePanel",
+    "HabitatFeatureComparison",
+    "to_habitat_feature_panel",
+    "compare_habitat_features",
     "HabitatVolumeFeatures",
     "HabitatVolumeFeaturesParams",
     "HabitatFeatureExtractorRegistry",

@@ -323,6 +323,12 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     # must name it to declare the column schema of the frames it slices, so
     # it is part of the public vocabulary. ``habit.compat.sklearn`` keeps
     # deprecated aliases of the two older factories for all of v1.x.
+    "domain.habitat_features.compare": (
+        "HabitatFeaturePanel",
+        "HabitatFeatureComparison",
+        "to_habitat_feature_panel",
+        "compare_habitat_features",
+    ),
     "domain.sklearn_interop": (
         "FrameToTable",
         "as_transformer",
@@ -375,9 +381,18 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_decision_curve",
         "plot_confusion_matrix",
         "plot_shap_summary",
+        "plot_shap_bar",
+        "plot_shap_violin",
+        "plot_shap_heatmap",
+        "plot_shap_decision",
+        "plot_shap_force",
         "plot_shap_dependence",
         "plot_shap_waterfall",
         "plot_permutation_importance",
+        "plot_habitat_feature_heatmap",
+        "plot_habitat_feature_effect",
+        "plot_habitat_feature_violin",
+        "plot_habitat_feature_bars",
         "rank_shap_feature_indices",
         "select_representative_sample_indices",
         "net_benefit",

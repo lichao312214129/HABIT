@@ -259,6 +259,18 @@ Domain: ``habitat_feature_extractor``
 * ``whole_habitat`` → ``WholeHabitatRadiomicsFeatures``
 * ``each_habitat`` → ``EachHabitatRadiomicsFeatures``
 
+Compare features between habitats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After ``each_habitat`` (or any wide ``habitat_{id}_{feature}`` table),
+:func:`~habit.to_habitat_feature_panel` / :func:`~habit.compare_habitat_features`
+contrast habitats on the **cohort** (paired Cliff's delta, BH-FDR) or on
+one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
+:func:`~habit.viz.plot_habitat_feature_effect`,
+:func:`~habit.viz.plot_habitat_feature_violin`,
+:func:`~habit.viz.plot_habitat_feature_bars`. See
+:doc:`../reference/features/whole_each_habitat`.
+
 For array-only callers, use the public kernel helpers
 :func:`~habit.extract_graph_features` /
 :class:`~habit.HabitatGraphFeatureOptions` (same numeric definitions). Prefer

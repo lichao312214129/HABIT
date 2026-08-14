@@ -51,11 +51,22 @@ from habit.viz.classification import (
     plot_permutation_importance,
     plot_precision_recall,
     plot_roc,
+    plot_shap_bar,
+    plot_shap_decision,
     plot_shap_dependence,
+    plot_shap_force,
+    plot_shap_heatmap,
     plot_shap_summary,
+    plot_shap_violin,
     plot_shap_waterfall,
     rank_shap_feature_indices,
     select_representative_sample_indices,
+)
+from habit.viz.habitat_features import (
+    plot_habitat_feature_bars,
+    plot_habitat_feature_effect,
+    plot_habitat_feature_heatmap,
+    plot_habitat_feature_violin,
 )
 from habit.viz.labels import sanitize_label
 from habit.viz.regression import (
@@ -132,6 +143,11 @@ __all__ = [
     "plot_decision_curve",
     "plot_confusion_matrix",
     "plot_shap_summary",
+    "plot_shap_bar",
+    "plot_shap_violin",
+    "plot_shap_heatmap",
+    "plot_shap_decision",
+    "plot_shap_force",
     "plot_shap_dependence",
     "plot_shap_waterfall",
     "plot_permutation_importance",
@@ -152,6 +168,10 @@ __all__ = [
     "plot_ith_summary",
     "plot_habitat_label_compare",
     "plot_partition_triptych",
+    "plot_habitat_feature_heatmap",
+    "plot_habitat_feature_effect",
+    "plot_habitat_feature_violin",
+    "plot_habitat_feature_bars",
     # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",

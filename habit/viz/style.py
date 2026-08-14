@@ -141,6 +141,8 @@ class StyleSpec:
             "pdf.fonttype": 42,  # embed TrueType so editors can re-typeset
             "ps.fonttype": 42,
             "svg.fonttype": "none",  # keep text as text in SVG
+            # ASCII hyphen-minus on ticks (U+2212 is not journal-safe here).
+            "axes.unicode_minus": False,
         }
         if self.font_family == "serif":
             base["font.serif"] = list(_SERIF_FONT_LIST)

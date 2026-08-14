@@ -351,6 +351,10 @@ Habitat feature extractors
    habit.domain.NonRadiomicsHabitatFeaturesParams
    habit.domain.EachHabitatRadiomicsFeatures
    habit.domain.EachHabitatRadiomicsFeaturesParams
+   habit.domain.to_habitat_feature_panel
+   habit.domain.compare_habitat_features
+   habit.domain.HabitatFeaturePanel
+   habit.domain.HabitatFeatureComparison
    habit.domain.WholeHabitatRadiomicsFeatures
    habit.domain.WholeHabitatRadiomicsFeaturesParams
    habit.domain.TraditionalRadiomicsHabitatFeatures
@@ -857,6 +861,14 @@ Regression and classification
    habit.viz.plot_calibration
    habit.viz.plot_decision_curve
    habit.viz.plot_confusion_matrix
+   habit.viz.plot_shap_summary
+   habit.viz.plot_shap_bar
+   habit.viz.plot_shap_violin
+   habit.viz.plot_shap_heatmap
+   habit.viz.plot_shap_dependence
+   habit.viz.plot_shap_waterfall
+   habit.viz.plot_shap_decision
+   habit.viz.plot_shap_force
    habit.viz.plot_permutation_importance
 
 Habitat clustering and overlay
@@ -876,6 +888,10 @@ Habitat clustering and overlay
    habit.viz.plot_ith_summary
    habit.viz.plot_habitat_label_compare
    habit.viz.plot_partition_triptych
+   habit.viz.plot_habitat_feature_heatmap
+   habit.viz.plot_habitat_feature_effect
+   habit.viz.plot_habitat_feature_violin
+   habit.viz.plot_habitat_feature_bars
    habit.viz.plot_habitat_graph_slice
    habit.viz.plot_habitat_graph_network_2d
    habit.viz.render_habitat_graph_surface_3d

@@ -20,13 +20,14 @@ matplotlib ``Figure`` out, no filesystem. All text is sanitised to ASCII via
 
 The panel covers the standard imaging-paper set for a binary classifier:
 ROC, precision-recall, calibration, decision-curve analysis, and the
-confusion matrix. SHAP summary rendering is available when the caller already
-holds attribution values (computation stays outside this package).
+confusion matrix. SHAP figures (beeswarm, bar, violin, heatmap, dependence,
+waterfall, decision, force) are available when the caller already holds
+attribution values (computation stays outside this package).
 """
 
 from __future__ import annotations
 
-from typing import Mapping, Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -42,6 +43,11 @@ __all__ = [
     "plot_decision_curve",
     "plot_confusion_matrix",
     "plot_shap_summary",
+    "plot_shap_bar",
+    "plot_shap_violin",
+    "plot_shap_heatmap",
+    "plot_shap_decision",
+    "plot_shap_force",
     "plot_shap_dependence",
     "plot_shap_waterfall",
     "plot_permutation_importance",
@@ -523,6 +529,121 @@ def plot_confusion_matrix(
     return fig
 
 
+def _call_shap_drawer(draw) -> None:
+    """
+    Run a SHAP plotting call, ignoring tight_layout engine clashes.
+
+    Recent matplotlib refuses to swap layout engines after a colorbar
+    exists; several ``shap.plots.*`` helpers still call ``tight_layout``
+    and raise. The figure is already drawn -- swallow that RuntimeError.
+    """
+    plt = _plt()
+    original = plt.tight_layout
+
+    def _safe_tight_layout(*args, **kwargs):
+        try:
+            original(*args, **kwargs)
+        except RuntimeError:
+            pass
+
+    plt.tight_layout = _safe_tight_layout  # type: ignore[method-assign]
+    try:
+        draw()
+    finally:
+        plt.tight_layout = original  # type: ignore[method-assign]
+
+
+def _require_shap(owner: str):
+    """
+    Import shap or raise the same optional-extra error as the other plots.
+
+    Args:
+        owner: Public function name used in the error message.
+
+    Returns:
+        The ``shap`` module.
+
+    Raises:
+        OptionalDependencyError: When shap is not installed.
+    """
+    try:
+        import shap  # type: ignore
+    except ImportError as exc:
+        from habit.exceptions import OptionalDependencyError
+
+        raise OptionalDependencyError(
+            f"{owner} requires the optional 'shap' package. "
+            'Install it with: pip install "habitat-analysis[explain]" '
+            "(or pip install shap)."
+        ) from exc
+    return shap
+
+
+def _as_aligned_shap_arrays(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    *,
+    owner: str,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Validate that attribution and feature matrices share a 2-D shape."""
+    values = np.asarray(shap_values, dtype=np.float64)
+    feats = np.asarray(features, dtype=np.float64)
+    if values.ndim != 2 or feats.ndim != 2:
+        raise HABITAPIError(
+            f"habit.viz.{owner}: shap_values and features must be 2-D."
+        )
+    if values.shape != feats.shape:
+        raise HABITAPIError(
+            f"habit.viz.{owner}: shap_values and features must share "
+            f"shape; got {values.shape} and {feats.shape}."
+        )
+    return values, feats
+
+
+def _shap_feature_names(
+    feature_names: Optional[Sequence[str]],
+    n_features: int,
+) -> list[str]:
+    """ASCII-sanitise names, or fall back to f0..fN."""
+    if feature_names is not None:
+        return [sanitize_label(name) for name in feature_names]
+    return [f"f{i}" for i in range(n_features)]
+
+
+def _finish_shap_figure(fig, title: str):
+    """
+    Apply title and a best-effort tight layout.
+
+    SHAP's own drawers often create a colorbar and then call
+    ``tight_layout``; a second call can raise ``RuntimeError`` when the
+    layout engine cannot be swapped. The figure is still valid.
+    """
+    fig.suptitle(sanitize_label(title))
+    try:
+        fig.tight_layout()
+    except RuntimeError:
+        pass
+    return fig
+
+
+def _shap_explanation(
+    shap: object,
+    values: np.ndarray,
+    feats: np.ndarray,
+    names: Sequence[str],
+    *,
+    base_value: float = 0.0,
+):
+    """Build a shap.Explanation for the modern plotting API."""
+    n_rows = int(values.shape[0])
+    return shap.Explanation(  # type: ignore[attr-defined]
+        values=values,
+        base_values=np.full(n_rows, float(base_value), dtype=np.float64),
+        data=feats,
+        feature_names=list(names),
+    )
+
+
 def plot_shap_summary(
     shap_values: np.ndarray,
     features: np.ndarray,
@@ -547,46 +668,263 @@ def plot_shap_summary(
     Raises:
         HABITAPIError: When shapes disagree or ``shap`` is not installed.
     """
-    try:
-        import shap  # type: ignore
-    except ImportError as exc:
-        from habit.exceptions import OptionalDependencyError
-
-        raise OptionalDependencyError(
-            "plot_shap_summary requires the optional 'shap' package. "
-            'Install it with: pip install "habitat-analysis[explain]" '
-            "(or pip install shap)."
-        ) from exc
-
-    values = np.asarray(shap_values, dtype=np.float64)
-    feats = np.asarray(features, dtype=np.float64)
-    if values.ndim != 2 or feats.ndim != 2:
-        raise HABITAPIError(
-            "habit.viz.plot_shap_summary: shap_values and features must be 2-D."
-        )
-    if values.shape != feats.shape:
-        raise HABITAPIError(
-            "habit.viz.plot_shap_summary: shap_values and features must share "
-            f"shape; got {values.shape} and {feats.shape}."
-        )
-    names = (
-        [sanitize_label(name) for name in feature_names]
-        if feature_names is not None
-        else [f"f{i}" for i in range(values.shape[1])]
+    shap = _require_shap("plot_shap_summary")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_summary"
     )
+    names = _shap_feature_names(feature_names, values.shape[1])
     plt = _plt()
     # shap.summary_plot draws on the current axes; capture that figure.
-    shap.summary_plot(
-        values,
-        feats,
-        feature_names=names,
-        max_display=int(max_display),
-        show=False,
+    _call_shap_drawer(
+        lambda: shap.summary_plot(
+            values,
+            feats,
+            feature_names=names,
+            max_display=int(max_display),
+            show=False,
+        )
     )
     fig = plt.gcf()
-    fig.suptitle(sanitize_label(title))
-    fig.tight_layout()
-    return fig
+    return _finish_shap_figure(fig, title)
+
+
+def plot_shap_bar(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    *,
+    feature_names: Optional[Sequence[str]] = None,
+    title: str = "SHAP bar",
+    max_display: int = 20,
+    base_value: float = 0.0,
+):
+    """
+    Global mean |SHAP| bar chart (``shap.plots.bar``).
+
+    Args:
+        shap_values: Attribution matrix ``(n_samples, n_features)``.
+        features: Feature matrix aligned with ``shap_values``.
+        feature_names: Optional column names (ASCII-sanitised on draw).
+        title: Figure title (sanitised).
+        max_display: Maximum number of features to show.
+        base_value: Explainer base value stored on the Explanation.
+
+    Returns:
+        The matplotlib ``Figure``.
+    """
+    shap = _require_shap("plot_shap_bar")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_bar"
+    )
+    names = _shap_feature_names(feature_names, values.shape[1])
+    explanation = _shap_explanation(
+        shap, values, feats, names, base_value=base_value
+    )
+    plt = _plt()
+    _call_shap_drawer(
+        lambda: shap.plots.bar(
+            explanation, max_display=int(max_display), show=False
+        )
+    )
+    fig = plt.gcf()
+    return _finish_shap_figure(fig, title)
+
+
+def plot_shap_violin(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    *,
+    feature_names: Optional[Sequence[str]] = None,
+    title: str = "SHAP violin",
+    max_display: int = 20,
+):
+    """
+    Violin-style SHAP summary (``summary_plot(plot_type='violin')``).
+
+    Args:
+        shap_values: Attribution matrix ``(n_samples, n_features)``.
+        features: Feature matrix aligned with ``shap_values``.
+        feature_names: Optional column names.
+        title: Figure title (sanitised).
+        max_display: Maximum number of features to show.
+
+    Returns:
+        The matplotlib ``Figure``.
+    """
+    shap = _require_shap("plot_shap_violin")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_violin"
+    )
+    names = _shap_feature_names(feature_names, values.shape[1])
+    plt = _plt()
+    _call_shap_drawer(
+        lambda: shap.summary_plot(
+            values,
+            feats,
+            feature_names=names,
+            plot_type="violin",
+            max_display=int(max_display),
+            show=False,
+        )
+    )
+    fig = plt.gcf()
+    return _finish_shap_figure(fig, title)
+
+
+def plot_shap_heatmap(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    *,
+    feature_names: Optional[Sequence[str]] = None,
+    title: str = "SHAP heatmap",
+    max_display: int = 20,
+    base_value: float = 0.0,
+):
+    """
+    Instance x feature SHAP heatmap (``shap.plots.heatmap``).
+
+    Args:
+        shap_values: Attribution matrix ``(n_samples, n_features)``.
+        features: Feature matrix aligned with ``shap_values``.
+        feature_names: Optional column names.
+        title: Figure title (sanitised).
+        max_display: Maximum number of features to show.
+        base_value: Explainer base value stored on the Explanation.
+
+    Returns:
+        The matplotlib ``Figure``.
+    """
+    shap = _require_shap("plot_shap_heatmap")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_heatmap"
+    )
+    names = _shap_feature_names(feature_names, values.shape[1])
+    explanation = _shap_explanation(
+        shap, values, feats, names, base_value=base_value
+    )
+    plt = _plt()
+    _call_shap_drawer(
+        lambda: shap.plots.heatmap(
+            explanation, max_display=int(max_display), show=False
+        )
+    )
+    fig = plt.gcf()
+    return _finish_shap_figure(fig, title)
+
+
+def plot_shap_decision(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    *,
+    feature_names: Optional[Sequence[str]] = None,
+    sample_indices: Optional[Sequence[int]] = None,
+    base_value: float = 0.0,
+    title: str = "SHAP decision",
+):
+    """
+    SHAP decision paths for a handful of samples.
+
+    Args:
+        shap_values: Attribution matrix ``(n_samples, n_features)``.
+        features: Feature matrix aligned with ``shap_values``.
+        feature_names: Optional column names.
+        sample_indices: Rows to draw. Default: up to 10 evenly spaced
+            samples across the SHAP-sum range.
+        base_value: Explainer base value (positive class).
+        title: Figure title (sanitised).
+
+    Returns:
+        The matplotlib ``Figure``.
+    """
+    shap = _require_shap("plot_shap_decision")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_decision"
+    )
+    names = _shap_feature_names(feature_names, values.shape[1])
+    if sample_indices is None:
+        indices = select_representative_sample_indices(
+            values.sum(axis=1), n_samples=min(10, values.shape[0])
+        )
+    else:
+        indices = [int(i) for i in sample_indices]
+    if not indices:
+        raise HABITAPIError(
+            "habit.viz.plot_shap_decision: sample_indices is empty."
+        )
+    for index in indices:
+        if index < 0 or index >= values.shape[0]:
+            raise HABITAPIError(
+                f"habit.viz.plot_shap_decision: sample_index {index} out "
+                f"of range for {values.shape[0]} samples."
+            )
+    plt = _plt()
+    plt.figure(figsize=(7.0, 5.0))
+    _call_shap_drawer(
+        lambda: shap.plots.decision(
+            float(base_value),
+            values[indices],
+            feats[indices],
+            feature_names=names,
+            show=False,
+        )
+    )
+    fig = plt.gcf()
+    return _finish_shap_figure(fig, title)
+
+
+def plot_shap_force(
+    shap_values: np.ndarray,
+    features: np.ndarray,
+    sample_index: int,
+    *,
+    feature_names: Optional[Sequence[str]] = None,
+    base_value: float = 0.0,
+    title: Optional[str] = None,
+):
+    """
+    Static matplotlib force plot for one sample.
+
+    Interactive JS/HTML force plots are not returned -- this is the
+    print-safe ``matplotlib=True`` form.
+
+    Args:
+        shap_values: Attribution matrix ``(n_samples, n_features)``.
+        features: Feature matrix aligned with ``shap_values``.
+        sample_index: Row to explain.
+        feature_names: Optional column names.
+        base_value: Explainer base value (positive class).
+        title: Optional figure title.
+
+    Returns:
+        The matplotlib ``Figure``.
+    """
+    shap = _require_shap("plot_shap_force")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_force"
+    )
+    row = int(sample_index)
+    if row < 0 or row >= values.shape[0]:
+        raise HABITAPIError(
+            f"habit.viz.plot_shap_force: sample_index {row} out of "
+            f"range for {values.shape[0]} samples."
+        )
+    names = _shap_feature_names(feature_names, values.shape[1])
+    plt = _plt()
+    plt.figure(figsize=(8.0, 3.2))
+    _call_shap_drawer(
+        lambda: shap.plots.force(
+            float(base_value),
+            values[row],
+            feats[row],
+            feature_names=names,
+            matplotlib=True,
+            show=False,
+        )
+    )
+    fig = plt.gcf()
+    resolved = (
+        title if title is not None else f"SHAP force: sample {row}"
+    )
+    return _finish_shap_figure(fig, resolved)
 
 
 def rank_shap_feature_indices(
@@ -649,6 +987,7 @@ def plot_shap_dependence(
     feature_index: int,
     *,
     feature_names: Optional[Sequence[str]] = None,
+    interaction_index: Union[int, str] = "auto",
     title: Optional[str] = None,
 ):
     """
@@ -659,55 +998,40 @@ def plot_shap_dependence(
         features: Feature matrix aligned with ``shap_values``.
         feature_index: Column index to explain.
         feature_names: Optional column names.
+        interaction_index: Color-by feature (``"auto"`` or a column index).
         title: Optional figure title; defaults to the feature name.
 
     Returns:
         The matplotlib ``Figure``.
     """
-    try:
-        import shap  # type: ignore
-    except ImportError as exc:
-        from habit.exceptions import OptionalDependencyError
-
-        raise OptionalDependencyError(
-            "plot_shap_dependence requires the optional 'shap' package. "
-            'Install it with: pip install "habitat-analysis[explain]" '
-            "(or pip install shap)."
-        ) from exc
-
-    values = np.asarray(shap_values, dtype=np.float64)
-    feats = np.asarray(features, dtype=np.float64)
-    if values.ndim != 2 or feats.ndim != 2 or values.shape != feats.shape:
-        raise HABITAPIError(
-            "habit.viz.plot_shap_dependence: shap_values and features must "
-            "be 2-D arrays of equal shape."
-        )
+    shap = _require_shap("plot_shap_dependence")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_dependence"
+    )
     index = int(feature_index)
     if index < 0 or index >= values.shape[1]:
         raise HABITAPIError(
             f"habit.viz.plot_shap_dependence: feature_index {index} out of "
             f"range for {values.shape[1]} features."
         )
-    names = (
-        [sanitize_label(name) for name in feature_names]
-        if feature_names is not None
-        else [f"f{i}" for i in range(values.shape[1])]
-    )
+    names = _shap_feature_names(feature_names, values.shape[1])
     plt = _plt()
     plt.figure(figsize=(5.0, 4.0))
-    shap.dependence_plot(
-        index,
-        values,
-        feats,
-        feature_names=names,
-        interaction_index="auto",
-        show=False,
+    _call_shap_drawer(
+        lambda: shap.dependence_plot(
+            index,
+            values,
+            feats,
+            feature_names=names,
+            interaction_index=interaction_index,
+            show=False,
+        )
     )
     fig = plt.gcf()
     resolved_title = title if title is not None else f"SHAP Dependence: {names[index]}"
-    fig.axes[0].set_title(sanitize_label(resolved_title))
-    fig.tight_layout()
-    return fig
+    if fig.axes:
+        fig.axes[0].set_title(sanitize_label(resolved_title))
+    return _finish_shap_figure(fig, resolved_title)
 
 
 def plot_shap_waterfall(
@@ -733,35 +1057,17 @@ def plot_shap_waterfall(
     Returns:
         The matplotlib ``Figure``.
     """
-    try:
-        import shap  # type: ignore
-    except ImportError as exc:
-        from habit.exceptions import OptionalDependencyError
-
-        raise OptionalDependencyError(
-            "plot_shap_waterfall requires the optional 'shap' package. "
-            'Install it with: pip install "habitat-analysis[explain]" '
-            "(or pip install shap)."
-        ) from exc
-
-    values = np.asarray(shap_values, dtype=np.float64)
-    feats = np.asarray(features, dtype=np.float64)
-    if values.ndim != 2 or feats.ndim != 2 or values.shape != feats.shape:
-        raise HABITAPIError(
-            "habit.viz.plot_shap_waterfall: shap_values and features must "
-            "be 2-D arrays of equal shape."
-        )
+    shap = _require_shap("plot_shap_waterfall")
+    values, feats = _as_aligned_shap_arrays(
+        shap_values, features, owner="plot_shap_waterfall"
+    )
     row = int(sample_index)
     if row < 0 or row >= values.shape[0]:
         raise HABITAPIError(
             f"habit.viz.plot_shap_waterfall: sample_index {row} out of "
             f"range for {values.shape[0]} samples."
         )
-    names = (
-        [sanitize_label(name) for name in feature_names]
-        if feature_names is not None
-        else [f"f{i}" for i in range(values.shape[1])]
-    )
+    names = _shap_feature_names(feature_names, values.shape[1])
     explanation = shap.Explanation(
         values=values[row],
         base_values=float(base_value),
@@ -770,12 +1076,10 @@ def plot_shap_waterfall(
     )
     plt = _plt()
     plt.figure(figsize=(6.0, 5.0))
-    shap.plots.waterfall(explanation, show=False)
+    _call_shap_drawer(lambda: shap.plots.waterfall(explanation, show=False))
     fig = plt.gcf()
     resolved = title if title is not None else f"SHAP Explanation: Sample {row}"
-    fig.suptitle(sanitize_label(resolved))
-    fig.tight_layout()
-    return fig
+    return _finish_shap_figure(fig, resolved)
 
 
 def plot_permutation_importance(

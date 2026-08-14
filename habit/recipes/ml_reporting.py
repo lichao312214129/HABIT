@@ -56,7 +56,18 @@ _VIZ_PURPOSE = "machine-learning report figures"
 
 _CURVE_TYPES = frozenset({"roc", "dca", "calibration", "pr"})
 _LABEL_TYPES = frozenset({"confusion"})
-_SHAP_TYPES = frozenset({"shap", "shap_dependence", "shap_waterfall"})
+_SHAP_TYPES = frozenset(
+    {
+        "shap",
+        "shap_bar",
+        "shap_violin",
+        "shap_heatmap",
+        "shap_dependence",
+        "shap_waterfall",
+        "shap_decision",
+        "shap_force",
+    }
+)
 _KNOWN_TYPES = _CURVE_TYPES | _LABEL_TYPES | _SHAP_TYPES | frozenset({"permutation"})
 
 
@@ -188,8 +199,9 @@ def write_classification_figures(
         y_prob: Positive-class predicted probabilities.
         destination: Directory for figure files (created when missing).
         plot_types: Subset of ``roc`` / ``dca`` / ``calibration`` / ``pr`` /
-            ``confusion`` / ``shap`` / ``shap_dependence`` /
-            ``shap_waterfall`` / ``permutation``.
+            ``confusion`` / ``shap`` / ``shap_bar`` / ``shap_violin`` /
+            ``shap_heatmap`` / ``shap_dependence`` / ``shap_waterfall`` /
+            ``shap_decision`` / ``shap_force`` / ``permutation``.
         y_pred: Hard class predictions; required for ``confusion``.
         model_name: Series / filename stem used in titles and SHAP files.
         prefix: Filename prefix (e.g. ``train_`` / ``test_`` / ``cv_``).
@@ -731,8 +743,13 @@ def _try_write_shap(
         return []
 
     from habit.viz.classification import (
+        plot_shap_bar,
+        plot_shap_decision,
         plot_shap_dependence,
+        plot_shap_force,
+        plot_shap_heatmap,
         plot_shap_summary,
+        plot_shap_violin,
         plot_shap_waterfall,
         rank_shap_feature_indices,
         select_representative_sample_indices,
@@ -757,6 +774,59 @@ def _try_write_shap(
             logger.warning("Skipping SHAP summary: %s", exc)
         except Exception as exc:  # noqa: BLE001
             logger.warning("Could not render SHAP summary: %s", exc)
+
+    if "shap_bar" in plot_types:
+        try:
+            path = destination / f"{prefix}{model_name}_shap_bar.{ext}"
+            fig = plot_shap_bar(
+                values,
+                x_arr,
+                feature_names=feature_names,
+                title=f"{model_name} SHAP bar",
+                base_value=base_value,
+            )
+            _savefig(fig, path, dpi=dpi)
+            plt.close(fig)
+            written.append(path)
+        except OptionalDependencyError as exc:
+            logger.warning("Skipping SHAP bar: %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Could not render SHAP bar: %s", exc)
+
+    if "shap_violin" in plot_types:
+        try:
+            path = destination / f"{prefix}{model_name}_shap_violin.{ext}"
+            fig = plot_shap_violin(
+                values,
+                x_arr,
+                feature_names=feature_names,
+                title=f"{model_name} SHAP violin",
+            )
+            _savefig(fig, path, dpi=dpi)
+            plt.close(fig)
+            written.append(path)
+        except OptionalDependencyError as exc:
+            logger.warning("Skipping SHAP violin: %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Could not render SHAP violin: %s", exc)
+
+    if "shap_heatmap" in plot_types:
+        try:
+            path = destination / f"{prefix}{model_name}_shap_heatmap.{ext}"
+            fig = plot_shap_heatmap(
+                values,
+                x_arr,
+                feature_names=feature_names,
+                title=f"{model_name} SHAP heatmap",
+                base_value=base_value,
+            )
+            _savefig(fig, path, dpi=dpi)
+            plt.close(fig)
+            written.append(path)
+        except OptionalDependencyError as exc:
+            logger.warning("Skipping SHAP heatmap: %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Could not render SHAP heatmap: %s", exc)
 
     if "shap_dependence" in plot_types:
         top_k = int(
@@ -814,6 +884,61 @@ def _try_write_shap(
             except Exception as exc:  # noqa: BLE001
                 logger.warning(
                     "Could not render SHAP waterfall for sample %s: %s",
+                    sample_index,
+                    exc,
+                )
+
+    if "shap_decision" in plot_types:
+        n_samples = int(
+            _explainability_option(explainability, "shap_decision_samples", 10)
+        )
+        sample_indices = select_representative_sample_indices(
+            values.sum(axis=1), n_samples=n_samples
+        )
+        try:
+            path = destination / f"{prefix}{model_name}_shap_decision.{ext}"
+            fig = plot_shap_decision(
+                values,
+                x_arr,
+                feature_names=feature_names,
+                sample_indices=sample_indices,
+                base_value=base_value,
+                title=f"{model_name} SHAP decision",
+            )
+            _savefig(fig, path, dpi=dpi)
+            plt.close(fig)
+            written.append(path)
+        except OptionalDependencyError as exc:
+            logger.warning("Skipping SHAP decision: %s", exc)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Could not render SHAP decision: %s", exc)
+
+    if "shap_force" in plot_types:
+        n_samples = int(
+            _explainability_option(explainability, "shap_force_samples", 3)
+        )
+        sample_indices = select_representative_sample_indices(
+            values.sum(axis=1), n_samples=n_samples
+        )
+        for sample_index in sample_indices:
+            try:
+                path = (
+                    destination
+                    / f"{prefix}{model_name}_shap_force_sample{sample_index}.{ext}"
+                )
+                fig = plot_shap_force(
+                    values,
+                    x_arr,
+                    int(sample_index),
+                    feature_names=feature_names,
+                    base_value=base_value,
+                )
+                _savefig(fig, path, dpi=dpi)
+                plt.close(fig)
+                written.append(path)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "Could not render SHAP force for sample %s: %s",
                     sample_index,
                     exc,
                 )

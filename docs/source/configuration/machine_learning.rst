@@ -57,14 +57,19 @@ This section documents **machine learning** configuration. CLI: ``habit model -c
    visualization:
      enabled: true
      # Allowed: roc, dca, calibration, pr, confusion,
-     #          shap, shap_dependence, shap_waterfall, permutation
+     #          shap, shap_bar, shap_violin, shap_heatmap,
+     #          shap_dependence, shap_waterfall, shap_decision,
+     #          shap_force, permutation
      plot_types: [roc, dca, calibration, pr, confusion, shap]
      dpi: 600
      format: pdf
-     # Optional knobs for shap_dependence / shap_waterfall / permutation:
+     # Optional knobs for shap_dependence / shap_waterfall / shap_decision /
+     # shap_force / permutation:
      # explainability:
      #   shap_dependence_top_k: 3
      #   shap_waterfall_samples: 3
+     #   shap_decision_samples: 10
+     #   shap_force_samples: 3
      #   permutation_repeats: 10
      #   permutation_scoring: roc_auc
      #   permutation_top_k: 20
@@ -552,13 +557,16 @@ or ``cv_`` (pooled out-of-fold).
 - ``enabled``: **default** ``true``
 - ``plot_types``: **default** ``[roc, dca, calibration, pr, confusion, shap]``.
   Allowed values: ``roc``, ``dca``, ``calibration``, ``pr``, ``confusion``,
-  ``shap``, ``shap_dependence``, ``shap_waterfall``, ``permutation``.
-  Unknown names fail validation.
+  ``shap``, ``shap_bar``, ``shap_violin``, ``shap_heatmap``,
+  ``shap_dependence``, ``shap_waterfall``, ``shap_decision``,
+  ``shap_force``, ``permutation``.
+  Unknown names fail validation. Extra SHAP types stay opt-in.
 - ``dpi``: **default** ``600``
 - ``format``: **default** ``pdf``
 - ``explainability`` (optional): tuning for explanation figures when those
   ``plot_types`` are enabled — ``shap_dependence_top_k``,
-  ``shap_waterfall_samples``, ``permutation_repeats``,
+  ``shap_waterfall_samples``, ``shap_decision_samples``,
+  ``shap_force_samples``, ``permutation_repeats``,
   ``permutation_scoring``, ``permutation_top_k``,
   ``permutation_random_state``
 

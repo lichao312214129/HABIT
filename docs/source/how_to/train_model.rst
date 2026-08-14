@@ -33,8 +33,11 @@ Your data
 ---------
 
 ★ Edit ``input[*].path``, subject-ID / label columns, and ``output``. Prefer
-``*_minimal.yaml`` until a first train succeeds (full configs may enable slow
-SHAP plots).
+``*_minimal.yaml`` until a first train succeeds. Default ``plot_types``
+includes the SHAP beeswarm (``shap``); add ``shap_bar`` /
+``shap_violin`` / ``shap_heatmap`` / ``shap_dependence`` /
+``shap_waterfall`` / ``shap_decision`` / ``shap_force`` when you want the
+full explanation set (needs ``habitat-analysis[explain]``).
 
 Success: metrics / predictions under the YAML output folder.
 
@@ -85,5 +88,58 @@ Python twin of the ROC panel::
    :width: 360
 
    Five-fold CV AUC from the same gallery script.
+
+SHAP family from the same hold-out
+(``docs/source/examples/scripts/tabular_ml_quickstart.py``, ``# BEGIN figures``;
+needs ``shap``). Same ``plot_shap_*`` calls and titles as that script.
+Not a clinical claim.
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_summary.png
+   :alt: Hold-out SHAP beeswarm
+   :width: 420
+
+   :func:`~habit.viz.plot_shap_summary`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_bar.png
+   :alt: Hold-out SHAP bar
+   :width: 360
+
+   :func:`~habit.viz.plot_shap_bar`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_violin.png
+   :alt: Hold-out SHAP violin
+   :width: 420
+
+   :func:`~habit.viz.plot_shap_violin`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_heatmap.png
+   :alt: Hold-out SHAP heatmap
+   :width: 420
+
+   :func:`~habit.viz.plot_shap_heatmap`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_dependence.png
+   :alt: Hold-out SHAP dependence
+   :width: 360
+
+   :func:`~habit.viz.plot_shap_dependence`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_waterfall.png
+   :alt: Hold-out SHAP waterfall
+   :width: 420
+
+   :func:`~habit.viz.plot_shap_waterfall`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_decision.png
+   :alt: Hold-out SHAP decision
+   :width: 420
+
+   :func:`~habit.viz.plot_shap_decision`
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_force.png
+   :alt: Hold-out SHAP force
+   :width: 480
+
+   :func:`~habit.viz.plot_shap_force`
 
 Next: :doc:`compare_models`.
