@@ -528,7 +528,7 @@ Python::
    Stage("quantify4", Spec("non_radiomics"))
    Stage(
        "quantify5",
-       Spec("graph", {"edge_method": "adjacency", "adjacency_min_voxels": 10}),
+       Spec("graph", {"edge_method": "min_distance", "node_method": "uniform_grid"}),
    )
 
 YAML::

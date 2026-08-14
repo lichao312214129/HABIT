@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -443,6 +443,7 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -622,7 +623,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -1837,8 +1838,12 @@ call is the full paper design.</p>
     <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
     <span class="n">show_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  precise features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">evidence</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">screened</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+<span class="n">all_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+<span class="n">unstable</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">all_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">screened</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  precise (stable) features: </span><span class="si">{</span><span class="n">screened</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  unstable features: </span><span class="si">{</span><span class="n">unstable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">evidence</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== whitelist bridge into a habitat spec ===&quot;</span><span class="p">)</span>
@@ -1881,12 +1886,15 @@ call is the full paper design.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses precise, evidence, cohort, result, MODALITIES.</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
 
-<span class="c1"># Evidence figure: ICC and LCL per feature (the screen&#39;s actual product)</span>
+<span class="c1"># Evidence figure: ICC and LCL per feature, coloured by precise vs unstable.</span>
 <span class="n">fig_icc</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.2</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">))</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">evidence</span><span class="p">))</span>
 <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ICC&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;lcl&quot;</span><span class="p">],</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LCL&quot;</span><span class="p">)</span>
+<span class="n">precise_flag</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;precise&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+<span class="n">icc_colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">precise_flag</span><span class="p">,</span> <span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span> <span class="s2">&quot;#9AA0A6&quot;</span><span class="p">)</span>
+<span class="n">lcl_colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">precise_flag</span><span class="p">,</span> <span class="s2">&quot;#56B4E9&quot;</span><span class="p">,</span> <span class="s2">&quot;#D0D3D8&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">icc_colors</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ICC&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;lcl&quot;</span><span class="p">],</span> <span class="n">width</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">lcl_colors</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;LCL&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
     <span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span>
@@ -1896,21 +1904,25 @@ call is the full paper design.</p>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
-    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">feature</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">experiment</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">evidence</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()],</span>
+    <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">feature</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">experiment</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;precise&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">row</span><span class="o">.</span><span class="n">precise</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;unstable&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">evidence</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+    <span class="p">],</span>
     <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;ICC&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Precision screen (repeatability)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Precision screen: precise vs unstable&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
 <span class="n">fig_icc</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig_icc</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_icc_lcl.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 
-<span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span>
-<span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">fig_overlay</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
-    <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitats after precise-feature whitelist&quot;</span>
+    <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitats after precise-feature whitelist&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig_overlay</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/precise_features_icc_lcl.png and out/precise_features_overlay.png&quot;</span><span class="p">)</span>
@@ -1930,7 +1942,8 @@ call is the full paper design.</p>
 <p>Illustrative (ICC depends on the subject and extractor; this is one
 <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject with raw LAP intensity, not a clinical claim):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">===</span> <span class="n">precision</span> <span class="n">screen</span> <span class="p">(</span><span class="n">repeatability</span> <span class="n">experiment</span><span class="p">)</span> <span class="o">===</span>
-  <span class="n">precise</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LAP&#39;</span><span class="p">]</span>
+  <span class="n">precise</span> <span class="p">(</span><span class="n">stable</span><span class="p">)</span> <span class="n">features</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;LAP&#39;</span><span class="p">]</span>
+  <span class="n">unstable</span> <span class="n">features</span><span class="p">:</span> <span class="p">[]</span>
    <span class="n">experiment</span> <span class="n">feature</span>  <span class="n">value</span>   <span class="n">lcl</span>   <span class="n">ucl</span>  <span class="n">n_voxels</span>  <span class="n">precise</span>
 <span class="n">repeatability</span>     <span class="n">LAP</span>   <span class="mf">0.88</span> <span class="mf">0.877</span> <span class="mf">0.882</span>   <span class="mf">31814.0</span>     <span class="kc">True</span>
 
@@ -1945,11 +1958,11 @@ call is the full paper design.</p>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>The screen’s scientific figure is the LCL panel; the overlay is the
-habitat map after clustering <strong>only</strong> those precise features. The
-perturbation panels below are the <strong>same</strong> Prior 2024 / MIRP 1.2.0
-components applied to one <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> subject (not a
-clinical claim). Regenerated by
+<p>The screen’s scientific figure is the LCL panel (blue = precise / stable,
+gray = unstable); the overlay is the habitat map after clustering
+<strong>only</strong> those precise features. The perturbation panels below are the
+<strong>same</strong> Prior 2024 / MIRP 1.2.0 components applied to one
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> subject (not a clinical claim). Regenerated by
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/source/examples/scripts/precise_screening_tutorial_demo.py</span></code>.</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC and LCL bars for the precision screen" src="../_images/precise_features_icc_lcl.png" width="520" />
@@ -2060,30 +2073,293 @@ slot into the same chain — pass any chain (or single component) as
 </div>
 <p>The mask-edge figure on this page is <code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>
 (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>). It is <strong>not</strong> in <code class="docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>.
-MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink) is
-still not implemented; do not report the default Precise chain as having
+Pass <code class="docutils literal notranslate"><span class="pre">target_dice</span></code> (for example <code class="docutils literal notranslate"><span class="pre">0.85</span></code>) to scale one frozen offset
+field so the Dice between the original and warped ROI lands near that
+value. MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink)
+is still not implemented; do not report the default Precise chain as having
 done grow/shrink.</p>
 </section>
-<section id="habitat-stability-under-perturbation">
-<h2>Habitat stability under perturbation<a class="headerlink" href="#habitat-stability-under-perturbation" title="Link to this heading"></a></h2>
-<p>Beyond feature-level screening, <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code>
-scores a habitat MAP against perturbed re-computations: clusters are matched
-with the Hungarian algorithm and compared by Dice coefficient, per habitat.</p>
-<p>Independently clustered maps permute integer ids. Remap the moving map
-onto the reference by cluster centroids
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>) before a side-by-side compare.
-<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a> does this by default.
-Regenerated by
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/source/examples/scripts/precise_screening_tutorial_demo.py</span></code>.</p>
+<section id="voxel-and-habitat-stability-print-figures">
+<h2>Voxel and habitat stability (print + figures)<a class="headerlink" href="#voxel-and-habitat-stability-print-figures" title="Link to this heading"></a></h2>
+<p>The screen above <strong>prints</strong> precise vs unstable feature names and colours
+the ICC bars the same way. Two spatial follow-ups live in the perturbation
+script (same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>):</p>
+<ul class="simple">
+<li><p><strong>ROI unchanged</strong> (Prior 2024 retest: intensity + small geometry, mask
+the same) — voxel entropy on the original vs the retest, then a
+stable vs unstable voxel map (75th-percentile absolute difference
+inside the ROI; a demo threshold, not the paper’s ICC rule).</p></li>
+<li><p><strong>ROI shape changes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>
+with <code class="docutils literal notranslate"><span class="pre">target_dice</span></code>) — one-step habitats before vs after, Hungarian
+per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code>,
+and ITH / MSI / graph / volume features marked stable vs unstable by
+relative change.</p></li>
+</ul>
+<p>Paste after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">subject</span></code>, <code class="docutils literal notranslate"><span class="pre">retest</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ffd_subject</span></code>, <code class="docutils literal notranslate"><span class="pre">deformed</span></code>, and the entropy maps). Writes
+<code class="docutils literal notranslate"><span class="pre">out/precise_voxel_stable_vs_unstable.png</span></code>,
+<code class="docutils literal notranslate"><span class="pre">out/precise_habitat_stability_compare.png</span></code>,
+<code class="docutils literal notranslate"><span class="pre">out/precise_habitat_dice.png</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">out/precise_habitat_feature_stability.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Paste after the Script block. Uses subject, retest, ffd_subject, deformed,</span>
+    <span class="c1"># anatomy, mask, entropy_large, modality, ROI, MODALITIES, direction, spacing.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">Cohort</span><span class="p">,</span>
+        <span class="n">align_habitat_map</span><span class="p">,</span>
+        <span class="n">extract_graph_features</span><span class="p">,</span>
+        <span class="n">habitat_stability</span><span class="p">,</span>
+        <span class="n">habitat_volume_fractions</span><span class="p">,</span>
+        <span class="n">ith_score</span><span class="p">,</span>
+        <span class="n">one_step_habitat</span><span class="p">,</span>
+        <span class="n">spatial_interaction_matrix</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_label_compare</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="n">imshow_physical_extent</span>
+
+    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># --- Prior-style (ROI unchanged): voxel entropy original vs retest ---</span>
+    <span class="n">entropy_retest</span> <span class="o">=</span> <span class="n">local_entropy_map</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">retest</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span>
+    <span class="p">)</span>
+    <span class="n">roi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">orig_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">entropy_large</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ret_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">entropy_retest</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">abs_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">orig_e</span> <span class="o">-</span> <span class="n">ret_e</span><span class="p">)</span>
+    <span class="n">roi_diff</span> <span class="o">=</span> <span class="n">abs_diff</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">roi_diff</span><span class="p">,</span> <span class="mi">75</span><span class="p">))</span> <span class="k">if</span> <span class="n">roi_diff</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">voxel_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">orig_e</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">voxel_state</span><span class="p">[</span><span class="n">roi</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">abs_diff</span> <span class="o">&lt;=</span> <span class="n">thresh</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">voxel_state</span><span class="p">[</span><span class="n">roi</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">abs_diff</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Prior-style voxel entropy (ROI unchanged)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  precise/stable voxels: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">voxel_state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  unstable voxels: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">voxel_state</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="n">_densest_roi_index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">orig_sl</span> <span class="o">=</span> <span class="n">_orient</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">orig_e</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">ret_sl</span> <span class="o">=</span> <span class="n">_orient</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">ret_e</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">state_sl</span> <span class="o">=</span> <span class="n">_orient</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">voxel_state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">)</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="n">imshow_physical_extent</span><span class="p">(</span>
+        <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">orig_sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+        <span class="n">spacing</span><span class="p">,</span>
+        <span class="n">slice_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">ndim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig_voxel</span><span class="p">,</span> <span class="n">axes_v</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">11.4</span><span class="p">,</span> <span class="mf">3.9</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">axes_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orig_sl</span><span class="p">,</span> <span class="s2">&quot;Entropy, original&quot;</span><span class="p">,</span> <span class="s2">&quot;cividis&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">axes_v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ret_sl</span><span class="p">,</span> <span class="s2">&quot;Entropy, Prior retest&quot;</span><span class="p">,</span> <span class="s2">&quot;cividis&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="n">axes_v</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">state_sl</span><span class="p">,</span>
+                <span class="s2">&quot;Stable vs unstable voxels&quot;</span><span class="p">,</span>
+                <span class="n">ListedColormap</span><span class="p">([</span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">,</span> <span class="s2">&quot;#009E73&quot;</span><span class="p">,</span> <span class="s2">&quot;#D55E00&quot;</span><span class="p">]),</span>
+                <span class="mi">0</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+                <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+                <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+                <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+                <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+        <span class="n">fig_voxel</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Prior-style voxel stability (mask unchanged)&quot;</span><span class="p">)</span>
+        <span class="n">fig_voxel</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="s2">&quot;out/precise_voxel_stable_vs_unstable.png&quot;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_voxel</span><span class="p">)</span>
+
+    <span class="c1"># --- BSpline (ROI changes): habitats before vs after + per-habitat Dice ---</span>
+    <span class="n">crop_cohort</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">ffd_subject</span><span class="p">,))</span>
+    <span class="n">warped_cohort</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">deformed</span><span class="p">,))</span>
+    <span class="n">orig_habitats</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+        <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">crop_cohort</span><span class="p">)</span>
+    <span class="n">warped_habitats</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+        <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">warped_cohort</span><span class="p">)</span>
+    <span class="n">ref_map</span> <span class="o">=</span> <span class="n">orig_habitats</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mov_map</span> <span class="o">=</span> <span class="n">warped_habitats</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Independent one_step fits permute integer ids. Remap the warped map</span>
+    <span class="c1"># (panel 2 only) onto the reference by maximal voxel overlap -- the</span>
+    <span class="c1"># same Hungarian pairing habitat_stability uses -- so habitat 2 is the</span>
+    <span class="c1"># same spatial region on both panels. force=True is required: both</span>
+    <span class="c1"># fits share a model_id (same spec + subject id digest) even though</span>
+    <span class="c1"># the clusterings are independent. Dice is scored on the original pair.</span>
+    <span class="n">aligned_map</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span>
+        <span class="n">ref_map</span><span class="p">,</span> <span class="n">mov_map</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;overlap&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">dice_frame</span> <span class="o">=</span> <span class="n">habitat_stability</span><span class="p">(</span><span class="n">ref_map</span><span class="p">,</span> <span class="p">[</span><span class="n">mov_map</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice after BSplineDeform (Hungarian match)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">dice_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="n">roi_labels</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mov_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">raw_disagree</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">ref_map</span><span class="o">.</span><span class="n">label_array</span> <span class="o">!=</span> <span class="n">mov_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">roi_labels</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">aligned_disagree</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">ref_map</span><span class="o">.</span><span class="n">label_array</span> <span class="o">!=</span> <span class="n">aligned_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">roi_labels</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Disagreement voxels (ROI): raw=</span><span class="si">{</span><span class="n">raw_disagree</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;after_overlap_remap=</span><span class="si">{</span><span class="n">aligned_disagree</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">mov_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mov_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">aln_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">aligned_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">was_h3</span> <span class="o">=</span> <span class="n">mov_ids</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">was_h3</span><span class="p">):</span>
+        <span class="n">mapped</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">aln_ids</span><span class="p">[</span><span class="n">was_h3</span><span class="p">],</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Raw panel-2 habitat 3 remaps to: &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="si">}</span><span class="s2"> vx)&quot;</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mapped</span><span class="p">,</span> <span class="n">counts</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="n">fig_cmp</span> <span class="o">=</span> <span class="n">plot_habitat_label_compare</span><span class="p">(</span>
+        <span class="n">ffd_subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">),</span>
+        <span class="n">ref_map</span><span class="p">,</span>
+        <span class="n">aligned_map</span><span class="p">,</span>
+        <span class="n">titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Original ROI habitats&quot;</span><span class="p">,</span> <span class="s2">&quot;Warped ROI habitats&quot;</span><span class="p">),</span>
+        <span class="n">align_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig_cmp</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+        <span class="s2">&quot;out/precise_habitat_stability_compare.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_cmp</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig_dice</span><span class="p">,</span> <span class="n">ax_d</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.4</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">))</span>
+        <span class="n">habitat_ids</span> <span class="o">=</span> <span class="n">dice_frame</span><span class="p">[</span><span class="s2">&quot;habitat_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">ax_d</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">],</span>
+            <span class="n">dice_frame</span><span class="p">[</span><span class="s2">&quot;dice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
+        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Dice&quot;</span><span class="p">)</span>
+        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice (matched)&quot;</span><span class="p">)</span>
+        <span class="n">fig_dice</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">fig_dice</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="s2">&quot;out/precise_habitat_dice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_dice</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_habitat_feature_row</span><span class="p">(</span><span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ITH / MSI / graph / volume scalars for one habitat map.&quot;&quot;&quot;</span>
+        <span class="n">labels_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels_arr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">habitat_volume_fractions</span><span class="p">(</span><span class="n">labels_arr</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">ids</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">msi</span> <span class="o">=</span> <span class="n">spatial_interaction_matrix</span><span class="p">(</span><span class="n">labels_arr</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">n_classes</span><span class="p">)</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels_arr</span><span class="p">)</span>
+        <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ith_score&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">ith_score</span><span class="p">(</span><span class="n">labels_arr</span><span class="p">)),</span>
+            <span class="s2">&quot;msi_mean&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">msi</span><span class="p">))</span> <span class="k">if</span> <span class="n">msi</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">hid</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">volumes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;volume_h</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">frac</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s2">&quot;graph_num_habitats&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">graph</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">row</span>
+
+    <span class="n">before</span> <span class="o">=</span> <span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">ref_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">mov_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">before</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">after</span><span class="p">))</span>
+    <span class="n">rel</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">before</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">after</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="n">rel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">))</span>
+    <span class="n">stable_cut</span> <span class="o">=</span> <span class="mf">0.15</span>
+    <span class="n">stable_feats</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rel</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">stable_cut</span><span class="p">]</span>
+    <span class="n">unstable_feats</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rel</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="n">stable_cut</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat-level features after BSplineDeform (relative change &lt;= 0.15)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  stable: </span><span class="si">{</span><span class="n">stable_feats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  unstable: </span><span class="si">{</span><span class="n">unstable_feats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig_feat</span><span class="p">,</span> <span class="n">ax_f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">7.2</span><span class="p">,</span> <span class="mf">3.4</span><span class="p">))</span>
+        <span class="n">colors_f</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;#009E73&quot;</span> <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">stable_cut</span> <span class="k">else</span> <span class="s2">&quot;#D55E00&quot;</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rel</span><span class="p">]</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)),</span> <span class="n">rel</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors_f</span><span class="p">)</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">stable_cut</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)))</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Relative change&quot;</span><span class="p">)</span>
+        <span class="n">ax_f</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ITH / MSI / graph / volume: stable vs unstable&quot;</span><span class="p">)</span>
+        <span class="n">fig_feat</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">fig_feat</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+            <span class="s2">&quot;out/precise_habitat_feature_stability.png&quot;</span><span class="p">,</span>
+            <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+            <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_feat</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Wrote out/precise_voxel_stable_vs_unstable.png, &quot;</span>
+        <span class="s2">&quot;out/precise_habitat_stability_compare.png, &quot;</span>
+        <span class="s2">&quot;out/precise_habitat_dice.png, &quot;</span>
+        <span class="s2">&quot;out/precise_habitat_feature_stability.png&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
 <figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/precise_voxel_stable_vs_unstable.png"><img alt="Original vs retest entropy and stable versus unstable voxels" src="../_images/precise_voxel_stable_vs_unstable.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Prior-style voxel display while the ROI is unchanged: original
+entropy, retest entropy, and voxels labelled stable (green) vs
+unstable (vermillion).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
 <a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="Habitat maps before and after B-spline ROI warp" src="../_images/precise_habitat_stability_compare.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Habitats before vs after the MONAI B-spline warp
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>).
-Warped labels are remapped onto the reference by cluster
-centroids (<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, the in-memory
-test-retest matcher) so colours are comparable.</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+Panel 2 (warped) is relabelled onto the reference ids by spatial
+overlap (<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code> with <code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">force=True</span></code>) so habitat 2 is the same region in both panels.
+Disagreement is after that remap, not raw id inequality.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after Hungarian matching" src="../_images/precise_habitat_dice.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Per-habitat Dice from <a class="reference internal" href="../api/generated/habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a>.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/precise_habitat_feature_stability.png"><img alt="Habitat-level ITH MSI graph volume stability bars" src="../_images/precise_habitat_feature_stability.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">ITH / MSI / graph / volume: green = stable, vermillion = unstable
+(relative change 0.15 cutoff; demo heuristic).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

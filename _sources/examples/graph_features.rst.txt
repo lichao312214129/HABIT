@@ -7,17 +7,12 @@ Graph features from habitat maps
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=4`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
-:func:`~habit.viz.plot_habitat_graph_network_2d`. This example **overrides**
-only ``adjacency_min_voxels`` (library default ``10``) to contact **>= 2**
-voxels via :class:`~habit.HabitatGraphFeatureOptions`. It inherits the
-library connectivity defaults (``connectivity='full'``,
-``adjacency_connectivity='corner'``: 8-connected in 2D / 26-connected in
-3D; face 4/6 remains available). ``erosion_radius`` stays ``0``. An edge
-exists when two regions are **adjacent** and the contact
-(shared-boundary) voxel count meets that threshold, measured on the
-habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
-before edges. Graph topology is a habitat-map feature family (same
-tier as ``volume`` / ``msi``); columns under
+:func:`~habit.viz.plot_habitat_graph_network_2d`. This example uses the
+library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
+``node_method='uniform_grid'`` (5-voxel cubes, not millimetres) and
+``edge_method='min_distance'`` (closest voxels within 5). The 2D network
+draws that same lattice as dashed lines. Graph topology is a habitat-map
+feature family (same tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
 
 Script
@@ -25,10 +20,10 @@ Script
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
-sets ``adjacency_min_voxels=2`` (library default remains 10; connectivity
-stays the library ``full`` / ``corner`` defaults), then extracts graph
-topology and draws the overlay plus the 2D network. Figures land under
-``out/`` (swap that path too if you like).
+uses the library graph defaults (uniform 5-voxel cubes + min-distance
+edges), then extracts graph topology and draws the overlay plus the 2D
+network with the dashed lattice. Figures land under ``out/`` (swap that
+path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -54,7 +49,7 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (fixed ``n_habitats=4``, ``adjacency_min_voxels=2``; count
+Illustrative (fixed ``n_habitats=4``, library graph defaults; count
 depends on the habitat map)::
 
    537 graph features
@@ -76,7 +71,11 @@ Anatomy with habitats
    :alt: Intra- and inter-habitat graphs on a 2D habitat slice
    :width: 720
 
-   Intra-habitat panels plus the combined inter-habitat graph
+   Intra-habitat panels plus the combined All-habitats graph. The All
+   panel title reports per-habitat node counts and intra/inter edge
+   counts. Display knobs ``block_size=5`` / ``grid_linestyle='--'`` draw
+   the same 5-voxel cubes; other habitats' edges on each H panel are gray
+   and translucent
    (:func:`~habit.viz.plot_habitat_graph_network_2d`).
 
 3D surfaces and network
@@ -96,8 +95,8 @@ see the how-to for the one-line 3D calls).
    :alt: Off-screen PyVista 3D graph with habitat-colored nodes
    :width: 520
 
-   Region-centroid nodes with intra- and inter-habitat adjacency edges
-   (this example: contact voxels >= 2; library default is 10;
+   Region-centroid nodes with intra- and inter-habitat min-distance edges
+   (library defaults: uniform 5-voxel cubes, closest-voxel threshold 5;
    :func:`~habit.viz.render_habitat_graph_network_3d`).
 
 What to read next

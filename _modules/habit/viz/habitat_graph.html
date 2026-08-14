@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -975,7 +976,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -2302,6 +2303,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
         <span class="n">block_size</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_size</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="n">node_method</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">node_method</span><span class="p">,</span>
     <span class="p">)</span>
 
 
@@ -2418,6 +2420,51 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">intra_edges</span><span class="p">,</span> <span class="n">inter_edges</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_habitats_title</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">nodes_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]],</span>
+    <span class="n">intra_edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">_EdgePair</span><span class="p">],</span>
+    <span class="n">inter_edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">_EdgePair</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the English All-habitats panel title with node and edge counts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        labels: Sorted habitat IDs present on the drawn slice.</span>
+<span class="sd">        nodes_by_habitat: Nodes grouped by habitat label.</span>
+<span class="sd">        intra_edges: Combined intra-habitat edges drawn on the All panel.</span>
+<span class="sd">        inter_edges: Combined inter-habitat edges drawn on the All panel.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Multiline title, for example::</span>
+
+<span class="sd">            All habitats</span>
+<span class="sd">            n=60 (H1=12, H2=14, H3=20, H4=14)</span>
+<span class="sd">            intra e=78, inter e=12</span>
+
+<span class="sd">        Per-habitat counts wrap every four habitats so crowded grids stay</span>
+<span class="sd">        readable. Figure text stays English-only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes_by_habitat</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="c1"># Wrap every four habitats so an 8-habitat grid does not overflow.</span>
+    <span class="n">wrapped</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="n">wrapped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">n_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">wrapped</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;n=</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">wrapped</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="se">\n</span><span class="s2">  &quot;</span> <span class="o">+</span> <span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrapped</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;All habitats</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n_line</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;intra e=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">intra_edges</span><span class="p">)</span><span class="si">}</span><span class="s2">, inter e=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">inter_edges</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Color and styling helpers</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -2441,6 +2488,15 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured</span>
 <span class="c1">#: habitat stays 1.0; the All-habitats panel stays fully opaque.</span>
 <span class="n">_OTHER_HABITAT_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="c1">#: Intra-habitat edges of non-featured habitats on an H1--Hk panel.</span>
+<span class="n">_OTHER_INTRA_EDGE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.28</span>
+<span class="n">_OTHER_INTRA_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span>
+<span class="c1">#: Dashed lattice overlay (same origin / block_size as node extraction).</span>
+<span class="n">_GRID_LINE_COLOR</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#6B7280&quot;</span>
+<span class="n">_GRID_LINE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span>
+<span class="n">_GRID_LINE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span>
+<span class="c1">#: Default matplotlib linestyle for the display lattice.</span>
+<span class="n">_DEFAULT_GRID_LINESTYLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;--&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_centroid_xy_display</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">HabitatGraphNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
@@ -2529,6 +2585,168 @@ window.runMermaid = runMermaid;</script>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_display_block_size</span><span class="p">(</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve the cube edge length used only for drawing the lattice.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        options: Extraction options (nodes / edges still use these).</span>
+<span class="sd">        block_size: Plot-function override. ``None`` uses</span>
+<span class="sd">            ``options.block_size`` (library default 5 voxels).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Cube edge length in voxels, ``&gt;= 1``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: When the resolved size is less than 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">block_size</span><span class="p">)</span> <span class="k">if</span> <span class="n">block_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block_size must be &gt;= 1.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">size</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_display_grid_origin</span><span class="p">(</span>
+    <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">display_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the lattice origin for the drawn cubes.</span>
+
+<span class="sd">    When the display size matches the extraction lattice, reuse</span>
+<span class="sd">    ``node_result.grid_origin`` so the overlay sits on the same cubes</span>
+<span class="sd">    that became graph nodes. Otherwise recompute the VOI-min origin</span>
+<span class="sd">    (same rule as :func:`~habit.kernels.habitat_graph.extract_habitat_nodes`).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_2d: Slice used to recover a VOI origin if needed.</span>
+<span class="sd">        node_result: Node extraction result (may carry ``grid_origin``).</span>
+<span class="sd">        display_size: Cube edge length that will be drawn.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Inclusive voxel-index origin, or ``None`` when the slice is empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">node_result</span><span class="o">.</span><span class="n">grid_origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">node_result</span><span class="o">.</span><span class="n">grid_block_size</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">display_size</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">node_result</span><span class="o">.</span><span class="n">grid_origin</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coords</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_grid_caption</span><span class="p">(</span><span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    English label that states the displayed cube size.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        block_size: Cube edge length in voxels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Caption such as ``\&quot;5-voxel cubes\&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span><span class="si">}</span><span class="s2">-voxel cubes&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_draw_grid</span><span class="p">(</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Whether the display lattice should be drawn.</span>
+
+<span class="sd">    Default: on for ``uniform_grid``. An explicit ``block_size`` overlay</span>
+<span class="sd">    is also drawn in ``component`` mode so the caller can show cubes</span>
+<span class="sd">    without rebuilding extraction options.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        options: Extraction options (``node_method``).</span>
+<span class="sd">        show_grid: Caller on/off switch.</span>
+<span class="sd">        block_size: Plot-function override, or ``None``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` when dashed (or styled) lattice lines should appear.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">show_grid</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">options</span><span class="o">.</span><span class="n">node_method</span> <span class="o">==</span> <span class="s2">&quot;uniform_grid&quot;</span> <span class="ow">or</span> <span class="n">block_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_grid_2d</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">grid_origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_GRID_LINESTYLE</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_GRID_LINE_COLOR</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_ALPHA</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_WIDTH</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw the node-extraction lattice on a 2D habitat panel.</span>
+
+<span class="sd">    The origin and ``block_size`` should match</span>
+<span class="sd">    :class:`~habit.kernels.habitat_graph.HabitatNodeExtractionResult` when</span>
+<span class="sd">    the caller has not overridden the display size, so the overlay matches</span>
+<span class="sd">    the cubes that became graph nodes. Coordinates are image indices:</span>
+<span class="sd">    x = column, y = row.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Target matplotlib axes.</span>
+<span class="sd">        label_2d: Slice used only for axis extent.</span>
+<span class="sd">        grid_origin: Inclusive voxel-index origin of the lattice.</span>
+<span class="sd">        block_size: Cube edge length in voxels.</span>
+<span class="sd">        linestyle: Matplotlib line style (default dashed ``\&quot;--\&quot;``).</span>
+<span class="sd">        color: Lattice colour.</span>
+<span class="sd">        alpha: Lattice opacity.</span>
+<span class="sd">        linewidth: Lattice stroke width in points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">grid_origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">block_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_origin</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">row0</span><span class="p">,</span> <span class="n">col0</span> <span class="o">=</span> <span class="n">origin</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">row0</span><span class="p">,</span> <span class="n">col0</span> <span class="o">=</span> <span class="n">origin</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">origin</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span>
+    <span class="n">style</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">linestyle</span><span class="p">)</span> <span class="k">if</span> <span class="n">linestyle</span> <span class="k">else</span> <span class="n">_DEFAULT_GRID_LINESTYLE</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">col0</span>
+    <span class="k">while</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">n_cols</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
+                <span class="n">x</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidth</span><span class="p">),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">x</span> <span class="o">+=</span> <span class="n">step</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">row0</span>
+    <span class="k">while</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">n_rows</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+                <span class="n">y</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidth</span><span class="p">),</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">y</span> <span class="o">+=</span> <span class="n">step</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_style_axis_2d</span><span class="p">(</span>
@@ -2636,12 +2854,66 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_display_grid</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">grid_linestyle</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">grid_color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">grid_alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">grid_linewidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw the display lattice when requested and return the cube size.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Target matplotlib axes.</span>
+<span class="sd">        label_2d: Slice used for extent and VOI origin fallback.</span>
+<span class="sd">        node_result: Extraction result (nodes still come from ``options``).</span>
+<span class="sd">        options: Extraction options.</span>
+<span class="sd">        show_grid: Caller on/off switch.</span>
+<span class="sd">        block_size: Display override, or ``None`` to follow ``options``.</span>
+<span class="sd">        grid_linestyle: Matplotlib line style.</span>
+<span class="sd">        grid_color: Lattice colour.</span>
+<span class="sd">        grid_alpha: Lattice opacity.</span>
+<span class="sd">        grid_linewidth: Lattice stroke width in points.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Display cube edge length in voxels (also used in captions).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">display_size</span> <span class="o">=</span> <span class="n">_display_block_size</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_should_draw_grid</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="p">,</span> <span class="n">block_size</span><span class="p">):</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">_display_grid_origin</span><span class="p">(</span><span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">display_size</span><span class="p">)</span>
+        <span class="n">_draw_grid_2d</span><span class="p">(</span>
+            <span class="n">ax</span><span class="p">,</span>
+            <span class="n">label_2d</span><span class="p">,</span>
+            <span class="n">origin</span><span class="p">,</span>
+            <span class="n">display_size</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="n">grid_linestyle</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">grid_color</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">grid_alpha</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="n">grid_linewidth</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">display_size</span>
+
+
 <div class="viewcode-block" id="plot_habitat_graph_slice">
 <a class="viewcode-back" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_graph_slice</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
     <span class="n">slice_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">grid_linestyle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_GRID_LINESTYLE</span><span class="p">,</span>
+    <span class="n">grid_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_GRID_LINE_COLOR</span><span class="p">,</span>
+    <span class="n">grid_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_ALPHA</span><span class="p">,</span>
+    <span class="n">grid_linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_WIDTH</span><span class="p">,</span>
     <span class="n">panel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.2</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
@@ -2649,10 +2921,23 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw the colored habitat map at the largest cross-section (2D).</span>
 
+<span class="sd">    Display knobs (``show_grid``, ``block_size``, ``grid_linestyle``, …)</span>
+<span class="sd">    override ``options`` for drawing only. Node extraction still uses</span>
+<span class="sd">    ``options``. Default lattice: ``block_size=None`` →</span>
+<span class="sd">    ``options.block_size`` (library default 5 voxels), dashed lines.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
+<span class="sd">        options: Graph construction options shared with the extractor.</span>
 <span class="sd">        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the</span>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
+<span class="sd">        show_grid: Draw the node lattice (default ``True``).</span>
+<span class="sd">        block_size: Display cube edge in voxels. ``None`` (default) uses</span>
+<span class="sd">            ``options.block_size`` so the lattice matches the nodes.</span>
+<span class="sd">        grid_linestyle: Matplotlib line style (default ``\&quot;--\&quot;`` dashed).</span>
+<span class="sd">        grid_color: Lattice colour.</span>
+<span class="sd">        grid_alpha: Lattice opacity.</span>
+<span class="sd">        grid_linewidth: Lattice stroke width in points.</span>
 <span class="sd">        panel_size: Base panel edge length in inches.</span>
 <span class="sd">        colorbar: Discrete habitat-ID colorbar (default ``True``). Background</span>
 <span class="sd">            ``0`` is omitted from the bar. Pass ``False`` to hide it.</span>
@@ -2676,6 +2961,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">new_value</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">display</span><span class="p">[</span><span class="n">label_2d</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
     <span class="n">cmap</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">([</span><span class="s2">&quot;#FFFFFF&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">])</span>
+    <span class="n">node_result</span> <span class="o">=</span> <span class="n">_extract_nodes</span><span class="p">(</span><span class="n">label_2d</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="n">display_size</span> <span class="o">=</span> <span class="n">_display_block_size</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
             <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.4</span><span class="p">,</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.4</span><span class="p">),</span>
@@ -2688,8 +2975,25 @@ window.runMermaid = runMermaid;</script>
             <span class="n">vmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">),</span>
             <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">_apply_display_grid</span><span class="p">(</span>
+            <span class="n">ax</span><span class="p">,</span>
+            <span class="n">label_2d</span><span class="p">,</span>
+            <span class="n">node_result</span><span class="p">,</span>
+            <span class="n">options</span><span class="p">,</span>
+            <span class="n">show_grid</span><span class="o">=</span><span class="n">show_grid</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">grid_linestyle</span><span class="o">=</span><span class="n">grid_linestyle</span><span class="p">,</span>
+            <span class="n">grid_color</span><span class="o">=</span><span class="n">grid_color</span><span class="p">,</span>
+            <span class="n">grid_alpha</span><span class="o">=</span><span class="n">grid_alpha</span><span class="p">,</span>
+            <span class="n">grid_linewidth</span><span class="o">=</span><span class="n">grid_linewidth</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">_style_axis_2d</span><span class="p">(</span>
-            <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Habitat map (max cross-section, slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="n">ax</span><span class="p">,</span>
+            <span class="n">label_2d</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Habitat map (max cross-section, slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_grid_caption</span><span class="p">(</span><span class="n">display_size</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">add_discrete_habitat_colorbar</span><span class="p">(</span>
             <span class="n">ax</span><span class="p">,</span>
@@ -2710,6 +3014,12 @@ window.runMermaid = runMermaid;</script>
     <span class="n">options</span><span class="p">:</span> <span class="n">HabitatGraphFeatureOptions</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(),</span>
     <span class="n">slice_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show_background</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">grid_linestyle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_GRID_LINESTYLE</span><span class="p">,</span>
+    <span class="n">grid_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_GRID_LINE_COLOR</span><span class="p">,</span>
+    <span class="n">grid_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_ALPHA</span><span class="p">,</span>
+    <span class="n">grid_linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_GRID_LINE_WIDTH</span><span class="p">,</span>
     <span class="n">panel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.2</span><span class="p">,</span>
     <span class="n">max_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="n">node_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">,</span>
@@ -2721,7 +3031,12 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Node extraction and edge construction reuse the same configured algorithms</span>
 <span class="sd">    as the feature extractor, but the input is the representative cross-section</span>
-<span class="sd">    rather than the full 3D volume.</span>
+<span class="sd">    rather than the full 3D volume. Display knobs override ``options`` for</span>
+<span class="sd">    drawing only (extraction still uses ``options``).</span>
+
+<span class="sd">    On each H1--Hk panel the featured habitat&#39;s intra-edges stay opaque;</span>
+<span class="sd">    intra-edges of the other habitats are drawn gray and more transparent</span>
+<span class="sd">    so the full intra-habitat graphs remain visible as context.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
@@ -2733,6 +3048,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            habitat is opaque and other habitats use alpha 0.2;</span>
 <span class="sd">            background 0 stays undrawn. The All-habitats panel stays</span>
 <span class="sd">            fully opaque. Featured-habitat nodes stay solid.</span>
+<span class="sd">        show_grid: Draw the uniform-grid lattice (default ``True``).</span>
+<span class="sd">            Also draws when ``block_size`` is passed in ``component`` mode.</span>
+<span class="sd">        block_size: Display cube edge in voxels. ``None`` (default) uses</span>
+<span class="sd">            ``options.block_size`` (library default 5 voxels) so the lattice</span>
+<span class="sd">            matches the nodes.</span>
+<span class="sd">        grid_linestyle: Matplotlib line style (default ``\&quot;--\&quot;`` dashed).</span>
+<span class="sd">        grid_color: Lattice colour.</span>
+<span class="sd">        grid_alpha: Lattice opacity.</span>
+<span class="sd">        grid_linewidth: Lattice stroke width in points.</span>
 <span class="sd">        panel_size: Base panel edge length in inches.</span>
 <span class="sd">        max_cols: Maximum number of panels per row in the grid.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared applied to</span>
@@ -2760,6 +3084,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">labels</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">id_to_node</span><span class="p">,</span> <span class="n">intra_edges</span><span class="p">,</span> <span class="n">inter_edges</span> <span class="o">=</span> <span class="n">_combined_graph</span><span class="p">(</span><span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="n">display_size</span> <span class="o">=</span> <span class="n">_display_block_size</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
+    <span class="n">grid_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">show_grid</span><span class="o">=</span><span class="n">show_grid</span><span class="p">,</span>
+        <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+        <span class="n">grid_linestyle</span><span class="o">=</span><span class="n">grid_linestyle</span><span class="p">,</span>
+        <span class="n">grid_color</span><span class="o">=</span><span class="n">grid_color</span><span class="p">,</span>
+        <span class="n">grid_alpha</span><span class="o">=</span><span class="n">grid_alpha</span><span class="p">,</span>
+        <span class="n">grid_linewidth</span><span class="o">=</span><span class="n">grid_linewidth</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">n_panels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_cols</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_panels</span><span class="p">))</span>
@@ -2767,7 +3100,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Extra width + bottom room so short titles and the larger figlegend</span>
     <span class="c1"># cannot collide when many habitats share one row.</span>
     <span class="n">fig_width</span> <span class="o">=</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.18</span>
-    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">1.15</span>
+    <span class="c1"># Extra height for the All-panel multiline title (n / intra / inter).</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">1.65</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
             <span class="n">rows</span><span class="p">,</span>
@@ -2778,9 +3112,9 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">set_constrained_layout_pads</span><span class="p">(</span>
             <span class="n">w_pad</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
-            <span class="n">h_pad</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+            <span class="n">h_pad</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>
             <span class="n">wspace</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>
-            <span class="n">hspace</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span>
+            <span class="n">hspace</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">[</span><span class="n">n_panels</span><span class="p">:]:</span>
@@ -2792,9 +3126,28 @@ window.runMermaid = runMermaid;</script>
             <span class="n">_draw_background_2d</span><span class="p">(</span>
                 <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">show_background</span><span class="p">,</span> <span class="n">featured_label</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="n">_apply_display_grid</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
+            <span class="p">)</span>
+            <span class="c1"># Context: other habitats&#39; intra-edges, gray and translucent.</span>
+            <span class="k">for</span> <span class="n">other_label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">other_label</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">other_nodes</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">[</span><span class="n">other_label</span><span class="p">]</span>
+                <span class="n">other_edges</span> <span class="o">=</span> <span class="n">_single_intra_edges</span><span class="p">(</span>
+                    <span class="n">other_nodes</span><span class="p">,</span> <span class="n">other_label</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">node_result</span>
+                <span class="p">)</span>
+                <span class="n">_draw_edges_2d</span><span class="p">(</span>
+                    <span class="n">ax</span><span class="p">,</span>
+                    <span class="n">id_to_node</span><span class="p">,</span>
+                    <span class="n">other_edges</span><span class="p">,</span>
+                    <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span>
+                    <span class="n">_OTHER_INTRA_EDGE_WIDTH</span><span class="p">,</span>
+                    <span class="n">_OTHER_INTRA_EDGE_ALPHA</span><span class="p">,</span>
+                    <span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="n">edges</span> <span class="o">=</span> <span class="n">_single_intra_edges</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">node_result</span><span class="p">)</span>
-            <span class="c1"># Opaque intra-habitat edges (alpha=1); pale translucent strokes</span>
-            <span class="c1"># made the 2D region network hard to read.</span>
+            <span class="c1"># Featured intra-habitat edges stay opaque so the panel is readable.</span>
             <span class="n">_draw_edges_2d</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">_draw_nodes_2d</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">)</span>
             <span class="c1"># Slice index lives on the figure title; keep panel titles short</span>
@@ -2808,6 +3161,9 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="n">ax_cross</span> <span class="o">=</span> <span class="n">axes_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">_draw_background_2d</span><span class="p">(</span><span class="n">ax_cross</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">show_background</span><span class="p">)</span>
+        <span class="n">_apply_display_grid</span><span class="p">(</span>
+            <span class="n">ax_cross</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
+        <span class="p">)</span>
         <span class="n">_draw_edges_2d</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">intra_edges</span><span class="p">,</span> <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span>
         <span class="p">)</span>
@@ -2821,9 +3177,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_style_axis_2d</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="n">label_2d</span><span class="p">,</span>
-            <span class="s2">&quot;All habitats&quot;</span><span class="p">,</span>
+            <span class="n">_all_habitats_title</span><span class="p">(</span>
+                <span class="n">labels</span><span class="p">,</span>
+                <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">,</span>
+                <span class="n">intra_edges</span><span class="p">,</span>
+                <span class="n">inter_edges</span><span class="p">,</span>
+            <span class="p">),</span>
             <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
-            <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+            <span class="n">title_pad</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">add_discrete_habitat_colorbar</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
@@ -2842,15 +3203,34 @@ window.runMermaid = runMermaid;</script>
             <span class="n">Line2D</span><span class="p">(</span>
                 <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Intra-habitat edge&quot;</span>
             <span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">_OTHER_INTRA_EDGE_ALPHA</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Other-habitat edge&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">grid_color</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+                <span class="n">linestyle</span><span class="o">=</span><span class="n">grid_linestyle</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">_grid_caption</span><span class="p">(</span><span class="n">display_size</span><span class="p">),</span>
+            <span class="p">),</span>
         <span class="p">]</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
             <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
             <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
-            <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">_FIG_LEGEND_FONTSIZE</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;2D habitat graphs from representative cross-section (slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;2D habitat graphs from representative cross-section &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">; </span><span class="si">{</span><span class="n">_grid_caption</span><span class="p">(</span><span class="n">display_size</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">),</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>

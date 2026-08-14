@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -443,6 +443,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -622,7 +623,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -3031,7 +3032,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </table>
 </dd>
 <dt><strong>graph</strong></dt><dd><p>Graph-topology features of one subject’s habitat map.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">node_method,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;graph&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3060,7 +3061,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>See the component docstring.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">'adjacency'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'min_distance'</span></code></p></td>
 <td><p>‘centroid_distance’ | ‘adjacency’ | ‘min_distance’</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
@@ -3099,32 +3100,37 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p>&gt;= 0</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'uniform_grid'</span></code></p></td>
+<td><p>‘uniform_grid’ | ‘component’</p></td>
+<td><p>See the component docstring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
 <td><p>&gt;= 0</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
 <td><p>&gt;= 1</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">0.5</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.2</span></code></p></td>
 <td><p>&gt;= 0.0; &lt;= 1.0</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>See the component docstring.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
 <td><p>&gt;= 3</p></td>
 <td><p>See the component docstring.</p></td>
@@ -3442,7 +3448,7 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <h4>image_perturbation<a class="headerlink" href="#image-perturbation" title="Link to this heading"></a></h4>
 <dl>
 <dt><strong>bspline_deform</strong></dt><dd><p>MONAI elastic / B-spline free-form warp of every image and ROI.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device,</span> <span class="pre">target_dice,</span> <span class="pre">dice_tolerance</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;bspline_deform&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;bspline_deform&quot;)</span></code></p>
 <table class="docutils align-default">
@@ -3489,6 +3495,16 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">'cpu'</span></code></p></td>
 <td><p>str</p></td>
 <td><p>Torch device (<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code>). Default <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> is the portable path; pass <code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code> when a GPU is available and the volume fits in memory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_dice</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>float | None</p></td>
+<td><p>When set, scale one frozen MONAI offset field so the Dice between the original and warped ROI is within <code class="docutils literal notranslate"><span class="pre">dice_tolerance</span></code> of this value. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps the random magnitude from <code class="docutils literal notranslate"><span class="pre">magnitude_range</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dice_tolerance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.02</span></code></p></td>
+<td><p>float</p></td>
+<td><p>Allowed absolute error on <code class="docutils literal notranslate"><span class="pre">target_dice</span></code>.</p></td>
 </tr>
 </tbody>
 </table>

@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -975,7 +976,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -2155,6 +2156,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">EdgeMethod</span><span class="p">,</span>
     <span class="n">EdgeWeightMode</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
+    <span class="n">NodeMethod</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_habitat_nodes</span>
 
@@ -2172,25 +2174,23 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">HabitatGraphFeatureOptions</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runtime options for graph-based habitat feature extraction.</span>
 
-<span class="sd">    Default edge rule: ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_connectivity=&#39;corner&#39;`` (8-connected in 2D / 26-connected</span>
-<span class="sd">    in 3D) and ``adjacency_min_voxels=10``. Components use</span>
-<span class="sd">    ``connectivity=&#39;full&#39;`` (same 8/26 neighborhood). Pass</span>
-<span class="sd">    ``adjacency_connectivity=&#39;face&#39;`` and ``connectivity=&#39;face&#39;`` for</span>
-<span class="sd">    4-connected / 6-connected neighborhoods. Adjacency and the</span>
-<span class="sd">    contact-voxel count are measured on the habitat labels as drawn</span>
-<span class="sd">    (``erosion_radius=0``). An edge exists when two regions share a</span>
-<span class="sd">    boundary and the contact voxel count is at least 10. Pass a</span>
-<span class="sd">    positive ``erosion_radius`` to shrink each habitat before labeling</span>
-<span class="sd">    and edge construction.</span>
+<span class="sd">    Default node rule: ``node_method=&#39;uniform_grid&#39;`` with ``block_size=5``</span>
+<span class="sd">    (equal-volume cubes on a global VOI lattice, edge length in **voxels**,</span>
+<span class="sd">    not millimetres). Default edge rule: ``edge_method=&#39;min_distance&#39;``</span>
+<span class="sd">    with ``distance_threshold=5.0``. Face-adjacent 5-cubes connect</span>
+<span class="sd">    (closest voxels are one hop apart). One empty lattice cell between</span>
+<span class="sd">    cubes gives closest-voxel distance 6, which is greater than 5, so</span>
+<span class="sd">    those stay disconnected. ``adjacency`` and ``centroid_distance``</span>
+<span class="sd">    remain available.</span>
+<span class="sd">    ``erosion_radius=0`` measures the habitat labels as drawn.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="c1"># Default edge rule: connect corner-adjacent regions (8-conn in 2D /</span>
-    <span class="c1"># 26-conn in 3D) whose shared-boundary (contact) voxel-pair count is</span>
-    <span class="c1"># at least ``adjacency_min_voxels``. Pass ``&quot;face&quot;`` for 4/6-conn.</span>
-    <span class="n">edge_method</span><span class="p">:</span> <span class="n">EdgeMethod</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span>
+    <span class="c1"># Default: connect regions whose closest voxels are within</span>
+    <span class="c1"># ``distance_threshold``. Pass ``&quot;adjacency&quot;`` for contact-voxel edges</span>
+    <span class="c1"># or ``&quot;centroid_distance&quot;`` for centroid proximity.</span>
+    <span class="n">edge_method</span><span class="p">:</span> <span class="n">EdgeMethod</span> <span class="o">=</span> <span class="s2">&quot;min_distance&quot;</span>
     <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
     <span class="c1"># Adjacency edge parameters (used when edge_method == &quot;adjacency&quot;).</span>
     <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span>
@@ -2198,18 +2198,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
-    <span class="c1"># Default is off: adjacency / contact are measured on the habitat labels</span>
+    <span class="c1"># Default is off: distances / contact are measured on the habitat labels</span>
     <span class="c1"># as drawn. Pass a positive value to shrink each habitat (binary erosion</span>
-    <span class="c1"># iterations) before connected-component labeling and edge construction.</span>
+    <span class="c1"># iterations) before labeling and edge construction.</span>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c1"># Subdivision is on by default: contiguous habitats would otherwise collapse</span>
-    <span class="c1"># into a single graph node and erase internal spatial structure. Components</span>
-    <span class="c1"># larger than ``subdivide_region_voxels`` are split into ``block_size`` grid</span>
-    <span class="c1"># blocks. ``block_size`` matches the default ``distance_threshold`` so that</span>
-    <span class="c1"># adjacent blocks connect into a usable lattice graph.</span>
+    <span class="c1"># Default node construction: a global equal-volume cube lattice.</span>
+    <span class="c1"># ``component`` restores connected-component nodes; those larger than</span>
+    <span class="c1"># ``subdivide_region_voxels`` are then split (``0`` disables that split).</span>
+    <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="c1"># 5^3 = 125 voxels per full cube. Units are voxels, not millimetres.</span>
+    <span class="c1"># Paired with distance_threshold=5: face-adjacent cubes connect</span>
+    <span class="c1"># (closest-voxel hop 1); one empty lattice cell is distance 6 &gt; 5.</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
-    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
     <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
@@ -2366,11 +2368,10 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract subject-level graph features from a habitat label map.</span>
 
-<span class="sd">    Default ``options`` use ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_min_voxels=10`` and ``erosion_radius=0``: an edge exists</span>
-<span class="sd">    when two regions are adjacent on the habitat labels as drawn and the</span>
-<span class="sd">    contact (shared-boundary) voxel count is &gt;= 10. Pass</span>
-<span class="sd">    ``erosion_radius&gt;=1`` to shrink habitats before edges.</span>
+<span class="sd">    Default ``options`` use ``node_method=&#39;uniform_grid&#39;`` (5-voxel cubes)</span>
+<span class="sd">    and ``edge_method=&#39;min_distance&#39;`` with ``distance_threshold=5.0``.</span>
+<span class="sd">    Pass ``node_method=&#39;component&#39;`` / ``edge_method=&#39;adjacency&#39;`` for the</span>
+<span class="sd">    older connected-component contact graph.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Already segmented habitat map. Label 0 is treated as</span>
@@ -2396,6 +2397,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
         <span class="n">block_size</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_size</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="n">node_method</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">node_method</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">present_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>

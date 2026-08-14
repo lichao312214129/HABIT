@@ -28,10 +28,11 @@ Script
 Load the Option B tree with :func:`~habit.cohort_from_directory`
 (:doc:`../how_to/prepare_data` Option C). Change ``DATA`` /
 ``MODALITIES`` / ``ROI`` to your preprocessed layout. The demo pack has
-``subj001`` … ``subj005``; this recipe trains on the first two subjects
-and applies the saved model to the next two. Keep the same
+``subj001`` … ``subj005``; this recipe trains on the first three subjects
+and applies the saved model to the last two. Keep the same
 :class:`~habit.spec.HabitatSpec` for train and apply. The fit stage uses
-a fixed modest ``n_habitats`` (not auto-K).
+a fixed ``n_habitats=3`` with ``n_supervoxels=32`` (not auto-K) so the
+applied maps keep more than one habitat visible.
 
 .. literalinclude:: scripts/apply_saved_model_demo.py
    :language: python
@@ -55,7 +56,7 @@ Output
 
 Illustrative::
 
-   Train: ['subj001', 'subj002']; apply: ['subj003', 'subj004']
+   Train: ['subj001', 'subj002', 'subj003']; apply: ['subj004', 'subj005']
    Saved out/habitat_model.habitatmodel
      subj003: {...}
      subj004: {...}

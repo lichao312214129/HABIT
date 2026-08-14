@@ -368,7 +368,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -444,6 +444,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -623,7 +624,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -1830,13 +1831,21 @@ remains available when 4/6-connectivity is required.</p></li>
 </li>
 <li><p>Drop a component <span class="math notranslate nohighlight">\(C\)</span> if <span class="math notranslate nohighlight">\(|C| &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code>
 (default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> and <span class="math notranslate nohighlight">\(|C|&gt;s\)</span>, split
-<span class="math notranslate nohighlight">\(C\)</span> into axis-aligned grid blocks of edge length <code class="docutils literal notranslate"><span class="pre">block_size</span></code>
-<span class="math notranslate nohighlight">\(b\)</span> (default <span class="math notranslate nohighlight">\(s=1000\)</span>, <span class="math notranslate nohighlight">\(b=5\)</span>). A block with voxel
-set <span class="math notranslate nohighlight">\(B\)</span> is <strong>kept</strong> only when</p>
+<li><p><strong>Default</strong> <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> skips per-component
+splitting. Instead the whole tumour VOI is painted with a <strong>global</strong>
+axis-aligned lattice of cubes of edge <code class="docutils literal notranslate"><span class="pre">block_size</span></code> <span class="math notranslate nohighlight">\(b\)</span>
+(default <span class="math notranslate nohighlight">\(b=5\)</span> <strong>voxels</strong>, not millimetres) whose origin is the
+VOI bounding-box minimum.
+A cube becomes one node when its occupied fraction exceeds
+<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>); the node habitat is the
+majority label in that cube. Pass <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> for the
+older rule: if <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> and
+<span class="math notranslate nohighlight">\(|C|&gt;s\)</span>, split <span class="math notranslate nohighlight">\(C\)</span> into axis-aligned grid blocks of edge
+<span class="math notranslate nohighlight">\(b\)</span> (default <span class="math notranslate nohighlight">\(s=1000\)</span>). A block with voxel set <span class="math notranslate nohighlight">\(B\)</span>
+is <strong>kept</strong> only when</p>
 <div class="math notranslate nohighlight">
 \[|B| / b^{d} \;&gt;\; \texttt{block\_min\_coverage}\]</div>
-<p>(strict inequality; default coverage <code class="docutils literal notranslate"><span class="pre">0.5</span></code>). Each kept block becomes
+<p>(strict inequality; default coverage <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Each kept block becomes
 its own node. If no block passes, or subdivision is off, the whole
 component is one node.</p>
 </li>
@@ -1850,7 +1859,7 @@ bounding box. Node ids are stable strings <code class="docutils literal notransl
 </section>
 <section id="edges-centroid-distance">
 <h3>Edges: centroid distance<a class="headerlink" href="#edges-centroid-distance" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">edge_method='centroid_distance'</span></code> (not the default). Let <span class="math notranslate nohighlight">\(\tau=\)</span>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='centroid_distance'</span></code> (opt-in). Let <span class="math notranslate nohighlight">\(\tau=\)</span>
 <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code> voxel units). An undirected edge
 exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when</p>
 <div class="math notranslate nohighlight">
@@ -1881,8 +1890,12 @@ d(u,v) &amp; \text{``distance''}\\
 </section>
 <section id="edges-minimum-voxel-distance">
 <h3>Edges: minimum voxel distance<a class="headerlink" href="#edges-minimum-voxel-distance" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (opt-in; not the default). Reuses
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (<strong>default</strong>). Reuses
 <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> <span class="math notranslate nohighlight">\(\tau\)</span> (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code> voxel-index units).
+With the default 5-voxel cubes, face-adjacent cubes connect (closest
+voxels are one hop apart). One empty lattice cell between cubes is
+closest-voxel distance 6, which is greater than <span class="math notranslate nohighlight">\(\tau=5\)</span>, so those
+stay disconnected.
 An undirected edge exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when the
 closest-point (Hausdorff-min) distance between their voxels satisfies</p>
 <div class="math notranslate nohighlight">
@@ -1895,9 +1908,9 @@ as <code class="docutils literal notranslate"><span class="pre">centroid_distanc
 <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> is <code class="docutils literal notranslate"><span class="pre">distance</span></code> or <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code>.
 <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused (stored as missing).</p>
 </section>
-<section id="edges-voxel-adjacency-default">
-<h3>Edges: voxel adjacency (default)<a class="headerlink" href="#edges-voxel-adjacency-default" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> (default). Paint every node onto an integer id array
+<section id="edges-voxel-adjacency-opt-in">
+<h3>Edges: voxel adjacency (opt-in)<a class="headerlink" href="#edges-voxel-adjacency-opt-in" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> (opt-in). Paint every node onto an integer id array
 (background and non-requested labels stay <code class="docutils literal notranslate"><span class="pre">0</span></code>). For each unique
 neighbour offset in a <strong>half-space</strong> (first non-zero component <span class="math notranslate nohighlight">\(=+1\)</span>,
 so each unordered voxel pair is counted once):</p>
@@ -2164,7 +2177,7 @@ below match the kernel dataclass.</p>
 <td><p>Pairwise inter-habitat graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">adjacency</span></code> (default), <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>, or <code class="docutils literal notranslate"><span class="pre">min_distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">min_distance</span></code> (default), <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>, or <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code></p></td>
 <td><p>Distance threshold in <strong>voxel-index</strong> units (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code>). Used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> (centroid-to-centroid) and <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> (closest-voxel).</p></td>
@@ -2187,22 +2200,25 @@ below match the kernel dataclass.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code></p></td>
 <td><p>Binary erosion iterations before labeling (default <code class="docutils literal notranslate"><span class="pre">0</span></code> / off; set <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> to shrink habitats before edges)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
-<td><p>Split components larger than this into grid blocks (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> (default: equal-volume cubes on a global VOI lattice) or <code class="docutils literal notranslate"><span class="pre">component</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
-<td><p>Subdivision block edge length in voxels (default <code class="docutils literal notranslate"><span class="pre">5</span></code>; keep near <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code>)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
+<td><p>In <code class="docutils literal notranslate"><span class="pre">component</span></code> mode, split components larger than this (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
-<td><p>Minimum <strong>strict</strong> fraction of a block that must be occupied (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
+<td><p>Cube edge length in <strong>voxels</strong> (default <code class="docutils literal notranslate"><span class="pre">5</span></code>, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at <code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
+<td><p>Minimum <strong>strict</strong> fraction of a block that must be occupied (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code></p></td>
 <td><p>Efficiency, small-world sigma, rich-club, node-distribution summaries (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code></p></td>
 <td><p>Minimum analysis-subgraph node count for small-world sigma (default <code class="docutils literal notranslate"><span class="pre">10</span></code>; smaller graphs return <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></td>
 </tr>
 </tbody>
@@ -2232,10 +2248,19 @@ below match the kernel dataclass.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_show_background</span></code></p></td>
 <td><p>Draw faint habitat partitions behind 2D networks (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_show_grid</span></code></p></td>
+<td><p>Draw the equal-volume cube lattice on 2D figures (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code></p></td>
+<td><p>Display cube edge in voxels (default <code class="docutils literal notranslate"><span class="pre">null</span></code> → extraction <code class="docutils literal notranslate"><span class="pre">block_size</span></code>, library default 5)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code></p></td>
+<td><p>Lattice line style (default <code class="docutils literal notranslate"><span class="pre">--</span></code> dashed)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code></p></td>
 <td><p>Also render 3D surface / network views when deps allow (default <code class="docutils literal notranslate"><span class="pre">true</span></code>; needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code> extras)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code> / <code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
 <td><p>Legacy v0.1 keys accepted for compatibility; <strong>no effect</strong> (activation is <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>, figures run serially)</p></td>
 </tr>
 </tbody>

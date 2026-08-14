@@ -78,16 +78,24 @@ For each habitat :math:`k\in\mathcal{H}`:
      remains available when 4/6-connectivity is required.
 4. Drop a component :math:`C` if :math:`|C| <` ``min_region_voxels``
    (default ``1``).
-5. If ``subdivide_region_voxels`` :math:`s>0` and :math:`|C|>s`, split
-   :math:`C` into axis-aligned grid blocks of edge length ``block_size``
-   :math:`b` (default :math:`s=1000`, :math:`b=5`). A block with voxel
-   set :math:`B` is **kept** only when
+5. **Default** ``node_method='uniform_grid'`` skips per-component
+   splitting. Instead the whole tumour VOI is painted with a **global**
+   axis-aligned lattice of cubes of edge ``block_size`` :math:`b`
+   (default :math:`b=5` **voxels**, not millimetres) whose origin is the
+   VOI bounding-box minimum.
+   A cube becomes one node when its occupied fraction exceeds
+   ``block_min_coverage`` (default ``0.2``); the node habitat is the
+   majority label in that cube. Pass ``node_method='component'`` for the
+   older rule: if ``subdivide_region_voxels`` :math:`s>0` and
+   :math:`|C|>s`, split :math:`C` into axis-aligned grid blocks of edge
+   :math:`b` (default :math:`s=1000`). A block with voxel set :math:`B`
+   is **kept** only when
 
    .. math::
 
       |B| / b^{d} \;>\; \texttt{block\_min\_coverage}
 
-   (strict inequality; default coverage ``0.5``). Each kept block becomes
+   (strict inequality; default coverage ``0.2``). Each kept block becomes
    its own node. If no block passes, or subdivision is off, the whole
    component is one node.
 
@@ -104,7 +112,7 @@ bounding box. Node ids are stable strings ``h{k}_c{id}``.
 Edges: centroid distance
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-``edge_method='centroid_distance'`` (not the default). Let :math:`\tau=`
+``edge_method='centroid_distance'`` (opt-in). Let :math:`\tau=`
 ``distance_threshold`` (default ``5.0`` voxel units). An undirected edge
 exists between distinct nodes :math:`u,v` when
 
@@ -142,8 +150,12 @@ Edge weight ``w`` from ``edge_weight``:
 Edges: minimum voxel distance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``edge_method='min_distance'`` (opt-in; not the default). Reuses
+``edge_method='min_distance'`` (**default**). Reuses
 ``distance_threshold`` :math:`\tau` (default ``5.0`` voxel-index units).
+With the default 5-voxel cubes, face-adjacent cubes connect (closest
+voxels are one hop apart). One empty lattice cell between cubes is
+closest-voxel distance 6, which is greater than :math:`\tau=5`, so those
+stay disconnected.
 An undirected edge exists between distinct nodes :math:`u,v` when the
 closest-point (Hausdorff-min) distance between their voxels satisfies
 
@@ -159,10 +171,10 @@ as ``centroid_distance``. Edge weight uses :math:`d_{\min}` when
 ``edge_weight`` is ``distance`` or ``inverse_distance``.
 ``contact_voxels`` is unused (stored as missing).
 
-Edges: voxel adjacency (default)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Edges: voxel adjacency (opt-in)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``edge_method='adjacency'`` (default). Paint every node onto an integer id array
+``edge_method='adjacency'`` (opt-in). Paint every node onto an integer id array
 (background and non-requested labels stay ``0``). For each unique
 neighbour offset in a **half-space** (first non-zero component :math:`=+1`,
 so each unordered voxel pair is counted once):
@@ -459,7 +471,7 @@ below match the kernel dataclass.
    * - ``include_pairwise_habitat_graph``
      - Pairwise inter-habitat graphs (default ``true``)
    * - ``edge_method``
-     - ``adjacency`` (default), ``centroid_distance``, or ``min_distance``
+     - ``min_distance`` (default), ``adjacency``, or ``centroid_distance``
    * - ``distance_threshold``
      - Distance threshold in **voxel-index** units (default ``5.0``). Used by ``centroid_distance`` (centroid-to-centroid) and ``min_distance`` (closest-voxel).
    * - ``adjacency_connectivity``
@@ -474,12 +486,14 @@ below match the kernel dataclass.
      - Connected-component rule: default ``full`` (8-conn in 2-D / 26-conn in 3-D); ``face`` (4/6) remains available
    * - ``erosion_radius``
      - Binary erosion iterations before labeling (default ``0`` / off; set ``>= 1`` to shrink habitats before edges)
+   * - ``node_method``
+     - ``uniform_grid`` (default: equal-volume cubes on a global VOI lattice) or ``component``
    * - ``subdivide_region_voxels``
-     - Split components larger than this into grid blocks (default ``1000``; ``0`` disables)
+     - In ``component`` mode, split components larger than this (default ``1000``; ``0`` disables)
    * - ``block_size``
-     - Subdivision block edge length in voxels (default ``5``; keep near ``distance_threshold``)
+     - Cube edge length in **voxels** (default ``5``, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at ``distance_threshold=5``.
    * - ``block_min_coverage``
-     - Minimum **strict** fraction of a block that must be occupied (default ``0.5``)
+     - Minimum **strict** fraction of a block that must be occupied (default ``0.2``)
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``
@@ -504,6 +518,12 @@ YAML-only visualization fields (recipe hook; **not** part of the extractor
      - Raster DPI (default ``600``)
    * - ``visualization_show_background``
      - Draw faint habitat partitions behind 2D networks (default ``true``)
+   * - ``visualization_show_grid``
+     - Draw the equal-volume cube lattice on 2D figures (default ``true``)
+   * - ``visualization_block_size``
+     - Display cube edge in voxels (default ``null`` → extraction ``block_size``, library default 5)
+   * - ``visualization_grid_linestyle``
+     - Lattice line style (default ``--`` dashed)
    * - ``visualization_save_3d``
      - Also render 3D surface / network views when deps allow (default ``true``; needs ``[view]`` extras)
    * - ``enabled`` / ``n_workers``

@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -975,7 +976,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -2158,11 +2159,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="c1">#: Compute pairwise inter-habitat region graphs.</span>
     <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="c1">#: Rule used to identify graph edges. Default ``&quot;adjacency&quot;``: connect</span>
-    <span class="c1">#: regions that share a boundary. ``&quot;min_distance&quot;`` connects regions</span>
-    <span class="c1">#: whose closest voxels are within ``distance_threshold``.</span>
+    <span class="c1">#: Rule used to identify graph edges. Default ``&quot;min_distance&quot;``:</span>
+    <span class="c1">#: connect regions whose closest voxels are within</span>
+    <span class="c1">#: ``distance_threshold``. ``&quot;adjacency&quot;`` uses contact voxels.</span>
     <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;adjacency&quot;</span>
+        <span class="s2">&quot;min_distance&quot;</span>
     <span class="p">)</span>
     <span class="c1">#: Distance threshold in voxel-index units. Used by ``centroid_distance``</span>
     <span class="c1">#: (centroid-to-centroid) and ``min_distance`` (closest-voxel).</span>
@@ -2189,14 +2190,21 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: ``0`` (off): adjacency and contact are measured on the habitat labels</span>
     <span class="c1">#: as drawn. Pass a positive value to shrink each habitat before edges.</span>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="c1">#: Split connected components larger than this voxel count into grid blocks</span>
-    <span class="c1">#: so large habitats do not collapse into a single node. Set 0 to disable.</span>
+    <span class="c1">#: How voxels become nodes. Default ``&quot;uniform_grid&quot;``: equal-volume</span>
+    <span class="c1">#: cubes on a global VOI lattice. ``&quot;component&quot;`` uses connected</span>
+    <span class="c1">#: components (optionally split when larger than</span>
+    <span class="c1">#: ``subdivide_region_voxels``).</span>
+    <span class="n">node_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span>
+    <span class="c1">#: In ``component`` mode, split components larger than this voxel count.</span>
+    <span class="c1">#: ``0`` disables that split. Ignored by ``uniform_grid``.</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="c1">#: Grid block edge length (voxels) used when subdividing. Keep it close to</span>
-    <span class="c1">#: ``distance_threshold`` so adjacent blocks connect into a lattice.</span>
+    <span class="c1">#: Cube edge length in voxels (default 5), not millimetres. Paired</span>
+    <span class="c1">#: with ``distance_threshold=5``: face-adjacent cubes connect; one</span>
+    <span class="c1">#: empty lattice cell (closest-voxel distance 6) stays disconnected.</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1">#: Minimum covered fraction of a block volume to keep it as a node.</span>
-    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="c1">#: Minimum covered fraction of a block volume to keep it as a node</span>
+    <span class="c1">#: (strictly greater than this value; default 0.2).</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="c1">#: Add same-habitat proximity edges to pairwise graphs so whole-graph</span>
     <span class="c1">#: metrics (modularity, assortativity, betweenness) reflect real tissue</span>
     <span class="c1">#: organization; interface metrics still use inter-class edges only.</span>
@@ -2217,19 +2225,15 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Graph-topology features of one subject&#39;s habitat map.</span>
 
-<span class="sd">    Each connected habitat region (optionally eroded and subdivided into grid</span>
-<span class="sd">    blocks) becomes a graph node. By default there is no morphological</span>
-<span class="sd">    erosion (``erosion_radius=0``): adjacency is measured on the habitat</span>
-<span class="sd">    labels as drawn. With ``edge_method=&#39;adjacency&#39;`` an edge exists when</span>
-<span class="sd">    two regions are adjacent (default ``adjacency_connectivity=&#39;corner&#39;``,</span>
-<span class="sd">    8-connected in 2D / 26-connected in 3D) and the number of contact</span>
-<span class="sd">    (shared-boundary) voxels is at least ``adjacency_min_voxels``</span>
-<span class="sd">    (default ``10``). Components use ``connectivity=&#39;full&#39;`` (same 8/26</span>
-<span class="sd">    neighborhood). Pass ``face`` on both fields for 4/6-connectivity.</span>
-<span class="sd">    Pass a positive ``erosion_radius`` to shrink habitats before edges. The</span>
-<span class="sd">    alternative ``centroid_distance`` method connects centroids</span>
-<span class="sd">    within ``distance_threshold``. ``min_distance`` connects regions when</span>
-<span class="sd">    the closest voxels (not the centroids) are within the same</span>
+<span class="sd">    Default nodes are equal-volume cubes on a global VOI lattice</span>
+<span class="sd">    (``node_method=&#39;uniform_grid&#39;``, ``block_size=5`` voxels, not mm).</span>
+<span class="sd">    Default edges connect cubes whose closest voxels are within</span>
+<span class="sd">    ``distance_threshold`` (``edge_method=&#39;min_distance&#39;``, default 5).</span>
+<span class="sd">    There is no morphological erosion (``erosion_radius=0``). Pass</span>
+<span class="sd">    ``node_method=&#39;component&#39;`` for connected-component nodes, and</span>
+<span class="sd">    ``edge_method=&#39;adjacency&#39;`` for contact-voxel edges (default</span>
+<span class="sd">    ``adjacency_min_voxels=10``, ``adjacency_connectivity=&#39;corner&#39;``).</span>
+<span class="sd">    ``centroid_distance`` connects centroids within</span>
 <span class="sd">    ``distance_threshold``. NetworkX-derived topology</span>
 <span class="sd">    metrics are reported per habitat (``single_h*`` columns) and per habitat</span>
 <span class="sd">    pair (``pair_h*_h*`` columns), covering degree/edge counts, density,</span>
@@ -2254,7 +2258,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
             <span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span> <span class="s2">&quot;min_distance&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">,</span>
         <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
         <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span><span class="p">,</span>
         <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -2264,9 +2268,10 @@ window.runMermaid = runMermaid;</script>
         <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span>
         <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">node_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
         <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -2282,6 +2287,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
             <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
             <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
+            <span class="n">node_method</span><span class="o">=</span><span class="n">node_method</span><span class="p">,</span>
             <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
             <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
             <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>

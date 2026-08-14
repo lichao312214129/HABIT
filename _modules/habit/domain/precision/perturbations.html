@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -796,6 +796,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -975,7 +976,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -2899,6 +2900,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">mask_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span>
     <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span>
     <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">target_dice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dice_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span>
 
 
 <span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;bspline_deform&quot;</span><span class="p">)</span>
@@ -2943,6 +2946,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        device: Torch device (``&quot;cpu&quot;`` / ``&quot;cuda&quot;``). Default ``&quot;cpu&quot;``</span>
 <span class="sd">            is the portable path; pass ``&quot;cuda&quot;`` when a GPU is available</span>
 <span class="sd">            and the volume fits in memory.</span>
+<span class="sd">        target_dice: When set, scale one frozen MONAI offset field so the</span>
+<span class="sd">            Dice between the original and warped ROI is within</span>
+<span class="sd">            ``dice_tolerance`` of this value. ``None`` keeps the random</span>
+<span class="sd">            magnitude from ``magnitude_range``.</span>
+<span class="sd">        dice_tolerance: Allowed absolute error on ``target_dice``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -2953,6 +2961,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mask_mode</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
         <span class="n">padding_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reflection&quot;</span><span class="p">,</span>
         <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span>
+        <span class="n">target_dice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dice_tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.02</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;sigma_range&quot;</span><span class="p">,</span> <span class="n">sigma_range</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span> <span class="o">=</span> <span class="n">_pair_range</span><span class="p">(</span><span class="s2">&quot;magnitude_range&quot;</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="p">)</span>
@@ -2971,6 +2981,23 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">device</span><span class="si">!r}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_dice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">target_dice</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">target</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="s2">&quot;bspline_deform: target_dice must be in (0, 1]; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">target_dice</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">tolerance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dice_tolerance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">tolerance</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: dice_tolerance must be in (0, 1); &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">dice_tolerance</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dice_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
@@ -2984,25 +3011,32 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;mask_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_mode</span><span class="p">,</span>
                 <span class="s2">&quot;padding_mode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
                 <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                <span class="s2">&quot;target_dice&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span><span class="p">,</span>
+                <span class="s2">&quot;dice_tolerance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_tolerance</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_warp</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">magnitude_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">mask_keys_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return a copy of ``subject`` warped by one MONAI elastic field.</span>
+<span class="sd">        Apply one MONAI elastic field with a frozen seed and magnitude.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            subject: Subject providing images and/or masks on one grid.</span>
-<span class="sd">            rng: Random generator; one integer seed is drawn so every</span>
-<span class="sd">                volume of this subject shares the same displacement.</span>
+<span class="sd">            seed: Integer seed for the shared offset grid.</span>
+<span class="sd">            magnitude_range: Displacement magnitude ``(low, high)``.</span>
+<span class="sd">            mask_keys_only: When ``True``, warp masks only (used while</span>
+<span class="sd">                searching for a target Dice so images are not resampled</span>
+<span class="sd">                on every binary-search step).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The warped subject copy (same keys, same geometry).</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            OptionalDependencyError: When the ``monai`` extra is missing.</span>
-<span class="sd">            HABITAPIError: When the subject has no volumes, or images</span>
-<span class="sd">                and masks do not share one 3-D shape.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
 
@@ -3016,7 +3050,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">monai.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rand3DElasticd</span>
 
-        <span class="n">image_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">)</span>
+        <span class="n">image_keys</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">mask_keys_only</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">)</span>
         <span class="n">mask_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">image_keys</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">mask_keys</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
@@ -3058,22 +3092,24 @@ window.runMermaid = runMermaid;</script>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">Rand3DElasticd</span><span class="p">(</span>
             <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span>
             <span class="n">sigma_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_range</span><span class="p">,</span>
-            <span class="n">magnitude_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">,</span>
+            <span class="n">magnitude_range</span><span class="o">=</span><span class="n">magnitude_range</span><span class="p">,</span>
             <span class="n">spatial_size</span><span class="o">=</span><span class="n">reference_shape</span><span class="p">,</span>
             <span class="n">prob</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
             <span class="n">mode</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">modes</span><span class="p">),</span>
             <span class="n">padding_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">,</span>
             <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># One seed drives the shared offset grid for every key.</span>
-        <span class="n">transform</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="n">transform</span><span class="o">.</span><span class="n">set_random_state</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
         <span class="n">warped</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="n">images</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="n">image_keys</span><span class="p">:</span>
-            <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">_as_numpy_volume</span><span class="p">(</span><span class="n">warped</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">modality</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">mask_keys_only</span><span class="p">:</span>
+                <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">images</span><span class="p">[</span><span class="n">modality</span><span class="p">]</span> <span class="o">=</span> <span class="n">_as_numpy_volume</span><span class="p">(</span>
+                    <span class="n">warped</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;image:</span><span class="si">{</span><span class="n">modality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">masks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">mask_keys</span><span class="p">:</span>
             <span class="n">mask_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
@@ -3082,6 +3118,108 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># residual float dust from the MONAI / scipy backend.</span>
             <span class="n">masks</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">warped_mask</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">mask_array</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">images</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_mean_roi_dice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reference</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">warped</span><span class="p">:</span> <span class="n">Subject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mean binary Dice across every mask key.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.image_perturbation</span><span class="w"> </span><span class="kn">import</span> <span class="n">binary_mask_dice</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">binary_mask_dice</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">warped</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">reference</span><span class="o">.</span><span class="n">masks</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_magnitude_for_target_dice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Binary-search a magnitude so ROI Dice matches ``target_dice``.</span>
+
+<span class="sd">        The MONAI offset-grid direction is frozen by ``seed``; only the</span>
+<span class="sd">        scale changes. Larger magnitude usually lowers Dice.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject whose masks define the Dice.</span>
+<span class="sd">            seed: Frozen seed for the offset field.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: Magnitude that lands closest to ``target_dice``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span><span class="p">)</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">hi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">)</span>
+        <span class="n">best_magnitude</span> <span class="o">=</span> <span class="n">hi</span>
+        <span class="n">best_error</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="c1"># Expand the upper bound if even a large warp stays too similar.</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="n">probe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
+                <span class="n">subject</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="n">hi</span><span class="p">,</span> <span class="n">hi</span><span class="p">),</span>
+                <span class="n">mask_keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean_roi_dice</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">probe</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dice</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;</span> <span class="n">best_error</span><span class="p">:</span>
+                <span class="n">best_error</span> <span class="o">=</span> <span class="n">error</span>
+                <span class="n">best_magnitude</span> <span class="o">=</span> <span class="n">hi</span>
+            <span class="k">if</span> <span class="n">dice</span> <span class="o">&lt;=</span> <span class="n">target</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_tolerance</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">hi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">hi</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">64.0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+            <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="n">hi</span><span class="p">)</span>
+            <span class="n">probe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
+                <span class="n">subject</span><span class="p">,</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+                <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="n">mid</span><span class="p">,</span> <span class="n">mid</span><span class="p">),</span>
+                <span class="n">mask_keys_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">dice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean_roi_dice</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">probe</span><span class="p">)</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dice</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;</span> <span class="n">best_error</span><span class="p">:</span>
+                <span class="n">best_error</span> <span class="o">=</span> <span class="n">error</span>
+                <span class="n">best_magnitude</span> <span class="o">=</span> <span class="n">mid</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dice_tolerance</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mid</span>
+            <span class="k">if</span> <span class="n">dice</span> <span class="o">&gt;</span> <span class="n">target</span><span class="p">:</span>
+                <span class="n">lo</span> <span class="o">=</span> <span class="n">mid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hi</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">return</span> <span class="n">best_magnitude</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of ``subject`` warped by one MONAI elastic field.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing images and/or masks on one grid.</span>
+<span class="sd">            rng: Random generator; one integer seed is drawn so every</span>
+<span class="sd">                volume of this subject shares the same displacement.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The warped subject copy (same keys, same geometry).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            OptionalDependencyError: When the ``monai`` extra is missing.</span>
+<span class="sd">            HABITAPIError: When the subject has no volumes, or images</span>
+<span class="sd">                and masks do not share one 3-D shape. ``target_dice``</span>
+<span class="sd">                also requires at least one mask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_dice</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
+                <span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude_range</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;bspline_deform: target_dice requires at least one ROI mask.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">magnitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_magnitude_for_target_dice</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span>
+            <span class="n">subject</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">magnitude_range</span><span class="o">=</span><span class="p">(</span><span class="n">magnitude</span><span class="p">,</span> <span class="n">magnitude</span><span class="p">)</span>
+        <span class="p">)</span>
 
 
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>

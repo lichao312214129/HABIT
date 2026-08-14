@@ -368,7 +368,7 @@
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -444,6 +444,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures-pca-survival-regression">Figures (PCA / survival / regression)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#habitat-features-survival-model">Habitat features → survival model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
@@ -623,7 +624,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-opt-in">Edges: voxel adjacency (opt-in)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -1786,6 +1787,7 @@ where figures go. All text is English/ASCII via
 <li><p>population-level habitat-clustering PCA from a two-step <code class="docutils literal notranslate"><span class="pre">StudyResult</span></code>,</p></li>
 <li><p>Kaplan-Meier curves stratified by a <strong>risk split</strong> (not by the event itself),</p></li>
 <li><p>Cox forest, risk triptych, time-dependent AUC, Brier, survival calibration,</p></li>
+<li><p><strong>habitat features → Cox → KM / forest / calibration</strong> (synthetic labels),</p></li>
 <li><p>regression diagnostics (predicted vs observed, residuals, Q-Q, Bland-Altman).</p></li>
 </ul>
 <p>Binary ML ROC / PR / calibration / DCA plots live on <a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a> and
@@ -2044,6 +2046,162 @@ Survival / regression panels are synthetic demos, not a clinical claim.</p>
 </figcaption>
 </figure>
 </section>
+<section id="habitat-features-survival-model">
+<h2>Habitat features → survival model<a class="headerlink" href="#habitat-features-survival-model" title="Link to this heading"></a></h2>
+<p>The KM / Cox / calibration panels above use a <strong>synthetic</strong> <code class="docutils literal notranslate"><span class="pre">time</span></code> /
+<code class="docutils literal notranslate"><span class="pre">event</span></code> table that is not derived from habitats. This section is the
+missing taught path: extract habitat features, attach survival labels
+(here synthetic and driven by <code class="docutils literal notranslate"><span class="pre">ith_score</span></code> — swap for your own
+<code class="docutils literal notranslate"><span class="pre">os_time</span></code> / <code class="docutils literal notranslate"><span class="pre">os_event</span></code>), fit HABIT <code class="docutils literal notranslate"><span class="pre">CoxPH</span></code> through
+<a class="reference internal" href="../api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline" title="habit.domain.TablePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">TablePipeline</span></code></a>, and draw the same figure family.
+It is <strong>not</strong> the binary-classification path on <a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FeatureTable</span><span class="p">,</span>
+    <span class="n">TablePipeline</span><span class="p">,</span>
+    <span class="n">make_synthetic_cohort</span><span class="p">,</span>
+    <span class="n">one_step_habitat</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">SurvivalOutcome</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.survival</span><span class="w"> </span><span class="kn">import</span> <span class="n">SurvivalModelRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.table_preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TablePreprocessorRegistry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_cox_forest</span><span class="p">,</span>
+    <span class="n">plot_kaplan_meier</span><span class="p">,</span>
+    <span class="n">plot_survival_calibration</span><span class="p">,</span>
+    <span class="n">use_style</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Synthetic cohort stand-in. Swap for:</span>
+<span class="c1">#   DATA = &quot;demo_data/preprocessed&quot;</span>
+<span class="c1">#   cohort = cohort_from_directory(DATA, modalities=(&quot;LAP&quot;,), roi=&quot;LAP&quot;)</span>
+<span class="c1"># and keep the same habitat_features / survival attachment below.</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">make_synthetic_cohort</span><span class="p">(</span><span class="n">n_subjects</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">rng</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">),</span>
+    <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">habitat_features</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">,</span> <span class="s2">&quot;ith_score&quot;</span><span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;tumor&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
+<span class="n">base</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">features</span>
+<span class="n">frame</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat feature columns:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">))</span>
+
+<span class="c1"># Synthetic survival labels correlated with ITH (swap for your time/event CSV).</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="n">signal</span> <span class="o">=</span> <span class="p">(</span><span class="n">signal</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+<span class="n">surv_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">true_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
+    <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">surv_rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">)))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.65</span> <span class="o">*</span> <span class="n">signal</span><span class="p">)</span> <span class="o">*</span> <span class="mf">24.0</span><span class="p">,</span>
+    <span class="mf">0.5</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">censor_time</span> <span class="o">=</span> <span class="n">surv_rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">40.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
+<span class="n">event</span> <span class="o">=</span> <span class="n">true_time</span> <span class="o">&lt;=</span> <span class="n">censor_time</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">true_time</span><span class="p">,</span> <span class="n">censor_time</span><span class="p">)</span>
+<span class="n">frame</span><span class="p">[</span><span class="s2">&quot;os_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+<span class="n">frame</span><span class="p">[</span><span class="s2">&quot;os_event&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">name</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">base</span><span class="o">.</span><span class="n">feature_columns</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;ith_score&quot;</span> <span class="ow">or</span> <span class="s2">&quot;volume_fraction&quot;</span> <span class="ow">in</span> <span class="n">name</span>
+<span class="p">]</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+    <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
+    <span class="n">id_columns</span><span class="o">=</span><span class="n">base</span><span class="o">.</span><span class="n">id_columns</span><span class="p">,</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">keep</span><span class="p">),</span>
+    <span class="n">outcome</span><span class="o">=</span><span class="n">SurvivalOutcome</span><span class="p">(</span><span class="n">time_column</span><span class="o">=</span><span class="s2">&quot;os_time&quot;</span><span class="p">,</span> <span class="n">event_column</span><span class="o">=</span><span class="s2">&quot;os_event&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">TablePipeline</span><span class="p">(</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">[</span><span class="n">TablePreprocessorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;zscore&quot;</span><span class="p">)],</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">SurvivalModelRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;CoxPH&quot;</span><span class="p">,</span> <span class="n">penalizer</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="n">risk</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="n">group</span> <span class="o">=</span> <span class="p">(</span><span class="n">risk</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">risk</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitted CoxPH on </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span><span class="si">}</span><span class="s2"> habitat features; n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Draw the figures (writes <code class="docutils literal notranslate"><span class="pre">out/habitat_survival_*.png</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">habitat_survival_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses pipe, table, time, event, group, keep.</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">horizon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+<span class="n">predicted</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">predict_survival_function</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">horizon</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="c1"># Hazard ratios from the fitted CoxPH (lifelines summary on the same model).</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">summary</span>
+
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig_km</span> <span class="o">=</span> <span class="n">plot_kaplan_meier</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span>
+        <span class="n">event</span><span class="p">,</span>
+        <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+        <span class="n">group_names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Low risk&quot;</span><span class="p">,</span> <span class="s2">&quot;High risk&quot;</span><span class="p">),</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Kaplan-Meier by habitat-feature Cox risk&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig_km</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_survival_km.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">fig_forest</span> <span class="o">=</span> <span class="n">plot_cox_forest</span><span class="p">(</span>
+        <span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)),</span>
+        <span class="n">hazard_ratio</span><span class="o">=</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;exp(coef)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">lower</span><span class="o">=</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;exp(coef) lower 95%&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">upper</span><span class="o">=</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;exp(coef) upper 95%&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">p_values</span><span class="o">=</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cox hazard ratios (habitat features)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig_forest</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+        <span class="s2">&quot;out/habitat_survival_forest.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+    <span class="p">)</span>
+    <span class="n">fig_cal</span> <span class="o">=</span> <span class="n">plot_survival_calibration</span><span class="p">(</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">horizon</span><span class="o">=</span><span class="n">horizon</span><span class="p">,</span> <span class="n">n_groups</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+    <span class="n">fig_cal</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+        <span class="s2">&quot;out/habitat_survival_calibration.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_km</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_forest</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_cal</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Wrote out/habitat_survival_km.png, &quot;</span>
+    <span class="s2">&quot;out/habitat_survival_forest.png, &quot;</span>
+    <span class="s2">&quot;out/habitat_survival_calibration.png&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/habitat_survival_km.png"><img alt="Kaplan-Meier by habitat-feature Cox risk" src="../_images/habitat_survival_km.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Kaplan-Meier by high/low Cox risk from habitat features
+(<a class="reference internal" href="../api/generated/habit.viz.plot_kaplan_meier.html#habit.viz.plot_kaplan_meier" title="habit.viz.plot_kaplan_meier"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_kaplan_meier()</span></code></a>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id13">
+<a class="reference internal image-reference" href="../_images/habitat_survival_forest.png"><img alt="Cox forest plot of habitat features" src="../_images/habitat_survival_forest.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hazard ratios (<a class="reference internal" href="../api/generated/habit.viz.plot_cox_forest.html#habit.viz.plot_cox_forest" title="habit.viz.plot_cox_forest"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_cox_forest()</span></code></a>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id14">
+<a class="reference internal image-reference" href="../_images/habitat_survival_calibration.png"><img alt="Survival calibration from habitat-feature Cox" src="../_images/habitat_survival_calibration.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Calibration at the median follow-up
+(<a class="reference internal" href="../api/generated/habit.viz.plot_survival_calibration.html#habit.viz.plot_survival_calibration" title="habit.viz.plot_survival_calibration"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_survival_calibration()</span></code></a>).</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 <section id="habitat-graph-topology-figures">
 <h2>Habitat graph topology figures<a class="headerlink" href="#habitat-graph-topology-figures" title="Link to this heading"></a></h2>
 <p>When extracting the built-in <code class="docutils literal notranslate"><span class="pre">graph</span></code> family with <code class="docutils literal notranslate"><span class="pre">graph.visualize:</span> <span class="pre">true</span></code>,
@@ -2156,53 +2314,53 @@ figures go to <code class="docutils literal notranslate"><span class="pre">out/<
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">habitat_core_viz_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id12">
+<figure class="align-default" id="id15">
 <a class="reference internal image-reference" href="../_images/habitat_core_triptych.png"><img alt="Anatomy, supervoxel overlay, and habitat overlay" src="../_images/habitat_core_triptych.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Two-step partitions (<a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_partition_triptych()</span></code></a>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id13">
-<a class="reference internal image-reference" href="../_images/habitat_core_overlay.png"><img alt="Habitat overlay" src="../_images/habitat_core_overlay.png" width="420" />
-</a>
-<figcaption>
-<p><span class="caption-text">Overlay (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id14">
-<a class="reference internal image-reference" href="../_images/habitat_core_volume_fractions.png"><img alt="Volume fractions" src="../_images/habitat_core_volume_fractions.png" width="420" />
-</a>
-<figcaption>
-<p><span class="caption-text">Volume fractions.</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id15">
-<a class="reference internal image-reference" href="../_images/habitat_core_msi_matrix.png"><img alt="MSI spatial interaction heatmap" src="../_images/habitat_core_msi_matrix.png" width="420" />
-</a>
-<figcaption>
-<p><span class="caption-text">MSI matrix (<a class="reference internal" href="../api/generated/habit.viz.plot_msi_matrix.html#habit.viz.plot_msi_matrix" title="habit.viz.plot_msi_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_msi_matrix()</span></code></a>).</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
+<p><span class="caption-text">Two-step partitions (<a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html#habit.viz.plot_partition_triptych" title="habit.viz.plot_partition_triptych"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_partition_triptych()</span></code></a>).</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id16">
-<a class="reference internal image-reference" href="../_images/habitat_core_ith_summary.png"><img alt="ITH summary" src="../_images/habitat_core_ith_summary.png" width="520" />
+<a class="reference internal image-reference" href="../_images/habitat_core_overlay.png"><img alt="Habitat overlay" src="../_images/habitat_core_overlay.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">ITH summary.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
+<p><span class="caption-text">Overlay (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id17">
-<a class="reference internal image-reference" href="../_images/habitat_core_cluster_validation.png"><img alt="Cluster validation curves" src="../_images/habitat_core_cluster_validation.png" width="520" />
+<a class="reference internal image-reference" href="../_images/habitat_core_volume_fractions.png"><img alt="Volume fractions" src="../_images/habitat_core_volume_fractions.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">Auto-K curves.</span><a class="headerlink" href="#id17" title="Link to this image"></a></p>
+<p><span class="caption-text">Volume fractions.</span><a class="headerlink" href="#id17" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id18">
+<a class="reference internal image-reference" href="../_images/habitat_core_msi_matrix.png"><img alt="MSI spatial interaction heatmap" src="../_images/habitat_core_msi_matrix.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">MSI matrix (<a class="reference internal" href="../api/generated/habit.viz.plot_msi_matrix.html#habit.viz.plot_msi_matrix" title="habit.viz.plot_msi_matrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_msi_matrix()</span></code></a>).</span><a class="headerlink" href="#id18" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id19">
+<a class="reference internal image-reference" href="../_images/habitat_core_ith_summary.png"><img alt="ITH summary" src="../_images/habitat_core_ith_summary.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">ITH summary.</span><a class="headerlink" href="#id19" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id20">
+<a class="reference internal image-reference" href="../_images/habitat_core_cluster_validation.png"><img alt="Cluster validation curves" src="../_images/habitat_core_cluster_validation.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Auto-K curves.</span><a class="headerlink" href="#id20" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id21">
 <a class="reference internal image-reference" href="../_images/habitat_core_label_compare.png"><img alt="Habitat label compare with disagreement panel" src="../_images/habitat_core_label_compare.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Label compare (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>).</span><a class="headerlink" href="#id18" title="Link to this image"></a></p>
+<p><span class="caption-text">Label compare (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>).</span><a class="headerlink" href="#id21" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -2254,42 +2412,42 @@ share one linear y-axis. Regenerated by
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote habitat-feature contrast figures under out/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id19">
+<figure class="align-default" id="id22">
 <a class="reference internal image-reference" href="../_images/habitat_feature_heatmap_cohort.png"><img alt="Cohort habitat-by-feature z-score heatmap" src="../_images/habitat_feature_heatmap_cohort.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Cohort mean heatmap (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id19" title="Link to this image"></a></p>
+<p><span class="caption-text">Cohort mean heatmap (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id22" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id20">
+<figure class="align-default" id="id23">
 <a class="reference internal image-reference" href="../_images/habitat_feature_effect.png"><img alt="Features-by-pair Cliff's delta heatmap" src="../_images/habitat_feature_effect.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Default features x pair Cliff’s delta
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id20" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id23" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id21">
+<figure class="align-default" id="id24">
 <a class="reference internal image-reference" href="../_images/habitat_feature_components.png"><img alt="Habitat contrast on CVA component scores" src="../_images/habitat_feature_components.png" width="620" />
 </a>
 <figcaption>
 <p><span class="caption-text">Same contrast, shown on 2 CVA components (use this when there are
 dozens of features)
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>).</span><a class="headerlink" href="#id21" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>).</span><a class="headerlink" href="#id24" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id22">
+<figure class="align-default" id="id25">
 <a class="reference internal image-reference" href="../_images/habitat_feature_violin.png"><img alt="Per-feature habitat distributions" src="../_images/habitat_feature_violin.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Distributions (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id22" title="Link to this image"></a></p>
+<p><span class="caption-text">Distributions (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id25" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id23">
+<figure class="align-default" id="id26">
 <a class="reference internal image-reference" href="../_images/habitat_feature_bars.png"><img alt="Per-feature habitat means with independent y-axes" src="../_images/habitat_feature_bars.png" width="620" />
 </a>
 <figcaption>
-<p><span class="caption-text">Faceted bars (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>).</span><a class="headerlink" href="#id23" title="Link to this image"></a></p>
+<p><span class="caption-text">Faceted bars (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>).</span><a class="headerlink" href="#id26" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
