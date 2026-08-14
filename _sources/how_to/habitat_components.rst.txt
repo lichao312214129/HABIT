@@ -27,7 +27,9 @@ How a ``HabitatSpec`` is assembled
 ----------------------------------
 
 A habitat study is an **ordered list of stages**. Each
-:class:`~habit.spec.Stage` is a label plus a :class:`~habit.spec.Spec`::
+:class:`~habit.spec.Stage` is a label plus a :class:`~habit.spec.Spec`.
+A leaf is ``Spec("raw", ...)``; mixed families are a tree from
+:func:`~habit.spec.parse_feature_expression` (section 1)::
 
    Stage("<label>", Spec("<registered name>", {<params>}))
    Stage("<label>", parse_feature_expression('concat(raw("T1"), voxel_radiomics("T2"))'))
@@ -505,6 +507,7 @@ What to read next
 * :doc:`segment_habitat` — CLI / YAML operator path
 * :doc:`../examples/one_step_habitat` — the example that prompted this page
 * :doc:`../examples/two_step_habitat` — partition + pool
+* :doc:`../examples/feature_composition` — worked concat / ratio / ``as_`` trees
 * :doc:`../examples/habitat_analysis_overview` — recipe / atomic / custom
 * :doc:`../api/spec` — fingerprints, sugar, ``RunPolicy``
 * :doc:`../api/plugins` — every domain, including table-ML

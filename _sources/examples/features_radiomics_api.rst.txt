@@ -17,6 +17,19 @@ Script
 
 .. literalinclude:: scripts/features_radiomics_api_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort`` and ``result``).
+Writes ``out/features_radiomics_api_overlay.png``.
+
+.. literalinclude:: scripts/features_radiomics_api_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Output
 ------

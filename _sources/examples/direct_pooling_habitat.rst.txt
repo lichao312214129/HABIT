@@ -64,8 +64,18 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
+   # 4) Mixed families — needs two series (raw T1 + entropy T2)
+   from habit import parse_feature_expression
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(raw("T1"), local_entropy("T2", kernel_size=3, bins=32))'
+       ),
+   )
+
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components`.
+:doc:`../how_to/habitat_components` (section 1 covers ``concat`` /
+``voxel_radiomics`` trees).
 
 Discover the same facts in a running interpreter::
 

@@ -19,6 +19,19 @@ Script
 
 .. literalinclude:: scripts/persistence_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort`` and ``result``).
+Writes ``out/persistence_overlay.png``.
+
+.. literalinclude:: scripts/persistence_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Output
 ------

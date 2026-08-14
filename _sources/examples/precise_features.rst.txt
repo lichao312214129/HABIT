@@ -63,6 +63,18 @@ call is the full paper design.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``precise``, ``evidence``,
+``cohort``, ``result``, and ``MODALITIES``). Writes
+``out/precise_features_*.png``.
+
+.. literalinclude:: scripts/precise_features_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/precise_features_demo.py

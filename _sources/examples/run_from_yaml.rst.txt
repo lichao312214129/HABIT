@@ -40,6 +40,19 @@ Script
 
 .. literalinclude:: scripts/run_from_yaml_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``data_root`` and ``result``).
+Writes ``out/run_from_yaml_overlay.png``.
+
+.. literalinclude:: scripts/run_from_yaml_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Output
 ------

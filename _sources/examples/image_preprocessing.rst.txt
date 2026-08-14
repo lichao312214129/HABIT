@@ -33,6 +33,17 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject``, ``processed``, and
+``modality``). Writes ``out/image_preprocess_slice.png``.
+
+.. literalinclude:: scripts/image_preprocessing_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Output (abbreviated)
 --------------------
 

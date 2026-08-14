@@ -14,7 +14,8 @@ the route through ``HabitatSpec.voxel_feature_extractor`` (and optionally
    * - ``raw``
      - Concatenate modality intensities inside the ROI (fastest; synthetic demos)
    * - ``concat``
-     - Join heterogeneous families side-by-side (e.g. ``raw(T1)`` + ``raw(T2)``)
+     - Join heterogeneous families (e.g. ``raw("T1")`` + ``voxel_radiomics("T2")``);
+       see :doc:`../how_to/habitat_components` section 1
    * - ``expression``
      - Restricted arithmetic over modalities (ratios, powers, ``square`` / ``log``);
        see :doc:`custom_voxel_features`
@@ -37,6 +38,19 @@ Script
 
 .. literalinclude:: scripts/habitat_feature_routes_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject``, ``m0``, and
+``raw_result``). Writes ``out/habitat_feature_routes_overlay.png``.
+
+.. literalinclude:: scripts/habitat_feature_routes_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Output (abbreviated)
 --------------------
@@ -76,6 +90,8 @@ this demo:
 What to read next
 -----------------
 
+* :doc:`../how_to/habitat_components` — leaf vs tree; Python / YAML twins
+* :doc:`feature_composition` — worked ``concat`` / ``ratio`` / ``as_`` trees
 * :doc:`habitat_preprocessing` — winsorize / zscore / binning chains
 * :doc:`two_step_habitat` — end-to-end two-step workflow
 * ``config/habitat/config_habitat_two_step_voxel_radiomics_*.yaml`` — YAML twins

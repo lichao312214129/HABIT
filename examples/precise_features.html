@@ -128,6 +128,9 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -140,6 +143,9 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -205,6 +211,7 @@
 <li class="toctree-l2"><a class="reference internal" href="data_from_arrays.html">Data from NumPy arrays (Subject / Cohort bridge)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#key-types">Key types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="data_from_arrays.html#what-to-read-next">What to read next</a></li>
@@ -213,6 +220,7 @@
 <li class="toctree-l2"><a class="reference internal" href="image_preprocessing.html">Batch image preprocessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#entry-points">Entry points</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing.html#what-to-read-next">What to read next</a></li>
@@ -220,6 +228,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="image_preprocessing_api.html">Image preprocessing API (batch + atomic)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="image_preprocessing_api.html#figures">Figures</a></li>
@@ -237,6 +246,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
@@ -245,6 +256,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="one_step_habitat.html#what-to-read-next">What to read next</a></li>
@@ -252,6 +265,8 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
@@ -259,6 +274,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_fit_modes.html">Habitat fit modes (Study fit/predict + I/O)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_fit_modes.html#empty-feature-chains-and-habitat-count">Empty feature chains and habitat count</a></li>
@@ -267,6 +283,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="apply_saved_model.html">Apply a saved .habitatmodel to new subjects</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="apply_saved_model.html#what-to-read-next">What to read next</a></li>
@@ -276,6 +293,7 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#pipeline-shown">Pipeline shown</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#fit-time-vs-apply-time">Fit-time vs apply-time</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_atomic_ops.html#what-to-read-next">What to read next</a></li>
@@ -285,6 +303,7 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#three-equivalent-customisation-surfaces">Three equivalent customisation surfaces</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#recommended-customisation-checklist">Recommended customisation checklist</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#common-swaps">Common swaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_custom_pipeline.html#figures">Figures</a></li>
@@ -306,12 +325,14 @@
 <li class="toctree-l3"><a class="reference internal" href="feature_composition.html#column-naming-and-as">Column naming and <code class="docutils literal notranslate"><span class="pre">as_</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_composition.html#supervoxel-statistics">Supervoxel statistics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_composition.html#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_composition.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_composition.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_composition.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="habitat_feature_routes.html">Habitat feature routes (raw, concat, radiomics, SLIC)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_feature_routes.html#what-to-read-next">What to read next</a></li>
@@ -320,6 +341,7 @@
 <li class="toctree-l2"><a class="reference internal" href="habitat_preprocessing.html">Habitat feature preprocessing chains</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#design-rules">Design rules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing.html#skipping-the-feature-chain-raw-intensities">Skipping the feature chain (raw intensities)</a></li>
@@ -330,6 +352,7 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#why-extract-and-preprocess-look-different">Why extract and preprocess look different</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#inspect-every-step">Inspect every step</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#figures">Figures</a></li>
@@ -340,6 +363,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#the-three-experiments">The three experiments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#from-screen-to-habitat-run">From screen to habitat run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runnable-demo">Runnable demo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#simulated-retest-components">Simulated-retest components</a></li>
@@ -350,6 +374,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="custom_voxel_features.html">DIY voxel features (expression + custom plugin)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="custom_voxel_features.html#see-also">See also</a></li>
@@ -357,6 +382,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="graph_features.html">Graph features from habitat maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#d-region-network">2D region network</a></li>
@@ -366,6 +392,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#traditional-radiomics-example">Traditional radiomics example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#what-to-read-next">What to read next</a></li>
@@ -373,6 +400,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="features_radiomics_api.html">Feature extraction and traditional radiomics API</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="features_radiomics_api.html#figures">Figures</a></li>
@@ -381,6 +409,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tabular_ml.html">Tabular machine learning: train, cross-validate, predict</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml.html#what-to-read-next">What to read next</a></li>
@@ -388,6 +417,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tabular_ml_api.html">Tabular ML API (train / CV / predict / compare)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#coverage">Coverage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tabular_ml_api.html#figures">Figures</a></li>
@@ -396,6 +426,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ml_advanced.html">Advanced tabular ML: ordered selection and model comparison</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ml_advanced.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ml_advanced.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ml_advanced.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ml_advanced.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ml_advanced.html#what-to-read-next">What to read next</a></li>
@@ -421,6 +452,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="persistence.html">Persisting study artefacts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="persistence.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="persistence.html#what-to-read-next">What to read next</a></li>
@@ -428,6 +460,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="provenance_methods.html">Provenance and methods paragraphs</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="provenance_methods.html#what-to-read-next">What to read next</a></li>
@@ -436,6 +469,7 @@
 <li class="toctree-l2"><a class="reference internal" href="parallel_execution.html">Parallel execution with RunPolicy</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#yaml-two-tracks">YAML: two tracks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#failure-policy-note">Failure policy note</a></li>
 <li class="toctree-l3"><a class="reference internal" href="parallel_execution.html#figures">Figures</a></li>
@@ -444,6 +478,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="fault_tolerance.html">Fault tolerance patterns</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="fault_tolerance.html#key-contracts">Key contracts</a></li>
@@ -452,6 +487,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plugin_entry_points.html">Third-party plugins (entry points)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="plugin_entry_points.html#what-to-read-next">What to read next</a></li>
@@ -459,6 +495,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="run_from_yaml.html">Run a v1 YAML document with run_from_yaml</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="run_from_yaml.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run_from_yaml.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="run_from_yaml.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="run_from_yaml.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="run_from_yaml.html#what-to-read-next">What to read next</a></li>
@@ -476,6 +513,7 @@
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#auxiliary-recipes">Auxiliary recipes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#config-tooling-programmatic-twins-of-cli">Config tooling (programmatic twins of CLI)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#output-abbreviated">Output (abbreviated)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cohort_plugins_auxiliary.html#what-to-read-next">What to read next</a></li>
@@ -676,6 +714,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#study-utilities">Study utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html">run_from_yaml</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.preprocess_images.html">preprocess_images</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.preprocess_subject.html">preprocess_subject</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.preprocess_image.html">preprocess_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.icc_analysis.html">icc_analysis</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.test_retest_analysis.html">test_retest_analysis</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.sort_dicom.html">sort_dicom</a></li>
@@ -772,7 +812,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/index.html#yaml-migration">YAML migration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.LegacyConfigAdapter.html">LegacyConfigAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.LegacyTranslation.html">LegacyTranslation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.spec.MigrationReport.html">MigrationReport</a></li>
@@ -1065,6 +1105,61 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../api/index.html#image-i-o-and-low-level-radiomics">Image I/O and low-level radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.GeometryPolicy.html">GeometryPolicy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.GeometryPolicy.html#habit.GeometryPolicy"><code class="docutils literal notranslate"><span class="pre">GeometryPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.GeometryReport.html">GeometryReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.GeometryReport.html#habit.GeometryReport"><code class="docutils literal notranslate"><span class="pre">GeometryReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.ImageVolume.html">ImageVolume</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.ImageVolume.html#habit.ImageVolume"><code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.MaskVolume.html">MaskVolume</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.MaskVolume.html#habit.MaskVolume"><code class="docutils literal notranslate"><span class="pre">MaskVolume</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.ImageMaskPair.html">ImageMaskPair</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.ImageMaskPair.html#habit.ImageMaskPair"><code class="docutils literal notranslate"><span class="pre">ImageMaskPair</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.read_image.html">read_image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.read_image.html#habit.read_image"><code class="docutils literal notranslate"><span class="pre">read_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.read_mask.html">read_mask</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.read_mask.html#habit.read_mask"><code class="docutils literal notranslate"><span class="pre">read_mask()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.validate_geometry.html">validate_geometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.validate_geometry.html#habit.validate_geometry"><code class="docutils literal notranslate"><span class="pre">validate_geometry()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.align_image_mask.html">align_image_mask</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.align_image_mask.html#habit.align_image_mask"><code class="docutils literal notranslate"><span class="pre">align_image_mask()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.extract_features.html">extract_features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.extract_features.html#habit.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.extract_batch.html">extract_batch</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.extract_batch.html#habit.extract_batch"><code class="docutils literal notranslate"><span class="pre">extract_batch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.FeatureResult.html">FeatureResult</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.FeatureResult.html#habit.FeatureResult"><code class="docutils literal notranslate"><span class="pre">FeatureResult</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.FeatureTableResult.html">FeatureTableResult</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.FeatureTableResult.html#habit.FeatureTableResult"><code class="docutils literal notranslate"><span class="pre">FeatureTableResult</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#datasets-habit-datasets">Datasets (<code class="docutils literal notranslate"><span class="pre">habit.datasets</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.datasets.make_synthetic_cohort.html">make_synthetic_cohort</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.datasets.make_synthetic_cohort.html#habit.datasets.make_synthetic_cohort"><code class="docutils literal notranslate"><span class="pre">make_synthetic_cohort()</span></code></a></li>
@@ -1079,6 +1174,54 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/index.html#component-registry-habit-registry">Component registry (<code class="docutils literal notranslate"><span class="pre">habit.registry</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.registry.ComponentRegistry.html">ComponentRegistry</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry"><code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.list_plugins.html">list_plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.list_plugins.html#habit.list_plugins"><code class="docutils literal notranslate"><span class="pre">list_plugins()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.get_plugin_info.html">get_plugin_info</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.get_plugin_info.html#habit.get_plugin_info"><code class="docutils literal notranslate"><span class="pre">get_plugin_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.get_param_schema.html">get_param_schema</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.get_param_schema.html#habit.get_param_schema"><code class="docutils literal notranslate"><span class="pre">get_param_schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.plugin_catalog.html">plugin_catalog</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.plugin_catalog.html#habit.plugin_catalog"><code class="docutils literal notranslate"><span class="pre">plugin_catalog()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.load_plugins.html">load_plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.load_plugins.html#habit.load_plugins"><code class="docutils literal notranslate"><span class="pre">load_plugins()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.PluginInfo.html">PluginInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.PluginInfo.html#habit.PluginInfo"><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.PluginCatalogEntry.html">PluginCatalogEntry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.PluginCatalogEntry.html#habit.PluginCatalogEntry"><code class="docutils literal notranslate"><span class="pre">PluginCatalogEntry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.PluginLoadReport.html">PluginLoadReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.PluginLoadReport.html#habit.PluginLoadReport"><code class="docutils literal notranslate"><span class="pre">PluginLoadReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.setup_logger.html">setup_logger</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.setup_logger.html#habit.setup_logger"><code class="docutils literal notranslate"><span class="pre">setup_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.is_available.html">is_available</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.is_available.html#habit.is_available"><code class="docutils literal notranslate"><span class="pre">is_available()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.show_versions.html">show_versions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.show_versions.html#habit.show_versions"><code class="docutils literal notranslate"><span class="pre">show_versions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.check_component.html">check_component</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.check_component.html#habit.check_component"><code class="docutils literal notranslate"><span class="pre">check_component()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1258,86 +1401,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/generated/habit.exceptions.NotFittedError.html">NotFittedError</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.exceptions.NotFittedError.html#habit.exceptions.NotFittedError"><code class="docutils literal notranslate"><span class="pre">NotFittedError</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/index.html#v0-1-configuration-object-api-habit-api">v0.1 configuration-object API (<code class="docutils literal notranslate"><span class="pre">habit.api.*</span></code>)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#image-and-geometry">Image and geometry</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.GeometryPolicy.html">GeometryPolicy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.GeometryReport.html">GeometryReport</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.ImageVolume.html">ImageVolume</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.MaskVolume.html">MaskVolume</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.ImageMaskPair.html">ImageMaskPair</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.read_image.html">read_image</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.read_mask.html">read_mask</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.validate_geometry.html">validate_geometry</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.image.align_image_mask.html">align_image_mask</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#radiomics">Radiomics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.radiomics.FeatureResult.html">FeatureResult</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.radiomics.FeatureTableResult.html">FeatureTableResult</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.radiomics.extract_features.html">extract_features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.radiomics.extract_batch.html">extract_batch</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#habitat-and-feature-extraction-workflows">Habitat and feature-extraction workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.HabitatAnalysisConfig.html">HabitatAnalysisConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.FeatureExtractionConfig.html">FeatureExtractionConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.RadiomicsConfig.html">RadiomicsConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.run_habitat_analysis.html">run_habitat_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.run_feature_extraction.html">run_feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.run_radiomics.html">run_radiomics</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.apply_habitat_cli_overrides.html">apply_habitat_cli_overrides</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.build_feature_extraction_config.html">build_feature_extraction_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.habitat.load_feature_extraction_config.html">load_feature_extraction_config</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#machine-learning-workflows">Machine-learning workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.MLConfig.html">MLConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.ModelComparisonConfig.html">ModelComparisonConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.run_ml.html">run_ml</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.run_kfold.html">run_kfold</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.run_model_comparison.html">run_model_comparison</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.machine_learning.apply_ml_mode_override.html">apply_ml_mode_override</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#analysis-workflows">Analysis workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.analysis.ICCConfig.html">ICCConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.analysis.TestRetestConfig.html">TestRetestConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.analysis.run_icc_analysis.html">run_icc_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.analysis.run_test_retest_analysis.html">run_test_retest_analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#preprocessing-and-dicom-utilities">Preprocessing and DICOM utilities</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.preprocessing.PreprocessingConfig.html">PreprocessingConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.preprocessing.run_preprocess.html">run_preprocess</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.dicom_sort.DicomSortConfig.html">DicomSortConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.dicom_sort.run_dicom_sort.html">run_dicom_sort</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#provenance-and-workflow-results">Provenance and workflow results</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.provenance.RunManifest.html">RunManifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.provenance.create_run_manifest.html">create_run_manifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.provenance.write_run_manifest.html">write_run_manifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.contracts.WorkflowResult.html">WorkflowResult</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.is_available.html">is_available</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.show_versions.html">show_versions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.check_component.html">check_component</a></li>
 </ul>
 </li>
 </ul>
@@ -1748,6 +1811,46 @@ call is the full paper design.</p>
 <span class="n">evidence</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">evidence</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== whitelist bridge into a habitat spec ===&quot;</span><span class="p">)</span>
+<span class="n">whitelist</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  whitelist spec: </span><span class="si">{</span><span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precise_demo&quot;</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">)}),</span>
+    <span class="c1"># The whitelist goes FIRST: only precise features reach scaling/clustering.</span>
+    <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="p">),</span>
+    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
+    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
+        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat spec fingerprint: </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat maps: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== artefact round trip ===&quot;</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_precise_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;precise_features.json&quot;</span><span class="p">)</span>
+    <span class="n">reloaded</span> <span class="o">=</span> <span class="n">PreciseFeatureSet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  saved </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; reloaded features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="draw-the-figures">
+<h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
+<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">precise</span></code>, <code class="docutils literal notranslate"><span class="pre">evidence</span></code>,
+<code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">result</span></code>, and <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>). Writes
+<code class="docutils literal notranslate"><span class="pre">out/precise_features_*.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses precise, evidence, cohort, result, MODALITIES.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
+
 <span class="c1"># Evidence figure: ICC and LCL per feature (the screen&#39;s actual product)</span>
 <span class="n">fig_icc</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">6.2</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">))</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">evidence</span><span class="p">))</span>
@@ -1774,41 +1877,13 @@ call is the full paper design.</p>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig_icc</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_icc_lcl.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== whitelist bridge into a habitat spec ===&quot;</span><span class="p">)</span>
-<span class="n">whitelist</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  whitelist spec: </span><span class="si">{</span><span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precise_demo&quot;</span><span class="p">,</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">)}),</span>
-    <span class="c1"># The whitelist goes FIRST: only precise features reach scaling/clustering.</span>
-    <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
-    <span class="p">),</span>
-    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
-    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-    <span class="p">),</span>
-    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat spec fingerprint: </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat maps: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">data</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">fig_overlay</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
     <span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitats after precise-feature whitelist&quot;</span>
 <span class="p">)</span>
 <span class="n">fig_overlay</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== artefact round trip ===&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_precise_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;precise_features.json&quot;</span><span class="p">)</span>
-    <span class="n">reloaded</span> <span class="o">=</span> <span class="n">PreciseFeatureSet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  saved </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; reloaded features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/precise_features_icc_lcl.png and out/precise_features_overlay.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>

@@ -63,6 +63,17 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject`` and ``result``).
+Writes ``out/habitat_prep_api_overlay.png``.
+
+.. literalinclude:: scripts/habitat_preprocessing_api_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Coverage
 --------
 

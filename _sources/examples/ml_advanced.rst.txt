@@ -36,6 +36,17 @@ Change ``DATA`` / column names to your table. Figures land under ``out/``.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``y_true``, ``y_prob_lr``,
+``y_prob_rf``, and ``pred_lr``). Writes ``out/ml_advanced_*.png``.
+
+.. literalinclude:: scripts/ml_advanced_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/ml_advanced_demo.py

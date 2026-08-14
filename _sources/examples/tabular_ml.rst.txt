@@ -35,6 +35,18 @@ Change ``DATA`` / column names to your table. Figures land under ``out/``.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``y_true``, ``y_prob``,
+``y_pred``, ``FEATURES``, ``imp_mean``, ``imp_std``, and ``cv``). Writes
+``out/tabular_ml_*.png``.
+
+.. literalinclude:: scripts/tabular_ml_quickstart.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/tabular_ml_quickstart.py

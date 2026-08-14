@@ -28,6 +28,19 @@ Script
 
 .. literalinclude:: scripts/custom_voxel_feature_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject`` and
+``custom_result``). Writes ``out/custom_voxel_overlay.png``.
+
+.. literalinclude:: scripts/custom_voxel_feature_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 The script writes ``out/custom_voxel_overlay.png`` and may open a **napari
 eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
