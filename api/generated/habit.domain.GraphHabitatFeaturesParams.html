@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1376,6 +1376,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1839,9 +1840,10 @@ as drawn. Pass a positive value to shrink each habitat before edges.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.domain.GraphHabitatFeaturesParams.node_method">
 <span class="sig-name descname"><span class="pre">node_method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'uniform_grid'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'component'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#habit.domain.GraphHabitatFeaturesParams.node_method" title="Link to this definition"></a></dt>
-<dd><p>equal-volume
-cubes on a global VOI lattice. <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> uses connected
-components (optionally split when larger than
+<dd><p>global VOI
+lattice; each kept cube emits one node per connected habitat
+subregion at that subregion’s voxel centroid. <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code>
+uses connected components (optionally split when larger than
 <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -1868,8 +1870,9 @@ empty lattice cell (closest-voxel distance 6) stays disconnected.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="habit.domain.GraphHabitatFeaturesParams.block_min_coverage">
 <span class="sig-name descname"><span class="pre">block_min_coverage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></em><a class="headerlink" href="#habit.domain.GraphHabitatFeaturesParams.block_min_coverage" title="Link to this definition"></a></dt>
-<dd><p>Minimum covered fraction of a block volume to keep it as a node
-(strictly greater than this value; default 0.2).</p>
+<dd><p>Minimum covered fraction of a cube to keep the cell (strictly
+greater than this value; default 0.2). Applied per cell; tiny
+in-cell fragments are dropped by <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code>.</p>
 </dd></dl>
 
 <dl class="py attribute">

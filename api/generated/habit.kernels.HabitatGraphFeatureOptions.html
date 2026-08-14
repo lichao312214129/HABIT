@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1376,6 +1376,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1766,8 +1767,9 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Runtime options for graph-based habitat feature extraction.</p>
 <p>Default node rule: <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> with <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code>
-(equal-volume cubes on a global VOI lattice, edge length in <strong>voxels</strong>,
-not millimetres). Default edge rule: <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code>
+(global VOI lattice; each kept cube emits one node per connected
+habitat subregion at that subregion’s voxel centroid; edge length in
+<strong>voxels</strong>, not millimetres). Default edge rule: <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code>
 with <code class="docutils literal notranslate"><span class="pre">distance_threshold=5.0</span></code>. Face-adjacent 5-cubes connect
 (closest voxels are one hop apart). One empty lattice cell between
 cubes gives closest-voxel distance 6, which is greater than 5, so

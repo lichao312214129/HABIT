@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1729,6 +1729,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -2294,23 +2295,30 @@ window.runMermaid = runMermaid;</script>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tessellate the tumour VOI with a global equal-volume cube lattice.</span>
+<span class="sd">    Tessellate the tumour VOI and emit one node per cell subregion.</span>
 
 <span class="sd">    Every non-background voxel is assigned to an axis-aligned cube of edge</span>
-<span class="sd">    ``block_size`` whose origin is the VOI bounding-box minimum. A cube</span>
-<span class="sd">    becomes one node when its occupied fraction exceeds</span>
-<span class="sd">    ``block_min_coverage``; the node habitat is the majority label inside</span>
-<span class="sd">    that cube. Habitats that occupy no kept cube still emit one residual</span>
-<span class="sd">    node so a present label is never silently dropped.</span>
+<span class="sd">    ``block_size`` whose origin is the VOI bounding-box minimum. A cube is</span>
+<span class="sd">    kept when its occupied fraction is strictly greater than</span>
+<span class="sd">    ``block_min_coverage`` (cell-level filter for nearly-empty cubes).</span>
+<span class="sd">    Inside each kept cube, every connected component of every habitat</span>
+<span class="sd">    becomes its own node at that subregion&#39;s voxel-index centroid, so a</span>
+<span class="sd">    mixed cube can contribute several nodes. Subregions smaller than</span>
+<span class="sd">    ``min_region_voxels`` are dropped (fragment filter). Habitats that</span>
+<span class="sd">    occupy no kept subregion still emit one residual node so a present</span>
+<span class="sd">    label is never silently dropped.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Integer habitat label map (background encoded as 0).</span>
 <span class="sd">        labels: Positive habitat ids present before erosion.</span>
-<span class="sd">        structure: Erosion neighbourhood.</span>
-<span class="sd">        min_region_voxels: Drop residual nodes smaller than this.</span>
+<span class="sd">        structure: Neighbourhood for optional erosion and in-cell</span>
+<span class="sd">            connected-component labeling.</span>
+<span class="sd">        min_region_voxels: Drop in-cell subregions (and residual nodes)</span>
+<span class="sd">            smaller than this voxel count.</span>
 <span class="sd">        erosion_radius: Optional per-habitat erosion iterations.</span>
 <span class="sd">        block_size: Cube edge length in voxels.</span>
-<span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep it.</span>
+<span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
+<span class="sd">            the cell (strictly greater than this value).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        HabitatNodeExtractionResult: Nodes, component maps, and lattice.</span>
@@ -2335,8 +2343,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">block_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span><span class="p">)</span> <span class="o">//</span> <span class="n">block_size</span>
     <span class="n">unique_blocks</span><span class="p">,</span> <span class="n">inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">block_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">block_volume</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">block_size</span> <span class="o">**</span> <span class="n">working</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+    <span class="n">cube_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">working</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
     <span class="n">next_component_id</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">kept_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">}</span>
+    <span class="n">kept_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
+    <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">unique_blocks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="n">in_block</span> <span class="o">=</span> <span class="n">inverse</span> <span class="o">==</span> <span class="n">block_id</span>
@@ -2345,17 +2356,25 @@ window.runMermaid = runMermaid;</script>
         <span class="n">coverage</span> <span class="o">=</span> <span class="n">block_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">block_volume</span>
         <span class="k">if</span> <span class="n">coverage</span> <span class="o">&lt;=</span> <span class="n">block_min_coverage</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="n">values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">block_lab</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">majority</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))])</span>
-        <span class="n">majority_coords</span> <span class="o">=</span> <span class="n">block_coords</span><span class="p">[</span><span class="n">block_lab</span> <span class="o">==</span> <span class="n">majority</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">majority_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_region_voxels</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">component_id</span> <span class="o">=</span> <span class="n">next_component_id</span>
-        <span class="n">next_component_id</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">component_maps</span><span class="p">[</span><span class="n">majority</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="n">majority_coords</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">component_id</span>
-        <span class="n">kept_by_habitat</span><span class="p">[</span><span class="n">majority</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">_node_from_coords</span><span class="p">(</span><span class="n">majority</span><span class="p">,</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">majority_coords</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="c1"># Local cube so in-cell connected components stay spatially correct.</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">block_coords</span> <span class="o">-</span> <span class="n">origin</span> <span class="o">-</span> <span class="n">unique_blocks</span><span class="p">[</span><span class="n">block_id</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_size</span>
+        <span class="n">cube</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cube_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">cube</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">block_lab</span>
+        <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">block_lab</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">labeled</span><span class="p">,</span> <span class="n">n_cc</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">cube</span> <span class="o">==</span> <span class="n">habitat_label</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cc_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_cc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">cc_local</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">labeled</span> <span class="o">==</span> <span class="n">cc_id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">cc_local</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_region_voxels</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">global_coords</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">cc_local</span> <span class="o">+</span> <span class="n">origin</span> <span class="o">+</span> <span class="n">unique_blocks</span><span class="p">[</span><span class="n">block_id</span><span class="p">]</span> <span class="o">*</span> <span class="n">block_size</span>
+                <span class="p">)</span>
+                <span class="n">component_id</span> <span class="o">=</span> <span class="n">next_component_id</span>
+                <span class="n">next_component_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">component_maps</span><span class="p">[</span><span class="n">habitat_label</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="n">global_coords</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">component_id</span>
+                <span class="n">kept_by_habitat</span><span class="p">[</span><span class="n">habitat_label</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">_node_from_coords</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="n">component_id</span><span class="p">,</span> <span class="n">global_coords</span><span class="p">)</span>
+                <span class="p">)</span>
 
     <span class="n">present_after</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">working</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
@@ -2368,7 +2387,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">leftover</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">working</span> <span class="o">==</span> <span class="n">habitat_label</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">leftover</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_region_voxels</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="c1"># Residual node: the habitat is present but no cube passed coverage.</span>
+        <span class="c1"># Residual node: the habitat is present but no subregion was kept.</span>
         <span class="n">component_id</span> <span class="o">=</span> <span class="n">next_component_id</span>
         <span class="n">next_component_id</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">component_maps</span><span class="p">[</span><span class="n">habitat_label</span><span class="p">][</span><span class="nb">tuple</span><span class="p">(</span><span class="n">leftover</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">component_id</span>
@@ -2402,11 +2421,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Default ``node_method=&#39;uniform_grid&#39;`` paints a global axis-aligned</span>
 <span class="sd">    lattice of cubes with edge ``block_size`` (default 5 **voxels**, not</span>
-<span class="sd">    millimetres) over the tumour VOI. Every occupied cube that passes</span>
-<span class="sd">    ``block_min_coverage`` (default 0.2) becomes one node, so node</span>
-<span class="sd">    volumes stay comparable. Pass ``node_method=&#39;component&#39;`` for the</span>
-<span class="sd">    older connected-component nodes, optionally split when a component</span>
-<span class="sd">    exceeds ``subdivide_region_voxels``.</span>
+<span class="sd">    millimetres) over the tumour VOI. Cubes whose occupied fraction</span>
+<span class="sd">    exceeds ``block_min_coverage`` (default 0.2) are kept; **each</span>
+<span class="sd">    connected subregion inside a kept cube becomes its own node** at</span>
+<span class="sd">    that subregion&#39;s voxel-index centroid (several habitats and/or</span>
+<span class="sd">    several components of one habitat can share a cube). Pass</span>
+<span class="sd">    ``node_method=&#39;component&#39;`` for the older connected-component nodes,</span>
+<span class="sd">    optionally split when a component exceeds</span>
+<span class="sd">    ``subdivide_region_voxels``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Integer habitat label map. Background must be encoded as 0.</span>
@@ -2427,8 +2449,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            lattice cell between cubes is closest-voxel distance 6 and</span>
 <span class="sd">            stays disconnected.</span>
 <span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
-<span class="sd">            it (default 0.2; a cube is kept when coverage is strictly</span>
-<span class="sd">            greater than this value).</span>
+<span class="sd">            the cell (default 0.2; a cube is kept when coverage is</span>
+<span class="sd">            strictly greater than this value). Applied per cell, not</span>
+<span class="sd">            per subregion. Tiny in-cell fragments are dropped by</span>
+<span class="sd">            ``min_region_voxels``.</span>
 <span class="sd">        node_method: ``&quot;uniform_grid&quot;`` (default) or ``&quot;component&quot;``.</span>
 
 <span class="sd">    Returns:</span>

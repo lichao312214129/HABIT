@@ -368,7 +368,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1377,6 +1377,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1904,10 +1905,10 @@ shell command.</p>
 </pre></div>
 </div>
 <p>With the default voxel-radiomics factory this is the paper design
-(needs PyRadiomics). The gallery demo uses raw intensities so it runs
-without that extra; the <strong>call shape is the same</strong>. Restrict the grid
-with <code class="docutils literal notranslate"><span class="pre">kernel_radii=(3,)</span></code> / <code class="docutils literal notranslate"><span class="pre">bin_widths=(12,)</span></code> to skip an experiment
-you cannot resource.</p>
+(needs PyRadiomics). The gallery demo screens a small first-order +
+GLCM texture set on one cropped subject; the <strong>call shape is the same</strong>.
+Restrict the grid with <code class="docutils literal notranslate"><span class="pre">kernel_radii=(1,)</span></code> / <code class="docutils literal notranslate"><span class="pre">bin_widths=(12,)</span></code> to
+skip an experiment you cannot resource.</p>
 <p><strong>2. Publish the artefact.</strong> <code class="docutils literal notranslate"><span class="pre">precise.save(&quot;precise_features.json&quot;)</span></code>
 writes the feature names plus the evidence panels. Another lab should
 cluster the <strong>same</strong> names, not re-screen after seeing the endpoint.</p>
@@ -1936,11 +1937,12 @@ and clustering:</p>
 </pre></div>
 </div>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC and LCL bars for the precision screen" src="../_images/precise_features_icc_lcl.png" width="520" />
+<a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Repeatability ICC and lower confidence limit per feature, with the
-0.5 LCL threshold.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+<p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
+texture feature, with the 0.5 LCL threshold
+(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>).</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id8">

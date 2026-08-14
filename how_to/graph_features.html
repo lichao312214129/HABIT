@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1376,6 +1376,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1809,19 +1810,22 @@ physical line per shell command (Windows / conda PowerShell):</p>
 <code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> (2D needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>; 3D also needs
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
 </ul>
-<p>By default nodes are <strong>equal-volume cubes</strong> on a global VOI lattice
-(<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">5</span></code> <strong>voxels</strong>, not
-millimetres). An <strong>edge exists when the closest voxels of two cubes are
-within 5</strong> voxel-index units (<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">min_distance</span></code>,
-<code class="docutils literal notranslate"><span class="pre">distance_threshold:</span> <span class="pre">5</span></code>). Face-adjacent 5-cubes connect (closest
-voxels are one hop apart). One empty lattice cell between cubes is
-closest-voxel distance 6, which is greater than 5, so those stay
-disconnected. There is <strong>no morphological
+<p>By default nodes sit at <strong>per-cell subregion centroids</strong> on a global
+VOI lattice (<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">5</span></code>
+<strong>voxels</strong>, not millimetres). A cube is kept when its occupied fraction
+exceeds <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code>; each connected habitat fragment inside
+that cube becomes its own node. An <strong>edge exists when the closest
+voxels of two nodes are within 5</strong> voxel-index units
+(<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">min_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">distance_threshold:</span> <span class="pre">5</span></code>).
+Face-adjacent 5-cubes connect (closest voxels are one hop apart). One
+empty lattice cell between cubes is closest-voxel distance 6, which is
+greater than 5, so those stay disconnected. There is <strong>no morphological
 erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>). Pass
 <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> for connected-component nodes, and
 <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code> if you want contact-voxel edges (default
 contact count &gt;= 10). <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> is the older centroid-proximity
-rule. 2D figures draw the <strong>same lattice</strong> as dashed lines.</p>
+rule. 2D figures draw the <strong>same lattice</strong> as dashed lines. On each
+featured-habitat panel, other habitats are <strong>opaque gray</strong>.</p>
 <p>Parameter reference: <a class="reference internal" href="../configuration/feature_extraction.html"><span class="doc">Feature Extraction Configuration</span></a>.</p>
 </section>
 <section id="python-api">
@@ -1829,7 +1833,8 @@ rule. 2D figures draw the <strong>same lattice</strong> as dashed lines.</p>
 <p>The figure below is written by the graph gallery
 (<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>) — one-step with <strong>fixed</strong>
 <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> and the library graph defaults (uniform 5-voxel cubes
-+ min-distance edges + dashed lattice). Reproduce it:</p>
+with per-subregion centroid nodes + min-distance edges + dashed
+lattice). Reproduce it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">graph_features_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
@@ -1850,8 +1855,9 @@ rule. 2D figures draw the <strong>same lattice</strong> as dashed lines.</p>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
-<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
-<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
+<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
     <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
 <span class="p">)</span>

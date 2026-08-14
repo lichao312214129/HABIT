@@ -368,7 +368,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1377,6 +1377,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1836,10 +1837,13 @@ splitting. Instead the whole tumour VOI is painted with a <strong>global</strong
 axis-aligned lattice of cubes of edge <code class="docutils literal notranslate"><span class="pre">block_size</span></code> <span class="math notranslate nohighlight">\(b\)</span>
 (default <span class="math notranslate nohighlight">\(b=5\)</span> <strong>voxels</strong>, not millimetres) whose origin is the
 VOI bounding-box minimum.
-A cube becomes one node when its occupied fraction exceeds
-<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>); the node habitat is the
-majority label in that cube. Pass <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> for the
-older rule: if <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> and
+A cube is kept when its occupied fraction exceeds
+<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>; cell-level filter).
+Inside each kept cube, every connected component of every habitat
+becomes its own node at that subregion’s voxel-index centroid, so one
+cube may contribute several nodes. In-cell fragments smaller than
+<code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> are dropped. Pass <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code>
+for the older rule: if <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> <span class="math notranslate nohighlight">\(s&gt;0\)</span> and
 <span class="math notranslate nohighlight">\(|C|&gt;s\)</span>, split <span class="math notranslate nohighlight">\(C\)</span> into axis-aligned grid blocks of edge
 <span class="math notranslate nohighlight">\(b\)</span> (default <span class="math notranslate nohighlight">\(s=1000\)</span>). A block with voxel set <span class="math notranslate nohighlight">\(B\)</span>
 is <strong>kept</strong> only when</p>
@@ -2201,7 +2205,7 @@ below match the kernel dataclass.</p>
 <td><p>Binary erosion iterations before labeling (default <code class="docutils literal notranslate"><span class="pre">0</span></code> / off; set <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> to shrink habitats before edges)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> (default: equal-volume cubes on a global VOI lattice) or <code class="docutils literal notranslate"><span class="pre">component</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> (default: global VOI lattice; one node per in-cell subregion centroid) or <code class="docutils literal notranslate"><span class="pre">component</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
 <td><p>In <code class="docutils literal notranslate"><span class="pre">component</span></code> mode, split components larger than this (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
@@ -2210,7 +2214,7 @@ below match the kernel dataclass.</p>
 <td><p>Cube edge length in <strong>voxels</strong> (default <code class="docutils literal notranslate"><span class="pre">5</span></code>, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at <code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
-<td><p>Minimum <strong>strict</strong> fraction of a block that must be occupied (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>)</p></td>
+<td><p>Minimum <strong>strict</strong> occupied fraction of a cube to keep the cell (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Applied per cell; tiny in-cell fragments use <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>

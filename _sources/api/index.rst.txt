@@ -891,6 +891,7 @@ Habitat clustering and overlay
    habit.viz.plot_ith_summary
    habit.viz.plot_habitat_label_compare
    habit.viz.plot_partition_triptych
+   habit.viz.plot_precision_icc
    habit.viz.plot_habitat_feature_heatmap
    habit.viz.plot_habitat_feature_effect
    habit.viz.plot_habitat_feature_components

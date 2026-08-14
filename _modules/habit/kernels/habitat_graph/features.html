@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1729,6 +1729,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -2175,8 +2176,9 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runtime options for graph-based habitat feature extraction.</span>
 
 <span class="sd">    Default node rule: ``node_method=&#39;uniform_grid&#39;`` with ``block_size=5``</span>
-<span class="sd">    (equal-volume cubes on a global VOI lattice, edge length in **voxels**,</span>
-<span class="sd">    not millimetres). Default edge rule: ``edge_method=&#39;min_distance&#39;``</span>
+<span class="sd">    (global VOI lattice; each kept cube emits one node per connected</span>
+<span class="sd">    habitat subregion at that subregion&#39;s voxel centroid; edge length in</span>
+<span class="sd">    **voxels**, not millimetres). Default edge rule: ``edge_method=&#39;min_distance&#39;``</span>
 <span class="sd">    with ``distance_threshold=5.0``. Face-adjacent 5-cubes connect</span>
 <span class="sd">    (closest voxels are one hop apart). One empty lattice cell between</span>
 <span class="sd">    cubes gives closest-voxel distance 6, which is greater than 5, so</span>
@@ -2202,7 +2204,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># as drawn. Pass a positive value to shrink each habitat (binary erosion</span>
     <span class="c1"># iterations) before labeling and edge construction.</span>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c1"># Default node construction: a global equal-volume cube lattice.</span>
+    <span class="c1"># Default node construction: a global cube lattice; each kept cell</span>
+    <span class="c1"># emits one node per connected habitat subregion (centroid).</span>
     <span class="c1"># ``component`` restores connected-component nodes; those larger than</span>
     <span class="c1"># ``subdivide_region_voxels`` are then split (``0`` disables that split).</span>
     <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span>
@@ -2368,8 +2371,9 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract subject-level graph features from a habitat label map.</span>
 
-<span class="sd">    Default ``options`` use ``node_method=&#39;uniform_grid&#39;`` (5-voxel cubes)</span>
-<span class="sd">    and ``edge_method=&#39;min_distance&#39;`` with ``distance_threshold=5.0``.</span>
+<span class="sd">    Default ``options`` use ``node_method=&#39;uniform_grid&#39;`` (5-voxel cubes,</span>
+<span class="sd">    one node per in-cell subregion centroid) and</span>
+<span class="sd">    ``edge_method=&#39;min_distance&#39;`` with ``distance_threshold=5.0``.</span>
 <span class="sd">    Pass ``node_method=&#39;component&#39;`` / ``edge_method=&#39;adjacency&#39;`` for the</span>
 <span class="sd">    older connected-component contact graph.</span>
 

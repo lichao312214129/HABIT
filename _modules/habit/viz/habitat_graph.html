@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1729,6 +1729,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -2485,9 +2486,11 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">11.5</span>
 <span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
 <span class="n">_FIG_LEGEND_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
-<span class="c1">#: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured</span>
-<span class="c1">#: habitat stays 1.0; the All-habitats panel stays fully opaque.</span>
-<span class="n">_OTHER_HABITAT_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="c1">#: Other-habitat fill on per-habitat (H1--Hk) panels: opaque gray, not</span>
+<span class="c1">#: the original colour at a low alpha. Featured habitat stays full</span>
+<span class="c1">#: colour at alpha 1.0; the All-habitats panel stays fully coloured.</span>
+<span class="n">_OTHER_HABITAT_FILL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#C5C8CC&quot;</span>
+<span class="n">_OTHER_HABITAT_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
 <span class="c1">#: Intra-habitat edges of non-featured habitats on an H1--Hk panel.</span>
 <span class="n">_OTHER_INTRA_EDGE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.28</span>
 <span class="n">_OTHER_INTRA_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span>
@@ -2543,9 +2546,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    When ``colors`` is provided, each habitat partition is painted with the</span>
 <span class="sd">    same palette as the slice figure. Background ``0`` is left transparent</span>
 <span class="sd">    (not drawn). On a per-habitat panel, pass ``featured_label`` so that</span>
-<span class="sd">    habitat stays opaque (alpha=1) while every other habitat is drawn at</span>
-<span class="sd">    ``_OTHER_HABITAT_ALPHA`` (0.2). The All-habitats panel omits</span>
-<span class="sd">    ``featured_label`` so every habitat stays fully opaque.</span>
+<span class="sd">    habitat stays full colour (alpha=1) while every other habitat is</span>
+<span class="sd">    filled with opaque gray (``_OTHER_HABITAT_FILL``). The All-habitats</span>
+<span class="sd">    panel omits ``featured_label`` so every habitat stays fully coloured.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ax: Target matplotlib axes.</span>
@@ -2569,12 +2572,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">label_2d</span> <span class="o">==</span> <span class="n">label</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
                 <span class="k">continue</span>
-            <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="mf">1.0</span>
-                <span class="k">if</span> <span class="n">featured_label</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">featured_label</span><span class="p">)</span>
-                <span class="k">else</span> <span class="n">_OTHER_HABITAT_ALPHA</span>
-            <span class="p">)</span>
-            <span class="n">rgba</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_rgba</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">featured_label</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">featured_label</span><span class="p">):</span>
+                <span class="n">rgba</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_rgba</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rgba</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_rgba</span><span class="p">(</span><span class="n">_OTHER_HABITAT_FILL</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">_OTHER_HABITAT_ALPHA</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgba</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">silhouette</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">label_2d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -3045,9 +3046,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
 <span class="sd">        show_background: Whether to draw habitat partitions behind the</span>
 <span class="sd">            graph (default ``True``). On H1--Hk panels the featured</span>
-<span class="sd">            habitat is opaque and other habitats use alpha 0.2;</span>
+<span class="sd">            habitat is full colour and other habitats are opaque gray;</span>
 <span class="sd">            background 0 stays undrawn. The All-habitats panel stays</span>
-<span class="sd">            fully opaque. Featured-habitat nodes stay solid.</span>
+<span class="sd">            fully coloured. Featured-habitat nodes stay solid.</span>
 <span class="sd">        show_grid: Draw the uniform-grid lattice (default ``True``).</span>
 <span class="sd">            Also draws when ``block_size`` is passed in ``component`` mode.</span>
 <span class="sd">        block_size: Display cube edge in voxels. ``None`` (default) uses</span>

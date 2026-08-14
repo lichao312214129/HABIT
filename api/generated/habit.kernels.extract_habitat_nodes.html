@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1376,6 +1376,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1766,11 +1767,14 @@
 <dd><p>Convert a habitat label map into graph nodes.</p>
 <p>Default <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> paints a global axis-aligned
 lattice of cubes with edge <code class="docutils literal notranslate"><span class="pre">block_size</span></code> (default 5 <strong>voxels</strong>, not
-millimetres) over the tumour VOI. Every occupied cube that passes
-<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default 0.2) becomes one node, so node
-volumes stay comparable. Pass <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> for the
-older connected-component nodes, optionally split when a component
-exceeds <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code>.</p>
+millimetres) over the tumour VOI. Cubes whose occupied fraction
+exceeds <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default 0.2) are kept; <strong>each
+connected subregion inside a kept cube becomes its own node</strong> at
+that subregion’s voxel-index centroid (several habitats and/or
+several components of one habitat can share a cube). Pass
+<code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> for the older connected-component nodes,
+optionally split when a component exceeds
+<code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1792,8 +1796,10 @@ With the default <code class="docutils literal notranslate"><span class="pre">di
 lattice cell between cubes is closest-voxel distance 6 and
 stays disconnected.</p></li>
 <li><p><strong>block_min_coverage</strong> – Minimum occupied fraction of a cube to keep
-it (default 0.2; a cube is kept when coverage is strictly
-greater than this value).</p></li>
+the cell (default 0.2; a cube is kept when coverage is
+strictly greater than this value). Applied per cell, not
+per subregion. Tiny in-cell fragments are dropped by
+<code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code>.</p></li>
 <li><p><strong>node_method</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;uniform_grid&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code>.</p></li>
 </ul>
 </dd>

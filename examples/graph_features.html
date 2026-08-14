@@ -367,7 +367,7 @@
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1376,6 +1376,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1767,7 +1768,8 @@
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> → overlay +
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. This example uses the
 library defaults on <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code>:
-<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (5-voxel cubes, not millimetres) and
+<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (5-voxel cubes, not millimetres; one
+node per in-cell subregion centroid) and
 <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (closest voxels within 5). The 2D network
 draws that same lattice as dashed lines. Graph topology is a habitat-map
 feature family (same tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns under
@@ -1776,9 +1778,11 @@ feature family (same tier as <code class="docutils literal notranslate"><span cl
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree
 (<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=4</strong> and
-uses the library graph defaults (uniform 5-voxel cubes + min-distance
-edges), then extracts graph topology and draws the overlay plus the 2D
-network with the dashed lattice. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that
+uses the library node/edge defaults (uniform 5-voxel cubes, one node
+per in-cell subregion centroid + min-distance edges; extended metrics
+off so a full 3D mixed lattice stays interactive), then extracts graph
+topology and draws the overlay plus the 2D network with the dashed
+lattice. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that
 path too if you like).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -1796,15 +1800,18 @@ path too if you like).</p>
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
 <span class="c1"># Fixed K=4 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
-<span class="c1"># Graph options are the library defaults (uniform 5-voxel cubes + min-distance).</span>
+<span class="c1"># Node/edge defaults: per-cell subregion centroids + min-distance.</span>
+<span class="c1"># Extended metrics are off so a full 3D mixed lattice stays interactive.</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
-<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">()</span>
-<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">),</span> <span class="s2">&quot;graph features&quot;</span><span class="p">)</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="c1"># Same representative axial slice as the 2D network figure.</span>
+<span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
+<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">),</span> <span class="s2">&quot;graph features from representative slice&quot;</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1843,9 +1850,9 @@ path too if you like).</p>
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code>, library graph defaults; count
-depends on the habitat map):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">537</span> <span class="n">graph</span> <span class="n">features</span>
+<p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code>, per-cell subregion centroids;
+count depends on the habitat map):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">397</span> <span class="n">graph</span> <span class="n">features</span> <span class="kn">from</span><span class="w"> </span><span class="nn">representative</span> <span class="nb">slice</span> <span class="mi">96</span>
 </pre></div>
 </div>
 </section>
@@ -1869,8 +1876,8 @@ depends on the habitat map):</p>
 <p><span class="caption-text">Intra-habitat panels plus the combined All-habitats graph. The All
 panel title reports per-habitat node counts and intra/inter edge
 counts. Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> / <code class="docutils literal notranslate"><span class="pre">grid_linestyle='--'</span></code> draw
-the same 5-voxel cubes; other habitats’ edges on each H panel are gray
-and translucent
+the same 5-voxel cubes; other habitats on each H panel are opaque
+gray (fill) with translucent gray edges
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>

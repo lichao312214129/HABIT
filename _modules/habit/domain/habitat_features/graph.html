@@ -720,7 +720,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1729,6 +1729,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -2190,9 +2191,10 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: ``0`` (off): adjacency and contact are measured on the habitat labels</span>
     <span class="c1">#: as drawn. Pass a positive value to shrink each habitat before edges.</span>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="c1">#: How voxels become nodes. Default ``&quot;uniform_grid&quot;``: equal-volume</span>
-    <span class="c1">#: cubes on a global VOI lattice. ``&quot;component&quot;`` uses connected</span>
-    <span class="c1">#: components (optionally split when larger than</span>
+    <span class="c1">#: How voxels become nodes. Default ``&quot;uniform_grid&quot;``: global VOI</span>
+    <span class="c1">#: lattice; each kept cube emits one node per connected habitat</span>
+    <span class="c1">#: subregion at that subregion&#39;s voxel centroid. ``&quot;component&quot;``</span>
+    <span class="c1">#: uses connected components (optionally split when larger than</span>
     <span class="c1">#: ``subdivide_region_voxels``).</span>
     <span class="n">node_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span>
     <span class="c1">#: In ``component`` mode, split components larger than this voxel count.</span>
@@ -2202,8 +2204,9 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: with ``distance_threshold=5``: face-adjacent cubes connect; one</span>
     <span class="c1">#: empty lattice cell (closest-voxel distance 6) stays disconnected.</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1">#: Minimum covered fraction of a block volume to keep it as a node</span>
-    <span class="c1">#: (strictly greater than this value; default 0.2).</span>
+    <span class="c1">#: Minimum covered fraction of a cube to keep the cell (strictly</span>
+    <span class="c1">#: greater than this value; default 0.2). Applied per cell; tiny</span>
+    <span class="c1">#: in-cell fragments are dropped by ``min_region_voxels``.</span>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="c1">#: Add same-habitat proximity edges to pairwise graphs so whole-graph</span>
     <span class="c1">#: metrics (modularity, assortativity, betweenness) reflect real tissue</span>
@@ -2225,8 +2228,9 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Graph-topology features of one subject&#39;s habitat map.</span>
 
-<span class="sd">    Default nodes are equal-volume cubes on a global VOI lattice</span>
-<span class="sd">    (``node_method=&#39;uniform_grid&#39;``, ``block_size=5`` voxels, not mm).</span>
+<span class="sd">    Default nodes are per-cell subregion centroids on a global VOI</span>
+<span class="sd">    lattice (``node_method=&#39;uniform_grid&#39;``, ``block_size=5`` voxels,</span>
+<span class="sd">    not mm): each kept cube can contribute several nodes.</span>
 <span class="sd">    Default edges connect cubes whose closest voxels are within</span>
 <span class="sd">    ``distance_threshold`` (``edge_method=&#39;min_distance&#39;``, default 5).</span>
 <span class="sd">    There is no morphological erosion (``erosion_radius=0``). Pass</span>
