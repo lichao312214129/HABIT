@@ -24,7 +24,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Feature extraction" href="extract_features.html" />
+    <link rel="next" title="Choosing habitat Spec components" href="habitat_components.html" />
     <link rel="prev" title="Preprocessing" href="preprocess.html" /> 
 </head>
 
@@ -122,6 +122,44 @@
 <li class="toctree-l3"><a class="reference internal" href="#before-you-start">Before you start</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#use-your-own-data">Use your own data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_components.html">Choosing habitat Spec components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#feature-preprocessing">2. Feature preprocessing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#feature-preprocessing-method">feature_preprocessing_method</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#supervoxel-partition">3. Supervoxel partition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#supervoxelizer">supervoxelizer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#pool">5. Pool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#pooling">pooling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#fit-habitats">6. Fit habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#habitat-model-fitter">habitat_model_fitter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#assign">7. Assign</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#habitat-assigner">habitat_assigner</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#quantify">8. Quantify</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#habitat-feature-extractor">habitat_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_components.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="extract_features.html">Feature extraction</a><ul>
@@ -1714,6 +1752,8 @@ but used a mean of <strong>2.8</strong> labels per map; <code class="docutils li
 restored 4/4. Image-level <code class="docutils literal notranslate"><span class="pre">zscore_normalization</span></code> is a different step
 (<code class="xref py py-func docutils literal notranslate"><span class="pre">preprocess_subject()</span></code>) and is not a substitute. Numbers
 and the recommended recipe: <a class="reference internal" href="../examples/habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a>.</p>
+<p>Which <code class="docutils literal notranslate"><span class="pre">Spec(&quot;...&quot;)</span></code> names exist, and what each parameter means:
+<a class="reference internal" href="habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> (Python + YAML, generated from <code class="docutils literal notranslate"><span class="pre">params_model</span></code>).</p>
 <p>Next: <a class="reference internal" href="extract_features.html"><span class="doc">Feature extraction</span></a>. Config details: <a class="reference internal" href="../configuration/habitat.html"><span class="doc">Habitat Segmentation Configuration</span></a>.</p>
 </section>
 </section>
@@ -1723,7 +1763,7 @@ and the recommended recipe: <a class="reference internal" href="../examples/habi
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="preprocess.html" class="btn btn-neutral float-left" title="Preprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="extract_features.html" class="btn btn-neutral float-right" title="Feature extraction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habitat_components.html" class="btn btn-neutral float-right" title="Choosing habitat Spec components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

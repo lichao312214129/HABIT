@@ -29,6 +29,7 @@ ROI contour — not MIRP ROI grow/shrink). Gallery:
    prepare_data
    preprocess
    segment_habitat
+   habitat_components
    extract_features
    graph_features
    voxel_texture

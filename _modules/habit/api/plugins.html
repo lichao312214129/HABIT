@@ -477,6 +477,44 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/segment_habitat.html#use-your-own-data">Use your own data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/habitat_components.html">Choosing habitat Spec components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#feature-preprocessing">2. Feature preprocessing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#feature-preprocessing-method">feature_preprocessing_method</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxel-partition">3. Supervoxel partition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxelizer">supervoxelizer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#pool">5. Pool</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#pooling">pooling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#fit-habitats">6. Fit habitats</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#habitat-model-fitter">habitat_model_fitter</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#assign">7. Assign</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#habitat-assigner">habitat_assigner</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#quantify">8. Quantify</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#habitat-feature-extractor">habitat_feature_extractor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../how_to/extract_features.html">Feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/extract_features.html#run-the-demo">Run the demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/extract_features.html#your-data">Your data</a></li>
@@ -2003,7 +2041,22 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">metadata</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MappingProxyType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">get_args</span><span class="p">,</span>
+    <span class="n">get_origin</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
@@ -2014,6 +2067,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;PluginInfo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PluginParamInfo&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PluginCatalogEntry&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PluginLoadReport&quot;</span><span class="p">,</span>
     <span class="s2">&quot;create_ml_model&quot;</span><span class="p">,</span>
@@ -2134,6 +2188,23 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PluginParamInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One ``Spec`` / ``Registry.create`` parameter from ``params_model``.</span>
+
+<span class="sd">    ``description`` prefers the Pydantic ``Field(description=...)``, then the</span>
+<span class="sd">    registered class ``Args:`` section, then the params-model field docstring.</span>
+<span class="sd">    ``allowed`` is a short constraint string (Literal choices, numeric bounds).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">annotation</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">default</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">allowed</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+
+
 <div class="viewcode-block" id="PluginCatalogEntry">
 <a class="viewcode-back" href="../../../api/generated/habit.api.plugins.PluginCatalogEntry.html#habit.api.plugins.PluginCatalogEntry">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2146,7 +2217,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">required_params</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">optional_params</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">spec_example</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">create_example</span><span class="p">:</span> <span class="nb">str</span></div>
+    <span class="n">create_example</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PluginParamInfo</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span></div>
 
 
 
@@ -2436,6 +2508,158 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Registry.create(&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">)&#39;</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_google_args_map</span><span class="p">(</span><span class="n">doc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a Google-style ``Args:`` section into ``{name: description}``.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">doc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">cleandoc</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Args:&quot;</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">collected</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">current_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current_parts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">section_stops</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Returns:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Raises:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Note:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Notes:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Example:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Examples:&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;See Also:&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flush</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">current_parts</span> <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">collected</span><span class="p">[</span><span class="n">current_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:]:</span>
+        <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stripped</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">stripped</span> <span class="ow">in</span> <span class="n">section_stops</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">indent</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">indent</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">indent</span> <span class="o">&lt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">stripped</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">stripped</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">()</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                <span class="n">_flush</span><span class="p">()</span>
+                <span class="n">current_name</span> <span class="o">=</span> <span class="n">name</span>
+                <span class="n">current_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">rest</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+                <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">current_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">current_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+    <span class="n">_flush</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">collected</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_annotation</span><span class="p">(</span><span class="n">annotation</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a short, docs-safe type label for one Pydantic field.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">Literal</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">Union</span><span class="p">:</span>
+        <span class="n">non_none</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_none</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">_format_annotation</span><span class="p">(</span><span class="n">non_none</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> | None&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_format_annotation</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">):</span>
+        <span class="n">inner</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_format_annotation</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span> <span class="k">if</span> <span class="n">origin</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;tuple&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">inner</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">inner</span> <span class="k">else</span> <span class="n">name</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;dict&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;typing.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_default</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a short default label; required fields are marked as such.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_required</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&quot;(required)&quot;</span>
+    <span class="n">default_factory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;default_factory&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">default_factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Pydantic v2 stores missing defaults as PydanticUndefined; factory</span>
+        <span class="c1"># fields then expose default_factory instead of a concrete value.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_core</span><span class="w"> </span><span class="kn">import</span> <span class="n">PydanticUndefined</span>
+
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="n">PydanticUndefined</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;(factory)&quot;</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 — optional import for formatting only</span>
+            <span class="k">return</span> <span class="s2">&quot;(factory)&quot;</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">default</span>
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;None&quot;</span>
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_allowed</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">annotation</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return Literal choices and numeric bounds as one constraint string.&quot;&quot;&quot;</span>
+    <span class="n">parts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">Literal</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">args</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">Union</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Literal</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">get_args</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="p">())</span> <span class="ow">or</span> <span class="p">()</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+        <span class="n">ge</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;ge&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">gt</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;gt&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">le</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;le&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">lt</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;lt&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt;= </span><span class="si">{</span><span class="n">ge</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt; </span><span class="si">{</span><span class="n">gt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">le</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;= </span><span class="si">{</span><span class="n">le</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt; </span><span class="si">{</span><span class="n">lt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_infos</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PluginParamInfo</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build per-parameter catalog rows from ``params_model`` plus class Args.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">()</span>
+    <span class="n">docs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">docs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_google_args_map</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">schema</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">payload</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;__mro__&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">payload</span><span class="p">,)):</span>
+            <span class="n">docs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_google_args_map</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">candidate</span><span class="p">)))</span>
+    <span class="n">infos</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PluginParamInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">schema</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">annotation</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;annotation&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">or</span> <span class="n">docs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">infos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">PluginParamInfo</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">field_name</span><span class="p">,</span>
+                <span class="n">required</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">is_required</span><span class="p">()),</span>
+                <span class="n">annotation</span><span class="o">=</span><span class="n">_format_annotation</span><span class="p">(</span><span class="n">annotation</span><span class="p">),</span>
+                <span class="n">default</span><span class="o">=</span><span class="n">_format_default</span><span class="p">(</span><span class="n">field</span><span class="p">),</span>
+                <span class="n">allowed</span><span class="o">=</span><span class="n">_format_allowed</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">annotation</span><span class="p">),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">infos</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="plugin_catalog">
 <a class="viewcode-back" href="../../../api/generated/habit.api.plugins.plugin_catalog.html#habit.api.plugins.plugin_catalog">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plugin_catalog</span><span class="p">(</span>
@@ -2486,6 +2710,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">optional_params</span><span class="o">=</span><span class="n">optional</span><span class="p">,</span>
                     <span class="n">spec_example</span><span class="o">=</span><span class="n">_spec_example</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="p">),</span>
                     <span class="n">create_example</span><span class="o">=</span><span class="n">_create_example</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">required</span><span class="p">),</span>
+                    <span class="n">params</span><span class="o">=</span><span class="n">_param_infos</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">schema</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span></div>
@@ -2526,6 +2751,32 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;  .. list-table::&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;     :header-rows: 1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;     :widths: 18 16 24 42&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;     * - Param&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;       - Default&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;       - Allowed / type&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;       - Meaning&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+                <span class="n">allowed</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">allowed</span> <span class="ow">or</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="ow">or</span> <span class="s2">&quot;—&quot;</span>
+                <span class="n">meaning</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;See the component docstring.&quot;</span>
+                <span class="n">meaning</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">meaning</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;     * - ``</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">``&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;       - ``</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="si">}</span><span class="s2">``&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;       - </span><span class="si">{</span><span class="n">allowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">&quot;       - </span><span class="si">{</span><span class="n">meaning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
 

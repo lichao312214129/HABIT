@@ -103,6 +103,7 @@ stages silently) is how labels look plausible but are wrong. See
 Reading order
 -------------
 
+0. :doc:`../how_to/habitat_components` — which ``Spec`` names and parameters you can choose
 1. :doc:`two_step_habitat` — fastest end-to-end recipe
 2. :doc:`habitat_atomic_ops` — same science as callables
 3. :doc:`habitat_custom_pipeline` — change components safely

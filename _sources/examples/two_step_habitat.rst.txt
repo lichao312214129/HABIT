@@ -91,6 +91,7 @@ that file reproduces the habitat maps voxel-wise. See
 What to read next
 -----------------
 
+* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
 * :doc:`habitat_analysis_overview` — recipe / atomic / custom map
 * :doc:`habitat_atomic_ops` — same science as single-argument callables
 * :doc:`habitat_custom_pipeline` — swap components safely
