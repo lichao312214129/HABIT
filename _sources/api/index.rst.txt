@@ -721,6 +721,7 @@ Habitat metrics
    habit.kernels.msi_features_from_matrix
    habit.kernels.habitat_volume_fractions
    habit.kernels.habitat_region_stats
+   habit.kernels.habitat_ith_dispersion
    habit.kernels.ith_score
    habit.kernels.HabitatGraphFeatureOptions
    habit.kernels.extract_graph_features

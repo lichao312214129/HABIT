@@ -12,6 +12,7 @@ Pure NumPy / SciPy functions. No ``Subject``, no YAML, no IO.
        delong_roc_variance,
        extract_graph_features,
        fast_delong,
+       habitat_ith_dispersion,
        habitat_region_stats,
        habitat_volume_fractions,
        hosmer_lemeshow_test,
@@ -42,7 +43,8 @@ Habitat metrics
    msi = msi_features_from_matrix(matrix)          # dict[str, float]
    ith = ith_score(labels)                         # float
    fractions = habitat_volume_fractions(labels, habitat_ids=(1, 2))
-   stats = habitat_region_stats(labels)            # id -> (voxels, components)
+   stats = habitat_region_stats(labels)            # id -> (n_regions, largest)
+   dispersion = habitat_ith_dispersion(labels)     # id -> per-habitat ITH
 
 Graph topology kernels
 ----------------------

@@ -1250,6 +1250,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_ith_dispersion.html">habitat_ith_dispersion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ith_score.html">ith_score</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
@@ -3067,28 +3068,31 @@ only pick up their documentation there.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.habitat_region_stats.html#habit.kernels.habitat_region_stats" title="habit.kernels.habitat_region_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.habitat_region_stats</span></code></a>(label_array)</p></td>
 <td><p>Measure connected-component fragmentation per habitat.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.ith_score.html#habit.kernels.ith_score" title="habit.kernels.ith_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.ith_score</span></code></a>(label_array)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.habitat_ith_dispersion.html#habit.kernels.habitat_ith_dispersion" title="habit.kernels.habitat_ith_dispersion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.habitat_ith_dispersion</span></code></a>(label_array)</p></td>
+<td><p>Per-habitat ITH (dispersion) on the same formula as <code class="xref py py-func docutils literal notranslate"><span class="pre">ith_score()</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.ith_score.html#habit.kernels.ith_score" title="habit.kernels.ith_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.ith_score</span></code></a>(label_array)</p></td>
 <td><p>Compute the ITH score (topological fragmentation) of a habitat map.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.HabitatGraphFeatureOptions</span></code></a>([...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.HabitatGraphFeatureOptions</span></code></a>([...])</p></td>
 <td><p>Runtime options for graph-based habitat feature extraction.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features</span></code></a>(...[, ...])</p></td>
 <td><p>Extract subject-level graph features from a habitat label map.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features_for_labels.html#habit.kernels.extract_graph_features_for_labels" title="habit.kernels.extract_graph_features_for_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features_for_labels</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.extract_graph_features_for_labels.html#habit.kernels.extract_graph_features_for_labels" title="habit.kernels.extract_graph_features_for_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_graph_features_for_labels</span></code></a>(...)</p></td>
 <td><p>Extract graph features after restricting the habitat map to selected labels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes" title="habit.kernels.extract_habitat_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_habitat_nodes</span></code></a>(label_array)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes" title="habit.kernels.extract_habitat_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.extract_habitat_nodes</span></code></a>(label_array)</p></td>
 <td><p>Convert each connected habitat region into one or more graph nodes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.build_centroid_distance_graph.html#habit.kernels.build_centroid_distance_graph" title="habit.kernels.build_centroid_distance_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_centroid_distance_graph</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.build_centroid_distance_graph.html#habit.kernels.build_centroid_distance_graph" title="habit.kernels.build_centroid_distance_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_centroid_distance_graph</span></code></a>(...)</p></td>
 <td><p>Build a graph by connecting nodes whose centroid distance is within threshold.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.build_adjacency_graph.html#habit.kernels.build_adjacency_graph" title="habit.kernels.build_adjacency_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_adjacency_graph</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.build_adjacency_graph.html#habit.kernels.build_adjacency_graph" title="habit.kernels.build_adjacency_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.build_adjacency_graph</span></code></a>(...[, ...])</p></td>
 <td><p>Build a graph by connecting spatially adjacent habitat-region nodes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.pair_count.html#habit.kernels.pair_count" title="habit.kernels.pair_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.pair_count</span></code></a>(label_count)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.pair_count.html#habit.kernels.pair_count" title="habit.kernels.pair_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.pair_count</span></code></a>(label_count)</p></td>
 <td><p>Return the number of pairwise graphs for a given habitat-label count.</p></td>
 </tr>
 </tbody>
@@ -3324,7 +3328,7 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 <td><p>Beeswarm-style SHAP summary for one attribution matrix.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_shap_bar.html#habit.viz.plot_shap_bar" title="habit.viz.plot_shap_bar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_shap_bar</span></code></a>(shap_values, features, *)</p></td>
-<td><p>Global mean <a href="#id3"><span class="problematic" id="id4">|SHAP|</span></a> bar chart (<code class="docutils literal notranslate"><span class="pre">shap.plots.bar</span></code>).</p></td>
+<td><p>Global mean-absolute SHAP bar chart (<code class="docutils literal notranslate"><span class="pre">shap.plots.bar</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_shap_violin.html#habit.viz.plot_shap_violin" title="habit.viz.plot_shap_violin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_shap_violin</span></code></a>(shap_values, ...)</p></td>
 <td><p>Violin-style SHAP summary (<code class="docutils literal notranslate"><span class="pre">summary_plot(plot_type='violin')</span></code>).</p></td>
@@ -3379,7 +3383,7 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 <td><p>Heatmap of a spatial interaction (MSI) matrix.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_ith_summary.html#habit.viz.plot_ith_summary" title="habit.viz.plot_ith_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_ith_summary</span></code></a>(ith, *[, ...])</p></td>
-<td><p>Summarise ITH score, optionally with per-habitat region counts.</p></td>
+<td><p>One-panel bar chart: global ITH, then optional per-habitat ITH.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_label_compare</span></code></a>(image, ...)</p></td>
 <td><p>Side-by-side habitat overlays, optional disagreement mask.</p></td>

@@ -1249,6 +1249,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.habitat_ith_dispersion.html">habitat_ith_dispersion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ith_score.html">ith_score</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
@@ -1753,6 +1754,7 @@
     <span class="n">delong_roc_variance</span><span class="p">,</span>
     <span class="n">extract_graph_features</span><span class="p">,</span>
     <span class="n">fast_delong</span><span class="p">,</span>
+    <span class="n">habitat_ith_dispersion</span><span class="p">,</span>
     <span class="n">habitat_region_stats</span><span class="p">,</span>
     <span class="n">habitat_volume_fractions</span><span class="p">,</span>
     <span class="n">hosmer_lemeshow_test</span><span class="p">,</span>
@@ -1781,7 +1783,8 @@
 <span class="n">msi</span> <span class="o">=</span> <span class="n">msi_features_from_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>          <span class="c1"># dict[str, float]</span>
 <span class="n">ith</span> <span class="o">=</span> <span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>                         <span class="c1"># float</span>
 <span class="n">fractions</span> <span class="o">=</span> <span class="n">habitat_volume_fractions</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">stats</span> <span class="o">=</span> <span class="n">habitat_region_stats</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>            <span class="c1"># id -&gt; (voxels, components)</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">habitat_region_stats</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>            <span class="c1"># id -&gt; (n_regions, largest)</span>
+<span class="n">dispersion</span> <span class="o">=</span> <span class="n">habitat_ith_dispersion</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>     <span class="c1"># id -&gt; per-habitat ITH</span>
 </pre></div>
 </div>
 </section>

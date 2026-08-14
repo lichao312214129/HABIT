@@ -482,9 +482,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -497,9 +496,8 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1010,6 +1008,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -1239,6 +1238,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1599,6 +1602,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.habitat_volume_fractions.html">habitat_volume_fractions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.habitat_region_stats.html">habitat_region_stats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.habitat_ith_dispersion.html">habitat_ith_dispersion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.ith_score.html">ith_score</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
@@ -1689,6 +1693,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1704,6 +1716,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -2110,7 +2126,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -2171,76 +2188,69 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: matplotlib&#39;s 0.8 so a few habitats do not look like a solid block).</span>
 <span class="n">_BAR_WIDTH</span> <span class="o">=</span> <span class="mf">0.55</span>
 
-<span class="c1">#: ITH summary bars: slimmer than ``_BAR_WIDTH`` / matplotlib 0.8. A single</span>
-<span class="c1">#: fat column looks clumsy when only 1–3 habitats are present.</span>
-<span class="n">_ITH_BAR_WIDTH</span> <span class="o">=</span> <span class="mf">0.36</span>
+<span class="c1">#: Extra category-slot gap between the global ITH bar and the first</span>
+<span class="c1">#: per-habitat bar so the two series do not read as one contiguous group.</span>
+<span class="c1">#: Habitat bars themselves stay 1.0 apart (ITH at 0, H1 at 1.5, H2 at 2.5).</span>
+<span class="n">_ITH_HABITAT_GAP</span> <span class="o">=</span> <span class="mf">0.5</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_resolved_bar_width</span><span class="p">(</span>
-    <span class="n">n_categories</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">bar_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">default</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_ITH_BAR_WIDTH</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_finite_bar_width</span><span class="p">(</span><span class="n">bar_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">default</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a bar width in category-slot units.</span>
-
-<span class="sd">    An explicit ``bar_width`` wins. Otherwise the default is thinned further</span>
-<span class="sd">    when few categories would otherwise produce oversized columns.</span>
+<span class="sd">    Return a positive finite bar width.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        n_categories: Number of bars (treated as at least 1).</span>
-<span class="sd">        bar_width: Optional override; must be finite and ``&gt; 0``.</span>
-<span class="sd">        default: Width used when many categories are present.</span>
+<span class="sd">        bar_width: Optional override; must be finite and ``&gt; 0`` when set.</span>
+<span class="sd">        default: Width used when ``bar_width`` is omitted.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Width in data units (one unit = one category slot).</span>
+<span class="sd">        Width in category-slot units.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        HABITAPIError: If ``bar_width`` is non-finite or ``&lt;= 0``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">bar_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">bar_width</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="ow">or</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;bar_width must be a finite value &gt; 0; got </span><span class="si">{</span><span class="n">bar_width</span><span class="si">!r}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">width</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_categories</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="c1"># Keep 1–3 habitats as slim columns; approach ``default`` as n grows.</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="mf">0.26</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="mf">0.28</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bar_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">bar_width</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="ow">or</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;bar_width must be a finite value &gt; 0; got </span><span class="si">{</span><span class="n">bar_width</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">width</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_set_category_xlim</span><span class="p">(</span>
-    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-    <span class="n">n_categories</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">bar_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_ith_dispersion</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Pad the x-axis so a handful of bars do not fill the panel.</span>
-
-<span class="sd">    Matplotlib autoscales xlim to the bar patches, so a single bar of any</span>
-<span class="sd">    width still looks fat. Add gutters (and extra empty slots when ``n`` is</span>
-<span class="sd">    small) and centre the real categories at integer x = 0 .. n-1.</span>
+<span class="sd">    Coerce habitat-id → per-habitat ITH; reject the old region-count tuples.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        ax: Matplotlib axes that already hold the bars.</span>
-<span class="sd">        n_categories: Number of bars.</span>
-<span class="sd">        bar_width: Width used for those bars (data units).</span>
+<span class="sd">        values: Mapping from habitat id to a scalar dispersion.</span>
+<span class="sd">        source: Parameter name used in error messages.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Habitat id → finite float.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If a value is a tuple/list or non-finite.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_categories</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="c1"># Half-bar plus a fixed gutter, then extra empty slots for 1–3 categories</span>
-    <span class="c1"># so the ink occupies ~8–12% of the axes instead of ~90%.</span>
-    <span class="n">base_pad</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">bar_width</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.50</span>
-    <span class="n">extra_slots</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span> <span class="o">-</span> <span class="mf">0.28</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
-    <span class="n">pad</span> <span class="o">=</span> <span class="n">base_pad</span> <span class="o">+</span> <span class="n">extra_slots</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="n">pad</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;plot_ith_summary: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> must map habitat id -&gt; float &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(per-habitat ITH). Got </span><span class="si">{</span><span class="n">raw</span><span class="si">!r}</span><span class="s2"> for habitat </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Pass dispersion=habitat_ith_dispersion(labels).&quot;</span>
+            <span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;plot_ith_summary: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2">] must be finite; got </span><span class="si">{</span><span class="n">raw</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">out</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_plt</span><span class="p">():</span>
@@ -2822,23 +2832,32 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_ith_summary</span><span class="p">(</span>
     <span class="n">ith</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">per_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dispersion</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">per_habitat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">bar_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Summarise ITH score, optionally with per-habitat region counts.</span>
+<span class="sd">    One-panel bar chart: global ITH, then optional per-habitat ITH.</span>
 
-<span class="sd">    Bars are thinner than matplotlib&#39;s default and the x-axis is padded when</span>
-<span class="sd">    few habitats are present, so 1–3 columns stay slim instead of filling</span>
-<span class="sd">    the panel.</span>
+<span class="sd">    The first bar is the global score (tick ``ITH``, Okabe–Ito reddish</span>
+<span class="sd">    purple, palette index 3). When ``dispersion`` is given, a visual gap</span>
+<span class="sd">    separates it from H1/H2/... bars (bluish green, palette index 2) on</span>
+<span class="sd">    the same 0–1 axis (ylabel ``ITH``). The global score is the</span>
+<span class="sd">    volume-weighted mean of those per-habitat values</span>
+<span class="sd">    ``d_i = 1 - (S_i,max / n_i) / S_i``. Without ``dispersion`` the</span>
+<span class="sd">    figure is still one panel with a single ``ITH`` category — not a</span>
+<span class="sd">    stacked number-plus-gauge.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ith: Scalar ITH in ``[0, 1)``.</span>
-<span class="sd">        per_habitat: Optional habitat id → ``(num_regions, largest_size)``.</span>
-<span class="sd">        title: Optional figure title.</span>
-<span class="sd">        bar_width: Optional bar width in category-slot units. When omitted,</span>
-<span class="sd">            a slim default is used and further reduced for 1–3 categories.</span>
+<span class="sd">        dispersion: Optional habitat id → per-habitat ITH. Prefer</span>
+<span class="sd">            :func:`~habit.kernels.habitat_ith_dispersion`.</span>
+<span class="sd">        per_habitat: Deprecated alias of ``dispersion``. The old</span>
+<span class="sd">            ``id → (num_regions, largest_size)`` mapping is rejected.</span>
+<span class="sd">        title: Optional figure title. Default is ``ITH summary``.</span>
+<span class="sd">        bar_width: Optional bar width in category-slot units. Defaults to</span>
+<span class="sd">            the same width as :func:`plot_habitat_volume_fractions`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``.</span>
@@ -2846,86 +2865,62 @@ window.runMermaid = runMermaid;</script>
     <span class="n">score</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ith</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">score</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;plot_ith_summary: ith must be finite.&quot;</span><span class="p">)</span>
+    <span class="n">resolved</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">dispersion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">_as_ith_dispersion</span><span class="p">(</span><span class="n">dispersion</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;dispersion&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">per_habitat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;plot_ith_summary(per_habitat=...) is deprecated; pass &quot;</span>
+            <span class="s2">&quot;dispersion=habitat_ith_dispersion(labels). &quot;</span>
+            <span class="s2">&quot;The alias will be kept for all of v1.x.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">_as_ith_dispersion</span><span class="p">(</span><span class="n">per_habitat</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;per_habitat&quot;</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">_finite_bar_width</span><span class="p">(</span><span class="n">bar_width</span><span class="p">,</span> <span class="n">_BAR_WIDTH</span><span class="p">)</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">style</span><span class="p">:</span>
-        <span class="n">bar_ith</span> <span class="o">=</span> <span class="n">_palette_color</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">)</span>  <span class="c1"># reddish purple</span>
-        <span class="n">bar_frag</span> <span class="o">=</span> <span class="n">_palette_color</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">)</span>  <span class="c1"># bluish green</span>
-        <span class="k">if</span> <span class="n">per_habitat</span><span class="p">:</span>
-            <span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">per_habitat</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-            <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">per_habitat</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">]</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-                <span class="mi">1</span><span class="p">,</span>
-                <span class="mi">2</span><span class="p">,</span>
-                <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">62.0</span><span class="p">),</span>
-                <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">ith_width</span> <span class="o">=</span> <span class="n">_resolved_bar_width</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar_width</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="p">[</span><span class="n">score</span><span class="p">],</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">bar_ith</span><span class="p">,</span>
-                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-                <span class="n">width</span><span class="o">=</span><span class="n">ith_width</span><span class="p">,</span>
-                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">_set_category_xlim</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ith_width</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">score</span> <span class="o">*</span> <span class="mf">1.15</span><span class="p">))</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;ITH&quot;</span><span class="p">)])</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">))</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ITH = </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">n_hab</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-            <span class="n">frag_width</span> <span class="o">=</span> <span class="n">_resolved_bar_width</span><span class="p">(</span><span class="n">n_hab</span><span class="p">,</span> <span class="n">bar_width</span><span class="p">)</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_hab</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">,</span>
-                <span class="n">counts</span><span class="p">,</span>
-                <span class="n">width</span><span class="o">=</span><span class="n">frag_width</span><span class="p">,</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">bar_frag</span><span class="p">,</span>
-                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">_set_category_xlim</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_hab</span><span class="p">,</span> <span class="n">frag_width</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">])</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Connected regions&quot;</span><span class="p">))</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Fragmentation by habitat&quot;</span><span class="p">))</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-                <span class="mi">1</span><span class="p">,</span>
-                <span class="mi">1</span><span class="p">,</span>
-                <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">58.0</span><span class="p">),</span>
-                <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">ith_width</span> <span class="o">=</span> <span class="n">_resolved_bar_width</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar_width</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="p">[</span><span class="n">score</span><span class="p">],</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">bar_ith</span><span class="p">,</span>
-                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
-                <span class="n">width</span><span class="o">=</span><span class="n">ith_width</span><span class="p">,</span>
-                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">_set_category_xlim</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ith_width</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">score</span> <span class="o">*</span> <span class="mf">1.15</span><span class="p">))</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;ITH&quot;</span><span class="p">)])</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">))</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ITH = </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span><span class="p">))</span>
+        <span class="c1"># Okabe–Ito: index 3 reddish purple (global), index 2 bluish green.</span>
+        <span class="n">ith_color</span> <span class="o">=</span> <span class="n">_palette_color</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">)</span>
+        <span class="n">habitat_color</span> <span class="o">=</span> <span class="n">_palette_color</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">62.0</span><span class="p">),</span>
+            <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">positions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">heights</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">score</span><span class="p">]</span>
+        <span class="n">colors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ith_color</span><span class="p">]</span>
+        <span class="n">tick_labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ITH&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">resolved</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">resolved</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="c1"># ITH at 0; first habitat at 1 + gap so the series is not one block.</span>
+            <span class="n">habitat_offset</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">_ITH_HABITAT_GAP</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">hid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+                <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="n">habitat_offset</span><span class="p">)</span>
+                <span class="n">heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolved</span><span class="p">[</span><span class="n">hid</span><span class="p">])</span>
+                <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">habitat_color</span><span class="p">)</span>
+                <span class="n">tick_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+            <span class="n">positions</span><span class="p">,</span>
+            <span class="n">heights</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">tick_labels</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;ITH&quot;</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;ITH summary&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 
 
