@@ -33,6 +33,7 @@ from habit.viz.colorbar import (
     DEFAULT_HABITAT_CBAR_LABEL,
     add_discrete_habitat_colorbar,
 )
+from habit.viz.palette import habitat_rgb_colors
 from habit.viz.labels import sanitize_label
 from habit.viz.style import use_style
 from habit.viz.orientation import (
@@ -65,18 +66,10 @@ _DEFAULT_NATIVE_DIRECTION = DEFAULT_NATIVE_DIRECTION
 #: What habit.viz needs matplotlib for.
 _VIZ_PURPOSE = "habitat overlay figures (source image + habitat labels)"
 
-#: Colour-blind-friendly RGB colours for habitat IDs (cycled if needed).
-#: Matches the radiology style palette so overlays stay journal-safe in
-#: greyscale printouts.
-_HABITAT_COLORS: Tuple[Tuple[float, float, float], ...] = (
-    (0.00, 0.45, 0.70),  # blue
-    (0.90, 0.60, 0.00),  # orange
-    (0.00, 0.62, 0.45),  # green
-    (0.80, 0.40, 0.00),  # vermillion
-    (0.80, 0.47, 0.65),  # reddish purple
-    (0.95, 0.90, 0.25),  # yellow
-    (0.35, 0.70, 0.90),  # sky blue
-    (0.60, 0.60, 0.60),  # grey
+#: Designed habitat bank as RGB (Okabe–Ito + Tol extras). Prefer
+#: :func:`habitat_rgb_colors` so K>8 does not wrap to a duplicate.
+_HABITAT_COLORS: Tuple[Tuple[float, float, float], ...] = tuple(
+    habitat_rgb_colors(16)
 )
 
 
@@ -207,7 +200,7 @@ def _positive_habitat_ids(labels: np.ndarray) -> List[int]:
 
 def _habitat_color_lookup(
     habitat_ids: Sequence[int],
-    colors: Sequence[Tuple[float, float, float]] = _HABITAT_COLORS,
+    colors: Optional[Sequence[Tuple[float, float, float]]] = None,
 ) -> Dict[int, Tuple[float, float, float]]:
     """
     Map each habitat ID to a stable RGB triple.
@@ -218,20 +211,36 @@ def _habitat_color_lookup(
 
     Args:
         habitat_ids: Positive integer habitat IDs (already unique).
-        colors: RGB triples cycled when there are more IDs than colours.
+        colors: Optional RGB triples. When omitted, HABIT assigns one
+            distinct colour per ID from the Radiology-safe bank (no
+            silent 8-colour wrap). A caller-supplied list still cycles
+            if it is shorter than the ID list.
 
     Returns:
         ``habitat_id → (r, g, b)`` in ``[0, 1]``.
     """
+    ordered = [int(habitat_id) for habitat_id in habitat_ids]
+    if not ordered:
+        return {}
+    if colors is None:
+        face = habitat_rgb_colors(len(ordered))
+    else:
+        bank = list(colors)
+        if not bank:
+            face = habitat_rgb_colors(len(ordered))
+        elif len(bank) >= len(ordered):
+            face = [bank[index] for index in range(len(ordered))]
+        else:
+            # Caller chose a short custom list; cycling is explicit.
+            face = [bank[index % len(bank)] for index in range(len(ordered))]
     return {
-        int(habitat_id): colors[index % len(colors)]
-        for index, habitat_id in enumerate(habitat_ids)
+        habitat_id: face[index] for index, habitat_id in enumerate(ordered)
     }
 
 
 def _habitat_color_list(
     habitat_ids: Sequence[int],
-    colors: Sequence[Tuple[float, float, float]] = _HABITAT_COLORS,
+    colors: Optional[Sequence[Tuple[float, float, float]]] = None,
 ) -> List[Tuple[float, float, float]]:
     """Return palette colours aligned with ``habitat_ids`` (for the colorbar)."""
     lookup = _habitat_color_lookup(habitat_ids, colors)

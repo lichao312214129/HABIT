@@ -52,6 +52,7 @@ from habit.viz.colorbar import (
     DEFAULT_HABITAT_CBAR_LABEL,
     add_discrete_habitat_colorbar,
 )
+from habit.viz.palette import habitat_hex_colors
 from habit.viz.style import use_style
 
 if TYPE_CHECKING:
@@ -74,18 +75,6 @@ _INTER_EDGE_COLOR = "#8E44AD"
 _INTRA_EDGE_COLOR = "#9AA0A6"
 _BACKGROUND_COLOR = "#D9DCE1"
 
-#: Color-blind-safe qualitative palette (Okabe-Ito) reused for habitat labels;
-#: matches the default style preset so figures stay journal-safe in greyscale.
-_HABITAT_PALETTE: Tuple[str, ...] = (
-    "#0072B2",  # blue
-    "#D55E00",  # vermillion
-    "#009E73",  # bluish green
-    "#CC79A7",  # reddish purple
-    "#E69F00",  # orange
-    "#56B4E9",  # sky blue
-    "#F0E442",  # yellow
-    "#000000",  # black
-)
 
 #: Type alias for an undirected edge expressed as a pair of node ids.
 _EdgePair = Tuple[str, str]
@@ -304,12 +293,12 @@ def _combined_graph(
 
 
 def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
-    """Map habitat labels to stable color-blind-safe colors."""
-    ordered = sorted(set(int(v) for v in labels))
-    return {
-        label: _HABITAT_PALETTE[index % len(_HABITAT_PALETTE)]
-        for index, label in enumerate(ordered)
-    }
+    """Map habitat labels to stable Radiology-safe colours (no 8-colour wrap)."""
+    ordered = sorted({int(value) for value in labels if int(value) > 0})
+    if not ordered:
+        return {}
+    hexes = habitat_hex_colors(len(ordered))
+    return {label: hexes[index] for index, label in enumerate(ordered)}
 
 
 def _node_sizes(
