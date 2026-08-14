@@ -2022,6 +2022,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">_slice_index</span><span class="p">,</span>
     <span class="n">_spacing_xyz</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.colorbar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorbarSpec</span><span class="p">,</span> <span class="n">add_image_colorbar_from_spec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
@@ -2500,6 +2501,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">scale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
     <span class="n">mask_diagonal</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Heatmap of a spatial interaction (MSI) matrix.</span>
@@ -2524,6 +2526,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        mask_diagonal: Mask the main diagonal in the colour scale. Default</span>
 <span class="sd">            is True for ``linear`` / ``log1p`` / ``normalized``, False for</span>
 <span class="sd">            ``raw`` (full-matrix linear stretch).</span>
+<span class="sd">        colorbar: Draw a short vertical colorbar (default ``True``). Pass</span>
+<span class="sd">            ``False`` to hide it, or a mapping of style kwargs</span>
+<span class="sd">            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,</span>
+<span class="sd">            ``label``, ...) to override the default.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``.</span>
@@ -2581,11 +2587,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">plot_vmax</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
-            <span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="n">extend</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span>
+            <span class="n">im</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">cbar_label</span><span class="p">,</span> <span class="n">extend</span><span class="o">=</span><span class="n">extend</span>
         <span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">cbar_label</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="n">vmin</span><span class="p">:</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="n">vmin</span><span class="p">])</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">vmin</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>

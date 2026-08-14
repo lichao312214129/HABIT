@@ -2029,9 +2029,9 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: backward compatibility and resolve to the v0.1 factories; the v1.0 domains</span>
 <span class="c1">#: are ``snake_case`` of their protocol class, singular</span>
 <span class="c1">#: (developer/api_upgrade/08 §4), and resolve to the L3 domain registries.</span>
-<span class="c1">#: ``preprocessor`` is the singular alias of the v0.1 image-preprocessor</span>
-<span class="c1">#: family (the v1 architecture keeps image preprocessing in the adapters</span>
-<span class="c1">#: layer), while ``table_preprocessor`` / ``feature_selector`` /</span>
+<span class="c1">#: ``preprocessor`` is the v1 image-volume domain (resample, z-score, N4,</span>
+<span class="c1">#: …). The v0.1 plural ``preprocessors`` alias still lists the compat</span>
+<span class="c1">#: factory. ``table_preprocessor`` / ``feature_selector`` /</span>
 <span class="c1">#: ``classifier`` / ``metric`` name the v1.0 table-ML domains.</span>
 <span class="n">_ENTRY_POINT_GROUPS</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># v0.1 domains (legacy, kept working).</span>
@@ -2112,6 +2112,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;ImagePerturbationRegistry&quot;</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="s2">&quot;pooling&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;habit.domain.pooling_marker&quot;</span><span class="p">,</span> <span class="s2">&quot;PoolingRegistry&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;preprocessor&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;habit.domain.image_preprocessing&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PreprocessorRegistry&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">}</span>
 <span class="n">_LOADED_ENTRY_POINTS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -2256,10 +2260,6 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">_V1_DOMAIN_REGISTRIES</span><span class="p">:</span>
         <span class="n">module_path</span><span class="p">,</span> <span class="n">attr_name</span> <span class="o">=</span> <span class="n">_V1_DOMAIN_REGISTRIES</span><span class="p">[</span><span class="n">domain</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">_import_registry</span><span class="p">(</span><span class="n">module_path</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s2">&quot;preprocessor&quot;</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.compat.plugin_registries</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_legacy_preprocessor_factory</span>
-
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Type</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">get_legacy_preprocessor_factory</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">domain</span> <span class="o">==</span> <span class="s2">&quot;feature_extractors&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
             <span class="s2">&quot;The legacy &#39;feature_extractors&#39; domain is one-to-many: resolve &quot;</span>

@@ -2013,6 +2013,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.colorbar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorbarSpec</span><span class="p">,</span> <span class="n">add_image_colorbar_from_spec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -2422,6 +2423,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Confusion Matrix&quot;</span><span class="p">,</span>
     <span class="n">class_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Confusion-matrix heatmap for discrete class predictions.</span>
@@ -2434,6 +2436,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            unique values in ``y_true`` / ``y_pred``). Never used as sklearn</span>
 <span class="sd">            ``labels=`` — those must be the actual array values.</span>
 <span class="sd">        normalize: When True, row-normalise to proportions.</span>
+<span class="sd">        colorbar: Draw a short vertical colorbar (default ``True``). Pass</span>
+<span class="sd">            ``False`` to hide it, or a mapping of style kwargs</span>
+<span class="sd">            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,</span>
+<span class="sd">            ``label``, ...) to override the default.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The matplotlib ``Figure``.</span>
@@ -2476,7 +2482,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cm_display</span> <span class="o">=</span> <span class="n">cm</span>
 
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cm_display</span><span class="p">))</span> <span class="k">if</span> <span class="n">cm_display</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">1.0</span>
     <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
         <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -2487,7 +2493,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+    <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
     <span class="n">tick_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tick_source</span><span class="p">]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tick_labels</span><span class="p">)))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tick_labels</span><span class="p">)))</span>
@@ -2509,7 +2515,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">thresh</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 
 

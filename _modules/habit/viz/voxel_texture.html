@@ -2014,6 +2014,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.colorbar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorbarSpec</span><span class="p">,</span> <span class="n">add_image_colorbar_from_spec</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
@@ -2522,6 +2523,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">roi_contour</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">feature_contour</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a one- or two-panel figure for a single orthogonal slice.&quot;&quot;&quot;</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
@@ -2577,8 +2579,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_title</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">feature_label</span><span class="p">))</span>
+        <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="n">anat_slice</span> <span class="o">=</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
@@ -2613,8 +2614,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_title</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">feature_label</span><span class="p">))</span>
+        <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="c1"># side_by_side: anatomy (+ ROI outline) | texture map (no alpha blend)</span>
@@ -2648,8 +2648,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">feature_label</span><span class="p">))</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
-    <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">feature_label</span><span class="p">))</span>
+    <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2675,6 +2674,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">roi_contour</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">feature_contour</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Three orthogonal panels through the densest support region.&quot;&quot;&quot;</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
@@ -2760,7 +2760,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature_label</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">row_title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+            <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span>
+                <span class="n">image</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span>
+            <span class="p">)</span>
         <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;overlay&quot;</span> <span class="ow">and</span> <span class="n">anatomy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">anat_slice</span> <span class="o">=</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
                 <span class="n">_normalize_grey</span><span class="p">(</span><span class="n">_take_slice</span><span class="p">(</span><span class="n">anatomy</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)),</span>
@@ -2791,7 +2793,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature_label</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">row_title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+            <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span>
+                <span class="n">mappable</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
                 <span class="n">masked</span><span class="p">,</span>
@@ -2810,7 +2814,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature_label</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">row_title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+            <span class="n">add_image_colorbar_from_spec</span><span class="p">(</span>
+                <span class="n">image</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">feature_label</span>
+            <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span><span class="p">))</span>
@@ -2841,6 +2847,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">display_convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
     <span class="n">roi_contour</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">feature_contour</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Display a voxel-level texture / feature map as 2D publication panels.</span>
@@ -2897,6 +2904,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            cyan outline on the anatomy panel (``side_by_side`` / ``overlay``).</span>
 <span class="sd">        feature_contour: When ``True`` and ``roi_mask`` is set, also outline</span>
 <span class="sd">            the ROI on the feature panel.</span>
+<span class="sd">        colorbar: Draw a short vertical colorbar (default ``True``). Pass</span>
+<span class="sd">            ``False`` to hide it, or a mapping of style kwargs</span>
+<span class="sd">            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,</span>
+<span class="sd">            ``label``, ...) to override the default.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``. The caller owns persistence / display.</span>
@@ -3005,6 +3016,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
             <span class="n">roi_contour</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">roi_contour</span><span class="p">),</span>
             <span class="n">feature_contour</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">feature_contour</span><span class="p">),</span>
+            <span class="n">colorbar</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_draw_triptych</span><span class="p">(</span>
@@ -3024,6 +3036,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">,</span>
         <span class="n">roi_contour</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">roi_contour</span><span class="p">),</span>
         <span class="n">feature_contour</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">feature_contour</span><span class="p">),</span>
+        <span class="n">colorbar</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>

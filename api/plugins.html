@@ -2015,48 +2015,38 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <section id="preprocessor">
 <h4>preprocessor<a class="headerlink" href="#preprocessor" title="Link to this heading"></a></h4>
 <dl class="simple">
-<dt><strong>adaptive_histogram_equalization</strong></dt><dd><p>Apply adaptive histogram equalization to images using SimpleITK.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>adaptive_histogram_equalization</strong></dt><dd><p>Contrast-limited adaptive histogram equalization (SimpleITK).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">alpha,</span> <span class="pre">beta,</span> <span class="pre">radius</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;adaptive_histogram_equalization&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;adaptive_histogram_equalization&quot;)</span></code></p>
 </dd>
-<dt><strong>custom_preprocessor</strong></dt><dd><p>Template for creating custom preprocessors.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
-<code class="docutils literal notranslate"><span class="pre">Spec(&quot;custom_preprocessor&quot;)</span></code>
-<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;custom_preprocessor&quot;)</span></code></p>
-</dd>
-<dt><strong>dcm2nii</strong></dt><dd><p>Convert DICOM files to NIfTI format using dcm2niix tool.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
-<code class="docutils literal notranslate"><span class="pre">Spec(&quot;dcm2nii&quot;)</span></code>
-<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;dcm2nii&quot;)</span></code></p>
-</dd>
-<dt><strong>histogram_standardization</strong></dt><dd><p>Apply Nyúl histogram standardization to images.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>histogram_standardization</strong></dt><dd><p>Nyúl histogram standardization onto a standard intensity scale.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">percentiles,</span> <span class="pre">target_min,</span> <span class="pre">target_max,</span> <span class="pre">mask_key</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;histogram_standardization&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;histogram_standardization&quot;)</span></code></p>
 </dd>
-<dt><strong>n4_correction</strong></dt><dd><p>Apply N4 bias field correction to images using SimpleITK.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>n4_correction</strong></dt><dd><p>N4 bias-field correction (SimpleITK).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">num_fitting_levels,</span> <span class="pre">num_iterations,</span> <span class="pre">convergence_threshold,</span> <span class="pre">shrink_factor</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;n4_correction&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;n4_correction&quot;)</span></code></p>
 </dd>
-<dt><strong>registration</strong></dt><dd><p>Register moving images to a fixed reference using ANTsPy, SimpleITK, or elastix CLI.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
-<code class="docutils literal notranslate"><span class="pre">Spec(&quot;registration&quot;)</span></code>
-<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;registration&quot;)</span></code></p>
+<dt><strong>registration</strong></dt><dd><p>Register moving modalities onto a fixed reference (ANTs / SitK / elastix).
+Required: <code class="docutils literal notranslate"><span class="pre">fixed_image</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">backend,</span> <span class="pre">type_of_transform,</span> <span class="pre">metric,</span> <span class="pre">optimizer,</span> <span class="pre">use_mask,</span> <span class="pre">replace_by_fixed_image_mask,</span> <span class="pre">mask_key,</span> <span class="pre">elastix_parameter_files,</span> <span class="pre">elastix_path,</span> <span class="pre">transformix_path,</span> <span class="pre">elastix_threads,</span> <span class="pre">elastix_parameter_overrides,</span> <span class="pre">number_of_histogram_bins,</span> <span class="pre">metric_sampling_percentage,</span> <span class="pre">learning_rate,</span> <span class="pre">number_of_iterations,</span> <span class="pre">shrink_factors_per_level,</span> <span class="pre">smoothing_sigmas_per_level,</span> <span class="pre">bspline_mesh_size,</span> <span class="pre">bspline_order</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;registration&quot;,</span> <span class="pre">{&quot;fixed_image&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;registration&quot;,</span> <span class="pre">fixed_image=...)</span></code></p>
 </dd>
-<dt><strong>reorientation</strong></dt><dd><p>Preprocessor for reorienting images to a target coordinate system (e.g., LPS).
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>reorientation</strong></dt><dd><p>Reorient images (and masks) to a canonical DICOM orientation.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">target_orientation,</span> <span class="pre">mode</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;reorientation&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;reorientation&quot;)</span></code></p>
 </dd>
-<dt><strong>resample</strong></dt><dd><p>Resample images to a target spacing using SimpleITK.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>resample</strong></dt><dd><p>Resample images (and matching masks) to a target voxel spacing.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">target_spacing,</span> <span class="pre">img_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">align_corners</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;resample&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;resample&quot;)</span></code></p>
 </dd>
-<dt><strong>zscore_normalization</strong></dt><dd><p>Apply Z-score normalization to medical images.
-Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<dt><strong>zscore_normalization</strong></dt><dd><p>Z-score intensity normalization (float32; signed values preserved).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">only_inmask,</span> <span class="pre">mask_key,</span> <span class="pre">clip_values</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;zscore_normalization&quot;)</span></code>
 <code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;zscore_normalization&quot;)</span></code></p>
 </dd>
