@@ -36,7 +36,7 @@ form** (nested ``name`` / ``params`` mappings). Both produce the identical
 Expression grammar (strict; ambiguous input is rejected loudly):
 
 * **Modalities are quoted strings** — ``raw("T1")``. Bare identifiers are
-  refused (``raw(T1)`` is a v0.1 spelling handled only by the legacy YAML
+  refused (``raw(T1)`` is an older spelling handled only by the legacy YAML
   adapter, never by this parser).
 * **Parameters are explicit** — ``key=value`` with JSON-like literals
   (numbers, booleans, strings, lists).

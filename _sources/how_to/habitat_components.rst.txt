@@ -1,11 +1,15 @@
 Choosing habitat Spec components
 ================================
 
-When a recipe shows ``Spec("raw")`` or ``Spec("kmeans")``, this page is the
-chooser: **which names exist for each stage, what each parameter means, and
-how to write the same choice in Python and YAML**.
+**You copied an example and want a different method — start here.**
 
-Parameter tables below are generated at Sphinx build time from each
+The gallery scripts (one-step, two-step, direct-pooling) show **one**
+worked :class:`~habit.spec.HabitatSpec`. This page is the chooser from
+that example outward: which registered names exist for each stage, what
+each parameter means, and how to write the same choice in Python and YAML.
+
+When a recipe shows ``Spec("raw")`` or ``Spec("kmeans")``, look up that
+stage below. Parameter tables are generated at Sphinx build time from each
 component's ``params_model`` (plus the class ``Args:`` text). Do not copy
 them into notebooks — look them up::
 
@@ -249,12 +253,26 @@ YAML::
 6. Fit habitats
 ---------------
 
-**Required.** Learns centroids (cohort-level when ``pool`` is present;
-per-subject otherwise). Omit ``n_habitats`` (or pass ``None``) to select
-K over ``min_habitats..max_habitats`` by ``validation``. There is no
-string ``"auto"``.
+**Required.** Built-in names: ``kmeans`` and ``gmm``. Learns centroids
+(cohort-level when ``pool`` is present; per-subject otherwise).
 
-Python::
+Shared parameters: ``n_habitats``, ``min_habitats``, ``max_habitats``,
+``validation``, ``n_init``, ``max_iter``. ``gmm`` also takes
+``covariance_type`` (``full`` / ``tied`` / ``diag`` / ``spherical``).
+
+Omit ``n_habitats`` (or pass ``None``) to select K over
+``min_habitats..max_habitats`` by ``validation``. There is no string
+``"auto"``.
+
+Allowed ``validation`` values:
+
+* **kmeans** — ``elbow`` (default; alias of ``kneedle``), ``kneedle``,
+  ``inertia``, ``silhouette``, ``calinski_harabasz``, ``davies_bouldin``,
+  ``gap``. A list of these casts one vote each.
+* **gmm** — ``bic`` (default), ``aic``, ``davies_bouldin`` (minimise);
+  ``silhouette``, ``calinski_harabasz``, ``gap`` (maximise).
+
+Copy-paste a ``fit`` stage::
 
    Stage(
        "fit",

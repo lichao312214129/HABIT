@@ -31,8 +31,7 @@ Public exception types (stable):
   ``sklearn.exceptions.NotFittedError``, so one ``except`` clause catches
   HABIT estimators and sklearn pipelines alike
 
-The canonical import home is ``habit.exceptions``; ``habit.api.exceptions``
-remains as a backward-compatible facade.
+The canonical import home is ``habit.exceptions``.
 
 When each exception is raised
 -----------------------------
@@ -61,7 +60,7 @@ When each exception is raised
        never returns a "plausible" wrong habitat map. Also raised by
        :class:`~habit.execution.CheckpointStore` when
        ``strict_checkpoint_hash=True`` meets an incompatible fingerprint or
-       legacy v0.1 layout
+       legacy checkpoint layout
    * - ``ProcessingError``
      - Pipeline / subject failure; **also** default
        :meth:`~habit.contracts.Cohort.map` when any subject failed (even if

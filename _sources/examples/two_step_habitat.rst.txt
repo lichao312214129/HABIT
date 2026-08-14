@@ -27,6 +27,46 @@ layout as :func:`~habit.cohort_from_directory`).
    :start-after: # BEGIN example
    :end-before: # END example
 
+Change the Spec (other methods and parameters)
+----------------------------------------------
+
+The script above is **one worked recipe**, not the only recipe. Each
+``Stage`` is a slot: keep the scaffolding (``cohort_from_directory`` →
+``HabitatSpec`` → :meth:`~habit.recipes.Study.fit_predict`) and swap the
+``Spec("name", {params})`` in that slot.
+
+**Slots in this two-step example**
+
+* ``extract_voxel_features`` — voxel field (here ``raw``)
+* ``partition`` — supervoxels (here ``kmeans`` with ``n_supervoxels``)
+* ``pool`` — subject → cohort watershed
+* ``fit`` — cohort habitats (here ``kmeans`` with auto-K)
+* ``assign`` — label units (``nearest_centroid``)
+* ``quantify`` / ``quantify2`` / … — summaries that do not change the map
+
+**Concrete swaps** (paste over the matching ``Stage(...)``)::
+
+   # 1) SLIC supervoxels instead of k-means partition
+   Stage("partition", Spec("slic", {"n_supervoxels": 50}))
+
+   # 2) GMM instead of k-means habitats (fixed K)
+   Stage("fit", Spec("gmm", {"n_habitats": 4, "covariance_type": "full"}))
+
+   # 3) Scale voxels before partition (insert after extract, before partition)
+   Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
+   Stage("preprocess2", Spec("minmax", {"across_features": False}))
+
+Full list of names, every parameter, allowed values, and the YAML twin:
+:doc:`../how_to/habitat_components`. Partition names live under
+``list_plugins("supervoxelizer")``.
+
+Discover the same facts in a running interpreter::
+
+   from habit import list_plugins, get_param_schema
+
+   print([p.name for p in list_plugins("habitat_model_fitter")])
+   print(get_param_schema("kmeans", "habitat_model_fitter").model_fields.keys())
+
 Output
 ------
 
@@ -36,23 +76,45 @@ Illustrative (counts / fingerprint depend on your ``demo_data``)::
    Habitat maps: 2
    Saved study to out/two_step_demo
 
-Running the script also regenerates gallery PNGs and may open a **napari
-eye-check**. ``HABIT_NO_VIEW=1`` skips the viewer.
+The copied block prints these lines, calls ``result.save(...)``, and
+writes the PNGs under ``out/`` (``out/two_step_overlay.png``,
+``out/two_step_triptych.png``, ``out/two_step_volume_fractions.png``,
+``out/two_step_msi_matrix.png``, ``out/two_step_ith_summary.png``,
+``out/two_step_cluster_validation.png``). Edit those paths in the script
+if you want a different folder.
+
+``HABIT_NO_VIEW=1`` skips the optional napari window when you run the
+full script from the repository root (maintainers then copy ``out/*.png``
+into the docs gallery)::
+
+   python docs/source/examples/scripts/two_step_habitat_quickstart.py
+
+Same ``demo_data/preprocessed`` + ``random_seed=42`` reproduces the habitat
+**labels** (numerical contract). PNG **pixels** can differ slightly across
+matplotlib / OS / DPI.
 
 Figures
 -------
 
+These are the same files the copied block writes under ``out/``. The site
+gallery is a copy of those PNGs (same composition; not a cropped re-plot).
+Overlay uses the public 3-D default: three orthogonal panels. The
+triptych uses ``axis=0`` (one axial slice), which is the public default
+and is written in the copied block.
+
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Two-step habitat overlay on anatomy
-   :width: 420
+   :width: 720
 
-   Habitat overlay (:func:`~habit.viz.plot_habitat_overlay`).
+   Habitat overlay (:func:`~habit.viz.plot_habitat_overlay`, three
+   orthogonal panels).
 
 .. figure:: ../_static/images/examples/two_step_triptych.png
    :alt: Anatomy, supervoxels, and habitats
    :width: 720
 
-   Anatomy | supervoxels | habitats (:func:`~habit.viz.plot_partition_triptych`).
+   Anatomy | supervoxels | habitats (:func:`~habit.viz.plot_partition_triptych`,
+   ``axis=0``).
 
 .. figure:: ../_static/images/examples/two_step_volume_fractions.png
    :alt: Habitat volume fractions bar chart

@@ -27,13 +27,13 @@ without notice.
 * :ref:`api-domain`
 * :ref:`api-execution`
 * :ref:`api-adapters`
+* :ref:`api-image-io`
 * :ref:`api-datasets`
 * :ref:`api-registry`
 * :ref:`api-kernels`
 * :ref:`api-compat`
 * :ref:`api-viz`
 * :ref:`api-exceptions`
-* :ref:`api-v01-facade`
 * :ref:`api-guides`
 
 .. _api-recipes:
@@ -106,6 +106,8 @@ Study utilities
 
    habit.recipes.run_from_yaml
    habit.recipes.preprocess_images
+   habit.recipes.preprocess_subject
+   habit.recipes.preprocess_image
    habit.recipes.icc_analysis
    habit.recipes.test_retest_analysis
    habit.recipes.sort_dicom
@@ -230,8 +232,8 @@ Serialisation
    habit.spec.save_habitat_config
    habit.spec.load_habitat_config
 
-YAML migration (v0.1 → v1)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+YAML migration
+~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated
@@ -607,6 +609,32 @@ cohorts, lazy file-backed image references, and result writers. See
    habit.adapters.DirectoryResultWriter
    habit.adapters.FileImageRef
 
+.. _api-image-io:
+
+Image I/O and low-level radiomics
+---------------------------------
+
+SimpleITK-backed read / geometry checks, plus pair-wise radiomics helpers.
+Prefer contract volumes inside pipelines (:doc:`data_model`); see
+:doc:`image_io`.
+
+.. autosummary::
+   :toctree: generated
+
+   habit.GeometryPolicy
+   habit.GeometryReport
+   habit.ImageVolume
+   habit.MaskVolume
+   habit.ImageMaskPair
+   habit.read_image
+   habit.read_mask
+   habit.validate_geometry
+   habit.align_image_mask
+   habit.extract_features
+   habit.extract_batch
+   habit.FeatureResult
+   habit.FeatureTableResult
+
 .. _api-datasets:
 
 Datasets (``habit.datasets``)
@@ -633,6 +661,18 @@ The generic name → component mapping underlying every domain registry. See
    :toctree: generated
 
    habit.registry.ComponentRegistry
+   habit.list_plugins
+   habit.get_plugin_info
+   habit.get_param_schema
+   habit.plugin_catalog
+   habit.load_plugins
+   habit.PluginInfo
+   habit.PluginCatalogEntry
+   habit.PluginLoadReport
+   habit.setup_logger
+   habit.is_available
+   habit.show_versions
+   habit.check_component
 
 .. _api-kernels:
 
@@ -850,8 +890,7 @@ Habitat clustering and overlay
 Exceptions (``habit.exceptions``)
 ---------------------------------
 
-The canonical exception hierarchy. ``habit.api.exceptions`` remains as a
-backward-compatible facade. See :doc:`exceptions`.
+The canonical exception hierarchy. See :doc:`exceptions`.
 
 .. autosummary::
    :toctree: generated
@@ -866,128 +905,6 @@ backward-compatible facade. See :doc:`exceptions`.
    habit.exceptions.CompatibilityError
    habit.exceptions.ProcessingError
    habit.exceptions.NotFittedError
-
-.. _api-v01-facade:
-
-v0.1 configuration-object API (``habit.api.*``)
------------------------------------------------
-
-The v0.1 facade: configuration dataclasses plus ``run_*`` entry points that
-mirror the CLI flags one-to-one. These symbols remain **stable and
-supported** — the CLI is implemented on top of them — but new library code
-should prefer the recipes, contracts, and domain components above. Note that
-``habit.api.image.ImageVolume`` / ``MaskVolume`` and
-``habit.api.provenance.RunManifest`` are the v0.1 types, distinct from the
-v1 contracts of the same name documented under :ref:`api-contracts`.
-
-Image and geometry
-~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.image.GeometryPolicy
-   habit.api.image.GeometryReport
-   habit.api.image.ImageVolume
-   habit.api.image.MaskVolume
-   habit.api.image.ImageMaskPair
-   habit.api.image.read_image
-   habit.api.image.read_mask
-   habit.api.image.validate_geometry
-   habit.api.image.align_image_mask
-
-Radiomics
-~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.radiomics.FeatureResult
-   habit.api.radiomics.FeatureTableResult
-   habit.api.radiomics.extract_features
-   habit.api.radiomics.extract_batch
-
-Habitat and feature-extraction workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.habitat.HabitatAnalysisConfig
-   habit.api.habitat.FeatureExtractionConfig
-   habit.api.habitat.RadiomicsConfig
-   habit.api.habitat.run_habitat_analysis
-   habit.api.habitat.run_feature_extraction
-   habit.api.habitat.run_radiomics
-   habit.api.habitat.apply_habitat_cli_overrides
-   habit.api.habitat.build_feature_extraction_config
-   habit.api.habitat.load_feature_extraction_config
-
-Machine-learning workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.machine_learning.MLConfig
-   habit.api.machine_learning.ModelComparisonConfig
-   habit.api.machine_learning.run_ml
-   habit.api.machine_learning.run_kfold
-   habit.api.machine_learning.run_model_comparison
-   habit.api.machine_learning.apply_ml_mode_override
-
-Analysis workflows
-~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.analysis.ICCConfig
-   habit.api.analysis.TestRetestConfig
-   habit.api.analysis.run_icc_analysis
-   habit.api.analysis.run_test_retest_analysis
-
-Preprocessing and DICOM utilities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.preprocessing.PreprocessingConfig
-   habit.api.preprocessing.run_preprocess
-   habit.api.dicom_sort.DicomSortConfig
-   habit.api.dicom_sort.run_dicom_sort
-
-Provenance and workflow results
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.provenance.RunManifest
-   habit.api.provenance.create_run_manifest
-   habit.api.provenance.write_run_manifest
-   habit.api.contracts.WorkflowResult
-
-Plugins and utilities
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated
-
-   habit.api.plugins.PluginInfo
-   habit.api.plugins.PluginCatalogEntry
-   habit.api.plugins.PluginLoadReport
-   habit.api.plugins.list_plugins
-   habit.api.plugins.get_plugin_info
-   habit.api.plugins.get_param_schema
-   habit.api.plugins.plugin_catalog
-   habit.api.plugins.format_plugin_catalog_rst
-   habit.api.plugins.load_plugins
-   habit.api.utils.setup_logger
-   habit.api.utils.is_available
-   habit.api.utils.show_versions
-   habit.api.utils.check_component
 
 .. _api-guides:
 

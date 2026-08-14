@@ -21,10 +21,10 @@ already know the layout.
 Path semantics (short)
 ----------------------
 
-* **v0.1 configs** — relative paths resolve against the YAML file's directory
-  (shipped demos use ``../../demo_data/...`` from ``config/<domain>/``).
-* **v1 configs** — paths as written; run from the repository root or use
-  absolute paths.
+* Most shipped configs — relative paths resolve against the YAML file's
+  directory (demos use ``../../demo_data/...`` from ``config/<domain>/``).
+* Documents with ``version: '1.0'`` — paths as written; run from the
+  repository root or use absolute paths.
 * Validate first: ``habit check-config -c <yaml>``.
 
 Command checklist

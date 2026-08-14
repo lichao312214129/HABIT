@@ -12,7 +12,7 @@ needs ``[viz]``). Orthogonal panels follow the radiological display
 convention (anterior / superior up; patient's right on the viewer's left)
 via ``display_convention`` (``\"radiological\"`` default,
 ``\"neurological\"``, or ``\"native\"`` to skip flips). Pass an
-:class:`~habit.api.image.ImageVolume` rather than ``.data`` so direction and
+:class:`~habit.ImageVolume` rather than ``.data`` so direction and
 spacing travel with the array — otherwise coronal / sagittal superior-inferior
 can look flipped relative to ITK-SNAP. See :mod:`habit.viz.orientation`.
 

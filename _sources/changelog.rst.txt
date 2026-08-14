@@ -184,4 +184,4 @@ See Also
 --------
 
 * :doc:`development/index` — Developer documentation
-* :doc:`api/machine_learning` - Machine learning API reference
+* :doc:`api/index` — Python API reference

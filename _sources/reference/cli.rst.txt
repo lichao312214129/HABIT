@@ -42,7 +42,7 @@ Every command is a thin shell over the Python API. Operator guides:
      - Materialize bundled demo ``config/`` into a work dir
      - :doc:`../how_to/before_you_start`
    * - ``habit migrate-config``
-     - v0.1 YAML → v1
+     - Older YAML → current document
      - :doc:`../api/spec`
    * - ``habit list-components``
      - List plugins

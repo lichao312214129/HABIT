@@ -128,7 +128,7 @@ Registering a third-party plugin
 External packages make components discoverable by declaring HABIT's entry
 point groups in their own packaging metadata. The group name is ``habit.``
 followed by the domain string; v1.0 domains are the snake_case singular
-protocol names listed above (the plural v0.1 groups remain honoured for
+protocol names listed above (older plural group names remain honoured for
 legacy factories). HABIT itself declares no empty groups — setuptools strips
 them — the authoritative list is
 ``habit/api/plugins.py::_ENTRY_POINT_GROUPS``.

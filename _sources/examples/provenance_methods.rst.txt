@@ -46,4 +46,4 @@ What to read next
 
 * :doc:`persistence` — ``StudyResult.save`` writes ``run_manifest.json``
 * :doc:`apply_saved_model` — reusable ``.habitatmodel`` archives
-* :doc:`../api/contracts` — ``Provenance`` / ``RunManifest`` reference
+* :doc:`../api/data_model` — ``Provenance`` / ``RunManifest`` reference

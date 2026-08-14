@@ -70,10 +70,10 @@ Packs are **split** — habitat-only users need imaging; add ML only for
 4. Paths in YAML
 ----------------
 
-* **v0.1** configs (most files): relative paths resolve from the **YAML
-  file's directory** (hence ``../../demo_data/...``).
-* **v1** (``version: '1.0'`` / ``*_v1.yaml``): paths as written; run from
-  ``<work_dir>`` or use absolute paths.
+* Most shipped configs: relative paths resolve from the **YAML file's
+  directory** (hence ``../../demo_data/...``).
+* Documents with ``version: '1.0'`` / ``*_v1.yaml``: paths as written; run
+  from ``<work_dir>`` or use absolute paths.
 * Prefer ``D:/data/...``; quote only if the path has spaces.
 
 5. Safe YAML edits

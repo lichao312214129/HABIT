@@ -8,7 +8,7 @@ see :doc:`preprocessing`.
 Schema: ``DicomSortConfig``. Template:
 ``config/dicom_sort/config_sort_dicom.yaml``.
 
-API reference: :doc:`../api/dicom_sort`.
+API: :func:`~habit.recipes.sort_dicom` (see :doc:`../api/index`).
 
 **Example configuration:**
 

@@ -22,6 +22,47 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Change the Spec (other methods and parameters)
+----------------------------------------------
+
+The script above is **one worked recipe**, not the only recipe. Each
+``Stage`` is a slot: keep the scaffolding (``cohort_from_directory`` →
+``HabitatSpec`` → :meth:`~habit.recipes.Study.fit_predict`) and swap the
+``Spec("name", {params})`` in that slot.
+
+**Slots in this direct-pooling example**
+
+* ``extract_voxel_features`` — voxel field (here ``raw``)
+* ``pool`` — subject → cohort watershed (no ``partition``)
+* ``fit`` — cohort habitats (here ``kmeans`` with auto-K)
+* ``assign`` — label voxels (``nearest_centroid``)
+* ``quantify`` / ``quantify2`` / … — summaries that do not change the map
+
+**Concrete swaps** (paste over the matching ``Stage(...)``)::
+
+   # 1) GMM instead of k-means (fixed K)
+   Stage("fit", Spec("gmm", {"n_habitats": 4, "covariance_type": "full"}))
+
+   # 2) Local entropy instead of raw intensity
+   Stage(
+       "extract_voxel_features",
+       Spec("local_entropy", {"modalities": list(MODALITIES), "kernel_size": 3, "bins": 32}),
+   )
+
+   # 3) Scale voxels before the cohort pool (insert after extract, before pool)
+   Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
+   Stage("preprocess2", Spec("minmax", {"across_features": False}))
+
+Full list of names, every parameter, allowed values, and the YAML twin:
+:doc:`../how_to/habitat_components`.
+
+Discover the same facts in a running interpreter::
+
+   from habit import list_plugins, get_param_schema
+
+   print([p.name for p in list_plugins("habitat_model_fitter")])
+   print(get_param_schema("kmeans", "habitat_model_fitter").model_fields.keys())
+
 Output
 ------
 
@@ -31,44 +72,68 @@ Illustrative::
    Habitat maps: 2
    Saved study to out/direct_pooling_demo
 
-Running the script regenerates gallery PNGs; ``HABIT_NO_VIEW=1`` skips napari.
+The copied block prints these lines, calls ``result.save(...)``, and
+writes the PNGs under ``out/`` (``out/direct_pooling_overlay.png``,
+``out/direct_pooling_volume_fractions.png``,
+``out/direct_pooling_msi_matrix.png``,
+``out/direct_pooling_ith_summary.png``,
+``out/direct_pooling_cluster_validation.png``). Edit those paths in the
+script if you want a different folder.
+
+``HABIT_NO_VIEW=1`` skips the optional napari window when you run the
+full script from the repository root (maintainers then copy ``out/*.png``
+into the docs gallery)::
+
+   python docs/source/examples/scripts/direct_pooling_habitat_demo.py
+
+Same ``demo_data/preprocessed`` + ``random_seed=42`` reproduces the habitat
+**labels** (numerical contract). PNG **pixels** can differ slightly across
+matplotlib / OS / DPI.
 
 Figures
 -------
 
+These are the same files the copied block writes under ``out/``. The site
+gallery is a copy of those PNGs (same composition; not a cropped re-plot).
+Overlay uses the public 3-D default: three orthogonal panels through the
+densest habitat slices. Pass ``ImageVolume`` / ``HabitatMap`` (not
+``.data``) so orientation follows the volume.
+
 .. figure:: ../_static/images/examples/direct_pooling_overlay.png
    :alt: Direct-pooling habitat overlay
-   :width: 420
+   :width: 720
 
-   Cohort-pooled habitats on anatomy.
+   Cohort-pooled habitats (:func:`~habit.viz.plot_habitat_overlay`, three
+   orthogonal panels).
 
 .. figure:: ../_static/images/examples/direct_pooling_volume_fractions.png
    :alt: Direct-pooling volume fractions
    :width: 420
 
-   Volume fractions.
+   Volume fractions (:func:`~habit.viz.plot_habitat_volume_fractions`).
 
 .. figure:: ../_static/images/examples/direct_pooling_msi_matrix.png
    :alt: Direct-pooling MSI heatmap
    :width: 420
 
-   MSI matrix.
+   MSI matrix (:func:`~habit.viz.plot_msi_matrix`).
 
 .. figure:: ../_static/images/examples/direct_pooling_ith_summary.png
    :alt: Direct-pooling ITH summary
    :width: 520
 
-   ITH summary.
+   ITH summary (:func:`~habit.viz.plot_ith_summary`).
 
 .. figure:: ../_static/images/examples/direct_pooling_cluster_validation.png
    :alt: Direct-pooling cluster validation
    :width: 520
 
-   Auto-K validation curves when ``selection_report`` is present.
+   Auto-K validation curves (:func:`~habit.viz.plot_cluster_validation_from_report`).
 
 What to read next
 -----------------
 
+* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
 * :doc:`habitat_analysis_overview` — recipe / atomic / custom map
 * :doc:`habitat_custom_pipeline` — customise stages for pooling designs
 * :doc:`habitat_preprocessing` — subject vs cohort preprocessing chains

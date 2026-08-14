@@ -17,7 +17,7 @@ Entry points
   ``data_dir`` and writes ``processed_images/`` under ``out_dir``.
 * **Atomic (in-memory)** — :func:`~habit.preprocess_subject` on one
   :class:`~habit.contracts.Subject`, or operate on
-  :class:`~habit.api.image.ImageVolume` and pass the result to
+  :class:`~habit.ImageVolume` and pass the result to
   :func:`~habit.cohort_from_directory`.
 
 This example runs **resample + z-score** on ``demo_data/preprocessed``

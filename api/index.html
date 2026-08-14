@@ -238,6 +238,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/two_step_habitat.html">Two-step habitat analysis, end to end</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/two_step_habitat.html#export-yaml-for-cli-yaml-api-replay">Export YAML for CLI / YAML-API replay</a></li>
@@ -246,6 +247,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/one_step_habitat.html">One-step habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/one_step_habitat.html#what-to-read-next">What to read next</a></li>
@@ -253,6 +255,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/direct_pooling_habitat.html">Direct-pooling habitat analysis</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#change-the-spec-other-methods-and-parameters">Change the Spec (other methods and parameters)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/direct_pooling_habitat.html#what-to-read-next">What to read next</a></li>
@@ -677,6 +680,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#study-utilities">Study utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.run_from_yaml.html">run_from_yaml</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.preprocess_images.html">preprocess_images</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.preprocess_subject.html">preprocess_subject</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.preprocess_image.html">preprocess_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.icc_analysis.html">icc_analysis</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.test_retest_analysis.html">test_retest_analysis</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.sort_dicom.html">sort_dicom</a></li>
@@ -773,7 +778,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.load_habitat_config.html">load_habitat_config</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#yaml-migration-v0-1-v1">YAML migration (v0.1 → v1)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yaml-migration">YAML migration</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html">LegacyConfigAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.LegacyTranslation.html">LegacyTranslation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.spec.MigrationReport.html">MigrationReport</a></li>
@@ -1066,6 +1071,61 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#image-i-o-and-low-level-radiomics">Image I/O and low-level radiomics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.GeometryPolicy.html">GeometryPolicy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.GeometryPolicy.html#habit.GeometryPolicy"><code class="docutils literal notranslate"><span class="pre">GeometryPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.GeometryReport.html">GeometryReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.GeometryReport.html#habit.GeometryReport"><code class="docutils literal notranslate"><span class="pre">GeometryReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.ImageVolume.html">ImageVolume</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.ImageVolume.html#habit.ImageVolume"><code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.MaskVolume.html">MaskVolume</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.MaskVolume.html#habit.MaskVolume"><code class="docutils literal notranslate"><span class="pre">MaskVolume</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.ImageMaskPair.html">ImageMaskPair</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.ImageMaskPair.html#habit.ImageMaskPair"><code class="docutils literal notranslate"><span class="pre">ImageMaskPair</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.read_image.html">read_image</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.read_image.html#habit.read_image"><code class="docutils literal notranslate"><span class="pre">read_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.read_mask.html">read_mask</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.read_mask.html#habit.read_mask"><code class="docutils literal notranslate"><span class="pre">read_mask()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.validate_geometry.html">validate_geometry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.validate_geometry.html#habit.validate_geometry"><code class="docutils literal notranslate"><span class="pre">validate_geometry()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.align_image_mask.html">align_image_mask</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.align_image_mask.html#habit.align_image_mask"><code class="docutils literal notranslate"><span class="pre">align_image_mask()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.extract_features.html">extract_features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.extract_features.html#habit.extract_features"><code class="docutils literal notranslate"><span class="pre">extract_features()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.extract_batch.html">extract_batch</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.extract_batch.html#habit.extract_batch"><code class="docutils literal notranslate"><span class="pre">extract_batch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.FeatureResult.html">FeatureResult</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.FeatureResult.html#habit.FeatureResult"><code class="docutils literal notranslate"><span class="pre">FeatureResult</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.FeatureTableResult.html">FeatureTableResult</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.FeatureTableResult.html#habit.FeatureTableResult"><code class="docutils literal notranslate"><span class="pre">FeatureTableResult</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#datasets-habit-datasets">Datasets (<code class="docutils literal notranslate"><span class="pre">habit.datasets</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.datasets.make_synthetic_cohort.html">make_synthetic_cohort</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.datasets.make_synthetic_cohort.html#habit.datasets.make_synthetic_cohort"><code class="docutils literal notranslate"><span class="pre">make_synthetic_cohort()</span></code></a></li>
@@ -1080,6 +1140,54 @@
 <li class="toctree-l2"><a class="reference internal" href="#component-registry-habit-registry">Component registry (<code class="docutils literal notranslate"><span class="pre">habit.registry</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.registry.ComponentRegistry.html">ComponentRegistry</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry"><code class="docutils literal notranslate"><span class="pre">ComponentRegistry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.list_plugins.html">list_plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.list_plugins.html#habit.list_plugins"><code class="docutils literal notranslate"><span class="pre">list_plugins()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.get_plugin_info.html">get_plugin_info</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.get_plugin_info.html#habit.get_plugin_info"><code class="docutils literal notranslate"><span class="pre">get_plugin_info()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.get_param_schema.html">get_param_schema</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.get_param_schema.html#habit.get_param_schema"><code class="docutils literal notranslate"><span class="pre">get_param_schema()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.plugin_catalog.html">plugin_catalog</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.plugin_catalog.html#habit.plugin_catalog"><code class="docutils literal notranslate"><span class="pre">plugin_catalog()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.load_plugins.html">load_plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.load_plugins.html#habit.load_plugins"><code class="docutils literal notranslate"><span class="pre">load_plugins()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.PluginInfo.html">PluginInfo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.PluginInfo.html#habit.PluginInfo"><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.PluginCatalogEntry.html">PluginCatalogEntry</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.PluginCatalogEntry.html#habit.PluginCatalogEntry"><code class="docutils literal notranslate"><span class="pre">PluginCatalogEntry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.PluginLoadReport.html">PluginLoadReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.PluginLoadReport.html#habit.PluginLoadReport"><code class="docutils literal notranslate"><span class="pre">PluginLoadReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.setup_logger.html">setup_logger</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.setup_logger.html#habit.setup_logger"><code class="docutils literal notranslate"><span class="pre">setup_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.is_available.html">is_available</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.is_available.html#habit.is_available"><code class="docutils literal notranslate"><span class="pre">is_available()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.show_versions.html">show_versions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.show_versions.html#habit.show_versions"><code class="docutils literal notranslate"><span class="pre">show_versions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="generated/habit.check_component.html">check_component</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.check_component.html#habit.check_component"><code class="docutils literal notranslate"><span class="pre">check_component()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1259,86 +1367,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="generated/habit.exceptions.NotFittedError.html">NotFittedError</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.exceptions.NotFittedError.html#habit.exceptions.NotFittedError"><code class="docutils literal notranslate"><span class="pre">NotFittedError</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#v0-1-configuration-object-api-habit-api">v0.1 configuration-object API (<code class="docutils literal notranslate"><span class="pre">habit.api.*</span></code>)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#image-and-geometry">Image and geometry</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.GeometryPolicy.html">GeometryPolicy</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.GeometryReport.html">GeometryReport</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.ImageVolume.html">ImageVolume</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.MaskVolume.html">MaskVolume</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.ImageMaskPair.html">ImageMaskPair</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.read_image.html">read_image</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.read_mask.html">read_mask</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.validate_geometry.html">validate_geometry</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.image.align_image_mask.html">align_image_mask</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#radiomics">Radiomics</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.radiomics.FeatureResult.html">FeatureResult</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.radiomics.FeatureTableResult.html">FeatureTableResult</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.radiomics.extract_features.html">extract_features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.radiomics.extract_batch.html">extract_batch</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#habitat-and-feature-extraction-workflows">Habitat and feature-extraction workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.HabitatAnalysisConfig.html">HabitatAnalysisConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.FeatureExtractionConfig.html">FeatureExtractionConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.RadiomicsConfig.html">RadiomicsConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.run_habitat_analysis.html">run_habitat_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.run_feature_extraction.html">run_feature_extraction</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.run_radiomics.html">run_radiomics</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.apply_habitat_cli_overrides.html">apply_habitat_cli_overrides</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.build_feature_extraction_config.html">build_feature_extraction_config</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.habitat.load_feature_extraction_config.html">load_feature_extraction_config</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#machine-learning-workflows">Machine-learning workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.MLConfig.html">MLConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.ModelComparisonConfig.html">ModelComparisonConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.run_ml.html">run_ml</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.run_kfold.html">run_kfold</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.run_model_comparison.html">run_model_comparison</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.machine_learning.apply_ml_mode_override.html">apply_ml_mode_override</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#analysis-workflows">Analysis workflows</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.analysis.ICCConfig.html">ICCConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.analysis.TestRetestConfig.html">TestRetestConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.analysis.run_icc_analysis.html">run_icc_analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.analysis.run_test_retest_analysis.html">run_test_retest_analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#preprocessing-and-dicom-utilities">Preprocessing and DICOM utilities</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.preprocessing.PreprocessingConfig.html">PreprocessingConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.preprocessing.run_preprocess.html">run_preprocess</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.dicom_sort.DicomSortConfig.html">DicomSortConfig</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.dicom_sort.run_dicom_sort.html">run_dicom_sort</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#provenance-and-workflow-results">Provenance and workflow results</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.provenance.RunManifest.html">RunManifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.provenance.create_run_manifest.html">create_run_manifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.provenance.write_run_manifest.html">write_run_manifest</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.contracts.WorkflowResult.html">WorkflowResult</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#plugins-and-utilities">Plugins and utilities</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.is_available.html">is_available</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.show_versions.html">show_versions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.check_component.html">check_component</a></li>
 </ul>
 </li>
 </ul>
@@ -1688,13 +1716,13 @@ without notice.</p>
 <li><p><a class="reference internal" href="#api-domain"><span class="std std-ref">Domain components (habit.domain)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-execution"><span class="std std-ref">Execution (habit.execution)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-adapters"><span class="std std-ref">Adapters (habit.adapters)</span></a></p></li>
+<li><p><a class="reference internal" href="#api-image-io"><span class="std std-ref">Image I/O and low-level radiomics</span></a></p></li>
 <li><p><a class="reference internal" href="#api-datasets"><span class="std std-ref">Datasets (habit.datasets)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-registry"><span class="std std-ref">Component registry (habit.registry)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-kernels"><span class="std std-ref">Numeric kernels (habit.kernels)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-compat"><span class="std std-ref">Ecosystem compatibility (habit.compat)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-viz"><span class="std std-ref">Visualization (habit.viz)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-exceptions"><span class="std std-ref">Exceptions (habit.exceptions)</span></a></p></li>
-<li><p><a class="reference internal" href="#api-v01-facade"><span class="std std-ref">v0.1 configuration-object API (habit.api.*)</span></a></p></li>
 <li><p><a class="reference internal" href="#api-guides"><span class="std std-ref">API guides</span></a></p></li>
 </ul>
 <section id="study-recipes-habit-recipes">
@@ -1788,6 +1816,12 @@ enough to define habitats. See <a class="reference internal" href="../examples/p
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.preprocess_images.html#habit.recipes.preprocess_images" title="habit.recipes.preprocess_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.preprocess_images</span></code></a>(config, *[, ...])</p></td>
 <td><p>Run the batch image-preprocessing pipeline (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">preprocess</span></code> recipe).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.preprocess_subject.html#habit.recipes.preprocess_subject" title="habit.recipes.preprocess_subject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.preprocess_subject</span></code></a>(subject, ...)</p></td>
+<td><p>Apply an ordered image-preprocessing chain to one subject in memory.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.recipes.preprocess_image.html#habit.recipes.preprocess_image" title="habit.recipes.preprocess_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.preprocess_image</span></code></a>(image, steps, *)</p></td>
+<td><p>Apply an ordered image-preprocessing chain to one volume in memory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.icc_analysis.html#habit.recipes.icc_analysis" title="habit.recipes.icc_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.icc_analysis</span></code></a>(config)</p></td>
 <td><p>Run ICC reliability analysis from a validated config (<code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">icc</span></code>).</p></td>
@@ -2013,8 +2047,8 @@ They are the in-Python counterpart of the YAML configuration files. See
 </tbody>
 </table>
 </section>
-<section id="yaml-migration-v0-1-v1">
-<h3>YAML migration (v0.1 → v1)<a class="headerlink" href="#yaml-migration-v0-1-v1" title="Link to this heading"></a></h3>
+<section id="yaml-migration">
+<h3>YAML migration<a class="headerlink" href="#yaml-migration" title="Link to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.spec.LegacyConfigAdapter.html#habit.spec.LegacyConfigAdapter" title="habit.spec.LegacyConfigAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.spec.LegacyConfigAdapter</span></code></a>()</p></td>
@@ -2794,6 +2828,55 @@ cohorts, lazy file-backed image references, and result writers. See
 </tbody>
 </table>
 </section>
+<section id="image-i-o-and-low-level-radiomics">
+<span id="api-image-io"></span><h2>Image I/O and low-level radiomics<a class="headerlink" href="#image-i-o-and-low-level-radiomics" title="Link to this heading"></a></h2>
+<p>SimpleITK-backed read / geometry checks, plus pair-wise radiomics helpers.
+Prefer contract volumes inside pipelines (<a class="reference internal" href="data_model.html"><span class="doc">Data model (habit.contracts)</span></a>); see
+<a class="reference internal" href="image_io.html"><span class="doc">Low-level image I/O helpers</span></a>.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.GeometryPolicy.html#habit.GeometryPolicy" title="habit.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.GeometryPolicy</span></code></a>(value)</p></td>
+<td><p>Define how an image/mask geometry mismatch is handled.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.GeometryReport.html#habit.GeometryReport" title="habit.GeometryReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.GeometryReport</span></code></a>(compatible[, ...])</p></td>
+<td><p>Describe image/mask geometry compatibility and any correction applied.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.ImageVolume.html#habit.ImageVolume" title="habit.ImageVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.ImageVolume</span></code></a>(data, spacing, ...], ...)</p></td>
+<td><p>An image array with explicit physical-space metadata.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.MaskVolume.html#habit.MaskVolume" title="habit.MaskVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.MaskVolume</span></code></a>(data, spacing, ...], ...)</p></td>
+<td><p>An image-space segmentation mask with explicit label semantics.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.ImageMaskPair.html#habit.ImageMaskPair" title="habit.ImageMaskPair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.ImageMaskPair</span></code></a>(image, mask[, ...])</p></td>
+<td><p>Pair one image and mask with the geometry result used by downstream code.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.read_image.html#habit.read_image" title="habit.read_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.read_image</span></code></a>(path, *[, modality, ...])</p></td>
+<td><p>Read an image file into a geometry-aware <code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.read_mask.html#habit.read_mask" title="habit.read_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.read_mask</span></code></a>(path, *[, labels, ...])</p></td>
+<td><p>Read a mask file into a geometry-aware <code class="xref py py-class docutils literal notranslate"><span class="pre">MaskVolume</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.validate_geometry.html#habit.validate_geometry" title="habit.validate_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.validate_geometry</span></code></a>(image, mask, *[, ...])</p></td>
+<td><p>Return an explicit geometry comparison without changing either input.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.align_image_mask.html#habit.align_image_mask" title="habit.align_image_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.align_image_mask</span></code></a>(pair, *[, policy, ...])</p></td>
+<td><p>Validate or explicitly correct image/mask geometry according to <code class="docutils literal notranslate"><span class="pre">policy</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.extract_features.html#habit.extract_features" title="habit.extract_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.extract_features</span></code></a>(image, mask[, ...])</p></td>
+<td><p>Extract segment-based radiomics features from one image/mask pair.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.extract_batch.html#habit.extract_batch" title="habit.extract_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.extract_batch</span></code></a>(pairs[, params, label, ...])</p></td>
+<td><p>Extract radiomics features deterministically for an ordered image/mask batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.FeatureResult.html#habit.FeatureResult" title="habit.FeatureResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.FeatureResult</span></code></a>(values, float], label, ...)</p></td>
+<td><p>Structured output from radiomics extraction for one image/mask pair.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.FeatureTableResult.html#habit.FeatureTableResult" title="habit.FeatureTableResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.FeatureTableResult</span></code></a>(table, results, ...)</p></td>
+<td><p>Structured batch output with successful feature rows and failures.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="datasets-habit-datasets">
 <span id="api-datasets"></span><h2>Datasets (<code class="docutils literal notranslate"><span class="pre">habit.datasets</span></code>)<a class="headerlink" href="#datasets-habit-datasets" title="Link to this heading"></a></h2>
 <p>Deterministic synthetic data for tutorials, tests, and API exploration. All
@@ -2817,6 +2900,42 @@ generators take an explicit seed and never touch the network or disk.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.registry.ComponentRegistry.html#habit.registry.ComponentRegistry" title="habit.registry.ComponentRegistry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.registry.ComponentRegistry</span></code></a>()</p></td>
 <td><p>Registry for ONE component family, keyed by implementation name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.list_plugins.html#habit.list_plugins" title="habit.list_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.list_plugins</span></code></a>([domain])</p></td>
+<td><p>List registered HABIT extension components without exposing core registries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.get_plugin_info.html#habit.get_plugin_info" title="habit.get_plugin_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.get_plugin_info</span></code></a>(name, domain)</p></td>
+<td><p>Return metadata for one registered component or raise a clear API error.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.get_param_schema.html#habit.get_param_schema" title="habit.get_param_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.get_param_schema</span></code></a>(name, domain)</p></td>
+<td><p>Return the Pydantic parameter schema associated with a plugin, if any.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.plugin_catalog.html#habit.plugin_catalog" title="habit.plugin_catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.plugin_catalog</span></code></a>([domain])</p></td>
+<td><p>Build a live catalog from each plugin's <code class="docutils literal notranslate"><span class="pre">params_model</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.load_plugins.html#habit.load_plugins" title="habit.load_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.load_plugins</span></code></a>(*[, strict])</p></td>
+<td><p>Load external HABIT plugins declared through standard Python entry points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.PluginInfo.html#habit.PluginInfo" title="habit.PluginInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.PluginInfo</span></code></a>(name, domain, implementation)</p></td>
+<td><p>Describe one component registered in a HABIT plugin domain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.PluginCatalogEntry.html#habit.PluginCatalogEntry" title="habit.PluginCatalogEntry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.PluginCatalogEntry</span></code></a>(domain, name, ...)</p></td>
+<td><p>One catalog row derived from <code class="docutils literal notranslate"><span class="pre">params_model</span></code> (not a hand-copied table).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.PluginLoadReport.html#habit.PluginLoadReport" title="habit.PluginLoadReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.PluginLoadReport</span></code></a>(loaded, ...] =, ...)</p></td>
+<td><p>Report loaded external entry points and non-fatal discovery failures.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.setup_logger.html#habit.setup_logger" title="habit.setup_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.setup_logger</span></code></a>(name[, output_dir, ...])</p></td>
+<td><p>Setup a logger for a HABIT module or script.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.is_available.html#habit.is_available" title="habit.is_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.is_available</span></code></a>(module_name)</p></td>
+<td><p>Return whether an optional third-party module can be imported.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.show_versions.html#habit.show_versions" title="habit.show_versions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.show_versions</span></code></a>()</p></td>
+<td><p>Return HABIT and key dependency versions for reproducibility and debugging.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.check_component.html#habit.check_component" title="habit.check_component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.check_component</span></code></a>(name, domain)</p></td>
+<td><p>Return whether <code class="docutils literal notranslate"><span class="pre">name</span></code> is registered in a HABIT plugin domain.</p></td>
 </tr>
 </tbody>
 </table>
@@ -3211,8 +3330,7 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 </section>
 <section id="exceptions-habit-exceptions">
 <span id="api-exceptions"></span><h2>Exceptions (<code class="docutils literal notranslate"><span class="pre">habit.exceptions</span></code>)<a class="headerlink" href="#exceptions-habit-exceptions" title="Link to this heading"></a></h2>
-<p>The canonical exception hierarchy. <code class="docutils literal notranslate"><span class="pre">habit.api.exceptions</span></code> remains as a
-backward-compatible facade. See <a class="reference internal" href="exceptions.html"><span class="doc">Errors and optional dependencies</span></a>.</p>
+<p>The canonical exception hierarchy. See <a class="reference internal" href="exceptions.html"><span class="doc">Errors and optional dependencies</span></a>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.exceptions.HabitError.html#habit.exceptions.HabitError" title="habit.exceptions.HabitError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.exceptions.HabitError</span></code></a></p></td>
@@ -3247,231 +3365,6 @@ backward-compatible facade. See <a class="reference internal" href="exceptions.h
 </tr>
 </tbody>
 </table>
-</section>
-<section id="v0-1-configuration-object-api-habit-api">
-<span id="api-v01-facade"></span><h2>v0.1 configuration-object API (<code class="docutils literal notranslate"><span class="pre">habit.api.*</span></code>)<a class="headerlink" href="#v0-1-configuration-object-api-habit-api" title="Link to this heading"></a></h2>
-<p>The v0.1 facade: configuration dataclasses plus <code class="docutils literal notranslate"><span class="pre">run_*</span></code> entry points that
-mirror the CLI flags one-to-one. These symbols remain <strong>stable and
-supported</strong> — the CLI is implemented on top of them — but new library code
-should prefer the recipes, contracts, and domain components above. Note that
-<code class="docutils literal notranslate"><span class="pre">habit.api.image.ImageVolume</span></code> / <code class="docutils literal notranslate"><span class="pre">MaskVolume</span></code> and
-<code class="docutils literal notranslate"><span class="pre">habit.api.provenance.RunManifest</span></code> are the v0.1 types, distinct from the
-v1 contracts of the same name documented under <a class="reference internal" href="#api-contracts"><span class="std std-ref">Data contracts (habit.contracts)</span></a>.</p>
-<section id="image-and-geometry">
-<h3>Image and geometry<a class="headerlink" href="#image-and-geometry" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryPolicy.html#habit.api.image.GeometryPolicy" title="habit.api.image.GeometryPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.GeometryPolicy</span></code></a>(value)</p></td>
-<td><p>Define how an image/mask geometry mismatch is handled.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.GeometryReport.html#habit.api.image.GeometryReport" title="habit.api.image.GeometryReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.GeometryReport</span></code></a>(compatible[, ...])</p></td>
-<td><p>Describe image/mask geometry compatibility and any correction applied.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.ImageVolume.html#habit.api.image.ImageVolume" title="habit.api.image.ImageVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.ImageVolume</span></code></a>(data, spacing, ...)</p></td>
-<td><p>An image array with explicit physical-space metadata.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.MaskVolume.html#habit.api.image.MaskVolume" title="habit.api.image.MaskVolume"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.MaskVolume</span></code></a>(data, spacing, ...)</p></td>
-<td><p>An image-space segmentation mask with explicit label semantics.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.ImageMaskPair.html#habit.api.image.ImageMaskPair" title="habit.api.image.ImageMaskPair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.ImageMaskPair</span></code></a>(image, mask[, ...])</p></td>
-<td><p>Pair one image and mask with the geometry result used by downstream code.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.read_image.html#habit.api.image.read_image" title="habit.api.image.read_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.read_image</span></code></a>(path, *[, ...])</p></td>
-<td><p>Read an image file into a geometry-aware <code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.read_mask.html#habit.api.image.read_mask" title="habit.api.image.read_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.read_mask</span></code></a>(path, *[, labels, ...])</p></td>
-<td><p>Read a mask file into a geometry-aware <code class="xref py py-class docutils literal notranslate"><span class="pre">MaskVolume</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.image.validate_geometry.html#habit.api.image.validate_geometry" title="habit.api.image.validate_geometry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.validate_geometry</span></code></a>(image, mask, *)</p></td>
-<td><p>Return an explicit geometry comparison without changing either input.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.image.align_image_mask.html#habit.api.image.align_image_mask" title="habit.api.image.align_image_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.image.align_image_mask</span></code></a>(pair, *[, ...])</p></td>
-<td><p>Validate or explicitly correct image/mask geometry according to <code class="docutils literal notranslate"><span class="pre">policy</span></code>.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="radiomics">
-<h3>Radiomics<a class="headerlink" href="#radiomics" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.radiomics.FeatureResult.html#habit.api.radiomics.FeatureResult" title="habit.api.radiomics.FeatureResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.radiomics.FeatureResult</span></code></a>(values, ...)</p></td>
-<td><p>Structured output from radiomics extraction for one image/mask pair.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.radiomics.FeatureTableResult.html#habit.api.radiomics.FeatureTableResult" title="habit.api.radiomics.FeatureTableResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.radiomics.FeatureTableResult</span></code></a>(...)</p></td>
-<td><p>Structured batch output with successful feature rows and failures.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.radiomics.extract_features.html#habit.api.radiomics.extract_features" title="habit.api.radiomics.extract_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.radiomics.extract_features</span></code></a>(image, mask)</p></td>
-<td><p>Extract segment-based radiomics features from one image/mask pair.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.radiomics.extract_batch.html#habit.api.radiomics.extract_batch" title="habit.api.radiomics.extract_batch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.radiomics.extract_batch</span></code></a>(pairs[, ...])</p></td>
-<td><p>Extract radiomics features deterministically for an ordered image/mask batch.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="habitat-and-feature-extraction-workflows">
-<h3>Habitat and feature-extraction workflows<a class="headerlink" href="#habitat-and-feature-extraction-workflows" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.habitat.HabitatAnalysisConfig.html#habit.api.habitat.HabitatAnalysisConfig" title="habit.api.habitat.HabitatAnalysisConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.HabitatAnalysisConfig</span></code></a>(*, ...)</p></td>
-<td><p>Root model for the entire habitat analysis configuration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.habitat.FeatureExtractionConfig.html#habit.api.habitat.FeatureExtractionConfig" title="habit.api.habitat.FeatureExtractionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.FeatureExtractionConfig</span></code></a>(*)</p></td>
-<td><p>Configuration for habitat feature extraction workflow.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.habitat.RadiomicsConfig.html#habit.api.habitat.RadiomicsConfig" title="habit.api.habitat.RadiomicsConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.RadiomicsConfig</span></code></a>(*, ...)</p></td>
-<td><p>Configuration for traditional radiomics feature extraction.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.habitat.run_habitat_analysis.html#habit.api.habitat.run_habitat_analysis" title="habit.api.habitat.run_habitat_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.run_habitat_analysis</span></code></a>(config)</p></td>
-<td><p>Run habitat train or predict workflow from a validated config object.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.habitat.run_feature_extraction.html#habit.api.habitat.run_feature_extraction" title="habit.api.habitat.run_feature_extraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.run_feature_extraction</span></code></a>(config)</p></td>
-<td><p>Extract habitat-map features from a validated config object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.habitat.run_radiomics.html#habit.api.habitat.run_radiomics" title="habit.api.habitat.run_radiomics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.run_radiomics</span></code></a>(config[, logger])</p></td>
-<td><p>Run standalone radiomics extraction from a validated config object.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.habitat.apply_habitat_cli_overrides.html#habit.api.habitat.apply_habitat_cli_overrides" title="habit.api.habitat.apply_habitat_cli_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.apply_habitat_cli_overrides</span></code></a>(...)</p></td>
-<td><p>Validate a config object or mapping before applying CLI-compatible overrides.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.habitat.build_feature_extraction_config.html#habit.api.habitat.build_feature_extraction_config" title="habit.api.habitat.build_feature_extraction_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.build_feature_extraction_config</span></code></a>(config)</p></td>
-<td><p>Validate an in-memory feature-extraction dictionary, including plugins.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.habitat.load_feature_extraction_config.html#habit.api.habitat.load_feature_extraction_config" title="habit.api.habitat.load_feature_extraction_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.habitat.load_feature_extraction_config</span></code></a>(...)</p></td>
-<td><p>Load feature-extraction YAML, including optional feature-plugin settings.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="machine-learning-workflows">
-<h3>Machine-learning workflows<a class="headerlink" href="#machine-learning-workflows" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.MLConfig.html#habit.api.machine_learning.MLConfig" title="habit.api.machine_learning.MLConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.MLConfig</span></code></a>(*, ...)</p></td>
-<td><p>Unified configuration for the standard / k-fold ML workflows.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.ModelComparisonConfig.html#habit.api.machine_learning.ModelComparisonConfig" title="habit.api.machine_learning.ModelComparisonConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.ModelComparisonConfig</span></code></a>(*, ...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.run_ml.html#habit.api.machine_learning.run_ml" title="habit.api.machine_learning.run_ml"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.run_ml</span></code></a>(config[, ...])</p></td>
-<td><p>Run holdout ML train or predict workflow from a validated config object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.run_kfold.html#habit.api.machine_learning.run_kfold" title="habit.api.machine_learning.run_kfold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.run_kfold</span></code></a>(config)</p></td>
-<td><p>Run k-fold cross-validation from a validated train-mode config object.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.run_model_comparison.html#habit.api.machine_learning.run_model_comparison" title="habit.api.machine_learning.run_model_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.run_model_comparison</span></code></a>(config)</p></td>
-<td><p>Compare multiple trained models from a validated config object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.machine_learning.apply_ml_mode_override.html#habit.api.machine_learning.apply_ml_mode_override" title="habit.api.machine_learning.apply_ml_mode_override"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.machine_learning.apply_ml_mode_override</span></code></a>(...)</p></td>
-<td><p>Validate a config object or mapping before applying an ML mode override.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="analysis-workflows">
-<h3>Analysis workflows<a class="headerlink" href="#analysis-workflows" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.analysis.ICCConfig.html#habit.api.analysis.ICCConfig" title="habit.api.analysis.ICCConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.analysis.ICCConfig</span></code></a>(*[, ...])</p></td>
-<td><p>Root configuration for the ICC (reliability) analysis.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.analysis.TestRetestConfig.html#habit.api.analysis.TestRetestConfig" title="habit.api.analysis.TestRetestConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.analysis.TestRetestConfig</span></code></a>(*[, ...])</p></td>
-<td><p>Configuration for test-retest reproducibility analysis.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.analysis.run_icc_analysis.html#habit.api.analysis.run_icc_analysis" title="habit.api.analysis.run_icc_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.analysis.run_icc_analysis</span></code></a>(config)</p></td>
-<td><p>Run ICC analysis from a validated config object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.analysis.run_test_retest_analysis.html#habit.api.analysis.run_test_retest_analysis" title="habit.api.analysis.run_test_retest_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.analysis.run_test_retest_analysis</span></code></a>(config)</p></td>
-<td><p>Map retest habitat labels to test labels and write remapped habitat images.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="preprocessing-and-dicom-utilities">
-<h3>Preprocessing and DICOM utilities<a class="headerlink" href="#preprocessing-and-dicom-utilities" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.preprocessing.PreprocessingConfig.html#habit.api.preprocessing.PreprocessingConfig" title="habit.api.preprocessing.PreprocessingConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.preprocessing.PreprocessingConfig</span></code></a>(*, ...)</p></td>
-<td><p>Top-level preprocessing configuration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.preprocessing.run_preprocess.html#habit.api.preprocessing.run_preprocess" title="habit.api.preprocessing.run_preprocess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.preprocessing.run_preprocess</span></code></a>(config)</p></td>
-<td><p>Run the preprocessing batch pipeline from a validated config object.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.dicom_sort.DicomSortConfig.html#habit.api.dicom_sort.DicomSortConfig" title="habit.api.dicom_sort.DicomSortConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.dicom_sort.DicomSortConfig</span></code></a>(*, ...)</p></td>
-<td><p>One-shot dcm2niix sort: <code class="docutils literal notranslate"><span class="pre">data_dir</span></code> (input tree) and <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> (output root).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.dicom_sort.run_dicom_sort.html#habit.api.dicom_sort.run_dicom_sort" title="habit.api.dicom_sort.run_dicom_sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.dicom_sort.run_dicom_sort</span></code></a>(config)</p></td>
-<td><p>Sort and convert DICOM series using a validated config object.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="provenance-and-workflow-results">
-<h3>Provenance and workflow results<a class="headerlink" href="#provenance-and-workflow-results" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.provenance.RunManifest.html#habit.api.provenance.RunManifest" title="habit.api.provenance.RunManifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.provenance.RunManifest</span></code></a>(workflow, ...)</p></td>
-<td><p>Immutable, serializable provenance for one public HABIT workflow run.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.provenance.create_run_manifest.html#habit.api.provenance.create_run_manifest" title="habit.api.provenance.create_run_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.provenance.create_run_manifest</span></code></a>(...)</p></td>
-<td><p>Build run provenance before or after a public workflow is executed.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.provenance.write_run_manifest.html#habit.api.provenance.write_run_manifest" title="habit.api.provenance.write_run_manifest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.provenance.write_run_manifest</span></code></a>(...)</p></td>
-<td><p>Atomically persist a run manifest in a workflow output directory.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.contracts.WorkflowResult.html#habit.api.contracts.WorkflowResult" title="habit.api.contracts.WorkflowResult"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.contracts.WorkflowResult</span></code></a>(data, ...)</p></td>
-<td><p>Stable return value for a configuration-driven public workflow.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="plugins-and-utilities">
-<h3>Plugins and utilities<a class="headerlink" href="#plugins-and-utilities" title="Link to this heading"></a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginInfo.html#habit.api.plugins.PluginInfo" title="habit.api.plugins.PluginInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginInfo</span></code></a>(name, domain, ...)</p></td>
-<td><p>Describe one component registered in a HABIT plugin domain.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginCatalogEntry.html#habit.api.plugins.PluginCatalogEntry" title="habit.api.plugins.PluginCatalogEntry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginCatalogEntry</span></code></a>(domain, ...)</p></td>
-<td><p>One catalog row derived from <code class="docutils literal notranslate"><span class="pre">params_model</span></code> (not a hand-copied table).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html#habit.api.plugins.PluginLoadReport" title="habit.api.plugins.PluginLoadReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginLoadReport</span></code></a>(loaded, ...)</p></td>
-<td><p>Report loaded external entry points and non-fatal discovery failures.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html#habit.api.plugins.list_plugins" title="habit.api.plugins.list_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.list_plugins</span></code></a>([domain])</p></td>
-<td><p>List registered HABIT extension components without exposing core registries.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html#habit.api.plugins.get_plugin_info" title="habit.api.plugins.get_plugin_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_plugin_info</span></code></a>(name, domain)</p></td>
-<td><p>Return metadata for one registered component or raise a clear API error.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html#habit.api.plugins.get_param_schema" title="habit.api.plugins.get_param_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_param_schema</span></code></a>(name, domain)</p></td>
-<td><p>Return the Pydantic parameter schema associated with a plugin, if any.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.plugin_catalog.html#habit.api.plugins.plugin_catalog" title="habit.api.plugins.plugin_catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.plugin_catalog</span></code></a>([domain])</p></td>
-<td><p>Build a live catalog from each plugin's <code class="docutils literal notranslate"><span class="pre">params_model</span></code>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.format_plugin_catalog_rst.html#habit.api.plugins.format_plugin_catalog_rst" title="habit.api.plugins.format_plugin_catalog_rst"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.format_plugin_catalog_rst</span></code></a>([...])</p></td>
-<td><p>Render <code class="xref py py-func docutils literal notranslate"><span class="pre">plugin_catalog()</span></code> as reStructuredText for the docs catalog.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html#habit.api.plugins.load_plugins" title="habit.api.plugins.load_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.load_plugins</span></code></a>(*[, strict])</p></td>
-<td><p>Load external HABIT plugins declared through standard Python entry points.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.setup_logger.html#habit.api.utils.setup_logger" title="habit.api.utils.setup_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.setup_logger</span></code></a>(name[, ...])</p></td>
-<td><p>Setup a logger for a HABIT module or script.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.is_available.html#habit.api.utils.is_available" title="habit.api.utils.is_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.is_available</span></code></a>(module_name)</p></td>
-<td><p>Return whether an optional third-party module can be imported.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.show_versions.html#habit.api.utils.show_versions" title="habit.api.utils.show_versions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.show_versions</span></code></a>()</p></td>
-<td><p>Return HABIT and key dependency versions for reproducibility and debugging.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.check_component.html#habit.api.utils.check_component" title="habit.api.utils.check_component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.check_component</span></code></a>(name, domain)</p></td>
-<td><p>Return whether <code class="docutils literal notranslate"><span class="pre">name</span></code> is registered in a HABIT plugin domain.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 </section>
 <section id="api-guides">
 <span id="id2"></span><h2>API guides<a class="headerlink" href="#api-guides" title="Link to this heading"></a></h2>
