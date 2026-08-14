@@ -9,6 +9,9 @@ YAML + CLI operator path. Pattern on every page:
 
 Start: :doc:`before_you_start` → :doc:`prepare_data` → pipeline pages below.
 
+**Which Spec to put in each habitat stage** (including mixed trees such as
+``concat(raw("T1"), voxel_radiomics("T2"))``): :doc:`habitat_components`.
+
 **Features from habitat maps** (after habitats exist): :doc:`extract_features`
 and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
 :doc:`../examples/graph_features`.
