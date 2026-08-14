@@ -22,6 +22,17 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort``, ``result``, and
+``ROI``). Writes ``out/direct_pooling_*.png``.
+
+.. literalinclude:: scripts/direct_pooling_habitat_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Change the Spec (other methods and parameters)
 ----------------------------------------------
 
@@ -53,8 +64,18 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
+   # 4) Mixed families — needs two series (raw T1 + entropy T2)
+   from habit import parse_feature_expression
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(raw("T1"), local_entropy("T2", kernel_size=3, bins=32))'
+       ),
+   )
+
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components`.
+:doc:`../how_to/habitat_components` (section 1 covers ``concat`` /
+``voxel_radiomics`` trees).
 
 Discover the same facts in a running interpreter::
 
@@ -72,13 +93,9 @@ Illustrative::
    Habitat maps: 2
    Saved study to out/direct_pooling_demo
 
-The copied block prints these lines, calls ``result.save(...)``, and
-writes the PNGs under ``out/`` (``out/direct_pooling_overlay.png``,
-``out/direct_pooling_volume_fractions.png``,
-``out/direct_pooling_msi_matrix.png``,
-``out/direct_pooling_ith_summary.png``,
-``out/direct_pooling_cluster_validation.png``). Edit those paths in the
-script if you want a different folder.
+The Script block prints these lines and calls ``result.save(...)``. The
+**Draw the figures** block writes ``out/direct_pooling_*.png``. Edit
+those paths if you want a different folder.
 
 ``HABIT_NO_VIEW=1`` skips the optional napari window when you run the
 full script from the repository root (maintainers then copy ``out/*.png``
@@ -93,7 +110,7 @@ matplotlib / OS / DPI.
 Figures
 -------
 
-These are the same files the copied block writes under ``out/``. The site
+These are the same files the **Draw the figures** block writes under ``out/``. The site
 gallery is a copy of those PNGs (same composition; not a cropped re-plot).
 Overlay uses the public 3-D default: three orthogonal panels through the
 densest habitat slices. Pass ``ImageVolume`` / ``HabitatMap`` (not

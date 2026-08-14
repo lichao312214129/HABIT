@@ -27,6 +27,17 @@ layout as :func:`~habit.cohort_from_directory`).
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort``, ``result``, and
+``ROI``). Writes ``out/two_step_*.png``.
+
+.. literalinclude:: scripts/two_step_habitat_quickstart.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Change the Spec (other methods and parameters)
 ----------------------------------------------
 
@@ -56,9 +67,26 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
+   # 4) Mixed voxel families — needs two series
+   from habit import parse_feature_expression
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(raw("T1"), local_entropy("T2", kernel_size=3, bins=32))'
+       ),
+   )
+
+   # 5) Supervoxel stats tree (insert after partition)
+   Stage(
+       "extract_supervoxel_features",
+       parse_feature_expression(
+           'concat(mean("T1"), std("T1", as_="t1_spread"), percentile("T2", q=90))'
+       ),
+   )
+
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components`. Partition names live under
-``list_plugins("supervoxelizer")``.
+:doc:`../how_to/habitat_components` (sections 1 and 4). Partition names
+live under ``list_plugins("supervoxelizer")``.
 
 Discover the same facts in a running interpreter::
 
@@ -76,12 +104,9 @@ Illustrative (counts / fingerprint depend on your ``demo_data``)::
    Habitat maps: 2
    Saved study to out/two_step_demo
 
-The copied block prints these lines, calls ``result.save(...)``, and
-writes the PNGs under ``out/`` (``out/two_step_overlay.png``,
-``out/two_step_triptych.png``, ``out/two_step_volume_fractions.png``,
-``out/two_step_msi_matrix.png``, ``out/two_step_ith_summary.png``,
-``out/two_step_cluster_validation.png``). Edit those paths in the script
-if you want a different folder.
+The Script block prints these lines and calls ``result.save(...)``. The
+**Draw the figures** block writes ``out/two_step_*.png``. Edit those
+paths if you want a different folder.
 
 ``HABIT_NO_VIEW=1`` skips the optional napari window when you run the
 full script from the repository root (maintainers then copy ``out/*.png``
@@ -96,7 +121,7 @@ matplotlib / OS / DPI.
 Figures
 -------
 
-These are the same files the copied block writes under ``out/``. The site
+These are the same files the **Draw the figures** block writes under ``out/``. The site
 gallery is a copy of those PNGs (same composition; not a cropped re-plot).
 Overlay uses the public 3-D default: three orthogonal panels. The
 triptych uses ``axis=0`` (one axial slice), which is the public default

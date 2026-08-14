@@ -11,28 +11,8 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
-from pathlib import Path
-
-import matplotlib.pyplot as plt
-
-from habit import (
-    HabitatSpec,
-    Spec,
-    Stage,
-    cohort_from_directory,
-    habitat_region_stats,
-    habitat_volume_fractions,
-    ith_score,
-    spatial_interaction_matrix,
-)
+from habit import HabitatSpec, Spec, Stage, cohort_from_directory
 import habit.recipes as recipes
-from habit.viz import (
-    plot_cluster_validation_from_report,
-    plot_habitat_overlay,
-    plot_habitat_volume_fractions,
-    plot_ith_summary,
-    plot_msi_matrix,
-)
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -75,6 +55,27 @@ print(f"Per-subject models: {len(result.subject_models)}")
 for subject_id, model in sorted(result.subject_models.items()):
     print(f"  {subject_id}: {model.n_habitats} habitats")
 print(f"Habitat maps: {len(result.habitat_maps)}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses cohort, result, and ROI from above.
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
+from habit import (
+    habitat_region_stats,
+    habitat_volume_fractions,
+    ith_score,
+    spatial_interaction_matrix,
+)
+from habit.viz import (
+    plot_cluster_validation_from_report,
+    plot_habitat_overlay,
+    plot_habitat_volume_fractions,
+    plot_ith_summary,
+    plot_msi_matrix,
+)
 
 # Figures: public habit.viz defaults. Edit the out/ filenames if you like.
 # Overlay uses the 3-D default (three orthogonal panels). Pass ImageVolume
@@ -124,7 +125,7 @@ if report:
         "one_step_cluster_validation.png",
     )
 print("Wrote figures under out/")
-# END example
+# END figures
 
 if __name__ == "__main__":
     import sys

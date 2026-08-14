@@ -23,6 +23,17 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort``, ``result``, and
+``ROI``). Writes ``out/one_step_*.png``.
+
+.. literalinclude:: scripts/one_step_habitat_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Change the Spec (other methods and parameters)
 ----------------------------------------------
 
@@ -53,8 +64,18 @@ The script above is **one worked recipe**, not the only recipe. Each
    Stage("preprocess1", Spec("winsorize", {"winsor_limits": (0.05, 0.05), "across_features": False}))
    Stage("preprocess2", Spec("minmax", {"across_features": False}))
 
+   # 4) Mixed families — needs two series (raw T1 + entropy T2)
+   from habit import parse_feature_expression
+   Stage(
+       "extract_voxel_features",
+       parse_feature_expression(
+           'concat(raw("T1"), local_entropy("T2", kernel_size=3, bins=32))'
+       ),
+   )
+
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components`.
+:doc:`../how_to/habitat_components` (section 1 covers ``concat`` /
+``voxel_radiomics`` trees).
 
 Discover the same facts in a running interpreter::
 
@@ -73,11 +94,8 @@ Illustrative::
    Per-subject models: 2
    Habitat maps: 2
 
-The copied block prints these lines and writes the PNGs under ``out/``
-(``out/one_step_overlay.png``, ``out/one_step_volume_fractions.png``,
-``out/one_step_msi_matrix.png``, ``out/one_step_ith_summary.png``,
-``out/one_step_cluster_validation.png``). Edit those paths in the script
-if you want a different folder.
+The Script block prints these lines. The **Draw the figures** block writes
+``out/one_step_*.png``. Edit those paths if you want a different folder.
 
 ``HABIT_NO_VIEW=1`` skips the optional napari window when you run the
 full script from the repository root (maintainers then copy ``out/*.png``
@@ -92,7 +110,7 @@ matplotlib / OS / DPI.
 Figures
 -------
 
-These are the same files the copied block writes under ``out/``. The site
+These are the same files the **Draw the figures** block writes under ``out/``. The site
 gallery is a copy of those PNGs (same composition; not a cropped re-plot).
 Overlay uses the public 3-D default: three orthogonal panels through the
 densest habitat slices. Pass ``ImageVolume`` / ``HabitatMap`` (not
