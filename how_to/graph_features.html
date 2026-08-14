@@ -1783,24 +1783,38 @@ want the older centroid-proximity rule instead.</p>
 </section>
 <section id="python-api">
 <h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_graph_features</span>
+<p>The figure below is written by the graph gallery
+(<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>) — one-step with <strong>fixed</strong>
+<code class="docutils literal notranslate"><span class="pre">n_habitats=10</span></code>, then the same plot call. It is <strong>not</strong> from the YAML
+fragment above. Reproduce it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">graph_features_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Or paste the same code the gallery shows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span><span class="p">,</span> <span class="n">extract_graph_features</span><span class="p">,</span> <span class="n">one_step_habitat</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_graph_network_2d</span>
 
-<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
+<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Optional: <code class="docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions(adjacency_min_voxels=...)</span></code>, registry
 <code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
-<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).
-See <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="Habitat graph network on a 2D slice" src="../_images/graph_habitat_network_2d.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">2D intra- / inter-habitat graph
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Same file the gallery script writes to <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

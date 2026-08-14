@@ -1744,18 +1744,24 @@
 <p>★ Edit <code class="docutils literal notranslate"><span class="pre">paths.images_folder</span></code> (folder with <code class="docutils literal notranslate"><span class="pre">images/</span></code> + <code class="docutils literal notranslate"><span class="pre">masks/</span></code>),
 <code class="docutils literal notranslate"><span class="pre">paths.out_dir</span></code>, and <code class="docutils literal notranslate"><span class="pre">processing.process_image_types</span></code> (modality names).</p>
 <p>Success: feature tables under <code class="docutils literal notranslate"><span class="pre">paths.out_dir</span></code>.</p>
-<p>Habitat-wise tables (when you do have maps) overlay the same anatomy:</p>
+<p>Habitat-wise tables (when you do have maps) overlay the same anatomy.
+The figure is <strong>not</strong> from <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">radiomics</span></code> above (whole-ROI has no
+labels). It is written by the feature-extraction gallery
+(<a class="reference internal" href="../examples/feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a>). Reproduce it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">feature_extraction_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The plot call in that script (<code class="docutils literal notranslate"><span class="pre">ROI</span> <span class="pre">=</span> <span class="pre">&quot;LAP&quot;</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">ROI</span><span class="p">),</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/feature_extract_overlay.png"><img alt="Habitat overlay used before feature tables" src="../_images/feature_extract_overlay.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">Overlay from the feature-extraction gallery. Whole-ROI radiomics has no
-habitat labels — this figure is the habitat-wise twin.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Same file the gallery script writes to <code class="docutils literal notranslate"><span class="pre">out/feature_extract_overlay.png</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

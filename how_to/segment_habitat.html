@@ -1750,21 +1750,29 @@
 <span class="n">habit</span> <span class="n">view</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">preprocessed</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">subj001</span><span class="o">/</span><span class="n">LAP</span><span class="o">/</span><span class="n">WATER__WATER__Ax_Dyn_LAVA_Flex</span><span class="o">+</span><span class="n">C_Series0009</span><span class="o">.</span><span class="n">nrrd</span> <span class="n">demo_data</span><span class="o">/</span><span class="n">results</span><span class="o">/</span><span class="n">habitat_two_step</span><span class="o">/</span><span class="n">subj001_habitats</span><span class="o">.</span><span class="n">nrrd</span>
 </pre></div>
 </div>
-<p>Python overlay of the same maps:</p>
+<p>The figure below is <strong>not</strong> from the CLI YAML above (that config is the
+full demo Spec). It is written by the two-step gallery
+(<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>). Reproduce it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">two_step_habitat_quickstart</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The plot call in that script (<code class="docutils literal notranslate"><span class="pre">ROI</span> <span class="pre">=</span> <span class="pre">&quot;LAP&quot;</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Two-step habitats&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">ROI</span><span class="p">),</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Orthogonal 2D panels (omit <code class="docutils literal notranslate"><span class="pre">axis</span></code>) use <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;radiological&quot;</span></code>
-by default. Pass the <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> (not <code class="docutils literal notranslate"><span class="pre">image.data</span></code>) so coronal/sagittal
-superior-up matches ITK-SNAP; <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;native&quot;</span></code> skips flips.
-See <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz.orientation</span></code>.</p>
+by default. Pass the <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> and <code class="docutils literal notranslate"><span class="pre">HabitatMap</span></code> (not <code class="docutils literal notranslate"><span class="pre">.data</span></code> /
+<code class="docutils literal notranslate"><span class="pre">label_array</span></code>, and not <code class="docutils literal notranslate"><span class="pre">direction=volume.direction</span></code>). Demo image and ROI
+headers can disagree on <code class="docutils literal notranslate"><span class="pre">+z</span></code>; the habitat map keeps the mask direction so
+coronal/sagittal stay superior-up. <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;native&quot;</span></code> skips
+flips. See <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz.orientation</span></code>.</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/two_step_overlay.png"><img alt="Two-step habitat overlay" src="../_images/two_step_overlay.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">Overlay from the two-step gallery (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Same file the gallery script writes to <code class="docutils literal notranslate"><span class="pre">out/two_step_overlay.png</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>For fuller 3D inspection, load the source image and <code class="docutils literal notranslate"><span class="pre">*_habitats.nrrd</span></code>

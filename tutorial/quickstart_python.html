@@ -1910,28 +1910,23 @@ For a quick serial check, use <code class="docutils literal notranslate"><span c
 <a class="reference internal" href="../api/generated/habit.recipes.run_from_yaml.html#habit.recipes.run_from_yaml" title="habit.recipes.run_from_yaml"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_from_yaml()</span></code></a> or
 <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">get-habitat</span> <span class="pre">--config</span> <span class="pre">…/effective_config.yaml</span></code> for <strong>voxel-identical</strong>
 habitat maps (same seed, data, and policy).</p>
-<p>Static matplotlib overlay of the same demo subject (no napari; needs
-<code class="docutils literal notranslate"><span class="pre">[viz]</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span><span class="p">,</span> <span class="n">use_style</span>
-
-<span class="n">volume</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
-        <span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
-        <span class="n">spacing</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span>
-        <span class="n">direction</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
-    <span class="p">)</span>
-<span class="c1"># fig.savefig(&quot;habitat_overlay.png&quot;, dpi=200, bbox_inches=&quot;tight&quot;)</span>
+<p>The overlay below is <strong>not</strong> from <code class="docutils literal notranslate"><span class="pre">main()</span></code> above. <code class="docutils literal notranslate"><span class="pre">main()</span></code> matches the
+CLI YAML (four modalities, <code class="docutils literal notranslate"><span class="pre">roi=&quot;pre_contrast&quot;</span></code>) and draws a different
+map. This PNG is written by the two-step gallery
+(<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>) — Script + Draw the figures. Reproduce
+it with one line (needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">two_step_habitat_quickstart</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>The plot call in that script (<code class="docutils literal notranslate"><span class="pre">ROI</span> <span class="pre">=</span> <span class="pre">&quot;LAP&quot;</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">ROI</span><span class="p">),</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;habitats&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/two_step_overlay.png"><img alt="Demo subj001 LAP with two-step habitat labels overlaid" src="../_images/two_step_overlay.png" width="480" />
 </a>
 <figcaption>
-<p><span class="caption-text">Publication-style habitat overlay for demo <code class="docutils literal notranslate"><span class="pre">subj001</span></code> (same science as
-the CLI two-step run). Gallery asset from
-<a class="reference internal" href="../examples/two_step_habitat.html"><span class="doc">Two-step habitat analysis, end to end</span></a>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Same file the gallery script writes to <code class="docutils literal notranslate"><span class="pre">out/two_step_overlay.png</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>Further notebook-oriented patterns (synthetic cohorts, custom extractors)
@@ -1947,14 +1942,10 @@ live under <a class="reference internal" href="../examples/index.html"><span cla
 <code class="docutils literal notranslate"><span class="pre">result</span></code>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">view_habitat_napari</span>
 
-<span class="c1"># Anatomy under LAP; habitat maps share the cohort geometry from step 1.</span>
+<span class="c1"># Anatomy under LAP. Do not pass direction=volume.direction — that image</span>
+<span class="c1"># header can flip coronal/sagittal relative to the ROI / HabitatMap.</span>
 <span class="n">volume</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
-<span class="n">view_habitat_napari</span><span class="p">(</span>
-    <span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
-    <span class="n">spacing</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span>
-    <span class="n">direction</span><span class="o">=</span><span class="n">volume</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">view_habitat_napari</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Needs napari (<a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>). Blocks until you close the window.
