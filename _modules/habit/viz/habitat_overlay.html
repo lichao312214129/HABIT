@@ -2116,6 +2116,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
     <span class="n">add_discrete_habitat_colorbar</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.palette</span><span class="w"> </span><span class="kn">import</span> <span class="n">habitat_rgb_colors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2148,18 +2149,10 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: What habit.viz needs matplotlib for.</span>
 <span class="n">_VIZ_PURPOSE</span> <span class="o">=</span> <span class="s2">&quot;habitat overlay figures (source image + habitat labels)&quot;</span>
 
-<span class="c1">#: Colour-blind-friendly RGB colours for habitat IDs (cycled if needed).</span>
-<span class="c1">#: Matches the radiology style palette so overlays stay journal-safe in</span>
-<span class="c1">#: greyscale printouts.</span>
-<span class="n">_HABITAT_COLORS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">),</span>  <span class="c1"># blue</span>
-    <span class="p">(</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">),</span>  <span class="c1"># orange</span>
-    <span class="p">(</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.62</span><span class="p">,</span> <span class="mf">0.45</span><span class="p">),</span>  <span class="c1"># green</span>
-    <span class="p">(</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.00</span><span class="p">),</span>  <span class="c1"># vermillion</span>
-    <span class="p">(</span><span class="mf">0.80</span><span class="p">,</span> <span class="mf">0.47</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">),</span>  <span class="c1"># reddish purple</span>
-    <span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span>  <span class="c1"># yellow</span>
-    <span class="p">(</span><span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">),</span>  <span class="c1"># sky blue</span>
-    <span class="p">(</span><span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">,</span> <span class="mf">0.60</span><span class="p">),</span>  <span class="c1"># grey</span>
+<span class="c1">#: Designed habitat bank as RGB (Okabe–Ito + Tol extras). Prefer</span>
+<span class="c1">#: :func:`habitat_rgb_colors` so K&gt;8 does not wrap to a duplicate.</span>
+<span class="n">_HABITAT_COLORS</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+    <span class="n">habitat_rgb_colors</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
 <span class="p">)</span>
 
 
@@ -2290,7 +2283,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_habitat_color_lookup</span><span class="p">(</span>
     <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">colors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_HABITAT_COLORS</span><span class="p">,</span>
+    <span class="n">colors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Map each habitat ID to a stable RGB triple.</span>
@@ -2301,20 +2294,36 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        habitat_ids: Positive integer habitat IDs (already unique).</span>
-<span class="sd">        colors: RGB triples cycled when there are more IDs than colours.</span>
+<span class="sd">        colors: Optional RGB triples. When omitted, HABIT assigns one</span>
+<span class="sd">            distinct colour per ID from the Radiology-safe bank (no</span>
+<span class="sd">            silent 8-colour wrap). A caller-supplied list still cycles</span>
+<span class="sd">            if it is shorter than the ID list.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``habitat_id → (r, g, b)`` in ``[0, 1]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">face</span> <span class="o">=</span> <span class="n">habitat_rgb_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bank</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bank</span><span class="p">:</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="n">habitat_rgb_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bank</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">):</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="p">[</span><span class="n">bank</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Caller chose a short custom list; cycling is explicit.</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="p">[</span><span class="n">bank</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bank</span><span class="p">)]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))]</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">):</span> <span class="n">colors</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">habitat_ids</span><span class="p">)</span>
+        <span class="n">habitat_id</span><span class="p">:</span> <span class="n">face</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span>
     <span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_habitat_color_list</span><span class="p">(</span>
     <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-    <span class="n">colors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_HABITAT_COLORS</span><span class="p">,</span>
+    <span class="n">colors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return palette colours aligned with ``habitat_ids`` (for the colorbar).&quot;&quot;&quot;</span>
     <span class="n">lookup</span> <span class="o">=</span> <span class="n">_habitat_color_lookup</span><span class="p">(</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span>

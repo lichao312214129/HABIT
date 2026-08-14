@@ -2135,6 +2135,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
     <span class="n">add_discrete_habitat_colorbar</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.palette</span><span class="w"> </span><span class="kn">import</span> <span class="n">habitat_hex_colors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2157,18 +2158,6 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_INTRA_EDGE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#9AA0A6&quot;</span>
 <span class="n">_BACKGROUND_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#D9DCE1&quot;</span>
 
-<span class="c1">#: Color-blind-safe qualitative palette (Okabe-Ito) reused for habitat labels;</span>
-<span class="c1">#: matches the default style preset so figures stay journal-safe in greyscale.</span>
-<span class="n">_HABITAT_PALETTE</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span>  <span class="c1"># blue</span>
-    <span class="s2">&quot;#D55E00&quot;</span><span class="p">,</span>  <span class="c1"># vermillion</span>
-    <span class="s2">&quot;#009E73&quot;</span><span class="p">,</span>  <span class="c1"># bluish green</span>
-    <span class="s2">&quot;#CC79A7&quot;</span><span class="p">,</span>  <span class="c1"># reddish purple</span>
-    <span class="s2">&quot;#E69F00&quot;</span><span class="p">,</span>  <span class="c1"># orange</span>
-    <span class="s2">&quot;#56B4E9&quot;</span><span class="p">,</span>  <span class="c1"># sky blue</span>
-    <span class="s2">&quot;#F0E442&quot;</span><span class="p">,</span>  <span class="c1"># yellow</span>
-    <span class="s2">&quot;#000000&quot;</span><span class="p">,</span>  <span class="c1"># black</span>
-<span class="p">)</span>
 
 <span class="c1">#: Type alias for an undirected edge expressed as a pair of node ids.</span>
 <span class="n">_EdgePair</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
@@ -2387,12 +2376,12 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_habitat_colors</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map habitat labels to stable color-blind-safe colors.&quot;&quot;&quot;</span>
-    <span class="n">ordered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="n">label</span><span class="p">:</span> <span class="n">_HABITAT_PALETTE</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">_HABITAT_PALETTE</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">)</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map habitat labels to stable Radiology-safe colours (no 8-colour wrap).&quot;&quot;&quot;</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">hexes</span> <span class="o">=</span> <span class="n">habitat_hex_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">hexes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">)}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_node_sizes</span><span class="p">(</span>
