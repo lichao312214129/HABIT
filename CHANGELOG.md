@@ -20,6 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Docs: Python API quickstart uses the same demo YAML as the CLI via
   ``recipes.run_from_yaml`` (habitat / predict / extract / model), so API
   and CLI results match on the demo pack.
+- Docs: habitat Spec chooser splits voxel / supervoxel stages into
+  single-modality leaves and multi-modality combiners; nested trees stay
+  on the feature-composition example.
 
 ## [1.1.3] - 2026-08-09
 

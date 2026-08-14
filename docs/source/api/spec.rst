@@ -203,8 +203,9 @@ Explicit ``stages`` records the ordered list (names + components) and
 Feature trees and the expression form
 -------------------------------------
 
-Copy-paste recipes (raw + radiomics, entropy + raw, nested combiners):
-:doc:`../how_to/habitat_components` section 1.
+Copy-paste recipes (single-modality leaves, then combiners):
+:doc:`../how_to/habitat_components` section 1. Nested trees:
+:doc:`../examples/feature_composition`.
 
 Extraction stages accept a **tree** of nodes: leaves carry ``modality=`` /
 ``modalities=`` parameters, and combiner nodes nest their children under
