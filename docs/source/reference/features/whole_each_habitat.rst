@@ -104,28 +104,34 @@ contrast habitats **across the cohort** (paired Cliff's delta + BH-FDR).
 The same objects also describe one subject (differences without p-values).
 
 Tens-to-hundreds of texture features: draw a habitat x feature heatmap
-and a top-k effect-size forest. Violins / bars are for a shortlist, not
-the full bank.
+and a top-k effect-size forest. Distributions are a shortlist for one
+habitat pair, not the full bank.
 
 ::
 
    from habit import (
        compare_habitat_features,
-       plot_habitat_feature_bars,
        plot_habitat_feature_effect,
        plot_habitat_feature_heatmap,
        plot_habitat_feature_violin,
+       plot_habitat_graph_pair_matrix,
+       to_graph_habitat_panel,
        to_habitat_feature_panel,
    )
 
    panel = to_habitat_feature_panel(table)          # wide each_habitat FeatureTable
    cmp = compare_habitat_features(panel)            # cohort if table has >= 2 subjects
+   pair = cmp.strongest_pair()
 
-   fig = plot_habitat_feature_heatmap(cmp)          # overview (z-scored)
-   fig = plot_habitat_feature_effect(cmp, top_k=20) # ranked Cliff's delta
-   fig = plot_habitat_feature_violin(cmp, max_features=6)
-   fig = plot_habitat_feature_heatmap(cmp, subject_id="subj001")  # one subject
-   fig = plot_habitat_feature_bars(cmp, subject_id="subj001", max_features=6)
+   fig = plot_habitat_feature_heatmap(cmp)                    # Fig 1 overview
+   fig = plot_habitat_feature_effect(cmp, pair=pair, top_k=20) # Fig 2 claim
+   fig = plot_habitat_feature_violin(cmp, pair=pair, max_features=4, kind="box")
+   fig = plot_habitat_feature_heatmap(cmp, subject_id="subj001")  # one case
+
+   graph_panel = to_graph_habitat_panel(table)       # single_h{id}_{metric}
+   graph_cmp = compare_habitat_features(graph_panel)
+   fig = plot_habitat_feature_heatmap(graph_cmp)
+   fig = plot_habitat_graph_pair_matrix(table, metric="contact_voxels_sum")
 
 ``compare_habitat_features(..., subject_id=...)`` restricts the panel
 first. Pairwise ``p_value`` / ``q_value`` are NaN when only one subject
@@ -133,6 +139,6 @@ remains.
 
 Runnable real-data gallery (existing ``demo_data`` maps, first-order
 ``each_habitat`` + default ``graph``, publication figures):
-:doc:`../../examples/habitat_feature_compare`. Graph topology columns
-(``single_h*`` / ``pair_h*_h*``) can share the joined table but do not
-melt through this API.
+:doc:`../../examples/habitat_feature_compare`. Graph node metrics melt
+through :func:`~habit.to_graph_habitat_panel`. Pair columns
+``pair_h*_h*`` use :func:`~habit.viz.plot_habitat_graph_pair_matrix`.

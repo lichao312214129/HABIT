@@ -265,10 +265,12 @@ Compare features between habitats
 After ``each_habitat`` (or any wide ``habitat_{id}_{feature}`` table),
 :func:`~habit.to_habitat_feature_panel` / :func:`~habit.compare_habitat_features`
 contrast habitats on the **cohort** (paired Cliff's delta, BH-FDR) or on
-one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
+one subject. Graph node metrics (``single_h*``) melt through
+:func:`~habit.to_graph_habitat_panel`. Figures:
+:func:`~habit.viz.plot_habitat_feature_heatmap`,
 :func:`~habit.viz.plot_habitat_feature_effect`,
 :func:`~habit.viz.plot_habitat_feature_violin`,
-:func:`~habit.viz.plot_habitat_feature_bars`. See
+:func:`~habit.viz.plot_habitat_graph_pair_matrix`. See
 :doc:`../reference/features/whole_each_habitat`. Real-data gallery:
 :doc:`../examples/habitat_feature_compare`.
 

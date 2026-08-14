@@ -4,15 +4,16 @@ Real-data habitat-feature contrast: existing maps → each_habitat + graph.
 
 Loads ``demo_data/preprocessed`` plus already-written
 ``*_habitats.nrrd`` maps, crops each pair to the habitat foreground
-(full-FOV demo volumes are large), extracts a **small first-order**
+(full-FOV demo volumes are large), extracts the **first-order**
 ``each_habitat`` bank (gallery-fast; not a full IBSI texture set)
-together with the default ``graph`` family, then melts the wide
-``habitat_{id}_{feature}`` block through ``to_habitat_feature_panel`` /
-``compare_habitat_features``.
+together with ``volume`` and the default ``graph`` family, then melts
+two wide blocks:
 
-Graph columns (``single_h*`` / ``pair_h*_h*``) stay on the joined
-table. They are subject-level topology metrics and do **not** match the
-wide each_habitat schema, so they are not melted into the contrast API.
+* ``habitat_{id}_{feature}`` → :func:`~habit.to_habitat_feature_panel`
+* ``single_h{id}_{metric}`` → :func:`~habit.to_graph_habitat_panel`
+
+Pair columns ``pair_h*_h*`` stay on the joined table and are drawn with
+:func:`~habit.viz.plot_habitat_graph_pair_matrix`.
 
 This script accompanies ``docs/source/examples/habitat_feature_compare.rst``.
 This is a software demo, not a clinical claim.
@@ -34,6 +35,7 @@ import pandas as pd
 from habit import (
     cohort_from_directory,
     compare_habitat_features,
+    to_graph_habitat_panel,
     to_habitat_feature_panel,
 )
 from habit.adapters import (
@@ -55,18 +57,50 @@ DATA = "demo_data/preprocessed"
 MAPS = "demo_data/results/habitat_two_step"
 MODALITIES = ("LAP",)
 ROI = "LAP"
-# Small real slice: paired Cliff's delta / BH-FDR need n >= 3.
-N_SUBJECTS = 3
+# Demo pack has five subjects. Paired Cliff's delta / BH-FDR need n >= 3.
+N_SUBJECTS = 5
 
-# First-order only so each_habitat stays gallery-fast on demo volumes.
-# A paper pipeline would use the bundled roi preset (full texture bank).
+# First-order bank + volume: enough columns for a reviewer heatmap without
+# a full IBSI texture wait. A paper pipeline would add glcm / glrlm here.
 LIGHT_RADIOMICS = {
     "imageType": {"Original": {}},
     "featureClass": {
-        "firstorder": ["Mean", "Median", "Skewness", "Kurtosis", "Energy"],
+        "firstorder": [
+            "Mean",
+            "Median",
+            "Minimum",
+            "Maximum",
+            "Range",
+            "Variance",
+            "StandardDeviation",
+            "Skewness",
+            "Kurtosis",
+            "Energy",
+            "TotalEnergy",
+            "Entropy",
+            "Uniformity",
+            "10Percentile",
+            "90Percentile",
+            "InterquartileRange",
+            "MeanAbsoluteDeviation",
+            "RobustMeanAbsoluteDeviation",
+            "RootMeanSquared",
+        ],
     },
     "setting": {"additionalInfo": False, "correctMask": True},
 }
+
+# Interpretable single-habitat graph metrics for the topology heatmap.
+GRAPH_NODE_METRICS = (
+    "n_nodes",
+    "n_edges",
+    "edge_density",
+    "avg_degree",
+    "connected_components",
+    "avg_edge_distance",
+    "degree_cv",
+    "n_nodes_per_habitat_volume",
+)
 
 
 def stack_subject_tables(tables: Sequence[FeatureTable]) -> FeatureTable:
@@ -242,11 +276,13 @@ print(
     f"({len(wide_cols)} wide habitat_*, {len(graph_cols)} graph)"
 )
 
-# Contrast melts only habitat_{id}_{feature}. Graph columns stay on `table`
-# but are ignored by the panel (they are subject-level topology, not a
-# per-habitat measurement in that wide schema).
+# Two melts, same contrast API. Radiomics / volume use habitat_{id}_*;
+# graph node metrics use single_h{id}_*. Pair columns stay on `table`.
 panel = to_habitat_feature_panel(table)
+graph_panel = to_graph_habitat_panel(table)
 comparison = compare_habitat_features(panel)
+graph_comparison = compare_habitat_features(graph_panel)
+pair = comparison.strongest_pair()
 subject_id = str(cohort[0].subject_id)
 print(
     f"Panel: {panel.n_subjects} subjects, "
@@ -255,25 +291,25 @@ print(
 )
 print(
     f"Cohort contrast: n={comparison.n_subjects}, "
-    f"paired={comparison.paired}, effect={comparison.effect}"
+    f"paired={comparison.paired}, effect={comparison.effect}, "
+    f"strongest pair=H{pair[0]} vs H{pair[1]}"
 )
-print("Top absolute-effect features:", comparison.top_features(k=6))
+print("Top absolute-effect features:", comparison.top_features(k=6, pair=pair))
 print(
-    f"Graph sample ({subject_id}):",
-    {
-        name: float(table.frame.loc[table.frame[table.id_columns[0]] == subject_id, name].iloc[0])
-        for name in graph_cols[:4]
-    },
+    f"Graph panel: {graph_panel.n_subjects} subjects, "
+    f"features={len(graph_panel.feature_names)}; "
+    f"pair columns remain on the wide table for the contact matrix"
 )
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses comparison, subject_id, and Path.
+# Paste after the Script block. Uses comparison, graph_comparison, table,
+# pair, subject_id, GRAPH_NODE_METRICS, and Path.
 from habit.viz import (
-    plot_habitat_feature_bars,
     plot_habitat_feature_effect,
     plot_habitat_feature_heatmap,
     plot_habitat_feature_violin,
+    plot_habitat_graph_pair_matrix,
     use_style,
 )
 
@@ -289,43 +325,50 @@ def _save(fig: object, name: str) -> None:
     print(f"Wrote out/{name}")
 
 
+graph_metric_names = [
+    name for name in GRAPH_NODE_METRICS if name in graph_panel.feature_names
+]
+
 with use_style("radiology"):
+    # Figure 1 -- cohort overview (all first-order + volume, z-scored).
     _save(
-        plot_habitat_feature_heatmap(
-            comparison, title="Cohort mean habitat x feature"
-        ),
+        plot_habitat_feature_heatmap(comparison),
         "habitat_feature_compare_heatmap.png",
     )
+    # Figure 2 -- the claim: one pair, ranked Cliff's delta.
     _save(
-        plot_habitat_feature_effect(
-            comparison, top_k=20, title="Habitat contrast (Cliff's delta)"
-        ),
+        plot_habitat_feature_effect(comparison, pair=pair, top_k=20),
         "habitat_feature_compare_effect.png",
     )
+    # Figure 3 -- only the top features that separate that pair.
     _save(
         plot_habitat_feature_violin(
-            comparison,
-            max_features=6,
-            title="Top-k habitat feature distributions",
+            comparison, pair=pair, max_features=4, kind="box"
         ),
         "habitat_feature_compare_violin.png",
     )
+    # Graph node metrics: same reviewer claim, topology instead of intensity.
+    _save(
+        plot_habitat_feature_heatmap(
+            graph_comparison,
+            features=graph_metric_names,
+            title="Cohort graph metrics by habitat (z-scored)",
+        ),
+        "habitat_feature_compare_graph_heatmap.png",
+    )
+    # Graph pair values cannot melt; this is the honest contact figure.
+    _save(
+        plot_habitat_graph_pair_matrix(table, metric="contact_voxels_sum"),
+        "habitat_feature_compare_graph_pairs.png",
+    )
+    # One case only -- not the cohort claim.
     _save(
         plot_habitat_feature_heatmap(
             comparison,
             subject_id=subject_id,
-            title=f"Habitat feature profile ({subject_id})",
+            title=f"One case ({subject_id})",
         ),
         "habitat_feature_compare_subject_heatmap.png",
-    )
-    _save(
-        plot_habitat_feature_bars(
-            comparison,
-            subject_id=subject_id,
-            max_features=6,
-            title=f"Top-k values ({subject_id})",
-        ),
-        "habitat_feature_compare_bars.png",
     )
 # END figures
 
@@ -341,7 +384,8 @@ if __name__ == "__main__":
             "habitat_feature_compare_heatmap.png",
             "habitat_feature_compare_effect.png",
             "habitat_feature_compare_violin.png",
+            "habitat_feature_compare_graph_heatmap.png",
+            "habitat_feature_compare_graph_pairs.png",
             "habitat_feature_compare_subject_heatmap.png",
-            "habitat_feature_compare_bars.png",
         )
     )

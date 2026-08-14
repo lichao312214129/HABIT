@@ -118,9 +118,11 @@ publication figures.
 .. rubric:: Featured: habitat-feature contrast
 
 Melt a wide ``each_habitat`` table and contrast habitats across a real
-demo slice (heatmap, Cliff's delta, violin, one-subject bars). ``graph``
-is extracted with the default light set; topology columns stay on the
-table and do not enter the melt.
+demo slice (cohort heatmap, ranked Cliff's delta, top-feature
+distributions). ``graph`` node metrics melt through
+:func:`~habit.to_graph_habitat_panel`; pair contact uses
+:func:`~habit.viz.plot_habitat_graph_pair_matrix`. One-subject plots are
+secondary.
 
 * How-to (YAML / CLI): :doc:`../how_to/extract_features`
 * Runnable example + gallery: :doc:`habitat_feature_compare`

@@ -19,9 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Habitat feature contrast API: ``to_habitat_feature_panel`` /
   ``compare_habitat_features`` melt an ``each_habitat`` table and run
   paired habitat-vs-habitat tests (Cliff's delta or Cohen's d, BH-FDR).
-  Publication figures: heatmap, effect-size forest, violin, grouped bars
-  (cohort mean or one subject). High-dimensional texture tables use the
-  heatmap + top-k effect plot, not one violin per feature.
+  ``to_graph_habitat_panel`` melts default-extract ``single_h{id}_{metric}``
+  columns into the same panel so topology uses the same contrast +
+  figures. ``plot_habitat_graph_pair_matrix`` draws ``pair_h*_h*``
+  contact / edge metrics (diagonal and missing pairs stay NaN).
+  Publication figures: feature x habitat heatmap (z-scored; missing
+  cells masked), ranked effect-size forest (filled = q < 0.05),
+  box+strip shortlist for one pair. High-dimensional texture tables use
+  the heatmap + top-k effect plot, not one violin per feature.
+  ``HabitatFeatureComparison.strongest_pair()`` returns the pair with
+  the largest mean |effect|.
 - SHAP figure family on ``habit.viz``: ``plot_shap_bar``,
   ``plot_shap_violin``, ``plot_shap_heatmap``, ``plot_shap_decision``,
   ``plot_shap_force`` (static matplotlib). YAML ``plot_types`` accepts
@@ -73,8 +80,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   additive; heavy radiomics stay opt-in. Tests that pin an explicit
   family list are unchanged.
 - Docs: real-data gallery for habitat-feature contrast
-  (``to_habitat_feature_panel`` / ``compare_habitat_features``) on
-  ``demo_data/`` maps with ``each_habitat`` + ``graph``.
+  (``to_habitat_feature_panel`` / ``to_graph_habitat_panel`` /
+  ``compare_habitat_features``) on ``demo_data/`` maps with first-order
+  ``each_habitat`` + ``volume`` + ``graph``. Cohort heatmap, ranked
+  Cliff's delta, and top-feature box+strip are the reviewer figures;
+  graph node / pair plots are the topology counterpart; one-case
+  heatmap is labeled as secondary.
+- Habitat-feature figures: heatmap is features (rows) x habitats
+  (columns) with grey NaN cells; effect forest adds a q-value legend
+  and defaults to ``strongest_pair()``; violin defaults to box+strip
+  for the contrasted pair only; grouped bars z-score by default and no
+  longer draw missing values as zero. Feature tick labels drop
+  ``original_firstorder_`` boilerplate.
 
 ## [1.1.3] - 2026-08-09
 

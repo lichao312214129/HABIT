@@ -1,31 +1,29 @@
-Habitat feature contrast (cohort or one subject)
-================================================
+Habitat feature contrast (cohort first)
+=======================================
 
 **Level:** recipe / atomic · **Data:** ``demo_data`` · **Extras:**
-``[tables,viz]`` + ``pyradiomics`` · **Time:** ~5 min (3 subjects;
-first NRRD load dominates)
+``[tables,viz]`` + ``pyradiomics`` · **Time:** ~5–8 min (up to 5
+subjects; first NRRD load dominates)
 
 After habitat maps exist, ``each_habitat`` (and ``volume``) store one row
 per subject with wide columns ``habitat_{id}_{feature}``. Reviewers
-typically need the opposite view: for each feature, do habitats differ,
-and by how much?
+need the opposite view: **different habitats are genuinely different
+and interpretable**. The cohort is the claim; one subject is a profile.
 
 This page loads **real** ``demo_data/preprocessed`` images and existing
 ``demo_data/results/habitat_two_step/*_habitats.nrrd`` maps (the
 get-habitat demo output). It crops each pair to the habitat foreground
 (full-FOV demo volumes are large; the crop is in the taught script, not
-a hidden helper), then extracts a **small first-order** ``each_habitat``
-bank plus the default ``graph`` family on the first three subjects
-(paired tests need :math:`n \ge 3`; the full demo cohort is five). Then
-it melts the wide block and draws the publication figures.
+a hidden helper), then extracts a **first-order** ``each_habitat`` bank
+plus ``volume`` and the default ``graph`` family. Two melts feed the
+same contrast API:
 
-``graph`` columns (``single_h*`` / ``pair_h*_h*``) live on the **same**
-joined :class:`~habit.contracts.FeatureTable`. They are subject-level
-topology metrics (per habitat and per habitat pair) and do **not** match
-``habitat_{id}_{feature}``, so :func:`~habit.to_habitat_feature_panel`
-ignores them. Contrast the wide radiomics / volume block; inspect graph
-values as a separate table. Do not force topology metrics into a fake
-wide schema.
+* :func:`~habit.to_habitat_feature_panel` — ``habitat_{id}_{feature}``
+* :func:`~habit.to_graph_habitat_panel` — ``single_h{id}_{metric}``
+
+Pair columns ``pair_h*_h*`` stay on the joined table and are drawn with
+:func:`~habit.viz.plot_habitat_graph_pair_matrix` (a habitat is not a
+pair with itself; missing pairs stay NaN, not zero).
 
 This is a software demo, not a clinical claim.
 
@@ -44,8 +42,12 @@ to your preprocessed tree and get-habitat output. Figures land under
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``comparison`` and
-``subject_id``). Writes ``out/habitat_feature_compare_*.png``.
+Paste this after the Script block (it uses ``comparison``,
+``graph_comparison``, ``table``, ``pair``, and ``subject_id``). Writes
+``out/habitat_feature_compare_*.png``. The three required reviewer
+figures are the cohort heatmap, the ranked Cliff's delta forest, and
+the top-feature distributions. Graph figures use the same claim
+(habitats differ) on topology. The last heatmap is one case.
 
 .. literalinclude:: scripts/habitat_feature_compare_demo.py
    :language: python
@@ -59,56 +61,70 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (three demo subjects, first-order ``each_habitat`` + default
-``graph`` + ``volume``)::
+Illustrative (demo subjects, first-order ``each_habitat`` + ``volume`` +
+default ``graph``). The committed PNGs were written by the taught
+``plot_*`` calls in the figures block. Re-run the script when
+``demo_data/preprocessed`` and the habitat maps are present::
 
-   Subjects: ['subj001', 'subj002', 'subj003']; habitats 1..5
-   Joined table: 3 rows x 848 columns (35 wide habitat_*, 805 graph)
-   Panel: 3 subjects, habitats=(1, 2, 3, 4, 5), features=7
-   Cohort contrast: n=3, paired=True, effect=cliffs_delta
-   Top absolute-effect features: original_firstorder_Mean_of_LAP, ...
+   Subjects: ['subj001', ...]; habitats 1..5
+   Joined table: N rows x hundreds of columns (wide habitat_* + graph)
+   Panel: N subjects, habitats=(1, 2, 3, 4, 5), features=21
+   Cohort contrast: n=N, paired=True, effect=cliffs_delta, strongest pair=H? vs H?
+   Graph panel: N subjects, features=...; pair columns remain on the wide table
 
 Figures
 -------
 
-Cohort / single-subject figures from the demo slice (not a clinical
-claim).
+Cohort figures first (the claim). Graph figures are the same claim on
+topology. The last panel is one case, not the cohort result. Not a
+clinical claim.
 
 .. figure:: ../_static/images/examples/habitat_feature_compare_heatmap.png
-   :alt: Cohort mean habitat-by-feature heatmap
+   :alt: Cohort habitat-by-feature heatmap, z-scored
    :width: 520
 
-   Cohort mean habitat x feature
-   (:func:`~habit.viz.plot_habitat_feature_heatmap`, z-scored).
+   Figure 1. Cohort habitat x feature (z-scored)
+   (:func:`~habit.viz.plot_habitat_feature_heatmap`). Features are rows;
+   missing cells stay grey (NaN), not zero.
 
 .. figure:: ../_static/images/examples/habitat_feature_compare_effect.png
-   :alt: Cliff's delta effect-size forest
+   :alt: Ranked Cliff's delta for one habitat pair
    :width: 420
 
-   Ranked Cliff's delta
-   (:func:`~habit.viz.plot_habitat_feature_effect`).
+   Figure 2. Ranked paired Cliff's delta for the strongest pair
+   (:func:`~habit.viz.plot_habitat_feature_effect`). Filled = BH
+   :math:`q < 0.05`; open = not significant or untested.
 
 .. figure:: ../_static/images/examples/habitat_feature_compare_violin.png
-   :alt: Top-k habitat feature violins
+   :alt: Box and strip of top contrasting features
    :width: 520
 
-   Top-k distributions
-   (:func:`~habit.viz.plot_habitat_feature_violin`).
+   Figure 3. Distributions of the top contrasting features for that pair
+   (:func:`~habit.viz.plot_habitat_feature_violin`, ``kind='box'``).
+
+.. figure:: ../_static/images/examples/habitat_feature_compare_graph_heatmap.png
+   :alt: Cohort graph node-metric heatmap by habitat
+   :width: 520
+
+   Graph node metrics by habitat
+   (:func:`~habit.to_graph_habitat_panel` then
+   :func:`~habit.viz.plot_habitat_feature_heatmap`).
+
+.. figure:: ../_static/images/examples/habitat_feature_compare_graph_pairs.png
+   :alt: Cohort inter-habitat contact matrix
+   :width: 420
+
+   Inter-habitat contact
+   (:func:`~habit.viz.plot_habitat_graph_pair_matrix`). Diagonal and
+   missing pairs are NaN.
 
 .. figure:: ../_static/images/examples/habitat_feature_compare_subject_heatmap.png
    :alt: One-subject habitat feature heatmap
-   :width: 520
-
-   One-subject profile
-   (:func:`~habit.viz.plot_habitat_feature_heatmap` with
-   ``subject_id``).
-
-.. figure:: ../_static/images/examples/habitat_feature_compare_bars.png
-   :alt: One-subject grouped bars
    :width: 420
 
-   One-subject top-k bars
-   (:func:`~habit.viz.plot_habitat_feature_bars`).
+   One case
+   (:func:`~habit.viz.plot_habitat_feature_heatmap` with
+   ``subject_id``). Secondary to the cohort figures.
 
 What to read next
 -----------------

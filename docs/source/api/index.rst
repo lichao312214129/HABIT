@@ -352,6 +352,7 @@ Habitat feature extractors
    habit.domain.EachHabitatRadiomicsFeatures
    habit.domain.EachHabitatRadiomicsFeaturesParams
    habit.domain.to_habitat_feature_panel
+   habit.domain.to_graph_habitat_panel
    habit.domain.compare_habitat_features
    habit.domain.HabitatFeaturePanel
    habit.domain.HabitatFeatureComparison
@@ -894,6 +895,7 @@ Habitat clustering and overlay
    habit.viz.plot_habitat_feature_effect
    habit.viz.plot_habitat_feature_violin
    habit.viz.plot_habitat_feature_bars
+   habit.viz.plot_habitat_graph_pair_matrix
    habit.viz.plot_habitat_graph_slice
    habit.viz.plot_habitat_graph_network_2d
    habit.viz.render_habitat_graph_surface_3d
