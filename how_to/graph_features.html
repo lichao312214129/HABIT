@@ -1757,7 +1757,7 @@ line per shell command (Windows / conda PowerShell):</p>
   <span class="n">edge_method</span><span class="p">:</span> <span class="n">adjacency</span>
   <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">face</span>
   <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="mi">10</span>
-  <span class="n">erosion_radius</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="n">erosion_radius</span><span class="p">:</span> <span class="mi">0</span>
   <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="mi">1000</span>
   <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
@@ -1772,10 +1772,13 @@ line per shell command (Windows / conda PowerShell):</p>
 <code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> (2D needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>; 3D also needs
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
 </ul>
-<p>By default an <strong>edge exists when two regions are adjacent</strong> (face-sharing
-voxels; <code class="docutils literal notranslate"><span class="pre">adjacency_connectivity:</span> <span class="pre">face</span></code>) <strong>and</strong> the contact
-(shared-boundary) voxel count is <strong>&gt;= 10</strong> (<code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels:</span> <span class="pre">10</span></code>).
-Use <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">centroid_distance</span></code> plus <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> if you
+<p>By default there is <strong>no morphological erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>).
+An <strong>edge exists when two regions are adjacent</strong> (face-sharing voxels;
+<code class="docutils literal notranslate"><span class="pre">adjacency_connectivity:</span> <span class="pre">face</span></code>) <strong>and</strong> the contact (shared-boundary)
+voxel count is <strong>&gt;= 10</strong> (<code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels:</span> <span class="pre">10</span></code>), measured on the
+habitat labels as drawn. Set <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> to a positive integer if
+you want to shrink each habitat before building edges. Use
+<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">centroid_distance</span></code> plus <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> if you
 want the older centroid-proximity rule instead.</p>
 <p>Parameter reference: <a class="reference internal" href="../configuration/feature_extraction.html"><span class="doc">Feature Extraction Configuration</span></a>.</p>
 </section>

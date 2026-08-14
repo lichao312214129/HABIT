@@ -1782,9 +1782,10 @@ are written.</p>
 <li><p>If <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> <span class="math notranslate nohighlight">\(r\ge 1\)</span>, replace <span class="math notranslate nohighlight">\(M_k\)</span> by
 <span class="math notranslate nohighlight">\(r\)</span> iterations of binary erosion with structuring element
 <span class="math notranslate nohighlight">\(S\)</span> and <code class="docutils literal notranslate"><span class="pre">border_value=0</span></code>. Default in
-<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> is <span class="math notranslate nohighlight">\(r=1\)</span>
-(one-voxel shell removed to suppress segmentation-edge noise).
-<span class="math notranslate nohighlight">\(r=0\)</span> disables erosion.</p></li>
+<a class="reference internal" href="../../api/generated/habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.HabitatGraphFeatureOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code></a> is <span class="math notranslate nohighlight">\(r=0\)</span>
+(off): adjacency and contact are measured on the habitat labels as
+drawn. Pass a positive <span class="math notranslate nohighlight">\(r\)</span> to shrink each habitat before
+labeling and edges.</p></li>
 <li><p>Label connected components of the (possibly eroded) mask with
 <code class="docutils literal notranslate"><span class="pre">scipy.ndimage.label</span></code> and structure <span class="math notranslate nohighlight">\(S\)</span>:</p>
 <ul class="simple">
@@ -1862,7 +1863,9 @@ pairs whose ids are <span class="math notranslate nohighlight">\((u,v)\)</span>.
 <div class="math notranslate nohighlight">
 \[N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}\]</div>
 <p>(default <code class="docutils literal notranslate"><span class="pre">10</span></code>). An edge exists when two regions are adjacent and the
-contact (shared-boundary) voxel count is &gt;= 10. <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code>
+contact (shared-boundary) voxel count is &gt;= 10, measured on the
+(possibly eroded) masks. Default <code class="docutils literal notranslate"><span class="pre">erosion_radius=0</span></code> means the habitat
+labels as drawn. <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code>
 <span class="math notranslate nohighlight">\(=N_{\mathrm{adj}}\)</span>. Distance on
 the edge is still the centroid Euclidean distance (used by distance
 summaries). Weight is <code class="docutils literal notranslate"><span class="pre">1</span></code> unless <code class="docutils literal notranslate"><span class="pre">edge_weight='contact_voxels'</span></code>, in
@@ -2132,7 +2135,7 @@ below match the kernel dataclass.</p>
 <td><p>Connected-component rule: <code class="docutils literal notranslate"><span class="pre">face</span></code> or <code class="docutils literal notranslate"><span class="pre">full</span></code> (default <code class="docutils literal notranslate"><span class="pre">face</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code></p></td>
-<td><p>Binary erosion iterations before labeling (default <code class="docutils literal notranslate"><span class="pre">1</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
+<td><p>Binary erosion iterations before labeling (default <code class="docutils literal notranslate"><span class="pre">0</span></code> / off; set <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> to shrink habitats before edges)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code></p></td>
 <td><p>Split components larger than this into grid blocks (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
