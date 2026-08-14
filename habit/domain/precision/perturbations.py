@@ -736,6 +736,8 @@ class BSplineDeformPerturbationParams(BaseModel):
     mask_mode: Union[str, int] = "nearest"
     padding_mode: str = "reflection"
     device: str = "cpu"
+    target_dice: Optional[float] = None
+    dice_tolerance: float = 0.02
 
 
 @ImagePerturbationRegistry.register("bspline_deform")
@@ -780,6 +782,11 @@ class BSplineDeformPerturbation:
         device: Torch device (``"cpu"`` / ``"cuda"``). Default ``"cpu"``
             is the portable path; pass ``"cuda"`` when a GPU is available
             and the volume fits in memory.
+        target_dice: When set, scale one frozen MONAI offset field so the
+            Dice between the original and warped ROI is within
+            ``dice_tolerance`` of this value. ``None`` keeps the random
+            magnitude from ``magnitude_range``.
+        dice_tolerance: Allowed absolute error on ``target_dice``.
     """
 
     def __init__(
@@ -790,6 +797,8 @@ class BSplineDeformPerturbation:
         mask_mode: Union[str, int] = "nearest",
         padding_mode: str = "reflection",
         device: str = "cpu",
+        target_dice: Optional[float] = None,
+        dice_tolerance: float = 0.02,
     ) -> None:
         self.sigma_range = _pair_range("sigma_range", sigma_range)
         self.magnitude_range = _pair_range("magnitude_range", magnitude_range)
@@ -808,6 +817,23 @@ class BSplineDeformPerturbation:
                 f"got {device!r}."
             )
         self.device = str(device)
+        if target_dice is not None:
+            target = float(target_dice)
+            if not 0.0 < target <= 1.0:
+                raise HABITAPIError(
+                    "bspline_deform: target_dice must be in (0, 1]; "
+                    f"got {target_dice!r}."
+                )
+            self.target_dice: Optional[float] = target
+        else:
+            self.target_dice = None
+        tolerance = float(dice_tolerance)
+        if not 0.0 < tolerance < 1.0:
+            raise HABITAPIError(
+                "bspline_deform: dice_tolerance must be in (0, 1); "
+                f"got {dice_tolerance!r}."
+            )
+        self.dice_tolerance = tolerance
 
     @property
     def spec(self) -> Spec:
@@ -821,25 +847,32 @@ class BSplineDeformPerturbation:
                 "mask_mode": self.mask_mode,
                 "padding_mode": self.padding_mode,
                 "device": self.device,
+                "target_dice": self.target_dice,
+                "dice_tolerance": self.dice_tolerance,
             },
         )
 
-    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+    def _warp(
+        self,
+        subject: Subject,
+        *,
+        seed: int,
+        magnitude_range: Tuple[float, float],
+        mask_keys_only: bool = False,
+    ) -> Subject:
         """
-        Return a copy of ``subject`` warped by one MONAI elastic field.
+        Apply one MONAI elastic field with a frozen seed and magnitude.
 
         Args:
             subject: Subject providing images and/or masks on one grid.
-            rng: Random generator; one integer seed is drawn so every
-                volume of this subject shares the same displacement.
+            seed: Integer seed for the shared offset grid.
+            magnitude_range: Displacement magnitude ``(low, high)``.
+            mask_keys_only: When ``True``, warp masks only (used while
+                searching for a target Dice so images are not resampled
+                on every binary-search step).
 
         Returns:
             The warped subject copy (same keys, same geometry).
-
-        Raises:
-            OptionalDependencyError: When the ``monai`` extra is missing.
-            HABITAPIError: When the subject has no volumes, or images
-                and masks do not share one 3-D shape.
         """
         from habit.utils.optional_deps import require
 
@@ -853,7 +886,7 @@ class BSplineDeformPerturbation:
         )
         from monai.transforms import Rand3DElasticd
 
-        image_keys = list(subject.images)
+        image_keys = [] if mask_keys_only else list(subject.images)
         mask_keys = list(subject.masks)
         if not image_keys and not mask_keys:
             raise HABITAPIError(
@@ -895,22 +928,24 @@ class BSplineDeformPerturbation:
         transform = Rand3DElasticd(
             keys=keys,
             sigma_range=self.sigma_range,
-            magnitude_range=self.magnitude_range,
+            magnitude_range=magnitude_range,
             spatial_size=reference_shape,
             prob=1.0,
             mode=tuple(modes),
             padding_mode=self.padding_mode,
             device=self.device,
         )
-        # One seed drives the shared offset grid for every key.
-        transform.set_random_state(int(rng.integers(0, 2**31 - 1)))
+        transform.set_random_state(int(seed))
         warped = transform(data)
 
         images: Dict[str, np.ndarray] = {}
-        for modality in image_keys:
-            images[modality] = _as_numpy_volume(warped[f"image:{modality}"]).astype(
-                np.float64, copy=False
-            )
+        for modality in list(subject.images):
+            if mask_keys_only:
+                images[modality] = np.asarray(subject.image(modality).data)
+            else:
+                images[modality] = _as_numpy_volume(
+                    warped[f"image:{modality}"]
+                ).astype(np.float64, copy=False)
         masks: Dict[str, np.ndarray] = {}
         for roi in mask_keys:
             mask_array = np.asarray(subject.mask(roi).data)
@@ -919,6 +954,108 @@ class BSplineDeformPerturbation:
             # residual float dust from the MONAI / scipy backend.
             masks[roi] = np.rint(warped_mask).astype(mask_array.dtype)
         return _replace_images(subject, images, masks)
+
+    def _mean_roi_dice(self, reference: Subject, warped: Subject) -> float:
+        """Return the mean binary Dice across every mask key."""
+        from habit.kernels.image_perturbation import binary_mask_dice
+
+        scores = [
+            binary_mask_dice(
+                np.asarray(reference.mask(roi).data),
+                np.asarray(warped.mask(roi).data),
+            )
+            for roi in reference.masks
+        ]
+        return float(np.mean(np.asarray(scores, dtype=float)))
+
+    def _magnitude_for_target_dice(self, subject: Subject, seed: int) -> float:
+        """
+        Binary-search a magnitude so ROI Dice matches ``target_dice``.
+
+        The MONAI offset-grid direction is frozen by ``seed``; only the
+        scale changes. Larger magnitude usually lowers Dice.
+
+        Args:
+            subject: Subject whose masks define the Dice.
+            seed: Frozen seed for the offset field.
+
+        Returns:
+            float: Magnitude that lands closest to ``target_dice``.
+        """
+        assert self.target_dice is not None
+        target = float(self.target_dice)
+        lo = 0.0
+        hi = max(float(self.magnitude_range[1]) * 2.0, 8.0)
+        best_magnitude = hi
+        best_error = 1.0
+        # Expand the upper bound if even a large warp stays too similar.
+        for _ in range(4):
+            probe = self._warp(
+                subject,
+                seed=seed,
+                magnitude_range=(hi, hi),
+                mask_keys_only=True,
+            )
+            dice = self._mean_roi_dice(subject, probe)
+            error = abs(dice - target)
+            if error < best_error:
+                best_error = error
+                best_magnitude = hi
+            if dice <= target + self.dice_tolerance:
+                break
+            hi = min(hi * 2.0, 64.0)
+        for _ in range(12):
+            mid = 0.5 * (lo + hi)
+            probe = self._warp(
+                subject,
+                seed=seed,
+                magnitude_range=(mid, mid),
+                mask_keys_only=True,
+            )
+            dice = self._mean_roi_dice(subject, probe)
+            error = abs(dice - target)
+            if error < best_error:
+                best_error = error
+                best_magnitude = mid
+            if error <= self.dice_tolerance:
+                return mid
+            if dice > target:
+                lo = mid
+            else:
+                hi = mid
+        return best_magnitude
+
+    def __call__(self, subject: Subject, *, rng: np.random.Generator) -> Subject:
+        """
+        Return a copy of ``subject`` warped by one MONAI elastic field.
+
+        Args:
+            subject: Subject providing images and/or masks on one grid.
+            rng: Random generator; one integer seed is drawn so every
+                volume of this subject shares the same displacement.
+
+        Returns:
+            The warped subject copy (same keys, same geometry).
+
+        Raises:
+            OptionalDependencyError: When the ``monai`` extra is missing.
+            HABITAPIError: When the subject has no volumes, or images
+                and masks do not share one 3-D shape. ``target_dice``
+                also requires at least one mask.
+        """
+        seed = int(rng.integers(0, 2**31 - 1))
+        if self.target_dice is None:
+            return self._warp(
+                subject, seed=seed, magnitude_range=self.magnitude_range
+            )
+        if not list(subject.masks):
+            raise HABITAPIError(
+                "bspline_deform: target_dice requires at least one ROI mask."
+            )
+        magnitude = self._magnitude_for_target_dice(subject, seed)
+        return self._warp(
+            subject, seed=seed, magnitude_range=(magnitude, magnitude)
+        )
 
 
 ImagePerturbationRegistry.register_params_model(

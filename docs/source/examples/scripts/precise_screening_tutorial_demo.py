@@ -606,20 +606,40 @@ if __name__ == "__main__":
     ref_map = orig_habitats.habitat_maps[0]
     mov_map = warped_habitats.habitat_maps[0]
     # Independent one_step fits permute integer ids. Remap the warped map
-    # onto the reference by cluster-centroid distance (test-retest matcher)
-    # so habitat 1 means the same tissue on both sides. Dice still uses the
-    # original pair: habitat_stability matches by overlap internally.
-    ref_model = orig_habitats.subject_models[ref_map.subject_id]
-    mov_model = warped_habitats.subject_models[mov_map.subject_id]
-    aligned_map = align_habitat_map(
-        ref_map,
-        mov_map,
-        reference_centroids=ref_model.centroids,
-        moving_centroids=mov_model.centroids,
-    )
+    # (panel 2 only) onto the reference by maximal voxel overlap -- the
+    # same Hungarian pairing habitat_stability uses -- so habitat 2 is the
+    # same spatial region on both panels. Feature-space centroids can
+    # disagree with that pairing. Dice is scored on the original pair.
+    aligned_map = align_habitat_map(ref_map, mov_map, method="overlap")
     dice_frame = habitat_stability(ref_map, [mov_map])
     print("Habitat Dice after BSplineDeform (Hungarian match)")
     print(dice_frame.to_string(index=False))
+    roi_labels = (np.asarray(ref_map.label_array) > 0) | (
+        np.asarray(mov_map.label_array) > 0
+    )
+    raw_disagree = int(
+        np.count_nonzero(
+            (ref_map.label_array != mov_map.label_array) & roi_labels
+        )
+    )
+    aligned_disagree = int(
+        np.count_nonzero(
+            (ref_map.label_array != aligned_map.label_array) & roi_labels
+        )
+    )
+    print(
+        f"Disagreement voxels (ROI): raw={raw_disagree} "
+        f"after_overlap_remap={aligned_disagree}"
+    )
+    mov_ids = np.asarray(mov_map.label_array)
+    aln_ids = np.asarray(aligned_map.label_array)
+    was_h3 = mov_ids == 3
+    if np.any(was_h3):
+        mapped, counts = np.unique(aln_ids[was_h3], return_counts=True)
+        print(
+            "Raw panel-2 habitat 3 remaps to: "
+            + ", ".join(f"H{int(i)} ({int(c)} vx)" for i, c in zip(mapped, counts))
+        )
 
     fig_cmp = plot_habitat_label_compare(
         ffd_subject.image(modality),

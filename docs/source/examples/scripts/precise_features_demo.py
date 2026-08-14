@@ -57,8 +57,12 @@ precise = identify_precise_voxel_features(
     seed=7,
     show_progress=False,
 )
-print(f"  precise features: {list(precise.feature_names)}")
 evidence = precise.to_frame().round(3)
+screened = list(precise.feature_names)
+all_names = list(dict.fromkeys(evidence["feature"].astype(str).tolist()))
+unstable = [name for name in all_names if name not in set(screened)]
+print(f"  precise (stable) features: {screened}")
+print(f"  unstable features: {unstable}")
 print(evidence.to_string(index=False))
 
 print("\n=== whitelist bridge into a habitat spec ===")
@@ -96,12 +100,15 @@ with tempfile.TemporaryDirectory(prefix="habit_precise_") as tmp:
 # Paste after the Script block. Uses precise, evidence, cohort, result, MODALITIES.
 from habit.viz import plot_habitat_overlay
 
-# Evidence figure: ICC and LCL per feature (the screen's actual product)
+# Evidence figure: ICC and LCL per feature, coloured by precise vs unstable.
 fig_icc, ax = plt.subplots(figsize=(6.2, 3.2))
 x = np.arange(len(evidence))
 width = 0.35
-ax.bar(x - width / 2, evidence["value"], width, label="ICC")
-ax.bar(x + width / 2, evidence["lcl"], width, label="LCL")
+precise_flag = evidence["precise"].to_numpy(dtype=bool)
+icc_colors = np.where(precise_flag, "#0072B2", "#9AA0A6")
+lcl_colors = np.where(precise_flag, "#56B4E9", "#D0D3D8")
+ax.bar(x - width / 2, evidence["value"], width, color=icc_colors, label="ICC")
+ax.bar(x + width / 2, evidence["lcl"], width, color=lcl_colors, label="LCL")
 ax.axhline(
     precise.lcl_threshold,
     color="0.25",
@@ -111,21 +118,25 @@ ax.axhline(
 )
 ax.set_xticks(list(x))
 ax.set_xticklabels(
-    [f"{row.feature}\n{row.experiment}" for row in evidence.itertuples()],
+    [
+        f"{row.feature}\n{row.experiment}\n"
+        f"{'precise' if row.precise else 'unstable'}"
+        for row in evidence.itertuples()
+    ],
     fontsize=8,
 )
 ax.set_ylabel("ICC")
 ax.set_ylim(0.0, 1.05)
-ax.set_title("Precision screen (repeatability)")
+ax.set_title("Precision screen: precise vs unstable")
 ax.legend(frameon=False, loc="lower right")
 fig_icc.tight_layout()
 Path("out").mkdir(exist_ok=True)
 fig_icc.savefig("out/precise_features_icc_lcl.png", dpi=150, bbox_inches="tight")
 
-image = cohort[0].image(MODALITIES[0]).data
-labels = result.habitat_maps[0].label_array
 fig_overlay = plot_habitat_overlay(
-    image, labels, axis=0, title="Habitats after precise-feature whitelist"
+    cohort[0].image(MODALITIES[0]),
+    result.habitat_maps[0],
+    title="Habitats after precise-feature whitelist",
 )
 fig_overlay.savefig("out/precise_features_overlay.png", dpi=150, bbox_inches="tight")
 print("Wrote out/precise_features_icc_lcl.png and out/precise_features_overlay.png")
@@ -135,7 +146,8 @@ if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _example_roi import save_example_figure
+    from _example_roi import copy_out_figures_to_gallery
 
-    save_example_figure(fig_icc, "precise_features_icc_lcl.png")
-    save_example_figure(fig_overlay, "precise_features_overlay.png")
+    copy_out_figures_to_gallery(
+        ("precise_features_icc_lcl.png", "precise_features_overlay.png")
+    )

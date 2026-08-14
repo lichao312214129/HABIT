@@ -2,11 +2,10 @@
 """
 One subject → one-step habitats (K=4) → graph features + plots.
 
-This gallery overrides the library defaults: fixed K=4 habitats and
-adjacency contact >= 2 voxels. It inherits library connectivity
-(``connectivity='full'``, ``adjacency_connectivity='corner'``).
-Library defaults remain ``adjacency_min_voxels=10`` and
-``erosion_radius=0``.
+This gallery uses the library graph defaults: equal-volume cubes
+(``node_method='uniform_grid'``, ``block_size=5`` voxels) and closest-voxel
+edges (``edge_method='min_distance'``, ``distance_threshold=5``).
+It only fixes ``n_habitats=4``.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -33,13 +32,13 @@ ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
 # Fixed K=4 (not "auto") so the graph has a known number of habitats.
-# This example overrides the library default adjacency_min_voxels=10.
+# Graph options are the library defaults (uniform 5-voxel cubes + min-distance).
 result = one_step_habitat(
     modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
 ).fit_predict(cohort)
 
 labels = result.habitat_maps[0].label_array
-options = HabitatGraphFeatureOptions(adjacency_min_voxels=2)
+options = HabitatGraphFeatureOptions()
 feats = extract_graph_features(labels, options=options)
 print(len(feats), "graph features")
 # END example
@@ -57,7 +56,13 @@ fig = plot_habitat_overlay(
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
 # Same edge options as extract_graph_features so the 2D plot matches.
-fig = plot_habitat_graph_network_2d(labels, options=options)
+fig = plot_habitat_graph_network_2d(
+    labels,
+    options=options,
+    show_grid=True,
+    block_size=5,
+    grid_linestyle="--",
+)
 fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
 print("Wrote out/graph_habitat_slice_2d.png and out/graph_habitat_network_2d.png")
 # END figures

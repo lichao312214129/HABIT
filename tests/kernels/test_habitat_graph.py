@@ -33,6 +33,9 @@ from habit.kernels.habitat_graph import (
 
 def _extract(label_array: np.ndarray, **overrides) -> dict:
     """Run the kernel with explicit options (test defaults disable erosion)."""
+    # Existing metric tests pin connected-component nodes; the library
+    # default is now uniform_grid.
+    overrides.setdefault("node_method", "component")
     options = HabitatGraphFeatureOptions(**overrides)
     return extract_graph_features(label_array, options=options)
 
@@ -50,7 +53,7 @@ def test_extract_habitat_nodes_uses_connected_regions_as_nodes() -> None:
         dtype=np.int32,
     )
 
-    result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
 
     assert len(result.nodes_by_habitat[1]) == 2
     assert len(result.nodes_by_habitat[2]) == 2
@@ -70,7 +73,7 @@ def test_centroid_distance_graph_connects_regions_within_threshold() -> None:
         ],
         dtype=np.int32,
     )
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
 
     graph = build_centroid_distance_graph(
         nodes=node_result.nodes_by_habitat[1],
@@ -99,7 +102,7 @@ def test_min_distance_graph_connects_regions_three_voxels_apart() -> None:
         ],
         dtype=np.int32,
     )
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
     assert len(node_result.nodes_by_habitat[1]) == 1
     assert len(node_result.nodes_by_habitat[2]) == 1
 
@@ -149,7 +152,7 @@ def test_min_distance_is_not_centroid_distance_on_elongated_regions() -> None:
         ],
         dtype=np.int32,
     )
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
     pair_nodes = list(node_result.nodes_by_habitat[1]) + list(
         node_result.nodes_by_habitat[2]
     )
@@ -180,6 +183,7 @@ def test_min_distance_is_not_centroid_distance_on_elongated_regions() -> None:
 
     options = HabitatGraphFeatureOptions(
         edge_method="min_distance",
+        node_method="component",
         distance_threshold=3.0,
         subdivide_region_voxels=0,
         include_extended_metrics=False,
@@ -201,8 +205,8 @@ def test_adjacency_min_voxels_default_requires_ten_contact_voxels() -> None:
         [[1] * 10, [2] * 10],
         dtype=np.int32,
     )
-    nodes_nine = extract_habitat_nodes(label_array=labels_nine, connectivity="face")
-    nodes_ten = extract_habitat_nodes(label_array=labels_ten, connectivity="face")
+    nodes_nine = extract_habitat_nodes(node_method="component", label_array=labels_nine, connectivity="face")
+    nodes_ten = extract_habitat_nodes(node_method="component", label_array=labels_ten, connectivity="face")
 
     # Pin face: 1-voxel-thick strips also share diagonal contacts under
     # corner connectivity, which would inflate the count past 10 on both
@@ -230,6 +234,8 @@ def test_adjacency_min_voxels_default_requires_ten_contact_voxels() -> None:
     # edge; 10 → one edge. Default erosion is off, so contact is measured
     # on the labels as drawn. Library default adjacency_min_voxels is 10.
     options = HabitatGraphFeatureOptions(
+        edge_method="adjacency",
+        node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
         adjacency_connectivity="face",
@@ -255,7 +261,7 @@ def test_adjacency_graph_counts_face_adjacent_voxels() -> None:
         ],
         dtype=np.int32,
     )
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
 
     graph = build_adjacency_graph(
         node_result=node_result,
@@ -525,11 +531,14 @@ def test_subdivision_splits_large_region_into_multiple_nodes() -> None:
     """A large blob should become several grid-block nodes when subdivision is on."""
     label_array: np.ndarray = np.ones((10, 10), dtype=np.int32)
 
-    without_split = extract_habitat_nodes(label_array=label_array)
+    without_split = extract_habitat_nodes(
+        label_array=label_array, node_method="component"
+    )
     assert len(without_split.nodes_by_habitat[1]) == 1
 
     with_split = extract_habitat_nodes(
         label_array=label_array,
+        node_method="component",
         subdivide_region_voxels=10,
         block_size=5,
         block_min_coverage=0.5,
@@ -551,9 +560,11 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.erosion_radius == 0
     assert options.subdivide_region_voxels == 1000
     assert options.block_size == 5
+    assert options.block_min_coverage == 0.2
     assert options.distance_threshold == 5.0
     assert options.pairwise_include_intra_edges is True
-    assert options.edge_method == "adjacency"
+    assert options.edge_method == "min_distance"
+    assert options.node_method == "uniform_grid"
     assert options.adjacency_connectivity == "corner"
     assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
@@ -573,6 +584,7 @@ def test_pairwise_graph_adds_intra_edges_but_interface_uses_inter_only() -> None
     )
     node_result = extract_habitat_nodes(
         label_array=label_array,
+        node_method="component",
         subdivide_region_voxels=2,
         block_size=1,
     )
@@ -705,7 +717,10 @@ def test_expected_labels_produce_stable_columns_for_missing_habitats() -> None:
         dtype=np.int32,
     )
     options = HabitatGraphFeatureOptions(
-        distance_threshold=3.0, erosion_radius=0, subdivide_region_voxels=0
+        distance_threshold=3.0,
+        erosion_radius=0,
+        node_method="component",
+        subdivide_region_voxels=0,
     )
 
     features = extract_graph_features(
@@ -731,13 +746,17 @@ def test_default_connectivity_merges_diagonal_same_label() -> None:
         ],
         dtype=np.int32,
     )
-    default_options = HabitatGraphFeatureOptions(subdivide_region_voxels=0)
+    default_options = HabitatGraphFeatureOptions(
+        node_method="component", subdivide_region_voxels=0
+    )
     assert default_options.connectivity == "full"
     default_feats = extract_graph_features(label_array, options=default_options)
     face_feats = extract_graph_features(
         label_array,
         options=HabitatGraphFeatureOptions(
-            subdivide_region_voxels=0, connectivity="face"
+            node_method="component",
+            subdivide_region_voxels=0,
+            connectivity="face",
         ),
     )
 
@@ -756,13 +775,18 @@ def test_default_adjacency_connects_diagonal_habitats() -> None:
         dtype=np.int32,
     )
     default_options = HabitatGraphFeatureOptions(
-        adjacency_min_voxels=1, subdivide_region_voxels=0
+        edge_method="adjacency",
+        node_method="component",
+        adjacency_min_voxels=1,
+        subdivide_region_voxels=0,
     )
     assert default_options.adjacency_connectivity == "corner"
     default_feats = extract_graph_features(label_array, options=default_options)
     face_feats = extract_graph_features(
         label_array,
         options=HabitatGraphFeatureOptions(
+            edge_method="adjacency",
+            node_method="component",
             adjacency_min_voxels=1,
             subdivide_region_voxels=0,
             adjacency_connectivity="face",
@@ -787,8 +811,8 @@ def test_face_vs_full_connectivity_merges_diagonal_touch() -> None:
         dtype=np.int32,
     )
 
-    face = extract_habitat_nodes(label_array=label_array, connectivity="face")
-    full = extract_habitat_nodes(label_array=label_array, connectivity="full")
+    face = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
+    full = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="full")
 
     assert len(face.nodes_by_habitat[1]) == 2
     assert len(full.nodes_by_habitat[1]) == 1
@@ -805,7 +829,11 @@ def test_default_adjacency_keeps_contact_edges_optional_erosion_separates() -> N
     label_array[0:5, :] = 1
     label_array[5:10, :] = 2
 
-    default_options = HabitatGraphFeatureOptions()
+    default_options = HabitatGraphFeatureOptions(
+        edge_method="adjacency",
+        node_method="component",
+        subdivide_region_voxels=0,
+    )
     assert default_options.erosion_radius == 0
     assert default_options.edge_method == "adjacency"
     assert default_options.adjacency_min_voxels == 10
@@ -813,7 +841,12 @@ def test_default_adjacency_keeps_contact_edges_optional_erosion_separates() -> N
     default_feats = extract_graph_features(label_array, options=default_options)
     eroded_feats = extract_graph_features(
         label_array,
-        options=HabitatGraphFeatureOptions(erosion_radius=1),
+        options=HabitatGraphFeatureOptions(
+            edge_method="adjacency",
+            node_method="component",
+            subdivide_region_voxels=0,
+            erosion_radius=1,
+        ),
     )
 
     assert default_feats["pair_h1_h2_n_edges"] >= 1.0
@@ -830,10 +863,16 @@ def test_erosion_splits_thin_bridge_into_separate_nodes() -> None:
     label_array[3, 5] = 1
 
     intact = extract_habitat_nodes(
-        label_array=label_array, connectivity="face", erosion_radius=0
+        node_method="component",
+        label_array=label_array,
+        connectivity="face",
+        erosion_radius=0,
     )
     eroded = extract_habitat_nodes(
-        label_array=label_array, connectivity="face", erosion_radius=1
+        node_method="component",
+        label_array=label_array,
+        connectivity="face",
+        erosion_radius=1,
     )
 
     assert len(intact.nodes_by_habitat[1]) == 1
@@ -852,7 +891,7 @@ def test_min_region_voxels_drops_tiny_components() -> None:
         dtype=np.int32,
     )
 
-    kept = extract_habitat_nodes(label_array=label_array, min_region_voxels=2)
+    kept = extract_habitat_nodes(node_method="component", label_array=label_array, min_region_voxels=2)
     assert len(kept.nodes_by_habitat[1]) == 1
     assert kept.nodes_by_habitat[1][0].voxel_count == 4
 
@@ -864,12 +903,14 @@ def test_block_min_coverage_filters_partial_blocks() -> None:
     label_array: np.ndarray = np.ones((6, 6), dtype=np.int32)
 
     strict = extract_habitat_nodes(
+        node_method="component",
         label_array=label_array,
         subdivide_region_voxels=1,
         block_size=4,
         block_min_coverage=0.9,
     )
     loose = extract_habitat_nodes(
+        node_method="component",
         label_array=label_array,
         subdivide_region_voxels=1,
         block_size=4,
@@ -890,7 +931,7 @@ def test_adjacency_corner_connects_diagonal_habitats_face_does_not() -> None:
         ],
         dtype=np.int32,
     )
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
 
     face_graph = build_adjacency_graph(
         node_result=node_result,
@@ -924,7 +965,7 @@ def test_adjacency_edge_connectivity_counts_more_contacts_than_face() -> None:
     label_array[1, 1, 2] = 2  # face neighbor of habitat 1
     label_array[1, 2, 2] = 2  # also edge-adjacent to habitat 1 via (0,+1,+1)
 
-    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    node_result = extract_habitat_nodes(node_method="component", label_array=label_array, connectivity="face")
     face_graph = build_adjacency_graph(
         node_result=node_result,
         labels=(1, 2),
@@ -1002,6 +1043,7 @@ def test_extract_graph_features_for_labels_restricts_habitats() -> None:
     options = HabitatGraphFeatureOptions(
         distance_threshold=3.0,
         erosion_radius=0,
+        node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
     )
@@ -1023,6 +1065,7 @@ def test_expected_labels_align_columns_across_subjects() -> None:
     options = HabitatGraphFeatureOptions(
         distance_threshold=3.0,
         erosion_radius=0,
+        node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
     )
@@ -1075,3 +1118,54 @@ def test_pair_count_matches_unordered_pairs() -> None:
     assert pair_count(2) == 1
     assert pair_count(3) == 3
     assert pair_count(4) == 6
+
+
+@pytest.mark.unit
+def test_uniform_grid_uses_global_origin_and_keeps_equal_cubes() -> None:
+    """Default node method tessellates the whole VOI into equal-volume cubes."""
+    label_array: np.ndarray = np.zeros((16, 16), dtype=np.int32)
+    label_array[0:16, 0:8] = 1
+    label_array[0:16, 8:16] = 2
+
+    result = extract_habitat_nodes(
+        label_array=label_array,
+        node_method="uniform_grid",
+        block_size=8,
+        block_min_coverage=0.5,
+    )
+    nodes_1 = result.nodes_by_habitat[1]
+    nodes_2 = result.nodes_by_habitat[2]
+    assert len(nodes_1) == 2
+    assert len(nodes_2) == 2
+    assert {node.voxel_count for node in nodes_1 + nodes_2} == {64}
+    assert result.grid_origin == (0, 0)
+    assert result.grid_block_size == 8
+
+
+@pytest.mark.unit
+def test_default_min_distance_uniform_grid_creates_intra_edges() -> None:
+    """Library defaults connect neighbouring equal-volume cubes inside a habitat."""
+    label_array: np.ndarray = np.ones((16, 16), dtype=np.int32)
+    options = HabitatGraphFeatureOptions()
+    assert options.edge_method == "min_distance"
+    assert options.node_method == "uniform_grid"
+    assert options.block_size == 5
+    assert options.block_min_coverage == 0.2
+
+    features = extract_graph_features(label_array, options=options)
+    # 16x16 ones with 5-voxel cubes: a 3x3 lattice of full 5x5 cubes
+    # (the leftover 1-voxel strip has coverage 0.04 and is dropped).
+    assert features["single_h1_n_nodes"] == 9.0
+    assert features["single_h1_n_edges"] >= 12.0
+
+
+@pytest.mark.unit
+def test_default_threshold_skips_one_empty_lattice_cell() -> None:
+    """One empty 5-cube between two cubes is distance 6 and stays disconnected."""
+    label_array: np.ndarray = np.zeros((5, 15), dtype=np.int32)
+    label_array[:, 0:5] = 1
+    label_array[:, 10:15] = 1
+
+    features = extract_graph_features(label_array)
+    assert features["single_h1_n_nodes"] == 2.0
+    assert features["single_h1_n_edges"] == 0.0

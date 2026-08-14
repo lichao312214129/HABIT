@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import ndimage as ndi
@@ -24,6 +24,7 @@ from scipy import ndimage as ndi
 from habit.kernels.habitat_graph.models import (
     HabitatGraphNode,
     HabitatNodeExtractionResult,
+    NodeMethod,
 )
 
 __all__ = ["extract_habitat_nodes"]
@@ -68,28 +69,30 @@ def _subdivide_component(
     block_size: int,
     ndim: int,
     min_coverage: float,
+    origin: Optional[np.ndarray] = None,
 ) -> List[np.ndarray]:
     """
-    Split a large connected component into fixed-size grid blocks.
+    Split a connected component into fixed-size grid blocks.
 
     Each voxel is assigned to an n-dimensional block of edge length
     ``block_size``. A block is kept only when the fraction of its volume covered
     by the component exceeds ``min_coverage``, which mirrors the source PathPrism
-    behavior of dropping sparsely covered boundary blocks. Splitting prevents a
-    single large region from collapsing into one graph node, which would erase
-    the internal spatial structure that graph features are meant to capture.
+    behavior of dropping sparsely covered boundary blocks.
 
     Args:
         coords: Component voxel coordinates with shape ``(n, ndim)``.
         block_size: Edge length of each grid block in voxels.
         ndim: Number of array dimensions.
         min_coverage: Minimum covered fraction of a block volume to keep it.
+        origin: Lattice origin in voxel indices. ``None`` uses this
+            component's own bounding-box minimum (legacy per-component
+            grid). Pass the tumour-VOI minimum for a global lattice.
 
     Returns:
         List[np.ndarray]: One coordinate array per kept block. Empty when no
         block reaches the coverage threshold.
     """
-    mins = coords.min(axis=0)
+    mins = coords.min(axis=0) if origin is None else np.asarray(origin)
     # Integer block index per voxel along every dimension.
     block_indices = (coords - mins) // block_size
     unique_blocks, inverse = np.unique(block_indices, axis=0, return_inverse=True)
@@ -104,38 +107,219 @@ def _subdivide_component(
     return kept_blocks
 
 
+def _voi_grid_origin(label_array: np.ndarray) -> Optional[np.ndarray]:
+    """
+    Return the inclusive voxel-index origin of the non-background VOI.
+
+    Args:
+        label_array: Integer habitat label map (background encoded as 0).
+
+    Returns:
+        np.ndarray | None: One integer per axis, or ``None`` when empty.
+    """
+    coords = np.argwhere(label_array > 0)
+    if coords.size == 0:
+        return None
+    return coords.min(axis=0).astype(int, copy=False)
+
+
+def _eroded_label_array(
+    label_array: np.ndarray,
+    labels: List[int],
+    structure: np.ndarray,
+    erosion_radius: int,
+) -> np.ndarray:
+    """
+    Optionally erode each habitat and rebuild the integer label map.
+
+    Args:
+        label_array: Integer habitat label map.
+        labels: Positive habitat ids to process.
+        structure: Binary structure for ``scipy.ndimage.binary_erosion``.
+        erosion_radius: Erosion iterations; ``0`` returns ``label_array``.
+
+    Returns:
+        np.ndarray: Label map after per-habitat erosion (copy if eroded).
+    """
+    if erosion_radius <= 0:
+        return label_array
+    eroded = np.zeros_like(label_array)
+    for habitat_label in labels:
+        mask = ndi.binary_erosion(
+            label_array == habitat_label,
+            structure=structure,
+            iterations=erosion_radius,
+            border_value=0,
+        )
+        eroded[mask] = habitat_label
+    return eroded
+
+
+def _node_from_coords(
+    habitat_label: int,
+    component_id: int,
+    coords: np.ndarray,
+) -> HabitatGraphNode:
+    """Build one graph node from a voxel-coordinate set."""
+    return HabitatGraphNode(
+        node_id=f"h{habitat_label}_c{component_id}",
+        habitat_label=habitat_label,
+        component_id=component_id,
+        centroid=coords.mean(axis=0).astype(float),
+        voxel_count=int(coords.shape[0]),
+        bbox=_component_bbox(coords),
+    )
+
+
+def _extract_uniform_grid_nodes(
+    label_array: np.ndarray,
+    labels: List[int],
+    structure: np.ndarray,
+    min_region_voxels: int,
+    erosion_radius: int,
+    block_size: int,
+    block_min_coverage: float,
+) -> HabitatNodeExtractionResult:
+    """
+    Tessellate the tumour VOI with a global equal-volume cube lattice.
+
+    Every non-background voxel is assigned to an axis-aligned cube of edge
+    ``block_size`` whose origin is the VOI bounding-box minimum. A cube
+    becomes one node when its occupied fraction exceeds
+    ``block_min_coverage``; the node habitat is the majority label inside
+    that cube. Habitats that occupy no kept cube still emit one residual
+    node so a present label is never silently dropped.
+
+    Args:
+        label_array: Integer habitat label map (background encoded as 0).
+        labels: Positive habitat ids present before erosion.
+        structure: Erosion neighbourhood.
+        min_region_voxels: Drop residual nodes smaller than this.
+        erosion_radius: Optional per-habitat erosion iterations.
+        block_size: Cube edge length in voxels.
+        block_min_coverage: Minimum occupied fraction of a cube to keep it.
+
+    Returns:
+        HabitatNodeExtractionResult: Nodes, component maps, and lattice.
+    """
+    working = _eroded_label_array(label_array, labels, structure, erosion_radius)
+    origin = _voi_grid_origin(working)
+    nodes_by_habitat: Dict[int, List[HabitatGraphNode]] = {}
+    component_maps: Dict[int, np.ndarray] = {
+        int(label): np.zeros(working.shape, dtype=np.int32) for label in labels
+    }
+    if origin is None:
+        return HabitatNodeExtractionResult(
+            label_array=label_array,
+            nodes_by_habitat=nodes_by_habitat,
+            component_maps=component_maps,
+            grid_origin=None,
+            grid_block_size=int(block_size),
+        )
+
+    coords = np.argwhere(working > 0)
+    voxel_labels = working[tuple(coords.T)]
+    block_indices = (coords - origin) // block_size
+    unique_blocks, inverse = np.unique(block_indices, axis=0, return_inverse=True)
+    block_volume = float(block_size ** working.ndim)
+    next_component_id = 1
+    kept_by_habitat: Dict[int, List[HabitatGraphNode]] = {int(label): [] for label in labels}
+
+    for block_id in range(unique_blocks.shape[0]):
+        in_block = inverse == block_id
+        block_coords = coords[in_block]
+        block_lab = voxel_labels[in_block]
+        coverage = block_coords.shape[0] / block_volume
+        if coverage <= block_min_coverage:
+            continue
+        values, counts = np.unique(block_lab, return_counts=True)
+        majority = int(values[int(np.argmax(counts))])
+        majority_coords = block_coords[block_lab == majority]
+        if majority_coords.shape[0] < min_region_voxels:
+            continue
+        component_id = next_component_id
+        next_component_id += 1
+        component_maps[majority][tuple(majority_coords.T)] = component_id
+        kept_by_habitat[majority].append(
+            _node_from_coords(majority, component_id, majority_coords)
+        )
+
+    present_after = {int(v) for v in np.unique(working) if int(v) > 0}
+    for habitat_label in labels:
+        habitat_nodes = kept_by_habitat.get(habitat_label, [])
+        if habitat_nodes:
+            nodes_by_habitat[habitat_label] = habitat_nodes
+            continue
+        if habitat_label not in present_after:
+            continue
+        leftover = np.argwhere(working == habitat_label)
+        if leftover.shape[0] < min_region_voxels:
+            continue
+        # Residual node: the habitat is present but no cube passed coverage.
+        component_id = next_component_id
+        next_component_id += 1
+        component_maps[habitat_label][tuple(leftover.T)] = component_id
+        nodes_by_habitat[habitat_label] = [
+            _node_from_coords(habitat_label, component_id, leftover)
+        ]
+
+    return HabitatNodeExtractionResult(
+        label_array=label_array,
+        nodes_by_habitat=nodes_by_habitat,
+        component_maps=component_maps,
+        grid_origin=tuple(int(v) for v in origin),
+        grid_block_size=int(block_size),
+    )
+
+
 def extract_habitat_nodes(
     label_array: np.ndarray,
     connectivity: str = "full",
     min_region_voxels: int = 1,
     erosion_radius: int = 0,
     subdivide_region_voxels: int = 0,
-    block_size: int = 30,
-    block_min_coverage: float = 0.5,
+    block_size: int = 5,
+    block_min_coverage: float = 0.2,
+    node_method: NodeMethod = "uniform_grid",
 ) -> HabitatNodeExtractionResult:
     """
-    Convert each connected habitat region into one or more graph nodes.
+    Convert a habitat label map into graph nodes.
+
+    Default ``node_method='uniform_grid'`` paints a global axis-aligned
+    lattice of cubes with edge ``block_size`` (default 5 **voxels**, not
+    millimetres) over the tumour VOI. Every occupied cube that passes
+    ``block_min_coverage`` (default 0.2) becomes one node, so node
+    volumes stay comparable. Pass ``node_method='component'`` for the
+    older connected-component nodes, optionally split when a component
+    exceeds ``subdivide_region_voxels``.
 
     Args:
         label_array: Integer habitat label map. Background must be encoded as 0.
         connectivity: Connected-component neighborhood rule. Default
             ``"full"`` is 8-connected in 2D / 26-connected in 3D. Pass
-            ``"face"`` for 4-connected / 6-connected neighborhoods.
-        min_region_voxels: Components smaller than this voxel count are ignored.
+            ``"face"`` for 4-connected / 6-connected neighborhoods. Used by
+            ``component`` mode and by optional erosion in both modes.
+        min_region_voxels: Components / residual nodes smaller than this
+            voxel count are ignored.
         erosion_radius: Optional binary erosion iterations applied per habitat
-            before connected-component labeling. The default is 0 because
-            medical image habitats may contain small but meaningful regions.
-        subdivide_region_voxels: Connected components whose voxel count exceeds
-            this value are split into fixed-size grid blocks, one node per block.
-            The default is 0, which disables splitting. Use a positive value when
-            a single large habitat blob would otherwise dominate graph features.
-        block_size: Edge length of each grid block in voxels when splitting.
-        block_min_coverage: Minimum covered fraction of a block volume required
-            to keep that block as a node when splitting.
+            before node extraction. The default is 0.
+        subdivide_region_voxels: In ``component`` mode, split components
+            larger than this into grid blocks. ``0`` disables splitting.
+            Ignored by ``uniform_grid``.
+        block_size: Cube edge length in voxels (default 5), not millimetres.
+            With the default ``distance_threshold=5``, face-adjacent
+            5-cubes connect (closest voxels are one hop apart). One empty
+            lattice cell between cubes is closest-voxel distance 6 and
+            stays disconnected.
+        block_min_coverage: Minimum occupied fraction of a cube to keep
+            it (default 0.2; a cube is kept when coverage is strictly
+            greater than this value).
+        node_method: ``"uniform_grid"`` (default) or ``"component"``.
 
     Returns:
         HabitatNodeExtractionResult: Nodes grouped by habitat label plus
-        component maps used by contact-based edge builders.
+        component maps used by contact-based edge builders. ``uniform_grid``
+        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.
     """
     if label_array.ndim not in (2, 3):
         raise ValueError("label_array must be 2D or 3D.")
@@ -149,9 +333,22 @@ def extract_habitat_nodes(
         raise ValueError("block_size must be >= 1.")
     if not 0.0 <= block_min_coverage <= 1.0:
         raise ValueError("block_min_coverage must be in [0, 1].")
+    if node_method not in ("uniform_grid", "component"):
+        raise ValueError("node_method must be 'uniform_grid' or 'component'.")
 
     labels = [int(v) for v in np.unique(label_array) if int(v) > 0]
     structure = _connectivity_structure(label_array.ndim, connectivity)
+    if node_method == "uniform_grid":
+        return _extract_uniform_grid_nodes(
+            label_array=label_array,
+            labels=labels,
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=erosion_radius,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+        )
+
     nodes_by_habitat: Dict[int, List[HabitatGraphNode]] = {}
     component_maps: Dict[int, np.ndarray] = {}
 

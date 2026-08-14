@@ -52,6 +52,39 @@ def test_overlap_recovers_swapped_ids() -> None:
     assert mapping == {1: 2, 2: 1}
 
 
+def _three_block_labels() -> np.ndarray:
+    """Habitats 1 / 2 / 3 as three adjacent 2x2x2 blocks on a 6x4x4 grid."""
+    labels = np.zeros((6, 4, 4), dtype=np.int32)
+    labels[0:2, 0:2, 0:2] = 1
+    labels[2:4, 0:2, 0:2] = 2
+    labels[4:6, 0:2, 0:2] = 3
+    return labels
+
+
+def _swap_ids_2_3(labels: np.ndarray) -> np.ndarray:
+    """Permute 2 <-> 3 on the moving map only; habitat 1 stays put."""
+    swapped = np.asarray(labels).copy()
+    swapped[labels == 2] = 9
+    swapped[labels == 3] = 2
+    swapped[swapped == 9] = 3
+    return swapped
+
+
+def test_overlap_recovers_habitat_2_3_swap_on_moving_only() -> None:
+    """A 2<->3 permutation on moving remaps those ids; reference is untouched."""
+    reference = _three_block_labels()
+    moving = _swap_ids_2_3(reference)
+    mapping = match_labels_by_overlap(reference, moving)
+    assert mapping == {1: 1, 2: 3, 3: 2}
+    aligned = align_label_array(reference, moving, method="overlap")
+    assert np.array_equal(aligned, reference)
+    assert np.array_equal(reference, _three_block_labels())
+    raw_disagree = (moving != reference) & ((moving > 0) | (reference > 0))
+    aligned_disagree = (aligned != reference) & ((aligned > 0) | (reference > 0))
+    assert int(np.count_nonzero(raw_disagree)) > 0
+    assert int(np.count_nonzero(aligned_disagree)) == 0
+
+
 def test_centroid_recovers_swapped_ids() -> None:
     """Distinct intensity centroids recover a swapped labelling."""
     reference = _two_block_labels()

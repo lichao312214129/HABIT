@@ -30,6 +30,7 @@ __all__ = [
     "EdgeMethod",
     "EdgeWeightMode",
     "GraphKind",
+    "NodeMethod",
     "HabitatGraphNode",
     "HabitatGraphEdge",
     "HabitatGraph",
@@ -40,6 +41,9 @@ __all__ = [
 #: Edge identification strategy: centroid proximity, voxel adjacency, or
 #: closest-voxel (minimum) Euclidean distance between regions.
 EdgeMethod = Literal["centroid_distance", "adjacency", "min_distance"]
+#: How voxels become graph nodes: a global equal-volume lattice, or
+#: connected components (optionally split when they exceed a size).
+NodeMethod = Literal["uniform_grid", "component"]
 #: Optional edge weight source for the built graph.
 EdgeWeightMode = Literal["none", "distance", "inverse_distance", "contact_voxels"]
 #: Graph scope: one habitat label, or one pair of habitat labels.
@@ -82,8 +86,12 @@ class HabitatGraph:
 
 @dataclass(frozen=True)
 class HabitatNodeExtractionResult:
-    """Connected-component node extraction result plus component maps."""
+    """Node extraction result plus component maps and optional lattice."""
 
     label_array: np.ndarray
     nodes_by_habitat: Dict[int, List[HabitatGraphNode]]
     component_maps: Dict[int, np.ndarray]
+    #: Inclusive voxel-index origin of the global lattice (``uniform_grid``).
+    grid_origin: Optional[Tuple[int, ...]] = None
+    #: Cube edge length in voxels of that lattice (``uniform_grid``).
+    grid_block_size: Optional[int] = None

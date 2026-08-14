@@ -30,6 +30,7 @@ This example covers:
 * population-level habitat-clustering PCA from a two-step ``StudyResult``,
 * Kaplan-Meier curves stratified by a **risk split** (not by the event itself),
 * Cox forest, risk triptych, time-dependent AUC, Brier, survival calibration,
+* **habitat features → Cox → KM / forest / calibration** (synthetic labels),
 * regression diagnostics (predicted vs observed, residuals, Q-Q, Bland-Altman).
 
 Binary ML ROC / PR / calibration / DCA plots live on :doc:`tabular_ml` and
@@ -139,6 +140,51 @@ Survival / regression panels are synthetic demos, not a clinical claim.
    :width: 420
 
    Bland-Altman (:func:`~habit.viz.plot_bland_altman`).
+
+Habitat features → survival model
+---------------------------------
+
+The KM / Cox / calibration panels above use a **synthetic** ``time`` /
+``event`` table that is not derived from habitats. This section is the
+missing taught path: extract habitat features, attach survival labels
+(here synthetic and driven by ``ith_score`` — swap for your own
+``os_time`` / ``os_event``), fit HABIT ``CoxPH`` through
+:class:`~habit.domain.TablePipeline`, and draw the same figure family.
+It is **not** the binary-classification path on :doc:`tabular_ml`.
+
+.. literalinclude:: scripts/habitat_survival_demo.py
+   :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures (writes ``out/habitat_survival_*.png``)::
+
+   python docs/source/examples/scripts/habitat_survival_demo.py
+
+.. literalinclude:: scripts/habitat_survival_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
+.. figure:: ../_static/images/examples/habitat_survival_km.png
+   :alt: Kaplan-Meier by habitat-feature Cox risk
+   :width: 520
+
+   Kaplan-Meier by high/low Cox risk from habitat features
+   (:func:`~habit.viz.plot_kaplan_meier`).
+
+.. figure:: ../_static/images/examples/habitat_survival_forest.png
+   :alt: Cox forest plot of habitat features
+   :width: 480
+
+   Hazard ratios (:func:`~habit.viz.plot_cox_forest`).
+
+.. figure:: ../_static/images/examples/habitat_survival_calibration.png
+   :alt: Survival calibration from habitat-feature Cox
+   :width: 420
+
+   Calibration at the median follow-up
+   (:func:`~habit.viz.plot_survival_calibration`).
 
 Habitat graph topology figures
 ------------------------------

@@ -83,6 +83,7 @@ __all__ = [
     "translate_image",
     "rotate_image",
     "rigid_transform_image",
+    "binary_mask_dice",
 ]
 
 #: Interpolator names accepted by the geometric kernels, mapped to the SimpleITK
@@ -394,3 +395,35 @@ def rigid_transform_image(
         _interpolator_code(interpolator),
         float(default_value),
     )
+
+
+def binary_mask_dice(reference: np.ndarray, moved: np.ndarray) -> float:
+    """
+    Dice coefficient of two binary masks on the same voxel grid.
+
+    Foreground is every voxel with a non-zero label. Empty-vs-empty is
+    defined as 1.0 so a missing ROI does not look like a total mismatch.
+
+    Args:
+        reference: Reference mask (any integer / boolean array).
+        moved: Compared mask; must have the same shape.
+
+    Returns:
+        float: Dice in ``[0, 1]``.
+
+    Raises:
+        ValueError: When the arrays have different shapes.
+    """
+    ref = np.asarray(reference) != 0
+    mov = np.asarray(moved) != 0
+    if ref.shape != mov.shape:
+        raise ValueError(
+            "binary_mask_dice: shapes differ: "
+            f"{tuple(ref.shape)} vs {tuple(mov.shape)}."
+        )
+    intersection = int(np.count_nonzero(ref & mov))
+    n_ref = int(np.count_nonzero(ref))
+    n_moved = int(np.count_nonzero(mov))
+    if n_ref + n_moved == 0:
+        return 1.0
+    return float(2.0 * intersection / (n_ref + n_moved))

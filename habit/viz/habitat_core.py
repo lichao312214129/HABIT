@@ -834,16 +834,22 @@ def plot_habitat_label_compare(
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
     align_labels: Optional[bool] = None,
+    align_method: str = "overlap",
 ) -> "Figure":
     """
     Side-by-side habitat overlays, optional disagreement mask.
 
     Independently clustered maps permute integer ids. By default this
-    remaps ``labels_b`` onto ``labels_a`` by intensity centroids (the
-    test-retest matcher) before colouring and before the disagreement
-    panel, so habitat 1 on the left is the same habitat as habitat 1 on
-    the right. Maps that already share a ``model_id`` (apply-saved-model)
+    remaps ``labels_b`` (panel 2 only) onto ``labels_a`` by maximal voxel
+    overlap -- the same Hungarian pairing ``habitat_stability`` uses --
+    before colouring and before the disagreement panel. Habitat 2 on the
+    left is then the same spatial region as habitat 2 on the right.
+    Disagreement is ``aligned_b != a`` on labelled voxels, not raw id
+    inequality. Maps that already share a ``model_id`` (apply-saved-model)
     are left unchanged -- those ids are already the same definition.
+
+    Use ``align_method="centroid"`` when the maps are not co-registered
+    and overlap is not meaningful (feature-space / intensity centroids).
 
     Args:
         image: Anatomy volume ``(z, y, x)`` or 2D.
@@ -863,6 +869,8 @@ def plot_habitat_label_compare(
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
         align_labels: ``None`` (default) aligns unless both inputs share a
             ``model_id``; ``True`` always aligns; ``False`` never aligns.
+        align_method: ``"overlap"`` (default, same-grid visual compare) or
+            ``"centroid"`` (feature / intensity centroids).
 
     Returns:
         A matplotlib ``Figure``.
@@ -890,7 +898,7 @@ def plot_habitat_label_compare(
         from habit.kernels.habitat_label_match import align_label_array
 
         try:
-            b = align_label_array(a, b, image=image_vol, method="centroid")
+            b = align_label_array(a, b, image=image_vol, method=align_method)
         except ValueError as exc:
             raise HABITAPIError(f"plot_habitat_label_compare: {exc}") from exc
     if image_vol.shape != a.shape or image_vol.shape != b.shape:

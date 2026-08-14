@@ -14,10 +14,11 @@
 #
 """L0 kernels for graph-topology habitat features.
 
-A habitat map is turned into region graphs -- one node per connected habitat
-region (optionally subdivided into grid blocks), edges by voxel adjacency
-(default: corner-adjacent contact voxels >= 10), centroid proximity, or
-closest-voxel (minimum) distance -- and NetworkX-derived topology metrics
+A habitat map is turned into region graphs -- default nodes are
+equal-volume cubes on a global VOI lattice (``uniform_grid``, edge 8),
+edges by closest-voxel distance (default ``min_distance``, threshold 5),
+with optional voxel adjacency or centroid proximity -- and NetworkX-derived
+topology metrics
 are computed per habitat (``single_h*``) and per habitat pair
 (``pair_h*_h*``). Everything here is pure: arrays in, numbers out, no IO,
 no state, no configuration files.
@@ -42,6 +43,7 @@ from habit.kernels.habitat_graph.models import (
     EdgeMethod,
     EdgeWeightMode,
     GraphKind,
+    NodeMethod,
     HabitatGraph,
     HabitatGraphEdge,
     HabitatGraphNode,
@@ -53,6 +55,7 @@ __all__ = [
     "EdgeMethod",
     "EdgeWeightMode",
     "GraphKind",
+    "NodeMethod",
     "HabitatGraph",
     "HabitatGraphEdge",
     "HabitatGraphNode",

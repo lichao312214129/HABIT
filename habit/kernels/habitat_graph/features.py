@@ -43,6 +43,7 @@ from habit.kernels.habitat_graph.models import (
     EdgeMethod,
     EdgeWeightMode,
     HabitatGraphNode,
+    NodeMethod,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
 
@@ -58,25 +59,23 @@ __all__ = [
 class HabitatGraphFeatureOptions:
     """Runtime options for graph-based habitat feature extraction.
 
-    Default edge rule: ``edge_method='adjacency'`` with
-    ``adjacency_connectivity='corner'`` (8-connected in 2D / 26-connected
-    in 3D) and ``adjacency_min_voxels=10``. Components use
-    ``connectivity='full'`` (same 8/26 neighborhood). Pass
-    ``adjacency_connectivity='face'`` and ``connectivity='face'`` for
-    4-connected / 6-connected neighborhoods. Adjacency and the
-    contact-voxel count are measured on the habitat labels as drawn
-    (``erosion_radius=0``). An edge exists when two regions share a
-    boundary and the contact voxel count is at least 10. Pass a
-    positive ``erosion_radius`` to shrink each habitat before labeling
-    and edge construction.
+    Default node rule: ``node_method='uniform_grid'`` with ``block_size=5``
+    (equal-volume cubes on a global VOI lattice, edge length in **voxels**,
+    not millimetres). Default edge rule: ``edge_method='min_distance'``
+    with ``distance_threshold=5.0``. Face-adjacent 5-cubes connect
+    (closest voxels are one hop apart). One empty lattice cell between
+    cubes gives closest-voxel distance 6, which is greater than 5, so
+    those stay disconnected. ``adjacency`` and ``centroid_distance``
+    remain available.
+    ``erosion_radius=0`` measures the habitat labels as drawn.
     """
 
     include_single_habitat_graph: bool = True
     include_pairwise_habitat_graph: bool = True
-    # Default edge rule: connect corner-adjacent regions (8-conn in 2D /
-    # 26-conn in 3D) whose shared-boundary (contact) voxel-pair count is
-    # at least ``adjacency_min_voxels``. Pass ``"face"`` for 4/6-conn.
-    edge_method: EdgeMethod = "adjacency"
+    # Default: connect regions whose closest voxels are within
+    # ``distance_threshold``. Pass ``"adjacency"`` for contact-voxel edges
+    # or ``"centroid_distance"`` for centroid proximity.
+    edge_method: EdgeMethod = "min_distance"
     distance_threshold: float = 5.0
     # Adjacency edge parameters (used when edge_method == "adjacency").
     adjacency_connectivity: str = "corner"
@@ -84,18 +83,20 @@ class HabitatGraphFeatureOptions:
     edge_weight: EdgeWeightMode = "none"
     min_region_voxels: int = 1
     connectivity: str = "full"
-    # Default is off: adjacency / contact are measured on the habitat labels
+    # Default is off: distances / contact are measured on the habitat labels
     # as drawn. Pass a positive value to shrink each habitat (binary erosion
-    # iterations) before connected-component labeling and edge construction.
+    # iterations) before labeling and edge construction.
     erosion_radius: int = 0
-    # Subdivision is on by default: contiguous habitats would otherwise collapse
-    # into a single graph node and erase internal spatial structure. Components
-    # larger than ``subdivide_region_voxels`` are split into ``block_size`` grid
-    # blocks. ``block_size`` matches the default ``distance_threshold`` so that
-    # adjacent blocks connect into a usable lattice graph.
+    # Default node construction: a global equal-volume cube lattice.
+    # ``component`` restores connected-component nodes; those larger than
+    # ``subdivide_region_voxels`` are then split (``0`` disables that split).
+    node_method: NodeMethod = "uniform_grid"
     subdivide_region_voxels: int = 1000
+    # 5^3 = 125 voxels per full cube. Units are voxels, not millimetres.
+    # Paired with distance_threshold=5: face-adjacent cubes connect
+    # (closest-voxel hop 1); one empty lattice cell is distance 6 > 5.
     block_size: int = 5
-    block_min_coverage: float = 0.5
+    block_min_coverage: float = 0.2
     pairwise_include_intra_edges: bool = True
     include_extended_metrics: bool = True
     extended_min_nodes: int = 10
@@ -249,11 +250,10 @@ def extract_graph_features(
     """
     Extract subject-level graph features from a habitat label map.
 
-    Default ``options`` use ``edge_method='adjacency'`` with
-    ``adjacency_min_voxels=10`` and ``erosion_radius=0``: an edge exists
-    when two regions are adjacent on the habitat labels as drawn and the
-    contact (shared-boundary) voxel count is >= 10. Pass
-    ``erosion_radius>=1`` to shrink habitats before edges.
+    Default ``options`` use ``node_method='uniform_grid'`` (5-voxel cubes)
+    and ``edge_method='min_distance'`` with ``distance_threshold=5.0``.
+    Pass ``node_method='component'`` / ``edge_method='adjacency'`` for the
+    older connected-component contact graph.
 
     Args:
         label_array: Already segmented habitat map. Label 0 is treated as
@@ -279,6 +279,7 @@ def extract_graph_features(
         subdivide_region_voxels=options.subdivide_region_voxels,
         block_size=options.block_size,
         block_min_coverage=options.block_min_coverage,
+        node_method=options.node_method,
     )
 
     present_labels = sorted(node_result.nodes_by_habitat.keys())

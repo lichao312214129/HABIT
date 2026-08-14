@@ -190,6 +190,7 @@ def _extract_nodes(
         subdivide_region_voxels=options.subdivide_region_voxels,
         block_size=options.block_size,
         block_min_coverage=options.block_min_coverage,
+        node_method=options.node_method,
     )
 
 
@@ -329,6 +330,15 @@ _FIG_LEGEND_FONTSIZE: float = 10.5
 #: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured
 #: habitat stays 1.0; the All-habitats panel stays fully opaque.
 _OTHER_HABITAT_ALPHA: float = 0.2
+#: Intra-habitat edges of non-featured habitats on an H1--Hk panel.
+_OTHER_INTRA_EDGE_ALPHA: float = 0.28
+_OTHER_INTRA_EDGE_WIDTH: float = 0.55
+#: Dashed lattice overlay (same origin / block_size as node extraction).
+_GRID_LINE_COLOR: str = "#6B7280"
+_GRID_LINE_ALPHA: float = 0.45
+_GRID_LINE_WIDTH: float = 0.55
+#: Default matplotlib linestyle for the display lattice.
+_DEFAULT_GRID_LINESTYLE: str = "--"
 
 
 def _centroid_xy_display(node: HabitatGraphNode) -> Tuple[float, float]:
@@ -417,6 +427,168 @@ def _draw_background_2d(
         alpha=1.0,
         zorder=0,
     )
+
+
+def _display_block_size(
+    options: HabitatGraphFeatureOptions,
+    block_size: Optional[int],
+) -> int:
+    """
+    Resolve the cube edge length used only for drawing the lattice.
+
+    Args:
+        options: Extraction options (nodes / edges still use these).
+        block_size: Plot-function override. ``None`` uses
+            ``options.block_size`` (library default 5 voxels).
+
+    Returns:
+        int: Cube edge length in voxels, ``>= 1``.
+
+    Raises:
+        ValueError: When the resolved size is less than 1.
+    """
+    size = int(options.block_size) if block_size is None else int(block_size)
+    if size < 1:
+        raise ValueError("block_size must be >= 1.")
+    return size
+
+
+def _display_grid_origin(
+    label_2d: np.ndarray,
+    node_result: HabitatNodeExtractionResult,
+    display_size: int,
+) -> Optional[Tuple[int, ...]]:
+    """
+    Return the lattice origin for the drawn cubes.
+
+    When the display size matches the extraction lattice, reuse
+    ``node_result.grid_origin`` so the overlay sits on the same cubes
+    that became graph nodes. Otherwise recompute the VOI-min origin
+    (same rule as :func:`~habit.kernels.habitat_graph.extract_habitat_nodes`).
+
+    Args:
+        label_2d: Slice used to recover a VOI origin if needed.
+        node_result: Node extraction result (may carry ``grid_origin``).
+        display_size: Cube edge length that will be drawn.
+
+    Returns:
+        Inclusive voxel-index origin, or ``None`` when the slice is empty.
+    """
+    if (
+        node_result.grid_origin is not None
+        and node_result.grid_block_size == int(display_size)
+    ):
+        return tuple(int(v) for v in node_result.grid_origin)
+    coords = np.argwhere(np.asarray(label_2d) > 0)
+    if coords.size == 0:
+        return None
+    return tuple(int(v) for v in coords.min(axis=0))
+
+
+def _grid_caption(block_size: int) -> str:
+    """
+    English label that states the displayed cube size.
+
+    Args:
+        block_size: Cube edge length in voxels.
+
+    Returns:
+        Caption such as ``\"5-voxel cubes\"``.
+    """
+    return f"{int(block_size)}-voxel cubes"
+
+
+def _should_draw_grid(
+    options: HabitatGraphFeatureOptions,
+    show_grid: bool,
+    block_size: Optional[int],
+) -> bool:
+    """
+    Whether the display lattice should be drawn.
+
+    Default: on for ``uniform_grid``. An explicit ``block_size`` overlay
+    is also drawn in ``component`` mode so the caller can show cubes
+    without rebuilding extraction options.
+
+    Args:
+        options: Extraction options (``node_method``).
+        show_grid: Caller on/off switch.
+        block_size: Plot-function override, or ``None``.
+
+    Returns:
+        bool: ``True`` when dashed (or styled) lattice lines should appear.
+    """
+    if not show_grid:
+        return False
+    return options.node_method == "uniform_grid" or block_size is not None
+
+
+def _draw_grid_2d(
+    ax,
+    label_2d: np.ndarray,
+    grid_origin: Optional[Tuple[int, ...]],
+    block_size: Optional[int],
+    *,
+    linestyle: str = _DEFAULT_GRID_LINESTYLE,
+    color: str = _GRID_LINE_COLOR,
+    alpha: float = _GRID_LINE_ALPHA,
+    linewidth: float = _GRID_LINE_WIDTH,
+) -> None:
+    """
+    Draw the node-extraction lattice on a 2D habitat panel.
+
+    The origin and ``block_size`` should match
+    :class:`~habit.kernels.habitat_graph.HabitatNodeExtractionResult` when
+    the caller has not overridden the display size, so the overlay matches
+    the cubes that became graph nodes. Coordinates are image indices:
+    x = column, y = row.
+
+    Args:
+        ax: Target matplotlib axes.
+        label_2d: Slice used only for axis extent.
+        grid_origin: Inclusive voxel-index origin of the lattice.
+        block_size: Cube edge length in voxels.
+        linestyle: Matplotlib line style (default dashed ``\"--\"``).
+        color: Lattice colour.
+        alpha: Lattice opacity.
+        linewidth: Lattice stroke width in points.
+    """
+    if grid_origin is None or block_size is None or int(block_size) < 1:
+        return
+    origin = tuple(int(v) for v in grid_origin)
+    if len(origin) == 2:
+        row0, col0 = origin
+    elif len(origin) >= 3:
+        row0, col0 = origin[-2], origin[-1]
+    else:
+        return
+    n_rows, n_cols = int(label_2d.shape[0]), int(label_2d.shape[1])
+    step = int(block_size)
+    style = str(linestyle) if linestyle else _DEFAULT_GRID_LINESTYLE
+    x = col0
+    while x <= n_cols:
+        if x >= 0:
+            ax.axvline(
+                x - 0.5,
+                color=color,
+                linestyle=style,
+                linewidth=float(linewidth),
+                alpha=float(alpha),
+                zorder=1,
+            )
+        x += step
+    y = row0
+    while y <= n_rows:
+        if y >= 0:
+            ax.axhline(
+                y - 0.5,
+                color=color,
+                linestyle=style,
+                linewidth=float(linewidth),
+                alpha=float(alpha),
+                zorder=1,
+            )
+        y += step
 
 
 def _style_axis_2d(
@@ -524,10 +696,64 @@ def _draw_nodes_2d(
 # ---------------------------------------------------------------------------
 
 
+def _apply_display_grid(
+    ax: Any,
+    label_2d: np.ndarray,
+    node_result: HabitatNodeExtractionResult,
+    options: HabitatGraphFeatureOptions,
+    *,
+    show_grid: bool,
+    block_size: Optional[int],
+    grid_linestyle: str,
+    grid_color: str,
+    grid_alpha: float,
+    grid_linewidth: float,
+) -> int:
+    """
+    Draw the display lattice when requested and return the cube size.
+
+    Args:
+        ax: Target matplotlib axes.
+        label_2d: Slice used for extent and VOI origin fallback.
+        node_result: Extraction result (nodes still come from ``options``).
+        options: Extraction options.
+        show_grid: Caller on/off switch.
+        block_size: Display override, or ``None`` to follow ``options``.
+        grid_linestyle: Matplotlib line style.
+        grid_color: Lattice colour.
+        grid_alpha: Lattice opacity.
+        grid_linewidth: Lattice stroke width in points.
+
+    Returns:
+        int: Display cube edge length in voxels (also used in captions).
+    """
+    display_size = _display_block_size(options, block_size)
+    if _should_draw_grid(options, show_grid, block_size):
+        origin = _display_grid_origin(label_2d, node_result, display_size)
+        _draw_grid_2d(
+            ax,
+            label_2d,
+            origin,
+            display_size,
+            linestyle=grid_linestyle,
+            color=grid_color,
+            alpha=grid_alpha,
+            linewidth=grid_linewidth,
+        )
+    return display_size
+
+
 def plot_habitat_graph_slice(
     label_array: np.ndarray,
     *,
+    options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
     slice_index: Optional[int] = None,
+    show_grid: bool = True,
+    block_size: Optional[int] = None,
+    grid_linestyle: str = _DEFAULT_GRID_LINESTYLE,
+    grid_color: str = _GRID_LINE_COLOR,
+    grid_alpha: float = _GRID_LINE_ALPHA,
+    grid_linewidth: float = _GRID_LINE_WIDTH,
     panel_size: float = 3.2,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
@@ -535,10 +761,23 @@ def plot_habitat_graph_slice(
     """
     Draw the colored habitat map at the largest cross-section (2D).
 
+    Display knobs (``show_grid``, ``block_size``, ``grid_linestyle``, …)
+    override ``options`` for drawing only. Node extraction still uses
+    ``options``. Default lattice: ``block_size=None`` →
+    ``options.block_size`` (library default 5 voxels), dashed lines.
+
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
+        options: Graph construction options shared with the extractor.
         slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
             largest cross-section. Ignored for 2D input.
+        show_grid: Draw the node lattice (default ``True``).
+        block_size: Display cube edge in voxels. ``None`` (default) uses
+            ``options.block_size`` so the lattice matches the nodes.
+        grid_linestyle: Matplotlib line style (default ``\"--\"`` dashed).
+        grid_color: Lattice colour.
+        grid_alpha: Lattice opacity.
+        grid_linewidth: Lattice stroke width in points.
         panel_size: Base panel edge length in inches.
         colorbar: Discrete habitat-ID colorbar (default ``True``). Background
             ``0`` is omitted from the bar. Pass ``False`` to hide it.
@@ -562,6 +801,8 @@ def plot_habitat_graph_slice(
     for new_value, label in enumerate(ordered, start=1):
         display[label_2d == label] = new_value
     cmap = ListedColormap(["#FFFFFF"] + [colors[label] for label in ordered])
+    node_result = _extract_nodes(label_2d, options)
+    display_size = _display_block_size(options, block_size)
     with use_style("radiology"):
         fig, ax = plt.subplots(
             figsize=(panel_size * 1.4, panel_size * 1.4),
@@ -574,8 +815,25 @@ def plot_habitat_graph_slice(
             vmax=len(ordered),
             interpolation="nearest",
         )
+        _apply_display_grid(
+            ax,
+            label_2d,
+            node_result,
+            options,
+            show_grid=show_grid,
+            block_size=block_size,
+            grid_linestyle=grid_linestyle,
+            grid_color=grid_color,
+            grid_alpha=grid_alpha,
+            grid_linewidth=grid_linewidth,
+        )
         _style_axis_2d(
-            ax, label_2d, f"Habitat map (max cross-section, slice {index})"
+            ax,
+            label_2d,
+            (
+                f"Habitat map (max cross-section, slice {index}; "
+                f"{_grid_caption(display_size)})"
+            ),
         )
         add_discrete_habitat_colorbar(
             ax,
@@ -593,6 +851,12 @@ def plot_habitat_graph_network_2d(
     options: HabitatGraphFeatureOptions = HabitatGraphFeatureOptions(),
     slice_index: Optional[int] = None,
     show_background: bool = True,
+    show_grid: bool = True,
+    block_size: Optional[int] = None,
+    grid_linestyle: str = _DEFAULT_GRID_LINESTYLE,
+    grid_color: str = _GRID_LINE_COLOR,
+    grid_alpha: float = _GRID_LINE_ALPHA,
+    grid_linewidth: float = _GRID_LINE_WIDTH,
     panel_size: float = 3.2,
     max_cols: int = 4,
     node_size: float = _DEFAULT_NODE_SIZE,
@@ -604,7 +868,12 @@ def plot_habitat_graph_network_2d(
 
     Node extraction and edge construction reuse the same configured algorithms
     as the feature extractor, but the input is the representative cross-section
-    rather than the full 3D volume.
+    rather than the full 3D volume. Display knobs override ``options`` for
+    drawing only (extraction still uses ``options``).
+
+    On each H1--Hk panel the featured habitat's intra-edges stay opaque;
+    intra-edges of the other habitats are drawn gray and more transparent
+    so the full intra-habitat graphs remain visible as context.
 
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
@@ -616,6 +885,15 @@ def plot_habitat_graph_network_2d(
             habitat is opaque and other habitats use alpha 0.2;
             background 0 stays undrawn. The All-habitats panel stays
             fully opaque. Featured-habitat nodes stay solid.
+        show_grid: Draw the uniform-grid lattice (default ``True``).
+            Also draws when ``block_size`` is passed in ``component`` mode.
+        block_size: Display cube edge in voxels. ``None`` (default) uses
+            ``options.block_size`` (library default 5 voxels) so the lattice
+            matches the nodes.
+        grid_linestyle: Matplotlib line style (default ``\"--\"`` dashed).
+        grid_color: Lattice colour.
+        grid_alpha: Lattice opacity.
+        grid_linewidth: Lattice stroke width in points.
         panel_size: Base panel edge length in inches.
         max_cols: Maximum number of panels per row in the grid.
         node_size: Matplotlib scatter area in points squared applied to
@@ -643,6 +921,15 @@ def plot_habitat_graph_network_2d(
     if not labels:
         return None
     id_to_node, intra_edges, inter_edges = _combined_graph(node_result, options)
+    display_size = _display_block_size(options, block_size)
+    grid_kwargs = dict(
+        show_grid=show_grid,
+        block_size=block_size,
+        grid_linestyle=grid_linestyle,
+        grid_color=grid_color,
+        grid_alpha=grid_alpha,
+        grid_linewidth=grid_linewidth,
+    )
 
     n_panels = len(labels) + 1
     cols = min(max_cols, max(1, n_panels))
@@ -650,7 +937,7 @@ def plot_habitat_graph_network_2d(
     # Extra width + bottom room so short titles and the larger figlegend
     # cannot collide when many habitats share one row.
     fig_width = cols * panel_size * 1.18
-    fig_height = rows * panel_size + 1.15
+    fig_height = rows * panel_size + 1.35
     with use_style("radiology"):
         fig, axes = plt.subplots(
             rows,
@@ -675,9 +962,28 @@ def plot_habitat_graph_network_2d(
             _draw_background_2d(
                 ax, label_2d, colors, show_background, featured_label=int(label)
             )
+            _apply_display_grid(
+                ax, label_2d, node_result, options, **grid_kwargs
+            )
+            # Context: other habitats' intra-edges, gray and translucent.
+            for other_label in labels:
+                if int(other_label) == int(label):
+                    continue
+                other_nodes = node_result.nodes_by_habitat[other_label]
+                other_edges = _single_intra_edges(
+                    other_nodes, other_label, options, node_result
+                )
+                _draw_edges_2d(
+                    ax,
+                    id_to_node,
+                    other_edges,
+                    _INTRA_EDGE_COLOR,
+                    _OTHER_INTRA_EDGE_WIDTH,
+                    _OTHER_INTRA_EDGE_ALPHA,
+                    1,
+                )
             edges = _single_intra_edges(sub, label, options, node_result)
-            # Opaque intra-habitat edges (alpha=1); pale translucent strokes
-            # made the 2D region network hard to read.
+            # Featured intra-habitat edges stay opaque so the panel is readable.
             _draw_edges_2d(ax, id_to_node, edges, _INTRA_EDGE_COLOR, 0.7, 1.0, 2)
             _draw_nodes_2d(ax, sub, colors, node_size=node_size)
             # Slice index lives on the figure title; keep panel titles short
@@ -691,6 +997,9 @@ def plot_habitat_graph_network_2d(
             )
         ax_cross = axes_list[-1]
         _draw_background_2d(ax_cross, label_2d, colors, show_background)
+        _apply_display_grid(
+            ax_cross, label_2d, node_result, options, **grid_kwargs
+        )
         _draw_edges_2d(
             ax_cross, id_to_node, intra_edges, _INTRA_EDGE_COLOR, 0.7, 1.0, 2
         )
@@ -725,15 +1034,34 @@ def plot_habitat_graph_network_2d(
             Line2D(
                 [0], [0], color=_INTRA_EDGE_COLOR, lw=1.2, label="Intra-habitat edge"
             ),
+            Line2D(
+                [0],
+                [0],
+                color=_INTRA_EDGE_COLOR,
+                lw=1.0,
+                alpha=_OTHER_INTRA_EDGE_ALPHA,
+                label="Other-habitat edge",
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=grid_color,
+                lw=1.2,
+                linestyle=grid_linestyle,
+                label=_grid_caption(display_size),
+            ),
         ]
         fig.legend(
             handles=handles,
             loc="lower center",
-            ncol=2,
+            ncol=4,
             fontsize=_FIG_LEGEND_FONTSIZE,
         )
         fig.suptitle(
-            f"2D habitat graphs from representative cross-section (slice {index})",
+            (
+                f"2D habitat graphs from representative cross-section "
+                f"(slice {index}; {_grid_caption(display_size)})"
+            ),
             fontsize=_PANEL_TITLE_FONTSIZE,
         )
     return fig

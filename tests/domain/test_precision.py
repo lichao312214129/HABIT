@@ -400,6 +400,28 @@ class TestBSplineDeformPerturbation:
             np.asarray(second.mask("tumor").data),
         )
 
+    def test_target_dice_scales_warp_to_requested_roi_overlap(self) -> None:
+        """A frozen MONAI field can be scaled so ROI Dice hits a target."""
+        from habit.kernels.image_perturbation import binary_mask_dice
+
+        subject = self._sphere_subject(32)
+        step = BSplineDeformPerturbation(
+            sigma_range=(1.5, 2.5),
+            magnitude_range=(4.0, 6.0),
+            target_dice=0.90,
+            dice_tolerance=0.04,
+            device="cpu",
+        )
+        try:
+            perturbed = step(subject, rng=np.random.default_rng(3))
+        except OptionalDependencyError:
+            pytest.skip("monai extra is not installed")
+        dice = binary_mask_dice(
+            np.asarray(subject.mask("tumor").data),
+            np.asarray(perturbed.mask("tumor").data),
+        )
+        assert dice == pytest.approx(0.90, abs=0.04)
+
 
 class TestPerturbationChain:
     def test_empty_chain_raises(self) -> None:
@@ -819,6 +841,47 @@ class TestAlignHabitatMap:
             force=True,
         )
         assert np.array_equal(aligned.label_array, reference.label_array)
+
+    def test_overlap_2_3_swap_on_moving_only(self) -> None:
+        """Overlap remaps a 2<->3 permutation on moving; disagreement ignores it."""
+        labels = np.zeros((6, 4, 4), dtype=np.int32)
+        labels[0:2, 0:2, 0:2] = 1
+        labels[2:4, 0:2, 0:2] = 2
+        labels[4:6, 0:2, 0:2] = 3
+        swapped = labels.copy()
+        swapped[labels == 2] = 9
+        swapped[labels == 3] = 2
+        swapped[swapped == 9] = 3
+        reference = HabitatMap(
+            subject_id="P1",
+            label_array=labels,
+            geometry=Geometry.from_array((6, 4, 4)),
+            model_id="ref-model",
+            habitat_ids=(1, 2, 3),
+            provenance=provenance(),
+        )
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=swapped,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2, 3),
+            provenance=provenance(),
+        )
+        aligned = align_habitat_map(reference, moving, method="overlap")
+        assert np.array_equal(reference.label_array, labels)
+        assert np.array_equal(aligned.label_array, labels)
+        assert not np.array_equal(moving.label_array, labels)
+        raw_disagree = (
+            (moving.label_array != reference.label_array)
+            & ((moving.label_array > 0) | (reference.label_array > 0))
+        )
+        aligned_disagree = (
+            (aligned.label_array != reference.label_array)
+            & ((aligned.label_array > 0) | (reference.label_array > 0))
+        )
+        assert int(np.count_nonzero(raw_disagree)) > 0
+        assert int(np.count_nonzero(aligned_disagree)) == 0
 
     def test_spatial_disagreement_survives_remap(self) -> None:
         """A shifted habitat still disagrees after ids are aligned."""

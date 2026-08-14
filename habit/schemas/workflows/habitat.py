@@ -673,11 +673,11 @@ class GraphFeatureBlock(BaseModel):
         True, description="Compute pairwise inter-habitat region graphs."
     )
     edge_method: Literal["centroid_distance", "adjacency", "min_distance"] = Field(
-        "adjacency",
+        "min_distance",
         description=(
-            "Rule used to identify graph edges. Default 'adjacency': connect "
-            "regions that share a boundary. 'min_distance' connects regions "
-            "whose closest voxels are within distance_threshold."
+            "Rule used to identify graph edges. Default 'min_distance': "
+            "connect regions whose closest voxels are within "
+            "distance_threshold. 'adjacency' uses contact voxels."
         ),
     )
     distance_threshold: float = Field(
@@ -731,28 +731,41 @@ class GraphFeatureBlock(BaseModel):
             "habitat before edges."
         ),
     )
+    node_method: Literal["uniform_grid", "component"] = Field(
+        "uniform_grid",
+        description=(
+            "How voxels become graph nodes. Default 'uniform_grid': "
+            "equal-volume cubes on a global VOI lattice. 'component' uses "
+            "connected components, optionally split when larger than "
+            "subdivide_region_voxels."
+        ),
+    )
     subdivide_region_voxels: int = Field(
         1000,
         ge=0,
         description=(
-            "Split connected components larger than this voxel count into grid "
-            "blocks so large habitats do not collapse into a single node. "
-            "Set 0 to disable."
+            "In component mode, split connected components larger than this "
+            "voxel count into grid blocks. Set 0 to disable. Ignored by "
+            "uniform_grid."
         ),
     )
     block_size: int = Field(
         5,
         ge=1,
         description=(
-            "Grid block edge length (voxels) used when subdividing. Keep it "
-            "close to distance_threshold so adjacent blocks connect into a lattice."
+            "Cube edge length in voxels (default 5), not millimetres. "
+            "Paired with distance_threshold=5: face-adjacent cubes "
+            "connect; one empty lattice cell (distance 6) stays disconnected."
         ),
     )
     block_min_coverage: float = Field(
-        0.5,
+        0.2,
         ge=0.0,
         le=1.0,
-        description="Minimum covered fraction of a block volume to keep it as a node.",
+        description=(
+            "Minimum covered fraction of a block volume to keep it as a "
+            "node (strictly greater than this value; default 0.2)."
+        ),
     )
     pairwise_include_intra_edges: bool = Field(
         True,
@@ -801,6 +814,27 @@ class GraphFeatureBlock(BaseModel):
         True,
         description="Draw the faint habitat partitions behind 2D network graphs.",
     )
+    visualization_show_grid: bool = Field(
+        True,
+        description=(
+            "Draw the same uniform-grid lattice as dashed lines on 2D "
+            "habitat / network figures (default on)."
+        ),
+    )
+    visualization_block_size: Optional[int] = Field(
+        default=None,
+        description=(
+            "Cube edge length drawn on 2D lattice figures. None uses the "
+            "extraction block_size (library default 5 voxels) so the overlay "
+            "matches the nodes."
+        ),
+    )
+    visualization_grid_linestyle: str = Field(
+        "--",
+        description=(
+            "Matplotlib linestyle for the display lattice (default dashed)."
+        ),
+    )
     visualization_save_3d: bool = Field(
         True,
         description=(
@@ -828,6 +862,16 @@ class GraphFeatureBlock(BaseModel):
             "the main process after the CSV export."
         ),
     )
+
+    @field_validator("visualization_block_size")
+    @classmethod
+    def _visualization_block_size_positive(
+        cls, value: Optional[int]
+    ) -> Optional[int]:
+        """Reject a non-positive display cube size (``None`` stays allowed)."""
+        if value is not None and int(value) < 1:
+            raise ValueError("visualization_block_size must be >= 1.")
+        return value
 
 
 class FeatureExtractionConfig(BaseConfig):

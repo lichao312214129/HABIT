@@ -35,6 +35,7 @@ LIGHTWEIGHT = (
     "apply_saved_model_demo.py",
     "feature_composition_demo.py",
     "habitat_feature_compare_demo.py",
+    "habitat_survival_demo.py",
     # graph / voxel / tabular ML demos need demo_data/ or heavier extras.
 )
 

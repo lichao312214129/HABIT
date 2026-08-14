@@ -250,7 +250,7 @@ def test_label_compare_and_triptych(toy_labels: np.ndarray) -> None:
 
 @pytest.mark.unit
 def test_label_compare_aligns_permuted_ids_by_default() -> None:
-    """Independent maps with swapped ids agree after default centroid align."""
+    """Independent maps with swapped ids agree after default overlap align."""
     import matplotlib.pyplot as plt
 
     labels_a = np.zeros((8, 8, 8), dtype=np.int32)
@@ -267,7 +267,34 @@ def test_label_compare_aligns_permuted_ids_by_default() -> None:
     plt.close(fig)
     from habit.kernels.habitat_label_match import align_label_array
 
-    aligned = align_label_array(labels_a, labels_b, image=image, method="centroid")
+    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
+    assert int(np.count_nonzero(disagree)) == 0
+
+
+@pytest.mark.unit
+def test_label_compare_disagreement_ignores_2_3_swap() -> None:
+    """Default overlap remap of a 2<->3 swap on panel 2 yields no disagreement."""
+    import matplotlib.pyplot as plt
+
+    from habit.kernels.habitat_label_match import align_label_array
+
+    labels_a = np.zeros((6, 4, 4), dtype=np.int32)
+    labels_a[0:2, 0:2, 0:2] = 1
+    labels_a[2:4, 0:2, 0:2] = 2
+    labels_a[4:6, 0:2, 0:2] = 3
+    labels_b = labels_a.copy()
+    labels_b[labels_a == 2] = 9
+    labels_b[labels_a == 3] = 2
+    labels_b[labels_b == 9] = 3
+    image = np.zeros((6, 4, 4), dtype=np.float64)
+    raw_disagree = (labels_a != labels_b) & ((labels_a > 0) | (labels_b > 0))
+    assert int(np.count_nonzero(raw_disagree)) > 0
+    fig = plot_habitat_label_compare(image, labels_a, labels_b, axis=0)
+    fig.canvas.draw()
+    plt.close(fig)
+    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    assert np.array_equal(aligned, labels_a)
     disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
     assert int(np.count_nonzero(disagree)) == 0
 

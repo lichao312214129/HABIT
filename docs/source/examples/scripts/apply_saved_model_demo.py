@@ -34,24 +34,24 @@ DATA = "demo_data/preprocessed"  # folder with images/ and masks/
 MODALITIES = ("LAP",)            # series keys under each subject
 ROI = "LAP"                      # mask key (often same as a modality)
 
-# Demo pack has subj001..subj005. Train on the first two; apply on the next two.
+# Demo pack has subj001..subj005. Train on the first three; apply on the last two.
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)
-train_cohort = cohort[:2]
-new_cohort = cohort[2:4]
+train_cohort = cohort[:3]
+new_cohort = cohort[3:5]
 print(f"Train: {list(train_cohort.subject_ids)}; apply: {list(new_cohort.subject_ids)}")
 
 spec = HabitatSpec(
     name="habitat_two_step",
     stages=(
         Stage("extract_voxel_features", Spec("raw", {"modalities": list(MODALITIES)})),
-        Stage("partition", Spec("kmeans", {"n_supervoxels": 8, "n_init": 5})),
+        Stage("partition", Spec("kmeans", {"n_supervoxels": 32, "n_init": 5})),
         Stage("pool", Spec("pool")),
         Stage(
             "fit",
             Spec(
                 "kmeans",
                 {
-                    "n_habitats": 4,
+                    "n_habitats": 3,
                     "n_init": 5,
                 },
             ),

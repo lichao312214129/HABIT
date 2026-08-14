@@ -70,6 +70,7 @@ def _viz_options() -> HabitatGraphFeatureOptions:
         edge_method="centroid_distance",
         distance_threshold=12.0,
         erosion_radius=0,
+        node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
     )
@@ -136,7 +137,10 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
                 alpha = image.get_alpha()
                 assert alpha is None or float(alpha) == pytest.approx(1.0)
         for line in ax.lines:
-            assert float(line.get_alpha()) == pytest.approx(1.0)
+            alpha = float(line.get_alpha())
+            # Featured intra/inter edges stay opaque; other-habitat context
+            # edges and the display lattice are intentionally translucent.
+            assert 0.0 < alpha <= 1.0 + 1e-9
         for collection in ax.collections:
             face_alpha = collection.get_alpha()
             if face_alpha is not None:
@@ -163,6 +167,83 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
     assert any(title.startswith("H") for title in panel_titles)
     assert "All habitats" in panel_titles
 
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_habitat_graph_network_2d_draws_dashed_uniform_grid() -> None:
+    """Default uniform-grid nodes draw the same lattice as dashed lines."""
+    labels = np.ones((16, 16), dtype=np.int32)
+    fig = plot_habitat_graph_network_2d(labels)
+    assert isinstance(fig, Figure)
+    dashed = [
+        line
+        for ax in fig.axes
+        for line in ax.lines
+        if line.get_linestyle() == "--"
+    ]
+    assert dashed
+    texts = [fig._suptitle.get_text() if fig._suptitle is not None else ""]
+    texts.extend(ax.get_title() for ax in fig.axes)
+    if fig.legends:
+        texts.extend(t.get_text() for t in fig.legends[0].get_texts())
+    joined = " ".join(texts)
+    assert joined.isascii()
+    assert "5-voxel cubes" in joined
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:
+    """Plot ``block_size`` / linestyle override extraction options for drawing."""
+    labels = np.ones((16, 16), dtype=np.int32)
+    fig = plot_habitat_graph_network_2d(
+        labels,
+        block_size=4,
+        grid_linestyle=":",
+    )
+    assert isinstance(fig, Figure)
+    dotted = [
+        line
+        for ax in fig.axes
+        for line in ax.lines
+        if line.get_linestyle() == ":"
+    ]
+    assert dotted
+    texts = [fig._suptitle.get_text() if fig._suptitle is not None else ""]
+    if fig.legends:
+        texts.extend(t.get_text() for t in fig.legends[0].get_texts())
+    assert "4-voxel cubes" in " ".join(texts)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_habitat_graph_network_2d_other_habitat_edges_are_translucent() -> None:
+    """Per-habitat panels draw other habitats' intra-edges more transparent."""
+    labels = _synthetic_2d_labels()
+    options = HabitatGraphFeatureOptions(
+        edge_method="centroid_distance",
+        distance_threshold=30.0,
+        erosion_radius=0,
+        node_method="component",
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+    fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
+    assert isinstance(fig, Figure)
+    habitat_axes = [ax for ax in fig.axes if ax.get_title().startswith("H")]
+    assert habitat_axes
+    translucent = []
+    for ax in habitat_axes:
+        for line in ax.lines:
+            alpha = float(line.get_alpha())
+            if alpha < 0.99:
+                translucent.append(alpha)
+    assert translucent
+    assert all(abs(a - 0.28) < 0.05 for a in translucent)
     import matplotlib.pyplot as plt
 
     plt.close(fig)

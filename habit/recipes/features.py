@@ -534,13 +534,25 @@ def _render_one_subject_graph_figures(
 
     written: List[Path] = []
     figures = (
-        ("graph_slice", plot_habitat_graph_slice(labels)),
+        (
+            "graph_slice",
+            plot_habitat_graph_slice(
+                labels,
+                options=options,
+                show_grid=block.visualization_show_grid,
+                block_size=block.visualization_block_size,
+                grid_linestyle=block.visualization_grid_linestyle,
+            ),
+        ),
         (
             "graph_network_2d",
             plot_habitat_graph_network_2d(
                 labels,
                 options=options,
                 show_background=block.visualization_show_background,
+                show_grid=block.visualization_show_grid,
+                block_size=block.visualization_block_size,
+                grid_linestyle=block.visualization_grid_linestyle,
             ),
         ),
     )

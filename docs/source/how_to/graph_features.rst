@@ -7,9 +7,8 @@ metrics) from habitat label maps, optionally with 2D/3D figures.
 Need habitat maps first (:doc:`segment_habitat`). Reviewer-grade formulas
 (nodes, edges, metrics, VOI normalization):
 :doc:`../reference/features/graph`. Short end-to-end gallery:
-:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=4``
-and example override ``adjacency_min_voxels=2``; library default remains
-10, then graph features + overlay / 2D network).
+:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=4``,
+then graph features + overlay / 2D network using the library defaults).
 
 ``graph`` is a **built-in** light family under
 :doc:`../reference/features/index` (same tier as ``volume`` / ``msi`` /
@@ -33,16 +32,20 @@ Minimal YAML fragment::
      - graph
 
    graph:
-     edge_method: adjacency
-     adjacency_connectivity: corner
-     adjacency_min_voxels: 10
+     edge_method: min_distance
+     distance_threshold: 5.0
+     node_method: uniform_grid
+     block_size: 5
+     block_min_coverage: 0.2
      connectivity: full
      erosion_radius: 0
-     subdivide_region_voxels: 1000
      include_single_habitat_graph: true
      include_pairwise_habitat_graph: true
      include_extended_metrics: true
      visualize: false
+     visualization_show_grid: true
+     visualization_block_size: null
+     visualization_grid_linestyle: "--"
 
 Outputs:
 
@@ -51,20 +54,19 @@ Outputs:
   ``out_dir/visualizations/graph/`` (2D needs ``[viz]``; 3D also needs
   ``[view]``)
 
-By default there is **no morphological erosion** (``erosion_radius: 0``).
-Components use **corner connectivity** (``connectivity: full``:
-8-connected in 2D / 26-connected in 3D). An **edge exists when two
-regions are adjacent** under the same neighborhood
-(``adjacency_connectivity: corner``) **and** the contact
-(shared-boundary) voxel count is **>= 10** (``adjacency_min_voxels: 10``),
-measured on the habitat labels as drawn. Face (4/6) remains available via
-``connectivity: face`` and ``adjacency_connectivity: face``. Set
-``erosion_radius`` to a positive integer if you want to shrink each
-habitat before building edges. Use ``edge_method: centroid_distance``
-plus ``distance_threshold`` if you want the older centroid-proximity
-rule instead. ``edge_method: min_distance`` reuses the same
-``distance_threshold`` but connects regions when their **closest voxels**
-(not centroids) are within that distance.
+By default nodes are **equal-volume cubes** on a global VOI lattice
+(``node_method: uniform_grid``, ``block_size: 5`` **voxels**, not
+millimetres). An **edge exists when the closest voxels of two cubes are
+within 5** voxel-index units (``edge_method: min_distance``,
+``distance_threshold: 5``). Face-adjacent 5-cubes connect (closest
+voxels are one hop apart). One empty lattice cell between cubes is
+closest-voxel distance 6, which is greater than 5, so those stay
+disconnected. There is **no morphological
+erosion** (``erosion_radius: 0``). Pass
+``node_method: component`` for connected-component nodes, and
+``edge_method: adjacency`` if you want contact-voxel edges (default
+contact count >= 10). ``centroid_distance`` is the older centroid-proximity
+rule. 2D figures draw the **same lattice** as dashed lines.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 
@@ -73,10 +75,8 @@ Python API
 
 The figure below is written by the graph gallery
 (:doc:`../examples/graph_features`) — one-step with **fixed**
-``n_habitats=4`` and the same ``options`` on extract + plot. That
-``adjacency_min_voxels=2`` is an **example override**; the library /
-YAML default above remains ``10``. It is **not** from the YAML
-fragment. Reproduce it::
+``n_habitats=4`` and the library graph defaults (uniform 5-voxel cubes
++ min-distance edges + dashed lattice). Reproduce it::
 
    python docs/source/examples/scripts/graph_features_demo.py
 
@@ -98,9 +98,11 @@ Or paste the same code the gallery shows::
        modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
-   options = HabitatGraphFeatureOptions(adjacency_min_voxels=2)
+   options = HabitatGraphFeatureOptions()
    feats = extract_graph_features(labels, options=options)
-   fig = plot_habitat_graph_network_2d(labels, options=options)
+   fig = plot_habitat_graph_network_2d(
+       labels, options=options, show_grid=True, block_size=5, grid_linestyle="--"
+   )
 
 Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D

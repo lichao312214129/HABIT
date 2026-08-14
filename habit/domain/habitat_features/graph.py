@@ -44,11 +44,11 @@ class GraphHabitatFeaturesParams(BaseModel):
     include_single_habitat_graph: bool = True
     #: Compute pairwise inter-habitat region graphs.
     include_pairwise_habitat_graph: bool = True
-    #: Rule used to identify graph edges. Default ``"adjacency"``: connect
-    #: regions that share a boundary. ``"min_distance"`` connects regions
-    #: whose closest voxels are within ``distance_threshold``.
+    #: Rule used to identify graph edges. Default ``"min_distance"``:
+    #: connect regions whose closest voxels are within
+    #: ``distance_threshold``. ``"adjacency"`` uses contact voxels.
     edge_method: Literal["centroid_distance", "adjacency", "min_distance"] = (
-        "adjacency"
+        "min_distance"
     )
     #: Distance threshold in voxel-index units. Used by ``centroid_distance``
     #: (centroid-to-centroid) and ``min_distance`` (closest-voxel).
@@ -75,14 +75,21 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: ``0`` (off): adjacency and contact are measured on the habitat labels
     #: as drawn. Pass a positive value to shrink each habitat before edges.
     erosion_radius: int = Field(default=0, ge=0)
-    #: Split connected components larger than this voxel count into grid blocks
-    #: so large habitats do not collapse into a single node. Set 0 to disable.
+    #: How voxels become nodes. Default ``"uniform_grid"``: equal-volume
+    #: cubes on a global VOI lattice. ``"component"`` uses connected
+    #: components (optionally split when larger than
+    #: ``subdivide_region_voxels``).
+    node_method: Literal["uniform_grid", "component"] = "uniform_grid"
+    #: In ``component`` mode, split components larger than this voxel count.
+    #: ``0`` disables that split. Ignored by ``uniform_grid``.
     subdivide_region_voxels: int = Field(default=1000, ge=0)
-    #: Grid block edge length (voxels) used when subdividing. Keep it close to
-    #: ``distance_threshold`` so adjacent blocks connect into a lattice.
+    #: Cube edge length in voxels (default 5), not millimetres. Paired
+    #: with ``distance_threshold=5``: face-adjacent cubes connect; one
+    #: empty lattice cell (closest-voxel distance 6) stays disconnected.
     block_size: int = Field(default=5, ge=1)
-    #: Minimum covered fraction of a block volume to keep it as a node.
-    block_min_coverage: float = Field(default=0.5, ge=0.0, le=1.0)
+    #: Minimum covered fraction of a block volume to keep it as a node
+    #: (strictly greater than this value; default 0.2).
+    block_min_coverage: float = Field(default=0.2, ge=0.0, le=1.0)
     #: Add same-habitat proximity edges to pairwise graphs so whole-graph
     #: metrics (modularity, assortativity, betweenness) reflect real tissue
     #: organization; interface metrics still use inter-class edges only.
@@ -100,19 +107,15 @@ class GraphHabitatFeatures:
     """
     Graph-topology features of one subject's habitat map.
 
-    Each connected habitat region (optionally eroded and subdivided into grid
-    blocks) becomes a graph node. By default there is no morphological
-    erosion (``erosion_radius=0``): adjacency is measured on the habitat
-    labels as drawn. With ``edge_method='adjacency'`` an edge exists when
-    two regions are adjacent (default ``adjacency_connectivity='corner'``,
-    8-connected in 2D / 26-connected in 3D) and the number of contact
-    (shared-boundary) voxels is at least ``adjacency_min_voxels``
-    (default ``10``). Components use ``connectivity='full'`` (same 8/26
-    neighborhood). Pass ``face`` on both fields for 4/6-connectivity.
-    Pass a positive ``erosion_radius`` to shrink habitats before edges. The
-    alternative ``centroid_distance`` method connects centroids
-    within ``distance_threshold``. ``min_distance`` connects regions when
-    the closest voxels (not the centroids) are within the same
+    Default nodes are equal-volume cubes on a global VOI lattice
+    (``node_method='uniform_grid'``, ``block_size=5`` voxels, not mm).
+    Default edges connect cubes whose closest voxels are within
+    ``distance_threshold`` (``edge_method='min_distance'``, default 5).
+    There is no morphological erosion (``erosion_radius=0``). Pass
+    ``node_method='component'`` for connected-component nodes, and
+    ``edge_method='adjacency'`` for contact-voxel edges (default
+    ``adjacency_min_voxels=10``, ``adjacency_connectivity='corner'``).
+    ``centroid_distance`` connects centroids within
     ``distance_threshold``. NetworkX-derived topology
     metrics are reported per habitat (``single_h*`` columns) and per habitat
     pair (``pair_h*_h*`` columns), covering degree/edge counts, density,
@@ -135,7 +138,7 @@ class GraphHabitatFeatures:
         include_pairwise_habitat_graph: bool = True,
         edge_method: Literal[
             "centroid_distance", "adjacency", "min_distance"
-        ] = "adjacency",
+        ] = "min_distance",
         distance_threshold: float = 5.0,
         adjacency_connectivity: Literal["face", "edge", "corner"] = "corner",
         adjacency_min_voxels: int = 10,
@@ -145,9 +148,10 @@ class GraphHabitatFeatures:
         min_region_voxels: int = 1,
         connectivity: Literal["face", "full"] = "full",
         erosion_radius: int = 0,
+        node_method: Literal["uniform_grid", "component"] = "uniform_grid",
         subdivide_region_voxels: int = 1000,
         block_size: int = 5,
-        block_min_coverage: float = 0.5,
+        block_min_coverage: float = 0.2,
         pairwise_include_intra_edges: bool = True,
         include_extended_metrics: bool = True,
         extended_min_nodes: int = 10,
@@ -163,6 +167,7 @@ class GraphHabitatFeatures:
             min_region_voxels=min_region_voxels,
             connectivity=connectivity,
             erosion_radius=erosion_radius,
+            node_method=node_method,
             subdivide_region_voxels=subdivide_region_voxels,
             block_size=block_size,
             block_min_coverage=block_min_coverage,
