@@ -25,9 +25,13 @@ consistent.
 Script
 ------
 
-Train on the first subjects under ``demo_data/preprocessed``, save
-``.habitatmodel``, apply to later subjects. Change ``DATA`` /
-``MODALITIES`` / ``ROI`` (and the train/apply split) for your cohort.
+Load the Option B tree with :func:`~habit.cohort_from_directory`
+(:doc:`../how_to/prepare_data` Option C). Change ``DATA`` /
+``MODALITIES`` / ``ROI`` to your preprocessed layout. The demo pack has
+``subj001`` … ``subj005``; this recipe trains on the first two subjects
+and applies the saved model to the next two. Keep the same
+:class:`~habit.spec.HabitatSpec` for train and apply. The fit stage uses
+a fixed modest ``n_habitats`` (not auto-K).
 
 .. literalinclude:: scripts/apply_saved_model_demo.py
    :language: python
@@ -101,6 +105,7 @@ Figures
 What to read next
 -----------------
 
+* :doc:`../how_to/prepare_data` — ``DATA`` / ``MODALITIES`` / ``ROI`` and the folder tree
 * :doc:`two_step_habitat` — the training half of the workflow
 * :class:`~habit.contracts.HabitatModel` — the model contract
 * :doc:`run_from_yaml` — the same predict path driven by a YAML document
