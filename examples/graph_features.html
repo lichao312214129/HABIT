@@ -383,6 +383,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sampled-feature-values">Sampled feature values</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -1765,7 +1766,8 @@
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code> for figures · <strong>Time:</strong> ~20–90 s</p>
 <p>End-to-end: one subject → <code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code> with a <strong>fixed</strong>
 <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> (not <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>) →
-<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> → overlay +
+<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> → a reproducible 10-feature
+sample (fixed seed) → overlay +
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. This example uses the
 library defaults on <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code>:
 <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (5-voxel cubes, not millimetres; one
@@ -1781,10 +1783,13 @@ feature family (same tier as <code class="docutils literal notranslate"><span cl
 uses the library node/edge defaults (uniform 5-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
 off so a full 3D mixed lattice stays interactive), then extracts graph
-topology and draws the overlay plus the 2D network with the dashed
+topology, prints ten sampled feature values (<code class="docutils literal notranslate"><span class="pre">SAMPLE_SEED</span> <span class="pre">=</span> <span class="pre">0</span></code>),
+and draws the overlay plus the 2D network with the dashed
 lattice. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that
 path too if you like).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
@@ -1812,16 +1817,29 @@ path too if you like).</p>
 <span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
 <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">),</span> <span class="s2">&quot;graph features from representative slice&quot;</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)</span>
+<span class="c1"># Reproducible 10-feature sample (fixed seed). Swap SAMPLE_SEED if you like.</span>
+<span class="n">SAMPLE_SEED</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">SAMPLE_SEED</span><span class="p">)</span>
+<span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+<span class="n">sample_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">feats</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sample_names</span><span class="p">)}</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ten sampled graph features (seed=</span><span class="si">%d</span><span class="s2">):&quot;</span> <span class="o">%</span> <span class="n">SAMPLE_SEED</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sample</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="draw-the-figures">
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
 <p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">result</span></code>,
-<code class="docutils literal notranslate"><span class="pre">labels</span></code>, and <code class="docutils literal notranslate"><span class="pre">options</span></code>). Writes <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_slice_2d.png</span></code>
-(orthogonal overlay) and <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cohort, result, labels, options, and MODALITIES.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">,</span> <span class="n">plot_habitat_overlay</span>
+<code class="docutils literal notranslate"><span class="pre">labels</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, and <code class="docutils literal notranslate"><span class="pre">sample</span></code>). Writes
+<code class="docutils literal notranslate"><span class="pre">out/graph_habitat_slice_2d.png</span></code> (orthogonal overlay),
+<code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">out/graph_feature_sample.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cohort, result, labels, options, sample, and MODALITIES.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">,</span> <span class="n">plot_habitat_overlay</span><span class="p">,</span> <span class="n">use_style</span>
 
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># Overlay: ImageVolume + HabitatMap (3-panel orthogonal default).</span>
@@ -1840,7 +1858,19 @@ path too if you like).</p>
     <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_network_2d.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/graph_habitat_slice_2d.png and out/graph_habitat_network_2d.png&quot;</span><span class="p">)</span>
+<span class="c1"># Same `sample` dict printed in the Script block (seed=0).</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">7.4</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bar_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">bar_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bar_names</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">bar_names</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">bar_values</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C78A8&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.65</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Ten sampled graph features (seed=0)&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_feature_sample.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Wrote out/graph_habitat_slice_2d.png, &quot;</span>
+    <span class="s2">&quot;out/graph_habitat_network_2d.png, and out/graph_feature_sample.png&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>
@@ -1853,23 +1883,46 @@ path too if you like).</p>
 <p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code>, per-cell subregion centroids;
 count depends on the habitat map):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">397</span> <span class="n">graph</span> <span class="n">features</span> <span class="kn">from</span><span class="w"> </span><span class="nn">representative</span> <span class="nb">slice</span> <span class="mi">96</span>
+<span class="n">Ten</span> <span class="n">sampled</span> <span class="n">graph</span> <span class="n">features</span> <span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+  <span class="n">pair_h1_h2_avg_degree_2_norm</span><span class="p">:</span> <span class="mf">0.090625</span>
+  <span class="n">pair_h1_h2_connected_components_norm</span><span class="p">:</span> <span class="mf">0.0153846</span>
+  <span class="n">pair_h1_h2_isolated_ratio_1</span><span class="p">:</span> <span class="mf">0.685714</span>
+  <span class="n">pair_h1_h3_isolated_ratio_2</span><span class="p">:</span> <span class="mf">0.115385</span>
+  <span class="n">pair_h1_h4_edge_density</span><span class="p">:</span> <span class="mf">0.0703297</span>
+  <span class="n">pair_h2_h3_avg_degree_1</span><span class="p">:</span> <span class="mf">8.8</span>
+  <span class="n">pair_h3_h4_avg_degree_1_norm</span><span class="p">:</span> <span class="mf">0.0971485</span>
+  <span class="n">single_h1_avg_path_length</span><span class="p">:</span> <span class="mf">2.75397</span>
+  <span class="n">single_h3_avg_edge_distance</span><span class="p">:</span> <span class="mf">2.24534</span>
+  <span class="n">single_h3_connected_components_ratio</span><span class="p">:</span> <span class="mf">0.0384615</span>
 </pre></div>
 </div>
 </section>
+<section id="sampled-feature-values">
+<h2>Sampled feature values<a class="headerlink" href="#sampled-feature-values" title="Link to this heading"></a></h2>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/graph_feature_sample.png"><img alt="Horizontal bar chart of ten sampled graph-feature values" src="../_images/graph_feature_sample.png" width="560" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ten features drawn with <code class="docutils literal notranslate"><span class="pre">numpy.random.default_rng(0)</span></code> from the
+same <code class="docutils literal notranslate"><span class="pre">feats</span></code> dict printed above. Swap <code class="docutils literal notranslate"><span class="pre">SAMPLE_SEED</span></code> in the
+Script block to draw a different set.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 <section id="anatomy-with-habitats">
 <h2>Anatomy with habitats<a class="headerlink" href="#anatomy-with-habitats" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id1">
+<figure class="align-default" id="id2">
 <a class="reference internal image-reference" href="../_images/graph_habitat_slice_2d.png"><img alt="One-step habitat labels overlaid on anatomy" src="../_images/graph_habitat_slice_2d.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Habitat labels on the densest axial slice
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="d-region-network">
 <h2>2D region network<a class="headerlink" href="#d-region-network" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id3">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="Intra- and inter-habitat graphs on a 2D habitat slice" src="../_images/graph_habitat_network_2d.png" width="720" />
 </a>
 <figcaption>
@@ -1878,7 +1931,7 @@ panel title reports per-habitat node counts and intra/inter edge
 counts. Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> / <code class="docutils literal notranslate"><span class="pre">grid_linestyle='--'</span></code> draw
 the same 5-voxel cubes; other habitats on each H panel are opaque
 gray (fill) with translucent gray edges
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1886,21 +1939,21 @@ gray (fill) with translucent gray edges
 <h2>3D surfaces and network<a class="headerlink" href="#d-surfaces-and-network" title="Link to this heading"></a></h2>
 <p>Optional off-screen PyVista assets (regenerated when <code class="docutils literal notranslate"><span class="pre">[view]</span></code> is installed;
 see the how-to for the one-line 3D calls).</p>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id4">
 <a class="reference internal image-reference" href="../_images/graph_habitat_surface_3d.png"><img alt="Off-screen PyVista surface render of habitats" src="../_images/graph_habitat_surface_3d.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Marching-cubes habitat surfaces
-(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id5">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_3d.png"><img alt="Off-screen PyVista 3D graph with habitat-colored nodes" src="../_images/graph_habitat_network_3d.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Region-centroid nodes with intra- and inter-habitat min-distance edges
 (library defaults: uniform 5-voxel cubes, closest-voxel threshold 5;
-<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

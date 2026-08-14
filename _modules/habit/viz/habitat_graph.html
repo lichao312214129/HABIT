@@ -712,7 +712,8 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#the-three-first-class-experiments">The three first-class experiments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#perturbations-are-not-a-fixed-enum">Perturbations are not a fixed enum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
@@ -736,6 +737,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -2480,8 +2482,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">hexes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">)}</span>
 
 
-<span class="c1">#: Matplotlib scatter area (points^2) for every 2D graph node.</span>
+<span class="c1">#: Matplotlib scatter area (points^2) for H1--Hk panel nodes.</span>
 <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">64.0</span>
+<span class="c1">#: Combined All-habitats panel: many nodes plus intra/inter edges share</span>
+<span class="c1">#: one axes, so markers stay smaller than the per-habitat panels.</span>
+<span class="n">_ALL_PANEL_NODE_SIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">18.0</span>
+<span class="c1">#: Marker rim width (points) on H panels vs the crowded All panel.</span>
+<span class="n">_NODE_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">_ALL_PANEL_NODE_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.30</span>
+<span class="c1">#: Featured intra-habitat edges on H1--Hk panels (opaque).</span>
+<span class="n">_FEATURED_INTRA_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.7</span>
+<span class="c1">#: Combined All-habitats panel strokes (thinner than H panels).</span>
+<span class="n">_ALL_PANEL_INTRA_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.35</span>
+<span class="n">_ALL_PANEL_INTER_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span>
+<span class="n">_ALL_PANEL_INTRA_EDGE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.85</span>
+<span class="n">_ALL_PANEL_INTER_EDGE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.80</span>
 <span class="c1">#: Publication-readable type sizes for the multi-panel 2D network figure.</span>
 <span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">11.5</span>
 <span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
@@ -2812,11 +2827,25 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_scaled_all_panel_node_size</span><span class="p">(</span><span class="n">node_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive the All-habitats marker area from the H-panel ``node_size``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        node_size: Scatter area used on H1--Hk panels.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Scatter area for the combined All-habitats panel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">node_size</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">_ALL_PANEL_NODE_SIZE</span> <span class="o">/</span> <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_draw_nodes_2d</span><span class="p">(</span>
     <span class="n">ax</span><span class="p">,</span>
     <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
     <span class="n">colors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">node_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">,</span>
+    <span class="n">linewidths</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Scatter 2D graph nodes at projected region centroids, colored by habitat.</span>
@@ -2830,6 +2859,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        colors: Habitat label to hex colour mapping.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared. The same</span>
 <span class="sd">            value is applied to every node.</span>
+<span class="sd">        linewidths: Marker rim width in points.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes</span><span class="p">:</span>
         <span class="k">return</span>
@@ -2844,7 +2874,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Dark rim, not white: a white edge on a small marker reads as a</span>
         <span class="c1"># pale / hollow node even when face alpha is 1.0.</span>
         <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;#1A1A1A&quot;</span><span class="p">,</span>
-        <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidths</span><span class="p">),</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
     <span class="p">)</span>
@@ -3061,7 +3091,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        panel_size: Base panel edge length in inches.</span>
 <span class="sd">        max_cols: Maximum number of panels per row in the grid.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared applied to</span>
-<span class="sd">            every node (default ``64``). Voxel count does not scale markers.</span>
+<span class="sd">            H1--Hk panel nodes (default ``64``). The All-habitats panel</span>
+<span class="sd">            uses a smaller derived area (default ``18``) so a crowded</span>
+<span class="sd">            combined graph stays readable. Voxel count does not scale</span>
+<span class="sd">            markers.</span>
 <span class="sd">        colorbar: Discrete habitat-ID colorbar on the combined-graph panel</span>
 <span class="sd">            (default ``True``). Pass ``False`` to hide it.</span>
 <span class="sd">        colorbar_label: Colorbar label (English default ``\&quot;Habitat\&quot;``).</span>
@@ -3149,8 +3182,22 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">)</span>
             <span class="n">edges</span> <span class="o">=</span> <span class="n">_single_intra_edges</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">node_result</span><span class="p">)</span>
             <span class="c1"># Featured intra-habitat edges stay opaque so the panel is readable.</span>
-            <span class="n">_draw_edges_2d</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">_draw_nodes_2d</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">)</span>
+            <span class="n">_draw_edges_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">id_to_node</span><span class="p">,</span>
+                <span class="n">edges</span><span class="p">,</span>
+                <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span>
+                <span class="n">_FEATURED_INTRA_EDGE_WIDTH</span><span class="p">,</span>
+                <span class="mf">1.0</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_draw_nodes_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">sub</span><span class="p">,</span>
+                <span class="n">colors</span><span class="p">,</span>
+                <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="c1"># Slice index lives on the figure title; keep panel titles short</span>
             <span class="c1"># so neighbouring H1 / H2 headings cannot run into each other.</span>
             <span class="n">_style_axis_2d</span><span class="p">(</span>
@@ -3166,15 +3213,33 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ax_cross</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
         <span class="p">)</span>
         <span class="n">_draw_edges_2d</span><span class="p">(</span>
-            <span class="n">ax_cross</span><span class="p">,</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">intra_edges</span><span class="p">,</span> <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span>
+            <span class="n">ax_cross</span><span class="p">,</span>
+            <span class="n">id_to_node</span><span class="p">,</span>
+            <span class="n">intra_edges</span><span class="p">,</span>
+            <span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span>
+            <span class="n">_ALL_PANEL_INTRA_EDGE_WIDTH</span><span class="p">,</span>
+            <span class="n">_ALL_PANEL_INTRA_EDGE_ALPHA</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">_draw_edges_2d</span><span class="p">(</span>
-            <span class="n">ax_cross</span><span class="p">,</span> <span class="n">id_to_node</span><span class="p">,</span> <span class="n">inter_edges</span><span class="p">,</span> <span class="n">_INTER_EDGE_COLOR</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">3</span>
+            <span class="n">ax_cross</span><span class="p">,</span>
+            <span class="n">id_to_node</span><span class="p">,</span>
+            <span class="n">inter_edges</span><span class="p">,</span>
+            <span class="n">_INTER_EDGE_COLOR</span><span class="p">,</span>
+            <span class="n">_ALL_PANEL_INTER_EDGE_WIDTH</span><span class="p">,</span>
+            <span class="n">_ALL_PANEL_INTER_EDGE_ALPHA</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">all_nodes</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">node</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
         <span class="p">]</span>
-        <span class="n">_draw_nodes_2d</span><span class="p">(</span><span class="n">ax_cross</span><span class="p">,</span> <span class="n">all_nodes</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">)</span>
+        <span class="n">_draw_nodes_2d</span><span class="p">(</span>
+            <span class="n">ax_cross</span><span class="p">,</span>
+            <span class="n">all_nodes</span><span class="p">,</span>
+            <span class="n">colors</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="n">_scaled_all_panel_node_size</span><span class="p">(</span><span class="n">node_size</span><span class="p">),</span>
+            <span class="n">linewidths</span><span class="o">=</span><span class="n">_ALL_PANEL_NODE_EDGE_WIDTH</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">_style_axis_2d</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="n">label_2d</span><span class="p">,</span>

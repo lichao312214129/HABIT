@@ -359,7 +359,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#the-three-first-class-experiments">The three first-class experiments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#perturbations-are-not-a-fixed-enum">Perturbations are not a fixed enum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
@@ -383,6 +384,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -1796,7 +1798,10 @@ matches the nodes.</p></li>
 <li><p><strong>panel_size</strong> – Base panel edge length in inches.</p></li>
 <li><p><strong>max_cols</strong> – Maximum number of panels per row in the grid.</p></li>
 <li><p><strong>node_size</strong> – Matplotlib scatter area in points squared applied to
-every node (default <code class="docutils literal notranslate"><span class="pre">64</span></code>). Voxel count does not scale markers.</p></li>
+H1–Hk panel nodes (default <code class="docutils literal notranslate"><span class="pre">64</span></code>). The All-habitats panel
+uses a smaller derived area (default <code class="docutils literal notranslate"><span class="pre">18</span></code>) so a crowded
+combined graph stays readable. Voxel count does not scale
+markers.</p></li>
 <li><p><strong>colorbar</strong> – Discrete habitat-ID colorbar on the combined-graph panel
 (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). Pass <code class="docutils literal notranslate"><span class="pre">False</span></code> to hide it.</p></li>
 <li><p><strong>colorbar_label</strong> – Colorbar label (English default <code class="docutils literal notranslate"><span class="pre">&quot;Habitat&quot;</span></code>).</p></li>

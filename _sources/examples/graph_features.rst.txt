@@ -6,7 +6,8 @@ Graph features from habitat maps
 
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=4`` (not ``"auto"``) →
-:func:`~habit.extract_graph_features` → overlay +
+:func:`~habit.extract_graph_features` → a reproducible 10-feature
+sample (fixed seed) → overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example uses the
 library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
 ``node_method='uniform_grid'`` (5-voxel cubes, not millimetres; one
@@ -24,7 +25,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 uses the library node/edge defaults (uniform 5-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
 off so a full 3D mixed lattice stays interactive), then extracts graph
-topology and draws the overlay plus the 2D network with the dashed
+topology, prints ten sampled feature values (``SAMPLE_SEED = 0``),
+and draws the overlay plus the 2D network with the dashed
 lattice. Figures land under ``out/`` (swap that
 path too if you like).
 
@@ -37,8 +39,10 @@ Draw the figures
 ----------------
 
 Paste this after the Script block (it uses ``cohort``, ``result``,
-``labels``, and ``options``). Writes ``out/graph_habitat_slice_2d.png``
-(orthogonal overlay) and ``out/graph_habitat_network_2d.png``.
+``labels``, ``options``, and ``sample``). Writes
+``out/graph_habitat_slice_2d.png`` (orthogonal overlay),
+``out/graph_habitat_network_2d.png``, and
+``out/graph_feature_sample.png``.
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -56,6 +60,28 @@ Illustrative (fixed ``n_habitats=4``, per-cell subregion centroids;
 count depends on the habitat map)::
 
    397 graph features from representative slice 96
+   Ten sampled graph features (seed=0):
+     pair_h1_h2_avg_degree_2_norm: 0.090625
+     pair_h1_h2_connected_components_norm: 0.0153846
+     pair_h1_h2_isolated_ratio_1: 0.685714
+     pair_h1_h3_isolated_ratio_2: 0.115385
+     pair_h1_h4_edge_density: 0.0703297
+     pair_h2_h3_avg_degree_1: 8.8
+     pair_h3_h4_avg_degree_1_norm: 0.0971485
+     single_h1_avg_path_length: 2.75397
+     single_h3_avg_edge_distance: 2.24534
+     single_h3_connected_components_ratio: 0.0384615
+
+Sampled feature values
+----------------------
+
+.. figure:: ../_static/images/examples/graph_feature_sample.png
+   :alt: Horizontal bar chart of ten sampled graph-feature values
+   :width: 560
+
+   Ten features drawn with ``numpy.random.default_rng(0)`` from the
+   same ``feats`` dict printed above. Swap ``SAMPLE_SEED`` in the
+   Script block to draw a different set.
 
 Anatomy with habitats
 ---------------------
