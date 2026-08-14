@@ -236,7 +236,7 @@ Run::
    Label compare (:func:`~habit.viz.plot_habitat_label_compare`).
 
 Habitat feature contrast (heatmap / Cliff's delta / PCA / violin / bars)
------------------------------------------------------------------------
+-------------------------------------------------------------------------
 
 After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
 :func:`~habit.compare_habitat_features` plus the

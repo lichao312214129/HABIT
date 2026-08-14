@@ -549,7 +549,7 @@ def _rank_features_by_max_abs_effect(
     *,
     habitat_ids: Optional[Sequence[int]],
 ) -> List[str]:
-    """Feature names ordered by max |effect| across the selected pairs."""
+    """Feature names ordered by max absolute effect across the selected pairs."""
     work = pairwise
     if habitat_ids is not None:
         wanted = {int(hid) for hid in habitat_ids}
@@ -609,7 +609,7 @@ def plot_habitat_feature_effect(
     pair (``H1-H2``, ``H1-H3``, ...). Colour is the effect size; BH
     q < 0.05 cells are starred and full-colour, others stay pale.
     When more features exist than ``max_features``, only the top-k by
-    max |effect| across pairs are drawn and the title states the
+    max absolute effect across pairs are drawn and the title states the
     truncation (``top 15 of 47 by max |delta|``).
 
     Single-pair lollipop: pass ``pair=(a, b)`` or ``habitats=(a, b)``.
@@ -1086,7 +1086,7 @@ def plot_habitat_feature_components(
 
     Features are z-scored before the reduction so Energy and
     ``volume_fraction`` share one Euclidean space. A companion bar
-    shows the largest |loadings| on PC1 / CV1.
+    shows the largest absolute loadings on PC1 / CV1.
 
     Args:
         data: Long panel or a :class:`HabitatFeatureComparison`.
