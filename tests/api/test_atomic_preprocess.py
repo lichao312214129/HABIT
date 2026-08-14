@@ -75,6 +75,47 @@ def test_preprocess_image_single_volume() -> None:
 
 
 @pytest.mark.unit
+def test_preprocess_subject_zscore_keeps_negative_float() -> None:
+    """Integer input volumes must not truncate negative z-scores to zero."""
+    cohort = make_synthetic_cohort(n_subjects=1, modalities=("T1",), rng=4)
+    subject = cohort[0]
+    raw = np.asarray(subject.image("T1").data)
+    # Force an integer storage dtype like clinical NRRD/NIfTI volumes.
+    from habit.contracts.image import ArrayImageRef
+    from habit.contracts.subject import Subject
+
+    int16_vol = raw.astype(np.int16)
+    geo = subject.image("T1").geometry
+    int_subject = Subject(
+        subject_id=subject.subject_id,
+        images={
+            "T1": ArrayImageRef(array=int16_vol, geometry=geo),
+        },
+        masks=subject.masks,
+        metadata=dict(subject.metadata),
+    )
+
+    processed = preprocess_subject(
+        int_subject,
+        {"zscore_normalization": {"only_inmask": False}},
+    )
+    out = np.asarray(processed.image("T1").data)
+    assert np.issubdtype(out.dtype, np.floating)
+    assert float(out.min()) < 0.0
+    assert abs(float(out.mean())) < 1e-3
+    assert abs(float(out.std()) - 1.0) < 1e-3
+
+
+@pytest.mark.unit
+def test_preprocess_subject_uses_v1_registry() -> None:
+    """Atomic preprocess_subject is served by the v1 preprocessor domain."""
+    from habit.domain.image_preprocessing import PreprocessorRegistry
+
+    assert "zscore_normalization" in PreprocessorRegistry.available()
+    assert "resample" in PreprocessorRegistry.available()
+
+
+@pytest.mark.unit
 def test_preprocess_subject_rejects_unknown_step() -> None:
     """Unknown preprocessor names fail loudly."""
     cohort = make_synthetic_cohort(n_subjects=1, modalities=("T1",), rng=2)

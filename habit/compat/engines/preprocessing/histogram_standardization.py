@@ -218,21 +218,19 @@ class HistogramStandardization(BasePreprocessor):
         
         logger.debug(f"{subj_info}{key_info}Nyul histogram standardization")
         
-        # Convert to numpy array
+        from habit.kernels.image_histogram import nyul_standardize_volume
+
         image_array = sitk.GetArrayFromImage(input_image).astype(np.float32)
-        
-        # Get mask array if provided
-        mask_array = None
-        if mask_image is not None:
-            mask_array = sitk.GetArrayFromImage(mask_image)
-        
-        # Compute source landmarks from input image
-        source_landmarks = self._compute_percentile_landmarks(image_array, mask_array)
-        logger.debug(f"{subj_info}{key_info}Source landmarks: {source_landmarks}")
-        
-        # Apply piecewise linear mapping
-        standardized_array = self._apply_piecewise_linear_mapping(
-            image_array, source_landmarks, self.target_landmarks
+        mask_array = (
+            sitk.GetArrayFromImage(mask_image) if mask_image is not None else None
+        )
+        logger.debug(f"{subj_info}{key_info}Nyul histogram standardization")
+        standardized_array = nyul_standardize_volume(
+            image_array,
+            mask_array,
+            percentiles=self.percentiles,
+            target_min=self.target_min,
+            target_max=self.target_max,
         )
         
         # Convert back to SimpleITK image

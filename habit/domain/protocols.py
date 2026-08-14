@@ -84,6 +84,7 @@ __all__ = [
     "HabitatAssigner",
     "HabitatFeatureExtractor",
     "ImagePerturbation",
+    "Preprocessor",
     "Combiner",
     "PoolingMarker",
     "Seedable",
@@ -500,6 +501,47 @@ class ImagePerturbation(Protocol):
             A new subject on the SAME voxel grid with perturbed images (and
             perturbed masks for geometric perturbations); the original is
             left untouched.
+        """
+
+
+@runtime_checkable
+class Preprocessor(Protocol):
+    """
+    Image-volume preprocessor: one subject in, one processed subject out.
+
+    Scientific role: the steps that prepare raw MR/CT volumes for habitat
+    analysis (resample, reorient, N4, z-score, histogram, CLAHE,
+    registration). Each implementation is one named step in the
+    ``preprocessor`` plugin domain. The recipe / atomic API chains them;
+    a third party can call ``op(subject)`` on a single case.
+
+    ``images`` and ``mask_roi`` are call-site assembly, not scientific
+    parameters: omit them to process every modality on the subject.
+    """
+
+    @property
+    def spec(self) -> Spec:
+        """Return the algorithm specification used for provenance."""
+
+    def __call__(
+        self,
+        subject: Subject,
+        *,
+        images: Optional[Sequence[str]] = None,
+        mask_roi: Optional[str] = None,
+    ) -> Subject:
+        """
+        Return a processed copy of ``subject``.
+
+        Args:
+            subject: One imaging subject.
+            images: Optional modality keys to process. ``None`` means every
+                image on the subject.
+            mask_roi: Optional ROI key for mask-aware steps (z-score in
+                mask, N4 mask, histogram landmarks). Unused steps ignore it.
+
+        Returns:
+            A new subject; the input is not mutated.
         """
 
 

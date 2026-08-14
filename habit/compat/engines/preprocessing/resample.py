@@ -135,12 +135,16 @@ class ResamplePreprocessor(BasePreprocessor):
         reference_image.SetOrigin(sitk_image.GetOrigin())
         reference_image.SetDirection(sitk_image.GetDirection())
         
-        # Perform resampling
-        resampler = sitk.ResampleImageFilter()
-        resampler.SetReferenceImage(reference_image)
-        resampler.SetInterpolator(interpolator)
-        resampled_sitk = resampler.Execute(sitk_image)
-        
+        from habit.kernels.image_resample import resample_sitk_image
+
+        name = "nearest"
+        for key, value in self.interp_map.items():
+            if value == interpolator:
+                name = key
+                break
+        resampled_sitk = resample_sitk_image(
+            sitk_image, target_spacing, interpolator=name
+        )
         return resampled_sitk, original_spacing
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:

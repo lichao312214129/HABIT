@@ -18,10 +18,26 @@ from __future__ import annotations
 
 import logging
 import warnings
+import inspect
 from dataclasses import dataclass, field
 from importlib import metadata
 from types import MappingProxyType
-from typing import Any, Mapping, Optional, Tuple, Type, cast
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+    get_args,
+    get_origin,
+)
 
 from pydantic import BaseModel
 
@@ -32,11 +48,15 @@ logger = logging.getLogger("habit.api.plugins")
 
 __all__ = [
     "PluginInfo",
+    "PluginParamInfo",
+    "PluginCatalogEntry",
     "PluginLoadReport",
     "create_ml_model",
     "list_plugins",
     "get_plugin_info",
     "get_param_schema",
+    "plugin_catalog",
+    "format_plugin_catalog_rst",
     "load_plugins",
 ]
 
@@ -44,9 +64,9 @@ __all__ = [
 #: backward compatibility and resolve to the v0.1 factories; the v1.0 domains
 #: are ``snake_case`` of their protocol class, singular
 #: (developer/api_upgrade/08 §4), and resolve to the L3 domain registries.
-#: ``preprocessor`` is the singular alias of the v0.1 image-preprocessor
-#: family (the v1 architecture keeps image preprocessing in the adapters
-#: layer), while ``table_preprocessor`` / ``feature_selector`` /
+#: ``preprocessor`` is the v1 image-volume domain (resample, z-score, N4,
+#: …). The v0.1 plural ``preprocessors`` alias still lists the compat
+#: factory. ``table_preprocessor`` / ``feature_selector`` /
 #: ``classifier`` / ``metric`` name the v1.0 table-ML domains.
 _ENTRY_POINT_GROUPS: Mapping[str, str] = {
     # v0.1 domains (legacy, kept working).
@@ -127,6 +147,10 @@ _V1_DOMAIN_REGISTRIES: Mapping[str, Tuple[str, str]] = {
         "ImagePerturbationRegistry",
     ),
     "pooling": ("habit.domain.pooling_marker", "PoolingRegistry"),
+    "preprocessor": (
+        "habit.domain.image_preprocessing",
+        "PreprocessorRegistry",
+    ),
 }
 _LOADED_ENTRY_POINTS: set[Tuple[str, str, str]] = set()
 
@@ -140,6 +164,37 @@ class PluginInfo:
     implementation: str
     params_schema: Optional[str] = None
     provider: str = "built-in"
+
+
+@dataclass(frozen=True)
+class PluginParamInfo:
+    """One ``Spec`` / ``Registry.create`` parameter from ``params_model``.
+
+    ``description`` prefers the Pydantic ``Field(description=...)``, then the
+    registered class ``Args:`` section, then the params-model field docstring.
+    ``allowed`` is a short constraint string (Literal choices, numeric bounds).
+    """
+
+    name: str
+    required: bool
+    annotation: str
+    default: str
+    allowed: str
+    description: str
+
+
+@dataclass(frozen=True)
+class PluginCatalogEntry:
+    """One catalog row derived from ``params_model`` (not a hand-copied table)."""
+
+    domain: str
+    name: str
+    purpose: str
+    required_params: Tuple[str, ...]
+    optional_params: Tuple[str, ...]
+    spec_example: str
+    create_example: str
+    params: Tuple[PluginParamInfo, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -246,10 +301,6 @@ def _registry_for_domain(domain: str) -> Type[Any]:
     if domain in _V1_DOMAIN_REGISTRIES:
         module_path, attr_name = _V1_DOMAIN_REGISTRIES[domain]
         return _import_registry(module_path, attr_name)
-    if domain == "preprocessor":
-        from habit.compat.plugin_registries import get_legacy_preprocessor_factory
-
-        return cast(Type[Any], get_legacy_preprocessor_factory())
     if domain == "feature_extractors":
         raise HABITAPIError(
             "The legacy 'feature_extractors' domain is one-to-many: resolve "
@@ -329,8 +380,10 @@ def get_plugin_info(name: str, domain: str) -> PluginInfo:
         if info.name == name:
             return info
     raise HABITAPIError(
-        f"Plugin '{name}' is not registered in domain '{domain}'. "
-        f"Available: {[info.name for info in list_plugins(domain)]}."
+        f"Plugin {name!r} is not registered in domain {domain!r}. "
+        f"Available: {[info.name for info in list_plugins(domain)]}. "
+        f"Inspect with list_plugins({domain!r}) or "
+        f"get_param_schema(name, {domain!r})."
     )
 
 
@@ -348,6 +401,338 @@ def get_param_schema(name: str, domain: str) -> Optional[Type[BaseModel]]:
             f"schema: {_schema_name(schema)}."
         )
     return cast(Type[BaseModel], schema)
+
+
+#: v1 domains shown on the generated plugin catalog (legacy plural aliases
+#: are omitted so YAML and ``Spec`` authors see one name per component).
+_CATALOG_DOMAINS: Tuple[str, ...] = (
+    "voxel_feature_extractor",
+    "supervoxelizer",
+    "supervoxel_feature_extractor",
+    "feature_preprocessing_method",
+    "habitat_model_fitter",
+    "habitat_assigner",
+    "habitat_feature_extractor",
+    "combiner",
+    "image_perturbation",
+    "pooling",
+    "preprocessor",
+    "table_preprocessor",
+    "feature_selector",
+    "classifier",
+    "metric",
+)
+
+
+def _one_line_purpose(payload: Any, schema: Optional[Type[BaseModel]]) -> str:
+    """Return the first docstring sentence of the class or its params model."""
+    for candidate in (payload, schema):
+        if candidate is None:
+            continue
+        doc = inspect.getdoc(candidate)
+        if not doc:
+            continue
+        first = doc.strip().splitlines()[0].strip()
+        if first:
+            return first.rstrip(".")
+    return "Registered plugin (see params_model for arguments)"
+
+
+def _param_names(schema: Optional[Type[BaseModel]]) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+    """Split a Pydantic params model into required vs optional field names."""
+    if schema is None:
+        return (), ()
+    required: list[str] = []
+    optional: list[str] = []
+    for field_name, field in schema.model_fields.items():
+        if field.is_required():
+            required.append(field_name)
+        else:
+            optional.append(field_name)
+    return tuple(required), tuple(optional)
+
+
+def _spec_example(name: str, required: Sequence[str]) -> str:
+    """Return one ``Spec(...)`` line; required keys are shown as placeholders."""
+    if not required:
+        return f'Spec("{name}")'
+    inner = ", ".join(f'"{key}": ...' for key in required)
+    return f'Spec("{name}", {{{inner}}})'
+
+
+def _create_example(name: str, required: Sequence[str]) -> str:
+    """Return one ``Registry.create(...)`` line for the same component."""
+    if not required:
+        return f'Registry.create("{name}")'
+    kwargs = ", ".join(f"{key}=..." for key in required)
+    return f'Registry.create("{name}", {kwargs})'
+
+
+def _google_args_map(doc: Optional[str]) -> Dict[str, str]:
+    """Parse a Google-style ``Args:`` section into ``{name: description}``."""
+    if not doc:
+        return {}
+    lines = inspect.cleandoc(doc).splitlines()
+    start: Optional[int] = None
+    for index, line in enumerate(lines):
+        if line.strip() == "Args:":
+            start = index + 1
+            break
+    if start is None:
+        return {}
+    collected: Dict[str, str] = {}
+    current_name: Optional[str] = None
+    current_parts: List[str] = []
+    section_stops = {
+        "Returns:",
+        "Raises:",
+        "Note:",
+        "Notes:",
+        "Example:",
+        "Examples:",
+        "See Also:",
+    }
+
+    def _flush() -> None:
+        if current_name is None:
+            return
+        text = " ".join(part.strip() for part in current_parts if part.strip())
+        if text:
+            collected[current_name] = text
+
+    for line in lines[start:]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped in section_stops:
+            break
+        indent = len(line) - len(line.lstrip(" "))
+        if indent == 0:
+            break
+        if indent <= 4 and ":" in stripped:
+            name, rest = stripped.split(":", 1)
+            name = name.strip()
+            if name.isidentifier() or name.endswith("_"):
+                _flush()
+                current_name = name
+                current_parts = [rest.strip()]
+                continue
+        if current_name is not None:
+            current_parts.append(stripped)
+    _flush()
+    return collected
+
+
+def _format_annotation(annotation: Any) -> str:
+    """Return a short, docs-safe type label for one Pydantic field."""
+    if annotation is None:
+        return ""
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Literal:
+        return " | ".join(repr(value) for value in args)
+    if origin is Union:
+        non_none = [item for item in args if item is not type(None)]
+        if len(non_none) == 1 and type(None) in args:
+            return f"{_format_annotation(non_none[0])} | None"
+        return " | ".join(_format_annotation(item) for item in args)
+    if origin in (list, List, Sequence, tuple, Tuple):
+        inner = ", ".join(_format_annotation(item) for item in args) if args else ""
+        name = "list" if origin in (list, List, Sequence) else "tuple"
+        return f"{name}[{inner}]" if inner else name
+    if origin in (dict, Dict, Mapping):
+        return "dict"
+    return getattr(annotation, "__name__", None) or str(annotation).replace("typing.", "")
+
+
+def _format_default(field: Any) -> str:
+    """Return a short default label; required fields are marked as such."""
+    if field.is_required():
+        return "(required)"
+    default_factory = getattr(field, "default_factory", None)
+    if default_factory is not None and field.default is None:
+        # Pydantic v2 stores missing defaults as PydanticUndefined; factory
+        # fields then expose default_factory instead of a concrete value.
+        try:
+            from pydantic_core import PydanticUndefined
+
+            if field.default is PydanticUndefined:
+                return "(factory)"
+        except Exception:  # noqa: BLE001 — optional import for formatting only
+            return "(factory)"
+    default = field.default
+    if default is None:
+        return "None"
+    return repr(default)
+
+
+def _format_allowed(field: Any, annotation: Any) -> str:
+    """Return Literal choices and numeric bounds as one constraint string."""
+    parts: List[str] = []
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Literal:
+        parts.append(" | ".join(repr(value) for value in args))
+    elif origin is Union:
+        for item in args:
+            if get_origin(item) is Literal:
+                parts.append(" | ".join(repr(value) for value in get_args(item)))
+    metadata = getattr(field, "metadata", ()) or ()
+    for item in metadata:
+        ge = getattr(item, "ge", None)
+        gt = getattr(item, "gt", None)
+        le = getattr(item, "le", None)
+        lt = getattr(item, "lt", None)
+        if ge is not None:
+            parts.append(f">= {ge}")
+        if gt is not None:
+            parts.append(f"> {gt}")
+        if le is not None:
+            parts.append(f"<= {le}")
+        if lt is not None:
+            parts.append(f"< {lt}")
+    return "; ".join(parts)
+
+
+def _param_infos(payload: Any, schema: Optional[Type[BaseModel]]) -> Tuple[PluginParamInfo, ...]:
+    """Build per-parameter catalog rows from ``params_model`` plus class Args."""
+    if schema is None:
+        return ()
+    docs: Dict[str, str] = {}
+    docs.update(_google_args_map(inspect.getdoc(schema)))
+    if payload is not None:
+        for candidate in getattr(payload, "__mro__", (payload,)):
+            docs.update(_google_args_map(inspect.getdoc(candidate)))
+    infos: List[PluginParamInfo] = []
+    for field_name, field in schema.model_fields.items():
+        annotation = getattr(field, "annotation", None)
+        description = (field.description or "").strip() or docs.get(field_name, "")
+        infos.append(
+            PluginParamInfo(
+                name=field_name,
+                required=bool(field.is_required()),
+                annotation=_format_annotation(annotation),
+                default=_format_default(field),
+                allowed=_format_allowed(field, annotation),
+                description=description,
+            )
+        )
+    return tuple(infos)
+
+
+def plugin_catalog(
+    domain: Optional[str] = None,
+) -> Tuple[PluginCatalogEntry, ...]:
+    """
+    Build a live catalog from each plugin's ``params_model``.
+
+    This is the source of truth for ``Spec("name", {{...}})`` and
+    ``Registry.create("name", ...)``: names, required/optional parameters,
+    and a one-line purpose come from the registered class and its Pydantic
+    schema, not from a hand-copied table.
+
+    Args:
+        domain: Optional v1 domain. Omit to enumerate every catalog domain.
+
+    Returns:
+        Deterministically ordered catalog rows.
+
+    Raises:
+        HABITAPIError: If ``domain`` is unknown.
+    """
+    if domain is not None and domain not in _CATALOG_DOMAINS:
+        if domain in _ENTRY_POINT_GROUPS:
+            raise HABITAPIError(
+                f"plugin_catalog: {domain!r} is not a v1 catalog domain. "
+                f"Use one of {list(_CATALOG_DOMAINS)} "
+                f"(legacy aliases still work with list_plugins)."
+            )
+        raise HABITAPIError(
+            f"Unknown plugin domain {domain!r}. Available domains: "
+            f"{list(_CATALOG_DOMAINS)}."
+        )
+    domains: Iterable[str] = (domain,) if domain is not None else _CATALOG_DOMAINS
+    entries: list[PluginCatalogEntry] = []
+    for current_domain in domains:
+        for info in list_plugins(current_domain):
+            registry = _registry_for_plugin_name(current_domain, info.name)
+            payload = registry.get(info.name)
+            schema = get_param_schema(info.name, current_domain)
+            required, optional = _param_names(schema)
+            entries.append(
+                PluginCatalogEntry(
+                    domain=current_domain,
+                    name=info.name,
+                    purpose=_one_line_purpose(payload, schema),
+                    required_params=required,
+                    optional_params=optional,
+                    spec_example=_spec_example(info.name, required),
+                    create_example=_create_example(info.name, required),
+                    params=_param_infos(payload, schema),
+                )
+            )
+    return tuple(entries)
+
+
+def format_plugin_catalog_rst(domain: Optional[str] = None) -> str:
+    """
+    Render :func:`plugin_catalog` as reStructuredText for the docs catalog.
+
+    Sphinx calls this at build time so the page cannot drift from
+    ``params_model``.
+    """
+    lines: list[str] = []
+    current_domain = ""
+    for entry in plugin_catalog(domain):
+        if entry.domain != current_domain:
+            current_domain = entry.domain
+            lines.extend(
+                [
+                    "",
+                    current_domain,
+                    "^" * len(current_domain),
+                    "",
+                ]
+            )
+        required = ", ".join(entry.required_params) if entry.required_params else "(none)"
+        optional = ", ".join(entry.optional_params) if entry.optional_params else "(none)"
+        lines.extend(
+            [
+                f"**{entry.name}**",
+                f"  {entry.purpose}.",
+                f"  Required: ``{required}``. Optional: ``{optional}``.",
+                f"  ``{entry.spec_example}``",
+                f"  ``{entry.create_example}``",
+                "",
+            ]
+        )
+        if entry.params:
+            lines.extend(
+                [
+                    "  .. list-table::",
+                    "     :header-rows: 1",
+                    "     :widths: 18 16 24 42",
+                    "",
+                    "     * - Param",
+                    "       - Default",
+                    "       - Allowed / type",
+                    "       - Meaning",
+                ]
+            )
+            for param in entry.params:
+                allowed = param.allowed or param.annotation or "—"
+                meaning = param.description or "See the component docstring."
+                meaning = " ".join(meaning.split())
+                lines.extend(
+                    [
+                        f"     * - ``{param.name}``",
+                        f"       - ``{param.default}``",
+                        f"       - {allowed}",
+                        f"       - {meaning}",
+                    ]
+                )
+            lines.append("")
+    return "\n".join(lines).strip() + "\n"
 
 
 def create_ml_model(model_name: str, params: Mapping[str, Any] | None = None) -> Any:

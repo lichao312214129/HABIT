@@ -7,9 +7,11 @@ PyRadiomics for GLCM · **Time:** ~10–90 s
 End-to-end: one subject → :func:`~habit.local_entropy_map` plus a small
 ``voxel_radiomics`` GLCM set → :func:`~habit.viz.plot_voxel_texture_slice`.
 
-Default ``mode="side_by_side"``: anatomy + ROI contour | texture map
-(no alpha blend on anatomy). The script shows ``VoxelFeatureExtractorRegistry.create``
-for a small GLCM set — edit ``featureClass`` for more columns.
+Default ``mode="overlay"``: greyscale anatomy, **opaque** feature colours
+inside the ROI, optional cyan contour. Pass ``mode="side_by_side"`` when you
+also want a sibling raw-anatomy panel. The script shows
+``VoxelFeatureExtractorRegistry.create`` for a small GLCM set — edit
+``featureClass`` for more columns.
 
 Script
 ------
@@ -32,34 +34,45 @@ Output
 ::
 
    Wrote out/voxel_texture_entropy.png
+   Wrote out/voxel_texture_entropy_side_by_side.png
    Wrote out/voxel_texture_glcm_contrast.png
 
-Local entropy (anatomy | texture)
----------------------------------
+Local entropy on anatomy
+------------------------
+
+.. figure:: ../_static/images/examples/voxel_texture_overlay.png
+   :alt: Opaque local-entropy overlay on greyscale anatomy
+   :width: 720
+
+   Default overlay: grey anatomy outside the ROI, opaque entropy colours
+   inside, cyan ROI contour.
+
+Sibling anatomy panel
+---------------------
 
 .. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
    :alt: Anatomy with ROI contour beside local-entropy map
    :width: 720
 
-   Left: greyscale anatomy with ROI outline. Right: local entropy inside the ROI.
+   ``mode="side_by_side"`` when you also want the raw image as its own panel.
 
-GLCM Contrast (anatomy | texture)
----------------------------------
+GLCM Contrast on anatomy
+------------------------
 
-.. figure:: ../_static/images/examples/voxel_texture_overlay.png
-   :alt: Anatomy with ROI contour beside GLCM Contrast map
+.. figure:: ../_static/images/examples/voxel_texture_glcm_overlay.png
+   :alt: Opaque GLCM Contrast overlay on greyscale anatomy
    :width: 720
 
-   Same layout for a densified ``voxel_radiomics`` GLCM Contrast column.
+   Same default overlay for a densified ``voxel_radiomics`` GLCM Contrast column.
 
 Orthogonal local entropy
 ------------------------
 
 .. figure:: ../_static/images/examples/voxel_texture_orthogonal.png
-   :alt: Orthogonal local-entropy side-by-side panels
+   :alt: Orthogonal local-entropy overlays on anatomy
    :width: 520
 
-   Three orthogonal planes (anatomy + contour | entropy) when ``axis`` is omitted.
+   Three orthogonal planes (opaque overlay + contour) when ``axis`` is omitted.
 
 What to read next
 -----------------

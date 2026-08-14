@@ -65,7 +65,7 @@ def main() -> None:
     axes[0].axis("off")
     axes[1].imshow(anatomy[z], cmap="gray")
     masked = np.ma.masked_where(labels[z] == 0, labels[z])
-    axes[1].imshow(masked, cmap="tab10", alpha=0.55, interpolation="nearest")
+    axes[1].imshow(masked, cmap="tab10", alpha=1.0, interpolation="nearest")
     axes[1].set_title("Habitats overlay")
     axes[1].axis("off")
     fig.tight_layout()

@@ -92,38 +92,17 @@ class N4BiasFieldCorrection(BasePreprocessor):
         """
         subj_info = f"[{subj}] " if subj else ""
         
-        # Cast image to float32
-        sitk_image = sitk.Cast(sitk_image, sitk.sitkFloat32)
-        
-        # Create original image copy for full resolution correction
-        original_image = sitk_image
-        
-        # Apply shrinking to speed up computation if shrink_factor > 1
-        if self.shrink_factor > 1:
-            logger.debug(f"{subj_info}Applying shrinking with factor {self.shrink_factor}")
-            sitk_image = sitk.Shrink(original_image, [self.shrink_factor] * original_image.GetDimension())
-            if sitk_mask is not None:
-                sitk_mask = sitk.Shrink(sitk_mask, [self.shrink_factor] * original_image.GetDimension())
-        
-        # Create and configure N4 corrector
-        corrector = sitk.N4BiasFieldCorrectionImageFilter()
-        corrector.SetMaximumNumberOfIterations(self.num_iterations)
-        corrector.SetConvergenceThreshold(self.convergence_threshold)
-        
-        # Execute the correction
-        if sitk_mask is not None:
-            corrected_image = corrector.Execute(sitk_image, sitk_mask)
-        else:
-            corrected_image = corrector.Execute(sitk_image)
-        
-        # If we used shrinking, apply correction to the full resolution image
-        if self.shrink_factor > 1:
-            logger.debug(f"{subj_info}Applying correction to full resolution")
-            # Get the log bias field and apply to full resolution image
-            log_bias_field = corrector.GetLogBiasFieldAsImage(original_image)
-            corrected_image = original_image / sitk.Exp(log_bias_field)
-        
-        return corrected_image
+        from habit.kernels.image_n4 import n4_correct_sitk_image
+
+        logger.debug(f"{subj_info}N4 correction (shrink={self.shrink_factor})")
+        return n4_correct_sitk_image(
+            sitk_image,
+            sitk_mask,
+            num_fitting_levels=self.num_fitting_levels,
+            num_iterations=self.num_iterations,
+            convergence_threshold=self.convergence_threshold,
+            shrink_factor=self.shrink_factor,
+        )
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Apply N4 bias field correction to the specified images.

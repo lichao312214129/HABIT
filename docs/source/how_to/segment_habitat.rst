@@ -82,4 +82,7 @@ restored 4/4. Image-level ``zscore_normalization`` is a different step
 (:func:`~habit.api.preprocess_subject`) and is not a substitute. Numbers
 and the recommended recipe: :doc:`../examples/habitat_preprocessing`.
 
+Which ``Spec("...")`` names exist, and what each parameter means:
+:doc:`habitat_components` (Python + YAML, generated from ``params_model``).
+
 Next: :doc:`extract_features`. Config details: :doc:`../configuration/habitat`.

@@ -70,6 +70,10 @@ _KNOWN_GAPS: Dict[Tuple[str, str], str] = {
     # Class-imbalance resampling (imblearn in v0.1) has no v1 resampler
     # domain; only templates that ENABLE resampling exercise this gap.
     ("resampler", "smote"): "no v1 resampler domain yet",
+    # DICOM conversion writes NIfTI to disk; it is not an in-memory
+    # Subject preprocessor. The batch YAML pipeline still runs it via
+    # the v0.1 compat factory.
+    ("preprocessor", "dcm2nii"): "IO conversion, not an in-memory Subject step",
 }
 
 #: config/ subdirectory -> workflow alias, mirroring the directory rules of

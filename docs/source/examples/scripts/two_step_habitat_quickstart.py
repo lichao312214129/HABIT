@@ -22,6 +22,8 @@ ROI = "LAP"
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:2]
 print(f"Cohort: {len(cohort)} subjects -> {list(cohort.subject_ids)}")
 
+# What can go in Spec("...")? See docs/source/how_to/habitat_components.rst
+# or: list_plugins("voxel_feature_extractor") / get_param_schema("kmeans", "habitat_model_fitter")
 spec = HabitatSpec(
     name="habitat_two_step",
     stages=(

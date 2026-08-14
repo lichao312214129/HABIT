@@ -31,6 +31,7 @@ from habit.domain.protocols import (
     HabitatModelFitter,
     ImagePerturbation,
     PoolingMarker,
+    Preprocessor,
     Seedable,
     SubjectFeaturePreprocessor,
     SupervoxelFeatureExtractor,
@@ -272,6 +273,16 @@ from habit.domain.evaluation import (
     icc_analysis,
     repeat_measurement_matrix,
 )
+from habit.domain.image_preprocessing import (
+    AdaptiveHistogramEqualization,
+    HistogramStandardization,
+    N4Correction,
+    PreprocessorRegistry,
+    Registration,
+    Reorientation,
+    Resample,
+    ZScoreNormalization,
+)
 from habit.domain.precision import (
     BSplineDeformPerturbation,
     BSplineDeformPerturbationParams,
@@ -304,6 +315,7 @@ __all__ = [
     "HabitatAssigner",
     "HabitatFeatureExtractor",
     "ImagePerturbation",
+    "Preprocessor",
     "Seedable",
     # Feature block combiners: the internal nodes of composition trees.
     "Combiner",
@@ -534,6 +546,14 @@ __all__ = [
     "icc_analysis",
     # Precision analysis (simulated test-retest and the precise-feature screen).
     "ImagePerturbationRegistry",
+    "PreprocessorRegistry",
+    "ZScoreNormalization",
+    "Resample",
+    "Reorientation",
+    "N4Correction",
+    "HistogramStandardization",
+    "AdaptiveHistogramEqualization",
+    "Registration",
     "BSplineDeformPerturbation",
     "BSplineDeformPerturbationParams",
     "GaussianNoisePerturbation",

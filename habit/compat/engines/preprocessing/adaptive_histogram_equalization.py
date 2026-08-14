@@ -110,22 +110,15 @@ class AdaptiveHistogramEqualization(BasePreprocessor):
         
         logger.debug(f"{subj_info}{key_info}AHE (α={self.alpha}, β={self.beta}, r={self.radius})")
         
-        # Cast image to float32 for processing
-        input_image = sitk.Cast(input_image, sitk.sitkFloat32)
-        
-        # Create adaptive histogram equalization filter
-        ahe_filter = sitk.AdaptiveHistogramEqualizationImageFilter()
-        
-        # Set filter parameters
-        ahe_filter.SetAlpha(self.alpha)
-        ahe_filter.SetBeta(self.beta)
-        ahe_filter.SetRadius(self.radius)
-        
-        # Apply filter
-        output_image = ahe_filter.Execute(input_image)
-        
-        
-        return output_image
+        from habit.kernels.image_clahe import adaptive_histogram_equalize_sitk_image
+
+        logger.debug(f"{subj_info}{key_info}AHE (α={self.alpha}, β={self.beta}, r={self.radius})")
+        return adaptive_histogram_equalize_sitk_image(
+            input_image,
+            alpha=self.alpha,
+            beta=self.beta,
+            radius=self.radius,
+        )
         
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Apply adaptive histogram equalization to the specified images.

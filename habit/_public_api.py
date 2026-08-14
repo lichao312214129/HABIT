@@ -75,10 +75,14 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
     ),
     "api.plugins": (
         "PluginInfo",
+        "PluginParamInfo",
+        "PluginCatalogEntry",
         "PluginLoadReport",
         "list_plugins",
         "get_plugin_info",
         "get_param_schema",
+        "plugin_catalog",
+        "format_plugin_catalog_rst",
         "load_plugins",
     ),
     "api.utils": (
@@ -249,6 +253,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "ConnectedComponentPostprocess",
         # Precision screen (Prior et al. 2024): the perturbation protocol and
         # its built-ins, the analysis functions, and the resulting artifact.
+        "Preprocessor",
+        "PreprocessorRegistry",
         "ImagePerturbation",
         "ImagePerturbationRegistry",
         "GaussianNoisePerturbation",

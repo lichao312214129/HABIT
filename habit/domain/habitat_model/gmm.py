@@ -54,13 +54,26 @@ class GmmHabitatModelFitterParams(BaseModel):
     """Constructor parameters for :class:`GmmHabitatModelFitter`."""
 
     model_config = ConfigDict(extra="forbid")
-    n_habitats: Optional[int] = Field(default=None, ge=2)
-    min_habitats: int = Field(default=2, ge=2)
-    max_habitats: int = Field(default=10, ge=3)
-    validation: Union[str, List[str]] = "bic"
-    covariance_type: str = "full"
-    n_init: int = Field(default=50, gt=0)
-    max_iter: int = Field(default=100, gt=0)
+    n_habitats: Optional[int] = Field(
+        default=None,
+        ge=2,
+        description="Fixed habitat count, or None to select over min_habitats..max_habitats.",
+    )
+    min_habitats: int = Field(default=2, ge=2, description="Smallest candidate K when n_habitats is None.")
+    max_habitats: int = Field(default=10, ge=3, description="Largest candidate K when n_habitats is None.")
+    validation: Union[str, List[str]] = Field(
+        default="bic",
+        description=(
+            "Selection criterion, or a list of criteria: bic / aic / davies_bouldin "
+            "(minimise), or silhouette / calinski_harabasz / gap (maximise)."
+        ),
+    )
+    covariance_type: str = Field(
+        default="full",
+        description="GaussianMixture covariance structure: full, tied, diag, or spherical.",
+    )
+    n_init: int = Field(default=50, gt=0, description="Mixture initialisations per candidate count.")
+    max_iter: int = Field(default=100, gt=0, description="EM iteration limit per candidate count.")
 
 
 @HabitatModelFitterRegistry.register("gmm")

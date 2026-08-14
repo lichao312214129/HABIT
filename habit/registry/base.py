@@ -231,7 +231,8 @@ class ClassRegistry(_BaseRegistry[Type[T]]):
         target = cls.get(name)
         if target is None:
             raise ValueError(
-                f"Unknown {cls.kind}: {name!r}. Available: {cls.available()}"
+                f"Unknown {cls.kind} {name!r}. "
+                f"Available: {list(cls.available())}."
             )
         return target(*args, **kwargs)
 

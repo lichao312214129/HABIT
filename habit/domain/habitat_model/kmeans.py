@@ -60,12 +60,23 @@ class KMeansHabitatModelFitterParams(BaseModel):
     """Constructor parameters for :class:`KMeansHabitatModelFitter`."""
 
     model_config = ConfigDict(extra="forbid")
-    n_habitats: Optional[int] = Field(default=None, ge=2)
-    min_habitats: int = Field(default=2, ge=2)
-    max_habitats: int = Field(default=10, ge=3)
-    validation: Union[str, List[str]] = "elbow"
-    n_init: int = Field(default=50, gt=0)
-    max_iter: int = Field(default=300, gt=0)
+    n_habitats: Optional[int] = Field(
+        default=None,
+        ge=2,
+        description="Fixed habitat count, or None to select over min_habitats..max_habitats.",
+    )
+    min_habitats: int = Field(default=2, ge=2, description="Smallest candidate K when n_habitats is None.")
+    max_habitats: int = Field(default=10, ge=3, description="Largest candidate K when n_habitats is None.")
+    validation: Union[str, List[str]] = Field(
+        default="elbow",
+        description=(
+            "Selection criterion, or a list of criteria that each cast one vote: "
+            "elbow / kneedle / inertia (Kneedle knee of the inertia curve), "
+            "silhouette / calinski_harabasz / gap (maximise), or davies_bouldin (minimise)."
+        ),
+    )
+    n_init: int = Field(default=50, gt=0, description="k-means restarts per candidate count.")
+    max_iter: int = Field(default=300, gt=0, description="Maximum k-means iterations per fit.")
 
 
 @HabitatModelFitterRegistry.register("kmeans")

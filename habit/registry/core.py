@@ -90,8 +90,10 @@ class ComponentRegistry(ClassRegistry[Type[T]]):
         target = cls.get(name)
         if target is None:
             raise ComponentNotFoundError(
-                f"Unknown {cls.kind} {name!r} in domain '{cls.domain}'. "
-                f"Available: {cls.available()}"
+                f"Unknown {cls.kind} {name!r} in domain {cls.domain!r}. "
+                f"Available: {list(cls.available())}. "
+                f"Inspect with list_plugins({cls.domain!r}) or "
+                f"get_param_schema(name, {cls.domain!r})."
             )
         params_model = cls.get_params_model(name)
         if params_model is not None:

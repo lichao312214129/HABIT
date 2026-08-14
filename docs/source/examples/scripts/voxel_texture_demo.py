@@ -52,6 +52,10 @@ fig = plot_voxel_texture_slice(entropy, **kw)
 fig.savefig("out/voxel_texture_entropy.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
 print("Wrote out/voxel_texture_entropy.png")
+fig = plot_voxel_texture_slice(entropy, mode="side_by_side", **kw)
+fig.savefig("out/voxel_texture_entropy_side_by_side.png", dpi=150, bbox_inches="tight")
+plt.close(fig)
+print("Wrote out/voxel_texture_entropy_side_by_side.png")
 fig = plot_voxel_texture_slice(glcm, feature=0, **kw)
 fig.savefig("out/voxel_texture_glcm_contrast.png", dpi=150, bbox_inches="tight")
 plt.close(fig)
@@ -75,11 +79,15 @@ if __name__ == "__main__":
     gallery.mkdir(parents=True, exist_ok=True)
     _copy_gallery(
         Path("out/voxel_texture_entropy.png"),
+        gallery / "voxel_texture_overlay.png",
+    )
+    _copy_gallery(
+        Path("out/voxel_texture_entropy_side_by_side.png"),
         gallery / "voxel_texture_side_by_side.png",
     )
     _copy_gallery(
         Path("out/voxel_texture_glcm_contrast.png"),
-        gallery / "voxel_texture_overlay.png",
+        gallery / "voxel_texture_glcm_overlay.png",
     )
     fig = plot_voxel_texture_slice(
         entropy,

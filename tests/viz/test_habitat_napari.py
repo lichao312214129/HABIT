@@ -225,6 +225,7 @@ def test_view_habitat_napari_show_true_calls_napari_run(monkeypatch) -> None:
     viewer = view_habitat_napari(image, labels, show=True, direction=lps)
     assert isinstance(viewer, _FakeViewer)
     assert viewer.show_flag is True
+    assert viewer.layers[1].opacity == pytest.approx(1.0)
     assert len(run_calls) == 1
 
 

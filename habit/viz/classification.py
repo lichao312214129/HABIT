@@ -32,6 +32,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec
 from habit.viz.labels import sanitize_label
 
 __all__ = [
@@ -427,6 +428,7 @@ def plot_confusion_matrix(
     title: str = "Confusion Matrix",
     class_names: Optional[Sequence[str]] = None,
     normalize: bool = False,
+    colorbar: ColorbarSpec = True,
 ):
     """
     Confusion-matrix heatmap for discrete class predictions.
@@ -435,8 +437,14 @@ def plot_confusion_matrix(
         y_true: Ground-truth class labels.
         y_pred: Predicted class labels (same length as ``y_true``).
         title: Figure title (sanitised).
-        class_names: Optional tick labels; defaults to sorted unique labels.
+        class_names: Optional tick labels only (same length as the sorted
+            unique values in ``y_true`` / ``y_pred``). Never used as sklearn
+            ``labels=`` — those must be the actual array values.
         normalize: When True, row-normalise to proportions.
+        colorbar: Draw a short vertical colorbar (default ``True``). Pass
+            ``False`` to hide it, or a mapping of style kwargs
+            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,
+            ``label``, ...) to override the default.
 
     Returns:
         The matplotlib ``Figure``.
@@ -458,8 +466,20 @@ def plot_confusion_matrix(
     unique_labels = sorted(
         np.unique(np.concatenate([y_true_arr, y_pred_arr])), key=str
     )
-    cm_labels = list(class_names) if class_names is not None else list(unique_labels)
-    cm = confusion_matrix(y_true_arr, y_pred_arr, labels=cm_labels)
+    # sklearn matches ``labels=`` to the *values* in y_true/y_pred. Display
+    # names such as ("0", "1") must not be passed through when the arrays
+    # hold integers 0/1 — that yields an all-zero matrix and a ±0.1 colorbar.
+    if class_names is not None:
+        tick_source = list(class_names)
+        if len(tick_source) != len(unique_labels):
+            raise HABITAPIError(
+                "habit.viz.plot_confusion_matrix: class_names must have one "
+                f"entry per unique label; got {len(tick_source)} names for "
+                f"{len(unique_labels)} labels {unique_labels}."
+            )
+    else:
+        tick_source = list(unique_labels)
+    cm = confusion_matrix(y_true_arr, y_pred_arr, labels=unique_labels)
     if normalize:
         row_sum = cm.sum(axis=1, keepdims=True).astype(np.float64)
         row_sum[row_sum == 0.0] = 1.0
@@ -467,10 +487,19 @@ def plot_confusion_matrix(
     else:
         cm_display = cm
 
-    fig, ax = plt.subplots(figsize=(5.0, 4.5))
-    im = ax.imshow(cm_display, interpolation="nearest", cmap="Blues")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    tick_labels = [sanitize_label(name) for name in cm_labels]
+    fig, ax = plt.subplots(figsize=(5.0, 4.5), constrained_layout=True)
+    vmax = float(np.max(cm_display)) if cm_display.size else 1.0
+    if vmax <= 0.0:
+        vmax = 1.0
+    im = ax.imshow(
+        cm_display,
+        interpolation="nearest",
+        cmap="Blues",
+        vmin=0.0,
+        vmax=vmax,
+    )
+    add_image_colorbar_from_spec(im, colorbar, ax=ax)
+    tick_labels = [sanitize_label(name) for name in tick_source]
     ax.set_xticks(range(len(tick_labels)))
     ax.set_yticks(range(len(tick_labels)))
     ax.set_xticklabels(tick_labels)
@@ -491,7 +520,6 @@ def plot_confusion_matrix(
                 va="center",
                 color="white" if float(value) > thresh else "black",
             )
-    fig.tight_layout()
     return fig
 
 

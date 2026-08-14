@@ -40,6 +40,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec, colorbar_is_enabled
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
@@ -62,6 +63,22 @@ _VIZ_PURPOSE = "greyscale anatomy / intensity-slice figures"
 
 #: Cyan outline when an ROI contour is requested (English figures only).
 _ROI_CONTOUR_COLOR = "#00E5FF"
+
+#: Histogram size used to find a dominant low-end (air / padding) mode.
+_CLIM_HIST_BINS: int = 256
+#: A histogram bin is treated as background when it holds more than this
+#: fraction of finite voxels (ImageJ Auto uses ``pixelCount / 10``).
+_CLIM_BG_BIN_FRACTION: float = 0.10
+#: Only look for that background mode in the lowest quarter of the range,
+#: so a mid-grey tissue peak is not dropped.
+_CLIM_BG_SEARCH_FRACTION: float = 0.25
+#: After dropping air / padding, window the remaining tissue from this
+#: lower percentile to ``_CLIM_TISSUE_P_HIGH`` so a long contrast tail
+#: does not reopen the window, while organs are not clipped to white.
+_CLIM_TISSUE_P_LOW: float = 2.0
+_CLIM_TISSUE_P_HIGH: float = 90.0
+#: Need at least this many voxels after dropping the background mode.
+_CLIM_MIN_TISSUE: int = 16
 
 
 def _plt():
@@ -113,15 +130,103 @@ def _as_volume(array: object, name: str) -> np.ndarray:
     return np.asarray(volume)
 
 
+def _percentile_window(sample: np.ndarray) -> Tuple[float, float]:
+    """Return the 1st–99th percentile window, or min/max if too small."""
+    if sample.size >= 4:
+        vmin = float(np.percentile(sample, 1.0))
+        vmax = float(np.percentile(sample, 99.0))
+    else:
+        vmin = float(np.min(sample))
+        vmax = float(np.max(sample))
+    if (not np.isfinite(vmin)) or (not np.isfinite(vmax)) or vmax < vmin:
+        vmin = float(np.min(sample))
+        vmax = float(np.max(sample))
+    if vmax < vmin:
+        vmax = vmin
+    return vmin, vmax
+
+
+def _drop_background_peak(finite: np.ndarray) -> np.ndarray:
+    """
+    Drop the dominant low-end histogram mode (air / padding).
+
+    Contrast-enhanced MR/CT slices often have a huge near-zero peak plus a
+    long bright tail. Percentile windows on all voxels then map parenchyma
+    to near-black. Only the lowest quarter of the intensity range is
+    searched, so a mid-grey tissue mode is kept.
+
+    Args:
+        finite: 1-D finite intensities from one slice.
+
+    Returns:
+        Intensities with the background mode removed, or ``finite`` itself
+        when no dominant low-end peak is found / too few voxels remain.
+    """
+    n = int(finite.size)
+    if n < _CLIM_MIN_TISSUE:
+        return finite
+    lo = float(np.min(finite))
+    hi = float(np.max(finite))
+    if (not np.isfinite(lo)) or (not np.isfinite(hi)) or hi <= lo:
+        return finite
+    n_bins = int(min(_CLIM_HIST_BINS, n))
+    hist, edges = np.histogram(finite, bins=n_bins, range=(lo, hi))
+    search_n = max(1, int(np.ceil(n_bins * _CLIM_BG_SEARCH_FRACTION)))
+    peak = int(np.argmax(hist[:search_n]))
+    if float(hist[peak]) <= (n * _CLIM_BG_BIN_FRACTION):
+        return finite
+    cut = float(edges[peak + 1])
+    kept = finite[finite > cut]
+    if kept.size < _CLIM_MIN_TISSUE:
+        return finite
+    return kept
+
+
+def _tissue_window(sample: np.ndarray) -> Tuple[float, float]:
+    """
+    Return a robust tissue window on voxels that already exclude air.
+
+    ``median ± 3·MAD`` is too tight when the remaining tissue is still
+    bimodal (dark body wall + brighter organs): the median sits in the
+    dark cluster and parenchyma clips to white. Using the 2nd–90th
+    percentiles of the remaining voxels keeps organs visible and still
+    clips the brightest contrast / vessel tail.
+
+    Args:
+        sample: 1-D finite intensities (typically after background drop).
+
+    Returns:
+        Tuple of ``(vmin, vmax)``. ``vmax >= vmin``; both finite.
+    """
+    if sample.size < 4:
+        return _percentile_window(sample)
+    vmin = float(np.percentile(sample, _CLIM_TISSUE_P_LOW))
+    vmax = float(np.percentile(sample, _CLIM_TISSUE_P_HIGH))
+    if (not np.isfinite(vmin)) or (not np.isfinite(vmax)) or vmax <= vmin:
+        return _percentile_window(sample)
+    return vmin, vmax
+
+
 def _panel_clim(slice_2d: np.ndarray) -> Tuple[float, float]:
     """
     Return independent ``(vmin, vmax)`` in native intensity units.
 
-    Uses the 1st–99th percentiles of finite voxels so a few outliers do
-    not collapse the window. A constant slice returns equal limits
-    (honest: no fake stretch). Callers must put these same numbers on
-    the colorbar — never remap the array to ``[0, 1]``, which would hide
-    an affine intensity change such as z-score.
+    Contrast-enhanced volumes are right-skewed: air/padding pile up near
+    zero and a few hot voxels sit far above parenchyma. A 1st–99th
+    percentile of *all* voxels therefore still windows to the bright
+    tail and the anatomy looks black. ``median ± 3·MAD`` after dropping
+    air is the opposite failure: the median stays in dark body wall and
+    organs clip to white.
+
+    The window is therefore:
+
+    1. Drop a dominant low-end histogram mode (air / padding), if any.
+    2. Use the 2nd–90th percentiles of the remaining tissue.
+
+    A constant slice falls back to min/max (honest: no fake stretch).
+    Callers must put these same numbers on the colorbar — never remap
+    the array to ``[0, 1]``, which would hide an affine intensity change
+    such as z-score.
 
     Args:
         slice_2d: Single greyscale slice in native units.
@@ -133,18 +238,8 @@ def _panel_clim(slice_2d: np.ndarray) -> Tuple[float, float]:
     finite = data[np.isfinite(data)]
     if finite.size == 0:
         return 0.0, 1.0
-    if finite.size >= 4:
-        vmin = float(np.percentile(finite, 1.0))
-        vmax = float(np.percentile(finite, 99.0))
-    else:
-        vmin = float(np.min(finite))
-        vmax = float(np.max(finite))
-    if (not np.isfinite(vmin)) or (not np.isfinite(vmax)) or vmax < vmin:
-        vmin = float(np.min(finite))
-        vmax = float(np.max(finite))
-    if vmax < vmin:
-        vmax = vmin
-    return vmin, vmax
+    tissue = _drop_background_peak(finite)
+    return _tissue_window(tissue)
 
 
 def _clim_extend(
@@ -318,8 +413,9 @@ def _show_grey_panel(
     cmap: str,
     panel_title: str,
     roi_slice: Optional[np.ndarray],
-    colorbar: bool,
+    colorbar: ColorbarSpec,
     colorbar_label: str,
+    symmetric_clim: bool = False,
 ) -> None:
     """Draw one oriented greyscale slice; optional contour, never ROI crop."""
     # Keep native units so the colorbar can show raw intensity vs z-score.
@@ -330,6 +426,11 @@ def _show_grey_panel(
         convention=convention,
     )
     vmin, vmax = _panel_clim(grey)
+    if symmetric_clim:
+        limit = max(abs(vmin), abs(vmax))
+        if limit == 0.0:
+            limit = 1.0
+        vmin, vmax = -limit, limit
     extent = _imshow_extent(
         (int(grey.shape[0]), int(grey.shape[1])),
         spacing_xyz,
@@ -360,16 +461,13 @@ def _show_grey_panel(
     ax.set_title(sanitize_label(panel_title))
     ax.axis("off")
     ax.set_facecolor("white")
-    if colorbar:
-        cbar = ax.figure.colorbar(
-            image,
-            ax=ax,
-            fraction=0.046,
-            pad=0.04,
-            extend=_clim_extend(grey, vmin, vmax),
-        )
-        cbar.set_label(sanitize_label(colorbar_label))
-        cbar.ax.set_facecolor("white")
+    add_image_colorbar_from_spec(
+        image,
+        colorbar,
+        ax=ax,
+        label=colorbar_label,
+        extend=_clim_extend(grey, vmin, vmax),
+    )
 
 
 def plot_intensity_slice(
@@ -387,9 +485,11 @@ def plot_intensity_slice(
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
     roi_contour: bool = False,
-    colorbar: bool = True,
+    colorbar: ColorbarSpec = True,
     colorbar_label: str = "Intensity",
     before_colorbar_label: str = "Intensity",
+    before_cmap: Optional[str] = None,
+    symmetric_clim: bool = False,
 ) -> "Figure":
     """
     Display a whole-FOV greyscale anatomy / intensity slice.
@@ -403,10 +503,12 @@ def plot_intensity_slice(
     reorient the grid often changes — omit ``before`` and show the processed
     volume alone.
 
-    Each panel is windowed independently in **native units** (1st–99th
-    percentile). The colorbar shows those same limits, so a z-score
-    (approximately :math:`N(0,1)`) is distinguishable from raw MR/CT
-    intensity even when ``cmap='gray'`` greyscale contrast looks similar.
+    Each panel is windowed independently in **native units**: drop a
+    dominant low-end histogram mode (air / padding), then the 2nd–90th
+    percentiles of the remaining tissue. The colorbar shows those same
+    limits, so a z-score (approximately :math:`N(0,1)`) is
+    distinguishable from raw MR/CT intensity even when ``cmap='gray'``
+    greyscale contrast looks similar.
     Do not share ``vmin``/``vmax`` across a z-score before/after pair:
     that would hide the affine change again.
 
@@ -435,9 +537,19 @@ def plot_intensity_slice(
         roi_contour: When ``True`` and ``roi_mask`` is set, outline the ROI
             on every anatomy panel.
         colorbar: Draw an independent colorbar per panel (default ``True``).
+            Pass ``False`` to hide it, or a mapping of colorbar style
+            kwargs (``shrink``, ``pad``, ``fraction``, ``aspect``,
+            ``ticks``, ``label``, ...) to override the short default bar.
         colorbar_label: Colorbar label for the processed (or only) panel.
         before_colorbar_label: Colorbar label for the original panel when
             ``before`` is set.
+        before_cmap: Colormap for the original panel. Defaults to ``cmap``.
+            Use ``\"gray\"`` with ``cmap=\"RdBu_r\"`` so a z-score panel can
+            show signed values while anatomy stays greyscale.
+        symmetric_clim: When ``True``, the processed (or only) panel is
+            windowed symmetrically about zero. Use this for z-score so the
+            colorbar reads as ``[-a, a]`` rather than an asymmetric
+            percentile window that hides the signed scale.
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -489,8 +601,11 @@ def plot_intensity_slice(
         raise HABITAPIError(
             f"plot_intensity_slice: axis must be 0, 1, or 2; got {axis_id}."
         )
+    # Pick the plane from the original anatomy when a before/after pair
+    # is shown. After z-score, |intensity| of air is no longer small, so
+    # mass-based selection on the processed volume prefers empty slices.
     slice_index = _slice_index(
-        image_vol,
+        before_vol if before_vol is not None else image_vol,
         axis_id,
         index,
         roi_mask=roi_vol if roi_contour else None,
@@ -503,7 +618,8 @@ def plot_intensity_slice(
 
     plt = _plt()
     n_panels = 2 if before_vol is not None else 1
-    panel_width = 6.2 if colorbar else 5.4
+    draw_cbar = colorbar_is_enabled(colorbar)
+    panel_width = 6.2 if draw_cbar else 5.4
     fig, axes = plt.subplots(
         1,
         n_panels,
@@ -514,6 +630,7 @@ def plot_intensity_slice(
     if n_panels == 1:
         axes = [axes]
 
+    original_cmap = str(before_cmap) if before_cmap is not None else str(cmap)
     if before_vol is not None:
         _show_grey_panel(
             axes[0],
@@ -523,10 +640,10 @@ def plot_intensity_slice(
             direction=direction_matrix,
             convention=convention,
             spacing_xyz=spacing_xyz,
-            cmap=cmap,
+            cmap=original_cmap,
             panel_title=before_label,
             roi_slice=roi_slice,
-            colorbar=bool(colorbar),
+            colorbar=colorbar,
             colorbar_label=before_colorbar_label,
         )
         _show_grey_panel(
@@ -540,8 +657,9 @@ def plot_intensity_slice(
             cmap=cmap,
             panel_title=image_label,
             roi_slice=roi_slice,
-            colorbar=bool(colorbar),
+            colorbar=colorbar,
             colorbar_label=colorbar_label,
+            symmetric_clim=bool(symmetric_clim),
         )
     else:
         _show_grey_panel(
@@ -555,8 +673,9 @@ def plot_intensity_slice(
             cmap=cmap,
             panel_title=image_label if title is None else image_label,
             roi_slice=roi_slice,
-            colorbar=bool(colorbar),
+            colorbar=colorbar,
             colorbar_label=colorbar_label,
+            symmetric_clim=bool(symmetric_clim),
         )
 
     if title is not None:

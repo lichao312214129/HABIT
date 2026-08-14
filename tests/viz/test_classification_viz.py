@@ -74,6 +74,23 @@ def test_plot_confusion_matrix_returns_figure() -> None:
     assert isinstance(fig, Figure)
 
 
+def test_plot_confusion_matrix_string_ticks_keep_integer_counts() -> None:
+    """Display names like ``(\"0\", \"1\")`` must not zero-out integer labels."""
+    y_true = np.array([0, 0, 1, 1, 1], dtype=int)
+    y_pred = np.array([0, 1, 1, 1, 0], dtype=int)
+    fig = plot_confusion_matrix(
+        y_true, y_pred, title="Confusion", class_names=("0", "1")
+    )
+    image = fig.axes[0].images[0]
+    counts = np.asarray(image.get_array(), dtype=np.float64)
+    assert counts.sum() == float(y_true.size)
+    assert counts[0, 0] == 1.0
+    assert counts[1, 1] == 2.0
+    assert image.get_clim()[0] == 0.0
+    ticks = [text.get_text() for text in fig.axes[0].get_xticklabels()]
+    assert ticks == ["0", "1"]
+
+
 def test_plot_roc_rejects_length_mismatch() -> None:
     """Mismatched arrays raise a clear API error."""
     with pytest.raises(HABITAPIError, match="same length"):

@@ -27,8 +27,10 @@ Python API (sklearn-short)
 For ``voxel_radiomics`` GLCM columns, create a
 :class:`~habit.contracts.habitat.VoxelFeatureField` then pass it with
 ``feature=0`` (or a column name) — see the :doc:`../examples/voxel_texture`
-script. ``mode="side_by_side"`` draws the ROI as a **contour** on anatomy;
-``mode="overlay"`` is translucent texture-on-anatomy when needed.
+script. Default ``mode="overlay"`` paints **opaque** feature colours inside
+the ROI on greyscale anatomy (optional cyan contour). ``alpha<1`` is the
+explicit translucent option. ``mode="side_by_side"`` adds a sibling anatomy
+panel when you also want the raw image.
 
 Layouts
 -------
@@ -36,8 +38,8 @@ Layouts
 :func:`~habit.viz.plot_voxel_texture_slice` is **2D-slice only** (matplotlib
 ``[viz]`` extra):
 
-* ``mode="side_by_side"`` — anatomy + ROI contour | feature (recommended)
-* ``mode="overlay"`` — translucent feature on greyscale anatomy
+* ``mode="overlay"`` — greyscale anatomy + opaque feature in ROI (default)
+* ``mode="side_by_side"`` — anatomy + ROI contour | feature (sibling panel)
 * ``mode="feature_only"`` — feature map alone
 
 Omit ``axis`` on 3D volumes for three orthogonal panel rows. Panels use
@@ -45,11 +47,11 @@ Omit ``axis`` on 3D volumes for three orthogonal panel rows. Panels use
 direction is not dropped). There is no built-in 3D volume renderer for
 texture maps; use ITK-SNAP / 3D Slicer / napari for full volumetric browsing.
 
-.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Anatomy beside local-entropy texture
+.. figure:: ../_static/images/examples/voxel_texture_overlay.png
+   :alt: Opaque local-entropy overlay on anatomy
    :width: 520
 
-   Default ``side_by_side`` layout
+   Default ``overlay`` layout
    (:func:`~habit.viz.plot_voxel_texture_slice`).
 
 Also see

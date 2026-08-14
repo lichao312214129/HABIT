@@ -11,6 +11,7 @@ Discover built-in and entry-point components. Parameter order is always
        get_plugin_info,
        list_plugins,
        load_plugins,
+       plugin_catalog,
    )
 
    report = load_plugins(strict=False)
@@ -78,10 +79,47 @@ Enumerate every component and fetch its schema::
        schema = get_param_schema(plugin.name, plugin.domain)
        print(plugin.domain, plugin.name, schema)
 
+Which ``Spec`` / ``create`` names exist
+---------------------------------------
+
+``params_model`` is the only source of truth. Do not copy parameter tables
+into YAML or notebooks — they rot. Look names up at runtime, or read the
+live catalog below (regenerated every Sphinx build from the same schemas).
+
+.. code-block:: python
+
+   from habit import plugin_catalog, get_param_schema
+
+   for row in plugin_catalog("table_preprocessor"):
+       print(row.name, row.required_params, row.spec_example)
+       for param in row.params:
+           print(" ", param.name, param.default, param.allowed, param.description)
+
+   schema = get_param_schema("minmax", "table_preprocessor")
+   print(schema.model_fields)
+
+A bad name on ``Registry.create`` / ``get_plugin_info`` lists the names
+that *are* registered in that domain.
+
+Live catalog
+~~~~~~~~~~~~
+
+Each entry is one line of purpose, required vs optional parameters from
+``params_model``, one ``Spec`` / ``Registry.create`` example, and a
+parameter table (default, allowed values / type, meaning). YAML
+``name:`` / ``params:`` blocks use the same names.
+
+Habitat stages organised by scientific module:
+:doc:`../how_to/habitat_components`.
+
+.. include:: _generated_plugin_catalog.rst
+
 Types
 -----
 
 * ``PluginInfo`` — name, domain, implementation, params_schema, provider
+* ``PluginParamInfo`` — one ``Spec`` parameter (default, allowed values, meaning)
+* ``PluginCatalogEntry`` — one live catalog row from ``params_model``
 * ``PluginLoadReport`` — result of ``load_plugins``
 
 Registering a third-party plugin

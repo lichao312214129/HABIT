@@ -394,7 +394,7 @@ def view_habitat_napari(
     images: ImageInput,
     labels: np.ndarray,
     *,
-    opacity: float = 0.45,
+    opacity: float = 1.0,
     title: str = "HABIT habitat",
     show: bool = True,
     viewer: Optional[Any] = None,
@@ -425,7 +425,10 @@ def view_habitat_napari(
             ``labels``.
         labels: Integer habitat map with the same spatial shape as each image.
             Background should be ``0``; habitats are ``>= 1``.
-        opacity: Labels-layer opacity in ``(0, 1]``.
+        opacity: Labels-layer opacity in ``(0, 1]``. Default ``1.0`` paints
+            habitat colours opaquely on the anatomy (same policy as
+            :func:`~habit.viz.plot_habitat_overlay`). Pass a value in
+            ``(0, 1)`` only for an explicit blend.
         title: Window title (ASCII-sanitised for journal-safe defaults).
         show: When ``True`` (default), show the Qt window and **block** until
             the user closes it (via ``napari.run()``). Pass ``False`` for

@@ -15,19 +15,27 @@
 """Stable HABIT plugin discovery and inspection API."""
 
 from habit.api.plugins import (
+    PluginCatalogEntry,
     PluginInfo,
     PluginLoadReport,
+    PluginParamInfo,
+    format_plugin_catalog_rst,
     get_param_schema,
     get_plugin_info,
     list_plugins,
     load_plugins,
+    plugin_catalog,
 )
 
 __all__ = [
     "PluginInfo",
+    "PluginParamInfo",
+    "PluginCatalogEntry",
     "PluginLoadReport",
     "list_plugins",
     "get_plugin_info",
     "get_param_schema",
+    "plugin_catalog",
+    "format_plugin_catalog_rst",
     "load_plugins",
 ]

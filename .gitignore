@@ -230,3 +230,7 @@ build_locked_bak_*/
 # hand-maintain or commit the baked package copy.
 habit/resources/demo_config/**
 !habit/resources/demo_config/__init__.py
+
+# Sphinx writes these from live params_model during every docs build.
+docs/source/api/_generated_plugin_catalog.rst
+docs/source/how_to/_generated_catalog_*.rst

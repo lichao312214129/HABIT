@@ -100,64 +100,24 @@ class ReorientationPreprocessor(BasePreprocessor):
         Returns:
             sitk.Image: Reoriented volume.
         """
-        if self.mode == "closest":
-            orient_filter = sitk.DICOMOrientImageFilter()
-            orient_filter.SetDesiredCoordinateOrientation(self.target_orientation)
-            try:
-                out = orient_filter.Execute(image)
-                logger.debug(
-                    "Reoriented '%s' to %s using 'closest' mode.",
-                    key,
-                    self.target_orientation,
-                )
-                return out
-            except Exception as e:
-                logger.error(
-                    "Failed to reorient '%s' using 'closest' mode: %s",
-                    key,
-                    e,
-                )
-                raise
-
-        # strict: full resampling to orthogonal grid (interpolation required)
-        orient_filter = sitk.DICOMOrientImageFilter()
-        orient_filter.SetDesiredCoordinateOrientation(self.target_orientation)
-
-        dummy = sitk.Image(1, 1, 1, sitk.sitkUInt8)
-        dummy.SetDirection(image.GetDirection())
-        dummy_reoriented = orient_filter.Execute(dummy)
-        target_direction = dummy_reoriented.GetDirection()
-
-        resampler = sitk.ResampleImageFilter()
-        resampler.SetReferenceImage(image)
-        resampler.SetOutputDirection(target_direction)
-
-        if is_mask:
-            resampler.SetInterpolator(sitk.sitkNearestNeighbor)
-            resampler.SetDefaultPixelValue(0)
-        else:
-            resampler.SetInterpolator(sitk.sitkLinear)
-            mm = sitk.MinimumMaximumImageFilter()
-            mm.Execute(image)
-            resampler.SetDefaultPixelValue(mm.GetMinimum())
-
-        transform = sitk.Transform()
-        resampler.SetTransform(transform)
+        from habit.kernels.image_reorient import reorient_sitk_image
 
         try:
-            out = resampler.Execute(image)
+            out = reorient_sitk_image(
+                image,
+                target_orientation=self.target_orientation,
+                mode=self.mode,
+                is_mask=is_mask,
+            )
             logger.debug(
-                "Reoriented '%s' to %s using 'strict' mode (interpolated).",
+                "Reoriented '%s' to %s using %r mode.",
                 key,
                 self.target_orientation,
+                self.mode,
             )
             return out
         except Exception as e:
-            logger.error(
-                "Failed to reorient '%s' using 'strict' mode: %s",
-                key,
-                e,
-            )
+            logger.error("Failed to reorient '%s': %s", key, e)
             raise
 
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:

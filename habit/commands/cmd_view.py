@@ -71,7 +71,7 @@ def _simpleitk_overlay_snippet(
         "overlay = sitk.LabelOverlay(\n"
         "    sitk.Cast(sitk.RescaleIntensity(image), sitk.sitkUInt8),\n"
         "    sitk.Cast(habitats, sitk.sitkUInt8),\n"
-        "    opacity=0.45,\n"
+        "    opacity=1.0,\n"
         ")\n"
         "sitk.Show(overlay, 'HABIT habitat overlay')\n"
     )
@@ -251,7 +251,7 @@ def run_view(
     *,
     output: Optional[str] = None,
     no_open: bool = False,
-    alpha: float = 0.45,
+    alpha: float = 1.0,
     backend: str = "auto",
     convention: str = "radiological",
 ) -> None:

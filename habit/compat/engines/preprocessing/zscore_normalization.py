@@ -17,6 +17,7 @@ import SimpleITK as sitk
 import numpy as np
 from .base_preprocessor import BasePreprocessor
 from .preprocessor_factory import PreprocessorFactory
+from habit.kernels.image_zscore import zscore_normalize_volume
 from habit.utils.log_utils import get_module_logger
 
 # Get module logger
@@ -29,6 +30,10 @@ class ZScoreNormalization(BasePreprocessor):
     This preprocessor normalizes image intensities by subtracting the mean and 
     dividing by the standard deviation, resulting in a distribution with
     zero mean and unit variance.
+
+    Arithmetic is delegated to :func:`habit.kernels.image_zscore.zscore_normalize_volume`
+    (float32) so integer pixel types do not truncate negative / fractional
+    z-scores.
     """
     
     def __init__(
@@ -79,54 +84,28 @@ class ZScoreNormalization(BasePreprocessor):
             subj (Optional[str]): Subject identifier for logging
             
         Returns:
-            sitk.Image: Normalized SimpleITK image
+            sitk.Image: Normalized SimpleITK image (float32)
         """
-        # Calculate statistics using SimpleITK
-        stats_filter = sitk.StatisticsImageFilter()
-        
-        # If mask is provided, use it for statistics calculation
-        if sitk_mask is not None:
-            # Create a version of the image with mask applied
-            masked_image = sitk.Mask(sitk_image, sitk_mask)
-            stats_filter.Execute(masked_image)
-        else:
-            stats_filter.Execute(sitk_image)
-        
-        # Get mean and standard deviation
-        mean_val = stats_filter.GetMean()
-        std_val = stats_filter.GetSigma()  # Use GetSigma() instead of GetStandardDeviation()
-        
+        image_arr = sitk.GetArrayFromImage(sitk_image)
+        mask_arr = (
+            sitk.GetArrayFromImage(sitk_mask) if sitk_mask is not None else None
+        )
+
+        normalized_arr = zscore_normalize_volume(
+            image_arr,
+            mask_arr,
+            clip_values=self.clip_values,
+        )
+
         subj_info = f"[{subj}] " if subj else ""
-        logger.debug(f"{subj_info}Mean: {mean_val}, std: {std_val}")
-        
-        # Avoid division by zero or very small values
-        if std_val < 1e-10:
-            logger.warning(f"{subj_info}Warning: Standard deviation is very small ({std_val}). Using std=1 to avoid division issues.")
-            std_val = 1.0
-        
-        # Create mean image (same size as input, all pixels = mean value)
-        mean_image = sitk.Image(sitk_image.GetSize(), sitk_image.GetPixelID())
-        mean_image.CopyInformation(sitk_image)  # Copy metadata
-        mean_image = sitk.Add(mean_image, mean_val)  # Fill with mean value
-        
-        # Subtract mean (step 1 of z-score)
-        centered_image = sitk.Subtract(sitk_image, mean_image)
-        
-        # Divide by standard deviation (step 2 of z-score)
-        normalized_image = sitk.Divide(centered_image, std_val)
-        
-        # Get sample values for logging
-        sample_array = sitk.GetArrayFromImage(normalized_image)
-        logger.debug(f"{subj_info}Normalized range: [{np.min(sample_array)}, {np.max(sample_array)}]")
-        
-        # Clip values if specified
-        if self.clip_values is not None:
-            # Create threshold filter
-            threshold_filter = sitk.ClampImageFilter()
-            threshold_filter.SetLowerBound(self.clip_values[0])
-            threshold_filter.SetUpperBound(self.clip_values[1])
-            normalized_image = threshold_filter.Execute(normalized_image)
-        
+        logger.debug(
+            f"{subj_info}Normalized range: "
+            f"[{float(np.min(normalized_arr))}, {float(np.max(normalized_arr))}]"
+        )
+
+        # Rebuild a float32 SitK image; keep geometry from the input.
+        normalized_image = sitk.GetImageFromArray(normalized_arr)
+        normalized_image.CopyInformation(sitk_image)
         return normalized_image
     
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -184,4 +163,4 @@ class ZScoreNormalization(BasePreprocessor):
                 if not self.allow_missing_keys:
                     raise
         
-        return data 
+        return data

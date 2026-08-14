@@ -33,6 +33,7 @@ import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
@@ -413,6 +414,57 @@ def _feature_display_limits(
     return low, high
 
 
+def _composite_feature_on_anatomy(
+    grey: np.ndarray,
+    feature_slice: np.ndarray,
+    roi_slice: Optional[np.ndarray],
+    *,
+    cmap: str,
+    vmin: float,
+    vmax: float,
+    alpha: float,
+) -> Tuple[np.ndarray, object]:
+    """
+    Paint feature colours onto greyscale anatomy inside the ROI only.
+
+    Outside the ROI (or non-finite feature voxels) the anatomy stays grey.
+    ``alpha=1`` replaces those voxels (opaque); ``alpha<1`` blends as an
+    explicit option.
+
+    Args:
+        grey: 2D anatomy in ``[0, 1]``.
+        feature_slice: 2D feature values, same shape as ``grey``.
+        roi_slice: Optional 2D ROI (``> 0`` inside). ``None`` uses finite
+            feature voxels as the paint mask.
+        cmap: Matplotlib colormap name.
+        vmin: Colourscale lower bound.
+        vmax: Colourscale upper bound.
+        alpha: Feature opacity in ``(0, 1]``.
+
+    Returns:
+        RGB float array ``(H, W, 3)`` in ``[0, 1]`` and a
+        ``ScalarMappable`` for the colourbar.
+    """
+    from matplotlib import cm
+    from matplotlib.colors import Normalize
+
+    rgb = np.stack([grey, grey, grey], axis=-1).astype(np.float64)
+    masked = _masked_feature_slice(feature_slice, roi_slice)
+    valid = ~np.ma.getmaskarray(masked)
+    norm = Normalize(vmin=float(vmin), vmax=float(vmax), clip=True)
+    mapper = cm.get_cmap(str(cmap))
+    if np.any(valid):
+        colors = mapper(norm(np.asarray(masked, dtype=np.float64)))
+        weight = float(alpha)
+        if weight >= 1.0:
+            rgb[valid] = colors[valid, :3]
+        else:
+            rgb[valid] = (1.0 - weight) * rgb[valid] + weight * colors[valid, :3]
+    mappable = cm.ScalarMappable(norm=norm, cmap=mapper)
+    mappable.set_array([])
+    return np.clip(rgb, 0.0, 1.0), mappable
+
+
 def _masked_feature_slice(
     feature_slice: np.ndarray,
     roi_slice: Optional[np.ndarray],
@@ -487,6 +539,7 @@ def _draw_single_axis_figure(
     spacing_xyz: Sequence[float],
     roi_contour: bool,
     feature_contour: bool,
+    colorbar: ColorbarSpec = True,
 ) -> "Figure":
     """Build a one- or two-panel figure for a single orthogonal slice."""
     plt = _plt()
@@ -542,8 +595,7 @@ def _draw_single_axis_figure(
             sanitize_label(title if title is not None else default_title)
         )
         ax.axis("off")
-        cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
-        cbar.set_label(sanitize_label(feature_label))
+        add_image_colorbar_from_spec(image, colorbar, ax=ax, label=feature_label)
         return fig
 
     anat_slice = orient_slice_for_display(
@@ -554,23 +606,18 @@ def _draw_single_axis_figure(
     )
 
     if mode == "overlay":
-        # Kept for callers who want a blended view; gallery demos prefer
-        # side_by_side with an ROI contour instead of alpha texture on anatomy.
-        fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
-        ax.imshow(
+        rgb, mappable = _composite_feature_on_anatomy(
             anat_slice,
-            cmap="gray",
-            interpolation="nearest",
-            origin="upper",
-            extent=extent,
-            aspect="equal",
-        )
-        image = ax.imshow(
-            masked,
+            feat_slice,
+            roi_slice,
             cmap=cmap,
             vmin=clim[0],
             vmax=clim[1],
             alpha=float(alpha),
+        )
+        fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
+        ax.imshow(
+            rgb,
             interpolation="nearest",
             origin="upper",
             extent=extent,
@@ -583,8 +630,7 @@ def _draw_single_axis_figure(
             sanitize_label(title if title is not None else default_title)
         )
         ax.axis("off")
-        cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
-        cbar.set_label(sanitize_label(feature_label))
+        add_image_colorbar_from_spec(mappable, colorbar, ax=ax, label=feature_label)
         return fig
 
     # side_by_side: anatomy (+ ROI outline) | texture map (no alpha blend)
@@ -618,8 +664,7 @@ def _draw_single_axis_figure(
     axes[1].set_aspect("equal", adjustable="box")
     axes[1].set_title(sanitize_label(feature_label))
     axes[1].axis("off")
-    cbar = fig.colorbar(image, ax=axes[1], fraction=0.046, pad=0.04)
-    cbar.set_label(sanitize_label(feature_label))
+    add_image_colorbar_from_spec(image, colorbar, ax=axes[1], label=feature_label)
     if title is not None:
         fig.suptitle(sanitize_label(title))
     else:
@@ -645,6 +690,7 @@ def _draw_triptych(
     spacing_xyz: Sequence[float],
     roi_contour: bool,
     feature_contour: bool,
+    colorbar: ColorbarSpec = True,
 ) -> "Figure":
     """Three orthogonal panels through the densest support region."""
     plt = _plt()
@@ -730,7 +776,9 @@ def _draw_triptych(
                 sanitize_label(f"{feature_label} — {row_title}")
             )
             axes[axis_id, 1].axis("off")
-            fig.colorbar(image, ax=axes[axis_id, 1], fraction=0.046, pad=0.04)
+            add_image_colorbar_from_spec(
+                image, colorbar, ax=axes[axis_id, 1], label=feature_label
+            )
         elif mode == "overlay" and anatomy is not None:
             anat_slice = orient_slice_for_display(
                 _normalize_grey(_take_slice(anatomy, axis_id, slice_index)),
@@ -738,20 +786,17 @@ def _draw_triptych(
                 direction=direction,
                 convention=convention,
             )
-            axes[axis_id, 0].imshow(
+            rgb, mappable = _composite_feature_on_anatomy(
                 anat_slice,
-                cmap="gray",
-                interpolation="nearest",
-                origin="upper",
-                extent=extent,
-                aspect="equal",
-            )
-            image = axes[axis_id, 0].imshow(
-                masked,
+                feat_slice,
+                roi_slice,
                 cmap=cmap,
                 vmin=clim[0],
                 vmax=clim[1],
                 alpha=float(alpha),
+            )
+            axes[axis_id, 0].imshow(
+                rgb,
                 interpolation="nearest",
                 origin="upper",
                 extent=extent,
@@ -764,7 +809,9 @@ def _draw_triptych(
                 sanitize_label(f"{feature_label} — {row_title}")
             )
             axes[axis_id, 0].axis("off")
-            fig.colorbar(image, ax=axes[axis_id, 0], fraction=0.046, pad=0.04)
+            add_image_colorbar_from_spec(
+                mappable, colorbar, ax=axes[axis_id, 0], label=feature_label
+            )
         else:
             image = axes[axis_id, 0].imshow(
                 masked,
@@ -783,7 +830,9 @@ def _draw_triptych(
                 sanitize_label(f"{feature_label} — {row_title}")
             )
             axes[axis_id, 0].axis("off")
-            fig.colorbar(image, ax=axes[axis_id, 0], fraction=0.046, pad=0.04)
+            add_image_colorbar_from_spec(
+                image, colorbar, ax=axes[axis_id, 0], label=feature_label
+            )
 
     if title is not None:
         fig.suptitle(sanitize_label(title))
@@ -800,9 +849,9 @@ def plot_voxel_texture_slice(
     feature: Optional[Union[str, int]] = None,
     axis: Optional[int] = None,
     index: Optional[int] = None,
-    mode: LayoutMode = "side_by_side",
+    mode: LayoutMode = "overlay",
     cmap: str = _DEFAULT_CMAP,
-    alpha: float = 0.55,
+    alpha: float = 1.0,
     vmin: Optional[float] = None,
     vmax: Optional[float] = None,
     title: Optional[str] = None,
@@ -812,6 +861,7 @@ def plot_voxel_texture_slice(
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
     roi_contour: bool = True,
     feature_contour: bool = True,
+    colorbar: ColorbarSpec = True,
 ) -> "Figure":
     """
     Display a voxel-level texture / feature map as 2D publication panels.
@@ -820,11 +870,12 @@ def plot_voxel_texture_slice(
     :func:`~habit.kernels.local_entropy_map`) or a sparse
     :class:`~habit.contracts.habitat.VoxelFeatureField` (e.g. from the
     ``local_entropy`` / ``voxel_radiomics`` extractors). Prefer
-    ``mode=\"side_by_side\"``: left panel is raw anatomy with an ROI **contour**
-    (outline, not a filled mask overlay); right panel is the texture map alone
-    (optionally with the same contour). ``mode=\"overlay\"`` remains available
-    for translucent texture-on-anatomy but is not the recommended gallery path.
-    Outside-ROI / non-finite voxels stay transparent on the feature panel.
+    Default ``mode=\"overlay\"``: greyscale anatomy everywhere, **opaque**
+    feature colours inside the ROI, optional cyan ROI contour. Outside-ROI
+    voxels stay grey anatomy (not a translucent blend). Pass ``alpha<1``
+    only when a see-through overlay is wanted. ``mode=\"side_by_side\"``
+    adds a sibling anatomy panel (contour OK) next to a standalone feature
+    map. Outside-ROI / non-finite voxels stay masked on the feature panel.
 
     For 3D volumes the default is three orthogonal panels through the densest
     ROI (or densest finite-feature) slice. Pass ``axis`` / ``index`` to pin one
@@ -844,10 +895,13 @@ def plot_voxel_texture_slice(
         feature: Column name or index when ``feature_map`` is a field.
         axis: If set, draw only this NumPy axis (``0``, ``1``, or ``2``).
         index: Slice index along ``axis``; densest support when omitted.
-        mode: ``\"side_by_side\"`` (default), ``\"overlay\"``, or
+        mode: ``\"overlay\"`` (default; opaque feature on anatomy),
+            ``\"side_by_side\"`` (anatomy sibling + feature), or
             ``\"feature_only\"``.
         cmap: Matplotlib colormap name for the feature values.
-        alpha: Feature opacity when ``mode=\"overlay\"`` (in ``(0, 1]``).
+        alpha: Feature opacity when ``mode=\"overlay\"`` (default ``1.0`` =
+            opaque inside the ROI). Use a value in ``(0, 1)`` only for an
+            explicit translucent blend.
         vmin: Optional colourscale lower bound (else 2nd percentile).
         vmax: Optional colourscale upper bound (else 98th percentile).
         title: Optional figure title (ASCII-sanitised).
@@ -864,6 +918,10 @@ def plot_voxel_texture_slice(
             cyan outline on the anatomy panel (``side_by_side`` / ``overlay``).
         feature_contour: When ``True`` and ``roi_mask`` is set, also outline
             the ROI on the feature panel.
+        colorbar: Draw a short vertical colorbar (default ``True``). Pass
+            ``False`` to hide it, or a mapping of style kwargs
+            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,
+            ``label``, ...) to override the default.
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -972,6 +1030,7 @@ def plot_voxel_texture_slice(
             spacing_xyz=spacing_xyz,
             roi_contour=bool(roi_contour),
             feature_contour=bool(feature_contour),
+            colorbar=colorbar,
         )
 
     return _draw_triptych(
@@ -991,4 +1050,5 @@ def plot_voxel_texture_slice(
         spacing_xyz=spacing_xyz,
         roi_contour=bool(roi_contour),
         feature_contour=bool(feature_contour),
+        colorbar=colorbar,
     )

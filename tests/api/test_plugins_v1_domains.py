@@ -23,10 +23,12 @@ import pytest
 from habit.api.exceptions import HABITAPIError
 from habit.utils.deprecation import HabitDeprecationWarning
 from habit.api.plugins import (
+    format_plugin_catalog_rst,
     get_param_schema,
     get_plugin_info,
     list_plugins,
     load_plugins,
+    plugin_catalog,
 )
 
 #: Built-in habitat feature names exposed through the legacy plural domain.
@@ -165,17 +167,34 @@ def test_get_plugin_info_and_param_schema_on_v1_domains() -> None:
     kmeans_schema = get_param_schema("kmeans", "habitat_model_fitter")
     assert kmeans_schema is not None
     assert "n_habitats" in kmeans_schema.model_json_schema()["properties"]
-    with pytest.raises(HABITAPIError):
+    with pytest.raises(HABITAPIError, match="Available"):
         get_plugin_info("watershed", "supervoxelizer")
 
 
 @pytest.mark.unit
-def test_preprocessor_alias_resolves_to_the_v0_1_registry() -> None:
-    """Image preprocessing has no v1 domain yet: the alias stays with v0.1."""
+def test_preprocessor_v1_domain_lists_image_steps() -> None:
+    """Singular preprocessor is the v1 image-volume registry."""
+    names = {info.name for info in list_plugins("preprocessor")}
+    assert {
+        "resample",
+        "reorientation",
+        "n4_correction",
+        "zscore_normalization",
+        "histogram_standardization",
+        "adaptive_histogram_equalization",
+        "registration",
+    } <= names
+    zscore = get_plugin_info("zscore_normalization", "preprocessor")
+    assert zscore.implementation.startswith("habit.domain.")
+
+
+@pytest.mark.unit
+def test_preprocessor_alias_still_lists_legacy_factory() -> None:
+    """Plural preprocessors keeps the v0.1 factory listing."""
     with pytest.warns(HabitDeprecationWarning, match="preprocessors"):
         plural = {info.name for info in list_plugins("preprocessors")}
-    singular = {info.name for info in list_plugins("preprocessor")}
-    assert plural == singular
+    assert "resample" in plural
+    assert "zscore_normalization" in plural
 
 
 @pytest.mark.unit
@@ -226,6 +245,64 @@ def test_unknown_domain_still_raises() -> None:
     """Unknown domains fail with the documented public error."""
     with pytest.raises(HABITAPIError):
         list_plugins("clustering")
+
+
+@pytest.mark.unit
+def test_plugin_catalog_reads_params_model() -> None:
+    """Catalog rows come from params_model, not a hand-copied table."""
+    rows = plugin_catalog("table_preprocessor")
+    names = {row.name for row in rows}
+    assert "minmax" in names
+    minmax = next(row for row in rows if row.name == "minmax")
+    schema = get_param_schema("minmax", "table_preprocessor")
+    assert schema is not None
+    assert set(minmax.required_params) == {
+        name for name, field in schema.model_fields.items() if field.is_required()
+    }
+    assert set(minmax.optional_params) == {
+        name
+        for name, field in schema.model_fields.items()
+        if not field.is_required()
+    }
+    assert minmax.spec_example.startswith('Spec("minmax"')
+    assert 'Registry.create("minmax"' in minmax.create_example
+    assert minmax.params
+    across = next(param for param in minmax.params if param.name == "across_features")
+    assert across.required is False
+    assert across.default in {"False", "false"}
+    rst = format_plugin_catalog_rst("table_preprocessor")
+    assert "minmax" in rst
+    assert 'Spec("minmax"' in rst
+    assert "across_features" in rst
+
+
+@pytest.mark.unit
+def test_plugin_catalog_explains_kmeans_spec_params() -> None:
+    """Habitat kmeans catalog rows include allowed validation values."""
+    rows = plugin_catalog("habitat_model_fitter")
+    kmeans = next(row for row in rows if row.name == "kmeans")
+    names = {param.name for param in kmeans.params}
+    assert {"n_habitats", "validation", "min_habitats", "max_habitats"} <= names
+    validation = next(param for param in kmeans.params if param.name == "validation")
+    assert validation.default in {'"elbow"', "'elbow'"}
+    assert "elbow" in validation.description
+    rst = format_plugin_catalog_rst("habitat_model_fitter")
+    assert "elbow" in rst
+    assert "n_habitats" in rst
+
+
+@pytest.mark.unit
+def test_unknown_registry_name_lists_available() -> None:
+    """Registry.create on a bad name lists the domain's registered names."""
+    from habit.domain.table_preprocessing import TablePreprocessorRegistry
+    from habit.exceptions import ComponentNotFoundError
+
+    with pytest.raises(ComponentNotFoundError, match="Available") as exc_info:
+        TablePreprocessorRegistry.create("not_a_real_preprocessor")
+    message = str(exc_info.value)
+    assert "minmax" in message
+    assert "list_plugins" in message
+    assert "table_preprocessor" in message
 
 
 @pytest.mark.unit

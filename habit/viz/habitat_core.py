@@ -41,6 +41,7 @@ from habit.viz.habitat_overlay import (
     _slice_index,
     _spacing_xyz,
 )
+from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
@@ -508,6 +509,7 @@ def plot_msi_matrix(
     title: Optional[str] = None,
     scale: str = "linear",
     mask_diagonal: Optional[bool] = None,
+    colorbar: ColorbarSpec = True,
 ) -> "Figure":
     """
     Heatmap of a spatial interaction (MSI) matrix.
@@ -532,6 +534,10 @@ def plot_msi_matrix(
         mask_diagonal: Mask the main diagonal in the colour scale. Default
             is True for ``linear`` / ``log1p`` / ``normalized``, False for
             ``raw`` (full-matrix linear stretch).
+        colorbar: Draw a short vertical colorbar (default ``True``). Pass
+            ``False`` to hide it, or a mapping of style kwargs
+            (``shrink``, ``pad``, ``fraction``, ``aspect``, ``ticks``,
+            ``label``, ...) to override the default.
 
     Returns:
         A matplotlib ``Figure``.
@@ -589,11 +595,10 @@ def plot_msi_matrix(
             vmin=vmin,
             vmax=plot_vmax,
         )
-        cbar = fig.colorbar(
-            im, ax=ax, fraction=0.046, pad=0.04, extend=extend
+        cbar = add_image_colorbar_from_spec(
+            im, colorbar, ax=ax, label=cbar_label, extend=extend
         )
-        cbar.set_label(sanitize_label(cbar_label))
-        if vmax <= vmin:
+        if cbar is not None and vmax <= vmin:
             cbar.set_ticks([vmin])
             cbar.set_ticklabels([f"{vmin:g}"])
         ax.set_xticks(range(n))
@@ -740,7 +745,7 @@ def plot_habitat_label_compare(
     labels_b: np.ndarray,
     *,
     titles: Tuple[str, str] = ("Reference", "Predict"),
-    alpha: float = 0.45,
+    alpha: float = 1.0,
     axis: int = 0,
     index: Optional[int] = None,
     direction: Optional[Sequence[float]] = None,
@@ -756,7 +761,7 @@ def plot_habitat_label_compare(
         labels_a: Reference / train labels (same shape).
         labels_b: Compared / predicted labels (same shape).
         titles: Panel titles for A and B.
-        alpha: Overlay opacity.
+        alpha: Overlay opacity (default ``1.0`` = opaque habitat colours).
         axis: Slice axis for 3D volumes.
         index: Slice index; densest union of labels when omitted.
         direction: Optional SimpleITK direction cosines.
@@ -810,7 +815,7 @@ def plot_habitat_label_compare(
         for ax, labs, panel_title in zip(
             axes[:2], (a, b), (titles[0], titles[1])
         ):
-            rgb = _prepare_overlay_slice(
+            rgb, _labs = _prepare_overlay_slice(
                 image_vol,
                 labs,
                 axis_id=axis_id,
@@ -840,7 +845,7 @@ def plot_habitat_label_compare(
 
         if show_disagreement:
             disagree = ((a != b) & ((a > 0) | (b > 0))).astype(np.int32)
-            rgb = _prepare_overlay_slice(
+            rgb, _labs = _prepare_overlay_slice(
                 image_vol,
                 disagree,
                 axis_id=axis_id,
@@ -882,7 +887,7 @@ def plot_partition_triptych(
         "Supervoxels",
         "Habitats",
     ),
-    alpha: float = 0.45,
+    alpha: float = 1.0,
     axis: int = 0,
     index: Optional[int] = None,
     direction: Optional[Sequence[float]] = None,
@@ -897,7 +902,7 @@ def plot_partition_triptych(
         supervoxel_labels: Integer supervoxel map (0 = background).
         habitat_labels: Integer habitat map (0 = background).
         titles: Three panel titles.
-        alpha: Overlay opacity for label panels.
+        alpha: Overlay opacity for label panels (default ``1.0`` = opaque).
         axis: Slice axis for 3D volumes.
         index: Slice index; densest habitat slice when omitted.
         direction: Optional SimpleITK direction cosines.
@@ -950,7 +955,7 @@ def plot_partition_triptych(
     # Fake RGB greyscale for consistent imshow path.
     anatomy_rgb = np.stack([grey, grey, grey], axis=-1)
 
-    sv_rgb = _prepare_overlay_slice(
+    sv_rgb, _sv_labs = _prepare_overlay_slice(
         image_vol,
         sv,
         axis_id=axis_id,
@@ -959,7 +964,7 @@ def plot_partition_triptych(
         direction=direction_matrix,
         convention=convention,
     )
-    hab_rgb = _prepare_overlay_slice(
+    hab_rgb, _hab_labs = _prepare_overlay_slice(
         image_vol,
         hab,
         axis_id=axis_id,

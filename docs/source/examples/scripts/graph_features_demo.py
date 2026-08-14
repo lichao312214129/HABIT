@@ -48,7 +48,7 @@ if __name__ == "__main__":
     plt.close(fig)
 
     fig = plot_habitat_overlay(
-        image, labels, axis=0, alpha=0.45, title="One-step habitats"
+        image, labels, axis=0, title="One-step habitats"
     )
     fig.savefig(gallery / "graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
     plt.close(fig)

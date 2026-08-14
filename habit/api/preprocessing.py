@@ -139,10 +139,6 @@ def preprocess_subject(
             mask resolution is ambiguous.
         KeyError: If a requested modality or ROI is absent on ``subject``.
     """
-    from habit.contracts.geometry import Geometry
-    from habit.contracts.image import ArrayImageRef
-    from habit.contracts.subject import Subject
-
     if not isinstance(steps, MappingABC) or not steps:
         raise HABITAPIError(
             "preprocess_subject requires a non-empty ordered mapping of "
@@ -150,11 +146,8 @@ def preprocess_subject(
             "'preprocessing:' block)."
         )
 
-    # Import registers every built-in preprocessor on PreprocessorFactory.
-    import habit.compat.engines.preprocessing as _preproc_pkg  # noqa: F401
-    from habit.compat.engines.preprocessing.preprocessor_factory import (
-        PreprocessorFactory,
-    )
+    # Import registers every built-in v1 image preprocessor.
+    from habit.domain.image_preprocessing import PreprocessorRegistry
 
     modalities: list[str] = list(subject.images.keys())
     if not modalities:
@@ -163,87 +156,44 @@ def preprocess_subject(
         )
 
     roi_name = _resolve_mask_roi(subject, mask_roi=mask_roi)
-    subject_data: Dict[str, Any] = _subject_to_sitk_dict(
-        subject,
-        modalities=modalities,
-        roi_name=roi_name,
-        broadcast_mask=broadcast_mask,
-    )
-
+    current = subject
     for step_name, raw_params in steps.items():
         if not isinstance(step_name, str) or not step_name.strip():
             raise HABITAPIError(f"Invalid preprocessing step name: {step_name!r}.")
         params = dict(raw_params or {})
         step_modalities = list(params.pop("images", modalities))
+        params.pop("keys", None)
+        params.pop("allow_missing_keys", None)
+        params_model = PreprocessorRegistry.params_model(step_name)
+        if params_model is not None:
+            allowed = set(params_model.model_fields)
+            params = {key: value for key, value in params.items() if key in allowed}
         if not step_modalities:
             raise HABITAPIError(f"Step {step_name!r} has an empty 'images' list.")
-        missing = [m for m in step_modalities if m not in subject_data]
+        missing = [m for m in step_modalities if m not in current.images]
         if missing:
             raise HABITAPIError(
                 f"Step {step_name!r} references modalities absent from "
                 f"subject {subject.subject_id!r}: {missing}. "
-                f"Available: {sorted(k for k in subject_data if not k.startswith('mask_') and k not in ('subj', 'output_dirs'))}."
+                f"Available: {sorted(current.images)}."
             )
-        available = set(PreprocessorFactory.available())
+        available = set(PreprocessorRegistry.available())
         if step_name not in available:
             raise HABITAPIError(
                 f"Unknown image preprocessor {step_name!r}. "
                 f"Available: {sorted(available)}."
             )
-        processor = PreprocessorFactory.create(
-            name=step_name,
-            keys=step_modalities,
-            **params,
-        )
-        processor(subject_data)
-
-    # Rebuild Subject from SimpleITK volumes that the chain left behind.
-    new_images: Dict[str, ArrayImageRef] = {}
-    for modality in modalities:
-        volume = _sitk_to_image_volume(
-            subject_data[modality],
-            modality=modality,
-            subject_id=subject.subject_id,
-        )
-        new_images[modality] = ArrayImageRef(
-            array=volume.data,
-            geometry=Geometry(
-                shape=tuple(int(v) for v in volume.data.shape),
-                spacing=tuple(volume.spacing),
-                origin=tuple(volume.origin),
-                direction=tuple(volume.direction),
-            ),
+        processor = PreprocessorRegistry.create(name=step_name, **params)
+        current = processor(
+            current,
+            images=step_modalities,
+            mask_roi=roi_name,
         )
 
-    new_masks: Dict[str, ArrayImageRef] = {}
-    if roi_name is not None:
-        mask_key = (
-            f"mask_{roi_name}"
-            if f"mask_{roi_name}" in subject_data
-            else _first_mask_key(subject_data, modalities)
-        )
-        if mask_key is not None and mask_key in subject_data:
-            mask_volume = _sitk_to_mask_volume(
-                subject_data[mask_key],
-                roi_name=roi_name,
-                subject_id=subject.subject_id,
-            )
-            new_masks[roi_name] = ArrayImageRef(
-                array=mask_volume.data,
-                geometry=Geometry(
-                    shape=tuple(int(v) for v in mask_volume.data.shape),
-                    spacing=tuple(mask_volume.spacing),
-                    origin=tuple(mask_volume.origin),
-                    direction=tuple(mask_volume.direction),
-                ),
-            )
-
-    return Subject(
-        subject_id=subject.subject_id,
-        images=new_images,
-        masks=new_masks,
-        metadata=dict(subject.metadata),
-    )
+    # broadcast_mask is retained for API compatibility; v1 steps already
+    # operate on Subject.masks rather than duplicated mask_<modality> keys.
+    del broadcast_mask
+    return current
 
 
 def preprocess_image(

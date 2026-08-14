@@ -497,13 +497,11 @@ if __name__ == "__main__":
     with use_style("radiology"):
         fig_k = plot_voxel_texture_slice(
             entropy_large,
-            anatomy=entropy_small,
-            roi_mask=mask,
+            anatomy=subject.image(modality),
+            roi_mask=subject.mask(ROI),
             axis=0,
             index=slice_index,
             feature_label="Entropy, kernel=7",
-            title="Local entropy: kernel 3 (left) vs 7 (right)",
-            direction=direction,
-            spacing=spacing,
+            title="Local entropy (kernel=7) on anatomy",
         )
         _save_figure(fig_k, "precise_screen_kernel_scale.png")

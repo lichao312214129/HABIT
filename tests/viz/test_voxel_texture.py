@@ -167,6 +167,35 @@ def test_plot_voxel_texture_slice_accepts_voxel_feature_field(tmp_path) -> None:
     plt.close(fig)
 
 
+def test_plot_voxel_texture_slice_overlay_is_opaque_inside_roi() -> None:
+    """Default overlay replaces ROI voxels; anatomy outside the ROI stays grey."""
+    from habit.viz.voxel_texture import _composite_feature_on_anatomy, _normalize_grey
+
+    anatomy = np.full((8, 8), 50.0, dtype=np.float64)
+    feature = np.zeros((8, 8), dtype=np.float64)
+    feature[2:6, 2:6] = 10.0
+    roi = np.zeros((8, 8), dtype=np.uint8)
+    roi[2:6, 2:6] = 1
+    grey = _normalize_grey(anatomy)
+    rgb, _mappable = _composite_feature_on_anatomy(
+        grey, feature, roi, cmap="magma", vmin=0.0, vmax=10.0, alpha=1.0
+    )
+    outside = rgb[0, 0]
+    inside = rgb[4, 4]
+    np.testing.assert_allclose(outside, np.array([grey[0, 0]] * 3), atol=1e-6)
+    assert not np.allclose(inside, outside)
+    blended = 0.55 * inside + 0.45 * np.array([grey[4, 4]] * 3)
+    assert not np.allclose(inside, blended, atol=1e-3)
+
+    fig = plot_voxel_texture_slice(
+        feature, anatomy=anatomy, roi_mask=roi, axis=0, index=0
+    )
+    assert isinstance(fig, Figure)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
 def test_plot_voxel_texture_slice_triptych_default() -> None:
     """3D volumes without axis produce three orthogonal panels."""
     anatomy, roi, entropy = _synthetic_volume()

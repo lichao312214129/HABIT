@@ -78,7 +78,10 @@ class ImputeParams(BaseModel):
     """Constructor parameters for :class:`Impute`."""
 
     model_config = ConfigDict(extra="forbid")
-    strategy: str = "mean"
+    strategy: str = Field(
+        default="mean",
+        description="Replacement statistic: mean, median, or zero.",
+    )
 
 
 @FeaturePreprocessingMethodRegistry.register("impute")
@@ -444,9 +447,15 @@ class BinningParams(BaseModel):
     """Constructor parameters for :class:`Binning`."""
 
     model_config = ConfigDict(extra="forbid")
-    n_bins: int = Field(default=10, gt=1)
-    bin_strategy: str = "uniform"
-    across_features: bool = False
+    n_bins: int = Field(default=10, gt=1, description="Number of bins.")
+    bin_strategy: str = Field(
+        default="uniform",
+        description="Edge rule: uniform, quantile, or kmeans.",
+    )
+    across_features: bool = Field(
+        default=False,
+        description="Learn one set of edges from pooled values across feature columns.",
+    )
 
 
 @FeaturePreprocessingMethodRegistry.register("binning")

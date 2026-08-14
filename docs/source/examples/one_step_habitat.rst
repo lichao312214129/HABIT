@@ -71,6 +71,7 @@ Figures
 What to read next
 -----------------
 
+* :doc:`../how_to/habitat_components` — which ``Spec`` names exist, and what each parameter means
 * :doc:`habitat_analysis_overview` — recipe / atomic / custom map
 * :doc:`habitat_atomic_ops` — operator-level walkthrough
 * :doc:`habitat_preprocessing` — how preprocessing chains differ by design

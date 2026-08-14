@@ -368,6 +368,8 @@ Where to go next
      - :doc:`kernels`
    * - sklearn / MONAI / nnU-Net
      - :doc:`compat`
+   * - Habitat ``Spec`` chooser (names + parameters)
+     - :doc:`../how_to/habitat_components`
    * - ``list_plugins`` / schemas
      - :doc:`plugins`
    * - Custom ``ComponentRegistry``

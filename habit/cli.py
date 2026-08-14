@@ -248,9 +248,10 @@ def get_habitat(
 @click.option(
     '--alpha',
     type=float,
-    default=0.45,
+    default=1.0,
     show_default=True,
-    help='Opacity of habitat colours / napari labels layer (0-1]',
+    help='Opacity of habitat colours / napari labels layer (0-1]; '
+         '1.0 = opaque habitat colours',
 )
 @click.option(
     '--backend',

@@ -15,9 +15,9 @@
 """Habitat label maps drawn on top of the source image.
 
 Pure functions: image and label arrays in, a matplotlib ``Figure`` out, no
-filesystem and no ``show``. Background label ``0`` stays transparent so the
-underlying greyscale anatomy remains visible; habitat IDs ``>= 1`` are tinted
-with a colour-blind-friendly categorical palette.
+filesystem and no ``show``. Background label ``0`` stays greyscale anatomy;
+habitat IDs ``>= 1`` are painted with a colour-blind-friendly categorical
+palette (opaque by default). Pass ``alpha<1`` only for an explicit blend.
 """
 
 from __future__ import annotations
@@ -153,6 +153,37 @@ def _normalize_grey(slice_2d: np.ndarray) -> np.ndarray:
     return np.clip(scaled, 0.0, 1.0).astype(np.float32)
 
 
+def _draw_label_contour(
+    ax,
+    labels: np.ndarray,
+    *,
+    extent: Tuple[float, float, float, float],
+    color: str = "#00E5FF",
+    linewidth: float = 1.35,
+) -> None:
+    """
+    Outline non-background habitat voxels (label ``> 0``).
+
+    Args:
+        ax: Matplotlib axes already showing the overlay.
+        labels: 2D integer label map (already display-oriented).
+        extent: Same physical ``imshow`` extent as the underlay.
+        color: Contour colour (default cyan; English figures only).
+        linewidth: Contour line width in points.
+    """
+    binary = (np.asarray(labels) > 0).astype(np.float64)
+    if not np.any(binary):
+        return
+    ax.contour(
+        binary,
+        levels=[0.5],
+        colors=[color],
+        linewidths=float(linewidth),
+        origin="upper",
+        extent=extent,
+    )
+
+
 def _blend_overlay(
     grey: np.ndarray,
     labels: np.ndarray,
@@ -161,7 +192,10 @@ def _blend_overlay(
     colors: Sequence[Tuple[float, float, float]],
 ) -> np.ndarray:
     """
-    Blend habitat colours onto a greyscale slice (label 0 stays transparent).
+    Paint habitat colours onto a greyscale slice (label 0 stays anatomy).
+
+    ``alpha=1`` replaces habitat voxels (opaque). Values in ``(0, 1)`` blend
+    as an explicit option.
 
     Args:
         grey: 2D float array in ``[0, 1]``.
@@ -409,8 +443,8 @@ def _prepare_overlay_slice(
     alpha: float,
     direction: Optional[np.ndarray],
     convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
-) -> np.ndarray:
-    """Normalize, orient, and blend one orthogonal slice to RGB."""
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Normalize, orient, and paint one orthogonal slice; return RGB + labels."""
     grey = _normalize_grey(_take_slice(image_vol, axis_id, slice_index))
     labs = _take_slice(label_int, axis_id, slice_index)
     grey = _orient_slice_for_display(
@@ -419,23 +453,25 @@ def _prepare_overlay_slice(
     labs = _orient_slice_for_display(
         labs, slice_axis=axis_id, direction=direction, convention=convention
     )
-    return _blend_overlay(grey, labs, alpha=float(alpha), colors=_HABITAT_COLORS)
+    rgb = _blend_overlay(grey, labs, alpha=float(alpha), colors=_HABITAT_COLORS)
+    return rgb, labs
 
 
 def plot_habitat_overlay(
     image: object,
     labels: object,
     *,
-    alpha: float = 0.45,
+    alpha: float = 1.0,
     title: Optional[str] = None,
     axis: Optional[int] = None,
     index: Optional[int] = None,
     direction: Optional[Sequence[float]] = None,
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+    contour: bool = True,
 ) -> "Figure":
     """
-    Draw habitat labels as a translucent colour overlay on the source image.
+    Draw habitat labels as an opaque colour overlay on the source image.
 
     For 3D volumes the default is a three-panel figure (orthogonal slices in
     NumPy axis order ``0 / 1 / 2``, i.e. SimpleITK ``(z, y, x)``). Each panel
@@ -463,7 +499,10 @@ def plot_habitat_overlay(
             order) or an :class:`~habit.api.image.ImageVolume`.
         labels: Habitat label map with the same shape as ``image``, or a
             :class:`~habit.contracts.habitat.HabitatMap`.
-        alpha: Habitat colour opacity in ``(0, 1]``.
+        alpha: Habitat colour opacity (default ``1.0`` = opaque inside
+            habitat voxels; anatomy stays grey outside). Use ``(0, 1)``
+            only for an explicit translucent blend.
+        contour: When True, outline non-background habitat voxels.
         title: Optional figure title (ASCII-sanitised).
         axis: If set, draw only this axis (``0``, ``1``, or ``2``).
         index: Slice index along ``axis``; densest habitat slice when omitted.
@@ -518,7 +557,7 @@ def plot_habitat_overlay(
                 f"plot_habitat_overlay: axis must be 0, 1, or 2; got {axis_id}."
             )
         slice_index = _slice_index(label_int, axis_id, index)
-        rgb = _prepare_overlay_slice(
+        rgb, labs = _prepare_overlay_slice(
             image_vol,
             label_int,
             axis_id=axis_id,
@@ -546,6 +585,8 @@ def plot_habitat_overlay(
             extent=extent,
             aspect="equal",
         )
+        if contour:
+            _draw_label_contour(ax, labs, extent=extent)
         ax.set_aspect("equal", adjustable="box")
         axis_name = ("axis-0", "axis-1", "axis-2")[axis_id] if image_vol.ndim == 3 else "2D"
         ax.set_title(
@@ -569,7 +610,7 @@ def plot_habitat_overlay(
     )
     for axis_id, ax in enumerate(axes):
         slice_index = _slice_index(label_int, axis_id, None)
-        rgb = _prepare_overlay_slice(
+        rgb, labs = _prepare_overlay_slice(
             image_vol,
             label_int,
             axis_id=axis_id,
@@ -593,6 +634,8 @@ def plot_habitat_overlay(
             extent=extent,
             aspect="equal",
         )
+        if contour:
+            _draw_label_contour(ax, labs, extent=extent)
         ax.set_aspect("equal", adjustable="box")
         ax.set_title(sanitize_label(f"{panel_names[axis_id]} @ {slice_index}"))
         ax.axis("off")

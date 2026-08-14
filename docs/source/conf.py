@@ -203,6 +203,9 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
+    # Generated at build time and pulled in via ``.. include::`` only.
+    "api/_generated_plugin_catalog.rst",
+    "how_to/_generated_catalog_*.rst",
 ]
 
 # Pygments highlighting style.
@@ -292,3 +295,33 @@ def _build_rst_epilog() -> str:
 
 
 rst_epilog = _build_rst_epilog()
+
+
+#: Habitat chooser page includes one generated catalog per scientific domain.
+_HABITAT_CHOOSER_DOMAINS: tuple[str, ...] = (
+    "voxel_feature_extractor",
+    "feature_preprocessing_method",
+    "supervoxelizer",
+    "supervoxel_feature_extractor",
+    "pooling",
+    "habitat_model_fitter",
+    "habitat_assigner",
+    "habitat_feature_extractor",
+)
+
+
+def _write_plugin_catalog_include() -> None:
+    """Regenerate the Spec/create catalog from live ``params_model`` schemas."""
+    from habit.api.plugins import format_plugin_catalog_rst
+
+    dest = Path(__file__).parent / "api" / "_generated_plugin_catalog.rst"
+    dest.write_text(format_plugin_catalog_rst(), encoding="utf-8")
+    how_to = Path(__file__).parent / "how_to"
+    for domain in _HABITAT_CHOOSER_DOMAINS:
+        (how_to / f"_generated_catalog_{domain}.rst").write_text(
+            format_plugin_catalog_rst(domain),
+            encoding="utf-8",
+        )
+
+
+_write_plugin_catalog_include()

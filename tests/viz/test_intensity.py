@@ -57,6 +57,29 @@ def test_plot_intensity_slice_single_panel_is_gray() -> None:
     plt.close(fig)
 
 
+def test_plot_intensity_slice_picks_slice_from_before_anatomy() -> None:
+    """Z-score |z| of air must not steal the plane; original anatomy does."""
+    image = np.zeros((6, 12, 10), dtype=np.float32)
+    image[3, :, :] = 80.0
+    processed = (image - float(image.mean())) / (float(image.std()) + 1e-6)
+    fig = plot_intensity_slice(
+        processed,
+        before=image,
+        axis=0,
+        image_label="Z-scored",
+        before_label="Original",
+    )
+    image_axes = [ax for ax in fig.axes if ax.images]
+    displayed = np.asarray(image_axes[0].images[0].get_array())
+    # Plane 3 is filled anatomy; air planes are 0. After z-score those
+    # zeros become a non-zero |z| and would win mass-based selection.
+    assert float(np.median(displayed)) > 40.0
+
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
 def test_plot_intensity_slice_before_after_two_panels() -> None:
     """Matching grids yield original | processed, both greyscale."""
     image, _mask = _synthetic_volume()
@@ -118,6 +141,48 @@ def test_plot_intensity_slice_independent_colorbars_native_units() -> None:
     assert "Intensity" in labels
     assert "Z-score" in labels
     assert labels.isascii(), labels
+
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_intensity_slice_windows_past_bright_tail() -> None:
+    """Air + dim tissue + rare hot voxels must not set vmax to the hot tail."""
+    rng = np.random.RandomState(1)
+    image = np.zeros((8, 80, 80), dtype=np.float32)
+    image[:, 15:65, 15:65] = rng.normal(100.0, 12.0, size=(8, 50, 50))
+    image[:, 36:40, 36:40] = 2500.0
+    fig = plot_intensity_slice(image, axis=0, index=4)
+    image_axes = [ax for ax in fig.axes if ax.images]
+    vmin, vmax = image_axes[0].images[0].get_clim()
+    assert vmax < 400.0
+    assert vmin < 90.0
+    assert vmax > 80.0
+    assert vmax > vmin
+
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_intensity_slice_symmetric_clim_is_signed() -> None:
+    """symmetric_clim windows the processed panel about zero."""
+    image, _mask = _synthetic_volume()
+    processed = (image - float(image.mean())) / (float(image.std()) + 1e-6)
+    fig = plot_intensity_slice(
+        processed,
+        before=image,
+        axis=0,
+        cmap="RdBu_r",
+        before_cmap="gray",
+        symmetric_clim=True,
+        colorbar_label="Z-score",
+    )
+    image_axes = [ax for ax in fig.axes if ax.images]
+    after_clim = image_axes[1].images[0].get_clim()
+    assert after_clim[0] < 0.0 < after_clim[1]
+    assert abs(after_clim[0] + after_clim[1]) < 1e-6
 
     import matplotlib.pyplot as plt
 

@@ -4,6 +4,13 @@ Spec, RunPolicy, and YAML isomorphism
 ``habit.spec`` is how designs are declared, fingerprinted, saved, migrated, and
 described — the same document shape as v1 YAML.
 
+``Spec("name", {params})`` uses the registered plugin name for that stage's
+domain. **Chooser (habitat stages, parameter meanings, and allowed values):**
+:doc:`../how_to/habitat_components`. The live list of names and parameters
+is generated from ``params_model`` — see :doc:`plugins` (do not hand-copy a
+table). ``Registry.create("bad_name")`` / ``get_plugin_info`` list the names
+that exist in that domain.
+
 ``Stage`` and ``HabitatSpec.stages`` (source of truth)
 ------------------------------------------------------
 
