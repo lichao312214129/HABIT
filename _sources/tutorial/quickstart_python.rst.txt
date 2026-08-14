@@ -179,13 +179,12 @@ Static matplotlib overlay of the same demo subject (no napari; needs
    from habit.viz import plot_habitat_overlay, use_style
 
    volume = cohort[0].image("LAP")
+   habitat_map = result.habitat_maps[0]
    with use_style("radiology"):
-       fig = plot_habitat_overlay(
-           volume.data,
-           result.habitat_maps[0].label_array,
-           spacing=volume.spacing,
-           direction=volume.direction,
-       )
+       # Pass ImageVolume + HabitatMap (not .data / label_array). Demo LAP
+       # image and ROI headers disagree on +z; HabitatMap keeps the mask
+       # direction so coronal/sagittal stay superior-up.
+       fig = plot_habitat_overlay(volume, habitat_map)
    # fig.savefig("habitat_overlay.png", dpi=200, bbox_inches="tight")
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
@@ -211,14 +210,10 @@ Append inside the same ``main()`` from step 1 (uses ``cohort`` /
 
    from habit.viz import view_habitat_napari
 
-   # Anatomy under LAP; habitat maps share the cohort geometry from step 1.
+   # Anatomy under LAP. Do not pass direction=volume.direction — that image
+   # header can flip coronal/sagittal relative to the ROI / HabitatMap.
    volume = cohort[0].image("LAP")
-   view_habitat_napari(
-       volume.data,
-       result.habitat_maps[0].label_array,
-       spacing=volume.spacing,
-       direction=volume.direction,
-   )
+   view_habitat_napari(volume, result.habitat_maps[0])
 
 Needs napari (:doc:`installation`). Blocks until you close the window.
 In napari, select the habitats Labels layer (Contour ``0`` = filled regions).

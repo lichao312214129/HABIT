@@ -238,8 +238,8 @@ Domain: ``habitat_feature_extractor``
    # Built-in graph topology family (not a private plugin).
    graph = HabitatFeatureExtractorRegistry.create(
        "graph",
-       edge_method="centroid_distance",
-       distance_threshold=5.0,
+       edge_method="adjacency",
+       adjacency_min_voxels=10,
    )
    non_rad = HabitatFeatureExtractorRegistry.create("non_radiomics")
    trad = HabitatFeatureExtractorRegistry.create("traditional")

@@ -613,8 +613,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -1735,8 +1735,10 @@
 <p>End-to-end: one subject → <code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code> with a <strong>fixed</strong>
 <code class="docutils literal notranslate"><span class="pre">n_habitats=10</span></code> (not <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>) →
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> → overlay +
-<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. Graph topology is a
-habitat-map feature family (same tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns under
+<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. By default an edge exists
+when two regions are <strong>adjacent</strong> and the contact (shared-boundary) voxel
+count is <strong>&gt;= 10</strong>. Graph topology is a habitat-map feature family (same
+tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns under
 <a class="reference internal" href="../reference/features/index.html"><span class="doc">Features from habitat maps</span></a>.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
@@ -1837,8 +1839,9 @@ see the how-to for the one-line 3D calls).</p>
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_3d.png"><img alt="Off-screen PyVista 3D graph with habitat-colored nodes" src="../_images/graph_habitat_network_3d.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Centroid nodes with intra- and inter-habitat edges
-(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">Region-centroid nodes with intra- and inter-habitat adjacency edges
+(contact voxels &gt;= 10;
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

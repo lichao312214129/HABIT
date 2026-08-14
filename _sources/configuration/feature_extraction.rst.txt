@@ -32,8 +32,8 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
    # Optional settings when feature_types includes graph (stripped before
    # FeatureExtractionConfig validation; see GraphFeatureBlock):
    # graph:
-   #   edge_method: centroid_distance
-   #   distance_threshold: 5.0
+   #   edge_method: adjacency
+   #   adjacency_min_voxels: 10
    #   visualize: false
 
    n_habitats:
@@ -127,9 +127,9 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Key extraction fields** (defaults in parentheses):
 
   - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)
-  - ``edge_method``: ``centroid_distance`` (default) or ``adjacency``
+  - ``edge_method``: ``adjacency`` (default) or ``centroid_distance``
   - ``distance_threshold`` (``5.0``, pixel units) — used by ``centroid_distance``
-  - ``adjacency_connectivity`` (``face``) / ``adjacency_min_voxels`` (``1``) — used by ``adjacency``
+  - ``adjacency_connectivity`` (``face``) / ``adjacency_min_voxels`` (``10``) — used by ``adjacency``. An edge exists when two regions are adjacent and the contact voxel count is >= 10.
   - ``edge_weight``: ``none`` | ``distance`` | ``inverse_distance`` | ``contact_voxels``
   - ``min_region_voxels`` (``1``), ``connectivity`` (``face`` | ``full``)
   - ``erosion_radius`` (``1``; ``0`` disables), ``subdivide_region_voxels`` (``1000``; ``0`` disables)

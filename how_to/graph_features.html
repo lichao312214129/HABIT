@@ -613,8 +613,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#notation-and-domains">Notation and domains</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance-default">Edges: centroid distance (default)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency">Edges: voxel adjacency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#single-habitat-metrics">Single-habitat metrics</a></li>
@@ -1756,8 +1756,9 @@ line per shell command (Windows / conda PowerShell):</p>
   <span class="o">-</span> <span class="n">graph</span>
 
 <span class="n">graph</span><span class="p">:</span>
-  <span class="n">edge_method</span><span class="p">:</span> <span class="n">centroid_distance</span>
-  <span class="n">distance_threshold</span><span class="p">:</span> <span class="mf">5.0</span>
+  <span class="n">edge_method</span><span class="p">:</span> <span class="n">adjacency</span>
+  <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">face</span>
+  <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="mi">10</span>
   <span class="n">erosion_radius</span><span class="p">:</span> <span class="mi">1</span>
   <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="mi">1000</span>
   <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
@@ -1773,6 +1774,11 @@ line per shell command (Windows / conda PowerShell):</p>
 <code class="docutils literal notranslate"><span class="pre">out_dir/visualizations/graph/</span></code> (2D needs <code class="docutils literal notranslate"><span class="pre">[viz]</span></code>; 3D also needs
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
 </ul>
+<p>By default an <strong>edge exists when two regions are adjacent</strong> (face-sharing
+voxels; <code class="docutils literal notranslate"><span class="pre">adjacency_connectivity:</span> <span class="pre">face</span></code>) <strong>and</strong> the contact
+(shared-boundary) voxel count is <strong>&gt;= 10</strong> (<code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels:</span> <span class="pre">10</span></code>).
+Use <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">centroid_distance</span></code> plus <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> if you
+want the older centroid-proximity rule instead.</p>
 <p>Parameter reference: <a class="reference internal" href="../configuration/feature_extraction.html"><span class="doc">Feature Extraction Configuration</span></a>.</p>
 </section>
 <section id="python-api">
@@ -1784,7 +1790,7 @@ line per shell command (Windows / conda PowerShell):</p>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Optional: <code class="docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions(distance_threshold=...)</span></code>, registry
+<p>Optional: <code class="docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions(adjacency_min_voxels=...)</span></code>, registry
 <code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).
