@@ -20,6 +20,7 @@ from habit.domain.habitat_features.compare import (
     HabitatFeatureComparison,
     HabitatFeaturePanel,
     compare_habitat_features,
+    to_graph_habitat_panel,
     to_habitat_feature_panel,
 )
 from habit.domain.habitat_features.each_habitat import (
@@ -68,6 +69,7 @@ __all__ = [
     "HabitatFeaturePanel",
     "HabitatFeatureComparison",
     "to_habitat_feature_panel",
+    "to_graph_habitat_panel",
     "compare_habitat_features",
     "HabitatVolumeFeatures",
     "HabitatVolumeFeaturesParams",

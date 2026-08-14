@@ -24,6 +24,7 @@ from habit.contracts.table import FeatureTable
 from habit.domain.habitat_features.compare import (
     HabitatFeaturePanel,
     compare_habitat_features,
+    to_graph_habitat_panel,
     to_habitat_feature_panel,
 )
 from habit.exceptions import HABITAPIError
@@ -185,3 +186,67 @@ def test_panel_passthrough() -> None:
     panel = to_habitat_feature_panel(_wide_cohort_table(n_subjects=3))
     assert to_habitat_feature_panel(panel) is panel
     assert isinstance(panel, HabitatFeaturePanel)
+
+
+def _graph_cohort_table(n_subjects: int = 6) -> FeatureTable:
+    """Wide graph table: single_h* node metrics plus one pair column."""
+    rows = []
+    for index in range(n_subjects):
+        row = {"subject": f"s{index:03d}"}
+        for hid, shift in ((1, 0.0), (2, 2.0), (3, 0.5)):
+            row[f"single_h{hid}_n_nodes"] = float(3 + shift + 0.1 * index)
+            row[f"single_h{hid}_edge_density"] = float(0.1 * hid)
+        row["pair_h1_h2_contact_voxels_sum"] = 12.0
+        row["habitat_1_voxel_count"] = 100.0
+        rows.append(row)
+    frame = pd.DataFrame(rows)
+    return FeatureTable(
+        frame=frame,
+        id_columns=("subject",),
+        feature_columns=tuple(c for c in frame.columns if c != "subject"),
+    )
+
+
+def test_to_graph_panel_melts_single_h_and_drops_pairs() -> None:
+    """single_h{id}_{metric} melts; pair_h* and habitat_* are ignored."""
+    table = _graph_cohort_table()
+    panel = to_graph_habitat_panel(table)
+    assert panel.n_subjects == 6
+    assert panel.habitat_ids == (1, 2, 3)
+    assert "n_nodes" in panel.feature_names
+    assert "edge_density" in panel.feature_names
+    assert "contact_voxels_sum" not in panel.feature_names
+    assert "voxel_count" not in panel.feature_names
+    assert panel.frame[panel.value_column].notna().all()
+
+
+def test_to_graph_panel_rejects_table_without_single_h() -> None:
+    """A radiomics-only table cannot be melted as graph node metrics."""
+    with pytest.raises(HABITAPIError, match="single_h"):
+        to_graph_habitat_panel(_wide_cohort_table(n_subjects=3))
+
+
+def test_graph_panel_compare_detects_shifted_habitat() -> None:
+    """Graph node metrics use the same paired contrast as radiomics."""
+    comparison = compare_habitat_features(to_graph_habitat_panel(_graph_cohort_table()))
+    pair = comparison.pairwise
+    nodes = pair[
+        (pair["feature"] == "n_nodes")
+        & (pair["habitat_a"] == 1)
+        & (pair["habitat_b"] == 2)
+    ]
+    assert len(nodes) == 1
+    assert float(nodes["effect"].iloc[0]) < 0.0
+
+
+def test_strongest_pair_matches_largest_mean_abs_effect() -> None:
+    """strongest_pair is the pair a reviewer figure should feature."""
+    comparison = compare_habitat_features(_wide_cohort_table(n_subjects=12, seed=3))
+    a, b = comparison.strongest_pair()
+    ranked = (
+        comparison.pairwise.assign(_abs=comparison.pairwise["effect"].abs())
+        .groupby(["habitat_a", "habitat_b"], sort=False)["_abs"]
+        .mean()
+        .sort_values(ascending=False)
+    )
+    assert (a, b) == (int(ranked.index[0][0]), int(ranked.index[0][1]))

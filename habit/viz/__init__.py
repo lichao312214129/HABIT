@@ -67,6 +67,7 @@ from habit.viz.habitat_features import (
     plot_habitat_feature_effect,
     plot_habitat_feature_heatmap,
     plot_habitat_feature_violin,
+    plot_habitat_graph_pair_matrix,
 )
 from habit.viz.labels import sanitize_label
 from habit.viz.regression import (
@@ -172,6 +173,7 @@ __all__ = [
     "plot_habitat_feature_effect",
     "plot_habitat_feature_violin",
     "plot_habitat_feature_bars",
+    "plot_habitat_graph_pair_matrix",
     # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",

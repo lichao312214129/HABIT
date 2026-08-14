@@ -329,6 +329,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "HabitatFeaturePanel",
         "HabitatFeatureComparison",
         "to_habitat_feature_panel",
+        "to_graph_habitat_panel",
         "compare_habitat_features",
     ),
     "domain.sklearn_interop": (
@@ -395,6 +396,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_habitat_feature_effect",
         "plot_habitat_feature_violin",
         "plot_habitat_feature_bars",
+        "plot_habitat_graph_pair_matrix",
         "rank_shap_feature_indices",
         "select_representative_sample_indices",
         "net_benefit",

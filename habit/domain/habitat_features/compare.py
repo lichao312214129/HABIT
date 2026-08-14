@@ -44,12 +44,16 @@ __all__ = [
     "HabitatFeaturePanel",
     "HabitatFeatureComparison",
     "to_habitat_feature_panel",
+    "to_graph_habitat_panel",
     "compare_habitat_features",
 ]
 
 #: Wide ``each_habitat`` columns: ``habitat_{id}_{feature}``.
 #: ``has_habitat_{id}`` does not match (different prefix).
 _WIDE_HABITAT_COLUMN = re.compile(r"^habitat_(\d+)_(.+)$")
+#: Per-habitat graph node metrics: ``single_h{id}_{metric}``.
+#: Pair columns ``pair_h*_h*`` do not match (they are habitat-pair valued).
+_SINGLE_GRAPH_COLUMN = re.compile(r"^single_h(\d+)_(.+)$")
 
 _DEFAULT_SUBJECT = "subject"
 _DEFAULT_HABITAT = "habitat"
@@ -217,6 +221,39 @@ class HabitatFeatureComparison:
         )
         return tuple(str(name) for name in ranked.index[: max(int(k), 0)])
 
+    def strongest_pair(self) -> Tuple[int, int]:
+        """
+        Return the habitat pair with the largest mean absolute effect.
+
+        This is the pair a reviewer figure should feature: one contrast,
+        ranked features, not an average over every pair.
+
+        Returns:
+            ``(habitat_a, habitat_b)`` as stored in ``pairwise``
+            (sorted emission order from :func:`compare_habitat_features`).
+
+        Raises:
+            HABITAPIError: If no finite effect sizes exist.
+        """
+        frame = self.pairwise
+        if frame.empty:
+            raise HABITAPIError(
+                "HabitatFeatureComparison.strongest_pair: pairwise table "
+                "is empty."
+            )
+        ranked = (
+            frame.assign(_abs=frame["effect"].abs())
+            .groupby(["habitat_a", "habitat_b"], sort=False)["_abs"]
+            .mean()
+            .sort_values(ascending=False)
+        )
+        if ranked.empty or not np.isfinite(float(ranked.iloc[0])):
+            raise HABITAPIError(
+                "HabitatFeatureComparison.strongest_pair: no finite "
+                "effect sizes."
+            )
+        return int(ranked.index[0][0]), int(ranked.index[0][1])
+
 
 def to_habitat_feature_panel(
     data: PanelInput,
@@ -298,31 +335,213 @@ def to_habitat_feature_panel(
             [subject, habitat_column, feature_column, value_column]
         ].copy()
     else:
-        parsed: List[Tuple[str, int, str]] = []
-        for name in candidate_columns:
-            match = _WIDE_HABITAT_COLUMN.match(str(name))
-            if match is None:
-                continue
-            parsed.append((str(name), int(match.group(1)), match.group(2)))
-        if not parsed:
-            raise HABITAPIError(
+        long_frame = _melt_wide_habitat_columns(
+            frame,
+            candidate_columns=candidate_columns,
+            subject=subject,
+            habitat_column=habitat_column,
+            feature_column=feature_column,
+            value_column=value_column,
+            pattern=_WIDE_HABITAT_COLUMN,
+            empty_message=(
                 "to_habitat_feature_panel found no columns matching "
                 "'habitat_{id}_{feature}'. Pass a wide each_habitat "
                 "FeatureTable or a long frame with habitat/feature/value."
-            )
-        pieces: List[pd.DataFrame] = []
-        for column, habitat_id, feature_name in parsed:
-            piece = pd.DataFrame(
-                {
-                    subject: frame[subject].to_numpy(),
-                    habitat_column: np.full(len(frame), habitat_id, dtype=int),
-                    feature_column: feature_name,
-                    value_column: pd.to_numeric(frame[column], errors="coerce"),
-                }
-            )
-            pieces.append(piece)
-        long_frame = pd.concat(pieces, ignore_index=True)
+            ),
+        )
 
+    return _panel_from_long_frame(
+        long_frame,
+        subject=subject,
+        habitat_column=habitat_column,
+        feature_column=feature_column,
+        value_column=value_column,
+        empty_message=(
+            "to_habitat_feature_panel: every habitat feature value is "
+            "NaN (no measured habitat)."
+        ),
+    )
+
+
+def to_graph_habitat_panel(
+    data: PanelInput,
+    *,
+    subject_column: Optional[str] = None,
+    habitat_column: str = _DEFAULT_HABITAT,
+    feature_column: str = _DEFAULT_FEATURE,
+    value_column: str = _DEFAULT_VALUE,
+) -> HabitatFeaturePanel:
+    """
+    Melt per-habitat graph columns ``single_h{id}_{metric}`` to a panel.
+
+    Default extract includes the ``graph`` family. Those node metrics are
+    already one value per habitat; they just use a different wide prefix
+    than ``each_habitat``. Melting them here lets
+    :func:`compare_habitat_features` and the habitat-feature figures argue
+    the same reviewer claim for topology: habitats differ, and the
+    difference is interpretable (node count, density, degree, ...).
+
+    Pair columns ``pair_h{a}_h{b}_{metric}`` are habitat-pair valued and
+    are ignored. Draw those with
+    :func:`~habit.viz.plot_habitat_graph_pair_matrix`.
+
+    NaN values are dropped (habitat absent / not measured), not filled
+    with zero.
+
+    Args:
+        data: :class:`~habit.contracts.FeatureTable`, a wide or long
+            DataFrame, or an existing panel.
+        subject_column: Subject id column. Defaults to the table's first
+            id column, or ``subject``.
+        habitat_column: Habitat id column name in a long frame, and in
+            the returned panel.
+        feature_column: Feature-name column in a long frame.
+        value_column: Numeric column in a long frame.
+
+    Returns:
+        A long :class:`HabitatFeaturePanel` of graph node metrics.
+
+    Raises:
+        HABITAPIError: If no ``single_h*`` columns can be found.
+    """
+    if isinstance(data, HabitatFeaturePanel):
+        return data
+
+    if isinstance(data, FeatureTable):
+        frame = data.frame.copy()
+        subject = (
+            subject_column
+            if subject_column is not None
+            else (data.id_columns[0] if data.id_columns else _DEFAULT_SUBJECT)
+        )
+        candidate_columns = list(data.feature_columns)
+    elif isinstance(data, pd.DataFrame):
+        frame = data.copy()
+        subject = (
+            subject_column if subject_column is not None else _DEFAULT_SUBJECT
+        )
+        candidate_columns = [
+            name
+            for name in frame.columns
+            if name
+            not in {subject, habitat_column, feature_column, value_column}
+        ]
+    else:
+        raise HABITAPIError(
+            "to_graph_habitat_panel expects a FeatureTable, DataFrame, "
+            f"or HabitatFeaturePanel; got {type(data).__name__}."
+        )
+
+    if subject not in frame.columns:
+        raise HABITAPIError(
+            f"to_graph_habitat_panel: subject column {subject!r} is "
+            f"missing. Present: {list(frame.columns)}."
+        )
+
+    long_ready = (
+        habitat_column in frame.columns
+        and feature_column in frame.columns
+        and value_column in frame.columns
+    )
+    if long_ready:
+        long_frame = frame[
+            [subject, habitat_column, feature_column, value_column]
+        ].copy()
+    else:
+        long_frame = _melt_wide_habitat_columns(
+            frame,
+            candidate_columns=candidate_columns,
+            subject=subject,
+            habitat_column=habitat_column,
+            feature_column=feature_column,
+            value_column=value_column,
+            pattern=_SINGLE_GRAPH_COLUMN,
+            empty_message=(
+                "to_graph_habitat_panel found no columns matching "
+                "'single_h{id}_{metric}'. Pair columns pair_h*_h* are "
+                "not melted; use plot_habitat_graph_pair_matrix."
+            ),
+        )
+
+    return _panel_from_long_frame(
+        long_frame,
+        subject=subject,
+        habitat_column=habitat_column,
+        feature_column=feature_column,
+        value_column=value_column,
+        empty_message=(
+            "to_graph_habitat_panel: every single-habitat graph value is "
+            "NaN (no measured habitat)."
+        ),
+    )
+
+
+def _melt_wide_habitat_columns(
+    frame: pd.DataFrame,
+    *,
+    candidate_columns: Sequence[str],
+    subject: str,
+    habitat_column: str,
+    feature_column: str,
+    value_column: str,
+    pattern: re.Pattern[str],
+    empty_message: str,
+) -> pd.DataFrame:
+    """
+    Melt wide ``prefix{id}_{feature}`` columns into a long frame.
+
+    Args:
+        frame: Wide table (one row per subject).
+        candidate_columns: Columns to parse.
+        subject: Subject id column name.
+        habitat_column: Output habitat column name.
+        feature_column: Output feature-name column name.
+        value_column: Output value column name.
+        pattern: Regex with groups ``(habitat_id, feature_name)``.
+        empty_message: Error when nothing matches.
+
+    Returns:
+        Long DataFrame with the four declared columns.
+
+    Raises:
+        HABITAPIError: If no column matches ``pattern``.
+    """
+    parsed: List[Tuple[str, int, str]] = []
+    for name in candidate_columns:
+        match = pattern.match(str(name))
+        if match is None:
+            continue
+        parsed.append((str(name), int(match.group(1)), match.group(2)))
+    if not parsed:
+        raise HABITAPIError(empty_message)
+    pieces: List[pd.DataFrame] = []
+    for column, habitat_id, feature_name in parsed:
+        piece = pd.DataFrame(
+            {
+                subject: frame[subject].to_numpy(),
+                habitat_column: np.full(len(frame), habitat_id, dtype=int),
+                feature_column: feature_name,
+                value_column: pd.to_numeric(frame[column], errors="coerce"),
+            }
+        )
+        pieces.append(piece)
+    return pd.concat(pieces, ignore_index=True)
+
+
+def _panel_from_long_frame(
+    long_frame: pd.DataFrame,
+    *,
+    subject: str,
+    habitat_column: str,
+    feature_column: str,
+    value_column: str,
+    empty_message: str,
+) -> HabitatFeaturePanel:
+    """
+    Drop non-finite values and wrap a long frame as a panel.
+
+    Absent habitats stay absent (NaN rows are removed, not zero-filled).
+    """
     values = pd.to_numeric(long_frame[value_column], errors="coerce")
     long_frame = long_frame.loc[values.notna()].copy()
     long_frame[value_column] = values.loc[values.notna()]
@@ -332,10 +551,7 @@ def to_habitat_feature_panel(
     long_frame[feature_column] = long_frame[feature_column].astype(str)
     long_frame[subject] = long_frame[subject].astype(str)
     if long_frame.empty:
-        raise HABITAPIError(
-            "to_habitat_feature_panel: every habitat feature value is "
-            "NaN (no measured habitat)."
-        )
+        raise HABITAPIError(empty_message)
     return HabitatFeaturePanel(
         frame=long_frame.reset_index(drop=True),
         subject_column=subject,
