@@ -546,6 +546,12 @@ def _is_label_like_volume(value: object) -> bool:
         return False
     if getattr(value, "label_array", None) is not None:
         return True
+    # VoxelFeatureField: same-shape align may restore the ROI mask direction
+    # onto the field; treat it as labelled anatomy for display conflicts.
+    if getattr(value, "voxel_index", None) is not None and getattr(
+        value, "feature_names", None
+    ) is not None:
+        return True
     if getattr(value, "roi_name", None) is not None:
         return True
     labels = getattr(value, "labels", None)

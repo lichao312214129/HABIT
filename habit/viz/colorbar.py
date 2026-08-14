@@ -329,6 +329,10 @@ def add_discrete_habitat_colorbar(
     if not ordered:
         return None
     mappable, ticks, ticklabels = discrete_habitat_mappable(ordered, colors)
+    n_habitats = len(ticks)
+    # Pass explicit boundaries so Colorbar draws flat blocks, not a
+    # linearly interpolated smear of the ListedColormap.
+    boundaries = [0.5 + float(index) for index in range(n_habitats + 1)]
     cbar = add_image_colorbar_from_spec(
         mappable,
         colorbar,
@@ -336,6 +340,9 @@ def add_discrete_habitat_colorbar(
         label=label,
         ticks=ticks,
         ticklabels=ticklabels,
+        boundaries=boundaries,
+        spacing="uniform",
+        drawedges=True,
         **defaults,
     )
     if cbar is not None:
