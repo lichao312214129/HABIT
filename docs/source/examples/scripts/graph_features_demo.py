@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-One subject → one-step habitats (K=5) → graph features + plots.
+One subject → one-step habitats (K=4) → graph features + plots.
 
-This gallery overrides the library defaults: fixed K=5 habitats and
-adjacency contact >= 5 voxels. Library defaults remain
+This gallery overrides the library defaults: fixed K=4 habitats and
+adjacency contact >= 2 voxels. Library defaults remain
 ``adjacency_min_voxels=10`` and ``erosion_radius=0``.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
@@ -30,14 +30,14 @@ MODALITIES = ("LAP",)
 ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
-# Fixed K=5 (not "auto") so the graph has a known number of habitats.
+# Fixed K=4 (not "auto") so the graph has a known number of habitats.
 # This example overrides the library default adjacency_min_voxels=10.
 result = one_step_habitat(
-    modalities=MODALITIES, n_habitats=5, random_seed=0, roi=ROI
+    modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
 ).fit_predict(cohort)
 
 labels = result.habitat_maps[0].label_array
-options = HabitatGraphFeatureOptions(adjacency_min_voxels=5)
+options = HabitatGraphFeatureOptions(adjacency_min_voxels=2)
 feats = extract_graph_features(labels, options=options)
 print(len(feats), "graph features")
 # END example
@@ -51,7 +51,7 @@ Path("out").mkdir(exist_ok=True)
 fig = plot_habitat_overlay(
     cohort[0].image(MODALITIES[0]),
     result.habitat_maps[0],
-    title="One-step habitats (K=5)",
+    title="One-step habitats (K=4)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
 # Same edge options as extract_graph_features so the 2D plot matches.

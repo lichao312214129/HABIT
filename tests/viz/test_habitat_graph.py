@@ -128,6 +128,10 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
             face_alpha = collection.get_alpha()
             if face_alpha is not None:
                 assert float(face_alpha) == pytest.approx(1.0)
+            if hasattr(collection, "get_sizes"):
+                sizes = np.asarray(collection.get_sizes(), dtype=float)
+                if sizes.size:
+                    assert np.allclose(sizes, sizes[0])
     fig.canvas.draw()
     cbar_labels = " ".join(ax.get_ylabel() for ax in cbar_axes)
     assert "Habitat" in cbar_labels

@@ -5,11 +5,11 @@ Graph features from habitat maps
 ``[view]`` for figures · **Time:** ~20–90 s
 
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
-``n_habitats=5`` (not ``"auto"``) →
+``n_habitats=4`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example **overrides**
 the library defaults (``adjacency_min_voxels=10``, ``erosion_radius=0``)
-to contact **>= 5** voxels via
+to contact **>= 2** voxels via
 :class:`~habit.HabitatGraphFeatureOptions`. By default there is **no
 erosion**; an edge exists when two regions are **adjacent** and the
 contact (shared-boundary) voxel count meets that threshold, measured on
@@ -22,8 +22,8 @@ Script
 ------
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
-(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=5** and
-sets ``adjacency_min_voxels=5`` (library default remains 10), then
+(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
+sets ``adjacency_min_voxels=2`` (library default remains 10), then
 extracts graph topology and draws the overlay plus the 2D network. Figures
 land under ``out/`` (swap that path too if you like).
 
@@ -51,10 +51,10 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (fixed ``n_habitats=5``, ``adjacency_min_voxels=5``; count
+Illustrative (fixed ``n_habitats=4``, ``adjacency_min_voxels=2``; count
 depends on the habitat map)::
 
-   808 graph features
+   537 graph features
 
 Anatomy with habitats
 ---------------------
@@ -94,7 +94,7 @@ see the how-to for the one-line 3D calls).
    :width: 520
 
    Region-centroid nodes with intra- and inter-habitat adjacency edges
-   (this example: contact voxels >= 5; library default is 10;
+   (this example: contact voxels >= 2; library default is 10;
    :func:`~habit.viz.render_habitat_graph_network_3d`).
 
 What to read next

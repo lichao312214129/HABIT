@@ -301,15 +301,8 @@ def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
     return {label: hexes[index] for index, label in enumerate(ordered)}
 
 
-def _node_sizes(
-    nodes: Sequence[HabitatGraphNode], base: float = 28.0, span: float = 90.0
-) -> np.ndarray:
-    """Scale 2D marker sizes by sqrt of region voxel count for readability."""
-    areas = np.asarray([max(1, n.voxel_count) for n in nodes], dtype=float)
-    if not areas.size:
-        return areas
-    scaled = np.sqrt(areas / areas.max())
-    return base + span * scaled
+#: Matplotlib scatter area (points^2) for every 2D graph node.
+_DEFAULT_NODE_SIZE: float = 64.0
 
 
 def _centroid_xy_display(node: HabitatGraphNode) -> Tuple[float, float]:
@@ -456,8 +449,21 @@ def _draw_nodes_2d(
     ax,
     nodes: Sequence[HabitatGraphNode],
     colors: Dict[int, str],
+    node_size: float = _DEFAULT_NODE_SIZE,
 ) -> None:
-    """Scatter 2D graph nodes at projected region centroids, colored by habitat."""
+    """
+    Scatter 2D graph nodes at projected region centroids, colored by habitat.
+
+    Every marker uses the same filled-dot area. Region voxel count is not
+    encoded in marker size so small blocks stay as readable as large ones.
+
+    Args:
+        ax: Target matplotlib axes.
+        nodes: Nodes to draw.
+        colors: Habitat label to hex colour mapping.
+        node_size: Matplotlib scatter area in points squared. The same
+            value is applied to every node.
+    """
     if not nodes:
         return
     xs = [_centroid_xy_display(n)[0] for n in nodes]
@@ -466,7 +472,7 @@ def _draw_nodes_2d(
     ax.scatter(
         xs,
         ys,
-        s=_node_sizes(nodes),
+        s=float(node_size),
         c=node_colors,
         # Dark rim, not white: a white edge on a small marker reads as a
         # pale / hollow node even when face alpha is 1.0.
@@ -553,6 +559,7 @@ def plot_habitat_graph_network_2d(
     show_background: bool = True,
     panel_size: float = 3.2,
     max_cols: int = 4,
+    node_size: float = _DEFAULT_NODE_SIZE,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
 ) -> Optional["Figure"]:
@@ -573,6 +580,8 @@ def plot_habitat_graph_network_2d(
             opaque; do not pass a translucent alpha for the regions.
         panel_size: Base panel edge length in inches.
         max_cols: Maximum number of panels per row in the grid.
+        node_size: Matplotlib scatter area in points squared applied to
+            every node (default ``64``). Voxel count does not scale markers.
         colorbar: Discrete habitat-ID colorbar on the combined-graph panel
             (default ``True``). Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
@@ -630,7 +639,7 @@ def plot_habitat_graph_network_2d(
             # Opaque intra-habitat edges (alpha=1); pale translucent strokes
             # made the 2D region network hard to read.
             _draw_edges_2d(ax, id_to_node, edges, _INTRA_EDGE_COLOR, 0.7, 1.0, 2)
-            _draw_nodes_2d(ax, sub, colors)
+            _draw_nodes_2d(ax, sub, colors, node_size=node_size)
             # Slice index lives on the figure title; keep panel titles short
             # so neighbouring H1 / H2 headings cannot run into each other.
             _style_axis_2d(
@@ -651,7 +660,7 @@ def plot_habitat_graph_network_2d(
         all_nodes = [
             node for label in labels for node in node_result.nodes_by_habitat[label]
         ]
-        _draw_nodes_2d(ax_cross, all_nodes, colors)
+        _draw_nodes_2d(ax_cross, all_nodes, colors, node_size=node_size)
         _style_axis_2d(
             ax_cross,
             label_2d,
