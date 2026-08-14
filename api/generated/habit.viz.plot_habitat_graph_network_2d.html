@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -612,6 +620,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1760,9 +1770,11 @@ rather than the full 3D volume.</p>
 <li><p><strong>options</strong> – Graph construction options shared with the feature extractor.</p></li>
 <li><p><strong>slice_index</strong> – Explicit axis-0 slice for 3D input; <code class="docutils literal notranslate"><span class="pre">None</span></code> selects the
 largest cross-section. Ignored for 2D input.</p></li>
-<li><p><strong>show_background</strong> – Whether to draw opaque habitat partitions behind
-the graph (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). Fills, nodes, and edges are
-opaque; do not pass a translucent alpha for the regions.</p></li>
+<li><p><strong>show_background</strong> – Whether to draw habitat partitions behind the
+graph (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). On H1–Hk panels the featured
+habitat is opaque and other habitats use alpha 0.2;
+background 0 stays undrawn. The All-habitats panel stays
+fully opaque. Featured-habitat nodes stay solid.</p></li>
 <li><p><strong>panel_size</strong> – Base panel edge length in inches.</p></li>
 <li><p><strong>max_cols</strong> – Maximum number of panels per row in the grid.</p></li>
 <li><p><strong>node_size</strong> – Matplotlib scatter area in points squared applied to

@@ -115,10 +115,10 @@ results and clustering curves)::
 
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
-**Also extract graph topology features** (built-in ``graph`` family — nodes,
-edges, and metrics from habitat maps). Add ``graph`` under ``feature_types``
-or follow :doc:`../how_to/graph_features`. Runnable demo + figures:
-:doc:`../examples/graph_features`.
+The demo extract YAML already includes the built-in ``graph`` family
+(nodes, edges, and metrics from habitat maps). Tune the optional
+``graph:`` block or follow :doc:`../how_to/graph_features`. Runnable demo
++ figures: :doc:`../examples/graph_features`.
 
 The ``habit extract`` / ``habit model`` steps need the **ML pack**
 (``ml_data.zip``). If you skipped it in step 2: |download_ml_data| — extract

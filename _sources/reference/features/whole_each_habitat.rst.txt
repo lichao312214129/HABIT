@@ -130,3 +130,9 @@ the full bank.
 ``compare_habitat_features(..., subject_id=...)`` restricts the panel
 first. Pairwise ``p_value`` / ``q_value`` are NaN when only one subject
 remains.
+
+Runnable real-data gallery (existing ``demo_data`` maps, first-order
+``each_habitat`` + default ``graph``, publication figures):
+:doc:`../../examples/habitat_feature_compare`. Graph topology columns
+(``single_h*`` / ``pair_h*_h*``) can share the joined table but do not
+melt through this API.

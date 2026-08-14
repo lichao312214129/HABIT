@@ -390,6 +390,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -613,6 +621,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1257,6 +1266,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1866,6 +1876,22 @@ d(u,v) &amp; \text{``distance''}\\
 \end{cases}\end{split}\]</div>
 <p><code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused for this method (stored as missing).</p>
 </section>
+<section id="edges-minimum-voxel-distance">
+<h3>Edges: minimum voxel distance<a class="headerlink" href="#edges-minimum-voxel-distance" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (opt-in; not the default). Reuses
+<code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> <span class="math notranslate nohighlight">\(\tau\)</span> (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code> voxel-index units).
+An undirected edge exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when the
+closest-point (Hausdorff-min) distance between their voxels satisfies</p>
+<div class="math notranslate nohighlight">
+\[d_{\min}(u,v)=\min_{p\in B_{u},\,q\in B_{v}}\|p-q\|_{2} \le \tau\]</div>
+<p>This is <strong>not</strong> centroid distance: two large regions can have nearby
+boundaries while their centroids are far apart. Implemented with a
+KD-tree over voxel indices (<code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code>). Single-habitat
+and pairwise (inter / optional intra) graphs follow the same structure
+as <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>. Edge weight uses <span class="math notranslate nohighlight">\(d_{\min}\)</span> when
+<code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> is <code class="docutils literal notranslate"><span class="pre">distance</span></code> or <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code>.
+<code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused (stored as missing).</p>
+</section>
 <section id="edges-voxel-adjacency-default">
 <h3>Edges: voxel adjacency (default)<a class="headerlink" href="#edges-voxel-adjacency-default" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> (default). Paint every node onto an integer id array
@@ -2135,10 +2161,10 @@ below match the kernel dataclass.</p>
 <td><p>Pairwise inter-habitat graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">adjacency</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">adjacency</span></code> (default), <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>, or <code class="docutils literal notranslate"><span class="pre">min_distance</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code></p></td>
-<td><p>Centroid distance threshold in <strong>voxel</strong> units (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code>)</p></td>
+<td><p>Distance threshold in <strong>voxel-index</strong> units (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code>). Used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> (centroid-to-centroid) and <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> (closest-voxel).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code></p></td>
 <td><p>For <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>: default <code class="docutils literal notranslate"><span class="pre">corner</span></code> (8-conn in 2-D / 26-conn in 3-D); <code class="docutils literal notranslate"><span class="pre">edge</span></code> (8/18); <code class="docutils literal notranslate"><span class="pre">face</span></code> (4/6) remains available</p></td>

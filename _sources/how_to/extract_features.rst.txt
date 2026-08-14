@@ -14,14 +14,15 @@ Run the demo
    habit extract --config config/feature_extraction/config_extract_features_demo.yaml
 
 Default ``feature_types``: light families (``volume``, ``msi``, ``ith_score``,
-``non_radiomics``). Heavy radiomics lines are commented in that YAML — uncomment
-when needed.
+``non_radiomics``, ``graph``). Heavy radiomics lines are commented in that
+YAML — uncomment when needed.
 
-**Also extract graph topology:** add ``graph`` to ``feature_types`` (built-in
-light family, peer to ``volume`` / ``msi`` / ``ith_score``). Dedicated how-to:
-:doc:`graph_features`. Gallery with demo_data figures:
-:doc:`../examples/graph_features`. Column reference:
-:doc:`../reference/features/graph`.
+``graph`` is a built-in light family (peer to ``volume`` / ``msi`` /
+``ith_score``). Dedicated how-to: :doc:`graph_features`. Gallery with
+demo_data figures: :doc:`../examples/graph_features`. Column reference:
+:doc:`../reference/features/graph`. Habitat-vs-habitat contrast of a wide
+``each_habitat`` table (graph stays on the same extract, but does not melt
+through that API): :doc:`../examples/habitat_feature_compare`.
 
 Your data
 ---------
@@ -44,4 +45,4 @@ Volume / MSI / ITH from the same maps (Python)::
    Volume fractions from the feature-extraction gallery
    (:func:`~habit.viz.plot_habitat_volume_fractions`).
 
-Next: :doc:`graph_features` (optional topology) or :doc:`train_model`.
+Next: :doc:`graph_features` (topology figures) or :doc:`train_model`.

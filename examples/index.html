@@ -390,6 +390,14 @@
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -613,6 +621,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1257,6 +1266,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1813,6 +1823,23 @@ publication figures.</p>
 <p><span class="caption-text">Habitat overlay from <a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+<p class="rubric">Featured: habitat-feature contrast</p>
+<p>Melt a wide <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table and contrast habitats across a real
+demo slice (heatmap, Cliff’s delta, violin, one-subject bars). <code class="docutils literal notranslate"><span class="pre">graph</span></code>
+is extracted with the default light set; topology columns stay on the
+table and do not enter the melt.</p>
+<ul class="simple">
+<li><p>How-to (YAML / CLI): <a class="reference internal" href="../how_to/extract_features.html"><span class="doc">Feature extraction</span></a></p></li>
+<li><p>Runnable example + gallery: <a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a></p></li>
+<li><p>Column reference: <a class="reference internal" href="../reference/features/whole_each_habitat.html"><span class="doc">Whole / Each Habitat Radiomics</span></a></p></li>
+</ul>
+<figure class="align-default" id="id4">
+<a class="reference external image-reference" href="habitat_feature_compare.html"><img alt="Cohort mean habitat-by-feature heatmap from the contrast example" src="../_images/habitat_feature_compare_heatmap.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cohort heatmap from <a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <p class="rubric">Featured: voxel texture maps</p>
 <p>Voxel-level <strong>texture</strong> (local entropy + a small GLCM set via
 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code>) overlaid on greyscale anatomy: opaque colours inside
@@ -1821,11 +1848,11 @@ the ROI, optional cyan contour.</p>
 <li><p>How-to: <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a></p></li>
 <li><p>Runnable example + gallery: <a class="reference internal" href="voxel_texture.html"><span class="doc">Voxel texture maps</span></a></p></li>
 </ul>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id5">
 <a class="reference external image-reference" href="voxel_texture.html"><img alt="Opaque local-entropy overlay on greyscale anatomy" src="../_images/voxel_texture_overlay.png" width="420" />
 </a>
 <figcaption>
-<p><span class="caption-text">Local-entropy overlay from <a class="reference internal" href="voxel_texture.html"><span class="doc">Voxel texture maps</span></a>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">Local-entropy overlay from <a class="reference internal" href="voxel_texture.html"><span class="doc">Voxel texture maps</span></a>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p class="rubric">All examples (flat)</p>
@@ -1849,6 +1876,7 @@ the ROI, optional cyan contour.</p>
 <li><p><a class="reference internal" href="precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a> — precise features</p></li>
 <li><p><a class="reference internal" href="custom_voxel_features.html"><span class="doc">DIY voxel features (expression + custom plugin)</span></a> — custom voxel features</p></li>
 <li><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a> — graph topology; one-step → extract → 2D/3D figures</p></li>
+<li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — real-data each_habitat + graph contrast figures</p></li>
 <li><p><a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a> — light families + radiomics extract recipes</p></li>
 <li><p><a class="reference internal" href="features_radiomics_api.html"><span class="doc">Feature extraction and traditional radiomics API</span></a> — radiomics features API</p></li>
 <li><p><a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a> — tabular ML</p></li>

@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -612,6 +620,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1760,10 +1770,10 @@ and example override <code class="docutils literal notranslate"><span class="pre
 are deprecated transitional loaders.</p>
 <section id="cli-yaml">
 <h2>CLI / YAML<a class="headerlink" href="#cli-yaml" title="Link to this heading"></a></h2>
-<p>List <code class="docutils literal notranslate"><span class="pre">graph</span></code> under <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> and optionally tune a top-level
-<code class="docutils literal notranslate"><span class="pre">graph:</span></code> block (validated as
-<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code>). One physical
-line per shell command (Windows / conda PowerShell):</p>
+<p>The shipped extract YAMLs already list <code class="docutils literal notranslate"><span class="pre">graph</span></code> in the default light
+<code class="docutils literal notranslate"><span class="pre">feature_types</span></code>. Optionally tune a top-level <code class="docutils literal notranslate"><span class="pre">graph:</span></code> block (validated
+as <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphFeatureBlock</span></code>). One
+physical line per shell command (Windows / conda PowerShell):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_extract_with_graph</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
@@ -1803,7 +1813,9 @@ measured on the habitat labels as drawn. Face (4/6) remains available via
 <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> to a positive integer if you want to shrink each
 habitat before building edges. Use <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">centroid_distance</span></code>
 plus <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> if you want the older centroid-proximity
-rule instead.</p>
+rule instead. <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">min_distance</span></code> reuses the same
+<code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> but connects regions when their <strong>closest voxels</strong>
+(not centroids) are within that distance.</p>
 <p>Parameter reference: <a class="reference internal" href="../configuration/feature_extraction.html"><span class="doc">Feature Extraction Configuration</span></a>.</p>
 </section>
 <section id="python-api">

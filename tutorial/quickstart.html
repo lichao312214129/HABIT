@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -612,6 +620,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1850,10 +1860,10 @@ results and clustering curves):</p>
 <span class="n">habit</span> <span class="n">extract</span> <span class="o">--</span><span class="n">config</span> <span class="n">config</span><span class="o">/</span><span class="n">feature_extraction</span><span class="o">/</span><span class="n">config_extract_features_demo</span><span class="o">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
-<p><strong>Also extract graph topology features</strong> (built-in <code class="docutils literal notranslate"><span class="pre">graph</span></code> family — nodes,
-edges, and metrics from habitat maps). Add <code class="docutils literal notranslate"><span class="pre">graph</span></code> under <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>
-or follow <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a>. Runnable demo + figures:
-<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>
+<p>The demo extract YAML already includes the built-in <code class="docutils literal notranslate"><span class="pre">graph</span></code> family
+(nodes, edges, and metrics from habitat maps). Tune the optional
+<code class="docutils literal notranslate"><span class="pre">graph:</span></code> block or follow <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a>. Runnable demo
++ figures: <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">extract</span></code> / <code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">model</span></code> steps need the <strong>ML pack</strong>
 (<code class="docutils literal notranslate"><span class="pre">ml_data.zip</span></code>). If you skipped it in step 2: <a class="reference external" href="https://pan.baidu.com/s/1qOmZJ3uDgkDKHpHGVRpcEA?pwd=atnp">Download ml_data.zip</a> — extract
 code: atnp. Extract so <code class="docutils literal notranslate"><span class="pre">demo_data/ml_data/</span></code> sits next to

@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -612,6 +620,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -2041,8 +2051,7 @@ demo YAML, as a Python <code class="docutils literal notranslate"><span class="p
                 <span class="s2">&quot;msi&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;ith_score&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;non_radiomics&quot;</span><span class="p">,</span>
-                <span class="c1"># Built-in graph topology (opt-in):</span>
-                <span class="c1"># &quot;graph&quot;,</span>
+                <span class="s2">&quot;graph&quot;</span><span class="p">,</span>
                 <span class="c1"># Heavy PyRadiomics (opt-in):</span>
                 <span class="c1"># &quot;traditional&quot;,</span>
                 <span class="c1"># &quot;whole_habitat&quot;,</span>
@@ -2057,10 +2066,9 @@ demo YAML, as a Python <code class="docutils literal notranslate"><span class="p
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Uncomment <code class="docutils literal notranslate"><span class="pre">&quot;graph&quot;</span></code> (or call
-<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>) to also extract habitat graph topology
-features — see <a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a> and
-<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;graph&quot;</span></code> is in the default light set (or call
+<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> on a label array). See
+<a class="reference internal" href="../how_to/graph_features.html"><span class="doc">Graph topology features</span></a> and <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>
 <p>Voxel <strong>texture</strong> maps (local entropy on anatomy + ROI) are a separate
 <code class="docutils literal notranslate"><span class="pre">habit.viz</span></code> path — see <a class="reference internal" href="../how_to/voxel_texture.html"><span class="doc">Voxel texture feature maps</span></a> and
 <a class="reference internal" href="../examples/voxel_texture.html"><span class="doc">Voxel texture maps</span></a>.</p>

@@ -65,10 +65,11 @@ Primary entry: :meth:`~habit.recipes.Study.fit_predict`.
            Stage("quantify2", Spec("msi")),
            Stage("quantify3", Spec("ith_score")),
            Stage("quantify4", Spec("non_radiomics")),
+           Stage("quantify5", Spec("graph")),
            # Heavy PyRadiomics families (opt-in; require pyradiomics):
-           # Stage("quantify5", Spec("traditional")),
-           # Stage("quantify6", Spec("whole_habitat")),
-           # Stage("quantify7", Spec("each_habitat")),
+           # Stage("quantify6", Spec("traditional")),
+           # Stage("quantify7", Spec("whole_habitat")),
+           # Stage("quantify8", Spec("each_habitat")),
        ),
        random_seed=42,
    )
@@ -148,6 +149,7 @@ Sugar form (same two-step science as above)::
            Spec("msi"),
            Spec("ith_score"),
            Spec("non_radiomics"),
+           Spec("graph"),
        ),
        random_seed=42,
    )

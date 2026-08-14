@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -612,6 +620,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1755,13 +1765,14 @@
 </pre></div>
 </div>
 <p>Default <code class="docutils literal notranslate"><span class="pre">feature_types</span></code>: light families (<code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">msi</span></code>, <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>,
-<code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>). Heavy radiomics lines are commented in that YAML — uncomment
-when needed.</p>
-<p><strong>Also extract graph topology:</strong> add <code class="docutils literal notranslate"><span class="pre">graph</span></code> to <code class="docutils literal notranslate"><span class="pre">feature_types</span></code> (built-in
-light family, peer to <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code> / <code class="docutils literal notranslate"><span class="pre">ith_score</span></code>). Dedicated how-to:
-<a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a>. Gallery with demo_data figures:
-<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>. Column reference:
-<a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">non_radiomics</span></code>, <code class="docutils literal notranslate"><span class="pre">graph</span></code>). Heavy radiomics lines are commented in that
+YAML — uncomment when needed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">graph</span></code> is a built-in light family (peer to <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code> /
+<code class="docutils literal notranslate"><span class="pre">ith_score</span></code>). Dedicated how-to: <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a>. Gallery with
+demo_data figures: <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>. Column reference:
+<a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a>. Habitat-vs-habitat contrast of a wide
+<code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table (graph stays on the same extract, but does not melt
+through that API): <a class="reference internal" href="../examples/habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a>.</p>
 </section>
 <section id="your-data">
 <h2>Your data<a class="headerlink" href="#your-data" title="Link to this heading"></a></h2>
@@ -1782,7 +1793,7 @@ light family, peer to <code class="docutils literal notranslate"><span class="pr
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_volume_fractions.html#habit.viz.plot_habitat_volume_fractions" title="habit.viz.plot_habitat_volume_fractions"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_volume_fractions()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p>Next: <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a> (optional topology) or <a class="reference internal" href="train_model.html"><span class="doc">Machine learning</span></a>.</p>
+<p>Next: <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a> (topology figures) or <a class="reference internal" href="train_model.html"><span class="doc">Machine learning</span></a>.</p>
 </section>
 </section>
 

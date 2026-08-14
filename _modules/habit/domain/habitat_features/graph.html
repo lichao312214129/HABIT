@@ -742,6 +742,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -965,6 +973,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1609,6 +1618,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -2146,9 +2156,13 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: Compute pairwise inter-habitat region graphs.</span>
     <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="c1">#: Rule used to identify graph edges. Default ``&quot;adjacency&quot;``: connect</span>
-    <span class="c1">#: regions that share a boundary.</span>
-    <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span>
-    <span class="c1">#: Centroid distance threshold in pixel units.</span>
+    <span class="c1">#: regions that share a boundary. ``&quot;min_distance&quot;`` connects regions</span>
+    <span class="c1">#: whose closest voxels are within ``distance_threshold``.</span>
+    <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;adjacency&quot;</span>
+    <span class="p">)</span>
+    <span class="c1">#: Distance threshold in voxel-index units. Used by ``centroid_distance``</span>
+    <span class="c1">#: (centroid-to-centroid) and ``min_distance`` (closest-voxel).</span>
     <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="c1">#: Neighbor definition for the ``&quot;adjacency&quot;`` edge method. Default</span>
     <span class="c1">#: ``&quot;corner&quot;`` = 8-connectivity in 2D / 26-connectivity in 3D.</span>
@@ -2211,7 +2225,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    neighborhood). Pass ``face`` on both fields for 4/6-connectivity.</span>
 <span class="sd">    Pass a positive ``erosion_radius`` to shrink habitats before edges. The</span>
 <span class="sd">    alternative ``centroid_distance`` method connects centroids</span>
-<span class="sd">    within ``distance_threshold``. NetworkX-derived topology</span>
+<span class="sd">    within ``distance_threshold``. ``min_distance`` connects regions when</span>
+<span class="sd">    the closest voxels (not the centroids) are within the same</span>
+<span class="sd">    ``distance_threshold``. NetworkX-derived topology</span>
 <span class="sd">    metrics are reported per habitat (``single_h*`` columns) and per habitat</span>
 <span class="sd">    pair (``pair_h*_h*`` columns), covering degree/edge counts, density,</span>
 <span class="sd">    components, modularity, clustering, path length, betweenness, assortativity,</span>
@@ -2233,7 +2249,9 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span>
+        <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+            <span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span> <span class="s2">&quot;min_distance&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span>
         <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
         <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span><span class="p">,</span>
         <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>

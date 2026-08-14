@@ -19,10 +19,10 @@ are deprecated transitional loaders.
 CLI / YAML
 ----------
 
-List ``graph`` under ``feature_types`` and optionally tune a top-level
-``graph:`` block (validated as
-:class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`). One physical
-line per shell command (Windows / conda PowerShell)::
+The shipped extract YAMLs already list ``graph`` in the default light
+``feature_types``. Optionally tune a top-level ``graph:`` block (validated
+as :class:`~habit.schemas.workflows.habitat.GraphFeatureBlock`). One
+physical line per shell command (Windows / conda PowerShell)::
 
    habit extract --config path/to/your_extract_with_graph.yaml
 
@@ -62,7 +62,9 @@ measured on the habitat labels as drawn. Face (4/6) remains available via
 ``erosion_radius`` to a positive integer if you want to shrink each
 habitat before building edges. Use ``edge_method: centroid_distance``
 plus ``distance_threshold`` if you want the older centroid-proximity
-rule instead.
+rule instead. ``edge_method: min_distance`` reuses the same
+``distance_threshold`` but connects regions when their **closest voxels**
+(not centroids) are within that distance.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 

@@ -284,8 +284,7 @@ demo YAML, as a Python ``dict`` (still no config file).
                    "msi",
                    "ith_score",
                    "non_radiomics",
-                   # Built-in graph topology (opt-in):
-                   # "graph",
+                   "graph",
                    # Heavy PyRadiomics (opt-in):
                    # "traditional",
                    # "whole_habitat",
@@ -299,10 +298,9 @@ demo YAML, as a Python ``dict`` (still no config file).
    if __name__ == "__main__":
        main()
 
-Uncomment ``"graph"`` (or call
-:func:`~habit.extract_graph_features`) to also extract habitat graph topology
-features — see :doc:`../how_to/graph_features` and
-:doc:`../examples/graph_features`.
+``"graph"`` is in the default light set (or call
+:func:`~habit.extract_graph_features` on a label array). See
+:doc:`../how_to/graph_features` and :doc:`../examples/graph_features`.
 
 Voxel **texture** maps (local entropy on anatomy + ROI) are a separate
 ``habit.viz`` path — see :doc:`../how_to/voxel_texture` and

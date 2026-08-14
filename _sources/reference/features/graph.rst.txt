@@ -139,6 +139,26 @@ Edge weight ``w`` from ``edge_weight``:
 
 ``contact_voxels`` is unused for this method (stored as missing).
 
+Edges: minimum voxel distance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``edge_method='min_distance'`` (opt-in; not the default). Reuses
+``distance_threshold`` :math:`\tau` (default ``5.0`` voxel-index units).
+An undirected edge exists between distinct nodes :math:`u,v` when the
+closest-point (Hausdorff-min) distance between their voxels satisfies
+
+.. math::
+
+   d_{\min}(u,v)=\min_{p\in B_{u},\,q\in B_{v}}\|p-q\|_{2} \le \tau
+
+This is **not** centroid distance: two large regions can have nearby
+boundaries while their centroids are far apart. Implemented with a
+KD-tree over voxel indices (``scipy.spatial.cKDTree``). Single-habitat
+and pairwise (inter / optional intra) graphs follow the same structure
+as ``centroid_distance``. Edge weight uses :math:`d_{\min}` when
+``edge_weight`` is ``distance`` or ``inverse_distance``.
+``contact_voxels`` is unused (stored as missing).
+
 Edges: voxel adjacency (default)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -439,9 +459,9 @@ below match the kernel dataclass.
    * - ``include_pairwise_habitat_graph``
      - Pairwise inter-habitat graphs (default ``true``)
    * - ``edge_method``
-     - ``adjacency`` (default) or ``centroid_distance``
+     - ``adjacency`` (default), ``centroid_distance``, or ``min_distance``
    * - ``distance_threshold``
-     - Centroid distance threshold in **voxel** units (default ``5.0``)
+     - Distance threshold in **voxel-index** units (default ``5.0``). Used by ``centroid_distance`` (centroid-to-centroid) and ``min_distance`` (closest-voxel).
    * - ``adjacency_connectivity``
      - For ``adjacency``: default ``corner`` (8-conn in 2-D / 26-conn in 3-D); ``edge`` (8/18); ``face`` (4/6) remains available
    * - ``adjacency_min_voxels``

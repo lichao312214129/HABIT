@@ -742,6 +742,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -965,6 +973,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1609,6 +1618,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -2121,6 +2131,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">feature extractor (:func:`habit.kernels.habitat_graph.extract_habitat_nodes`</span>
 <span class="sd">with erosion / subdivision / connectivity, and</span>
 <span class="sd">:func:`~habit.kernels.habitat_graph.build_centroid_distance_graph` /</span>
+<span class="sd">:func:`~habit.kernels.habitat_graph.build_min_distance_graph` /</span>
 <span class="sd">:func:`~habit.kernels.habitat_graph.build_adjacency_graph` with the configured</span>
 <span class="sd">parameters), so the drawn graph matches the measured features. The 2D network</span>
 <span class="sd">figure is built from the representative cross-section so the overlay matches</span>
@@ -2142,6 +2153,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">build_adjacency_graph</span><span class="p">,</span>
     <span class="n">build_centroid_distance_graph</span><span class="p">,</span>
+    <span class="n">build_min_distance_graph</span><span class="p">,</span>
     <span class="n">extract_habitat_nodes</span><span class="p">,</span>
     <span class="n">iter_label_pairs</span><span class="p">,</span>
 <span class="p">)</span>
@@ -2306,6 +2318,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
             <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
         <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span> <span class="ow">and</span> <span class="n">node_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label</span><span class="p">,),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+            <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
             <span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
@@ -2331,6 +2351,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
             <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
             <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
+            <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+            <span class="n">include_intra_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+            <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">),</span>
+            <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+            <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
             <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
             <span class="n">include_intra_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
@@ -2402,6 +2431,13 @@ window.runMermaid = runMermaid;</script>
 
 <span class="c1">#: Matplotlib scatter area (points^2) for every 2D graph node.</span>
 <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">64.0</span>
+<span class="c1">#: Publication-readable type sizes for the multi-panel 2D network figure.</span>
+<span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">11.5</span>
+<span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
+<span class="n">_FIG_LEGEND_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
+<span class="c1">#: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured</span>
+<span class="c1">#: habitat stays 1.0; the All-habitats panel stays fully opaque.</span>
+<span class="n">_OTHER_HABITAT_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_centroid_xy_display</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">HabitatGraphNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
@@ -2440,37 +2476,47 @@ window.runMermaid = runMermaid;</script>
     <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">colors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
     <span class="n">show_background</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">featured_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw spatial context behind 2D network graphs.</span>
 
-<span class="sd">    When ``colors`` is provided, each habitat partition is painted opaque</span>
-<span class="sd">    (same palette as the slice figure). Otherwise a solid gray tissue</span>
-<span class="sd">    silhouette is drawn. Transparency is never used: pale / washed-out</span>
-<span class="sd">    fills made the 2D region network unreadable.</span>
+<span class="sd">    When ``colors`` is provided, each habitat partition is painted with the</span>
+<span class="sd">    same palette as the slice figure. Background ``0`` is left transparent</span>
+<span class="sd">    (not drawn). On a per-habitat panel, pass ``featured_label`` so that</span>
+<span class="sd">    habitat stays opaque (alpha=1) while every other habitat is drawn at</span>
+<span class="sd">    ``_OTHER_HABITAT_ALPHA`` (0.2). The All-habitats panel omits</span>
+<span class="sd">    ``featured_label`` so every habitat stays fully opaque.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Target matplotlib axes.</span>
+<span class="sd">        label_2d: 2D habitat label map (background encoded as 0).</span>
+<span class="sd">        colors: Habitat label to hex colour mapping, or ``None`` for a</span>
+<span class="sd">            gray tissue silhouette.</span>
+<span class="sd">        show_background: When ``False``, nothing is drawn.</span>
+<span class="sd">        featured_label: Habitat id to keep opaque on a per-habitat panel.</span>
+<span class="sd">            ``None`` paints every habitat at alpha 1 (All-habitats panel).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">show_background</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ListedColormap</span><span class="p">,</span> <span class="n">to_rgba</span>
 
     <span class="k">if</span> <span class="n">colors</span><span class="p">:</span>
         <span class="n">ordered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">display</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">label_2d</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">new_value</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ordered</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">display</span><span class="p">[</span><span class="n">label_2d</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
-        <span class="n">overlay</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">display</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">display</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-        <span class="n">habitat_cmap</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">([</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-            <span class="n">overlay</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="n">habitat_cmap</span><span class="p">,</span>
-            <span class="n">vmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">vmax</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ordered</span><span class="p">),</span>
-            <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-            <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">rgba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">label_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">label_2d</span> <span class="o">==</span> <span class="n">label</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">1.0</span>
+                <span class="k">if</span> <span class="n">featured_label</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">featured_label</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">_OTHER_HABITAT_ALPHA</span>
+            <span class="p">)</span>
+            <span class="n">rgba</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_rgba</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgba</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">silhouette</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">label_2d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
@@ -2679,9 +2725,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        options: Graph construction options shared with the feature extractor.</span>
 <span class="sd">        slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the</span>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
-<span class="sd">        show_background: Whether to draw opaque habitat partitions behind</span>
-<span class="sd">            the graph (default ``True``). Fills, nodes, and edges are</span>
-<span class="sd">            opaque; do not pass a translucent alpha for the regions.</span>
+<span class="sd">        show_background: Whether to draw habitat partitions behind the</span>
+<span class="sd">            graph (default ``True``). On H1--Hk panels the featured</span>
+<span class="sd">            habitat is opaque and other habitats use alpha 0.2;</span>
+<span class="sd">            background 0 stays undrawn. The All-habitats panel stays</span>
+<span class="sd">            fully opaque. Featured-habitat nodes stay solid.</span>
 <span class="sd">        panel_size: Base panel edge length in inches.</span>
 <span class="sd">        max_cols: Maximum number of panels per row in the grid.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared applied to</span>
@@ -2713,10 +2761,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">n_panels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_cols</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_panels</span><span class="p">))</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n_panels</span> <span class="o">/</span> <span class="n">cols</span><span class="p">))</span>
-    <span class="c1"># Extra width + bottom room so short titles and the legend cannot collide</span>
-    <span class="c1"># when many habitats share one row (the previous long titles did).</span>
-    <span class="n">fig_width</span> <span class="o">=</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.12</span>
-    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">0.85</span>
+    <span class="c1"># Extra width + bottom room so short titles and the larger figlegend</span>
+    <span class="c1"># cannot collide when many habitats share one row.</span>
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.18</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">1.15</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
             <span class="n">rows</span><span class="p">,</span>
@@ -2726,10 +2774,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">set_constrained_layout_pads</span><span class="p">(</span>
-            <span class="n">w_pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
-            <span class="n">h_pad</span><span class="o">=</span><span class="mf">0.06</span><span class="p">,</span>
-            <span class="n">wspace</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
-            <span class="n">hspace</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span>
+            <span class="n">w_pad</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">h_pad</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span>
+            <span class="n">wspace</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>
+            <span class="n">hspace</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">ax</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">axes</span> <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">[</span><span class="n">n_panels</span><span class="p">:]:</span>
@@ -2738,7 +2786,9 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes_list</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
             <span class="n">sub</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
-            <span class="n">_draw_background_2d</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">show_background</span><span class="p">)</span>
+            <span class="n">_draw_background_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">show_background</span><span class="p">,</span> <span class="n">featured_label</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">edges</span> <span class="o">=</span> <span class="n">_single_intra_edges</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">node_result</span><span class="p">)</span>
             <span class="c1"># Opaque intra-habitat edges (alpha=1); pale translucent strokes</span>
             <span class="c1"># made the 2D region network hard to read.</span>
@@ -2750,8 +2800,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">ax</span><span class="p">,</span>
                 <span class="n">label_2d</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span><span class="si">}</span><span class="s2">, e=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-                <span class="n">title_fontsize</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span>
-                <span class="n">title_pad</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
+                <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">ax_cross</span> <span class="o">=</span> <span class="n">axes_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">_draw_background_2d</span><span class="p">(</span><span class="n">ax_cross</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">show_background</span><span class="p">)</span>
@@ -2769,16 +2819,19 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="n">label_2d</span><span class="p">,</span>
             <span class="s2">&quot;All habitats&quot;</span><span class="p">,</span>
-            <span class="n">title_fontsize</span><span class="o">=</span><span class="mf">7.5</span><span class="p">,</span>
-            <span class="n">title_pad</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+            <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
+            <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">add_discrete_habitat_colorbar</span><span class="p">(</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">add_discrete_habitat_colorbar</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">),</span>
             <span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">)],</span>
             <span class="n">colorbar</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span>
             <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
         <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">Line2D</span><span class="p">(</span>
                 <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">_INTER_EDGE_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Inter-habitat edge&quot;</span>
@@ -2787,9 +2840,15 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">_INTRA_EDGE_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Intra-habitat edge&quot;</span>
             <span class="p">),</span>
         <span class="p">]</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
+            <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_FIG_LEGEND_FONTSIZE</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;2D habitat graphs from representative cross-section (slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;2D habitat graphs from representative cross-section (slice </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 

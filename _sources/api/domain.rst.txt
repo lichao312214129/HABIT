@@ -99,6 +99,7 @@ Compose the subject-level chain into one callable (HABIT's typed Compose):
 .. code-block:: python
 
    from habit.domain import (
+       GraphHabitatFeatures,
        HabitatVolumeFeatures,
        IthHabitatFeatures,
        MsiHabitatFeatures,
@@ -121,6 +122,7 @@ Compose the subject-level chain into one callable (HABIT's typed Compose):
            MsiHabitatFeatures(),
            IthHabitatFeatures(),
            NonRadiomicsHabitatFeatures(),
+           GraphHabitatFeatures(),
            # Heavy PyRadiomics families (opt-in; require pyradiomics):
            # TraditionalRadiomicsHabitatFeatures(),
            # WholeHabitatRadiomicsFeatures(),
