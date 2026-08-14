@@ -256,8 +256,9 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1287,10 +1288,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1407,6 +1411,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -1627,9 +1632,11 @@
 PyRadiomics for GLCM · <strong>Time:</strong> ~10–90 s</p>
 <p>End-to-end: one subject → <code class="xref py py-func docutils literal notranslate"><span class="pre">local_entropy_map()</span></code> plus a small
 <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> GLCM set → <a class="reference internal" href="../api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_voxel_texture_slice()</span></code></a>.</p>
-<p>Default <code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code>: anatomy + ROI contour | texture map
-(no alpha blend on anatomy). The script shows <code class="docutils literal notranslate"><span class="pre">VoxelFeatureExtractorRegistry.create</span></code>
-for a small GLCM set — edit <code class="docutils literal notranslate"><span class="pre">featureClass</span></code> for more columns.</p>
+<p>Default <code class="docutils literal notranslate"><span class="pre">mode=&quot;overlay&quot;</span></code>: greyscale anatomy, <strong>opaque</strong> feature colours
+inside the ROI, optional cyan contour. Pass <code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> when you
+also want a sibling raw-anatomy panel. The script shows
+<code class="docutils literal notranslate"><span class="pre">VoxelFeatureExtractorRegistry.create</span></code> for a small GLCM set — edit
+<code class="docutils literal notranslate"><span class="pre">featureClass</span></code> for more columns.</p>
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITY</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree. Figures
@@ -1675,6 +1682,10 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_entropy.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/voxel_texture_entropy.png&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span><span class="n">entropy</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;side_by_side&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_entropy_side_by_side.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/voxel_texture_entropy_side_by_side.png&quot;</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_voxel_texture_slice</span><span class="p">(</span><span class="n">glcm</span><span class="p">,</span> <span class="n">feature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/voxel_texture_glcm_contrast.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
@@ -1689,37 +1700,49 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_entropy</span><span class="o">.</span><span class="n">png</span>
+<span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_entropy_side_by_side</span><span class="o">.</span><span class="n">png</span>
 <span class="n">Wrote</span> <span class="n">out</span><span class="o">/</span><span class="n">voxel_texture_glcm_contrast</span><span class="o">.</span><span class="n">png</span>
 </pre></div>
 </div>
 </section>
-<section id="local-entropy-anatomy-texture">
-<h2>Local entropy (anatomy | texture)<a class="headerlink" href="#local-entropy-anatomy-texture" title="Link to this heading"></a></h2>
+<section id="local-entropy-on-anatomy">
+<h2>Local entropy on anatomy<a class="headerlink" href="#local-entropy-on-anatomy" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/voxel_texture_side_by_side.png"><img alt="Anatomy with ROI contour beside local-entropy map" src="../_images/voxel_texture_side_by_side.png" width="720" />
+<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="Opaque local-entropy overlay on greyscale anatomy" src="../_images/voxel_texture_overlay.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Left: greyscale anatomy with ROI outline. Right: local entropy inside the ROI.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Default overlay: grey anatomy outside the ROI, opaque entropy colours
+inside, cyan ROI contour.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
-<section id="glcm-contrast-anatomy-texture">
-<h2>GLCM Contrast (anatomy | texture)<a class="headerlink" href="#glcm-contrast-anatomy-texture" title="Link to this heading"></a></h2>
+<section id="sibling-anatomy-panel">
+<h2>Sibling anatomy panel<a class="headerlink" href="#sibling-anatomy-panel" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/voxel_texture_overlay.png"><img alt="Anatomy with ROI contour beside GLCM Contrast map" src="../_images/voxel_texture_overlay.png" width="720" />
+<a class="reference internal image-reference" href="../_images/voxel_texture_side_by_side.png"><img alt="Anatomy with ROI contour beside local-entropy map" src="../_images/voxel_texture_side_by_side.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Same layout for a densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> GLCM Contrast column.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">mode=&quot;side_by_side&quot;</span></code> when you also want the raw image as its own panel.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="glcm-contrast-on-anatomy">
+<h2>GLCM Contrast on anatomy<a class="headerlink" href="#glcm-contrast-on-anatomy" title="Link to this heading"></a></h2>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/voxel_texture_glcm_overlay.png"><img alt="Opaque GLCM Contrast overlay on greyscale anatomy" src="../_images/voxel_texture_glcm_overlay.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Same default overlay for a densified <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> GLCM Contrast column.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="orthogonal-local-entropy">
 <h2>Orthogonal local entropy<a class="headerlink" href="#orthogonal-local-entropy" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/voxel_texture_orthogonal.png"><img alt="Orthogonal local-entropy side-by-side panels" src="../_images/voxel_texture_orthogonal.png" width="520" />
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/voxel_texture_orthogonal.png"><img alt="Orthogonal local-entropy overlays on anatomy" src="../_images/voxel_texture_orthogonal.png" width="520" />
 </a>
 <figcaption>
-<p><span class="caption-text">Three orthogonal planes (anatomy + contour | entropy) when <code class="docutils literal notranslate"><span class="pre">axis</span></code> is omitted.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Three orthogonal planes (opaque overlay + contour) when <code class="docutils literal notranslate"><span class="pre">axis</span></code> is omitted.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

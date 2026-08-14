@@ -609,8 +609,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1640,10 +1641,13 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1760,6 +1764,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -2262,6 +2267,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.contracts.Outcome.html#habit.contracts.Outcome.__init__">(Outcome method)</a>
 </li>
         <li><a href="api/generated/habit.domain.PerturbationChain.html#habit.domain.PerturbationChain.__init__">(PerturbationChain method)</a>
+</li>
+        <li><a href="api/generated/habit.api.plugins.PluginCatalogEntry.html#habit.api.plugins.PluginCatalogEntry.__init__">(PluginCatalogEntry method)</a>
 </li>
         <li><a href="api/generated/habit.api.plugins.PluginInfo.html#habit.api.plugins.PluginInfo.__init__">(PluginInfo method)</a>
 </li>
@@ -3098,6 +3105,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.StatisticalTestSelectorParams.html#habit.domain.StatisticalTestSelectorParams.force_test">force_test (StatisticalTestSelectorParams attribute)</a>
 </li>
+      <li><a href="api/generated/habit.api.plugins.format_plugin_catalog_rst.html#habit.api.plugins.format_plugin_catalog_rst">format_plugin_catalog_rst() (in module habit.api.plugins)</a>
+</li>
       <li><a href="api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable.frame">frame (FeatureTable attribute)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Geometry.html#habit.contracts.Geometry.frame_of_reference">frame_of_reference (Geometry attribute)</a>
@@ -3916,10 +3925,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.viz.plot_predicted_vs_observed.html#habit.viz.plot_predicted_vs_observed">plot_predicted_vs_observed() (in module habit.viz)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.viz.plot_residual_qq.html#habit.viz.plot_residual_qq">plot_residual_qq() (in module habit.viz)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.viz.plot_residuals.html#habit.viz.plot_residuals">plot_residuals() (in module habit.viz)</a>
 </li>
       <li><a href="api/generated/habit.viz.plot_risk_triptych.html#habit.viz.plot_risk_triptych">plot_risk_triptych() (in module habit.viz)</a>
@@ -3931,6 +3940,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.viz.plot_time_dependent_auc.html#habit.viz.plot_time_dependent_auc">plot_time_dependent_auc() (in module habit.viz)</a>
 </li>
       <li><a href="api/generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice">plot_voxel_texture_slice() (in module habit.viz)</a>
+</li>
+      <li><a href="api/generated/habit.api.plugins.plugin_catalog.html#habit.api.plugins.plugin_catalog">plugin_catalog() (in module habit.api.plugins)</a>
+</li>
+      <li><a href="api/generated/habit.api.plugins.PluginCatalogEntry.html#habit.api.plugins.PluginCatalogEntry">PluginCatalogEntry (class in habit.api.plugins)</a>
 </li>
       <li><a href="api/generated/habit.api.plugins.PluginInfo.html#habit.api.plugins.PluginInfo">PluginInfo (class in habit.api.plugins)</a>
 </li>

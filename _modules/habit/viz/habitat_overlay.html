@@ -609,8 +609,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1640,10 +1641,13 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1760,6 +1764,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -1991,9 +1996,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;Habitat label maps drawn on top of the source image.</span>
 
 <span class="sd">Pure functions: image and label arrays in, a matplotlib ``Figure`` out, no</span>
-<span class="sd">filesystem and no ``show``. Background label ``0`` stays transparent so the</span>
-<span class="sd">underlying greyscale anatomy remains visible; habitat IDs ``&gt;= 1`` are tinted</span>
-<span class="sd">with a colour-blind-friendly categorical palette.</span>
+<span class="sd">filesystem and no ``show``. Background label ``0`` stays greyscale anatomy;</span>
+<span class="sd">habitat IDs ``&gt;= 1`` are painted with a colour-blind-friendly categorical</span>
+<span class="sd">palette (opaque by default). Pass ``alpha&lt;1`` only for an explicit blend.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2129,6 +2134,37 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">scaled</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_label_contour</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#00E5FF&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.35</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Outline non-background habitat voxels (label ``&gt; 0``).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Matplotlib axes already showing the overlay.</span>
+<span class="sd">        labels: 2D integer label map (already display-oriented).</span>
+<span class="sd">        extent: Same physical ``imshow`` extent as the underlay.</span>
+<span class="sd">        color: Contour colour (default cyan; English figures only).</span>
+<span class="sd">        linewidth: Contour line width in points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+        <span class="n">binary</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
+        <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="p">],</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidth</span><span class="p">),</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_blend_overlay</span><span class="p">(</span>
     <span class="n">grey</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -2137,7 +2173,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">colors</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Blend habitat colours onto a greyscale slice (label 0 stays transparent).</span>
+<span class="sd">    Paint habitat colours onto a greyscale slice (label 0 stays anatomy).</span>
+
+<span class="sd">    ``alpha=1`` replaces habitat voxels (opaque). Values in ``(0, 1)`` blend</span>
+<span class="sd">    as an explicit option.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        grey: 2D float array in ``[0, 1]``.</span>
@@ -2385,8 +2424,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
     <span class="n">convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize, orient, and blend one orthogonal slice to RGB.&quot;&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize, orient, and paint one orthogonal slice; return RGB + labels.&quot;&quot;&quot;</span>
     <span class="n">grey</span> <span class="o">=</span> <span class="n">_normalize_grey</span><span class="p">(</span><span class="n">_take_slice</span><span class="p">(</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">))</span>
     <span class="n">labs</span> <span class="o">=</span> <span class="n">_take_slice</span><span class="p">(</span><span class="n">label_int</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)</span>
     <span class="n">grey</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span>
@@ -2395,7 +2434,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">labs</span> <span class="o">=</span> <span class="n">_orient_slice_for_display</span><span class="p">(</span>
         <span class="n">labs</span><span class="p">,</span> <span class="n">slice_axis</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_blend_overlay</span><span class="p">(</span><span class="n">grey</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="n">colors</span><span class="o">=</span><span class="n">_HABITAT_COLORS</span><span class="p">)</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">_blend_overlay</span><span class="p">(</span><span class="n">grey</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="n">colors</span><span class="o">=</span><span class="n">_HABITAT_COLORS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="p">,</span> <span class="n">labs</span>
 
 
 <div class="viewcode-block" id="plot_habitat_overlay">
@@ -2404,16 +2444,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">image</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">display_convention</span><span class="p">:</span> <span class="n">DisplayConvention</span> <span class="o">=</span> <span class="n">DEFAULT_DISPLAY_CONVENTION</span><span class="p">,</span>
+    <span class="n">contour</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw habitat labels as a translucent colour overlay on the source image.</span>
+<span class="sd">    Draw habitat labels as an opaque colour overlay on the source image.</span>
 
 <span class="sd">    For 3D volumes the default is a three-panel figure (orthogonal slices in</span>
 <span class="sd">    NumPy axis order ``0 / 1 / 2``, i.e. SimpleITK ``(z, y, x)``). Each panel</span>
@@ -2441,7 +2482,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            order) or an :class:`~habit.api.image.ImageVolume`.</span>
 <span class="sd">        labels: Habitat label map with the same shape as ``image``, or a</span>
 <span class="sd">            :class:`~habit.contracts.habitat.HabitatMap`.</span>
-<span class="sd">        alpha: Habitat colour opacity in ``(0, 1]``.</span>
+<span class="sd">        alpha: Habitat colour opacity (default ``1.0`` = opaque inside</span>
+<span class="sd">            habitat voxels; anatomy stays grey outside). Use ``(0, 1)``</span>
+<span class="sd">            only for an explicit translucent blend.</span>
+<span class="sd">        contour: When True, outline non-background habitat voxels.</span>
 <span class="sd">        title: Optional figure title (ASCII-sanitised).</span>
 <span class="sd">        axis: If set, draw only this axis (``0``, ``1``, or ``2``).</span>
 <span class="sd">        index: Slice index along ``axis``; densest habitat slice when omitted.</span>
@@ -2496,7 +2540,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;plot_habitat_overlay: axis must be 0, 1, or 2; got </span><span class="si">{</span><span class="n">axis_id</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="n">slice_index</span> <span class="o">=</span> <span class="n">_slice_index</span><span class="p">(</span><span class="n">label_int</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-        <span class="n">rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+        <span class="n">rgb</span><span class="p">,</span> <span class="n">labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
             <span class="n">image_vol</span><span class="p">,</span>
             <span class="n">label_int</span><span class="p">,</span>
             <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
@@ -2524,6 +2568,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
             <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">contour</span><span class="p">:</span>
+            <span class="n">_draw_label_contour</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
         <span class="n">axis_name</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;axis-0&quot;</span><span class="p">,</span> <span class="s2">&quot;axis-1&quot;</span><span class="p">,</span> <span class="s2">&quot;axis-2&quot;</span><span class="p">)[</span><span class="n">axis_id</span><span class="p">]</span> <span class="k">if</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">&quot;2D&quot;</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
@@ -2547,7 +2593,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">axis_id</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="p">):</span>
         <span class="n">slice_index</span> <span class="o">=</span> <span class="n">_slice_index</span><span class="p">(</span><span class="n">label_int</span><span class="p">,</span> <span class="n">axis_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+        <span class="n">rgb</span><span class="p">,</span> <span class="n">labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
             <span class="n">image_vol</span><span class="p">,</span>
             <span class="n">label_int</span><span class="p">,</span>
             <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
@@ -2571,6 +2617,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
             <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">contour</span><span class="p">:</span>
+            <span class="n">_draw_label_contour</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">panel_names</span><span class="p">[</span><span class="n">axis_id</span><span class="p">]</span><span class="si">}</span><span class="s2"> @ </span><span class="si">{</span><span class="n">slice_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>

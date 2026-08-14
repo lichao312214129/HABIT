@@ -976,10 +976,13 @@ Plugins and utilities
    :toctree: generated
 
    habit.api.plugins.PluginInfo
+   habit.api.plugins.PluginCatalogEntry
    habit.api.plugins.PluginLoadReport
    habit.api.plugins.list_plugins
    habit.api.plugins.get_plugin_info
    habit.api.plugins.get_param_schema
+   habit.api.plugins.plugin_catalog
+   habit.api.plugins.format_plugin_catalog_rst
    habit.api.plugins.load_plugins
    habit.api.utils.setup_logger
    habit.api.utils.is_available

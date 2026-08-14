@@ -1,0 +1,670 @@
+voxel_feature_extractor
+^^^^^^^^^^^^^^^^^^^^^^^
+
+**concat**
+  Join several voxel feature families side by side for the same voxels.
+  Required: ``extractors``. Optional: ``roi, modalities, expression``.
+  ``Spec("concat", {"extractors": ...})``
+  ``Registry.create("concat", extractors=...)``
+
+**expression**
+  Per-voxel features defined by restricted arithmetic expressions.
+  Required: ``(none)``. Optional: ``features, expressions, feature_names, modalities, roi, eps``.
+  ``Spec("expression")``
+  ``Registry.create("expression")``
+
+**kinetic**
+  Per-voxel enhancement slopes across a dynamic contrast series.
+  Required: ``timestamps``. Optional: ``phases, roi, time_format, modalities, expression``.
+  ``Spec("kinetic", {"timestamps": ...})``
+  ``Registry.create("kinetic", timestamps=...)``
+
+**local_entropy**
+  Shannon entropy of each voxel's intensity neighbourhood.
+  Required: ``(none)``. Optional: ``modality, modalities, as_, roi, kernel_size, bins``.
+  ``Spec("local_entropy")``
+  ``Registry.create("local_entropy")``
+
+**raw**
+  Per-voxel raw intensity of every requested modality inside the ROI.
+  Required: ``(none)``. Optional: ``modality, modalities, as_, roi``.
+  ``Spec("raw")``
+  ``Registry.create("raw")``
+
+**voxel_radiomics**
+  Describe every ROI voxel by a PyRadiomics feature vector.
+  Required: ``(none)``. Optional: ``modality, modalities, as_, roi, params_file, params, kernel_radius, voxel_batch, use_torch_radiomics, torch_device, torch_dtype, output_float32``.
+  ``Spec("voxel_radiomics")``
+  ``Registry.create("voxel_radiomics")``
+
+
+supervoxelizer
+^^^^^^^^^^^^^^
+
+**gmm**
+  Partition the ROI by a Gaussian mixture over voxel features.
+  Required: ``(none)``. Optional: ``n_supervoxels, max_iter, n_init, covariance_type``.
+  ``Spec("gmm")``
+  ``Registry.create("gmm")``
+
+**kmeans**
+  Partition the ROI by k-means over voxel features.
+  Required: ``(none)``. Optional: ``n_supervoxels, max_iter, n_init``.
+  ``Spec("kmeans")``
+  ``Registry.create("kmeans")``
+
+**slic**
+  Partition the ROI into SLIC supervoxels and average features within each.
+  Required: ``(none)``. Optional: ``n_supervoxels, compactness, enforce_connectivity, estimator_params``.
+  ``Spec("slic")``
+  ``Registry.create("slic")``
+
+
+supervoxel_feature_extractor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**mean**
+  Average the voxel signal within each supervoxel, one modality at a time.
+  Required: ``(none)``. Optional: ``modality, source, as_``.
+  ``Spec("mean")``
+  ``Registry.create("mean")``
+
+**mean_voxel_features**
+  Describe each supervoxel by the mean of the voxel features within it.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("mean_voxel_features")``
+  ``Registry.create("mean_voxel_features")``
+
+**percentile**
+  A percentile of the voxel signal within each supervoxel.
+  Required: ``(none)``. Optional: ``modality, source, q, as_``.
+  ``Spec("percentile")``
+  ``Registry.create("percentile")``
+
+**std**
+  Sample standard deviation of the voxel signal within each supervoxel.
+  Required: ``(none)``. Optional: ``modality, source, as_``.
+  ``Spec("std")``
+  ``Registry.create("std")``
+
+**supervoxel_radiomics**
+  Describe each supervoxel by PyRadiomics features of the original images.
+  Required: ``(none)``. Optional: ``modality, modalities, as_, params_file, params, supervoxel_batch, supervoxel_union_bbox_crop, supervoxel_pad_distance, use_supervoxel_cext, use_torch_radiomics, torch_device, torch_dtype, output_float32``.
+  ``Spec("supervoxel_radiomics")``
+  ``Registry.create("supervoxel_radiomics")``
+
+
+feature_preprocessing_method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**binning**
+  Discretise features into ordinal bin indices.
+  Required: ``(none)``. Optional: ``n_bins, bin_strategy, across_features``.
+  ``Spec("binning")``
+  ``Registry.create("binning")``
+
+**correlation_filter**
+  Greedily drop redundant, highly correlated feature columns.
+  Required: ``(none)``. Optional: ``corr_threshold, corr_method``.
+  ``Spec("correlation_filter")``
+  ``Registry.create("correlation_filter")``
+
+**feature_whitelist**
+  Restrict the feature matrix to an explicit, externally derived list.
+  Required: ``features``. Optional: ``(none)``.
+  ``Spec("feature_whitelist", {"features": ...})``
+  ``Registry.create("feature_whitelist", features=...)``
+
+**impute**
+  Replace non-finite feature values with a learned per-column statistic.
+  Required: ``(none)``. Optional: ``strategy``.
+  ``Spec("impute")``
+  ``Registry.create("impute")``
+
+**log**
+  Compress right-skewed features with ``log(x - min + 1)``.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("log")``
+  ``Registry.create("log")``
+
+**minmax**
+  Scale features to [0, 1].
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("minmax")``
+  ``Registry.create("minmax")``
+
+**robust**
+  Centre features on the median and scale by the interquartile range.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("robust")``
+  ``Registry.create("robust")``
+
+**variance_filter**
+  Drop feature columns whose variance is at or below a threshold.
+  Required: ``(none)``. Optional: ``variance_threshold``.
+  ``Spec("variance_filter")``
+  ``Registry.create("variance_filter")``
+
+**winsorize**
+  Clip extreme values at tail quantiles instead of discarding them.
+  Required: ``(none)``. Optional: ``winsor_limits, across_features``.
+  ``Spec("winsorize")``
+  ``Registry.create("winsorize")``
+
+**zscore**
+  Standardise features to zero mean and unit variance.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("zscore")``
+  ``Registry.create("zscore")``
+
+
+habitat_model_fitter
+^^^^^^^^^^^^^^^^^^^^
+
+**gmm**
+  Learn population habitats by a Gaussian mixture over pooled features.
+  Required: ``(none)``. Optional: ``n_habitats, min_habitats, max_habitats, validation, covariance_type, n_init, max_iter``.
+  ``Spec("gmm")``
+  ``Registry.create("gmm")``
+
+**kmeans**
+  Learn population habitats by k-means over pooled supervoxel features.
+  Required: ``(none)``. Optional: ``n_habitats, min_habitats, max_habitats, validation, n_init, max_iter``.
+  ``Spec("kmeans")``
+  ``Registry.create("kmeans")``
+
+
+habitat_assigner
+^^^^^^^^^^^^^^^^
+
+**nearest_centroid**
+  Assign each supervoxel to the habitat of its nearest centroid.
+  Required: ``model``. Optional: ``(none)``.
+  ``Spec("nearest_centroid", {"model": ...})``
+  ``Registry.create("nearest_centroid", model=...)``
+
+
+habitat_feature_extractor
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**each_habitat**
+  PyRadiomics features of the raw image(s) within each habitat label.
+  Required: ``(none)``. Optional: ``params_file, params, modalities, modality, as_, use_torch_radiomics, torch_device, torch_dtype``.
+  ``Spec("each_habitat")``
+  ``Registry.create("each_habitat")``
+
+**graph**
+  Graph-topology features of one subject's habitat map.
+  Required: ``(none)``. Optional: ``include_single_habitat_graph, include_pairwise_habitat_graph, edge_method, distance_threshold, adjacency_connectivity, adjacency_min_voxels, edge_weight, min_region_voxels, connectivity, erosion_radius, subdivide_region_voxels, block_size, block_min_coverage, pairwise_include_intra_edges, include_extended_metrics, extended_min_nodes``.
+  ``Spec("graph")``
+  ``Registry.create("graph")``
+
+**ith_score**
+  ITH score and per-habitat fragmentation statistics for one subject.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("ith_score")``
+  ``Registry.create("ith_score")``
+
+**msi**
+  Multiregional spatial interaction features of one subject's habitat map.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("msi")``
+  ``Registry.create("msi")``
+
+**non_radiomics**
+  Basic spatial features of one subject's habitat map.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("non_radiomics")``
+  ``Registry.create("non_radiomics")``
+
+**traditional**
+  PyRadiomics features of the raw image(s) within the whole ROI.
+  Required: ``(none)``. Optional: ``params_file, params, modalities, modality, as_, use_torch_radiomics, torch_device, torch_dtype``.
+  ``Spec("traditional")``
+  ``Registry.create("traditional")``
+
+**volume**
+  Voxel counts and volume fractions of every habitat for one subject.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("volume")``
+  ``Registry.create("volume")``
+
+**whole_habitat**
+  PyRadiomics features of the habitat map treated as the image itself.
+  Required: ``(none)``. Optional: ``params_file, params, use_torch_radiomics, torch_device, torch_dtype``.
+  ``Spec("whole_habitat")``
+  ``Registry.create("whole_habitat")``
+
+
+combiner
+^^^^^^^^
+
+**average**
+  Average sibling blocks element-wise, optionally with child weights.
+  Required: ``(none)``. Optional: ``weights``.
+  ``Spec("average")``
+  ``Registry.create("average")``
+
+**concat**
+  Merge sibling blocks by placing their columns side by side.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("concat")``
+  ``Registry.create("concat")``
+
+**difference**
+  Element-wise difference of two sibling blocks: ``first - second``.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("difference")``
+  ``Registry.create("difference")``
+
+**expression**
+  Features defined by restricted arithmetic over sibling block columns.
+  Required: ``(none)``. Optional: ``features, expressions, feature_names, eps``.
+  ``Spec("expression")``
+  ``Registry.create("expression")``
+
+**kinetic**
+  Per-unit enhancement slopes across a dynamic contrast series.
+  Required: ``timestamps``. Optional: ``phases, time_format``.
+  ``Spec("kinetic", {"timestamps": ...})``
+  ``Registry.create("kinetic", timestamps=...)``
+
+**ratio**
+  Element-wise ratio of two sibling blocks: ``first / (second + eps)``.
+  Required: ``(none)``. Optional: ``eps``.
+  ``Spec("ratio")``
+  ``Registry.create("ratio")``
+
+**weighted_concat**
+  Concatenate sibling blocks after scaling each by a child-specific weight.
+  Required: ``(none)``. Optional: ``weights``.
+  ``Spec("weighted_concat")``
+  ``Registry.create("weighted_concat")``
+
+
+image_perturbation
+^^^^^^^^^^^^^^^^^^
+
+**bspline_deform**
+  MONAI elastic / B-spline free-form warp of every image and ROI.
+  Required: ``(none)``. Optional: ``sigma_range, magnitude_range, image_mode, mask_mode, padding_mode, device``.
+  ``Spec("bspline_deform")``
+  ``Registry.create("bspline_deform")``
+
+**gaussian_noise**
+  Add zero-mean Gaussian noise to every image of a subject.
+  Required: ``(none)``. Optional: ``sigma, noise_method, roi, round_to_int``.
+  ``Spec("gaussian_noise")``
+  ``Registry.create("gaussian_noise")``
+
+**rigid**
+  Sub-voxel translation and small-angle rotation in ONE resample.
+  Required: ``(none)``. Optional: ``shift_voxels, shift_fraction, random_signs, angle_degrees, axis, interpolator, random_sign``.
+  ``Spec("rigid")``
+  ``Registry.create("rigid")``
+
+**rotation**
+  Rotate image content by a small fixed angle about the image centre.
+  Required: ``(none)``. Optional: ``angle_degrees, axis, interpolator, random_sign``.
+  ``Spec("rotation")``
+  ``Registry.create("rotation")``
+
+**translation**
+  Translate image content by a (random) sub-voxel shift.
+  Required: ``(none)``. Optional: ``shift_voxels, shift_fraction, max_shift_voxels, random_signs, interpolator``.
+  ``Spec("translation")``
+  ``Registry.create("translation")``
+
+
+pooling
+^^^^^^^
+
+**pool**
+  Marker component that declares the subject→cohort fan-in watershed.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("pool")``
+  ``Registry.create("pool")``
+
+
+preprocessor
+^^^^^^^^^^^^
+
+**adaptive_histogram_equalization**
+  Apply adaptive histogram equalization to images using SimpleITK.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("adaptive_histogram_equalization")``
+  ``Registry.create("adaptive_histogram_equalization")``
+
+**custom_preprocessor**
+  Template for creating custom preprocessors.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("custom_preprocessor")``
+  ``Registry.create("custom_preprocessor")``
+
+**dcm2nii**
+  Convert DICOM files to NIfTI format using dcm2niix tool.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("dcm2nii")``
+  ``Registry.create("dcm2nii")``
+
+**histogram_standardization**
+  Apply Nyúl histogram standardization to images.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("histogram_standardization")``
+  ``Registry.create("histogram_standardization")``
+
+**n4_correction**
+  Apply N4 bias field correction to images using SimpleITK.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("n4_correction")``
+  ``Registry.create("n4_correction")``
+
+**registration**
+  Register moving images to a fixed reference using ANTsPy, SimpleITK, or elastix CLI.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("registration")``
+  ``Registry.create("registration")``
+
+**reorientation**
+  Preprocessor for reorienting images to a target coordinate system (e.g., LPS).
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("reorientation")``
+  ``Registry.create("reorientation")``
+
+**resample**
+  Resample images to a target spacing using SimpleITK.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("resample")``
+  ``Registry.create("resample")``
+
+**zscore_normalization**
+  Apply Z-score normalization to medical images.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("zscore_normalization")``
+  ``Registry.create("zscore_normalization")``
+
+
+table_preprocessor
+^^^^^^^^^^^^^^^^^^
+
+**binning**
+  K-bins discretisation of every feature to ordinal bin indices.
+  Required: ``(none)``. Optional: ``n_bins, bin_strategy, across_features``.
+  ``Spec("binning")``
+  ``Registry.create("binning")``
+
+**correlation_filter**
+  Greedily drop redundant, highly correlated feature columns.
+  Required: ``(none)``. Optional: ``corr_threshold, corr_method``.
+  ``Spec("correlation_filter")``
+  ``Registry.create("correlation_filter")``
+
+**log**
+  Log transform ``log(x - min_train + 1)`` of every feature.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("log")``
+  ``Registry.create("log")``
+
+**minmax**
+  Min-max scaling of every feature to [0, 1].
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("minmax")``
+  ``Registry.create("minmax")``
+
+**robust**
+  Robust scaling of every feature by training median and IQR.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("robust")``
+  ``Registry.create("robust")``
+
+**variance_filter**
+  Drop feature columns whose training variance is at/below a threshold.
+  Required: ``(none)``. Optional: ``variance_threshold, keep_at_least_one``.
+  ``Spec("variance_filter")``
+  ``Registry.create("variance_filter")``
+
+**winsorize**
+  Clip extreme feature values at training quantiles.
+  Required: ``(none)``. Optional: ``winsor_limits, across_features``.
+  ``Spec("winsorize")``
+  ``Registry.create("winsorize")``
+
+**zscore**
+  Z-score standardisation of every feature.
+  Required: ``(none)``. Optional: ``across_features``.
+  ``Spec("zscore")``
+  ``Registry.create("zscore")``
+
+
+feature_selector
+^^^^^^^^^^^^^^^^
+
+**anova**
+  Univariate ANOVA F-value selection against the outcome.
+  Required: ``(none)``. Optional: ``p_threshold, n_features_to_select``.
+  ``Spec("anova")``
+  ``Registry.create("anova")``
+
+**chi2**
+  Univariate chi-square selection against a categorical outcome.
+  Required: ``(none)``. Optional: ``p_threshold, n_features_to_select``.
+  ``Spec("chi2")``
+  ``Registry.create("chi2")``
+
+**correlation**
+  Unsupervised greedy removal of highly correlated features.
+  Required: ``(none)``. Optional: ``threshold, method``.
+  ``Spec("correlation")``
+  ``Registry.create("correlation")``
+
+**icc**
+  Test-retest stability selection by intraclass correlation coefficient.
+  Required: ``(none)``. Optional: ``threshold, icc_type``.
+  ``Spec("icc")``
+  ``Registry.create("icc")``
+
+**icc_precomputed**
+  Stability selection from a PRECOMPUTED ICC results JSON.
+  Required: ``icc_results_path, groups``. Optional: ``threshold, metric``.
+  ``Spec("icc_precomputed", {"icc_results_path": ..., "groups": ...})``
+  ``Registry.create("icc_precomputed", icc_results_path=..., groups=...)``
+
+**lasso**
+  L1-penalised (Lasso) selection with cross-validated penalty.
+  Required: ``(none)``. Optional: ``cv, n_alphas, alphas, n_jobs, estimator_params``.
+  ``Spec("lasso")``
+  ``Registry.create("lasso")``
+
+**mrmr**
+  Minimum-redundancy-maximum-relevance (MRMR) selection.
+  Required: ``(none)``. Optional: ``n_features, task_type``.
+  ``Spec("mrmr")``
+  ``Registry.create("mrmr")``
+
+**rfecv**
+  Recursive feature elimination with cross-validation (RFECV).
+  Required: ``(none)``. Optional: ``estimator, step, cv, scoring, min_features_to_select, n_jobs``.
+  ``Spec("rfecv")``
+  ``Registry.create("rfecv")``
+
+**statistical_test**
+  Two-group univariate selection with automatic test choice.
+  Required: ``(none)``. Optional: ``p_threshold, n_features_to_select, normality_test_threshold, force_test``.
+  ``Spec("statistical_test")``
+  ``Registry.create("statistical_test")``
+
+**stepwise**
+  Stepwise logistic-regression selection (forward, backward or both).
+  Required: ``(none)``. Optional: ``direction, threshold_in, threshold_out, criterion, verbose``.
+  ``Spec("stepwise")``
+  ``Registry.create("stepwise")``
+
+**univariate_cox**
+  Univariate Cox proportional-hazards selection against a survival outcome.
+  Required: ``(none)``. Optional: ``p_threshold, n_features_to_select``.
+  ``Spec("univariate_cox")``
+  ``Registry.create("univariate_cox")``
+
+**univariate_logistic**
+  Per-feature logistic regression against the outcome.
+  Required: ``(none)``. Optional: ``alpha, verbose``.
+  ``Spec("univariate_logistic")``
+  ``Registry.create("univariate_logistic")``
+
+**variance**
+  Unsupervised variance-based selection.
+  Required: ``(none)``. Optional: ``threshold, top_k, top_percent, keep_at_least_one``.
+  ``Spec("variance")``
+  ``Registry.create("variance")``
+
+**vif**
+  Iterative variance-inflation-factor (VIF) pruning of multicollinearity.
+  Required: ``(none)``. Optional: ``max_vif``.
+  ``Spec("vif")``
+  ``Registry.create("vif")``
+
+
+classifier
+^^^^^^^^^^
+
+**AdaBoost**
+  Adaptive boosting of decision stumps (sklearn ``AdaBoostClassifier``).
+  Required: ``(none)``. Optional: ``n_estimators, learning_rate``.
+  ``Spec("AdaBoost")``
+  ``Registry.create("AdaBoost")``
+
+**AutoGluonTabular**
+  AutoML classifier wrapping AutoGluon's ``TabularPredictor``.
+  Required: ``(none)``. Optional: ``feature_importance, label, predictor, fit``.
+  ``Spec("AutoGluonTabular")``
+  ``Registry.create("AutoGluonTabular")``
+
+**BernoulliNB**
+  Bernoulli naive Bayes (sklearn ``BernoulliNB``; deterministic).
+  Required: ``(none)``. Optional: ``alpha, binarize, fit_prior, class_prior``.
+  ``Spec("BernoulliNB")``
+  ``Registry.create("BernoulliNB")``
+
+**DecisionTree**
+  Single CART decision tree (sklearn ``DecisionTreeClassifier``).
+  Required: ``(none)``. Optional: ``criterion, splitter, max_depth, min_samples_split, min_samples_leaf, max_features, class_weight``.
+  ``Spec("DecisionTree")``
+  ``Registry.create("DecisionTree")``
+
+**GaussianNB**
+  Gaussian naive Bayes (sklearn ``GaussianNB``; deterministic).
+  Required: ``(none)``. Optional: ``priors, var_smoothing``.
+  ``Spec("GaussianNB")``
+  ``Registry.create("GaussianNB")``
+
+**GradientBoosting**
+  Stage-wise additive tree ensemble (sklearn ``GradientBoostingClassifier``).
+  Required: ``(none)``. Optional: ``loss, learning_rate, n_estimators, subsample, criterion, min_samples_split, min_samples_leaf, max_depth, max_features``.
+  ``Spec("GradientBoosting")``
+  ``Registry.create("GradientBoosting")``
+
+**KNN**
+  k-nearest-neighbours classifier (sklearn ``KNeighborsClassifier``).
+  Required: ``(none)``. Optional: ``n_neighbors, weights, algorithm, leaf_size, p, metric, n_jobs``.
+  ``Spec("KNN")``
+  ``Registry.create("KNN")``
+
+**LogisticRegression**
+  Penalised logistic regression (sklearn ``LogisticRegression``).
+  Required: ``(none)``. Optional: ``C, penalty, solver, max_iter, class_weight, estimator_params``.
+  ``Spec("LogisticRegression")``
+  ``Registry.create("LogisticRegression")``
+
+**MLP**
+  Multi-layer perceptron classifier (sklearn ``MLPClassifier``).
+  Required: ``(none)``. Optional: ``hidden_layer_sizes, activation, solver, alpha, batch_size, learning_rate, learning_rate_init, max_iter, shuffle, early_stopping, validation_fraction``.
+  ``Spec("MLP")``
+  ``Registry.create("MLP")``
+
+**MultinomialNB**
+  Multinomial naive Bayes (sklearn ``MultinomialNB``; deterministic).
+  Required: ``(none)``. Optional: ``alpha, fit_prior, class_prior``.
+  ``Spec("MultinomialNB")``
+  ``Registry.create("MultinomialNB")``
+
+**RandomForest**
+  Bagged decision-tree ensemble (sklearn ``RandomForestClassifier``).
+  Required: ``(none)``. Optional: ``n_estimators, max_depth, min_samples_split, min_samples_leaf, max_features, bootstrap, class_weight``.
+  ``Spec("RandomForest")``
+  ``Registry.create("RandomForest")``
+
+**SVC**
+  Kernel support-vector classifier (sklearn ``SVC``).
+  Required: ``(none)``. Optional: ``C, kernel, gamma, class_weight, probability``.
+  ``Spec("SVC")``
+  ``Registry.create("SVC")``
+
+**SVM**
+  Linear support-vector classifier (sklearn ``LinearSVC``).
+  Required: ``(none)``. Optional: ``C, class_weight, max_iter``.
+  ``Spec("SVM")``
+  ``Registry.create("SVM")``
+
+**XGBoost**
+  Gradient-boosted trees from the xgboost library (``XGBClassifier``).
+  Required: ``(none)``. Optional: ``n_estimators, max_depth, learning_rate, subsample, colsample_bytree, objective, eval_metric``.
+  ``Spec("XGBoost")``
+  ``Registry.create("XGBoost")``
+
+
+metric
+^^^^^^
+
+**accuracy**
+  Fraction of exactly matching labels.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("accuracy")``
+  ``Registry.create("accuracy")``
+
+**auc**
+  ROC AUC over the positive-class scores.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("auc")``
+  ``Registry.create("auc")``
+
+**f1_score**
+  Harmonic mean of PPV and sensitivity over one shared confusion matrix.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("f1_score")``
+  ``Registry.create("f1_score")``
+
+**hosmer_lemeshow_p_value**
+  Hosmer-Lemeshow calibration p-value (binary outcomes only).
+  Required: ``(none)``. Optional: ``n_groups``.
+  ``Spec("hosmer_lemeshow_p_value")``
+  ``Registry.create("hosmer_lemeshow_p_value")``
+
+**npv**
+  Negative predictive value; macro per-class mean when multi-class.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("npv")``
+  ``Registry.create("npv")``
+
+**ppv**
+  Positive predictive value (precision); macro mean when multi-class.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("ppv")``
+  ``Registry.create("ppv")``
+
+**sensitivity**
+  Sensitivity (recall, true positive rate); macro mean when multi-class.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("sensitivity")``
+  ``Registry.create("sensitivity")``
+
+**specificity**
+  Specificity (true negative rate); macro mean when multi-class.
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("specificity")``
+  ``Registry.create("specificity")``
+
+**spiegelhalter_z_p_value**
+  Spiegelhalter Z-test calibration p-value (binary outcomes only).
+  Required: ``(none)``. Optional: ``(none)``.
+  ``Spec("spiegelhalter_z_p_value")``
+  ``Registry.create("spiegelhalter_z_p_value")``

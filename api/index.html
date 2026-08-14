@@ -257,8 +257,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1288,10 +1289,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1408,6 +1412,7 @@
 <li class="toctree-l3"><a class="reference internal" href="plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -3115,7 +3120,7 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 <td><p>Interactive 3D PCA scatter using plotly (optional dependency).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_overlay</span></code></a>(image, labels, *)</p></td>
-<td><p>Draw habitat labels as a translucent colour overlay on the source image.</p></td>
+<td><p>Draw habitat labels as an opaque colour overlay on the source image.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_cluster_validation_curves.html#habit.viz.plot_cluster_validation_curves" title="habit.viz.plot_cluster_validation_curves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_cluster_validation_curves</span></code></a>(...)</p></td>
 <td><p>Plot auto-K / cluster-validation score curves (one panel per method).</p></td>
@@ -3390,31 +3395,40 @@ v1 contracts of the same name documented under <a class="reference internal" hre
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginInfo.html#habit.api.plugins.PluginInfo" title="habit.api.plugins.PluginInfo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginInfo</span></code></a>(name, domain, ...)</p></td>
 <td><p>Describe one component registered in a HABIT plugin domain.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html#habit.api.plugins.PluginLoadReport" title="habit.api.plugins.PluginLoadReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginLoadReport</span></code></a>(loaded, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginCatalogEntry.html#habit.api.plugins.PluginCatalogEntry" title="habit.api.plugins.PluginCatalogEntry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginCatalogEntry</span></code></a>(domain, ...)</p></td>
+<td><p>One catalog row derived from <code class="docutils literal notranslate"><span class="pre">params_model</span></code> (not a hand-copied table).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html#habit.api.plugins.PluginLoadReport" title="habit.api.plugins.PluginLoadReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.PluginLoadReport</span></code></a>(loaded, ...)</p></td>
 <td><p>Report loaded external entry points and non-fatal discovery failures.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html#habit.api.plugins.list_plugins" title="habit.api.plugins.list_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.list_plugins</span></code></a>([domain])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html#habit.api.plugins.list_plugins" title="habit.api.plugins.list_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.list_plugins</span></code></a>([domain])</p></td>
 <td><p>List registered HABIT extension components without exposing core registries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html#habit.api.plugins.get_plugin_info" title="habit.api.plugins.get_plugin_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_plugin_info</span></code></a>(name, domain)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html#habit.api.plugins.get_plugin_info" title="habit.api.plugins.get_plugin_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_plugin_info</span></code></a>(name, domain)</p></td>
 <td><p>Return metadata for one registered component or raise a clear API error.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html#habit.api.plugins.get_param_schema" title="habit.api.plugins.get_param_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_param_schema</span></code></a>(name, domain)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html#habit.api.plugins.get_param_schema" title="habit.api.plugins.get_param_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.get_param_schema</span></code></a>(name, domain)</p></td>
 <td><p>Return the Pydantic parameter schema associated with a plugin, if any.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html#habit.api.plugins.load_plugins" title="habit.api.plugins.load_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.load_plugins</span></code></a>(*[, strict])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.plugin_catalog.html#habit.api.plugins.plugin_catalog" title="habit.api.plugins.plugin_catalog"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.plugin_catalog</span></code></a>([domain])</p></td>
+<td><p>Build a live catalog from each plugin's <code class="docutils literal notranslate"><span class="pre">params_model</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.plugins.format_plugin_catalog_rst.html#habit.api.plugins.format_plugin_catalog_rst" title="habit.api.plugins.format_plugin_catalog_rst"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.format_plugin_catalog_rst</span></code></a>([...])</p></td>
+<td><p>Render <code class="xref py py-func docutils literal notranslate"><span class="pre">plugin_catalog()</span></code> as reStructuredText for the docs catalog.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html#habit.api.plugins.load_plugins" title="habit.api.plugins.load_plugins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.plugins.load_plugins</span></code></a>(*[, strict])</p></td>
 <td><p>Load external HABIT plugins declared through standard Python entry points.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.setup_logger.html#habit.api.utils.setup_logger" title="habit.api.utils.setup_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.setup_logger</span></code></a>(name[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.setup_logger.html#habit.api.utils.setup_logger" title="habit.api.utils.setup_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.setup_logger</span></code></a>(name[, ...])</p></td>
 <td><p>Setup a logger for a HABIT module or script.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.is_available.html#habit.api.utils.is_available" title="habit.api.utils.is_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.is_available</span></code></a>(module_name)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.is_available.html#habit.api.utils.is_available" title="habit.api.utils.is_available"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.is_available</span></code></a>(module_name)</p></td>
 <td><p>Return whether an optional third-party module can be imported.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.show_versions.html#habit.api.utils.show_versions" title="habit.api.utils.show_versions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.show_versions</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.show_versions.html#habit.api.utils.show_versions" title="habit.api.utils.show_versions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.show_versions</span></code></a>()</p></td>
 <td><p>Return HABIT and key dependency versions for reproducibility and debugging.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.api.utils.check_component.html#habit.api.utils.check_component" title="habit.api.utils.check_component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.check_component</span></code></a>(name, domain)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.api.utils.check_component.html#habit.api.utils.check_component" title="habit.api.utils.check_component"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.api.utils.check_component</span></code></a>(name, domain)</p></td>
 <td><p>Return whether <code class="docutils literal notranslate"><span class="pre">name</span></code> is registered in a HABIT plugin domain.</p></td>
 </tr>
 </tbody>

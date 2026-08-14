@@ -609,8 +609,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -656,6 +657,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#habitat-stability-under-perturbation">Habitat stability under perturbation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
@@ -1500,6 +1502,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_residual_qq.html">plot_residual_qq</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_bland_altman.html">plot_bland_altman</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_coefficient_forest.html">plot_coefficient_forest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_roc.html">plot_roc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_precision_recall.html">plot_precision_recall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
@@ -1519,6 +1527,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_voxel_texture_slice.html">plot_voxel_texture_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.view_habitat_napari.html">view_habitat_napari</a></li>
 </ul>
@@ -1632,10 +1641,13 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1752,6 +1764,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>

@@ -609,8 +609,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1640,10 +1641,13 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1760,6 +1764,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -2733,7 +2738,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">labels_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">titles</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Reference&quot;</span><span class="p">,</span> <span class="s2">&quot;Predict&quot;</span><span class="p">),</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2749,7 +2754,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        labels_a: Reference / train labels (same shape).</span>
 <span class="sd">        labels_b: Compared / predicted labels (same shape).</span>
 <span class="sd">        titles: Panel titles for A and B.</span>
-<span class="sd">        alpha: Overlay opacity.</span>
+<span class="sd">        alpha: Overlay opacity (default ``1.0`` = opaque habitat colours).</span>
 <span class="sd">        axis: Slice axis for 3D volumes.</span>
 <span class="sd">        index: Slice index; densest union of labels when omitted.</span>
 <span class="sd">        direction: Optional SimpleITK direction cosines.</span>
@@ -2803,7 +2808,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">labs</span><span class="p">,</span> <span class="n">panel_title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
             <span class="n">axes</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">titles</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="p">):</span>
-            <span class="n">rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+            <span class="n">rgb</span><span class="p">,</span> <span class="n">_labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
                 <span class="n">image_vol</span><span class="p">,</span>
                 <span class="n">labs</span><span class="p">,</span>
                 <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
@@ -2833,7 +2838,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">if</span> <span class="n">show_disagreement</span><span class="p">:</span>
             <span class="n">disagree</span> <span class="o">=</span> <span class="p">((</span><span class="n">a</span> <span class="o">!=</span> <span class="n">b</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">b</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-            <span class="n">rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+            <span class="n">rgb</span><span class="p">,</span> <span class="n">_labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
                 <span class="n">image_vol</span><span class="p">,</span>
                 <span class="n">disagree</span><span class="p">,</span>
                 <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
@@ -2878,7 +2883,7 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;Supervoxels&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Habitats&quot;</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2893,7 +2898,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        supervoxel_labels: Integer supervoxel map (0 = background).</span>
 <span class="sd">        habitat_labels: Integer habitat map (0 = background).</span>
 <span class="sd">        titles: Three panel titles.</span>
-<span class="sd">        alpha: Overlay opacity for label panels.</span>
+<span class="sd">        alpha: Overlay opacity for label panels (default ``1.0`` = opaque).</span>
 <span class="sd">        axis: Slice axis for 3D volumes.</span>
 <span class="sd">        index: Slice index; densest habitat slice when omitted.</span>
 <span class="sd">        direction: Optional SimpleITK direction cosines.</span>
@@ -2946,7 +2951,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Fake RGB greyscale for consistent imshow path.</span>
     <span class="n">anatomy_rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">grey</span><span class="p">,</span> <span class="n">grey</span><span class="p">,</span> <span class="n">grey</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">sv_rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+    <span class="n">sv_rgb</span><span class="p">,</span> <span class="n">_sv_labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
         <span class="n">image_vol</span><span class="p">,</span>
         <span class="n">sv</span><span class="p">,</span>
         <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>
@@ -2955,7 +2960,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">direction</span><span class="o">=</span><span class="n">direction_matrix</span><span class="p">,</span>
         <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">hab_rgb</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
+    <span class="n">hab_rgb</span><span class="p">,</span> <span class="n">_hab_labs</span> <span class="o">=</span> <span class="n">_prepare_overlay_slice</span><span class="p">(</span>
         <span class="n">image_vol</span><span class="p">,</span>
         <span class="n">hab</span><span class="p">,</span>
         <span class="n">axis_id</span><span class="o">=</span><span class="n">axis_id</span><span class="p">,</span>

@@ -609,8 +609,9 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1640,10 +1641,13 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1760,6 +1764,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/plugins.html">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/plugins.html#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -2392,6 +2397,57 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_composite_feature_on_anatomy</span><span class="p">(</span>
+    <span class="n">grey</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">feature_slice</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">roi_slice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">object</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Paint feature colours onto greyscale anatomy inside the ROI only.</span>
+
+<span class="sd">    Outside the ROI (or non-finite feature voxels) the anatomy stays grey.</span>
+<span class="sd">    ``alpha=1`` replaces those voxels (opaque); ``alpha&lt;1`` blends as an</span>
+<span class="sd">    explicit option.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grey: 2D anatomy in ``[0, 1]``.</span>
+<span class="sd">        feature_slice: 2D feature values, same shape as ``grey``.</span>
+<span class="sd">        roi_slice: Optional 2D ROI (``&gt; 0`` inside). ``None`` uses finite</span>
+<span class="sd">            feature voxels as the paint mask.</span>
+<span class="sd">        cmap: Matplotlib colormap name.</span>
+<span class="sd">        vmin: Colourscale lower bound.</span>
+<span class="sd">        vmax: Colourscale upper bound.</span>
+<span class="sd">        alpha: Feature opacity in ``(0, 1]``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        RGB float array ``(H, W, 3)`` in ``[0, 1]`` and a</span>
+<span class="sd">        ``ScalarMappable`` for the colourbar.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">Normalize</span>
+
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">grey</span><span class="p">,</span> <span class="n">grey</span><span class="p">,</span> <span class="n">grey</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">masked</span> <span class="o">=</span> <span class="n">_masked_feature_slice</span><span class="p">(</span><span class="n">feature_slice</span><span class="p">,</span> <span class="n">roi_slice</span><span class="p">)</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmaskarray</span><span class="p">(</span><span class="n">masked</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">vmax</span><span class="p">),</span> <span class="n">clip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mapper</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cmap</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid</span><span class="p">):</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">mapper</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)))</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">weight</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">rgb</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">valid</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rgb</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">weight</span><span class="p">)</span> <span class="o">*</span> <span class="n">rgb</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">colors</span><span class="p">[</span><span class="n">valid</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">mappable</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">mapper</span><span class="p">)</span>
+    <span class="n">mappable</span><span class="o">.</span><span class="n">set_array</span><span class="p">([])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">mappable</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_masked_feature_slice</span><span class="p">(</span>
     <span class="n">feature_slice</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">roi_slice</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
@@ -2533,23 +2589,18 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;overlay&quot;</span><span class="p">:</span>
-        <span class="c1"># Kept for callers who want a blended view; gallery demos prefer</span>
-        <span class="c1"># side_by_side with an ROI contour instead of alpha texture on anatomy.</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">rgb</span><span class="p">,</span> <span class="n">mappable</span> <span class="o">=</span> <span class="n">_composite_feature_on_anatomy</span><span class="p">(</span>
             <span class="n">anat_slice</span><span class="p">,</span>
-            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-            <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
-            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
-            <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
-            <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-            <span class="n">masked</span><span class="p">,</span>
+            <span class="n">feat_slice</span><span class="p">,</span>
+            <span class="n">roi_slice</span><span class="p">,</span>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="n">clim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">clim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
             <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">rgb</span><span class="p">,</span>
             <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
             <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
             <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
@@ -2562,7 +2613,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_title</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">feature_label</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">fig</span>
 
@@ -2717,20 +2768,17 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
                 <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">rgb</span><span class="p">,</span> <span class="n">mappable</span> <span class="o">=</span> <span class="n">_composite_feature_on_anatomy</span><span class="p">(</span>
                 <span class="n">anat_slice</span><span class="p">,</span>
-                <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-                <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
-                <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
-                <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
-                <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
-                <span class="n">masked</span><span class="p">,</span>
+                <span class="n">feat_slice</span><span class="p">,</span>
+                <span class="n">roi_slice</span><span class="p">,</span>
                 <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
                 <span class="n">vmin</span><span class="o">=</span><span class="n">clim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">vmax</span><span class="o">=</span><span class="n">clim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                 <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+                <span class="n">rgb</span><span class="p">,</span>
                 <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
                 <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
                 <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
@@ -2743,7 +2791,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature_label</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">row_title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.04</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">axis_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
                 <span class="n">masked</span><span class="p">,</span>
@@ -2781,9 +2829,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">feature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">mode</span><span class="p">:</span> <span class="n">LayoutMode</span> <span class="o">=</span> <span class="s2">&quot;side_by_side&quot;</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">LayoutMode</span> <span class="o">=</span> <span class="s2">&quot;overlay&quot;</span><span class="p">,</span>
     <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_DEFAULT_CMAP</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">vmin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">vmax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2801,11 +2849,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    :func:`~habit.kernels.local_entropy_map`) or a sparse</span>
 <span class="sd">    :class:`~habit.contracts.habitat.VoxelFeatureField` (e.g. from the</span>
 <span class="sd">    ``local_entropy`` / ``voxel_radiomics`` extractors). Prefer</span>
-<span class="sd">    ``mode=\&quot;side_by_side\&quot;``: left panel is raw anatomy with an ROI **contour**</span>
-<span class="sd">    (outline, not a filled mask overlay); right panel is the texture map alone</span>
-<span class="sd">    (optionally with the same contour). ``mode=\&quot;overlay\&quot;`` remains available</span>
-<span class="sd">    for translucent texture-on-anatomy but is not the recommended gallery path.</span>
-<span class="sd">    Outside-ROI / non-finite voxels stay transparent on the feature panel.</span>
+<span class="sd">    Default ``mode=\&quot;overlay\&quot;``: greyscale anatomy everywhere, **opaque**</span>
+<span class="sd">    feature colours inside the ROI, optional cyan ROI contour. Outside-ROI</span>
+<span class="sd">    voxels stay grey anatomy (not a translucent blend). Pass ``alpha&lt;1``</span>
+<span class="sd">    only when a see-through overlay is wanted. ``mode=\&quot;side_by_side\&quot;``</span>
+<span class="sd">    adds a sibling anatomy panel (contour OK) next to a standalone feature</span>
+<span class="sd">    map. Outside-ROI / non-finite voxels stay masked on the feature panel.</span>
 
 <span class="sd">    For 3D volumes the default is three orthogonal panels through the densest</span>
 <span class="sd">    ROI (or densest finite-feature) slice. Pass ``axis`` / ``index`` to pin one</span>
@@ -2825,10 +2874,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        feature: Column name or index when ``feature_map`` is a field.</span>
 <span class="sd">        axis: If set, draw only this NumPy axis (``0``, ``1``, or ``2``).</span>
 <span class="sd">        index: Slice index along ``axis``; densest support when omitted.</span>
-<span class="sd">        mode: ``\&quot;side_by_side\&quot;`` (default), ``\&quot;overlay\&quot;``, or</span>
+<span class="sd">        mode: ``\&quot;overlay\&quot;`` (default; opaque feature on anatomy),</span>
+<span class="sd">            ``\&quot;side_by_side\&quot;`` (anatomy sibling + feature), or</span>
 <span class="sd">            ``\&quot;feature_only\&quot;``.</span>
 <span class="sd">        cmap: Matplotlib colormap name for the feature values.</span>
-<span class="sd">        alpha: Feature opacity when ``mode=\&quot;overlay\&quot;`` (in ``(0, 1]``).</span>
+<span class="sd">        alpha: Feature opacity when ``mode=\&quot;overlay\&quot;`` (default ``1.0`` =</span>
+<span class="sd">            opaque inside the ROI). Use a value in ``(0, 1)`` only for an</span>
+<span class="sd">            explicit translucent blend.</span>
 <span class="sd">        vmin: Optional colourscale lower bound (else 2nd percentile).</span>
 <span class="sd">        vmax: Optional colourscale upper bound (else 98th percentile).</span>
 <span class="sd">        title: Optional figure title (ASCII-sanitised).</span>

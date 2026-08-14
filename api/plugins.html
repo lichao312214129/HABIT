@@ -256,8 +256,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../examples/voxel_texture.html">Voxel texture maps</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#local-entropy-anatomy-texture">Local entropy (anatomy | texture)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#glcm-contrast-anatomy-texture">GLCM Contrast (anatomy | texture)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#local-entropy-on-anatomy">Local entropy on anatomy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#sibling-anatomy-panel">Sibling anatomy panel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#glcm-contrast-on-anatomy">GLCM Contrast on anatomy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#orthogonal-local-entropy">Orthogonal local entropy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/voxel_texture.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1287,10 +1288,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="index.html#plugins-and-utilities">Plugins and utilities</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginInfo.html">PluginInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginCatalogEntry.html">PluginCatalogEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.PluginLoadReport.html">PluginLoadReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.list_plugins.html">list_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_plugin_info.html">get_plugin_info</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.get_param_schema.html">get_param_schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.plugin_catalog.html">plugin_catalog</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.format_plugin_catalog_rst.html">format_plugin_catalog_rst</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.plugins.load_plugins.html">load_plugins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.setup_logger.html">setup_logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.api.utils.is_available.html">is_available</a></li>
@@ -1407,6 +1411,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Plugin introspection API</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#load-plugins-resilience"><code class="docutils literal notranslate"><span class="pre">load_plugins</span></code> resilience</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#v1-protocol-domains">v1 protocol domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#which-spec-create-names-exist">Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#types">Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#registering-a-third-party-plugin">Registering a third-party plugin</a></li>
 </ul>
@@ -1630,6 +1635,7 @@
     <span class="n">get_plugin_info</span><span class="p">,</span>
     <span class="n">list_plugins</span><span class="p">,</span>
     <span class="n">load_plugins</span><span class="p">,</span>
+    <span class="n">plugin_catalog</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">report</span> <span class="o">=</span> <span class="n">load_plugins</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1695,10 +1701,619 @@ but emit <code class="docutils literal notranslate"><span class="pre">HabitDepre
 </pre></div>
 </div>
 </section>
+<section id="which-spec-create-names-exist">
+<h2>Which <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">create</span></code> names exist<a class="headerlink" href="#which-spec-create-names-exist" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">params_model</span></code> is the only source of truth. Do not copy parameter tables
+into YAML or notebooks — they rot. Look names up at runtime, or read the
+live catalog below (regenerated every Sphinx build from the same schemas).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">plugin_catalog</span><span class="p">,</span> <span class="n">get_param_schema</span>
+
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">plugin_catalog</span><span class="p">(</span><span class="s2">&quot;table_preprocessor&quot;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">required_params</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">spec_example</span><span class="p">)</span>
+
+<span class="n">schema</span> <span class="o">=</span> <span class="n">get_param_schema</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="s2">&quot;table_preprocessor&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">model_fields</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A bad name on <code class="docutils literal notranslate"><span class="pre">Registry.create</span></code> / <code class="docutils literal notranslate"><span class="pre">get_plugin_info</span></code> lists the names
+that <em>are</em> registered in that domain.</p>
+<section id="live-catalog">
+<h3>Live catalog<a class="headerlink" href="#live-catalog" title="Link to this heading"></a></h3>
+<p>Each entry is one line of purpose, required vs optional parameters from
+<code class="docutils literal notranslate"><span class="pre">params_model</span></code>, and one <code class="docutils literal notranslate"><span class="pre">Spec</span></code> / <code class="docutils literal notranslate"><span class="pre">Registry.create</span></code> example. YAML
+<code class="docutils literal notranslate"><span class="pre">name:</span></code> / <code class="docutils literal notranslate"><span class="pre">params:</span></code> blocks use the same names.</p>
+<section id="voxel-feature-extractor">
+<h4>voxel_feature_extractor<a class="headerlink" href="#voxel-feature-extractor" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>concat</strong></dt><dd><p>Join several voxel feature families side by side for the same voxels.
+Required: <code class="docutils literal notranslate"><span class="pre">extractors</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">roi,</span> <span class="pre">modalities,</span> <span class="pre">expression</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;concat&quot;,</span> <span class="pre">{&quot;extractors&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;concat&quot;,</span> <span class="pre">extractors=...)</span></code></p>
+</dd>
+<dt><strong>expression</strong></dt><dd><p>Per-voxel features defined by restricted arithmetic expressions.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">features,</span> <span class="pre">expressions,</span> <span class="pre">feature_names,</span> <span class="pre">modalities,</span> <span class="pre">roi,</span> <span class="pre">eps</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;expression&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;expression&quot;)</span></code></p>
+</dd>
+<dt><strong>kinetic</strong></dt><dd><p>Per-voxel enhancement slopes across a dynamic contrast series.
+Required: <code class="docutils literal notranslate"><span class="pre">timestamps</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">phases,</span> <span class="pre">roi,</span> <span class="pre">time_format,</span> <span class="pre">modalities,</span> <span class="pre">expression</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;kinetic&quot;,</span> <span class="pre">{&quot;timestamps&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kinetic&quot;,</span> <span class="pre">timestamps=...)</span></code></p>
+</dd>
+<dt><strong>local_entropy</strong></dt><dd><p>Shannon entropy of each voxel’s intensity neighbourhood.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">kernel_size,</span> <span class="pre">bins</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;local_entropy&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;local_entropy&quot;)</span></code></p>
+</dd>
+<dt><strong>raw</strong></dt><dd><p>Per-voxel raw intensity of every requested modality inside the ROI.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;raw&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;raw&quot;)</span></code></p>
+</dd>
+<dt><strong>voxel_radiomics</strong></dt><dd><p>Describe every ROI voxel by a PyRadiomics feature vector.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">roi,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">kernel_radius,</span> <span class="pre">voxel_batch,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;voxel_radiomics&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;voxel_radiomics&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="supervoxelizer">
+<h4>supervoxelizer<a class="headerlink" href="#supervoxelizer" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>gmm</strong></dt><dd><p>Partition the ROI by a Gaussian mixture over voxel features.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">max_iter,</span> <span class="pre">n_init,</span> <span class="pre">covariance_type</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;gmm&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gmm&quot;)</span></code></p>
+</dd>
+<dt><strong>kmeans</strong></dt><dd><p>Partition the ROI by k-means over voxel features.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">max_iter,</span> <span class="pre">n_init</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kmeans&quot;)</span></code></p>
+</dd>
+<dt><strong>slic</strong></dt><dd><p>Partition the ROI into SLIC supervoxels and average features within each.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_supervoxels,</span> <span class="pre">compactness,</span> <span class="pre">enforce_connectivity,</span> <span class="pre">estimator_params</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;slic&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;slic&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="supervoxel-feature-extractor">
+<h4>supervoxel_feature_extractor<a class="headerlink" href="#supervoxel-feature-extractor" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>mean</strong></dt><dd><p>Average the voxel signal within each supervoxel, one modality at a time.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">as_</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;mean&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;mean&quot;)</span></code></p>
+</dd>
+<dt><strong>mean_voxel_features</strong></dt><dd><p>Describe each supervoxel by the mean of the voxel features within it.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;mean_voxel_features&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;mean_voxel_features&quot;)</span></code></p>
+</dd>
+<dt><strong>percentile</strong></dt><dd><p>A percentile of the voxel signal within each supervoxel.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">q,</span> <span class="pre">as_</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;percentile&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;percentile&quot;)</span></code></p>
+</dd>
+<dt><strong>std</strong></dt><dd><p>Sample standard deviation of the voxel signal within each supervoxel.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">source,</span> <span class="pre">as_</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;std&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;std&quot;)</span></code></p>
+</dd>
+<dt><strong>supervoxel_radiomics</strong></dt><dd><p>Describe each supervoxel by PyRadiomics features of the original images.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">modalities,</span> <span class="pre">as_,</span> <span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">supervoxel_batch,</span> <span class="pre">supervoxel_union_bbox_crop,</span> <span class="pre">supervoxel_pad_distance,</span> <span class="pre">use_supervoxel_cext,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype,</span> <span class="pre">output_float32</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;supervoxel_radiomics&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;supervoxel_radiomics&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="feature-preprocessing-method">
+<h4>feature_preprocessing_method<a class="headerlink" href="#feature-preprocessing-method" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>binning</strong></dt><dd><p>Discretise features into ordinal bin indices.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_bins,</span> <span class="pre">bin_strategy,</span> <span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;binning&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;binning&quot;)</span></code></p>
+</dd>
+<dt><strong>correlation_filter</strong></dt><dd><p>Greedily drop redundant, highly correlated feature columns.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">corr_method</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;correlation_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;correlation_filter&quot;)</span></code></p>
+</dd>
+<dt><strong>feature_whitelist</strong></dt><dd><p>Restrict the feature matrix to an explicit, externally derived list.
+Required: <code class="docutils literal notranslate"><span class="pre">features</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;feature_whitelist&quot;,</span> <span class="pre">{&quot;features&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;feature_whitelist&quot;,</span> <span class="pre">features=...)</span></code></p>
+</dd>
+<dt><strong>impute</strong></dt><dd><p>Replace non-finite feature values with a learned per-column statistic.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">strategy</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;impute&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;impute&quot;)</span></code></p>
+</dd>
+<dt><strong>log</strong></dt><dd><p>Compress right-skewed features with <code class="docutils literal notranslate"><span class="pre">log(x</span> <span class="pre">-</span> <span class="pre">min</span> <span class="pre">+</span> <span class="pre">1)</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;log&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;log&quot;)</span></code></p>
+</dd>
+<dt><strong>minmax</strong></dt><dd><p>Scale features to [0, 1].
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;minmax&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;minmax&quot;)</span></code></p>
+</dd>
+<dt><strong>robust</strong></dt><dd><p>Centre features on the median and scale by the interquartile range.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;robust&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;robust&quot;)</span></code></p>
+</dd>
+<dt><strong>variance_filter</strong></dt><dd><p>Drop feature columns whose variance is at or below a threshold.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">variance_threshold</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;variance_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;variance_filter&quot;)</span></code></p>
+</dd>
+<dt><strong>winsorize</strong></dt><dd><p>Clip extreme values at tail quantiles instead of discarding them.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">winsor_limits,</span> <span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;winsorize&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;winsorize&quot;)</span></code></p>
+</dd>
+<dt><strong>zscore</strong></dt><dd><p>Standardise features to zero mean and unit variance.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;zscore&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;zscore&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="habitat-model-fitter">
+<h4>habitat_model_fitter<a class="headerlink" href="#habitat-model-fitter" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>gmm</strong></dt><dd><p>Learn population habitats by a Gaussian mixture over pooled features.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">validation,</span> <span class="pre">covariance_type,</span> <span class="pre">n_init,</span> <span class="pre">max_iter</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;gmm&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gmm&quot;)</span></code></p>
+</dd>
+<dt><strong>kmeans</strong></dt><dd><p>Learn population habitats by k-means over pooled supervoxel features.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_habitats,</span> <span class="pre">min_habitats,</span> <span class="pre">max_habitats,</span> <span class="pre">validation,</span> <span class="pre">n_init,</span> <span class="pre">max_iter</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;kmeans&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kmeans&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="habitat-assigner">
+<h4>habitat_assigner<a class="headerlink" href="#habitat-assigner" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>nearest_centroid</strong></dt><dd><p>Assign each supervoxel to the habitat of its nearest centroid.
+Required: <code class="docutils literal notranslate"><span class="pre">model</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;nearest_centroid&quot;,</span> <span class="pre">{&quot;model&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;nearest_centroid&quot;,</span> <span class="pre">model=...)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="habitat-feature-extractor">
+<h4>habitat_feature_extractor<a class="headerlink" href="#habitat-feature-extractor" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>each_habitat</strong></dt><dd><p>PyRadiomics features of the raw image(s) within each habitat label.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">modalities,</span> <span class="pre">modality,</span> <span class="pre">as_,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;each_habitat&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;each_habitat&quot;)</span></code></p>
+</dd>
+<dt><strong>graph</strong></dt><dd><p>Graph-topology features of one subject’s habitat map.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph,</span> <span class="pre">include_pairwise_habitat_graph,</span> <span class="pre">edge_method,</span> <span class="pre">distance_threshold,</span> <span class="pre">adjacency_connectivity,</span> <span class="pre">adjacency_min_voxels,</span> <span class="pre">edge_weight,</span> <span class="pre">min_region_voxels,</span> <span class="pre">connectivity,</span> <span class="pre">erosion_radius,</span> <span class="pre">subdivide_region_voxels,</span> <span class="pre">block_size,</span> <span class="pre">block_min_coverage,</span> <span class="pre">pairwise_include_intra_edges,</span> <span class="pre">include_extended_metrics,</span> <span class="pre">extended_min_nodes</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;graph&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;graph&quot;)</span></code></p>
+</dd>
+<dt><strong>ith_score</strong></dt><dd><p>ITH score and per-habitat fragmentation statistics for one subject.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;ith_score&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;ith_score&quot;)</span></code></p>
+</dd>
+<dt><strong>msi</strong></dt><dd><p>Multiregional spatial interaction features of one subject’s habitat map.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;msi&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;msi&quot;)</span></code></p>
+</dd>
+<dt><strong>non_radiomics</strong></dt><dd><p>Basic spatial features of one subject’s habitat map.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;non_radiomics&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;non_radiomics&quot;)</span></code></p>
+</dd>
+<dt><strong>traditional</strong></dt><dd><p>PyRadiomics features of the raw image(s) within the whole ROI.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">modalities,</span> <span class="pre">modality,</span> <span class="pre">as_,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;traditional&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;traditional&quot;)</span></code></p>
+</dd>
+<dt><strong>volume</strong></dt><dd><p>Voxel counts and volume fractions of every habitat for one subject.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;volume&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;volume&quot;)</span></code></p>
+</dd>
+<dt><strong>whole_habitat</strong></dt><dd><p>PyRadiomics features of the habitat map treated as the image itself.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">params_file,</span> <span class="pre">params,</span> <span class="pre">use_torch_radiomics,</span> <span class="pre">torch_device,</span> <span class="pre">torch_dtype</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;whole_habitat&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;whole_habitat&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="combiner">
+<h4>combiner<a class="headerlink" href="#combiner" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>average</strong></dt><dd><p>Average sibling blocks element-wise, optionally with child weights.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">weights</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;average&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;average&quot;)</span></code></p>
+</dd>
+<dt><strong>concat</strong></dt><dd><p>Merge sibling blocks by placing their columns side by side.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;concat&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;concat&quot;)</span></code></p>
+</dd>
+<dt><strong>difference</strong></dt><dd><p>Element-wise difference of two sibling blocks: <code class="docutils literal notranslate"><span class="pre">first</span> <span class="pre">-</span> <span class="pre">second</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;difference&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;difference&quot;)</span></code></p>
+</dd>
+<dt><strong>expression</strong></dt><dd><p>Features defined by restricted arithmetic over sibling block columns.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">features,</span> <span class="pre">expressions,</span> <span class="pre">feature_names,</span> <span class="pre">eps</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;expression&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;expression&quot;)</span></code></p>
+</dd>
+<dt><strong>kinetic</strong></dt><dd><p>Per-unit enhancement slopes across a dynamic contrast series.
+Required: <code class="docutils literal notranslate"><span class="pre">timestamps</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">phases,</span> <span class="pre">time_format</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;kinetic&quot;,</span> <span class="pre">{&quot;timestamps&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;kinetic&quot;,</span> <span class="pre">timestamps=...)</span></code></p>
+</dd>
+<dt><strong>ratio</strong></dt><dd><p>Element-wise ratio of two sibling blocks: <code class="docutils literal notranslate"><span class="pre">first</span> <span class="pre">/</span> <span class="pre">(second</span> <span class="pre">+</span> <span class="pre">eps)</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">eps</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;ratio&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;ratio&quot;)</span></code></p>
+</dd>
+<dt><strong>weighted_concat</strong></dt><dd><p>Concatenate sibling blocks after scaling each by a child-specific weight.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">weights</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;weighted_concat&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;weighted_concat&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="image-perturbation">
+<h4>image_perturbation<a class="headerlink" href="#image-perturbation" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>bspline_deform</strong></dt><dd><p>MONAI elastic / B-spline free-form warp of every image and ROI.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma_range,</span> <span class="pre">magnitude_range,</span> <span class="pre">image_mode,</span> <span class="pre">mask_mode,</span> <span class="pre">padding_mode,</span> <span class="pre">device</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;bspline_deform&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;bspline_deform&quot;)</span></code></p>
+</dd>
+<dt><strong>gaussian_noise</strong></dt><dd><p>Add zero-mean Gaussian noise to every image of a subject.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">sigma,</span> <span class="pre">noise_method,</span> <span class="pre">roi,</span> <span class="pre">round_to_int</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;gaussian_noise&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gaussian_noise&quot;)</span></code></p>
+</dd>
+<dt><strong>rigid</strong></dt><dd><p>Sub-voxel translation and small-angle rotation in ONE resample.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">random_signs,</span> <span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;rigid&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;rigid&quot;)</span></code></p>
+</dd>
+<dt><strong>rotation</strong></dt><dd><p>Rotate image content by a small fixed angle about the image centre.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;rotation&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;rotation&quot;)</span></code></p>
+</dd>
+<dt><strong>translation</strong></dt><dd><p>Translate image content by a (random) sub-voxel shift.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">max_shift_voxels,</span> <span class="pre">random_signs,</span> <span class="pre">interpolator</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;translation&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;translation&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="pooling">
+<h4>pooling<a class="headerlink" href="#pooling" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>pool</strong></dt><dd><p>Marker component that declares the subject→cohort fan-in watershed.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;pool&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;pool&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="preprocessor">
+<h4>preprocessor<a class="headerlink" href="#preprocessor" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>adaptive_histogram_equalization</strong></dt><dd><p>Apply adaptive histogram equalization to images using SimpleITK.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;adaptive_histogram_equalization&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;adaptive_histogram_equalization&quot;)</span></code></p>
+</dd>
+<dt><strong>custom_preprocessor</strong></dt><dd><p>Template for creating custom preprocessors.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;custom_preprocessor&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;custom_preprocessor&quot;)</span></code></p>
+</dd>
+<dt><strong>dcm2nii</strong></dt><dd><p>Convert DICOM files to NIfTI format using dcm2niix tool.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;dcm2nii&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;dcm2nii&quot;)</span></code></p>
+</dd>
+<dt><strong>histogram_standardization</strong></dt><dd><p>Apply Nyúl histogram standardization to images.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;histogram_standardization&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;histogram_standardization&quot;)</span></code></p>
+</dd>
+<dt><strong>n4_correction</strong></dt><dd><p>Apply N4 bias field correction to images using SimpleITK.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;n4_correction&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;n4_correction&quot;)</span></code></p>
+</dd>
+<dt><strong>registration</strong></dt><dd><p>Register moving images to a fixed reference using ANTsPy, SimpleITK, or elastix CLI.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;registration&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;registration&quot;)</span></code></p>
+</dd>
+<dt><strong>reorientation</strong></dt><dd><p>Preprocessor for reorienting images to a target coordinate system (e.g., LPS).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;reorientation&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;reorientation&quot;)</span></code></p>
+</dd>
+<dt><strong>resample</strong></dt><dd><p>Resample images to a target spacing using SimpleITK.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;resample&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;resample&quot;)</span></code></p>
+</dd>
+<dt><strong>zscore_normalization</strong></dt><dd><p>Apply Z-score normalization to medical images.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;zscore_normalization&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;zscore_normalization&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="table-preprocessor">
+<h4>table_preprocessor<a class="headerlink" href="#table-preprocessor" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>binning</strong></dt><dd><p>K-bins discretisation of every feature to ordinal bin indices.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_bins,</span> <span class="pre">bin_strategy,</span> <span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;binning&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;binning&quot;)</span></code></p>
+</dd>
+<dt><strong>correlation_filter</strong></dt><dd><p>Greedily drop redundant, highly correlated feature columns.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">corr_threshold,</span> <span class="pre">corr_method</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;correlation_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;correlation_filter&quot;)</span></code></p>
+</dd>
+<dt><strong>log</strong></dt><dd><p>Log transform <code class="docutils literal notranslate"><span class="pre">log(x</span> <span class="pre">-</span> <span class="pre">min_train</span> <span class="pre">+</span> <span class="pre">1)</span></code> of every feature.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;log&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;log&quot;)</span></code></p>
+</dd>
+<dt><strong>minmax</strong></dt><dd><p>Min-max scaling of every feature to [0, 1].
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;minmax&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;minmax&quot;)</span></code></p>
+</dd>
+<dt><strong>robust</strong></dt><dd><p>Robust scaling of every feature by training median and IQR.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;robust&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;robust&quot;)</span></code></p>
+</dd>
+<dt><strong>variance_filter</strong></dt><dd><p>Drop feature columns whose training variance is at/below a threshold.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">variance_threshold,</span> <span class="pre">keep_at_least_one</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;variance_filter&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;variance_filter&quot;)</span></code></p>
+</dd>
+<dt><strong>winsorize</strong></dt><dd><p>Clip extreme feature values at training quantiles.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">winsor_limits,</span> <span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;winsorize&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;winsorize&quot;)</span></code></p>
+</dd>
+<dt><strong>zscore</strong></dt><dd><p>Z-score standardisation of every feature.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">across_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;zscore&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;zscore&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="feature-selector">
+<h4>feature_selector<a class="headerlink" href="#feature-selector" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>anova</strong></dt><dd><p>Univariate ANOVA F-value selection against the outcome.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">p_threshold,</span> <span class="pre">n_features_to_select</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;anova&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;anova&quot;)</span></code></p>
+</dd>
+<dt><strong>chi2</strong></dt><dd><p>Univariate chi-square selection against a categorical outcome.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">p_threshold,</span> <span class="pre">n_features_to_select</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;chi2&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;chi2&quot;)</span></code></p>
+</dd>
+<dt><strong>correlation</strong></dt><dd><p>Unsupervised greedy removal of highly correlated features.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">threshold,</span> <span class="pre">method</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;correlation&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;correlation&quot;)</span></code></p>
+</dd>
+<dt><strong>icc</strong></dt><dd><p>Test-retest stability selection by intraclass correlation coefficient.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">threshold,</span> <span class="pre">icc_type</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;icc&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;icc&quot;)</span></code></p>
+</dd>
+<dt><strong>icc_precomputed</strong></dt><dd><p>Stability selection from a PRECOMPUTED ICC results JSON.
+Required: <code class="docutils literal notranslate"><span class="pre">icc_results_path,</span> <span class="pre">groups</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">threshold,</span> <span class="pre">metric</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;icc_precomputed&quot;,</span> <span class="pre">{&quot;icc_results_path&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;groups&quot;:</span> <span class="pre">...})</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;icc_precomputed&quot;,</span> <span class="pre">icc_results_path=...,</span> <span class="pre">groups=...)</span></code></p>
+</dd>
+<dt><strong>lasso</strong></dt><dd><p>L1-penalised (Lasso) selection with cross-validated penalty.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">cv,</span> <span class="pre">n_alphas,</span> <span class="pre">alphas,</span> <span class="pre">n_jobs,</span> <span class="pre">estimator_params</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;lasso&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;lasso&quot;)</span></code></p>
+</dd>
+<dt><strong>mrmr</strong></dt><dd><p>Minimum-redundancy-maximum-relevance (MRMR) selection.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_features,</span> <span class="pre">task_type</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;mrmr&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;mrmr&quot;)</span></code></p>
+</dd>
+<dt><strong>rfecv</strong></dt><dd><p>Recursive feature elimination with cross-validation (RFECV).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">estimator,</span> <span class="pre">step,</span> <span class="pre">cv,</span> <span class="pre">scoring,</span> <span class="pre">min_features_to_select,</span> <span class="pre">n_jobs</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;rfecv&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;rfecv&quot;)</span></code></p>
+</dd>
+<dt><strong>statistical_test</strong></dt><dd><p>Two-group univariate selection with automatic test choice.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">p_threshold,</span> <span class="pre">n_features_to_select,</span> <span class="pre">normality_test_threshold,</span> <span class="pre">force_test</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;statistical_test&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;statistical_test&quot;)</span></code></p>
+</dd>
+<dt><strong>stepwise</strong></dt><dd><p>Stepwise logistic-regression selection (forward, backward or both).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">direction,</span> <span class="pre">threshold_in,</span> <span class="pre">threshold_out,</span> <span class="pre">criterion,</span> <span class="pre">verbose</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;stepwise&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;stepwise&quot;)</span></code></p>
+</dd>
+<dt><strong>univariate_cox</strong></dt><dd><p>Univariate Cox proportional-hazards selection against a survival outcome.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">p_threshold,</span> <span class="pre">n_features_to_select</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;univariate_cox&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;univariate_cox&quot;)</span></code></p>
+</dd>
+<dt><strong>univariate_logistic</strong></dt><dd><p>Per-feature logistic regression against the outcome.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">alpha,</span> <span class="pre">verbose</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;univariate_logistic&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;univariate_logistic&quot;)</span></code></p>
+</dd>
+<dt><strong>variance</strong></dt><dd><p>Unsupervised variance-based selection.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">threshold,</span> <span class="pre">top_k,</span> <span class="pre">top_percent,</span> <span class="pre">keep_at_least_one</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;variance&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;variance&quot;)</span></code></p>
+</dd>
+<dt><strong>vif</strong></dt><dd><p>Iterative variance-inflation-factor (VIF) pruning of multicollinearity.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">max_vif</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;vif&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;vif&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="classifier">
+<h4>classifier<a class="headerlink" href="#classifier" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>AdaBoost</strong></dt><dd><p>Adaptive boosting of decision stumps (sklearn <code class="docutils literal notranslate"><span class="pre">AdaBoostClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_estimators,</span> <span class="pre">learning_rate</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;AdaBoost&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;AdaBoost&quot;)</span></code></p>
+</dd>
+<dt><strong>AutoGluonTabular</strong></dt><dd><p>AutoML classifier wrapping AutoGluon’s <code class="docutils literal notranslate"><span class="pre">TabularPredictor</span></code>.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">feature_importance,</span> <span class="pre">label,</span> <span class="pre">predictor,</span> <span class="pre">fit</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;AutoGluonTabular&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;AutoGluonTabular&quot;)</span></code></p>
+</dd>
+<dt><strong>BernoulliNB</strong></dt><dd><p>Bernoulli naive Bayes (sklearn <code class="docutils literal notranslate"><span class="pre">BernoulliNB</span></code>; deterministic).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">alpha,</span> <span class="pre">binarize,</span> <span class="pre">fit_prior,</span> <span class="pre">class_prior</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;BernoulliNB&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;BernoulliNB&quot;)</span></code></p>
+</dd>
+<dt><strong>DecisionTree</strong></dt><dd><p>Single CART decision tree (sklearn <code class="docutils literal notranslate"><span class="pre">DecisionTreeClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">criterion,</span> <span class="pre">splitter,</span> <span class="pre">max_depth,</span> <span class="pre">min_samples_split,</span> <span class="pre">min_samples_leaf,</span> <span class="pre">max_features,</span> <span class="pre">class_weight</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;DecisionTree&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;DecisionTree&quot;)</span></code></p>
+</dd>
+<dt><strong>GaussianNB</strong></dt><dd><p>Gaussian naive Bayes (sklearn <code class="docutils literal notranslate"><span class="pre">GaussianNB</span></code>; deterministic).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">priors,</span> <span class="pre">var_smoothing</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;GaussianNB&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;GaussianNB&quot;)</span></code></p>
+</dd>
+<dt><strong>GradientBoosting</strong></dt><dd><p>Stage-wise additive tree ensemble (sklearn <code class="docutils literal notranslate"><span class="pre">GradientBoostingClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">loss,</span> <span class="pre">learning_rate,</span> <span class="pre">n_estimators,</span> <span class="pre">subsample,</span> <span class="pre">criterion,</span> <span class="pre">min_samples_split,</span> <span class="pre">min_samples_leaf,</span> <span class="pre">max_depth,</span> <span class="pre">max_features</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;GradientBoosting&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;GradientBoosting&quot;)</span></code></p>
+</dd>
+<dt><strong>KNN</strong></dt><dd><p>k-nearest-neighbours classifier (sklearn <code class="docutils literal notranslate"><span class="pre">KNeighborsClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_neighbors,</span> <span class="pre">weights,</span> <span class="pre">algorithm,</span> <span class="pre">leaf_size,</span> <span class="pre">p,</span> <span class="pre">metric,</span> <span class="pre">n_jobs</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;KNN&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;KNN&quot;)</span></code></p>
+</dd>
+<dt><strong>LogisticRegression</strong></dt><dd><p>Penalised logistic regression (sklearn <code class="docutils literal notranslate"><span class="pre">LogisticRegression</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">C,</span> <span class="pre">penalty,</span> <span class="pre">solver,</span> <span class="pre">max_iter,</span> <span class="pre">class_weight,</span> <span class="pre">estimator_params</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;LogisticRegression&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;LogisticRegression&quot;)</span></code></p>
+</dd>
+<dt><strong>MLP</strong></dt><dd><p>Multi-layer perceptron classifier (sklearn <code class="docutils literal notranslate"><span class="pre">MLPClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">hidden_layer_sizes,</span> <span class="pre">activation,</span> <span class="pre">solver,</span> <span class="pre">alpha,</span> <span class="pre">batch_size,</span> <span class="pre">learning_rate,</span> <span class="pre">learning_rate_init,</span> <span class="pre">max_iter,</span> <span class="pre">shuffle,</span> <span class="pre">early_stopping,</span> <span class="pre">validation_fraction</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;MLP&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;MLP&quot;)</span></code></p>
+</dd>
+<dt><strong>MultinomialNB</strong></dt><dd><p>Multinomial naive Bayes (sklearn <code class="docutils literal notranslate"><span class="pre">MultinomialNB</span></code>; deterministic).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">alpha,</span> <span class="pre">fit_prior,</span> <span class="pre">class_prior</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;MultinomialNB&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;MultinomialNB&quot;)</span></code></p>
+</dd>
+<dt><strong>RandomForest</strong></dt><dd><p>Bagged decision-tree ensemble (sklearn <code class="docutils literal notranslate"><span class="pre">RandomForestClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_estimators,</span> <span class="pre">max_depth,</span> <span class="pre">min_samples_split,</span> <span class="pre">min_samples_leaf,</span> <span class="pre">max_features,</span> <span class="pre">bootstrap,</span> <span class="pre">class_weight</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;RandomForest&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;RandomForest&quot;)</span></code></p>
+</dd>
+<dt><strong>SVC</strong></dt><dd><p>Kernel support-vector classifier (sklearn <code class="docutils literal notranslate"><span class="pre">SVC</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">C,</span> <span class="pre">kernel,</span> <span class="pre">gamma,</span> <span class="pre">class_weight,</span> <span class="pre">probability</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;SVC&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;SVC&quot;)</span></code></p>
+</dd>
+<dt><strong>SVM</strong></dt><dd><p>Linear support-vector classifier (sklearn <code class="docutils literal notranslate"><span class="pre">LinearSVC</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">C,</span> <span class="pre">class_weight,</span> <span class="pre">max_iter</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;SVM&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;SVM&quot;)</span></code></p>
+</dd>
+<dt><strong>XGBoost</strong></dt><dd><p>Gradient-boosted trees from the xgboost library (<code class="docutils literal notranslate"><span class="pre">XGBClassifier</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_estimators,</span> <span class="pre">max_depth,</span> <span class="pre">learning_rate,</span> <span class="pre">subsample,</span> <span class="pre">colsample_bytree,</span> <span class="pre">objective,</span> <span class="pre">eval_metric</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;XGBoost&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;XGBoost&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+<section id="metric">
+<h4>metric<a class="headerlink" href="#metric" title="Link to this heading"></a></h4>
+<dl class="simple">
+<dt><strong>accuracy</strong></dt><dd><p>Fraction of exactly matching labels.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;accuracy&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;accuracy&quot;)</span></code></p>
+</dd>
+<dt><strong>auc</strong></dt><dd><p>ROC AUC over the positive-class scores.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;auc&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;auc&quot;)</span></code></p>
+</dd>
+<dt><strong>f1_score</strong></dt><dd><p>Harmonic mean of PPV and sensitivity over one shared confusion matrix.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;f1_score&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;f1_score&quot;)</span></code></p>
+</dd>
+<dt><strong>hosmer_lemeshow_p_value</strong></dt><dd><p>Hosmer-Lemeshow calibration p-value (binary outcomes only).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">n_groups</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;hosmer_lemeshow_p_value&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;hosmer_lemeshow_p_value&quot;)</span></code></p>
+</dd>
+<dt><strong>npv</strong></dt><dd><p>Negative predictive value; macro per-class mean when multi-class.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;npv&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;npv&quot;)</span></code></p>
+</dd>
+<dt><strong>ppv</strong></dt><dd><p>Positive predictive value (precision); macro mean when multi-class.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;ppv&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;ppv&quot;)</span></code></p>
+</dd>
+<dt><strong>sensitivity</strong></dt><dd><p>Sensitivity (recall, true positive rate); macro mean when multi-class.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;sensitivity&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;sensitivity&quot;)</span></code></p>
+</dd>
+<dt><strong>specificity</strong></dt><dd><p>Specificity (true negative rate); macro mean when multi-class.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;specificity&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;specificity&quot;)</span></code></p>
+</dd>
+<dt><strong>spiegelhalter_z_p_value</strong></dt><dd><p>Spiegelhalter Z-test calibration p-value (binary outcomes only).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;spiegelhalter_z_p_value&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;spiegelhalter_z_p_value&quot;)</span></code></p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
 <section id="types">
 <h2>Types<a class="headerlink" href="#types" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code> — name, domain, implementation, params_schema, provider</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PluginCatalogEntry</span></code> — one live catalog row from <code class="docutils literal notranslate"><span class="pre">params_model</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">PluginLoadReport</span></code> — result of <code class="docutils literal notranslate"><span class="pre">load_plugins</span></code></p></li>
 </ul>
 </section>

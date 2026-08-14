@@ -114,18 +114,18 @@ publication figures.
 .. rubric:: Featured: voxel texture maps
 
 Voxel-level **texture** (local entropy + a small GLCM set via
-``voxel_radiomics``) with ``side_by_side`` figures: anatomy + ROI contour |
-texture map.
+``voxel_radiomics``) overlaid on greyscale anatomy: opaque colours inside
+the ROI, optional cyan contour.
 
 * How-to: :doc:`../how_to/voxel_texture`
 * Runnable example + gallery: :doc:`voxel_texture`
 
-.. figure:: ../_static/images/examples/voxel_texture_side_by_side.png
-   :alt: Anatomy with ROI contour beside local-entropy texture map
+.. figure:: ../_static/images/examples/voxel_texture_overlay.png
+   :alt: Opaque local-entropy overlay on greyscale anatomy
    :width: 420
    :target: voxel_texture.html
 
-   Local-entropy panels from :doc:`voxel_texture`.
+   Local-entropy overlay from :doc:`voxel_texture`.
 
 .. rubric:: All examples (flat)
 
