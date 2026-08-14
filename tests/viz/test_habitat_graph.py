@@ -126,7 +126,7 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
             if rgba.ndim == 3 and rgba.shape[-1] == 4:
                 alphas = rgba[..., 3]
                 painted = alphas > 0
-                if title == "All habitats":
+                if title.startswith("All habitats"):
                     assert painted.any()
                     assert np.allclose(alphas[painted], 1.0)
                 elif title.startswith("H"):
@@ -165,8 +165,45 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
         assert "Intra-habitat graph" not in title
         assert "slice" not in title.lower()
     assert any(title.startswith("H") for title in panel_titles)
-    assert "All habitats" in panel_titles
+    all_titles = [title for title in panel_titles if title.startswith("All habitats")]
+    assert all_titles
+    all_title = all_titles[0]
+    assert "n=" in all_title
+    assert "H1=" in all_title
+    assert "intra e=" in all_title
+    assert "inter e=" in all_title
 
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_habitat_graph_network_2d_all_panel_reports_n_and_edges() -> None:
+    """All-habitats title lists per-habitat nodes plus intra/inter edges."""
+    labels = _synthetic_2d_labels()
+    fig = plot_habitat_graph_network_2d(labels, options=_viz_options())
+    assert isinstance(fig, Figure)
+    all_axes = [
+        ax for ax in fig.axes if ax.get_title().startswith("All habitats")
+    ]
+    assert len(all_axes) == 1
+    title = all_axes[0].get_title()
+    assert title.isascii()
+    lines = [line.strip() for line in title.splitlines() if line.strip()]
+    assert lines[0] == "All habitats"
+    assert lines[1].startswith("n=")
+    assert "H1=" in lines[1]
+    assert "H2=" in lines[1]
+    assert "H3=" in lines[1]
+    assert any(line.startswith("intra e=") and "inter e=" in line for line in lines)
+    habitat_titles = [
+        ax.get_title() for ax in fig.axes if ax.get_title().startswith("H")
+    ]
+    assert habitat_titles
+    for habitat_title in habitat_titles:
+        assert "n=" in habitat_title
+        assert "e=" in habitat_title
+        assert "intra e=" not in habitat_title
     import matplotlib.pyplot as plt
 
     plt.close(fig)
@@ -293,7 +330,7 @@ def test_plot_habitat_graph_network_2d_titles_do_not_overlap() -> None:
         assert title.isascii()
         assert "Intra-habitat graph" not in title
         assert "slice" not in title.lower()
-    assert any(ax.get_title() == "All habitats" for ax in titled_axes)
+    assert any(ax.get_title().startswith("All habitats") for ax in titled_axes)
     if fig._suptitle is not None:
         assert "slice" in fig._suptitle.get_text().lower()
 

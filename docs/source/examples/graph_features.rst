@@ -71,9 +71,11 @@ Anatomy with habitats
    :alt: Intra- and inter-habitat graphs on a 2D habitat slice
    :width: 720
 
-   Intra-habitat panels plus the combined inter-habitat graph. Display
-   knobs ``block_size=5`` / ``grid_linestyle='--'`` draw the same 5-voxel
-   cubes; other habitats' edges on each H panel are gray and translucent
+   Intra-habitat panels plus the combined All-habitats graph. The All
+   panel title reports per-habitat node counts and intra/inter edge
+   counts. Display knobs ``block_size=5`` / ``grid_linestyle='--'`` draw
+   the same 5-voxel cubes; other habitats' edges on each H panel are gray
+   and translucent
    (:func:`~habit.viz.plot_habitat_graph_network_2d`).
 
 3D surfaces and network

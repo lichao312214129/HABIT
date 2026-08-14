@@ -307,6 +307,51 @@ def _combined_graph(
     return id_to_node, intra_edges, inter_edges
 
 
+def _all_habitats_title(
+    labels: Sequence[int],
+    nodes_by_habitat: Dict[int, Sequence[HabitatGraphNode]],
+    intra_edges: Sequence[_EdgePair],
+    inter_edges: Sequence[_EdgePair],
+) -> str:
+    """
+    Build the English All-habitats panel title with node and edge counts.
+
+    Args:
+        labels: Sorted habitat IDs present on the drawn slice.
+        nodes_by_habitat: Nodes grouped by habitat label.
+        intra_edges: Combined intra-habitat edges drawn on the All panel.
+        inter_edges: Combined inter-habitat edges drawn on the All panel.
+
+    Returns:
+        Multiline title, for example::
+
+            All habitats
+            n=60 (H1=12, H2=14, H3=20, H4=14)
+            intra e=78, inter e=12
+
+        Per-habitat counts wrap every four habitats so crowded grids stay
+        readable. Figure text stays English-only.
+    """
+    counts = [len(nodes_by_habitat[int(label)]) for label in labels]
+    total = int(sum(counts))
+    parts = [
+        f"H{int(label)}={count}" for label, count in zip(labels, counts)
+    ]
+    # Wrap every four habitats so an 8-habitat grid does not overflow.
+    wrapped: List[str] = []
+    for start in range(0, len(parts), 4):
+        wrapped.append(", ".join(parts[start : start + 4]))
+    if len(wrapped) == 1:
+        n_line = f"n={total} ({wrapped[0]})"
+    else:
+        n_line = f"n={total} ({wrapped[0]},\n  " + ",\n  ".join(wrapped[1:]) + ")"
+    return (
+        f"All habitats\n"
+        f"{n_line}\n"
+        f"intra e={len(intra_edges)}, inter e={len(inter_edges)}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Color and styling helpers
 # ---------------------------------------------------------------------------
@@ -937,7 +982,8 @@ def plot_habitat_graph_network_2d(
     # Extra width + bottom room so short titles and the larger figlegend
     # cannot collide when many habitats share one row.
     fig_width = cols * panel_size * 1.18
-    fig_height = rows * panel_size + 1.35
+    # Extra height for the All-panel multiline title (n / intra / inter).
+    fig_height = rows * panel_size + 1.65
     with use_style("radiology"):
         fig, axes = plt.subplots(
             rows,
@@ -948,9 +994,9 @@ def plot_habitat_graph_network_2d(
         )
         fig.set_constrained_layout_pads(
             w_pad=0.05,
-            h_pad=0.10,
+            h_pad=0.12,
             wspace=0.12,
-            hspace=0.20,
+            hspace=0.28,
         )
         flat = [ax for row in axes for ax in row]
         for ax in flat[n_panels:]:
@@ -1013,9 +1059,14 @@ def plot_habitat_graph_network_2d(
         _style_axis_2d(
             ax_cross,
             label_2d,
-            "All habitats",
+            _all_habitats_title(
+                labels,
+                node_result.nodes_by_habitat,
+                intra_edges,
+                inter_edges,
+            ),
             title_fontsize=_PANEL_TITLE_FONTSIZE,
-            title_pad=4.0,
+            title_pad=6.0,
         )
         cbar = add_discrete_habitat_colorbar(
             ax_cross,
