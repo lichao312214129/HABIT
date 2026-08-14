@@ -11,8 +11,29 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
-from habit import HabitatSpec, Spec, Stage, cohort_from_directory
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+
+from habit import (
+    HabitatSpec,
+    Spec,
+    Stage,
+    cohort_from_directory,
+    habitat_region_stats,
+    habitat_volume_fractions,
+    ith_score,
+    spatial_interaction_matrix,
+)
 import habit.recipes as recipes
+from habit.viz import (
+    plot_cluster_validation_from_report,
+    plot_habitat_overlay,
+    plot_habitat_volume_fractions,
+    plot_ith_summary,
+    plot_msi_matrix,
+    plot_partition_triptych,
+)
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -61,6 +82,63 @@ print(result.manifest.describe_methods())
 # Persist wherever you like — swap this path for your project
 out_dir = result.save("out/two_step_demo")
 print(f"Saved study to {out_dir}")
+
+# Figures: public habit.viz defaults. Edit the out/ filenames if you like.
+# Overlay uses the 3-D default (three orthogonal panels). Pass ImageVolume
+# and HabitatMap — not .data — so direction / spacing stay attached.
+# Triptych is a single axial slice; axis=0 is the public default (shown).
+Path("out").mkdir(exist_ok=True)
+
+
+def _save(fig: object, name: str) -> None:
+    """Write one PNG under out/ and close the figure."""
+    fig.savefig(f"out/{name}", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+subject = cohort[0]
+habitat_map = result.habitat_maps[0]
+_save(
+    plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats"),
+    "two_step_overlay.png",
+)
+_save(
+    plot_partition_triptych(
+        subject.image(ROI),
+        result.units[0],
+        habitat_map,
+        axis=0,
+    ),
+    "two_step_triptych.png",
+)
+
+labels = habitat_map.label_array
+ids = tuple(int(v) for v in habitat_map.habitat_ids)
+if ids:
+    _save(
+        plot_habitat_volume_fractions(habitat_volume_fractions(labels, ids)),
+        "two_step_volume_fractions.png",
+    )
+    n_classes = int(max(ids)) + 1
+    msi = spatial_interaction_matrix(labels, n_classes=n_classes)
+    _save(
+        plot_msi_matrix(msi, habitat_ids=tuple(range(1, n_classes))),
+        "two_step_msi_matrix.png",
+    )
+    _save(
+        plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels)),
+        "two_step_ith_summary.png",
+    )
+
+report = None
+if result.habitat_model is not None:
+    report = (result.habitat_model.preprocessing_state or {}).get("selection_report")
+if report:
+    _save(
+        plot_cluster_validation_from_report(report),
+        "two_step_cluster_validation.png",
+    )
+print("Wrote figures under out/")
 # END example
 
 if __name__ == "__main__":
@@ -68,8 +146,18 @@ if __name__ == "__main__":
     from pathlib import Path
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _example_roi import save_habitat_study_figures
+    from _example_roi import copy_out_figures_to_gallery
     from _habitat_eye_check import eye_check_study
 
-    save_habitat_study_figures(cohort, result, prefix="two_step")
+    # Gallery = copy of out/ from the visible block (same composition).
+    copy_out_figures_to_gallery(
+        (
+            "two_step_overlay.png",
+            "two_step_triptych.png",
+            "two_step_volume_fractions.png",
+            "two_step_msi_matrix.png",
+            "two_step_ith_summary.png",
+            "two_step_cluster_validation.png",
+        )
+    )
     eye_check_study(cohort, result)

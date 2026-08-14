@@ -137,6 +137,51 @@ def examples_image_dir() -> Path:
     return EXAMPLES_IMG_DIR
 
 
+def copy_out_figures_to_gallery(
+    filenames: Sequence[str],
+    *,
+    out_dir: Path = Path("out"),
+) -> Dict[str, Path]:
+    """
+    Copy PNGs already written under ``out/`` into the Examples gallery.
+
+    This does **not** re-plot. The site image must be the same composition
+    as the Sphinx-visible ``# BEGIN example`` … ``# END example`` block.
+
+    Args:
+        filenames: Basenames such as ``one_step_overlay.png``.
+        out_dir: Directory the visible example wrote (default ``out``).
+
+    Returns:
+        Mapping of basename → gallery path for files that existed.
+
+    Raises:
+        FileNotFoundError: When none of the requested files exist.
+    """
+    import shutil
+
+    gallery = examples_image_dir()
+    written: Dict[str, Path] = {}
+    missing: list[str] = []
+    for name in filenames:
+        src = Path(out_dir) / name
+        if not src.is_file():
+            missing.append(name)
+            continue
+        dest = gallery / name
+        shutil.copy2(src, dest)
+        written[name] = dest
+    if not written:
+        raise FileNotFoundError(
+            "copy_out_figures_to_gallery: no files found under "
+            f"{Path(out_dir).resolve()}: {', '.join(filenames)}"
+        )
+    if missing:
+        print("Gallery copy skipped (missing in out/): " + ", ".join(missing))
+    print("Gallery copy: " + ", ".join(written))
+    return written
+
+
 def save_example_figure(fig: object, filename: str, *, dpi: int = 300) -> Path:
     """
     Save a matplotlib figure under the Examples gallery image directory.

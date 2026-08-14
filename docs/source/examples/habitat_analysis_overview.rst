@@ -4,7 +4,11 @@ Habitat analysis overview (recipes → atoms → custom)
 **Level:** conceptual map · **Data:** none · **Extras:** none · **Time:** <1 min read
 
 Habitat analysis is HABIT's core. Examples in this section are layered so you
-can enter at the right depth:
+can enter at the right depth.
+
+Copied a recipe example and want **other methods or parameters**?
+:doc:`../how_to/habitat_components` lists every habitat-stage name,
+parameter, and allowed value (chooser from the example outward).
 
 .. list-table::
    :header-rows: 1
