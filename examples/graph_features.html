@@ -622,7 +622,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1732,11 +1731,11 @@
 <p><strong>Level:</strong> atomic · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> or synthetic · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> /
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code> for figures · <strong>Time:</strong> ~20–90 s</p>
 <p>End-to-end: one subject → <code class="xref py py-func docutils literal notranslate"><span class="pre">one_step_habitat()</span></code> with a <strong>fixed</strong>
-<code class="docutils literal notranslate"><span class="pre">n_habitats=5</span></code> (not <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>) →
+<code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> (not <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>) →
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> → overlay +
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. This example <strong>overrides</strong>
 the library defaults (<code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels=10</span></code>, <code class="docutils literal notranslate"><span class="pre">erosion_radius=0</span></code>)
-to contact <strong>&gt;= 5</strong> voxels via
+to contact <strong>&gt;= 2</strong> voxels via
 <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code>. By default there is <strong>no
 erosion</strong>; an edge exists when two regions are <strong>adjacent</strong> and the
 contact (shared-boundary) voxel count meets that threshold, measured on
@@ -1747,8 +1746,8 @@ tier as <code class="docutils literal notranslate"><span class="pre">volume</spa
 <section id="script">
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree
-(<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=5</strong> and
-sets <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels=5</span></code> (library default remains 10), then
+(<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=4</strong> and
+sets <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels=2</span></code> (library default remains 10), then
 extracts graph topology and draws the overlay plus the 2D network. Figures
 land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that path too if you like).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -1766,14 +1765,14 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 <span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
-<span class="c1"># Fixed K=5 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
+<span class="c1"># Fixed K=4 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
 <span class="c1"># This example overrides the library default adjacency_min_voxels=10.</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
-    <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
-<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">),</span> <span class="s2">&quot;graph features&quot;</span><span class="p">)</span>
 </pre></div>
@@ -1792,7 +1791,7 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
     <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
     <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;One-step habitats (K=5)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;One-step habitats (K=4)&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_slice_2d.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="c1"># Same edge options as extract_graph_features so the 2D plot matches.</span>
@@ -1808,9 +1807,9 @@ land under <code class="docutils literal notranslate"><span class="pre">out/</sp
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=5</span></code>, <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels=5</span></code>; count
+<p>Illustrative (fixed <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code>, <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels=2</span></code>; count
 depends on the habitat map):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">808</span> <span class="n">graph</span> <span class="n">features</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">537</span> <span class="n">graph</span> <span class="n">features</span>
 </pre></div>
 </div>
 </section>
@@ -1853,7 +1852,7 @@ see the how-to for the one-line 3D calls).</p>
 </a>
 <figcaption>
 <p><span class="caption-text">Region-centroid nodes with intra- and inter-habitat adjacency edges
-(this example: contact voxels &gt;= 5; library default is 10;
+(this example: contact voxels &gt;= 2; library default is 10;
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
