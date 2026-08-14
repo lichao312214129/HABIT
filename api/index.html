@@ -447,7 +447,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1377,6 +1377,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
@@ -3409,36 +3410,39 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 <td><p>Habitat x feature heatmap (cohort mean or one subject).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_effect</span></code></a>(...[, ...])</p></td>
-<td><p>Ranked effect-size forest (Cliff's delta or Cohen's d).</p></td>
+<td><p>Habitat-pair effect sizes (Cliff's delta or Cohen's d).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_violin</span></code></a>(data, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_components</span></code></a>(data, *)</p></td>
+<td><p>PCA or CVA of (subject, habitat) rows in feature space.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_violin</span></code></a>(data, *)</p></td>
 <td><p>Grouped violins (or box + strip when n is small) for a feature shortlist.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_bars</span></code></a>(data, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_bars</span></code></a>(data, *)</p></td>
 <td><p>One bar panel per feature (independent y-axis).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice" title="habit.viz.plot_habitat_graph_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_slice</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html#habit.viz.plot_habitat_graph_slice" title="habit.viz.plot_habitat_graph_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_slice</span></code></a>(...[, ...])</p></td>
 <td><p>Draw the colored habitat map at the largest cross-section (2D).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_network_2d</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_graph_network_2d</span></code></a>(...)</p></td>
 <td><p>Draw the intra/inter habitat graphs built from the 2D slice habitat map.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_surface_3d</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_surface_3d</span></code></a>(...)</p></td>
 <td><p>Render a 3D surface view of the habitat volume (PyVista).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_network_3d</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.render_habitat_graph_network_3d</span></code></a>(...)</p></td>
 <td><p>Render the 3D feature-aligned spatial graph on a dark scene (PyVista).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.dense_voxel_feature_map.html#habit.viz.dense_voxel_feature_map" title="habit.viz.dense_voxel_feature_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.dense_voxel_feature_map</span></code></a>(field[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.dense_voxel_feature_map.html#habit.viz.dense_voxel_feature_map" title="habit.viz.dense_voxel_feature_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.dense_voxel_feature_map</span></code></a>(field[, ...])</p></td>
 <td><p>Scatter one <code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code> column into a dense volume.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_intensity_slice</span></code></a>(image, *[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_intensity_slice</span></code></a>(image, *[, ...])</p></td>
 <td><p>Display a whole-FOV greyscale anatomy / intensity slice.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_voxel_texture_slice</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_voxel_texture_slice.html#habit.viz.plot_voxel_texture_slice" title="habit.viz.plot_voxel_texture_slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_voxel_texture_slice</span></code></a>(...[, ...])</p></td>
 <td><p>Display a voxel-level texture / feature map as 2D publication panels.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.view_habitat_napari.html#habit.viz.view_habitat_napari" title="habit.viz.view_habitat_napari"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.view_habitat_napari</span></code></a>(images, labels, *)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.view_habitat_napari.html#habit.viz.view_habitat_napari" title="habit.viz.view_habitat_napari"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.view_habitat_napari</span></code></a>(images, labels, *)</p></td>
 <td><p>Open (or populate) a napari viewer with image layer(s) + habitat labels.</p></td>
 </tr>
 </tbody>

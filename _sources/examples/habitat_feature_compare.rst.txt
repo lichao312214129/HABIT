@@ -8,13 +8,19 @@ After an ``each_habitat`` (or any wide ``habitat_{id}_{feature}``) table,
 :func:`~habit.compare_habitat_features` melts the wide block so you can
 ask: for each feature, do habitats differ, and by how much?
 
-This page builds a **synthetic** stand-in table (two habitats; first-order
-Mean / Median / Energy / Kurtosis plus ``volume_fraction``). Swap
-``table`` for your ``each_habitat`` /
+This page builds a **synthetic** stand-in table (three habitats; first-order
+Mean / Median / Energy / Kurtosis / Skewness, GLCM Contrast, plus
+``volume_fraction``). Swap ``table`` for your ``each_habitat`` /
 :func:`~habit.recipes.extract_habitat_features`
 :class:`~habit.contracts.FeatureTable`. Then it draws the publication
-figures. Bars are **one panel per feature** (independent y-axis) so Energy
-and ``volume_fraction`` are not forced onto one linear scale.
+figures. The default effect figure is the **features x pair** Cliff's
+:math:`\delta` heatmap; pass ``pair=(a, b)`` to keep the single-pair
+lollipop. When a table has dozens of features the heatmap keeps the
+top-k by max :math:`|\delta|` and
+:func:`~habit.viz.plot_habitat_feature_components` (PCA or CVA) summarises
+habitat separation. Bars are **one panel per feature** (independent
+y-axis) so Energy and ``volume_fraction`` are not forced onto one linear
+scale.
 
 ``graph`` columns (``single_h*`` / ``pair_h*_h*``) can live on the same
 joined :class:`~habit.contracts.FeatureTable`. They are subject-level
@@ -39,7 +45,7 @@ Draw the figures
 ----------------
 
 Paste this after the Script block (it uses ``cmp``). Writes
-``out/habitat_feature_{heatmap_cohort,heatmap_subject,effect,violin,bars}.png``.
+``out/habitat_feature_{heatmap_cohort,heatmap_subject,effect,effect_pair,components,violin,bars}.png``.
 
 .. literalinclude:: scripts/habitat_feature_compare_demo.py
    :language: python
@@ -53,9 +59,9 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (12 synthetic subjects, two habitats, five features)::
+Illustrative (12 synthetic subjects, three habitats, seven features)::
 
-   12 subjects; 5 features
+   12 subjects; 7 features
    Wrote habitat-feature contrast figures under out/
 
 Figures
@@ -80,11 +86,29 @@ claim).
    ``subject_id``).
 
 .. figure:: ../_static/images/examples/habitat_feature_effect.png
-   :alt: Cliff's delta effect-size forest
+   :alt: Features-by-pair Cliff's delta heatmap
+   :width: 520
+
+   Default effect figure: features x pair Cliff's delta
+   (:func:`~habit.viz.plot_habitat_feature_effect` with no ``pair``).
+   Starred cells are BH q < 0.05. With dozens of features the heatmap
+   keeps the top-k by max :math:`|\delta|`.
+
+.. figure:: ../_static/images/examples/habitat_feature_effect_pair.png
+   :alt: Single-pair Cliff's delta lollipop
    :width: 420
 
-   Ranked Cliff's delta
-   (:func:`~habit.viz.plot_habitat_feature_effect`).
+   Retained single-pair lollipop
+   (:func:`~habit.viz.plot_habitat_feature_effect` with ``pair=(2, 1)``).
+
+.. figure:: ../_static/images/examples/habitat_feature_components.png
+   :alt: PCA of subject-by-habitat feature rows
+   :width: 620
+
+   PCA of (subject, habitat) rows
+   (:func:`~habit.viz.plot_habitat_feature_components`, ``method="pca"``).
+   With dozens of features this summarises habitat separation; CVA
+   (Fisher LDA) is the supervised alternative.
 
 .. figure:: ../_static/images/examples/habitat_feature_violin.png
    :alt: Per-feature habitat distributions

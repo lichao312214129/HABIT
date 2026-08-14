@@ -104,9 +104,14 @@ contrast habitats **across the cohort** (paired Cliff's delta + BH-FDR).
 The same objects also describe one subject (differences without p-values).
 
 Tens-to-hundreds of texture features: draw a habitat x feature heatmap
-and a top-k effect-size forest. Violins / bars are for a shortlist, not
-the full bank. Bars are **one panel per feature** (independent y-axis)
-so Energy and ``volume_fraction`` are not forced onto one linear scale.
+and the default **features x pair** Cliff's :math:`\delta` heatmap
+(top-k by max :math:`|\delta|` when the bank is large). Pass
+``pair=(a, b)`` for the single-pair lollipop.
+:func:`~habit.viz.plot_habitat_feature_components` (PCA or CVA) summarises
+habitat separation in a few axes. Violins / bars are for a shortlist,
+not the full bank. Bars are **one panel per feature** (independent
+y-axis) so Energy and ``volume_fraction`` are not forced onto one linear
+scale.
 
 Runnable gallery (synthetic stand-in table; swap ``table`` for your
 ``each_habitat`` extract)::
@@ -118,6 +123,7 @@ Runnable gallery (synthetic stand-in table; swap ``table`` for your
    from habit import (
        compare_habitat_features,
        plot_habitat_feature_bars,
+       plot_habitat_feature_components,
        plot_habitat_feature_effect,
        plot_habitat_feature_heatmap,
        plot_habitat_feature_violin,
@@ -128,7 +134,9 @@ Runnable gallery (synthetic stand-in table; swap ``table`` for your
    cmp = compare_habitat_features(panel)            # cohort if table has >= 2 subjects
 
    fig = plot_habitat_feature_heatmap(cmp)          # overview (z-scored)
-   fig = plot_habitat_feature_effect(cmp, top_k=20) # ranked Cliff's delta
+   fig = plot_habitat_feature_effect(cmp)           # features x pair Cliff's delta
+   fig = plot_habitat_feature_effect(cmp, pair=(1, 2), top_k=20)  # one pair
+   fig = plot_habitat_feature_components(cmp, method="pca")
    fig = plot_habitat_feature_violin(cmp, max_features=6)
    fig = plot_habitat_feature_heatmap(cmp, subject_id="subj001")  # one subject
    fig = plot_habitat_feature_bars(cmp, subject_id="subj001", max_features=6)
@@ -157,11 +165,19 @@ do not melt through this API.
    (:func:`~habit.viz.plot_habitat_feature_heatmap`).
 
 .. figure:: ../../_static/images/examples/habitat_feature_effect.png
-   :alt: Cliff's delta lollipop for habitat contrast
-   :width: 480
+   :alt: Features-by-pair Cliff's delta heatmap
+   :width: 520
 
-   Ranked Cliff's delta (filled = BH q < 0.05)
-   (:func:`~habit.viz.plot_habitat_feature_effect`).
+   Default features x pair Cliff's delta (star = BH q < 0.05)
+   (:func:`~habit.viz.plot_habitat_feature_effect`). With dozens of
+   features the heatmap keeps the top-k by max :math:`|\delta|`.
+
+.. figure:: ../../_static/images/examples/habitat_feature_components.png
+   :alt: PCA of subject-by-habitat feature rows
+   :width: 620
+
+   PCA of (subject, habitat) rows
+   (:func:`~habit.viz.plot_habitat_feature_components`).
 
 .. figure:: ../../_static/images/examples/habitat_feature_violin.png
    :alt: Per-feature habitat distributions

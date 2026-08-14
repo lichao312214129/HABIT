@@ -799,7 +799,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1729,6 +1729,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
@@ -2128,7 +2129,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">The default story is:</span>
 
 <span class="sd">* heatmap -- habitats x features (z-scored), cohort mean or one subject;</span>
-<span class="sd">* effect-size forest -- top-k paired Cliff&#39;s delta (or Cohen&#39;s d);</span>
+<span class="sd">* effect-size -- all habitat-pair Cliff&#39;s delta (features x pairs); a</span>
+<span class="sd">  single-pair lollipop only when the caller names a pair;</span>
+<span class="sd">* components -- PCA or CVA (Fisher LDA) of (subject, habitat) rows;</span>
 <span class="sd">* violin / grouped bar -- only the selected (or top-k) features.</span>
 
 <span class="sd">Bar panels are **faceted by feature** so incommensurable scales (Energy vs</span>
@@ -2139,7 +2142,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -2161,6 +2164,7 @@ window.runMermaid = runMermaid;</script>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;plot_habitat_feature_heatmap&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_habitat_feature_effect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_habitat_feature_components&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_habitat_feature_violin&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_habitat_feature_bars&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -2172,6 +2176,12 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: Violins / bars are for a shortlist, not the full texture bank.</span>
 <span class="n">_DEFAULT_DETAIL_FEATURES</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">_DEFAULT_EFFECT_TOP_K</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="c1">#: All-pair delta heatmap row cap; title states the truncation.</span>
+<span class="n">_DEFAULT_EFFECT_MAX_FEATURES</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="c1">#: Annotate subject ids on the components scatter only when n is small.</span>
+<span class="n">_MAX_COMPONENT_ANNOTATIONS</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="c1">#: Loadings companion bar: how many features to name on PC1 / CV1.</span>
+<span class="n">_DEFAULT_LOADING_FEATURES</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="c1">#: Violin KDE is misleading below this per-habitat point count.</span>
 <span class="n">_MIN_VIOLIN_N</span> <span class="o">=</span> <span class="mi">5</span>
 
@@ -2552,29 +2562,189 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_effect_mode</span><span class="p">(</span>
+    <span class="n">pair</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">habitats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose the single-pair lollipop vs the all-pair delta heatmap.</span>
+
+<span class="sd">    An explicit ``pair`` always wins. ``habitats`` with exactly two ids</span>
+<span class="sd">    is the same request (H_a vs H_b). Omitting both, or listing three or</span>
+<span class="sd">    more habitats, draws every pair among those ids.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(&quot;pair&quot;, (a, b), None)`` or ``(&quot;heatmap&quot;, None, habitat_ids)``.</span>
+<span class="sd">        ``habitat_ids`` is ``None`` when every pair in the table is kept.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pair</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">habitats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;heatmap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitats</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ids</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_effect: habitats must list at least &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;two ids; got </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;heatmap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ids</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pair_column_label</span><span class="p">(</span><span class="n">habitat_a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">habitat_b</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ASCII pair tick such as ``H1-H2``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_a</span><span class="p">)</span><span class="si">}</span><span class="s2">-H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">habitat_b</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_effect_pair_matrices</span><span class="p">(</span>
+    <span class="n">pairwise</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build features x pairs matrices of effect size and BH q-value.</span>
+
+<span class="sd">    Pair columns follow ``combinations`` order of the stored</span>
+<span class="sd">    ``(habitat_a, habitat_b)`` rows (already a &lt; b from the domain</span>
+<span class="sd">    compare). A swapped spelling of the same pair flips the sign.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(effects, q_values, pair_labels)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="n">pairwise</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">habitat_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">}</span>
+        <span class="n">work</span> <span class="o">=</span> <span class="n">work</span><span class="p">[</span>
+            <span class="n">work</span><span class="p">[</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">work</span><span class="p">[</span><span class="s2">&quot;habitat_b&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_effect: no pairwise rows for the &quot;</span>
+            <span class="s2">&quot;requested habitats.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">pair_frame</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">work</span><span class="p">[[</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_b&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_b&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">pair_tuples</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">habitat_a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">habitat_b</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pair_frame</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">pair_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">_pair_column_label</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">pair_tuples</span><span class="p">]</span>
+    <span class="n">n_feat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+    <span class="n">n_pair</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_tuples</span><span class="p">)</span>
+    <span class="n">effects</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_feat</span><span class="p">,</span> <span class="n">n_pair</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">q_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_feat</span><span class="p">,</span> <span class="n">n_pair</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">feature_index</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">features</span><span class="p">)}</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">work</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">feature</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature_index</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">habitat_a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">habitat_b</span><span class="p">)</span>
+        <span class="n">sign</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pair_tuples</span><span class="p">:</span>
+            <span class="n">pair_i</span> <span class="o">=</span> <span class="n">pair_tuples</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pair_tuples</span><span class="p">:</span>
+            <span class="n">pair_i</span> <span class="o">=</span> <span class="n">pair_tuples</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
+            <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">feat_i</span> <span class="o">=</span> <span class="n">feature_index</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">effects</span><span class="p">[</span><span class="n">feat_i</span><span class="p">,</span> <span class="n">pair_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">effect</span><span class="p">)</span>
+        <span class="n">q_values</span><span class="p">[</span><span class="n">feat_i</span><span class="p">,</span> <span class="n">pair_i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">q_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">effects</span><span class="p">,</span> <span class="n">q_values</span><span class="p">,</span> <span class="n">pair_labels</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rank_features_by_max_abs_effect</span><span class="p">(</span>
+    <span class="n">pairwise</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature names ordered by max absolute effect across the selected pairs.&quot;&quot;&quot;</span>
+    <span class="n">work</span> <span class="o">=</span> <span class="n">pairwise</span>
+    <span class="k">if</span> <span class="n">habitat_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">}</span>
+        <span class="n">work</span> <span class="o">=</span> <span class="n">work</span><span class="p">[</span>
+            <span class="n">work</span><span class="p">[</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">work</span><span class="p">[</span><span class="s2">&quot;habitat_b&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">if</span> <span class="n">work</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">ranked</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">work</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_abs</span><span class="o">=</span><span class="n">work</span><span class="p">[</span><span class="s2">&quot;effect&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="s2">&quot;_abs&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ranked</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_effect_heatmap_features</span><span class="p">(</span>
+    <span class="n">pairwise</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">max_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose heatmap rows and report how many features existed before the cap.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(selected_names, n_available)``. ``n_available`` is the count</span>
+<span class="sd">        before ``max_features`` so the title can say</span>
+<span class="sd">        ``top 15 of 47 by max |delta|``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">names</span><span class="p">[:</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_features</span><span class="p">),</span> <span class="mi">1</span><span class="p">)],</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="n">ranked</span> <span class="o">=</span> <span class="n">_rank_features_by_max_abs_effect</span><span class="p">(</span>
+        <span class="n">pairwise</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span>
+    <span class="p">)</span>
+    <span class="n">n_available</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ranked</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ranked</span><span class="p">[:</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">max_features</span><span class="p">),</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">n_available</span>
+
+
 <div class="viewcode-block" id="plot_habitat_feature_effect">
 <a class="viewcode-back" href="../../../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_feature_effect</span><span class="p">(</span>
     <span class="n">comparison</span><span class="p">:</span> <span class="s2">&quot;HabitatFeatureComparison&quot;</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">pair</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">habitats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_EFFECT_TOP_K</span><span class="p">,</span>
+    <span class="n">max_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_EFFECT_MAX_FEATURES</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Ranked effect-size forest (Cliff&#39;s delta or Cohen&#39;s d).</span>
+<span class="sd">    Habitat-pair effect sizes (Cliff&#39;s delta or Cohen&#39;s d).</span>
 
-<span class="sd">    This is the cohort figure that argues habitats differ: one pair of</span>
-<span class="sd">    habitats, top-k features, a vertical line at 0. Filled markers are</span>
-<span class="sd">    BH q &lt; 0.05 when q-values exist; open markers are not significant</span>
-<span class="sd">    or untested (single-subject / small n). The x-axis is symmetric so</span>
-<span class="sd">    negative effects keep numeric ticks.</span>
+<span class="sd">    Default (no pair): a **features x pair** heatmap of every habitat</span>
+<span class="sd">    pair (``H1-H2``, ``H1-H3``, ...). Colour is the effect size; BH</span>
+<span class="sd">    q &lt; 0.05 cells are starred and full-colour, others stay pale.</span>
+<span class="sd">    When more features exist than ``max_features``, only the top-k by</span>
+<span class="sd">    max absolute effect across pairs are drawn and the title states the</span>
+<span class="sd">    truncation (``top 15 of 47 by max |delta|``).</span>
+
+<span class="sd">    Single-pair lollipop: pass ``pair=(a, b)`` or ``habitats=(a, b)``.</span>
+<span class="sd">    Filled markers are BH q &lt; 0.05; open markers are not significant</span>
+<span class="sd">    or untested. The x-axis is symmetric so negative effects keep</span>
+<span class="sd">    numeric ticks.</span>
+
+<span class="sd">    The delta / d formula is the domain compare; this function only</span>
+<span class="sd">    draws it.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        comparison: Output of ``compare_habitat_features``.</span>
-<span class="sd">        pair: ``(habitat_a, habitat_b)``. Default: the pair with the</span>
-<span class="sd">            largest mean absolute effect.</span>
-<span class="sd">        top_k: Maximum features to draw.</span>
+<span class="sd">        pair: Explicit ``(habitat_a, habitat_b)`` for the lollipop.</span>
+<span class="sd">        habitats: Habitat ids. Two ids = the same as ``pair``; three or</span>
+<span class="sd">            more (or omitted) = all pairs among those ids.</span>
+<span class="sd">        features: Optional explicit feature list (heatmap rows).</span>
+<span class="sd">        top_k: Maximum features on the single-pair lollipop.</span>
+<span class="sd">        max_features: Heatmap row cap when ``features`` is omitted</span>
+<span class="sd">            (default 15).</span>
 <span class="sd">        title: Optional figure title.</span>
 
 <span class="sd">    Returns:</span>
@@ -2585,23 +2755,35 @@ window.runMermaid = runMermaid;</script>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
             <span class="s2">&quot;plot_habitat_feature_effect: pairwise table is empty.&quot;</span>
         <span class="p">)</span>
-    <span class="n">resolved_pair</span> <span class="o">=</span> <span class="n">pair</span>
-    <span class="k">if</span> <span class="n">resolved_pair</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ranked_pairs</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">frame</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_abs</span><span class="o">=</span><span class="n">frame</span><span class="p">[</span><span class="s2">&quot;effect&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span>
-            <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_b&quot;</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="s2">&quot;_abs&quot;</span><span class="p">]</span>
-            <span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">mode</span><span class="p">,</span> <span class="n">resolved_pair</span><span class="p">,</span> <span class="n">habitat_ids</span> <span class="o">=</span> <span class="n">_resolve_effect_mode</span><span class="p">(</span><span class="n">pair</span><span class="p">,</span> <span class="n">habitats</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;pair&quot;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">resolved_pair</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">_plot_habitat_feature_effect_lollipop</span><span class="p">(</span>
+            <span class="n">comparison</span><span class="p">,</span>
+            <span class="n">pair</span><span class="o">=</span><span class="n">resolved_pair</span><span class="p">,</span>
+            <span class="n">top_k</span><span class="o">=</span><span class="n">top_k</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ranked_pairs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
-                <span class="s2">&quot;plot_habitat_feature_effect: no finite effect sizes.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">resolved_pair</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">ranked_pairs</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">ranked_pairs</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span>
-        <span class="p">)</span>
-    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolved_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolved_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_plot_habitat_feature_effect_heatmap</span><span class="p">(</span>
+        <span class="n">comparison</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_habitat_feature_effect_lollipop</span><span class="p">(</span>
+    <span class="n">comparison</span><span class="p">:</span> <span class="s2">&quot;HabitatFeatureComparison&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">pair</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Single-pair ranked effect-size forest (retained explicit-pair API).&quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">comparison</span><span class="o">.</span><span class="n">pairwise</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">work</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span>
         <span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">&quot;habitat_a&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">a</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="s2">&quot;habitat_b&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span>
     <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -2691,6 +2873,514 @@ window.runMermaid = runMermaid;</script>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">_apply_readable_fonts</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">_ascii_minus_on_ticks</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_habitat_feature_effect_heatmap</span><span class="p">(</span>
+    <span class="n">comparison</span><span class="p">:</span> <span class="s2">&quot;HabitatFeatureComparison&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">max_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">habitat_ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Features x habitat-pair effect heatmap (default effect figure).&quot;&quot;&quot;</span>
+    <span class="n">selected</span><span class="p">,</span> <span class="n">n_available</span> <span class="o">=</span> <span class="n">_select_effect_heatmap_features</span><span class="p">(</span>
+        <span class="n">comparison</span><span class="o">.</span><span class="n">pairwise</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_effect: no features with a finite &quot;</span>
+            <span class="s2">&quot;effect size.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">effects</span><span class="p">,</span> <span class="n">q_values</span><span class="p">,</span> <span class="n">pair_labels</span> <span class="o">=</span> <span class="n">_effect_pair_matrices</span><span class="p">(</span>
+        <span class="n">comparison</span><span class="o">.</span><span class="n">pairwise</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">selected</span><span class="p">,</span>
+        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">truncated</span> <span class="o">=</span> <span class="n">n_available</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+    <span class="n">effect_label</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Cliff&#39;s delta&quot;</span>
+        <span class="k">if</span> <span class="n">comparison</span><span class="o">.</span><span class="n">effect</span> <span class="o">==</span> <span class="s2">&quot;cliffs_delta&quot;</span>
+        <span class="k">else</span> <span class="s2">&quot;Cohen&#39;s d&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Habitat-pair </span><span class="si">{</span><span class="n">effect_label</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">truncated</span><span class="p">:</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2"> (top </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">n_available</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;by max |delta|)&quot;</span>
+            <span class="p">)</span>
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
+    <span class="n">matplotlib</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;viz&quot;</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="n">_VIZ_PURPOSE</span><span class="p">)</span>
+    <span class="n">n_feat</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">n_pair</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pair_labels</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cell_in</span> <span class="o">=</span> <span class="mf">0.52</span>
+    <span class="n">left_in</span><span class="p">,</span> <span class="n">right_in</span><span class="p">,</span> <span class="n">top_in</span><span class="p">,</span> <span class="n">bottom_in</span> <span class="o">=</span> <span class="mf">1.90</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">,</span> <span class="mf">0.58</span><span class="p">,</span> <span class="mf">0.95</span>
+    <span class="n">fig_w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">8.4</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">4.6</span><span class="p">,</span> <span class="n">left_in</span> <span class="o">+</span> <span class="n">right_in</span> <span class="o">+</span> <span class="n">cell_in</span> <span class="o">*</span> <span class="n">n_pair</span><span class="p">))</span>
+    <span class="n">fig_h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">9.0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="n">top_in</span> <span class="o">+</span> <span class="n">bottom_in</span> <span class="o">+</span> <span class="n">cell_in</span> <span class="o">*</span> <span class="n">n_feat</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">style</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_w</span><span class="p">,</span> <span class="n">fig_h</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">left_in</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">right_in</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span>
+            <span class="n">top</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">top_in</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span>
+            <span class="n">bottom</span><span class="o">=</span><span class="n">bottom_in</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">effects</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">effects</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">comparison</span><span class="o">.</span><span class="n">effect</span> <span class="o">==</span> <span class="s2">&quot;cliffs_delta&quot;</span><span class="p">:</span>
+            <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">abs_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))</span> <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">1.0</span>
+            <span class="n">abs_max</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">abs_max</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">abs_max</span>
+            <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="o">-</span><span class="n">abs_max</span><span class="p">,</span> <span class="n">abs_max</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;RdBu_r&quot;</span><span class="p">)</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="n">rgba</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cmap</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">effects</span><span class="p">))),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="c1"># Pale non-significant / untested cells; stars mark BH q &lt; 0.05.</span>
+        <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">q_values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">q_values</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">rgba</span><span class="p">[</span><span class="o">~</span><span class="n">sig</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.40</span>
+        <span class="n">rgba</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">effects</span><span class="p">),</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgba</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+        <span class="n">mappable</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="n">mappable</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">effects</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="p">)))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">_readable_feature_label</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">],</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pair_labels</span><span class="p">)))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">pair_labels</span><span class="p">],</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Habitat pair&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Feature&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sig</span><span class="p">)):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">col</span><span class="p">),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">),</span>
+                <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+                <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#111111&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">effect_label</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_CBAR_FONTSIZE</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_TITLE_FONTSIZE</span><span class="p">)</span>
+        <span class="n">_apply_readable_fonts</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="n">_ascii_minus_on_ticks</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_subject_habitat_feature_matrix</span><span class="p">(</span>
+    <span class="n">panel</span><span class="p">:</span> <span class="s2">&quot;HabitatFeaturePanel&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">habitats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pivot the long panel to (subject, habitat) rows x feature columns.</span>
+
+<span class="sd">    Rows with any missing feature are dropped (habitat not measured).</span>
+<span class="sd">    Feature columns are z-scored later by the caller so Energy and</span>
+<span class="sd">    ``volume_fraction`` share one Euclidean space.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(X, habitat_ids_per_row, feature_names, subject_ids_per_row)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">frame</span>
+    <span class="k">if</span> <span class="n">habitats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitats</span><span class="p">}</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">panel</span><span class="o">.</span><span class="n">habitat_column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">features</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">panel</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">panel</span><span class="o">.</span><span class="n">feature_column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">names</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: no rows for the requested &quot;</span>
+            <span class="s2">&quot;features / habitats.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">wide</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span>
+        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">panel</span><span class="o">.</span><span class="n">subject_column</span><span class="p">,</span> <span class="n">panel</span><span class="o">.</span><span class="n">habitat_column</span><span class="p">],</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">panel</span><span class="o">.</span><span class="n">feature_column</span><span class="p">,</span>
+        <span class="n">values</span><span class="o">=</span><span class="n">panel</span><span class="o">.</span><span class="n">value_column</span><span class="p">,</span>
+        <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">present</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">wide</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">present</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: requested features are &quot;</span>
+            <span class="s2">&quot;absent from the panel.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">wide</span> <span class="o">=</span> <span class="n">wide</span><span class="p">[</span><span class="n">present</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">wide</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: every (subject, habitat) &quot;</span>
+            <span class="s2">&quot;row has a missing feature.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">wide</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">subjects</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">wide</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">habitat_row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">wide</span><span class="o">.</span><span class="n">index</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">habitat_row</span><span class="p">,</span> <span class="n">present</span><span class="p">,</span> <span class="n">subjects</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_standardize_columns</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Z-score each feature column; constant columns become 0.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">continue</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">finite</span><span class="p">]))</span>
+        <span class="n">sd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">sd</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">values</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sd</span>
+            <span class="n">scaled</span><span class="p">[</span><span class="o">~</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaled</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_pca_components</span><span class="p">(</span>
+    <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PCA on already-standardised (subject, habitat) rows.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(scores, loadings, explained_variance_ratio)``. Loadings are</span>
+<span class="sd">        ``(n_features, n_kept)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
+
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n_kept</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_components</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_kept</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: PCA needs at least one &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;finite feature; got shape </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">reducer</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_kept</span><span class="p">)</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reducer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">loadings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reducer</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">explained</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reducer</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">scores</span><span class="p">,</span> <span class="n">loadings</span><span class="p">,</span> <span class="n">explained</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fit_cva_components</span><span class="p">(</span>
+    <span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">habitat_row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Canonical variates = multi-class Fisher LDA (not two-block CCA).</span>
+
+<span class="sd">    When the within-class scatter is rank-deficient</span>
+<span class="sd">    (``n_features &gt;= n_samples - n_classes``) the features are reduced</span>
+<span class="sd">    with PCA first. The title must then say ``CVA (PCA-preprocessed)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(scores, loadings, explained_ratio, used_pca)``. Loadings are</span>
+<span class="sd">        in the original standardised feature space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.discriminant_analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearDiscriminantAnalysis</span>
+
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">habitat_row</span><span class="p">)</span>
+    <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">classes</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_classes</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: CVA needs at least two &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;habitats; got </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&lt;=</span> <span class="n">n_classes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: CVA needs more &quot;</span>
+            <span class="s2">&quot;(subject, habitat) rows than habitat classes &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(n=</span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2">, classes=</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">within_rank</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_classes</span>
+    <span class="n">used_pca</span> <span class="o">=</span> <span class="n">n_features</span> <span class="o">&gt;=</span> <span class="n">within_rank</span>
+    <span class="n">pca_model</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">reduced</span> <span class="o">=</span> <span class="n">matrix</span>
+    <span class="k">if</span> <span class="n">used_pca</span><span class="p">:</span>
+        <span class="n">n_pca</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">within_rank</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_pca</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_habitat_feature_components: CVA is singular even &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;after PCA (n=</span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;classes=</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s2">). Add subjects or reduce features.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">pca_model</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_pca</span><span class="p">)</span>
+        <span class="n">reduced</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pca_model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">matrix</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">n_kept</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_components</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n_classes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reduced</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">n_kept</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: CVA produced no canonical &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;variates (n=</span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">, classes=</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">lda</span> <span class="o">=</span> <span class="n">LinearDiscriminantAnalysis</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_kept</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lda</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">reduced</span><span class="p">,</span> <span class="n">habitat_row</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: CVA covariance is singular &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(n=</span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">, classes=</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s2">). &quot;</span>
+            <span class="s2">&quot;Add subjects or reduce features.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="n">scalings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lda</span><span class="o">.</span><span class="n">scalings_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">n_kept</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pca_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">loadings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pca_model</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">scalings</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loadings</span> <span class="o">=</span> <span class="n">scalings</span>
+    <span class="n">explained</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">lda</span><span class="p">,</span> <span class="s2">&quot;explained_variance_ratio_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">explained</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">explained</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_kept</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">explained</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">explained</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[:</span><span class="n">n_kept</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">scores</span><span class="p">,</span> <span class="n">loadings</span><span class="p">,</span> <span class="n">explained</span><span class="p">,</span> <span class="n">used_pca</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_component_axis_label</span><span class="p">(</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">explained</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``PC1 (42%)`` / ``CV1`` -- ASCII only.&quot;&quot;&quot;</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;PC&quot;</span> <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pca&quot;</span> <span class="k">else</span> <span class="s2">&quot;CV&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">explained</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">explained</span><span class="p">[</span><span class="n">index</span><span class="p">]):</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">explained</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%)&quot;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<div class="viewcode-block" id="plot_habitat_feature_components">
+<a class="viewcode-back" href="../../../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_feature_components</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;HabitatFeaturePanel&quot;</span><span class="p">,</span> <span class="s2">&quot;HabitatFeatureComparison&quot;</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pca&quot;</span><span class="p">,</span> <span class="s2">&quot;cva&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pca&quot;</span><span class="p">,</span>
+    <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">habitats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">annotate_subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">show_loadings</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PCA or CVA of (subject, habitat) rows in feature space.</span>
+
+<span class="sd">    Each point is one habitat observation of one subject. Colour is the</span>
+<span class="sd">    habitat label. **PCA** is unsupervised. **CVA** is multi-class</span>
+<span class="sd">    Fisher LDA (canonical variates that separate habitats) -- not</span>
+<span class="sd">    two-block CCA. When ``n_features &gt;= n_samples - n_classes`` the</span>
+<span class="sd">    CVA path reduces with PCA first and the title says</span>
+<span class="sd">    ``CVA (PCA-preprocessed)`` so the figure does not overclaim a</span>
+<span class="sd">    full-rank discriminant.</span>
+
+<span class="sd">    Features are z-scored before the reduction so Energy and</span>
+<span class="sd">    ``volume_fraction`` share one Euclidean space. A companion bar</span>
+<span class="sd">    shows the largest absolute loadings on PC1 / CV1.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: Long panel or a :class:`HabitatFeatureComparison`.</span>
+<span class="sd">        method: ``&quot;pca&quot;`` (default) or ``&quot;cva&quot;``.</span>
+<span class="sd">        n_components: Requested axes. CVA keeps at most</span>
+<span class="sd">            ``n_habitats - 1``. A single retained axis is drawn as a</span>
+<span class="sd">            1-D strip.</span>
+<span class="sd">        features: Optional feature subset. Default: all panel features.</span>
+<span class="sd">        habitats: Optional habitat subset.</span>
+<span class="sd">        annotate_subjects: If True, label points with subject ids.</span>
+<span class="sd">            Default: annotate only when the point count is small</span>
+<span class="sd">            (``&lt;= 16``).</span>
+<span class="sd">        show_loadings: Draw the PC1 / CV1 loadings companion bar.</span>
+<span class="sd">        title: Optional figure title.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The matplotlib ``Figure``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: Unknown ``method``, empty panel, or a still-</span>
+<span class="sd">            singular CVA after PCA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">method_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">method_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;pca&quot;</span><span class="p">,</span> <span class="s2">&quot;cva&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_habitat_feature_components: method must be &#39;pca&#39; or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;cva&#39;; got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="n">_as_panel</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">matrix</span><span class="p">,</span> <span class="n">habitat_row</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">subjects</span> <span class="o">=</span> <span class="n">_subject_habitat_feature_matrix</span><span class="p">(</span>
+        <span class="n">panel</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">habitats</span><span class="o">=</span><span class="n">habitats</span>
+    <span class="p">)</span>
+    <span class="n">standardised</span> <span class="o">=</span> <span class="n">_standardize_columns</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="n">used_pca</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s2">&quot;pca&quot;</span><span class="p">:</span>
+        <span class="n">scores</span><span class="p">,</span> <span class="n">loadings</span><span class="p">,</span> <span class="n">explained</span> <span class="o">=</span> <span class="n">_fit_pca_components</span><span class="p">(</span>
+            <span class="n">standardised</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scores</span><span class="p">,</span> <span class="n">loadings</span><span class="p">,</span> <span class="n">explained</span><span class="p">,</span> <span class="n">used_pca</span> <span class="o">=</span> <span class="n">_fit_cva_components</span><span class="p">(</span>
+            <span class="n">standardised</span><span class="p">,</span> <span class="n">habitat_row</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="k">elif</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s2">&quot;cva&quot;</span> <span class="ow">and</span> <span class="n">used_pca</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="s2">&quot;CVA (PCA-preprocessed)&quot;</span>
+    <span class="k">elif</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s2">&quot;cva&quot;</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="s2">&quot;Habitat feature CVA&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="s2">&quot;Habitat feature PCA&quot;</span>
+
+    <span class="n">n_points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">annotate_subjects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">annotate</span> <span class="o">=</span> <span class="n">n_points</span> <span class="o">&lt;=</span> <span class="n">_MAX_COMPONENT_ANNOTATIONS</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">annotate</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">annotate_subjects</span><span class="p">)</span>
+
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
+    <span class="n">habitat_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_row</span><span class="p">})</span>
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">style</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">show_loadings</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ax_load</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">,</span>
+                <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">92.0</span><span class="p">),</span>
+                <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">2.15</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]},</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">figsize</span><span class="o">=</span><span class="n">style</span><span class="o">.</span><span class="n">figsize</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height_mm</span><span class="o">=</span><span class="mf">88.0</span><span class="p">),</span>
+                <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax_load</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">)</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">hid</span><span class="p">:</span> <span class="n">palette</span><span class="p">[</span><span class="n">index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">hid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">habitat_ids</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">scores</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">x_vals</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_vals</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">xlabel</span> <span class="o">=</span> <span class="n">_component_axis_label</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">explained</span><span class="p">)</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="n">_component_axis_label</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">explained</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_vals</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">y_vals</span> <span class="o">=</span> <span class="n">habitat_row</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                <span class="o">-</span><span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_points</span>
+            <span class="p">)</span>
+            <span class="n">xlabel</span> <span class="o">=</span> <span class="n">_component_axis_label</span><span class="p">(</span><span class="n">method_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">explained</span><span class="p">)</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;Habitat&quot;</span>
+        <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">habitat_row</span> <span class="o">==</span> <span class="n">hid</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">x_vals</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+                <span class="n">y_vals</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">hid</span><span class="p">],</span>
+                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#222222&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">annotate</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_points</span><span class="p">):</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+                    <span class="n">sanitize_label</span><span class="p">(</span><span class="n">subjects</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span>
+                    <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x_vals</span><span class="p">[</span><span class="n">index</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y_vals</span><span class="p">[</span><span class="n">index</span><span class="p">])),</span>
+                    <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+                    <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+                    <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#333333&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">xlabel</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">ylabel</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">scores</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">habitat_ids</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">],</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_LEGEND_FONTSIZE</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_TITLE_FONTSIZE</span><span class="p">)</span>
+        <span class="n">_apply_readable_fonts</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax_load</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">loading</span> <span class="o">=</span> <span class="n">loadings</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">loading</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span>
+                <span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">_DEFAULT_LOADING_FEATURES</span><span class="p">,</span> <span class="n">loading</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">loading</span><span class="p">[</span><span class="n">order</span><span class="p">])]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">bar_colors</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">loading</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">style</span><span class="o">.</span><span class="n">palette</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span>
+            <span class="p">]</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="n">loading</span><span class="p">[</span><span class="n">order</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">bar_colors</span><span class="p">,</span>
+                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                <span class="n">height</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#444444&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">_readable_feature_label</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">],</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">_TICK_FONTSIZE</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">load_axis</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;PC1 loading&quot;</span> <span class="k">if</span> <span class="n">method_name</span> <span class="o">==</span> <span class="s2">&quot;pca&quot;</span> <span class="k">else</span> <span class="s2">&quot;CV1 loading&quot;</span>
+            <span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+                <span class="n">sanitize_label</span><span class="p">(</span><span class="n">load_axis</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_LABEL_FONTSIZE</span>
+            <span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Top feature loadings&quot;</span><span class="p">),</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+            <span class="n">ax_load</span><span class="o">.</span><span class="n">set_axisbelow</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">_apply_readable_fonts</span><span class="p">(</span><span class="n">ax_load</span><span class="p">)</span>
         <span class="n">_ascii_minus_on_ticks</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 

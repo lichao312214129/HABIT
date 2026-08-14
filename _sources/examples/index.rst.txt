@@ -118,7 +118,8 @@ publication figures.
 .. rubric:: Featured: habitat-feature contrast
 
 Melt a wide ``each_habitat`` table and contrast habitats (heatmap,
-Cliff's delta, violin, **faceted** bars with one y-axis per feature).
+features x pair Cliff's delta, PCA / CVA, violin, **faceted** bars with
+one y-axis per feature).
 ``graph`` topology columns can stay on the same table and do not enter
 the melt.
 
@@ -170,7 +171,7 @@ the ROI, optional cyan contour.
 * :doc:`precise_features` — precise features
 * :doc:`custom_voxel_features` — custom voxel features
 * :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
-* :doc:`habitat_feature_compare` — each_habitat contrast figures (heatmap / effect / violin / faceted bars)
+* :doc:`habitat_feature_compare` — each_habitat contrast figures (heatmap / pair-delta / PCA / violin / faceted bars)
 * :doc:`feature_extraction` — light families + radiomics extract recipes
 * :doc:`features_radiomics_api` — radiomics features API
 * :doc:`tabular_ml` — tabular ML

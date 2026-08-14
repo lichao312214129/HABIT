@@ -892,6 +892,7 @@ Habitat clustering and overlay
    habit.viz.plot_partition_triptych
    habit.viz.plot_habitat_feature_heatmap
    habit.viz.plot_habitat_feature_effect
+   habit.viz.plot_habitat_feature_components
    habit.viz.plot_habitat_feature_violin
    habit.viz.plot_habitat_feature_bars
    habit.viz.plot_habitat_graph_slice
