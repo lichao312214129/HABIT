@@ -137,11 +137,10 @@ Runnable gallery (synthetic stand-in table; swap ``table`` for your
 first. Pairwise ``p_value`` / ``q_value`` are NaN when only one subject
 remains.
 
-Runnable real-data gallery (existing ``demo_data`` maps, first-order
-``each_habitat`` + default ``graph``, publication figures):
-:doc:`../../examples/habitat_feature_compare`. Graph topology columns
-(``single_h*`` / ``pair_h*_h*``) can share the joined table but do not
-melt through this API.
+Runnable gallery (synthetic stand-in table; swap ``table`` for your
+extract): :doc:`../../examples/habitat_feature_compare`. Graph topology
+columns (``single_h*`` / ``pair_h*_h*``) can share the joined table but
+do not melt through this API.
 
 .. figure:: ../../_static/images/examples/habitat_feature_heatmap_cohort.png
    :alt: Cohort habitat-by-feature z-score heatmap
