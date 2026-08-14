@@ -655,6 +655,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -884,6 +885,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1334,6 +1339,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1349,6 +1362,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -1779,14 +1796,19 @@
 <span class="nt">visualization</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="c1"># Allowed: roc, dca, calibration, pr, confusion,</span>
-<span class="w">  </span><span class="c1">#          shap, shap_dependence, shap_waterfall, permutation</span>
+<span class="w">  </span><span class="c1">#          shap, shap_bar, shap_violin, shap_heatmap,</span>
+<span class="w">  </span><span class="c1">#          shap_dependence, shap_waterfall, shap_decision,</span>
+<span class="w">  </span><span class="c1">#          shap_force, permutation</span>
 <span class="w">  </span><span class="nt">plot_types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">roc</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dca</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">calibration</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pr</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">confusion</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">shap</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">dpi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
 <span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pdf</span>
-<span class="w">  </span><span class="c1"># Optional knobs for shap_dependence / shap_waterfall / permutation:</span>
+<span class="w">  </span><span class="c1"># Optional knobs for shap_dependence / shap_waterfall / shap_decision /</span>
+<span class="w">  </span><span class="c1"># shap_force / permutation:</span>
 <span class="w">  </span><span class="c1"># explainability:</span>
 <span class="w">  </span><span class="c1">#   shap_dependence_top_k: 3</span>
 <span class="w">  </span><span class="c1">#   shap_waterfall_samples: 3</span>
+<span class="w">  </span><span class="c1">#   shap_decision_samples: 10</span>
+<span class="w">  </span><span class="c1">#   shap_force_samples: 3</span>
 <span class="w">  </span><span class="c1">#   permutation_repeats: 10</span>
 <span class="w">  </span><span class="c1">#   permutation_scoring: roc_auc</span>
 <span class="w">  </span><span class="c1">#   permutation_top_k: 20</span>
@@ -2338,13 +2360,16 @@ or <code class="docutils literal notranslate"><span class="pre">cv_</span></code
 <li><p><code class="docutils literal notranslate"><span class="pre">enabled</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">true</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">plot_types</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">[roc,</span> <span class="pre">dca,</span> <span class="pre">calibration,</span> <span class="pre">pr,</span> <span class="pre">confusion,</span> <span class="pre">shap]</span></code>.
 Allowed values: <code class="docutils literal notranslate"><span class="pre">roc</span></code>, <code class="docutils literal notranslate"><span class="pre">dca</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration</span></code>, <code class="docutils literal notranslate"><span class="pre">pr</span></code>, <code class="docutils literal notranslate"><span class="pre">confusion</span></code>,
-<code class="docutils literal notranslate"><span class="pre">shap</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_dependence</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_waterfall</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation</span></code>.
-Unknown names fail validation.</p></li>
+<code class="docutils literal notranslate"><span class="pre">shap</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_bar</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_violin</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_heatmap</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap_dependence</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_waterfall</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_decision</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap_force</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation</span></code>.
+Unknown names fail validation. Extra SHAP types stay opt-in.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dpi</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">600</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">format</span></code>: <strong>default</strong> <code class="docutils literal notranslate"><span class="pre">pdf</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">explainability</span></code> (optional): tuning for explanation figures when those
 <code class="docutils literal notranslate"><span class="pre">plot_types</span></code> are enabled — <code class="docutils literal notranslate"><span class="pre">shap_dependence_top_k</span></code>,
-<code class="docutils literal notranslate"><span class="pre">shap_waterfall_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation_repeats</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap_waterfall_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">shap_decision_samples</span></code>,
+<code class="docutils literal notranslate"><span class="pre">shap_force_samples</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation_repeats</span></code>,
 <code class="docutils literal notranslate"><span class="pre">permutation_scoring</span></code>, <code class="docutils literal notranslate"><span class="pre">permutation_top_k</span></code>,
 <code class="docutils literal notranslate"><span class="pre">permutation_random_state</span></code></p></li>
 </ul>

@@ -2148,10 +2148,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="c1">#: Connected-component neighborhood rule.</span>
     <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
-    <span class="c1">#: Binary erosion iterations applied before component labeling. Default</span>
-    <span class="c1">#: ``0`` (off): adjacency and contact are measured on the habitat labels</span>
-    <span class="c1">#: as drawn. Pass a positive value to shrink each habitat before edges.</span>
-    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#: Binary erosion iterations applied before component labeling to remove</span>
+    <span class="c1">#: boundary noise. Set 0 to disable erosion.</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1">#: Split connected components larger than this voxel count into grid blocks</span>
     <span class="c1">#: so large habitats do not collapse into a single node. Set 0 to disable.</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2181,13 +2180,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Graph-topology features of one subject&#39;s habitat map.</span>
 
 <span class="sd">    Each connected habitat region (optionally eroded and subdivided into grid</span>
-<span class="sd">    blocks) becomes a graph node. By default there is no morphological</span>
-<span class="sd">    erosion (``erosion_radius=0``): adjacency is measured on the habitat</span>
-<span class="sd">    labels as drawn. With ``edge_method=&#39;adjacency&#39;`` an edge exists when</span>
-<span class="sd">    two regions are adjacent and the number of contact (shared-boundary)</span>
-<span class="sd">    voxels is at least ``adjacency_min_voxels`` (default ``10``). Pass a</span>
-<span class="sd">    positive ``erosion_radius`` to shrink habitats before edges. The</span>
-<span class="sd">    alternative ``centroid_distance`` method connects centroids</span>
+<span class="sd">    blocks) becomes a graph node. By default (``edge_method=&#39;adjacency&#39;``) an</span>
+<span class="sd">    edge exists when two regions are adjacent and the number of contact</span>
+<span class="sd">    (shared-boundary) voxels is at least ``adjacency_min_voxels`` (default</span>
+<span class="sd">    ``10``). The alternative ``centroid_distance`` method connects centroids</span>
 <span class="sd">    within ``distance_threshold``. NetworkX-derived topology</span>
 <span class="sd">    metrics are reported per habitat (``single_h*`` columns) and per habitat</span>
 <span class="sd">    pair (``pair_h*_h*`` columns), covering degree/edge counts, density,</span>
@@ -2219,7 +2215,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
         <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span><span class="p">,</span>
-        <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>

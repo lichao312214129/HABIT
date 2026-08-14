@@ -2141,12 +2141,9 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runtime options for graph-based habitat feature extraction.</span>
 
 <span class="sd">    Default edge rule: ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_connectivity=&#39;face&#39;`` and ``adjacency_min_voxels=10``.</span>
-<span class="sd">    Adjacency and the contact-voxel count are measured on the habitat</span>
-<span class="sd">    labels as drawn (``erosion_radius=0``). An edge exists when two</span>
-<span class="sd">    regions share a boundary and the contact voxel count is at least 10.</span>
-<span class="sd">    Pass a positive ``erosion_radius`` to shrink each habitat before</span>
-<span class="sd">    labeling and edge construction.</span>
+<span class="sd">    ``adjacency_connectivity=&#39;face&#39;`` and ``adjacency_min_voxels=10``. An</span>
+<span class="sd">    edge exists when two regions share a boundary and the contact voxel</span>
+<span class="sd">    count is at least 10.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2161,10 +2158,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
-    <span class="c1"># Default is off: adjacency / contact are measured on the habitat labels</span>
-    <span class="c1"># as drawn. Pass a positive value to shrink each habitat (binary erosion</span>
-    <span class="c1"># iterations) before connected-component labeling and edge construction.</span>
-    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Default erosion (1 iteration) removes a one-voxel boundary shell to</span>
+    <span class="c1"># suppress segmentation edge noise before connected-component labeling.</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="c1"># Subdivision is on by default: contiguous habitats would otherwise collapse</span>
     <span class="c1"># into a single graph node and erase internal spatial structure. Components</span>
     <span class="c1"># larger than ``subdivide_region_voxels`` are split into ``block_size`` grid</span>
@@ -2330,10 +2326,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Extract subject-level graph features from a habitat label map.</span>
 
 <span class="sd">    Default ``options`` use ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_min_voxels=10`` and ``erosion_radius=0``: an edge exists</span>
-<span class="sd">    when two regions are adjacent on the habitat labels as drawn and the</span>
-<span class="sd">    contact (shared-boundary) voxel count is &gt;= 10. Pass</span>
-<span class="sd">    ``erosion_radius&gt;=1`` to shrink habitats before edges.</span>
+<span class="sd">    ``adjacency_min_voxels=10``: an edge exists when two regions are</span>
+<span class="sd">    adjacent and the contact (shared-boundary) voxel count is &gt;= 10.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Already segmented habitat map. Label 0 is treated as</span>

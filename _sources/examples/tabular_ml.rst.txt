@@ -39,8 +39,9 @@ Draw the figures
 ----------------
 
 Paste this after the Script block (it uses ``y_true``, ``y_prob``,
-``y_pred``, ``FEATURES``, ``imp_mean``, ``imp_std``, and ``cv``). Writes
-``out/tabular_ml_*.png``.
+``y_pred``, ``FEATURES``, ``imp_mean``, ``imp_std``, ``cv``,
+``holdout_table``, and ``reloaded``). Writes ``out/tabular_ml_*.png``.
+SHAP panels need ``habitat-analysis[explain]``.
 
 .. literalinclude:: scripts/tabular_ml_quickstart.py
    :language: python
@@ -119,6 +120,55 @@ Hold-out / CV figures from the demo subset (not a clinical claim).
    :width: 360
 
    Five-fold CV AUC (mean 0.88). Demo subset, not a clinical claim.
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_summary.png
+   :alt: Hold-out SHAP beeswarm
+   :width: 480
+
+   Hold-out SHAP beeswarm (:func:`~habit.viz.plot_shap_summary`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_bar.png
+   :alt: Hold-out SHAP bar
+   :width: 420
+
+   Hold-out mean-absolute SHAP (:func:`~habit.viz.plot_shap_bar`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_violin.png
+   :alt: Hold-out SHAP violin
+   :width: 480
+
+   Hold-out SHAP violin (:func:`~habit.viz.plot_shap_violin`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_heatmap.png
+   :alt: Hold-out SHAP heatmap
+   :width: 480
+
+   Hold-out SHAP heatmap (:func:`~habit.viz.plot_shap_heatmap`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_dependence.png
+   :alt: Hold-out SHAP dependence
+   :width: 420
+
+   Hold-out SHAP dependence (:func:`~habit.viz.plot_shap_dependence`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_waterfall.png
+   :alt: Hold-out SHAP waterfall
+   :width: 480
+
+   Hold-out SHAP waterfall (:func:`~habit.viz.plot_shap_waterfall`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_decision.png
+   :alt: Hold-out SHAP decision
+   :width: 480
+
+   Hold-out SHAP decision (:func:`~habit.viz.plot_shap_decision`).
+
+.. figure:: ../_static/images/examples/tabular_ml_shap_force.png
+   :alt: Hold-out SHAP force
+   :width: 520
+
+   Hold-out SHAP force, static matplotlib
+   (:func:`~habit.viz.plot_shap_force`).
 
 What to read next
 -----------------

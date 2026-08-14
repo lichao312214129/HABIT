@@ -94,3 +94,39 @@ Implementation
 
 ``habit/compat/engines/habitat_extraction/habitat_features/builtin_plugins.py``
 (``EachHabitatPlugin``) → ``habitat_radiomics.py``
+
+Compare habitats (cohort or one subject)
+----------------------------------------
+
+The wide ``each_habitat`` table is one row per subject. To argue that
+habitats are distinct -- the figure a reviewer expects -- melt it and
+contrast habitats **across the cohort** (paired Cliff's delta + BH-FDR).
+The same objects also describe one subject (differences without p-values).
+
+Tens-to-hundreds of texture features: draw a habitat x feature heatmap
+and a top-k effect-size forest. Violins / bars are for a shortlist, not
+the full bank.
+
+::
+
+   from habit import (
+       compare_habitat_features,
+       plot_habitat_feature_bars,
+       plot_habitat_feature_effect,
+       plot_habitat_feature_heatmap,
+       plot_habitat_feature_violin,
+       to_habitat_feature_panel,
+   )
+
+   panel = to_habitat_feature_panel(table)          # wide each_habitat FeatureTable
+   cmp = compare_habitat_features(panel)            # cohort if table has >= 2 subjects
+
+   fig = plot_habitat_feature_heatmap(cmp)          # overview (z-scored)
+   fig = plot_habitat_feature_effect(cmp, top_k=20) # ranked Cliff's delta
+   fig = plot_habitat_feature_violin(cmp, max_features=6)
+   fig = plot_habitat_feature_heatmap(cmp, subject_id="subj001")  # one subject
+   fig = plot_habitat_feature_bars(cmp, subject_id="subj001", max_features=6)
+
+``compare_habitat_features(..., subject_id=...)`` restricts the panel
+first. Pairwise ``p_value`` / ``q_value`` are NaN when only one subject
+remains.

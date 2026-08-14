@@ -655,6 +655,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -884,6 +885,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1334,6 +1339,14 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1349,6 +1362,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -1984,10 +2001,21 @@ no string <code class="docutils literal notranslate"><span class="pre">&quot;aut
 <li><p><code class="docutils literal notranslate"><span class="pre">whole_habitat</span></code> → <code class="docutils literal notranslate"><span class="pre">WholeHabitatRadiomicsFeatures</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> → <code class="docutils literal notranslate"><span class="pre">EachHabitatRadiomicsFeatures</span></code></p></li>
 </ul>
+<section id="compare-features-between-habitats">
+<h3>Compare features between habitats<a class="headerlink" href="#compare-features-between-habitats" title="Link to this heading"></a></h3>
+<p>After <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> (or any wide <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code> table),
+<code class="xref py py-func docutils literal notranslate"><span class="pre">to_habitat_feature_panel()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">compare_habitat_features()</span></code>
+contrast habitats on the <strong>cohort</strong> (paired Cliff’s delta, BH-FDR) or on
+one subject. Figures: <a class="reference internal" href="generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>,
+<a class="reference internal" href="generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>,
+<a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>,
+<a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>. See
+<a class="reference internal" href="../reference/features/whole_each_habitat.html"><span class="doc">Whole / Each Habitat Radiomics</span></a>.</p>
 <p>For array-only callers, use the public kernel helpers
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> /
 <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code> (same numeric definitions). Prefer
 this domain / kernel path over deprecated <code class="docutils literal notranslate"><span class="pre">habit.compat.graph_plugin</span></code> shims.</p>
+</section>
 </section>
 <section id="subjectpipeline">
 <h2><code class="docutils literal notranslate"><span class="pre">SubjectPipeline</span></code><a class="headerlink" href="#subjectpipeline" title="Link to this heading"></a></h2>

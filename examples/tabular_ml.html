@@ -655,6 +655,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -884,6 +885,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1334,6 +1339,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1349,6 +1362,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -1884,9 +1901,12 @@ typical imaging-ML paper rather than a right-angle. Figures are scored on
 <section id="draw-the-figures">
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
 <p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">y_true</span></code>, <code class="docutils literal notranslate"><span class="pre">y_prob</span></code>,
-<code class="docutils literal notranslate"><span class="pre">y_pred</span></code>, <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code>, <code class="docutils literal notranslate"><span class="pre">imp_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">imp_std</span></code>, and <code class="docutils literal notranslate"><span class="pre">cv</span></code>). Writes
-<code class="docutils literal notranslate"><span class="pre">out/tabular_ml_*.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses y_true, y_prob, y_pred, FEATURES, imp_*, cv.</span>
+<code class="docutils literal notranslate"><span class="pre">y_pred</span></code>, <code class="docutils literal notranslate"><span class="pre">FEATURES</span></code>, <code class="docutils literal notranslate"><span class="pre">imp_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">imp_std</span></code>, <code class="docutils literal notranslate"><span class="pre">cv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">holdout_table</span></code>, and <code class="docutils literal notranslate"><span class="pre">reloaded</span></code>). Writes <code class="docutils literal notranslate"><span class="pre">out/tabular_ml_*.png</span></code>.
+SHAP panels need <code class="docutils literal notranslate"><span class="pre">habitat-analysis[explain]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses y_true, y_prob, y_pred, FEATURES, imp_*,</span>
+<span class="c1"># cv, holdout_table, reloaded. SHAP figures need habitat-analysis[explain].</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_calibration</span><span class="p">,</span>
     <span class="n">plot_confusion_matrix</span><span class="p">,</span>
@@ -1894,6 +1914,14 @@ typical imaging-ML paper rather than a right-angle. Figures are scored on
     <span class="n">plot_permutation_importance</span><span class="p">,</span>
     <span class="n">plot_precision_recall</span><span class="p">,</span>
     <span class="n">plot_roc</span><span class="p">,</span>
+    <span class="n">plot_shap_bar</span><span class="p">,</span>
+    <span class="n">plot_shap_decision</span><span class="p">,</span>
+    <span class="n">plot_shap_dependence</span><span class="p">,</span>
+    <span class="n">plot_shap_force</span><span class="p">,</span>
+    <span class="n">plot_shap_heatmap</span><span class="p">,</span>
+    <span class="n">plot_shap_summary</span><span class="p">,</span>
+    <span class="n">plot_shap_violin</span><span class="p">,</span>
+    <span class="n">plot_shap_waterfall</span><span class="p">,</span>
     <span class="n">use_style</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -1931,6 +1959,66 @@ typical imaging-ML paper rather than a right-angle. Figures are scored on
     <span class="n">ax_cv</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
     <span class="n">fig_cv</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="n">_save</span><span class="p">(</span><span class="n">fig_cv</span><span class="p">,</span> <span class="s2">&quot;tabular_ml_cv_auc.png&quot;</span><span class="p">)</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">holdout_table</span><span class="o">.</span><span class="n">feature_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_proba</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Positive-class probability for a SHAP explainer.&quot;&quot;&quot;</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">FEATURES</span><span class="p">))</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ID_COL</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;shap_row_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">))])</span>
+        <span class="n">mini</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+            <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
+            <span class="n">id_columns</span><span class="o">=</span><span class="p">(</span><span class="n">ID_COL</span><span class="p">,),</span>
+            <span class="n">feature_columns</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">positive_scores</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">mini</span><span class="p">))</span>
+
+    <span class="n">n_bg</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">n_bg</span><span class="p">)</span> <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n_bg</span> <span class="k">else</span> <span class="n">X</span>
+    <span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">Explainer</span><span class="p">(</span><span class="n">_proba</span><span class="p">,</span> <span class="n">background</span><span class="p">)</span>
+    <span class="n">explanation</span> <span class="o">=</span> <span class="n">explainer</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">shap_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">explanation</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shap_values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">shap_values</span> <span class="o">=</span> <span class="n">shap_values</span><span class="p">[:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">raw_base</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">explanation</span><span class="p">,</span> <span class="s2">&quot;base_values&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_base</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="n">base_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">raw_base</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">base_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">base_arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">base_arr</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_base</span><span class="p">)</span>
+
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_summary</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP summary&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_summary.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_bar</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP bar&quot;</span><span class="p">,</span> <span class="n">base_value</span><span class="o">=</span><span class="n">base_value</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_bar.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_violin</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP violin&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_violin.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_heatmap</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP heatmap&quot;</span><span class="p">,</span> <span class="n">base_value</span><span class="o">=</span><span class="n">base_value</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_heatmap.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_dependence</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_dependence.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_waterfall</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">base_value</span><span class="o">=</span><span class="n">base_value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP waterfall&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_waterfall.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_decision</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">sample_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">base_value</span><span class="o">=</span><span class="n">base_value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP decision&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_decision.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_save</span><span class="p">(</span>
+        <span class="n">plot_shap_force</span><span class="p">(</span><span class="n">shap_values</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">base_value</span><span class="o">=</span><span class="n">base_value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hold-out SHAP force&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;tabular_ml_shap_force.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>
@@ -2010,6 +2098,63 @@ typical imaging-ML paper rather than a right-angle. Figures are scored on
 </a>
 <figcaption>
 <p><span class="caption-text">Five-fold CV AUC (mean 0.88). Demo subset, not a clinical claim.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_summary.png"><img alt="Hold-out SHAP beeswarm" src="../_images/tabular_ml_shap_summary.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP beeswarm (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_summary.html#habit.viz.plot_shap_summary" title="habit.viz.plot_shap_summary"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_summary()</span></code></a>).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_bar.png"><img alt="Hold-out SHAP bar" src="../_images/tabular_ml_shap_bar.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out mean-absolute SHAP (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_bar.html#habit.viz.plot_shap_bar" title="habit.viz.plot_shap_bar"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_bar()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_violin.png"><img alt="Hold-out SHAP violin" src="../_images/tabular_ml_shap_violin.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP violin (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_violin.html#habit.viz.plot_shap_violin" title="habit.viz.plot_shap_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_violin()</span></code></a>).</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_heatmap.png"><img alt="Hold-out SHAP heatmap" src="../_images/tabular_ml_shap_heatmap.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP heatmap (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_heatmap.html#habit.viz.plot_shap_heatmap" title="habit.viz.plot_shap_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_heatmap()</span></code></a>).</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_dependence.png"><img alt="Hold-out SHAP dependence" src="../_images/tabular_ml_shap_dependence.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP dependence (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_dependence.html#habit.viz.plot_shap_dependence" title="habit.viz.plot_shap_dependence"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_dependence()</span></code></a>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id13">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_waterfall.png"><img alt="Hold-out SHAP waterfall" src="../_images/tabular_ml_shap_waterfall.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP waterfall (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_waterfall.html#habit.viz.plot_shap_waterfall" title="habit.viz.plot_shap_waterfall"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_waterfall()</span></code></a>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id14">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_decision.png"><img alt="Hold-out SHAP decision" src="../_images/tabular_ml_shap_decision.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP decision (<a class="reference internal" href="../api/generated/habit.viz.plot_shap_decision.html#habit.viz.plot_shap_decision" title="habit.viz.plot_shap_decision"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_decision()</span></code></a>).</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id15">
+<a class="reference internal image-reference" href="../_images/tabular_ml_shap_force.png"><img alt="Hold-out SHAP force" src="../_images/tabular_ml_shap_force.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Hold-out SHAP force, static matplotlib
+(<a class="reference internal" href="../api/generated/habit.viz.plot_shap_force.html#habit.viz.plot_shap_force" title="habit.viz.plot_shap_force"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_shap_force()</span></code></a>).</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
