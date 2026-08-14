@@ -27,7 +27,6 @@ import numpy as np
 from habit import HabitatSpec, Spec, cohort_from_directory
 from habit.domain import PreciseFeatureSet, RawVoxelFeatures
 from habit.recipes import Study, identify_precise_voxel_features
-from habit.viz import plot_habitat_overlay
 
 # BEGIN example
 # Change DATA / MODALITIES / ROI to your preprocessed layout
@@ -62,6 +61,41 @@ print(f"  precise features: {list(precise.feature_names)}")
 evidence = precise.to_frame().round(3)
 print(evidence.to_string(index=False))
 
+print("\n=== whitelist bridge into a habitat spec ===")
+whitelist = precise.preprocessor()
+print(f"  whitelist spec: {whitelist.spec.to_dict()}")
+spec = HabitatSpec(
+    name="precise_demo",
+    voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES)}),
+    # The whitelist goes FIRST: only precise features reach scaling/clustering.
+    voxel_feature_preprocessors=(
+        whitelist.spec,
+        Spec("minmax", {"across_features": False}),
+    ),
+    supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 3}),
+    habitat_model_fitter=Spec(
+        "kmeans",
+        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
+    ),
+    habitat_assigner=Spec("nearest_centroid"),
+    random_seed=11,
+)
+print(f"  habitat spec fingerprint: {spec.fingerprint()}")
+
+result = Study(spec).fit_predict(cohort)
+print(f"  habitat maps: {len(result.habitat_maps)}")
+
+print("\n=== artefact round trip ===")
+with tempfile.TemporaryDirectory(prefix="habit_precise_") as tmp:
+    path = precise.save(Path(tmp) / "precise_features.json")
+    reloaded = PreciseFeatureSet.load(path)
+    print(f"  saved {path.name}; reloaded features: {list(reloaded.feature_names)}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses precise, evidence, cohort, result, MODALITIES.
+from habit.viz import plot_habitat_overlay
+
 # Evidence figure: ICC and LCL per feature (the screen's actual product)
 fig_icc, ax = plt.subplots(figsize=(6.2, 3.2))
 x = np.arange(len(evidence))
@@ -88,42 +122,14 @@ fig_icc.tight_layout()
 Path("out").mkdir(exist_ok=True)
 fig_icc.savefig("out/precise_features_icc_lcl.png", dpi=150, bbox_inches="tight")
 
-print("\n=== whitelist bridge into a habitat spec ===")
-whitelist = precise.preprocessor()
-print(f"  whitelist spec: {whitelist.spec.to_dict()}")
-spec = HabitatSpec(
-    name="precise_demo",
-    voxel_feature_extractor=Spec("raw", {"modalities": list(MODALITIES)}),
-    # The whitelist goes FIRST: only precise features reach scaling/clustering.
-    voxel_feature_preprocessors=(
-        whitelist.spec,
-        Spec("minmax", {"across_features": False}),
-    ),
-    supervoxelizer=Spec("kmeans", {"n_supervoxels": 6, "n_init": 3}),
-    habitat_model_fitter=Spec(
-        "kmeans",
-        {"min_habitats": 2, "max_habitats": 3, "validation": "elbow", "n_init": 3},
-    ),
-    habitat_assigner=Spec("nearest_centroid"),
-    random_seed=11,
-)
-print(f"  habitat spec fingerprint: {spec.fingerprint()}")
-
-result = Study(spec).fit_predict(cohort)
-print(f"  habitat maps: {len(result.habitat_maps)}")
 image = cohort[0].image(MODALITIES[0]).data
 labels = result.habitat_maps[0].label_array
 fig_overlay = plot_habitat_overlay(
     image, labels, axis=0, title="Habitats after precise-feature whitelist"
 )
 fig_overlay.savefig("out/precise_features_overlay.png", dpi=150, bbox_inches="tight")
-
-print("\n=== artefact round trip ===")
-with tempfile.TemporaryDirectory(prefix="habit_precise_") as tmp:
-    path = precise.save(Path(tmp) / "precise_features.json")
-    reloaded = PreciseFeatureSet.load(path)
-    print(f"  saved {path.name}; reloaded features: {list(reloaded.feature_names)}")
-# END example
+print("Wrote out/precise_features_icc_lcl.png and out/precise_features_overlay.png")
+# END figures
 
 if __name__ == "__main__":
     import sys

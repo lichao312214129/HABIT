@@ -27,7 +27,6 @@ from typing import Any, Dict
 
 from habit import cohort_from_directory, preprocess_image, preprocess_subject
 from habit.recipes import preprocess_images
-from habit.viz import plot_intensity_slice
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -77,6 +76,11 @@ result = preprocess_images(config)
 n_files = len(list(out_dir.rglob("*.nii.gz"))) + len(list(out_dir.rglob("*.nrrd")))
 print(f"  output_dir={result.output_dir}")
 print(f"  written files≈{n_files}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses subject, modality, and ROI.
+from habit.viz import plot_intensity_slice
 
 # Z-score keeps the grid, so original | processed is an honest before/after.
 # Resample (above) changes spacing/shape and cannot share one slice figure.
@@ -98,7 +102,7 @@ fig = plot_intensity_slice(
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/image_preprocess_api_slice.png", dpi=150, bbox_inches="tight")
 print("Wrote out/image_preprocess_api_slice.png")
-# END example
+# END figures
 
 if __name__ == "__main__":
     import sys

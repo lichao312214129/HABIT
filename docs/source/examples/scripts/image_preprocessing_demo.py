@@ -27,7 +27,6 @@ from typing import Any, Dict
 
 from habit import cohort_from_directory, preprocess_subject
 from habit.recipes import preprocess_images
-from habit.viz import plot_intensity_slice
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -68,6 +67,11 @@ processed = preprocess_subject(
     subject, {"zscore_normalization": {"only_inmask": True, "mask_key": ROI}}
 )
 print(f"  {subject.subject_id} {modality}: shape={processed.image(modality).data.shape}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses subject, processed, and modality.
+from habit.viz import plot_intensity_slice
 
 # Whole-FOV greyscale: z-score is an intensity transform, not an ROI crop.
 # Independent colorbars show raw intensity vs z-score (do not share clim).
@@ -85,7 +89,7 @@ fig = plot_intensity_slice(
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/image_preprocess_slice.png", dpi=150, bbox_inches="tight")
 print("Wrote out/image_preprocess_slice.png")
-# END example
+# END figures
 
 print(
     "Full MRI pipeline (N4 + ANTs registration): "

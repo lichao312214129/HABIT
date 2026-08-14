@@ -35,6 +35,19 @@ Script
 
 .. literalinclude:: scripts/parallel_execution_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort`` and
+``parallel_result``). Writes ``out/parallel_execution_overlay.png``.
+
+.. literalinclude:: scripts/parallel_execution_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 The demo uses ``parallel_mode="persistent"`` (the library default). Set
 ``"isolated"`` when you need a fresh child process per subject (stronger

@@ -141,6 +141,20 @@ def _demo(cohort: Cohort, subject: Subject) -> None:
     print(f"  features={raw_units.features.shape}")
     # END example
 
+    # BEGIN figures
+    # Paste after the Script block. Uses subject and result.
+    from habit.viz import plot_habitat_overlay
+
+    Path("out").mkdir(exist_ok=True)
+    fig = plot_habitat_overlay(
+        subject.image("T1"),
+        result.habitat_maps[0],
+        title="habitats",
+    )
+    fig.savefig("out/habitat_prep_api_overlay.png", dpi=150, bbox_inches="tight")
+    print("Wrote out/habitat_prep_api_overlay.png")
+    # END figures
+
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from _example_roi import save_habitat_study_figures
     from _habitat_eye_check import eye_check_study

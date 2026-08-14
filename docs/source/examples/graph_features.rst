@@ -21,6 +21,17 @@ land under ``out/`` (swap that path too if you like).
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``labels``). Writes
+``out/graph_habitat_network_2d.png``.
+
+.. literalinclude:: scripts/graph_features_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/graph_features_demo.py

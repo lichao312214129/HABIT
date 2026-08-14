@@ -24,6 +24,7 @@ from habit import list_plugins, load_plugins
 from habit.domain import VoxelFeatureExtractorRegistry
 
 
+# BEGIN example
 def main() -> None:
     """Load entry points (if any) and print registered voxel extractors."""
     report = load_plugins(strict=False)
@@ -48,32 +49,36 @@ def main() -> None:
         "call load_plugins(), then Spec('your_name', {...}) in HabitatSpec."
     )
 
-    from pathlib import Path
 
-    from habit import make_synthetic_cohort, one_step_habitat
-    from habit.viz import plot_habitat_overlay
+main()
+# END example
 
-    cohort = make_synthetic_cohort(n_subjects=2, modalities=("T1", "T2"), rng=0)
-    result = one_step_habitat(
-        modalities=("T1", "T2"), n_habitats=3, random_seed=0
-    ).fit_predict(cohort)
-    fig = plot_habitat_overlay(
-        cohort[0].image("T1").data,
-        result.habitat_maps[0].label_array,
-        axis=0,
-        title="After load_plugins: one-step habitats",
-    )
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/plugin_entry_points_overlay.png", dpi=150, bbox_inches="tight")
-    print("Wrote out/plugin_entry_points_overlay.png")
+# BEGIN figures
+# Paste after the Script block. After load_plugins, a one-step run is a normal overlay.
+from pathlib import Path
 
+from habit import make_synthetic_cohort, one_step_habitat
+from habit.viz import plot_habitat_overlay
+
+cohort = make_synthetic_cohort(n_subjects=2, modalities=("T1", "T2"), rng=0)
+result = one_step_habitat(
+    modalities=("T1", "T2"), n_habitats=3, random_seed=0
+).fit_predict(cohort)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1").data,
+    result.habitat_maps[0].label_array,
+    axis=0,
+    title="After load_plugins: one-step habitats",
+)
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/plugin_entry_points_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/plugin_entry_points_overlay.png")
+# END figures
+
+if __name__ == "__main__":
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from _example_roi import save_example_figure
 
     save_example_figure(fig, "plugin_entry_points_overlay.png")
-
-
-if __name__ == "__main__":
-    main()

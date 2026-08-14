@@ -32,15 +32,6 @@ from habit import MLSpec, Spec
 from habit.contracts import BinaryOutcome, FeatureTable
 from habit.domain.pipeline import TablePipeline
 import habit.recipes as recipes
-from habit.viz import (
-    plot_calibration,
-    plot_confusion_matrix,
-    plot_decision_curve,
-    plot_permutation_importance,
-    plot_precision_recall,
-    plot_roc,
-    use_style,
-)
 
 # Change DATA / ID_COL / LABEL_COL / FEATURES to your table
 DATA = "demo_data/ml_data/breast_cancer_dataset.csv"
@@ -155,6 +146,19 @@ for index, column in enumerate(FEATURES):
         drops[repeat] = base_auc - perm_auc
     imp_mean[index] = float(drops.mean())
     imp_std[index] = float(drops.std())
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses y_true, y_prob, y_pred, FEATURES, imp_*, cv.
+from habit.viz import (
+    plot_calibration,
+    plot_confusion_matrix,
+    plot_decision_curve,
+    plot_permutation_importance,
+    plot_precision_recall,
+    plot_roc,
+    use_style,
+)
 
 
 def _save(fig: object, name: str) -> None:
@@ -190,7 +194,7 @@ with use_style("radiology"):
     ax_cv.grid(True, axis="y", linestyle="--", alpha=0.6)
     fig_cv.tight_layout()
     _save(fig_cv, "tabular_ml_cv_auc.png")
-# END example
+# END figures
 
 if __name__ == "__main__":
     gallery = Path("docs/source/_static/images/examples")

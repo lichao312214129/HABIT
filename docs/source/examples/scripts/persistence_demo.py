@@ -24,6 +24,7 @@ from pathlib import Path
 from habit import HabitatModel, HabitatSpec, Spec, Stage, make_synthetic_cohort
 import habit.recipes as recipes
 
+# BEGIN example
 cohort = make_synthetic_cohort(n_subjects=4, shape=(18, 18, 18), rng=99)
 spec = HabitatSpec(
     name="persistence_demo",
@@ -82,9 +83,28 @@ with tempfile.TemporaryDirectory(prefix="habit_persist_") as tmp:
 
     prediction = recipes.Study.from_model(model, spec).predict(cohort)
     print(f"Apply round-trip maps: {len(prediction.habitat_maps)}")
+# END example
 
-# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _habitat_eye_check import eye_check_study
-eye_check_study(cohort, result)
+# BEGIN figures
+# Paste after the Script block. Uses cohort and result.
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/persistence_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/persistence_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+    from _habitat_eye_check import eye_check_study
+
+    save_example_figure(fig, "persistence_overlay.png")
+    eye_check_study(cohort, result)

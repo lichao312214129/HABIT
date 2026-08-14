@@ -22,7 +22,8 @@ from habit.execution.process_pool import ProcessPoolBackend
 import habit.recipes as recipes
 
 
-def main() -> None:
+# BEGIN example
+def main() -> tuple:
     """Compare serial and parallel two-step runs on a synthetic cohort."""
     cohort = make_synthetic_cohort(n_subjects=6, shape=(14, 14, 14), rng=21)
     spec = HabitatSpec(
@@ -91,14 +92,34 @@ def main() -> None:
           f"{len(set(habitat_map.label_array[habitat_map.label_array > 0]))} labels")
 
     print("\nYAML twin: add a top-level ``policy:`` block (see config/habitat/*_wsl.yaml)")
+    return cohort, parallel_result
 
-    # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from _habitat_eye_check import eye_check_study
-    eye_check_study(cohort, parallel_result)
 
+cohort, parallel_result = main()
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses cohort and parallel_result.
+from pathlib import Path
+
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    parallel_result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/parallel_execution_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/parallel_execution_overlay.png")
+# END figures
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+    from _habitat_eye_check import eye_check_study
+
+    save_example_figure(fig, "parallel_execution_overlay.png")
+    eye_check_study(cohort, parallel_result)

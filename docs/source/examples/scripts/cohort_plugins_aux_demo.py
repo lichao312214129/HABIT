@@ -30,6 +30,7 @@ import numpy as np
 import pandas as pd
 import SimpleITK as sitk
 
+# BEGIN example
 from habit import cohort_from_directory, list_plugins, make_synthetic_cohort
 from habit.commands.cmd_check_config import run_check_config
 from habit.commands.cmd_migrate_config import run_migrate_config
@@ -78,32 +79,6 @@ for batch, label in [(1, "batch_a"), (2, "batch_b")]:
 
 dice_df = recipes.dice(str(work_dir / "batch_a"), str(work_dir / "batch_b"))
 print(f"\ndice(): {len(dice_df)} pairwise rows, mean Dice={dice_df['Dice'].mean():.3f}")
-
-from habit.viz import plot_habitat_overlay
-import matplotlib.pyplot as plt
-
-id_col = next(c for c in dice_df.columns if c.lower() != "dice")
-fig_dice, ax = plt.subplots(figsize=(5.2, 3.0))
-ax.bar(dice_df[id_col].astype(str), dice_df["Dice"], color="#4C78A8")
-ax.set_ylim(0.0, 1.05)
-ax.set_ylabel("Dice")
-ax.set_xlabel(id_col)
-ax.set_title("Pairwise mask Dice")
-fig_dice.tight_layout()
-Path("out").mkdir(exist_ok=True)
-fig_dice.savefig("out/cohort_plugins_dice.png", dpi=150, bbox_inches="tight")
-
-mask_a = sitk.GetArrayFromImage(
-    sitk.ReadImage(str(work_dir / "batch_a" / "masks" / "P001" / "tumor" / "P001_mask.nrrd"))
-)
-fig_overlay = plot_habitat_overlay(
-    np.ones_like(mask_a, dtype=np.float32),
-    mask_a.astype(np.int32),
-    axis=0,
-    title="Dice demo: batch_a ROI",
-)
-fig_overlay.savefig("out/cohort_plugins_overlay.png", dpi=150, bbox_inches="tight")
-print("Wrote out/cohort_plugins_dice.png and out/cohort_plugins_overlay.png")
 
 # --- merge_tables -------------------------------------------------------------
 left = pd.DataFrame({"subject_id": ["P001", "P002"], "feat_a": [1.0, 2.0]})
@@ -171,6 +146,36 @@ else:
 
 print("\nsort_dicom: batch DICOM reorganisation — recipes.sort_dicom(config)")
 print("  requires a DICOM tree; see config/sort_dicom/ and tests/examples/")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses dice_df and work_dir from the Dice demo.
+from habit.viz import plot_habitat_overlay
+import matplotlib.pyplot as plt
+
+id_col = next(c for c in dice_df.columns if c.lower() != "dice")
+fig_dice, ax = plt.subplots(figsize=(5.2, 3.0))
+ax.bar(dice_df[id_col].astype(str), dice_df["Dice"], color="#4C78A8")
+ax.set_ylim(0.0, 1.05)
+ax.set_ylabel("Dice")
+ax.set_xlabel(id_col)
+ax.set_title("Pairwise mask Dice")
+fig_dice.tight_layout()
+Path("out").mkdir(exist_ok=True)
+fig_dice.savefig("out/cohort_plugins_dice.png", dpi=150, bbox_inches="tight")
+
+mask_a = sitk.GetArrayFromImage(
+    sitk.ReadImage(str(work_dir / "batch_a" / "masks" / "P001" / "tumor" / "P001_mask.nrrd"))
+)
+fig_overlay = plot_habitat_overlay(
+    np.ones_like(mask_a, dtype=np.float32),
+    mask_a.astype(np.int32),
+    axis=0,
+    title="Dice demo: batch_a ROI",
+)
+fig_overlay.savefig("out/cohort_plugins_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/cohort_plugins_dice.png and out/cohort_plugins_overlay.png")
+# END figures
 
 if __name__ == "__main__":
     import sys

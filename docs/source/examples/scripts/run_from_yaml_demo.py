@@ -21,6 +21,7 @@ import SimpleITK as sitk
 
 import habit.recipes as recipes
 
+# BEGIN example
 work_dir = Path(tempfile.mkdtemp(prefix="habit_yaml_demo_"))
 
 # 1. A tiny dataset in the conventional layout:
@@ -119,11 +120,30 @@ print(f"\nArtefacts under {out_dir}:")
 for path in sorted(out_dir.rglob("*")):
     if path.is_file() and not path.name.endswith(".pkl"):  # checkpoints omitted
         print(f"  {path.relative_to(out_dir)}")
+# END example
 
-# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# BEGIN figures
+# Paste after the Script block. Uses data_root and result.
 from habit.adapters import DirectoryDataSource
-from _habitat_eye_check import eye_check_study
+from habit.viz import plot_habitat_overlay
+
 cohort = DirectoryDataSource(data_root, modalities=("T1", "T2"), roi="T1").load()
-eye_check_study(cohort, result)
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/run_from_yaml_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/run_from_yaml_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+    from _habitat_eye_check import eye_check_study
+
+    save_example_figure(fig, "run_from_yaml_overlay.png")
+    eye_check_study(cohort, result)

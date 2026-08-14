@@ -21,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 IMAGING = REPO_ROOT / "demo_data" / "preprocessed"
 HABITAT_MAPS = REPO_ROOT / "demo_data" / "results" / "api" / "02_habitat_two_step"
 
+# BEGIN example
 print("=== In-memory: habitat_features on two_step ===")
 cohort = make_synthetic_cohort(n_subjects=2, shape=(12, 12, 12), rng=3)
 spec = HabitatSpec(
@@ -53,6 +54,21 @@ result = recipes.Study(spec=spec).fit_predict(cohort)
 print(f"  feature columns ({len(result.features.feature_columns)}):")
 for name in result.features.feature_columns:
     print(f"    - {name}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses cohort and result.
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/features_radiomics_api_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/features_radiomics_api_overlay.png")
+# END figures
 
 # Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
 import sys

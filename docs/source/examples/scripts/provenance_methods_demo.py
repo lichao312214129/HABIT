@@ -47,7 +47,8 @@ def _base_stages(n_supervoxels: int) -> tuple[Stage, ...]:
     )
 
 
-def main() -> None:
+# BEGIN example
+def main() -> tuple:
     """Compare fingerprints and print a methods paragraph."""
     cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=3)
 
@@ -73,7 +74,32 @@ def main() -> None:
     versions = dict(result.manifest.software_versions())
     print("\nsoftware_versions (sample):", {k: versions[k] for k in list(versions)[:4]})
     print("random_seeds:", dict(result.manifest.random_seeds()))
+    return cohort, result
 
+
+cohort, result = main()
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses cohort and result.
+from pathlib import Path
+
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/provenance_methods_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/provenance_methods_overlay.png")
+# END figures
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "provenance_methods_overlay.png")

@@ -55,6 +55,19 @@ Script
 
 .. literalinclude:: scripts/habitat_preprocessing_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject``, ``modalities``, and
+``two_step_result``). Writes ``out/habitat_preprocessing_overlay.png``.
+
+.. literalinclude:: scripts/habitat_preprocessing_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Output (abbreviated)
 --------------------

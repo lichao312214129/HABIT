@@ -34,6 +34,18 @@ Train on the first subjects under ``demo_data/preprocessed``, save
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``new_cohort``, ``prediction``,
+``train_cohort``, ``train_result``, ``model``, and ``spec``). Writes
+``out/apply_*.png``.
+
+.. literalinclude:: scripts/apply_saved_model_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Output
 ------
 

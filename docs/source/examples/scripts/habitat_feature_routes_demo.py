@@ -65,6 +65,7 @@ def _atomic_units(spec: HabitatSpec, subject: object) -> int:
     return int(frame.shape[1])
 
 
+# BEGIN example
 cohort, modalities = _load_cohort()
 subject = cohort[0]
 m0, m1 = modalities[0], modalities[1]
@@ -96,13 +97,6 @@ print(f"  atomic n_features: {_atomic_units(raw_spec, subject)}")
 raw_result = recipes.Study(spec=raw_spec).fit_predict(cohort)
 print(f"  batch: {len(raw_result.habitat_maps)} maps, "
       f"{raw_result.habitat_model.n_habitats} habitats")
-
-# Eye-check first route (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
-from pathlib import Path as _Path
-sys.path.insert(0, str(_Path(__file__).resolve().parent))
-from _habitat_eye_check import eye_check_study
-eye_check_study(cohort, raw_result)
 
 # --- concat(raw(m0), raw(m1)) — heterogeneous join ---------------------------
 concat_spec = HabitatSpec(
@@ -244,3 +238,30 @@ else:
     print("  skipped (need demo_data/preprocessed/ and PyRadiomics)")
 
 print("\nYAML equivalents: config/habitat/config_habitat_two_step_voxel_radiomics_*.yaml")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses subject, m0, and raw_result.
+from pathlib import Path
+
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    subject.image(m0),
+    raw_result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/habitat_feature_routes_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/habitat_feature_routes_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+    from _habitat_eye_check import eye_check_study
+
+    save_example_figure(fig, "habitat_feature_routes_overlay.png")
+    eye_check_study(cohort, raw_result)

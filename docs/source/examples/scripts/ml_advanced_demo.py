@@ -28,14 +28,6 @@ from sklearn.metrics import roc_auc_score
 from habit import MLSpec, Spec
 from habit.contracts import BinaryOutcome, FeatureTable
 import habit.recipes as recipes
-from habit.viz import (
-    plot_calibration,
-    plot_confusion_matrix,
-    plot_decision_curve,
-    plot_precision_recall,
-    plot_roc,
-    use_style,
-)
 
 # Change DATA / ID_COL / LABEL_COL / FEATURES to your table
 DATA = "demo_data/ml_data/breast_cancer_dataset.csv"
@@ -168,6 +160,18 @@ if compare_result.data:
                 k: round(v, 3) if isinstance(v, float) else v for k, v in metrics.items()
             }
             print(f"  {model_name}: {printable}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses y_true, y_prob_lr, y_prob_rf, pred_lr.
+from habit.viz import (
+    plot_calibration,
+    plot_confusion_matrix,
+    plot_decision_curve,
+    plot_precision_recall,
+    plot_roc,
+    use_style,
+)
 
 curves = {"staged LR": (y_true, y_prob_lr), "shallow RF": (y_true, y_prob_rf)}
 
@@ -193,7 +197,7 @@ with use_style("radiology"):
         ),
         "ml_advanced_confusion.png",
     )
-# END example
+# END figures
 
 if __name__ == "__main__":
     gallery = Path("docs/source/_static/images/examples")

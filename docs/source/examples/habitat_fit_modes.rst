@@ -35,6 +35,19 @@ Script
 
 .. literalinclude:: scripts/habitat_recipes_api_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort`` and ``two``).
+Writes ``out/habitat_fit_modes_overlay.png``.
+
+.. literalinclude:: scripts/habitat_recipes_api_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 The script ends with a **napari eye-check**. ``HABIT_NO_VIEW=1`` skips it.
 

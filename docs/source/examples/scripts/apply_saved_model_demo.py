@@ -101,13 +101,66 @@ with tempfile.TemporaryDirectory() as tmp:
     print(prediction.features.frame.to_string(index=False))
 # END example
 
+# BEGIN figures
+# Paste after the Script block. Uses new_cohort, prediction, train_cohort,
+# train_result, model, and spec.
+from habit import (
+    habitat_region_stats,
+    habitat_volume_fractions,
+    ith_score,
+    spatial_interaction_matrix,
+)
+from habit.viz import (
+    plot_habitat_label_compare,
+    plot_habitat_overlay,
+    plot_habitat_volume_fractions,
+    plot_ith_summary,
+    plot_msi_matrix,
+    plot_partition_triptych,
+)
+
+Path("out").mkdir(exist_ok=True)
+subject = new_cohort[0]
+habitat_map = prediction.habitat_maps[0]
+fig = plot_habitat_overlay(subject.image("T1"), habitat_map, title="habitats")
+fig.savefig("out/apply_overlay.png", dpi=150, bbox_inches="tight")
+if prediction.units:
+    fig = plot_partition_triptych(
+        subject.image("T1"),
+        prediction.units[0],
+        habitat_map,
+    )
+    fig.savefig("out/apply_triptych.png", dpi=150, bbox_inches="tight")
+labels = habitat_map.label_array
+ids = tuple(int(v) for v in habitat_map.habitat_ids)
+if ids:
+    fig = plot_habitat_volume_fractions(habitat_volume_fractions(labels, ids))
+    fig.savefig("out/apply_volume_fractions.png", dpi=150, bbox_inches="tight")
+    n_classes = int(max(ids)) + 1
+    msi = spatial_interaction_matrix(labels, n_classes=n_classes)
+    fig = plot_msi_matrix(msi, habitat_ids=tuple(range(1, n_classes)))
+    fig.savefig("out/apply_msi_matrix.png", dpi=150, bbox_inches="tight")
+    fig = plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels))
+    fig.savefig("out/apply_ith_summary.png", dpi=150, bbox_inches="tight")
+replay = recipes.Study.from_model(model, spec).predict(train_cohort[:1])
+fig = plot_habitat_label_compare(
+    train_cohort[0].image("T1"),
+    train_result.habitat_maps[0],
+    replay.habitat_maps[0],
+    titles=("Fit", "Replay"),
+)
+fig.savefig("out/apply_train_label_compare.png", dpi=150, bbox_inches="tight")
+print("Wrote figures under out/")
+# END figures
+
+if __name__ == "__main__":
     import sys
+
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from _example_roi import save_habitat_study_figures
     from _habitat_eye_check import eye_check_study
 
     save_habitat_study_figures(new_cohort, prediction, prefix="apply")
-    replay = recipes.Study.from_model(model, spec).predict(train_cohort[:1])
     save_habitat_study_figures(
         train_cohort,
         train_result,

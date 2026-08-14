@@ -95,6 +95,7 @@ class T1T2Contrast:
         )
 
 
+# BEGIN example
 cohort = make_synthetic_cohort(n_subjects=3, shape=(14, 14, 14), rng=21)
 subject = cohort[0]
 
@@ -175,10 +176,28 @@ print(f"  atomic features: {custom_units.feature_frame().columns.tolist()}")
 custom_result = recipes.Study(spec=custom_spec).fit_predict(cohort)
 print(f"  batch: {len(custom_result.habitat_maps)} maps, "
       f"{custom_result.habitat_model.n_habitats} habitats")
+# END example
 
-# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
+# BEGIN figures
+# Paste after the Script block. Uses subject and custom_result.
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _habitat_eye_check import eye_check_study
-eye_check_study(cohort, custom_result)
+
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    subject.image("T1"),
+    custom_result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/custom_voxel_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/custom_voxel_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _habitat_eye_check import eye_check_study
+
+    eye_check_study(cohort, custom_result)

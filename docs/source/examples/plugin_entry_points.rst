@@ -28,6 +28,19 @@ Script
 
 .. literalinclude:: scripts/plugin_entry_points_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block. Writes
+``out/plugin_entry_points_overlay.png``.
+
+.. literalinclude:: scripts/plugin_entry_points_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Run::
 

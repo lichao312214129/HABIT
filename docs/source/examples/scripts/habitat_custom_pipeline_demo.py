@@ -32,7 +32,8 @@ from habit.domain import (
 import habit.recipes as recipes
 
 
-def main() -> None:
+# BEGIN example
+def main() -> tuple:
     """Build a custom two-step design three ways and check fingerprints."""
     cohort = make_synthetic_cohort(
         n_subjects=4,
@@ -150,7 +151,32 @@ def main() -> None:
     print("  - Different partition: Spec('slic', {'n_supervoxels': 30})")
     print("  - Skip supervoxels: omit partition (one_step) or pool-only voxels")
     print("  - Always ship HabitatModel + the SubjectPipeline that matches it")
+    return cohort, result
 
+
+cohort, result = main()
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses cohort and result.
+from pathlib import Path
+
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/habitat_custom_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/habitat_custom_overlay.png")
+# END figures
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import save_example_figure
+
+    save_example_figure(fig, "habitat_custom_overlay.png")

@@ -49,6 +49,7 @@ YAML_CHAIN_MAP: Tuple[Tuple[str, str], ...] = (
     ("(two-step only, subject)", "supervoxel_feature_preprocessors"),
     ("preprocessing_for_group_level", "cohort_feature_preprocessors"),
 )
+# BEGIN example
 print("=== Older YAML -> HabitatSpec preprocessing chain names ===")
 for yaml_name, spec_name in YAML_CHAIN_MAP:
     print(f"  {yaml_name:40s} -> {spec_name}")
@@ -219,10 +220,27 @@ finally:
 
 print("\nMethods paragraph (two-step chains rendered):")
 print(two_step_result.manifest.describe_methods()[:500], "...")
+# END example
 
-# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _habitat_eye_check import eye_check_study
-eye_check_study(cohort, two_step_result)
+# BEGIN figures
+# Paste after the Script block. Uses subject, modalities, and two_step_result.
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    subject.image(modalities[0]),
+    two_step_result.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/habitat_preprocessing_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/habitat_preprocessing_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _habitat_eye_check import eye_check_study
+
+    eye_check_study(cohort, two_step_result)
 

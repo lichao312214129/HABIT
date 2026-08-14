@@ -29,6 +29,19 @@ Script
 
 .. literalinclude:: scripts/habitat_atomic_ops_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``subject0`` and
+``habitat_map``). Writes ``out/habitat_atomic_overlay.png``.
+
+.. literalinclude:: scripts/habitat_atomic_ops_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Run::
 

@@ -23,13 +23,6 @@ from habit import MLSpec, Spec
 from habit.contracts import BinaryOutcome, FeatureTable
 from habit.domain.pipeline import TablePipeline
 import habit.recipes as recipes
-from habit.viz import (
-    plot_calibration,
-    plot_decision_curve,
-    plot_precision_recall,
-    plot_roc,
-    use_style,
-)
 
 # Change DATA / ID_COL / LABEL_COL / FEATURES to your table
 DATA = "demo_data/ml_data/breast_cancer_dataset.csv"
@@ -192,6 +185,17 @@ one_table = FeatureTable(
 )
 one_pred = recipes.predict_model(fitted.pipeline, one_table)
 print(f"  row id={one_pred.predictions.index[0]}, pred={int(one_pred.predictions.iloc[0])}")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses y_true, y_prob_a, y_prob_b.
+from habit.viz import (
+    plot_calibration,
+    plot_decision_curve,
+    plot_precision_recall,
+    plot_roc,
+    use_style,
+)
 
 curves = {
     "LR (6 features)": (y_true, y_prob_a),
@@ -211,7 +215,7 @@ with use_style("radiology"):
     _save(plot_precision_recall(curves=curves, title="Hold-out PR"), "tabular_ml_api_pr.png")
     _save(plot_calibration(curves=curves, title="Hold-out calibration"), "tabular_ml_api_calibration.png")
     _save(plot_decision_curve(curves=curves, title="Hold-out DCA"), "tabular_ml_api_dca.png")
-# END example
+# END figures
 
 if __name__ == "__main__":
     gallery = Path("docs/source/_static/images/examples")

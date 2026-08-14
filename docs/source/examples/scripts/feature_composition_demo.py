@@ -21,6 +21,7 @@ Run from the repository root::
 
 from __future__ import annotations
 
+# BEGIN example
 from habit import HabitatSpec, Spec, make_synthetic_cohort, parse_feature_expression
 from habit.domain import build_voxel_extractor
 from habit.domain.assembly import build_habitat_components
@@ -147,10 +148,13 @@ via_structured = HabitatSpec.from_dict(
 print("\n=== YAML dual form ===")
 print(f"  fingerprint equal: "
       f"{via_expression.fingerprint() == via_structured.fingerprint()}")
+# END example
 
-import habit.recipes as recipes
+# BEGIN figures
+# Paste after the Script block. Uses spec, cohort, and subject.
 from pathlib import Path
 
+import habit.recipes as recipes
 from habit.viz import plot_habitat_overlay
 
 result = recipes.Study(spec=spec).fit_predict(cohort)
@@ -163,6 +167,7 @@ fig = plot_habitat_overlay(
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/feature_composition_overlay.png", dpi=150, bbox_inches="tight")
 print("Wrote out/feature_composition_overlay.png")
+# END figures
 
 if __name__ == "__main__":
     import sys

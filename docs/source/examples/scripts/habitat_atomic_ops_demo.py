@@ -41,7 +41,8 @@ from habit.domain import (
 from habit.execution import SerialBackend
 
 
-def main() -> None:
+# BEGIN example
+def main() -> tuple:
     """Run the atomic two-step walkthrough and print intermediate shapes."""
     cohort = make_synthetic_cohort(
         n_subjects=4,
@@ -120,28 +121,32 @@ def main() -> None:
     # Optional batch map — still no YAML; backend is an optional outer layer.
     maps = cohort.map(apply_pipe, backend=SerialBackend())
     print(f"cohort.map -> {len(maps)} habitat maps")
+    return subject0, habitat_map
 
-    from pathlib import Path
 
-    from habit.viz import plot_habitat_overlay
+subject0, habitat_map = main()
+# END example
 
-    fig = plot_habitat_overlay(
-        subject0.image("T1").data,
-        habitat_map.label_array,
-        axis=0,
-        title="Atomic operators: habitat map",
-    )
-    Path("out").mkdir(exist_ok=True)
-    fig.savefig("out/habitat_atomic_overlay.png", dpi=150, bbox_inches="tight")
-    print("Wrote out/habitat_atomic_overlay.png")
-    return fig
+# BEGIN figures
+# Paste after the Script block. Uses subject0 and habitat_map.
+from pathlib import Path
 
+from habit.viz import plot_habitat_overlay
+
+fig = plot_habitat_overlay(
+    subject0.image("T1").data,
+    habitat_map.label_array,
+    axis=0,
+    title="Atomic operators: habitat map",
+)
+Path("out").mkdir(exist_ok=True)
+fig.savefig("out/habitat_atomic_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/habitat_atomic_overlay.png")
+# END figures
 
 if __name__ == "__main__":
     import sys
-    from pathlib import Path
 
-    fig = main()
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from _example_roi import save_example_figure
 

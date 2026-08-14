@@ -52,6 +52,7 @@ def _fit_stage() -> Stage:
     )
 
 
+# BEGIN example
 cohort = make_synthetic_cohort(n_subjects=3, shape=(16, 16, 16), rng=11)
 
 print("=== Study.fit_predict two_step shape (partition + pool) ===")
@@ -188,9 +189,26 @@ sugar = HabitatSpec(
 )
 alias = recipes.Study(spec=sugar, design='two_step').fit_predict(cohort)
 print(f"  Study(design=two_step) sugar: habitats={alias.habitat_model.n_habitats}")
+# END example
 
-# Eye-check: open habitats on anatomy (napari). Set HABIT_NO_VIEW=1 to skip.
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _habitat_eye_check import eye_check_study
-eye_check_study(cohort, two)
+# BEGIN figures
+# Paste after the Script block. Uses cohort and two (the two-step StudyResult).
+from habit.viz import plot_habitat_overlay
+
+Path("out").mkdir(exist_ok=True)
+fig = plot_habitat_overlay(
+    cohort[0].image("T1"),
+    two.habitat_maps[0],
+    title="habitats",
+)
+fig.savefig("out/habitat_fit_modes_overlay.png", dpi=150, bbox_inches="tight")
+print("Wrote out/habitat_fit_modes_overlay.png")
+# END figures
+
+if __name__ == "__main__":
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _habitat_eye_check import eye_check_study
+
+    eye_check_study(cohort, two)

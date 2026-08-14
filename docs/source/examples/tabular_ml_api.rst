@@ -34,6 +34,17 @@ Change ``DATA`` / column names to your table. Figures land under ``out/``.
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``y_true``, ``y_prob_a``, and
+``y_prob_b``). Writes ``out/tabular_ml_api_*.png``.
+
+.. literalinclude:: scripts/tabular_ml_api_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Run from the repository root (one line)::
 
    python docs/source/examples/scripts/tabular_ml_api_demo.py

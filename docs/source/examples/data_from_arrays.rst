@@ -24,6 +24,19 @@ Script
 
 .. literalinclude:: scripts/data_from_arrays_demo.py
    :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort``, ``t1``, and
+``MODALITIES``). Writes ``out/data_from_arrays_overlay.png``.
+
+.. literalinclude:: scripts/data_from_arrays_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 Run::
 

@@ -70,6 +70,56 @@ extract_result = recipes.extract_habitat_features(
 print(f"Extracted {feature_types} -> {extract_result.output_dir}")
 # END example
 
+# BEGIN figures
+# Paste after the Script block. Uses cohort and train_result.
+from habit import (
+    habitat_region_stats,
+    habitat_volume_fractions,
+    ith_score,
+    spatial_interaction_matrix,
+)
+from habit.viz import (
+    plot_cluster_validation_from_report,
+    plot_habitat_overlay,
+    plot_habitat_volume_fractions,
+    plot_ith_summary,
+    plot_msi_matrix,
+    plot_partition_triptych,
+)
+
+Path("out").mkdir(exist_ok=True)
+subject = cohort[0]
+habitat_map = train_result.habitat_maps[0]
+fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
+fig.savefig("out/feature_extract_overlay.png", dpi=150, bbox_inches="tight")
+if train_result.units:
+    fig = plot_partition_triptych(
+        subject.image(ROI),
+        train_result.units[0],
+        habitat_map,
+    )
+    fig.savefig("out/feature_extract_triptych.png", dpi=150, bbox_inches="tight")
+labels = habitat_map.label_array
+ids = tuple(int(v) for v in habitat_map.habitat_ids)
+if ids:
+    fig = plot_habitat_volume_fractions(habitat_volume_fractions(labels, ids))
+    fig.savefig("out/feature_extract_volume_fractions.png", dpi=150, bbox_inches="tight")
+    n_classes = int(max(ids)) + 1
+    msi = spatial_interaction_matrix(labels, n_classes=n_classes)
+    fig = plot_msi_matrix(msi, habitat_ids=tuple(range(1, n_classes)))
+    fig.savefig("out/feature_extract_msi_matrix.png", dpi=150, bbox_inches="tight")
+    fig = plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels))
+    fig.savefig("out/feature_extract_ith_summary.png", dpi=150, bbox_inches="tight")
+model = train_result.habitat_model
+report = None if model is None else (model.preprocessing_state or {}).get(
+    "selection_report"
+)
+if report:
+    fig = plot_cluster_validation_from_report(report)
+    fig.savefig("out/feature_extract_cluster_validation.png", dpi=150, bbox_inches="tight")
+print("Wrote figures under out/")
+# END figures
+
 if __name__ == "__main__":
     import sys
 

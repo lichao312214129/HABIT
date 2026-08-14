@@ -14,7 +14,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from habit import cohort_from_directory, extract_graph_features, one_step_habitat
-from habit.viz import plot_habitat_graph_network_2d
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -29,11 +28,17 @@ result = one_step_habitat(
 labels = result.habitat_maps[0].label_array
 feats = extract_graph_features(labels)
 print(len(feats), "graph features")
+# END example
+
+# BEGIN figures
+# Paste after the Script block. Uses labels from the habitat map.
+from habit.viz import plot_habitat_graph_network_2d
 
 fig = plot_habitat_graph_network_2d(labels)
 Path("out").mkdir(exist_ok=True)
 fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
-# END example
+print("Wrote out/graph_habitat_network_2d.png")
+# END figures
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt

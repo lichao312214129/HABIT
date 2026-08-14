@@ -25,6 +25,17 @@ Train on ``demo_data/preprocessed``, save maps under ``out/``, then call
    :start-after: # BEGIN example
    :end-before: # END example
 
+Draw the figures
+----------------
+
+Paste this after the Script block (it uses ``cohort``, ``train_result``, and
+``ROI``). Writes ``out/feature_extract_*.png``.
+
+.. literalinclude:: scripts/feature_extraction_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
+
 Running the script regenerates gallery PNGs; ``HABIT_NO_VIEW=1`` skips napari.
 
 Figures
