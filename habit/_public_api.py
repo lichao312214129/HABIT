@@ -393,6 +393,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_permutation_importance",
         "plot_habitat_feature_heatmap",
         "plot_habitat_feature_effect",
+        "plot_habitat_feature_components",
         "plot_habitat_feature_violin",
         "plot_habitat_feature_bars",
         "rank_shap_feature_indices",

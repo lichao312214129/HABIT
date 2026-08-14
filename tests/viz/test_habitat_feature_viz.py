@@ -25,8 +25,10 @@ from matplotlib.collections import PolyCollection
 
 from habit.contracts.table import FeatureTable
 from habit.domain.habitat_features.compare import compare_habitat_features
+from habit.exceptions import HABITAPIError
 from habit.viz import (
     plot_habitat_feature_bars,
+    plot_habitat_feature_components,
     plot_habitat_feature_effect,
     plot_habitat_feature_heatmap,
     plot_habitat_feature_violin,
@@ -240,3 +242,151 @@ def test_violin_uses_box_when_n_is_small() -> None:
     assert violin_bodies == []
     assert ax.patches  # box faces
     assert ax.collections  # strip points
+
+
+def _three_habitat_comparison(n_subjects: int = 10, n_features: int = 6):
+    """Cohort with three habitats so the all-pair heatmap has three columns."""
+    rng = np.random.default_rng(11)
+    rows = []
+    for index in range(n_subjects):
+        row = {"subject": f"s{index:03d}"}
+        for hid, shift in ((1, 0.0), (2, 0.8), (3, -0.5)):
+            row[f"has_habitat_{hid}"] = 1.0
+            for feat_i in range(n_features):
+                row[f"habitat_{hid}_tex_{feat_i:02d}_of_T2"] = float(
+                    rng.normal(shift + 0.04 * feat_i, 0.22)
+                )
+        rows.append(row)
+    frame = pd.DataFrame(rows)
+    table = FeatureTable(
+        frame=frame,
+        id_columns=("subject",),
+        feature_columns=tuple(c for c in frame.columns if c != "subject"),
+    )
+    return compare_habitat_features(table)
+
+
+def _heatmap_data_ax(fig: Figure):
+    """Return the effect-heatmap axes (skip the colorbar)."""
+    for ax in fig.axes:
+        if ax.images:
+            return ax
+    raise AssertionError("expected an imshow heatmap axes")
+
+
+def test_effect_default_is_all_pair_heatmap() -> None:
+    """Omitting pair draws one column per habitat pair, not a lollipop."""
+    comparison = _three_habitat_comparison()
+    fig = plot_habitat_feature_effect(comparison)
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    _assert_ascii(fig)
+    ax = _heatmap_data_ax(fig)
+    labels = [str(tick.get_text()) for tick in ax.get_xticklabels()]
+    assert labels == ["H1-H2", "H1-H3", "H2-H3"]
+    shown = np.asarray(ax.images[0].get_array())
+    assert shown.shape[1] == 3
+    assert shown.shape[0] == len(comparison.panel.feature_names)
+
+
+def test_effect_habitats_two_ids_is_lollipop() -> None:
+    """habitats=(a, b) is the same explicit-pair request as pair=(a, b)."""
+    comparison = _three_habitat_comparison()
+    fig = plot_habitat_feature_effect(comparison, habitats=(1, 3), top_k=4)
+    fig.canvas.draw()
+    ax = fig.axes[0]
+    assert not ax.images
+    xlabel = str(ax.get_xlabel())
+    assert "H1 vs H3" in xlabel or "H3 vs H1" in xlabel
+    _assert_ascii(fig)
+
+
+def test_effect_explicit_pair_still_lollipop() -> None:
+    """pair=(a, b) keeps the ranked forest / lollipop."""
+    comparison = _comparison()
+    fig = plot_habitat_feature_effect(comparison, pair=(2, 1), top_k=4)
+    fig.canvas.draw()
+    ax = fig.axes[0]
+    assert not ax.images
+    assert "H2 vs H1" in str(ax.get_xlabel()) or "H1 vs H2" in str(ax.get_xlabel())
+    assert ax.collections  # scatter markers
+
+
+def test_effect_heatmap_truncates_to_top_k_by_max_abs_delta() -> None:
+    """More features than max_features: title states the silent-cap."""
+    comparison = _three_habitat_comparison(n_features=20)
+    fig = plot_habitat_feature_effect(comparison, max_features=5)
+    fig.canvas.draw()
+    ax = _heatmap_data_ax(fig)
+    title = str(ax.get_title())
+    assert "top 5 of 20" in title
+    assert "max |delta|" in title
+    y_labels = [str(tick.get_text()) for tick in ax.get_yticklabels()]
+    assert len(y_labels) == 5
+    assert len(set(y_labels)) == 5
+    _assert_ascii(fig)
+
+
+def test_effect_heatmap_feature_labels_stay_unique() -> None:
+    """Wrapped radiomics names stay distinguishable on the delta heatmap."""
+    comparison = _mixed_scale_comparison()
+    fig = plot_habitat_feature_effect(comparison)
+    fig.canvas.draw()
+    ax = _heatmap_data_ax(fig)
+    labels = [str(tick.get_text()) for tick in ax.get_yticklabels()]
+    assert len(set(labels)) == len(labels)
+    joined = "\n".join(labels)
+    for token in ("Mean", "Median", "Energy", "Kurtosis"):
+        assert token in joined
+
+
+def test_components_pca_and_cva_return_figures() -> None:
+    """PCA and CVA both build a Figure with unique habitat legend labels."""
+    comparison = _three_habitat_comparison()
+    fig_pca = plot_habitat_feature_components(comparison, method="pca")
+    fig_cva = plot_habitat_feature_components(comparison, method="cva")
+    for fig in (fig_pca, fig_cva):
+        assert isinstance(fig, Figure)
+        _assert_ascii(fig)
+    pca_title = str(fig_pca.axes[0].get_title())
+    assert "PCA" in pca_title
+    cva_title = str(fig_cva.axes[0].get_title())
+    assert "CVA" in cva_title
+    legend = fig_pca.axes[0].get_legend()
+    assert legend is not None
+    legend_labels = [str(text.get_text()) for text in legend.get_texts()]
+    assert legend_labels == ["H1", "H2", "H3"]
+
+
+def test_components_cva_uses_pca_when_p_exceeds_n() -> None:
+    """p >= n - n_classes: title must say CVA (PCA-preprocessed)."""
+    # 4 subjects x 2 habitats = 8 rows; 12 features => within-class rank 6.
+    rng = np.random.default_rng(3)
+    rows = []
+    for index in range(4):
+        row = {"subject": f"s{index:03d}"}
+        for hid, shift in ((1, 0.0), (2, 0.9)):
+            row[f"has_habitat_{hid}"] = 1.0
+            for feat_i in range(12):
+                row[f"habitat_{hid}_tex_{feat_i:02d}_of_T2"] = float(
+                    rng.normal(shift, 0.25)
+                )
+        rows.append(row)
+    frame = pd.DataFrame(rows)
+    table = FeatureTable(
+        frame=frame,
+        id_columns=("subject",),
+        feature_columns=tuple(c for c in frame.columns if c != "subject"),
+    )
+    wide = compare_habitat_features(table)
+    fig = plot_habitat_feature_components(wide, method="cva")
+    title = str(fig.axes[0].get_title())
+    assert title == "CVA (PCA-preprocessed)"
+    _assert_ascii(fig)
+
+
+def test_components_cva_fails_clearly_when_n_equals_classes() -> None:
+    """One subject x two habitats cannot form a within-class scatter."""
+    comparison = _comparison(n_subjects=1)
+    with pytest.raises(HABITAPIError, match="more \\(subject, habitat\\) rows"):
+        plot_habitat_feature_components(comparison, method="cva")

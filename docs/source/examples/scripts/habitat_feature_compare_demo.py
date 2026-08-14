@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Habitat-feature contrast figures (heatmap, Cliff's delta, violin, bars).
+Habitat-feature contrast figures (heatmap, Cliff's delta, PCA, violin, bars).
 
 Accompanies ``docs/source/reference/features/whole_each_habitat.rst`` and
 ``docs/source/examples/visualization.rst``.
@@ -20,6 +20,7 @@ import pandas as pd
 from habit import FeatureTable, compare_habitat_features
 from habit.viz import (
     plot_habitat_feature_bars,
+    plot_habitat_feature_components,
     plot_habitat_feature_effect,
     plot_habitat_feature_heatmap,
     plot_habitat_feature_violin,
@@ -34,12 +35,14 @@ feature_specs = (
     ("original_firstorder_Median_of_T2", 110.0, 7.0),
     ("original_firstorder_Energy_of_T2", 1.8e9, 2.0e8),
     ("original_firstorder_Kurtosis_of_T2", 3.2, 0.4),
+    ("original_firstorder_Skewness_of_T2", 0.4, 0.15),
+    ("original_glcm_Contrast_of_T2", 18.0, 3.0),
     ("volume_fraction", 0.35, 0.08),
 )
 rows = []
 for index in range(n_subjects):
     row = {"subject": f"subj{index:03d}"}
-    for hid, shift in ((1, 0.0), (2, 0.35)):
+    for hid, shift in ((1, 0.0), (2, 0.35), (3, -0.25)):
         row[f"has_habitat_{hid}"] = 1.0
         for name, loc, scale in feature_specs:
             value = float(rng.normal(loc * (1.0 + 0.15 * shift), scale))
@@ -66,6 +69,8 @@ FEATURES = (
     "original_firstorder_Median_of_T2",
     "original_firstorder_Energy_of_T2",
     "original_firstorder_Kurtosis_of_T2",
+    "original_firstorder_Skewness_of_T2",
+    "original_glcm_Contrast_of_T2",
     "volume_fraction",
 )
 fig = plot_habitat_feature_heatmap(
@@ -79,8 +84,12 @@ fig = plot_habitat_feature_heatmap(
     title="Habitat feature profile (subj000)",
 )
 fig.savefig("out/habitat_feature_heatmap_subject.png", dpi=150, bbox_inches="tight")
-fig = plot_habitat_feature_effect(cmp, pair=(2, 1), top_k=5)
+fig = plot_habitat_feature_effect(cmp)
 fig.savefig("out/habitat_feature_effect.png", dpi=150, bbox_inches="tight")
+fig = plot_habitat_feature_effect(cmp, pair=(2, 1), top_k=5)
+fig.savefig("out/habitat_feature_effect_pair.png", dpi=150, bbox_inches="tight")
+fig = plot_habitat_feature_components(cmp, method="pca")
+fig.savefig("out/habitat_feature_components.png", dpi=150, bbox_inches="tight")
 fig = plot_habitat_feature_violin(cmp, features=FEATURES)
 fig.savefig("out/habitat_feature_violin.png", dpi=150, bbox_inches="tight")
 fig = plot_habitat_feature_bars(cmp, features=FEATURES)
@@ -99,6 +108,8 @@ if __name__ == "__main__":
             "habitat_feature_heatmap_cohort.png",
             "habitat_feature_heatmap_subject.png",
             "habitat_feature_effect.png",
+            "habitat_feature_effect_pair.png",
+            "habitat_feature_components.png",
             "habitat_feature_violin.png",
             "habitat_feature_bars.png",
         )

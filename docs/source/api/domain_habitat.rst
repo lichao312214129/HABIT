@@ -267,6 +267,7 @@ After ``each_habitat`` (or any wide ``habitat_{id}_{feature}`` table),
 contrast habitats on the **cohort** (paired Cliff's delta, BH-FDR) or on
 one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
 :func:`~habit.viz.plot_habitat_feature_effect`,
+:func:`~habit.viz.plot_habitat_feature_components`,
 :func:`~habit.viz.plot_habitat_feature_violin`,
 :func:`~habit.viz.plot_habitat_feature_bars`. See
 :doc:`../reference/features/whole_each_habitat`. Gallery:

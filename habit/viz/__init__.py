@@ -64,6 +64,7 @@ from habit.viz.classification import (
 )
 from habit.viz.habitat_features import (
     plot_habitat_feature_bars,
+    plot_habitat_feature_components,
     plot_habitat_feature_effect,
     plot_habitat_feature_heatmap,
     plot_habitat_feature_violin,
@@ -170,6 +171,7 @@ __all__ = [
     "plot_partition_triptych",
     "plot_habitat_feature_heatmap",
     "plot_habitat_feature_effect",
+    "plot_habitat_feature_components",
     "plot_habitat_feature_violin",
     "plot_habitat_feature_bars",
     # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
