@@ -60,8 +60,9 @@ class HabitatGraphFeatureOptions:
     """Runtime options for graph-based habitat feature extraction.
 
     Default node rule: ``node_method='uniform_grid'`` with ``block_size=5``
-    (equal-volume cubes on a global VOI lattice, edge length in **voxels**,
-    not millimetres). Default edge rule: ``edge_method='min_distance'``
+    (global VOI lattice; each kept cube emits one node per connected
+    habitat subregion at that subregion's voxel centroid; edge length in
+    **voxels**, not millimetres). Default edge rule: ``edge_method='min_distance'``
     with ``distance_threshold=5.0``. Face-adjacent 5-cubes connect
     (closest voxels are one hop apart). One empty lattice cell between
     cubes gives closest-voxel distance 6, which is greater than 5, so
@@ -87,7 +88,8 @@ class HabitatGraphFeatureOptions:
     # as drawn. Pass a positive value to shrink each habitat (binary erosion
     # iterations) before labeling and edge construction.
     erosion_radius: int = 0
-    # Default node construction: a global equal-volume cube lattice.
+    # Default node construction: a global cube lattice; each kept cell
+    # emits one node per connected habitat subregion (centroid).
     # ``component`` restores connected-component nodes; those larger than
     # ``subdivide_region_voxels`` are then split (``0`` disables that split).
     node_method: NodeMethod = "uniform_grid"
@@ -250,8 +252,9 @@ def extract_graph_features(
     """
     Extract subject-level graph features from a habitat label map.
 
-    Default ``options`` use ``node_method='uniform_grid'`` (5-voxel cubes)
-    and ``edge_method='min_distance'`` with ``distance_threshold=5.0``.
+    Default ``options`` use ``node_method='uniform_grid'`` (5-voxel cubes,
+    one node per in-cell subregion centroid) and
+    ``edge_method='min_distance'`` with ``distance_threshold=5.0``.
     Pass ``node_method='component'`` / ``edge_method='adjacency'`` for the
     older connected-component contact graph.
 

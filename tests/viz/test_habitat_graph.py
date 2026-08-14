@@ -130,9 +130,12 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
                     assert painted.any()
                     assert np.allclose(alphas[painted], 1.0)
                 elif title.startswith("H"):
-                    unique = {round(float(v), 2) for v in np.unique(alphas[painted])}
-                    assert 1.0 in unique
-                    assert 0.2 in unique
+                    assert painted.any()
+                    assert np.allclose(alphas[painted], 1.0)
+                    rgb = rgba[painted][..., :3]
+                    chroma = rgb.max(axis=1) - rgb.min(axis=1)
+                    assert np.any(chroma > 0.15)
+                    assert np.any(chroma <= 0.08)
             else:
                 alpha = image.get_alpha()
                 assert alpha is None or float(alpha) == pytest.approx(1.0)

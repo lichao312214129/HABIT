@@ -372,9 +372,11 @@ _DEFAULT_NODE_SIZE: float = 64.0
 _PANEL_TITLE_FONTSIZE: float = 11.5
 _AXIS_TEXT_FONTSIZE: float = 10.5
 _FIG_LEGEND_FONTSIZE: float = 10.5
-#: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured
-#: habitat stays 1.0; the All-habitats panel stays fully opaque.
-_OTHER_HABITAT_ALPHA: float = 0.2
+#: Other-habitat fill on per-habitat (H1--Hk) panels: opaque gray, not
+#: the original colour at a low alpha. Featured habitat stays full
+#: colour at alpha 1.0; the All-habitats panel stays fully coloured.
+_OTHER_HABITAT_FILL: str = "#C5C8CC"
+_OTHER_HABITAT_ALPHA: float = 1.0
 #: Intra-habitat edges of non-featured habitats on an H1--Hk panel.
 _OTHER_INTRA_EDGE_ALPHA: float = 0.28
 _OTHER_INTRA_EDGE_WIDTH: float = 0.55
@@ -430,9 +432,9 @@ def _draw_background_2d(
     When ``colors`` is provided, each habitat partition is painted with the
     same palette as the slice figure. Background ``0`` is left transparent
     (not drawn). On a per-habitat panel, pass ``featured_label`` so that
-    habitat stays opaque (alpha=1) while every other habitat is drawn at
-    ``_OTHER_HABITAT_ALPHA`` (0.2). The All-habitats panel omits
-    ``featured_label`` so every habitat stays fully opaque.
+    habitat stays full colour (alpha=1) while every other habitat is
+    filled with opaque gray (``_OTHER_HABITAT_FILL``). The All-habitats
+    panel omits ``featured_label`` so every habitat stays fully coloured.
 
     Args:
         ax: Target matplotlib axes.
@@ -456,12 +458,10 @@ def _draw_background_2d(
             mask = label_2d == label
             if not np.any(mask):
                 continue
-            alpha = (
-                1.0
-                if featured_label is None or int(label) == int(featured_label)
-                else _OTHER_HABITAT_ALPHA
-            )
-            rgba[mask] = to_rgba(colors[label], alpha=alpha)
+            if featured_label is None or int(label) == int(featured_label):
+                rgba[mask] = to_rgba(colors[label], alpha=1.0)
+            else:
+                rgba[mask] = to_rgba(_OTHER_HABITAT_FILL, alpha=_OTHER_HABITAT_ALPHA)
         ax.imshow(rgba, interpolation="nearest", zorder=0)
         return
     silhouette = np.where(label_2d > 0, 1.0, np.nan)
@@ -927,9 +927,9 @@ def plot_habitat_graph_network_2d(
             largest cross-section. Ignored for 2D input.
         show_background: Whether to draw habitat partitions behind the
             graph (default ``True``). On H1--Hk panels the featured
-            habitat is opaque and other habitats use alpha 0.2;
+            habitat is full colour and other habitats are opaque gray;
             background 0 stays undrawn. The All-habitats panel stays
-            fully opaque. Featured-habitat nodes stay solid.
+            fully coloured. Featured-habitat nodes stay solid.
         show_grid: Draw the uniform-grid lattice (default ``True``).
             Also draws when ``block_size`` is passed in ``component`` mode.
         block_size: Display cube edge in voxels. ``None`` (default) uses

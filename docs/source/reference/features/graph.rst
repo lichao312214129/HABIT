@@ -83,10 +83,13 @@ For each habitat :math:`k\in\mathcal{H}`:
    axis-aligned lattice of cubes of edge ``block_size`` :math:`b`
    (default :math:`b=5` **voxels**, not millimetres) whose origin is the
    VOI bounding-box minimum.
-   A cube becomes one node when its occupied fraction exceeds
-   ``block_min_coverage`` (default ``0.2``); the node habitat is the
-   majority label in that cube. Pass ``node_method='component'`` for the
-   older rule: if ``subdivide_region_voxels`` :math:`s>0` and
+   A cube is kept when its occupied fraction exceeds
+   ``block_min_coverage`` (default ``0.2``; cell-level filter).
+   Inside each kept cube, every connected component of every habitat
+   becomes its own node at that subregion's voxel-index centroid, so one
+   cube may contribute several nodes. In-cell fragments smaller than
+   ``min_region_voxels`` are dropped. Pass ``node_method='component'``
+   for the older rule: if ``subdivide_region_voxels`` :math:`s>0` and
    :math:`|C|>s`, split :math:`C` into axis-aligned grid blocks of edge
    :math:`b` (default :math:`s=1000`). A block with voxel set :math:`B`
    is **kept** only when
@@ -487,13 +490,13 @@ below match the kernel dataclass.
    * - ``erosion_radius``
      - Binary erosion iterations before labeling (default ``0`` / off; set ``>= 1`` to shrink habitats before edges)
    * - ``node_method``
-     - ``uniform_grid`` (default: equal-volume cubes on a global VOI lattice) or ``component``
+     - ``uniform_grid`` (default: global VOI lattice; one node per in-cell subregion centroid) or ``component``
    * - ``subdivide_region_voxels``
      - In ``component`` mode, split components larger than this (default ``1000``; ``0`` disables)
    * - ``block_size``
      - Cube edge length in **voxels** (default ``5``, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at ``distance_threshold=5``.
    * - ``block_min_coverage``
-     - Minimum **strict** fraction of a block that must be occupied (default ``0.2``)
+     - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.2``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``

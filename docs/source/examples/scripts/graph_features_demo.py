@@ -2,10 +2,10 @@
 """
 One subject → one-step habitats (K=4) → graph features + plots.
 
-This gallery uses the library graph defaults: equal-volume cubes
-(``node_method='uniform_grid'``, ``block_size=5`` voxels) and closest-voxel
-edges (``edge_method='min_distance'``, ``distance_threshold=5``).
-It only fixes ``n_habitats=4``.
+This gallery uses the library graph defaults: a 5-voxel cube lattice
+(``node_method='uniform_grid'``) with one node per in-cell subregion
+centroid, and closest-voxel edges (``edge_method='min_distance'``,
+``distance_threshold=5``). It only fixes ``n_habitats=4``.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -32,15 +32,18 @@ ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
 # Fixed K=4 (not "auto") so the graph has a known number of habitats.
-# Graph options are the library defaults (uniform 5-voxel cubes + min-distance).
+# Node/edge defaults: per-cell subregion centroids + min-distance.
+# Extended metrics are off so a full 3D mixed lattice stays interactive.
 result = one_step_habitat(
     modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
 ).fit_predict(cohort)
 
 labels = result.habitat_maps[0].label_array
-options = HabitatGraphFeatureOptions()
-feats = extract_graph_features(labels, options=options)
-print(len(feats), "graph features")
+options = HabitatGraphFeatureOptions(include_extended_metrics=False)
+# Same representative axial slice as the 2D network figure.
+slice_index = int((labels > 0).reshape(labels.shape[0], -1).sum(axis=1).argmax())
+feats = extract_graph_features(labels[slice_index], options=options)
+print(len(feats), "graph features from representative slice", slice_index)
 # END example
 
 # BEGIN figures

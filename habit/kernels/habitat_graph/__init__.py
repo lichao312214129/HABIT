@@ -15,7 +15,8 @@
 """L0 kernels for graph-topology habitat features.
 
 A habitat map is turned into region graphs -- default nodes are
-equal-volume cubes on a global VOI lattice (``uniform_grid``, edge 8),
+per-cell subregion centroids on a global VOI lattice
+(``uniform_grid``, cube edge 5 voxels),
 edges by closest-voxel distance (default ``min_distance``, threshold 5),
 with optional voxel adjacency or centroid proximity -- and NetworkX-derived
 topology metrics

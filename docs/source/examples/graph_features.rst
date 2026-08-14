@@ -9,7 +9,8 @@ End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 :func:`~habit.extract_graph_features` → overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example uses the
 library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
-``node_method='uniform_grid'`` (5-voxel cubes, not millimetres) and
+``node_method='uniform_grid'`` (5-voxel cubes, not millimetres; one
+node per in-cell subregion centroid) and
 ``edge_method='min_distance'`` (closest voxels within 5). The 2D network
 draws that same lattice as dashed lines. Graph topology is a habitat-map
 feature family (same tier as ``volume`` / ``msi``); columns under
@@ -20,9 +21,11 @@ Script
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
-uses the library graph defaults (uniform 5-voxel cubes + min-distance
-edges), then extracts graph topology and draws the overlay plus the 2D
-network with the dashed lattice. Figures land under ``out/`` (swap that
+uses the library node/edge defaults (uniform 5-voxel cubes, one node
+per in-cell subregion centroid + min-distance edges; extended metrics
+off so a full 3D mixed lattice stays interactive), then extracts graph
+topology and draws the overlay plus the 2D network with the dashed
+lattice. Figures land under ``out/`` (swap that
 path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
@@ -49,10 +52,10 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (fixed ``n_habitats=4``, library graph defaults; count
-depends on the habitat map)::
+Illustrative (fixed ``n_habitats=4``, per-cell subregion centroids;
+count depends on the habitat map)::
 
-   537 graph features
+   397 graph features from representative slice 96
 
 Anatomy with habitats
 ---------------------
@@ -74,8 +77,8 @@ Anatomy with habitats
    Intra-habitat panels plus the combined All-habitats graph. The All
    panel title reports per-habitat node counts and intra/inter edge
    counts. Display knobs ``block_size=5`` / ``grid_linestyle='--'`` draw
-   the same 5-voxel cubes; other habitats' edges on each H panel are gray
-   and translucent
+   the same 5-voxel cubes; other habitats on each H panel are opaque
+   gray (fill) with translucent gray edges
    (:func:`~habit.viz.plot_habitat_graph_network_2d`).
 
 3D surfaces and network

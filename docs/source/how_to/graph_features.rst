@@ -54,19 +54,22 @@ Outputs:
   ``out_dir/visualizations/graph/`` (2D needs ``[viz]``; 3D also needs
   ``[view]``)
 
-By default nodes are **equal-volume cubes** on a global VOI lattice
-(``node_method: uniform_grid``, ``block_size: 5`` **voxels**, not
-millimetres). An **edge exists when the closest voxels of two cubes are
-within 5** voxel-index units (``edge_method: min_distance``,
-``distance_threshold: 5``). Face-adjacent 5-cubes connect (closest
-voxels are one hop apart). One empty lattice cell between cubes is
-closest-voxel distance 6, which is greater than 5, so those stay
-disconnected. There is **no morphological
+By default nodes sit at **per-cell subregion centroids** on a global
+VOI lattice (``node_method: uniform_grid``, ``block_size: 5``
+**voxels**, not millimetres). A cube is kept when its occupied fraction
+exceeds ``block_min_coverage``; each connected habitat fragment inside
+that cube becomes its own node. An **edge exists when the closest
+voxels of two nodes are within 5** voxel-index units
+(``edge_method: min_distance``, ``distance_threshold: 5``).
+Face-adjacent 5-cubes connect (closest voxels are one hop apart). One
+empty lattice cell between cubes is closest-voxel distance 6, which is
+greater than 5, so those stay disconnected. There is **no morphological
 erosion** (``erosion_radius: 0``). Pass
 ``node_method: component`` for connected-component nodes, and
 ``edge_method: adjacency`` if you want contact-voxel edges (default
 contact count >= 10). ``centroid_distance`` is the older centroid-proximity
-rule. 2D figures draw the **same lattice** as dashed lines.
+rule. 2D figures draw the **same lattice** as dashed lines. On each
+featured-habitat panel, other habitats are **opaque gray**.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 
@@ -76,7 +79,8 @@ Python API
 The figure below is written by the graph gallery
 (:doc:`../examples/graph_features`) — one-step with **fixed**
 ``n_habitats=4`` and the library graph defaults (uniform 5-voxel cubes
-+ min-distance edges + dashed lattice). Reproduce it::
+with per-subregion centroid nodes + min-distance edges + dashed
+lattice). Reproduce it::
 
    python docs/source/examples/scripts/graph_features_demo.py
 
@@ -98,8 +102,9 @@ Or paste the same code the gallery shows::
        modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
-   options = HabitatGraphFeatureOptions()
-   feats = extract_graph_features(labels, options=options)
+   options = HabitatGraphFeatureOptions(include_extended_metrics=False)
+   slice_index = int((labels > 0).reshape(labels.shape[0], -1).sum(axis=1).argmax())
+   feats = extract_graph_features(labels[slice_index], options=options)
    fig = plot_habitat_graph_network_2d(
        labels, options=options, show_grid=True, block_size=5, grid_linestyle="--"
    )

@@ -1121,6 +1121,35 @@ def test_pair_count_matches_unordered_pairs() -> None:
 
 
 @pytest.mark.unit
+def test_uniform_grid_emits_one_node_per_cell_subregion() -> None:
+    """A kept cube yields one centroid node per habitat connected component."""
+    # One 8x8 cell: habitat 1 is two face-disconnected blobs; habitat 2
+    # occupies the remainder. Cell coverage is 1.0 so the cube is kept.
+    label_array: np.ndarray = np.full((8, 8), 2, dtype=np.int32)
+    label_array[0:3, 0:3] = 1
+    label_array[5:8, 5:8] = 1
+
+    result = extract_habitat_nodes(
+        label_array=label_array,
+        node_method="uniform_grid",
+        connectivity="face",
+        block_size=8,
+        block_min_coverage=0.2,
+        min_region_voxels=1,
+    )
+    nodes_1 = result.nodes_by_habitat[1]
+    nodes_2 = result.nodes_by_habitat[2]
+    assert len(nodes_1) == 2
+    assert len(nodes_2) == 1
+    assert {node.voxel_count for node in nodes_1} == {9}
+    assert nodes_2[0].voxel_count == 64 - 18
+    centroids = np.vstack([node.centroid for node in nodes_1])
+    expected = np.array([[1.0, 1.0], [6.0, 6.0]], dtype=float)
+    for row in expected:
+        assert any(np.allclose(centroids[i], row) for i in range(len(centroids)))
+
+
+@pytest.mark.unit
 def test_uniform_grid_uses_global_origin_and_keeps_equal_cubes() -> None:
     """Default node method tessellates the whole VOI into equal-volume cubes."""
     label_array: np.ndarray = np.zeros((16, 16), dtype=np.int32)

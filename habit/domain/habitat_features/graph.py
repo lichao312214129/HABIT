@@ -75,9 +75,10 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: ``0`` (off): adjacency and contact are measured on the habitat labels
     #: as drawn. Pass a positive value to shrink each habitat before edges.
     erosion_radius: int = Field(default=0, ge=0)
-    #: How voxels become nodes. Default ``"uniform_grid"``: equal-volume
-    #: cubes on a global VOI lattice. ``"component"`` uses connected
-    #: components (optionally split when larger than
+    #: How voxels become nodes. Default ``"uniform_grid"``: global VOI
+    #: lattice; each kept cube emits one node per connected habitat
+    #: subregion at that subregion's voxel centroid. ``"component"``
+    #: uses connected components (optionally split when larger than
     #: ``subdivide_region_voxels``).
     node_method: Literal["uniform_grid", "component"] = "uniform_grid"
     #: In ``component`` mode, split components larger than this voxel count.
@@ -87,8 +88,9 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: with ``distance_threshold=5``: face-adjacent cubes connect; one
     #: empty lattice cell (closest-voxel distance 6) stays disconnected.
     block_size: int = Field(default=5, ge=1)
-    #: Minimum covered fraction of a block volume to keep it as a node
-    #: (strictly greater than this value; default 0.2).
+    #: Minimum covered fraction of a cube to keep the cell (strictly
+    #: greater than this value; default 0.2). Applied per cell; tiny
+    #: in-cell fragments are dropped by ``min_region_voxels``.
     block_min_coverage: float = Field(default=0.2, ge=0.0, le=1.0)
     #: Add same-habitat proximity edges to pairwise graphs so whole-graph
     #: metrics (modularity, assortativity, betweenness) reflect real tissue
@@ -107,8 +109,9 @@ class GraphHabitatFeatures:
     """
     Graph-topology features of one subject's habitat map.
 
-    Default nodes are equal-volume cubes on a global VOI lattice
-    (``node_method='uniform_grid'``, ``block_size=5`` voxels, not mm).
+    Default nodes are per-cell subregion centroids on a global VOI
+    lattice (``node_method='uniform_grid'``, ``block_size=5`` voxels,
+    not mm): each kept cube can contribute several nodes.
     Default edges connect cubes whose closest voxels are within
     ``distance_threshold`` (``edge_method='min_distance'``, default 5).
     There is no morphological erosion (``erosion_radius=0``). Pass

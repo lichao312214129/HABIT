@@ -181,23 +181,30 @@ def _extract_uniform_grid_nodes(
     block_min_coverage: float,
 ) -> HabitatNodeExtractionResult:
     """
-    Tessellate the tumour VOI with a global equal-volume cube lattice.
+    Tessellate the tumour VOI and emit one node per cell subregion.
 
     Every non-background voxel is assigned to an axis-aligned cube of edge
-    ``block_size`` whose origin is the VOI bounding-box minimum. A cube
-    becomes one node when its occupied fraction exceeds
-    ``block_min_coverage``; the node habitat is the majority label inside
-    that cube. Habitats that occupy no kept cube still emit one residual
-    node so a present label is never silently dropped.
+    ``block_size`` whose origin is the VOI bounding-box minimum. A cube is
+    kept when its occupied fraction is strictly greater than
+    ``block_min_coverage`` (cell-level filter for nearly-empty cubes).
+    Inside each kept cube, every connected component of every habitat
+    becomes its own node at that subregion's voxel-index centroid, so a
+    mixed cube can contribute several nodes. Subregions smaller than
+    ``min_region_voxels`` are dropped (fragment filter). Habitats that
+    occupy no kept subregion still emit one residual node so a present
+    label is never silently dropped.
 
     Args:
         label_array: Integer habitat label map (background encoded as 0).
         labels: Positive habitat ids present before erosion.
-        structure: Erosion neighbourhood.
-        min_region_voxels: Drop residual nodes smaller than this.
+        structure: Neighbourhood for optional erosion and in-cell
+            connected-component labeling.
+        min_region_voxels: Drop in-cell subregions (and residual nodes)
+            smaller than this voxel count.
         erosion_radius: Optional per-habitat erosion iterations.
         block_size: Cube edge length in voxels.
-        block_min_coverage: Minimum occupied fraction of a cube to keep it.
+        block_min_coverage: Minimum occupied fraction of a cube to keep
+            the cell (strictly greater than this value).
 
     Returns:
         HabitatNodeExtractionResult: Nodes, component maps, and lattice.
@@ -222,8 +229,11 @@ def _extract_uniform_grid_nodes(
     block_indices = (coords - origin) // block_size
     unique_blocks, inverse = np.unique(block_indices, axis=0, return_inverse=True)
     block_volume = float(block_size ** working.ndim)
+    cube_shape = tuple(int(block_size) for _ in range(working.ndim))
     next_component_id = 1
-    kept_by_habitat: Dict[int, List[HabitatGraphNode]] = {int(label): [] for label in labels}
+    kept_by_habitat: Dict[int, List[HabitatGraphNode]] = {
+        int(label): [] for label in labels
+    }
 
     for block_id in range(unique_blocks.shape[0]):
         in_block = inverse == block_id
@@ -232,17 +242,25 @@ def _extract_uniform_grid_nodes(
         coverage = block_coords.shape[0] / block_volume
         if coverage <= block_min_coverage:
             continue
-        values, counts = np.unique(block_lab, return_counts=True)
-        majority = int(values[int(np.argmax(counts))])
-        majority_coords = block_coords[block_lab == majority]
-        if majority_coords.shape[0] < min_region_voxels:
-            continue
-        component_id = next_component_id
-        next_component_id += 1
-        component_maps[majority][tuple(majority_coords.T)] = component_id
-        kept_by_habitat[majority].append(
-            _node_from_coords(majority, component_id, majority_coords)
-        )
+        # Local cube so in-cell connected components stay spatially correct.
+        local = block_coords - origin - unique_blocks[block_id] * block_size
+        cube = np.zeros(cube_shape, dtype=np.int32)
+        cube[tuple(local.T)] = block_lab
+        for habitat_label in (int(v) for v in np.unique(block_lab) if int(v) > 0):
+            labeled, n_cc = ndi.label(cube == habitat_label, structure=structure)
+            for cc_id in range(1, int(n_cc) + 1):
+                cc_local = np.argwhere(labeled == cc_id)
+                if cc_local.shape[0] < min_region_voxels:
+                    continue
+                global_coords = (
+                    cc_local + origin + unique_blocks[block_id] * block_size
+                )
+                component_id = next_component_id
+                next_component_id += 1
+                component_maps[habitat_label][tuple(global_coords.T)] = component_id
+                kept_by_habitat[habitat_label].append(
+                    _node_from_coords(habitat_label, component_id, global_coords)
+                )
 
     present_after = {int(v) for v in np.unique(working) if int(v) > 0}
     for habitat_label in labels:
@@ -255,7 +273,7 @@ def _extract_uniform_grid_nodes(
         leftover = np.argwhere(working == habitat_label)
         if leftover.shape[0] < min_region_voxels:
             continue
-        # Residual node: the habitat is present but no cube passed coverage.
+        # Residual node: the habitat is present but no subregion was kept.
         component_id = next_component_id
         next_component_id += 1
         component_maps[habitat_label][tuple(leftover.T)] = component_id
@@ -287,11 +305,14 @@ def extract_habitat_nodes(
 
     Default ``node_method='uniform_grid'`` paints a global axis-aligned
     lattice of cubes with edge ``block_size`` (default 5 **voxels**, not
-    millimetres) over the tumour VOI. Every occupied cube that passes
-    ``block_min_coverage`` (default 0.2) becomes one node, so node
-    volumes stay comparable. Pass ``node_method='component'`` for the
-    older connected-component nodes, optionally split when a component
-    exceeds ``subdivide_region_voxels``.
+    millimetres) over the tumour VOI. Cubes whose occupied fraction
+    exceeds ``block_min_coverage`` (default 0.2) are kept; **each
+    connected subregion inside a kept cube becomes its own node** at
+    that subregion's voxel-index centroid (several habitats and/or
+    several components of one habitat can share a cube). Pass
+    ``node_method='component'`` for the older connected-component nodes,
+    optionally split when a component exceeds
+    ``subdivide_region_voxels``.
 
     Args:
         label_array: Integer habitat label map. Background must be encoded as 0.
@@ -312,8 +333,10 @@ def extract_habitat_nodes(
             lattice cell between cubes is closest-voxel distance 6 and
             stays disconnected.
         block_min_coverage: Minimum occupied fraction of a cube to keep
-            it (default 0.2; a cube is kept when coverage is strictly
-            greater than this value).
+            the cell (default 0.2; a cube is kept when coverage is
+            strictly greater than this value). Applied per cell, not
+            per subregion. Tiny in-cell fragments are dropped by
+            ``min_region_voxels``.
         node_method: ``"uniform_grid"`` (default) or ``"component"``.
 
     Returns:

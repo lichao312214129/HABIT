@@ -41,8 +41,9 @@ __all__ = [
 #: Edge identification strategy: centroid proximity, voxel adjacency, or
 #: closest-voxel (minimum) Euclidean distance between regions.
 EdgeMethod = Literal["centroid_distance", "adjacency", "min_distance"]
-#: How voxels become graph nodes: a global equal-volume lattice, or
-#: connected components (optionally split when they exceed a size).
+#: How voxels become graph nodes: a global cube lattice with one node
+#: per in-cell subregion centroid, or connected components (optionally
+#: split when they exceed a size).
 NodeMethod = Literal["uniform_grid", "component"]
 #: Optional edge weight source for the built graph.
 EdgeWeightMode = Literal["none", "distance", "inverse_distance", "contact_voxels"]
