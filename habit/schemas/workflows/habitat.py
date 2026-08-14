@@ -672,15 +672,22 @@ class GraphFeatureBlock(BaseModel):
     include_pairwise_habitat_graph: bool = Field(
         True, description="Compute pairwise inter-habitat region graphs."
     )
-    edge_method: Literal["centroid_distance", "adjacency"] = Field(
+    edge_method: Literal["centroid_distance", "adjacency", "min_distance"] = Field(
         "adjacency",
         description=(
             "Rule used to identify graph edges. Default 'adjacency': connect "
-            "regions that share a boundary."
+            "regions that share a boundary. 'min_distance' connects regions "
+            "whose closest voxels are within distance_threshold."
         ),
     )
     distance_threshold: float = Field(
-        5.0, ge=0.0, description="Centroid distance threshold in pixel units."
+        5.0,
+        ge=0.0,
+        description=(
+            "Distance threshold in voxel-index units. Used by "
+            "centroid_distance (centroid-to-centroid) and min_distance "
+            "(closest-voxel)."
+        ),
     )
     adjacency_connectivity: Literal["face", "edge", "corner"] = Field(
         "corner",

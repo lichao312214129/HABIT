@@ -23,6 +23,7 @@ from habit.kernels.habitat_graph import (
     HabitatGraphFeatureOptions,
     build_adjacency_graph,
     build_centroid_distance_graph,
+    build_min_distance_graph,
     extract_graph_features,
     extract_graph_features_for_labels,
     extract_habitat_nodes,
@@ -83,6 +84,109 @@ def test_centroid_distance_graph_connects_regions_within_threshold() -> None:
     assert len(graph.edges) == 1
     assert graph.edges[0].distance is not None
     assert graph.edges[0].weight == 1.0
+
+
+@pytest.mark.unit
+def test_min_distance_graph_connects_regions_three_voxels_apart() -> None:
+    """Closest-voxel edges exist iff min Euclidean distance <= threshold.
+
+    Two single-voxel regions at columns 0 and 3 are 3 voxel-index units
+    apart. That is not the same rule as centroid distance on larger blobs.
+    """
+    label_array: np.ndarray = np.array(
+        [
+            [1, 0, 0, 2],
+        ],
+        dtype=np.int32,
+    )
+    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    assert len(node_result.nodes_by_habitat[1]) == 1
+    assert len(node_result.nodes_by_habitat[2]) == 1
+
+    below = build_min_distance_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=2.999,
+    )
+    at_threshold = build_min_distance_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=3.0,
+    )
+    above = build_min_distance_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=3.1,
+    )
+    assert len(below.edges) == 0
+    assert len(at_threshold.edges) == 1
+    assert at_threshold.edges[0].distance == pytest.approx(3.0)
+    assert len(above.edges) == 1
+
+    # Same map: centroid_distance still uses centroids (here also 3.0).
+    centroid_graph = build_centroid_distance_graph(
+        nodes=list(node_result.nodes_by_habitat[1])
+        + list(node_result.nodes_by_habitat[2]),
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=3.0,
+    )
+    assert len(centroid_graph.edges) == 1
+
+
+@pytest.mark.unit
+def test_min_distance_is_not_centroid_distance_on_elongated_regions() -> None:
+    """Closest voxels can be nearer than the two region centroids."""
+    # Habitat 1 occupies cols 0-2; habitat 2 occupies col 5. Closest voxels
+    # are 3 units apart (col 2 vs col 5); centroids are 4 units apart
+    # (col 1 vs col 5).
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 1, 0, 0, 2],
+        ],
+        dtype=np.int32,
+    )
+    node_result = extract_habitat_nodes(label_array=label_array, connectivity="face")
+    pair_nodes = list(node_result.nodes_by_habitat[1]) + list(
+        node_result.nodes_by_habitat[2]
+    )
+
+    min_graph = build_min_distance_graph(
+        node_result=node_result,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=3.0,
+    )
+    centroid_graph = build_centroid_distance_graph(
+        nodes=pair_nodes,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=3.0,
+    )
+    assert len(min_graph.edges) == 1
+    assert min_graph.edges[0].distance == pytest.approx(3.0)
+    assert len(centroid_graph.edges) == 0
+
+    centroid_at_four = build_centroid_distance_graph(
+        nodes=pair_nodes,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        distance_threshold=4.0,
+    )
+    assert len(centroid_at_four.edges) == 1
+
+    options = HabitatGraphFeatureOptions(
+        edge_method="min_distance",
+        distance_threshold=3.0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+        pairwise_include_intra_edges=False,
+    )
+    features = extract_graph_features(label_array, options=options)
+    assert features["pair_h1_h2_n_edges"] == 1.0
 
 
 @pytest.mark.unit

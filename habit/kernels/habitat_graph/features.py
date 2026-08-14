@@ -32,6 +32,7 @@ import numpy as np
 from habit.kernels.habitat_graph.edges import (
     build_adjacency_graph,
     build_centroid_distance_graph,
+    build_min_distance_graph,
     iter_label_pairs,
 )
 from habit.kernels.habitat_graph.metrics import (
@@ -308,6 +309,14 @@ def extract_graph_features(
                     adjacency_min_voxels=options.adjacency_min_voxels,
                     edge_weight=options.edge_weight,
                 )
+            elif options.edge_method == "min_distance":
+                graph = build_min_distance_graph(
+                    node_result=node_result,
+                    labels=(habitat_label,),
+                    graph_kind="single",
+                    distance_threshold=options.distance_threshold,
+                    edge_weight=options.edge_weight,
+                )
             else:
                 graph = build_centroid_distance_graph(
                     nodes=nodes,
@@ -339,6 +348,15 @@ def extract_graph_features(
                     graph_kind="pairwise",
                     adjacency_connectivity=options.adjacency_connectivity,
                     adjacency_min_voxels=options.adjacency_min_voxels,
+                    edge_weight=options.edge_weight,
+                    include_intra_edges=options.pairwise_include_intra_edges,
+                )
+            elif options.edge_method == "min_distance":
+                graph = build_min_distance_graph(
+                    node_result=node_result,
+                    labels=(label_a, label_b),
+                    graph_kind="pairwise",
+                    distance_threshold=options.distance_threshold,
                     edge_weight=options.edge_weight,
                     include_intra_edges=options.pairwise_include_intra_edges,
                 )

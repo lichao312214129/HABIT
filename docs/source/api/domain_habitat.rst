@@ -269,7 +269,8 @@ one subject. Figures: :func:`~habit.viz.plot_habitat_feature_heatmap`,
 :func:`~habit.viz.plot_habitat_feature_effect`,
 :func:`~habit.viz.plot_habitat_feature_violin`,
 :func:`~habit.viz.plot_habitat_feature_bars`. See
-:doc:`../reference/features/whole_each_habitat`.
+:doc:`../reference/features/whole_each_habitat`. Real-data gallery:
+:doc:`../examples/habitat_feature_compare`.
 
 For array-only callers, use the public kernel helpers
 :func:`~habit.extract_graph_features` /

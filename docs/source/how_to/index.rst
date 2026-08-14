@@ -14,8 +14,9 @@ combiners such as ``concat(raw("T1"), voxel_radiomics("T2"))``):
 :doc:`habitat_components`.
 
 **Features from habitat maps** (after habitats exist): :doc:`extract_features`
-and topology :doc:`graph_features` (built-in ``graph`` family). Gallery:
-:doc:`../examples/graph_features`.
+and topology :doc:`graph_features` (built-in ``graph`` family; now in the
+default extract list). Galleries: :doc:`../examples/graph_features` and
+habitat-vs-habitat contrast :doc:`../examples/habitat_feature_compare`.
 
 **Voxel texture maps** (local entropy / GLCM via ``voxel_radiomics``):
 :doc:`voxel_texture`. Gallery: :doc:`../examples/voxel_texture`.

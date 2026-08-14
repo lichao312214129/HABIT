@@ -119,9 +119,22 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
     assert image_axes
     assert cbar_axes
     for ax in image_axes:
+        title = ax.get_title()
         for image in ax.images:
-            alpha = image.get_alpha()
-            assert alpha is None or float(alpha) == pytest.approx(1.0)
+            rgba = np.asarray(image.get_array())
+            if rgba.ndim == 3 and rgba.shape[-1] == 4:
+                alphas = rgba[..., 3]
+                painted = alphas > 0
+                if title == "All habitats":
+                    assert painted.any()
+                    assert np.allclose(alphas[painted], 1.0)
+                elif title.startswith("H"):
+                    unique = {round(float(v), 2) for v in np.unique(alphas[painted])}
+                    assert 1.0 in unique
+                    assert 0.2 in unique
+            else:
+                alpha = image.get_alpha()
+                assert alpha is None or float(alpha) == pytest.approx(1.0)
         for line in ax.lines:
             assert float(line.get_alpha()) == pytest.approx(1.0)
         for collection in ax.collections:

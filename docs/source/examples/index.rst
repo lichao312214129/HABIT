@@ -63,6 +63,7 @@ Scripts live in ``docs/source/examples/scripts/``. Lightweight smoke
    precise_features
    custom_voxel_features
    graph_features
+   habitat_feature_compare
    feature_extraction
    features_radiomics_api
    tabular_ml
@@ -114,6 +115,24 @@ publication figures.
 
    Habitat overlay from :doc:`graph_features`.
 
+.. rubric:: Featured: habitat-feature contrast
+
+Melt a wide ``each_habitat`` table and contrast habitats across a real
+demo slice (heatmap, Cliff's delta, violin, one-subject bars). ``graph``
+is extracted with the default light set; topology columns stay on the
+table and do not enter the melt.
+
+* How-to (YAML / CLI): :doc:`../how_to/extract_features`
+* Runnable example + gallery: :doc:`habitat_feature_compare`
+* Column reference: :doc:`../reference/features/whole_each_habitat`
+
+.. figure:: ../_static/images/examples/habitat_feature_compare_heatmap.png
+   :alt: Cohort mean habitat-by-feature heatmap from the contrast example
+   :width: 420
+   :target: habitat_feature_compare.html
+
+   Cohort heatmap from :doc:`habitat_feature_compare`.
+
 .. rubric:: Featured: voxel texture maps
 
 Voxel-level **texture** (local entropy + a small GLCM set via
@@ -151,6 +170,7 @@ the ROI, optional cyan contour.
 * :doc:`precise_features` — precise features
 * :doc:`custom_voxel_features` — custom voxel features
 * :doc:`graph_features` — graph topology; one-step → extract → 2D/3D figures
+* :doc:`habitat_feature_compare` — real-data each_habitat + graph contrast figures
 * :doc:`feature_extraction` — light families + radiomics extract recipes
 * :doc:`features_radiomics_api` — radiomics features API
 * :doc:`tabular_ml` — tabular ML

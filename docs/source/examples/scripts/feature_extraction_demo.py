@@ -55,7 +55,7 @@ train_result.save(maps_dir, write_maps=True, write_units_table=True)
 print(f"Trained: {train_result.habitat_model.n_habitats} habitats -> {maps_dir}")
 
 # Batch extract from the maps you just wrote (paths are plain strings)
-feature_types = ["volume", "msi", "ith_score", "non_radiomics"]
+feature_types = ["volume", "msi", "ith_score", "non_radiomics", "graph"]
 extract_result = recipes.extract_habitat_features(
     {
         "raw_img_folder": DATA,

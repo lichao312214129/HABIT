@@ -74,6 +74,7 @@ Region graphs + NetworkX metrics (same definitions as the built-in
 Also exported: :func:`~habit.extract_graph_features_for_labels`,
 :func:`~habit.extract_habitat_nodes`,
 :func:`~habit.build_centroid_distance_graph`,
+:func:`~habit.build_min_distance_graph`,
 :func:`~habit.build_adjacency_graph`, :func:`~habit.pair_count`.
 See :doc:`../reference/features/graph`.
 

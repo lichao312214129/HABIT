@@ -8,8 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- `habitat_ith_dispersion`: per-habitat ITH
-  `d_i = 1 - (S_{i,max} / n_i) / S_i`. The global ITH score is the
+- Graph topology opt-in edge method ``min_distance``: an edge exists when
+  the closest-voxel Euclidean distance between two regions is within
+  ``distance_threshold`` (voxel-index units). This is not centroid
+  distance. Library default remains ``adjacency`` + corner +
+  ``adjacency_min_voxels=10``.
+- ``habitat_ith_dispersion``: per-habitat ITH
+  ``d_i = 1 - (S_{i,max} / n_i) / S_i``. The global ITH score is the
   volume-weighted mean of these values.
 - Habitat feature contrast API: ``to_habitat_feature_panel`` /
   ``compare_habitat_features`` melt an ``each_habitat`` table and run
@@ -25,12 +30,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- `plot_ith_summary` is a single-panel bar chart: a global `ITH` bar
-  (Okabe–Ito reddish purple) then, when `dispersion` is given, a gap
+- ``plot_habitat_graph_network_2d`` H1–Hk panels keep the featured
+  habitat opaque and fade other habitat fills to alpha 0.2 (background 0
+  unchanged). The All-habitats panel stays fully opaque. Panel titles,
+  colorbar text, and the edge figlegend use larger publication-readable
+  sizes.
+- ``plot_ith_summary`` is a single-panel bar chart: a global ``ITH`` bar
+  (Okabe–Ito reddish purple) then, when ``dispersion`` is given, a gap
   and H1/H2/... bars (bluish green) on a shared 0–1 axis (ylabel
-  `ITH`). Pass `dispersion=habitat_ith_dispersion(labels)`. The old
-  `per_habitat` region-count mapping is rejected; the name remains a
-  deprecated alias for `dispersion` through v1.x.
+  ``ITH``). Pass ``dispersion=habitat_ith_dispersion(labels)``. The old
+  ``per_habitat`` region-count mapping is rejected; the name remains a
+  deprecated alias for ``dispersion`` through v1.x.
 - Graph topology defaults now use corner connectivity: components
   ``connectivity='full'`` and edges ``adjacency_connectivity='corner'``
   (8-connected in 2D / 26-connected in 3D). Previously both defaulted to
@@ -56,6 +66,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Docs: habitat Spec chooser splits voxel / supervoxel stages into
   single-modality leaves and multi-modality combiners; nested trees stay
   on the feature-composition example.
+- Default habitat feature extraction now includes the built-in ``graph``
+  family with the other light types (``volume``, ``msi``, ``ith_score``,
+  ``non_radiomics``). Shipped extract YAMLs and the documented default
+  ``feature_types`` / ``HabitatSpec.habitat_features`` light set are
+  additive; heavy radiomics stay opt-in. Tests that pin an explicit
+  family list are unchanged.
+- Docs: real-data gallery for habitat-feature contrast
+  (``to_habitat_feature_panel`` / ``compare_habitat_features``) on
+  ``demo_data/`` maps with ``each_habitat`` + ``graph``.
 
 ## [1.1.3] - 2026-08-09
 

@@ -61,14 +61,16 @@ n_processes: 2
 habitat_pattern: '*_habitats.nrrd'
 
 # Default feature_types: all light families (fast demo / first run).
-# 中文：默认开启全部轻量特征（volume / msi / ith_score / non_radiomics）。
-# EN: Defaults enable every light family; uncomment heavy radiomics when needed.
+# 中文：默认开启全部轻量特征（volume / msi / ith_score / non_radiomics / graph）。
+# EN: Defaults enable every light family, including graph; uncomment heavy
+#     radiomics when needed.
 #
 # Available names:
 #   volume        : voxel counts / volume fractions per habitat (light)
 #   msi           : multiregional spatial interaction (light)
 #   ith_score     : intratumoral heterogeneity score (light)
 #   non_radiomics : region count / volume ratio (light)
+#   graph         : habitat-map topology (light; single_h* / pair_h*_h*)
 #   traditional   : PyRadiomics on raw image within whole ROI (heavy — opt-in)
 #   whole_habitat : PyRadiomics on the habitat label map (heavy — opt-in)
 #   each_habitat  : per-habitat PyRadiomics on raw image (heavy — opt-in)
@@ -77,6 +79,7 @@ feature_types:
   - msi
   - ith_score
   - non_radiomics
+  - graph
   # --- Opt-in heavy radiomics (uncomment as needed) ---
   # - traditional
   # - whole_habitat

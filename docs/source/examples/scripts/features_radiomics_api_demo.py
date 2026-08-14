@@ -84,7 +84,7 @@ print(
 )
 print(
     "  extract_habitat_features({raw_img_folder, habitats_map_folder, "
-    "out_dir, feature_types:[volume, msi, ith_score, non_radiomics, "
+    "out_dir, feature_types:[volume, msi, ith_score, non_radiomics, graph, "
     "# traditional, # whole_habitat, # each_habitat]})"
 )
 print(

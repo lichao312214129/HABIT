@@ -22,8 +22,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
      - msi
      - ith_score
      - non_radiomics
-     # Built-in graph topology family (opt-in light family):
-     # - graph
+     - graph
      # Heavy PyRadiomics families (opt-in; require pyradiomics):
      # - traditional
      # - whole_habitat
@@ -112,7 +111,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Default**: none (required; at least one item)
 - **Description**: types not in the list are not extracted
 - **Allowed values**: ``volume``, ``msi``, ``ith_score``, ``non_radiomics``, ``graph``, ``traditional``, ``whole_habitat``, ``each_habitat``
-- **Example**: ``[volume, msi, ith_score, non_radiomics]`` (add ``graph`` or heavy radiomics when needed)
+- **Example**: ``[volume, msi, ith_score, non_radiomics, graph]`` (the shipped default light set; add heavy radiomics when needed)
 - **Meanings and references per type**: see :doc:`../reference/features/index`
 
 **graph**: optional top-level block for the built-in graph topology family
@@ -127,8 +126,8 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 - **Key extraction fields** (defaults in parentheses):
 
   - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)
-  - ``edge_method``: ``adjacency`` (default) or ``centroid_distance``
-  - ``distance_threshold`` (``5.0``, pixel units) — used by ``centroid_distance``
+  - ``edge_method``: ``adjacency`` (default), ``centroid_distance``, or ``min_distance``
+  - ``distance_threshold`` (``5.0``, voxel-index units) — used by ``centroid_distance`` and ``min_distance``
   - ``adjacency_connectivity`` (``corner``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available) / ``adjacency_min_voxels`` (``10``) — used by ``adjacency``. An edge exists when two regions are adjacent and the contact voxel count is >= 10, measured on the habitat labels as drawn (default ``erosion_radius`` is ``0``).
   - ``edge_weight``: ``none`` | ``distance`` | ``inverse_distance`` | ``contact_voxels``
   - ``min_region_voxels`` (``1``), ``connectivity`` (default ``full``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available)

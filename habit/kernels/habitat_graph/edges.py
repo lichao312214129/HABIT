@@ -33,6 +33,7 @@ from habit.kernels.habitat_graph.models import (
 
 __all__ = [
     "build_centroid_distance_graph",
+    "build_min_distance_graph",
     "build_adjacency_graph",
     "iter_label_pairs",
     "iter_cross_label_nodes",
@@ -190,6 +191,228 @@ def build_centroid_distance_graph(
             )
             edges.extend(
                 _intra_label_edges(nodes_b, distance_threshold, edge_weight)
+            )
+
+    return HabitatGraph(
+        graph_kind=graph_kind,  # type: ignore[arg-type]
+        labels=labels,
+        nodes=graph_nodes,
+        edges=edges,
+    )
+
+
+def _node_voxel_coords(
+    node_result: HabitatNodeExtractionResult,
+    node: HabitatGraphNode,
+) -> np.ndarray:
+    """
+    Return voxel-index coordinates for one connected-region node.
+
+    Coordinates are integer array indices (row/col or z/row/col), the same
+    units used by ``centroid_distance``. Physical spacing is not applied.
+
+    Args:
+        node_result: Node extraction result that holds per-habitat component maps.
+        node: Node whose voxels should be collected.
+
+    Returns:
+        np.ndarray: Coordinate array of shape ``(n_voxels, ndim)``. Empty when
+        the component map is missing or the component id is absent.
+    """
+    component_map = node_result.component_maps.get(int(node.habitat_label))
+    if component_map is None:
+        return np.empty((0, node_result.label_array.ndim), dtype=float)
+    coords = np.argwhere(component_map == int(node.component_id))
+    if coords.size == 0:
+        return np.empty((0, component_map.ndim), dtype=float)
+    return coords.astype(float, copy=False)
+
+
+def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
+    """
+    Return the closest-point Euclidean distance between two voxel sets.
+
+    This is the directed-Hausdorff minimum: ``min_{a in A, b in B} ||a-b||``.
+
+    Args:
+        coords_a: Voxel coordinates of region A, shape ``(n_a, ndim)``.
+        coords_b: Voxel coordinates of region B, shape ``(n_b, ndim)``.
+
+    Returns:
+        float: Minimum Euclidean distance in voxel-index units, or ``inf``
+        when either set is empty.
+    """
+    if coords_a.size == 0 or coords_b.size == 0:
+        return float("inf")
+    # Query the smaller cloud against a tree of the larger one.
+    if coords_a.shape[0] <= coords_b.shape[0]:
+        tree = cKDTree(coords_b)
+        distances, _ = tree.query(coords_a, k=1)
+    else:
+        tree = cKDTree(coords_a)
+        distances, _ = tree.query(coords_b, k=1)
+    return float(np.min(distances))
+
+
+def _min_distance_edges_for_pairs(
+    nodes_a: Sequence[HabitatGraphNode],
+    nodes_b: Sequence[HabitatGraphNode],
+    coords_by_id: Dict[str, np.ndarray],
+    distance_threshold: float,
+    edge_weight: EdgeWeightMode,
+    edge_type: str,
+) -> List[HabitatGraphEdge]:
+    """
+    Connect node pairs whose closest voxels are within ``distance_threshold``.
+
+    When ``nodes_a`` and ``nodes_b`` are the same sequence (intra-label), each
+    unordered pair is considered once (``i < j``).
+
+    Args:
+        nodes_a: First node group.
+        nodes_b: Second node group. May be the same object as ``nodes_a``.
+        coords_by_id: Precomputed voxel coordinates keyed by node id.
+        distance_threshold: Maximum closest-point distance for an edge.
+        edge_weight: Optional distance-derived edge weighting mode.
+        edge_type: Stored ``HabitatGraphEdge.edge_type`` (``inter`` / ``intra``
+            / ``min_distance``).
+
+    Returns:
+        List[HabitatGraphEdge]: Edges whose minimum voxel distance is ``<=``
+        the threshold.
+    """
+    edges: List[HabitatGraphEdge] = []
+    same_group = nodes_a is nodes_b
+    for index_a, node_a in enumerate(nodes_a):
+        coords_a = coords_by_id.get(node_a.node_id)
+        if coords_a is None or coords_a.size == 0:
+            continue
+        start_b = index_a + 1 if same_group else 0
+        for node_b in nodes_b[start_b:]:
+            if node_a.node_id == node_b.node_id:
+                continue
+            coords_b = coords_by_id.get(node_b.node_id)
+            if coords_b is None or coords_b.size == 0:
+                continue
+            distance = _min_voxel_distance(coords_a, coords_b)
+            if distance > distance_threshold:
+                continue
+            edges.append(
+                HabitatGraphEdge(
+                    source=node_a.node_id,
+                    target=node_b.node_id,
+                    edge_type=edge_type,
+                    distance=distance,
+                    contact_voxels=None,
+                    weight=_distance_weight(distance, edge_weight),
+                )
+            )
+    return edges
+
+
+def build_min_distance_graph(
+    node_result: HabitatNodeExtractionResult,
+    labels: Tuple[int, ...],
+    graph_kind: str,
+    distance_threshold: float,
+    edge_weight: EdgeWeightMode = "none",
+    include_intra_edges: bool = False,
+) -> HabitatGraph:
+    """
+    Build a graph by connecting regions whose closest voxels are within threshold.
+
+    Unlike :func:`build_centroid_distance_graph`, the distance is the minimum
+    Euclidean distance between any voxel of region A and any voxel of region B
+    (closest-point / Hausdorff-min), not the distance between centroids. Units
+    are voxel indices, matching ``centroid_distance``.
+
+    An undirected edge exists when ``min_{a in A, b in B} ||a-b|| <= threshold``.
+
+    Args:
+        node_result: Output from connected-region node extraction. Voxel
+            coordinates are read from the component maps.
+        labels: One label for a single-habitat graph or two labels for a pair.
+        graph_kind: ``"single"`` or ``"pairwise"``.
+        distance_threshold: Maximum closest-point Euclidean distance in voxel
+            index units. Reuses the same field as ``centroid_distance``.
+        edge_weight: Optional distance-derived edge weighting mode.
+        include_intra_edges: For pairwise graphs, also add same-label
+            closest-point edges within each habitat.
+
+    Returns:
+        HabitatGraph: Graph with closest-point edges.
+
+    Raises:
+        ValueError: If ``distance_threshold < 0`` or ``labels`` is empty.
+    """
+    if distance_threshold < 0:
+        raise ValueError("distance_threshold must be >= 0.")
+    if len(labels) not in (1, 2):
+        raise ValueError("labels must contain one or two habitat labels.")
+
+    all_nodes: List[HabitatGraphNode] = []
+    for label in labels:
+        all_nodes.extend(node_result.nodes_by_habitat.get(int(label), []))
+    graph_nodes = _nodes_to_dict(all_nodes)
+    coords_by_id = {
+        node.node_id: _node_voxel_coords(node_result, node) for node in all_nodes
+    }
+    edges: List[HabitatGraphEdge] = []
+
+    if len(all_nodes) < 2:
+        return HabitatGraph(
+            graph_kind=graph_kind,  # type: ignore[arg-type]
+            labels=labels,
+            nodes=graph_nodes,
+            edges=edges,
+        )
+
+    if len(labels) == 1:
+        edges.extend(
+            _min_distance_edges_for_pairs(
+                all_nodes,
+                all_nodes,
+                coords_by_id,
+                distance_threshold,
+                edge_weight,
+                edge_type="min_distance",
+            )
+        )
+    else:
+        label_a, label_b = int(labels[0]), int(labels[1])
+        nodes_a = [node for node in all_nodes if node.habitat_label == label_a]
+        nodes_b = [node for node in all_nodes if node.habitat_label == label_b]
+        if nodes_a and nodes_b:
+            edges.extend(
+                _min_distance_edges_for_pairs(
+                    nodes_a,
+                    nodes_b,
+                    coords_by_id,
+                    distance_threshold,
+                    edge_weight,
+                    edge_type="inter",
+                )
+            )
+        if include_intra_edges:
+            edges.extend(
+                _min_distance_edges_for_pairs(
+                    nodes_a,
+                    nodes_a,
+                    coords_by_id,
+                    distance_threshold,
+                    edge_weight,
+                    edge_type="intra",
+                )
+            )
+            edges.extend(
+                _min_distance_edges_for_pairs(
+                    nodes_b,
+                    nodes_b,
+                    coords_by_id,
+                    distance_threshold,
+                    edge_weight,
+                    edge_type="intra",
+                )
             )
 
     return HabitatGraph(

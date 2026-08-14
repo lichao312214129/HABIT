@@ -11,7 +11,8 @@ Two extraction paths:
    extracts PyRadiomics features without habitat segmentation.
 
 For a short end-to-end ``graph`` walkthrough (one subject → one-step → plot),
-see :doc:`graph_features`.
+see :doc:`graph_features`. Habitat-vs-habitat contrast of a wide
+``each_habitat`` table (real demo maps): :doc:`habitat_feature_compare`.
 
 Habitat extraction example
 ----------------------------

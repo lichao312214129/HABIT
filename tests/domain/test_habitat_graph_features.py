@@ -102,6 +102,9 @@ def test_graph_spec_records_all_options() -> None:
     assert extractor.spec.params["distance_threshold"] == 8.0
     assert extractor.spec.params["edge_method"] == "adjacency"
     assert extractor.spec.params["erosion_radius"] == 0
+    min_dist = GraphHabitatFeatures(edge_method="min_distance", distance_threshold=3.0)
+    assert min_dist.spec.params["edge_method"] == "min_distance"
+    assert min_dist.spec.params["distance_threshold"] == 3.0
 
 
 @pytest.mark.unit
@@ -131,6 +134,8 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.pairwise_include_intra_edges is (
         kernel.pairwise_include_intra_edges
     )
+    accepted = GraphHabitatFeaturesParams(edge_method="min_distance")
+    assert accepted.edge_method == "min_distance"
 
 
 @pytest.mark.unit

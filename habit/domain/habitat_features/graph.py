@@ -45,9 +45,13 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: Compute pairwise inter-habitat region graphs.
     include_pairwise_habitat_graph: bool = True
     #: Rule used to identify graph edges. Default ``"adjacency"``: connect
-    #: regions that share a boundary.
-    edge_method: Literal["centroid_distance", "adjacency"] = "adjacency"
-    #: Centroid distance threshold in pixel units.
+    #: regions that share a boundary. ``"min_distance"`` connects regions
+    #: whose closest voxels are within ``distance_threshold``.
+    edge_method: Literal["centroid_distance", "adjacency", "min_distance"] = (
+        "adjacency"
+    )
+    #: Distance threshold in voxel-index units. Used by ``centroid_distance``
+    #: (centroid-to-centroid) and ``min_distance`` (closest-voxel).
     distance_threshold: float = Field(default=5.0, ge=0.0)
     #: Neighbor definition for the ``"adjacency"`` edge method. Default
     #: ``"corner"`` = 8-connectivity in 2D / 26-connectivity in 3D.
@@ -107,7 +111,9 @@ class GraphHabitatFeatures:
     neighborhood). Pass ``face`` on both fields for 4/6-connectivity.
     Pass a positive ``erosion_radius`` to shrink habitats before edges. The
     alternative ``centroid_distance`` method connects centroids
-    within ``distance_threshold``. NetworkX-derived topology
+    within ``distance_threshold``. ``min_distance`` connects regions when
+    the closest voxels (not the centroids) are within the same
+    ``distance_threshold``. NetworkX-derived topology
     metrics are reported per habitat (``single_h*`` columns) and per habitat
     pair (``pair_h*_h*`` columns), covering degree/edge counts, density,
     components, modularity, clustering, path length, betweenness, assortativity,
@@ -127,7 +133,9 @@ class GraphHabitatFeatures:
         self,
         include_single_habitat_graph: bool = True,
         include_pairwise_habitat_graph: bool = True,
-        edge_method: Literal["centroid_distance", "adjacency"] = "adjacency",
+        edge_method: Literal[
+            "centroid_distance", "adjacency", "min_distance"
+        ] = "adjacency",
         distance_threshold: float = 5.0,
         adjacency_connectivity: Literal["face", "edge", "corner"] = "corner",
         adjacency_min_voxels: int = 10,

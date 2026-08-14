@@ -69,7 +69,7 @@ n_processes: 3
 # EN: `habitat_pattern` is a setting for this module; retain the example default initially and document any change.
 habitat_pattern: '*_habitats_remapped.nrrd'
 # Feature types to extract.
-# Light (recommended default): volume, msi, ith_score, non_radiomics
+# Light (recommended default): volume, msi, ith_score, non_radiomics, graph
 # Heavy radiomics (opt-in): traditional, whole_habitat, each_habitat
 # Optional backend (habitat radiomics only; does not change bin width):
 #   use_torch_radiomics: false | auto | true
@@ -81,6 +81,7 @@ feature_types:
 - msi
 - ith_score
 - non_radiomics
+- graph
 # - traditional
 # - whole_habitat
 # - each_habitat
@@ -99,6 +100,7 @@ debug: false
 # - msi_features.csv (msi)
 # - ith_scores.csv (ith_score)
 # - habitat_basic_features.csv (non_radiomics)
+# - habitat_graph_features.csv (graph)
 # - raw_image_radiomics.csv (traditional)
 # - whole_habitat_radiomics.csv (whole_habitat)
 # - habitat_{k}_radiomics.csv + habitat_count.csv (each_habitat)

@@ -37,8 +37,9 @@ __all__ = [
 ]
 
 
-#: Edge identification strategy: centroid proximity or voxel adjacency.
-EdgeMethod = Literal["centroid_distance", "adjacency"]
+#: Edge identification strategy: centroid proximity, voxel adjacency, or
+#: closest-voxel (minimum) Euclidean distance between regions.
+EdgeMethod = Literal["centroid_distance", "adjacency", "min_distance"]
 #: Optional edge weight source for the built graph.
 EdgeWeightMode = Literal["none", "distance", "inverse_distance", "contact_voxels"]
 #: Graph scope: one habitat label, or one pair of habitat labels.

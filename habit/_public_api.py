@@ -296,6 +296,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "extract_graph_features_for_labels",
         "extract_habitat_nodes",
         "build_centroid_distance_graph",
+        "build_min_distance_graph",
         "build_adjacency_graph",
         "pair_count",
         "compute_midrank",

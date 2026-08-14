@@ -16,10 +16,11 @@
 
 A habitat map is turned into region graphs -- one node per connected habitat
 region (optionally subdivided into grid blocks), edges by voxel adjacency
-(default: face-adjacent contact voxels >= 10) or centroid proximity --
-and NetworkX-derived topology metrics are computed per
-habitat (``single_h*``) and per habitat pair (``pair_h*_h*``). Everything here
-is pure: arrays in, numbers out, no IO, no state, no configuration files.
+(default: corner-adjacent contact voxels >= 10), centroid proximity, or
+closest-voxel (minimum) distance -- and NetworkX-derived topology metrics
+are computed per habitat (``single_h*``) and per habitat pair
+(``pair_h*_h*``). Everything here is pure: arrays in, numbers out, no IO,
+no state, no configuration files.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ from __future__ import annotations
 from habit.kernels.habitat_graph.edges import (
     build_adjacency_graph,
     build_centroid_distance_graph,
+    build_min_distance_graph,
     iter_cross_label_nodes,
     iter_label_pairs,
 )
@@ -58,6 +60,7 @@ __all__ = [
     "HabitatGraphFeatureOptions",
     "extract_habitat_nodes",
     "build_centroid_distance_graph",
+    "build_min_distance_graph",
     "build_adjacency_graph",
     "iter_label_pairs",
     "iter_cross_label_nodes",

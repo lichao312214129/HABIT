@@ -728,6 +728,7 @@ Habitat metrics
    habit.kernels.extract_graph_features_for_labels
    habit.kernels.extract_habitat_nodes
    habit.kernels.build_centroid_distance_graph
+   habit.kernels.build_min_distance_graph
    habit.kernels.build_adjacency_graph
    habit.kernels.pair_count
 

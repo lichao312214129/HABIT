@@ -26,6 +26,7 @@ scikit-learn (``habit.compat.sklearn``)
            Spec("msi"),
            Spec("ith_score"),
            Spec("non_radiomics"),
+           Spec("graph"),
            # Heavy PyRadiomics families (opt-in; require pyradiomics):
            # Spec("traditional"),
            # Spec("whole_habitat"),

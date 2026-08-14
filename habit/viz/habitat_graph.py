@@ -22,6 +22,7 @@ The graph nodes and edges use the SAME construction algorithms as the numeric
 feature extractor (:func:`habit.kernels.habitat_graph.extract_habitat_nodes`
 with erosion / subdivision / connectivity, and
 :func:`~habit.kernels.habitat_graph.build_centroid_distance_graph` /
+:func:`~habit.kernels.habitat_graph.build_min_distance_graph` /
 :func:`~habit.kernels.habitat_graph.build_adjacency_graph` with the configured
 parameters), so the drawn graph matches the measured features. The 2D network
 figure is built from the representative cross-section so the overlay matches
@@ -43,6 +44,7 @@ from habit.kernels.habitat_graph import (
     HabitatNodeExtractionResult,
     build_adjacency_graph,
     build_centroid_distance_graph,
+    build_min_distance_graph,
     extract_habitat_nodes,
     iter_label_pairs,
 )
@@ -207,6 +209,14 @@ def _single_intra_edges(
             adjacency_min_voxels=options.adjacency_min_voxels,
             edge_weight=options.edge_weight,
         )
+    elif options.edge_method == "min_distance" and node_result is not None:
+        graph = build_min_distance_graph(
+            node_result=node_result,
+            labels=(label,),
+            graph_kind="single",
+            distance_threshold=options.distance_threshold,
+            edge_weight=options.edge_weight,
+        )
     else:
         graph = build_centroid_distance_graph(
             nodes=nodes,
@@ -232,6 +242,15 @@ def _pair_inter_edges(
             graph_kind="pairwise",
             adjacency_connectivity=options.adjacency_connectivity,
             adjacency_min_voxels=options.adjacency_min_voxels,
+            edge_weight=options.edge_weight,
+            include_intra_edges=False,
+        )
+    elif options.edge_method == "min_distance":
+        graph = build_min_distance_graph(
+            node_result=node_result,
+            labels=(label_a, label_b),
+            graph_kind="pairwise",
+            distance_threshold=options.distance_threshold,
             edge_weight=options.edge_weight,
             include_intra_edges=False,
         )
@@ -303,6 +322,13 @@ def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
 
 #: Matplotlib scatter area (points^2) for every 2D graph node.
 _DEFAULT_NODE_SIZE: float = 64.0
+#: Publication-readable type sizes for the multi-panel 2D network figure.
+_PANEL_TITLE_FONTSIZE: float = 11.5
+_AXIS_TEXT_FONTSIZE: float = 10.5
+_FIG_LEGEND_FONTSIZE: float = 10.5
+#: Other-habitat fill alpha on per-habitat (H1--Hk) panels. Featured
+#: habitat stays 1.0; the All-habitats panel stays fully opaque.
+_OTHER_HABITAT_ALPHA: float = 0.2
 
 
 def _centroid_xy_display(node: HabitatGraphNode) -> Tuple[float, float]:
@@ -341,37 +367,47 @@ def _draw_background_2d(
     label_2d: np.ndarray,
     colors: Optional[Dict[int, str]],
     show_background: bool,
+    featured_label: Optional[int] = None,
 ) -> None:
     """
     Draw spatial context behind 2D network graphs.
 
-    When ``colors`` is provided, each habitat partition is painted opaque
-    (same palette as the slice figure). Otherwise a solid gray tissue
-    silhouette is drawn. Transparency is never used: pale / washed-out
-    fills made the 2D region network unreadable.
+    When ``colors`` is provided, each habitat partition is painted with the
+    same palette as the slice figure. Background ``0`` is left transparent
+    (not drawn). On a per-habitat panel, pass ``featured_label`` so that
+    habitat stays opaque (alpha=1) while every other habitat is drawn at
+    ``_OTHER_HABITAT_ALPHA`` (0.2). The All-habitats panel omits
+    ``featured_label`` so every habitat stays fully opaque.
+
+    Args:
+        ax: Target matplotlib axes.
+        label_2d: 2D habitat label map (background encoded as 0).
+        colors: Habitat label to hex colour mapping, or ``None`` for a
+            gray tissue silhouette.
+        show_background: When ``False``, nothing is drawn.
+        featured_label: Habitat id to keep opaque on a per-habitat panel.
+            ``None`` paints every habitat at alpha 1 (All-habitats panel).
     """
     if not show_background:
         return
-    from matplotlib.colors import ListedColormap
+    from matplotlib.colors import ListedColormap, to_rgba
 
     if colors:
         ordered = sorted(colors)
         if not ordered:
             return
-        display = np.zeros_like(label_2d, dtype=float)
-        for new_value, label in enumerate(ordered, start=1):
-            display[label_2d == label] = new_value
-        overlay = np.where(display > 0, display, np.nan)
-        habitat_cmap = ListedColormap([colors[label] for label in ordered])
-        ax.imshow(
-            overlay,
-            cmap=habitat_cmap,
-            vmin=1,
-            vmax=len(ordered),
-            interpolation="nearest",
-            alpha=1.0,
-            zorder=0,
-        )
+        rgba = np.zeros((*label_2d.shape, 4), dtype=float)
+        for label in ordered:
+            mask = label_2d == label
+            if not np.any(mask):
+                continue
+            alpha = (
+                1.0
+                if featured_label is None or int(label) == int(featured_label)
+                else _OTHER_HABITAT_ALPHA
+            )
+            rgba[mask] = to_rgba(colors[label], alpha=alpha)
+        ax.imshow(rgba, interpolation="nearest", zorder=0)
         return
     silhouette = np.where(label_2d > 0, 1.0, np.nan)
     ax.imshow(
@@ -575,9 +611,11 @@ def plot_habitat_graph_network_2d(
         options: Graph construction options shared with the feature extractor.
         slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
             largest cross-section. Ignored for 2D input.
-        show_background: Whether to draw opaque habitat partitions behind
-            the graph (default ``True``). Fills, nodes, and edges are
-            opaque; do not pass a translucent alpha for the regions.
+        show_background: Whether to draw habitat partitions behind the
+            graph (default ``True``). On H1--Hk panels the featured
+            habitat is opaque and other habitats use alpha 0.2;
+            background 0 stays undrawn. The All-habitats panel stays
+            fully opaque. Featured-habitat nodes stay solid.
         panel_size: Base panel edge length in inches.
         max_cols: Maximum number of panels per row in the grid.
         node_size: Matplotlib scatter area in points squared applied to
@@ -609,10 +647,10 @@ def plot_habitat_graph_network_2d(
     n_panels = len(labels) + 1
     cols = min(max_cols, max(1, n_panels))
     rows = int(np.ceil(n_panels / cols))
-    # Extra width + bottom room so short titles and the legend cannot collide
-    # when many habitats share one row (the previous long titles did).
-    fig_width = cols * panel_size * 1.12
-    fig_height = rows * panel_size + 0.85
+    # Extra width + bottom room so short titles and the larger figlegend
+    # cannot collide when many habitats share one row.
+    fig_width = cols * panel_size * 1.18
+    fig_height = rows * panel_size + 1.15
     with use_style("radiology"):
         fig, axes = plt.subplots(
             rows,
@@ -622,10 +660,10 @@ def plot_habitat_graph_network_2d(
             constrained_layout=True,
         )
         fig.set_constrained_layout_pads(
-            w_pad=0.04,
-            h_pad=0.06,
-            wspace=0.10,
-            hspace=0.14,
+            w_pad=0.05,
+            h_pad=0.10,
+            wspace=0.12,
+            hspace=0.20,
         )
         flat = [ax for row in axes for ax in row]
         for ax in flat[n_panels:]:
@@ -634,7 +672,9 @@ def plot_habitat_graph_network_2d(
 
         for ax, label in zip(axes_list, labels):
             sub = node_result.nodes_by_habitat[label]
-            _draw_background_2d(ax, label_2d, colors, show_background)
+            _draw_background_2d(
+                ax, label_2d, colors, show_background, featured_label=int(label)
+            )
             edges = _single_intra_edges(sub, label, options, node_result)
             # Opaque intra-habitat edges (alpha=1); pale translucent strokes
             # made the 2D region network hard to read.
@@ -646,8 +686,8 @@ def plot_habitat_graph_network_2d(
                 ax,
                 label_2d,
                 f"H{label} (n={len(sub)}, e={len(edges)})",
-                title_fontsize=7.5,
-                title_pad=3.0,
+                title_fontsize=_PANEL_TITLE_FONTSIZE,
+                title_pad=4.0,
             )
         ax_cross = axes_list[-1]
         _draw_background_2d(ax_cross, label_2d, colors, show_background)
@@ -665,16 +705,19 @@ def plot_habitat_graph_network_2d(
             ax_cross,
             label_2d,
             "All habitats",
-            title_fontsize=7.5,
-            title_pad=3.0,
+            title_fontsize=_PANEL_TITLE_FONTSIZE,
+            title_pad=4.0,
         )
-        add_discrete_habitat_colorbar(
+        cbar = add_discrete_habitat_colorbar(
             ax_cross,
             sorted(colors),
             [colors[label] for label in sorted(colors)],
             colorbar=colorbar,
             label=colorbar_label,
         )
+        if cbar is not None:
+            cbar.ax.tick_params(labelsize=_AXIS_TEXT_FONTSIZE)
+            cbar.ax.yaxis.label.set_size(_AXIS_TEXT_FONTSIZE)
         handles = [
             Line2D(
                 [0], [0], color=_INTER_EDGE_COLOR, lw=1.6, label="Inter-habitat edge"
@@ -683,9 +726,15 @@ def plot_habitat_graph_network_2d(
                 [0], [0], color=_INTRA_EDGE_COLOR, lw=1.2, label="Intra-habitat edge"
             ),
         ]
-        fig.legend(handles=handles, loc="lower center", ncol=2)
+        fig.legend(
+            handles=handles,
+            loc="lower center",
+            ncol=2,
+            fontsize=_FIG_LEGEND_FONTSIZE,
+        )
         fig.suptitle(
-            f"2D habitat graphs from representative cross-section (slice {index})"
+            f"2D habitat graphs from representative cross-section (slice {index})",
+            fontsize=_PANEL_TITLE_FONTSIZE,
         )
     return fig
 
