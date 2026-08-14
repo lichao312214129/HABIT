@@ -447,7 +447,7 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -950,6 +950,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1827,7 +1828,8 @@ publication figures.</p>
 </figure>
 <p class="rubric">Featured: habitat-feature contrast</p>
 <p>Melt a wide <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> table and contrast habitats (heatmap,
-features x pair Cliff’s delta, PCA / CVA, violin, <strong>faceted</strong> bars with
+features x pair Cliff’s delta, CVA/PCA component contrast when the
+heatmap is too tall, violin, <strong>faceted</strong> bars with
 one y-axis per feature).
 <code class="docutils literal notranslate"><span class="pre">graph</span></code> topology columns can stay on the same table and do not enter
 the melt.</p>
@@ -1879,7 +1881,7 @@ the ROI, optional cyan contour.</p>
 <li><p><a class="reference internal" href="precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a> — precise features</p></li>
 <li><p><a class="reference internal" href="custom_voxel_features.html"><span class="doc">DIY voxel features (expression + custom plugin)</span></a> — custom voxel features</p></li>
 <li><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a> — graph topology; one-step → extract → 2D/3D figures</p></li>
-<li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — each_habitat contrast figures (heatmap / pair-delta / PCA / violin / faceted bars)</p></li>
+<li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — each_habitat contrast figures (heatmap / pair-delta / CVA components / violin / faceted bars)</p></li>
 <li><p><a class="reference internal" href="feature_extraction.html"><span class="doc">Habitat and radiomics feature extraction</span></a> — light families + radiomics extract recipes</p></li>
 <li><p><a class="reference internal" href="features_radiomics_api.html"><span class="doc">Feature extraction and traditional radiomics API</span></a> — radiomics features API</p></li>
 <li><p><a class="reference internal" href="tabular_ml.html"><span class="doc">Tabular machine learning: train, cross-validate, predict</span></a> — tabular ML</p></li>

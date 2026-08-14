@@ -742,6 +742,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -791,6 +799,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -965,6 +974,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1292,6 +1302,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1609,6 +1620,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1718,6 +1730,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
@@ -2925,6 +2938,13 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_shared_habitat_model_id</span><span class="p">(</span><span class="n">labels_a</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">labels_b</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True when both inputs are HabitatMaps that already share a model id.&quot;&quot;&quot;</span>
+    <span class="n">id_a</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">labels_a</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">id_b</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">labels_b</span><span class="p">,</span> <span class="s2">&quot;model_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">id_a</span><span class="p">)</span> <span class="ow">and</span> <span class="n">id_a</span> <span class="o">==</span> <span class="n">id_b</span>
+
+
 <div class="viewcode-block" id="plot_habitat_label_compare">
 <a class="viewcode-back" href="../../../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_habitat_label_compare</span><span class="p">(</span>
@@ -2942,9 +2962,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">show_disagreement</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="p">:</span> <span class="n">ColorbarSpec</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">colorbar_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
+    <span class="n">align_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Side-by-side habitat overlays, optional disagreement mask.</span>
+
+<span class="sd">    Independently clustered maps permute integer ids. By default this</span>
+<span class="sd">    remaps ``labels_b`` onto ``labels_a`` by intensity centroids (the</span>
+<span class="sd">    test-retest matcher) before colouring and before the disagreement</span>
+<span class="sd">    panel, so habitat 1 on the left is the same habitat as habitat 1 on</span>
+<span class="sd">    the right. Maps that already share a ``model_id`` (apply-saved-model)</span>
+<span class="sd">    are left unchanged -- those ids are already the same definition.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        image: Anatomy volume ``(z, y, x)`` or 2D.</span>
@@ -2962,6 +2990,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            (default ``True``). The disagreement panel is not a habitat</span>
 <span class="sd">            map and does not get this bar. Pass ``False`` to hide it.</span>
 <span class="sd">        colorbar_label: Colorbar label (English default ``\&quot;Habitat\&quot;``).</span>
+<span class="sd">        align_labels: ``None`` (default) aligns unless both inputs share a</span>
+<span class="sd">            ``model_id``; ``True`` always aligns; ``False`` never aligns.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A matplotlib ``Figure``.</span>
@@ -2978,6 +3008,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">image_vol</span> <span class="o">=</span> <span class="n">_as_volume</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_as_volume</span><span class="p">(</span><span class="n">labels_a</span><span class="p">,</span> <span class="s2">&quot;labels_a&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_as_volume</span><span class="p">(</span><span class="n">labels_b</span><span class="p">,</span> <span class="s2">&quot;labels_b&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">should_align</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">align_labels</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">align_labels</span> <span class="ow">is</span> <span class="kc">False</span>
+        <span class="k">else</span> <span class="ow">not</span> <span class="n">_shared_habitat_model_id</span><span class="p">(</span><span class="n">labels_a</span><span class="p">,</span> <span class="n">labels_b</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">should_align</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="n">align_label_array</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">align_label_array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">image_vol</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot_habitat_label_compare: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
     <span class="k">if</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="ow">or</span> <span class="n">image_vol</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
             <span class="s2">&quot;plot_habitat_label_compare: image/labels shapes must match; &quot;</span>

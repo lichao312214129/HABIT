@@ -446,7 +446,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -949,6 +949,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1767,7 +1768,9 @@ pair (<code class="docutils literal notranslate"><span class="pre">H1-H2</span><
 q &lt; 0.05 cells are starred and full-colour, others stay pale.
 When more features exist than <code class="docutils literal notranslate"><span class="pre">max_features</span></code>, only the top-k by
 max absolute effect across pairs are drawn and the title states the
-truncation (<code class="docutils literal notranslate"><span class="pre">top</span> <span class="pre">15</span> <span class="pre">of</span> <span class="pre">47</span> <span class="pre">by</span> <span class="pre">max</span> <span class="pre">|delta|</span></code>).</p>
+truncation (<code class="docutils literal notranslate"><span class="pre">top</span> <span class="pre">15</span> <span class="pre">of</span> <span class="pre">47</span> <span class="pre">by</span> <span class="pre">max</span> <span class="pre">|delta|</span></code>). If that heatmap would
+still be too tall, compare habitats on a few CVA/PCA component
+scores instead (<a class="reference internal" href="habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>).</p>
 <p>Single-pair lollipop: pass <code class="docutils literal notranslate"><span class="pre">pair=(a,</span> <span class="pre">b)</span></code> or <code class="docutils literal notranslate"><span class="pre">habitats=(a,</span> <span class="pre">b)</span></code>.
 Filled markers are BH q &lt; 0.05; open markers are not significant
 or untested. The x-axis is symmetric so negative effects keep

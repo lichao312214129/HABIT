@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>extract_habitat_nodes &mdash; HABIT Documentation</title>
+  <title>align_habitat_map &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.kernels.extract_habitat_nodes.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.domain.align_habitat_map.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="build_centroid_distance_graph" href="habit.kernels.build_centroid_distance_graph.html" />
-    <link rel="prev" title="extract_graph_features_for_labels" href="habit.kernels.extract_graph_features_for_labels.html" /> 
+    <link rel="next" title="habitat_stability" href="habit.domain.habitat_stability.html" />
+    <link rel="prev" title="identify_precise_features" href="habit.domain.identify_precise_features.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -833,7 +833,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#domain-components-habit-domain">Domain components (<code class="docutils literal notranslate"><span class="pre">habit.domain</span></code>)</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#domain-components-habit-domain">Domain components (<code class="docutils literal notranslate"><span class="pre">habit.domain</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../index.html#pipelines">Pipelines</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.SubjectPipeline.html">SubjectPipeline</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.TablePipeline.html">TablePipeline</a></li>
@@ -933,7 +933,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureWhitelistParams.html">FeatureWhitelistParams</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#id1">Precision screen</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#id1">Precision screen</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.ImagePerturbation.html">ImagePerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbation.html">GaussianNoisePerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbationParams.html">GaussianNoisePerturbationParams</a></li>
@@ -949,7 +949,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.identify_precise_features.html">identify_precise_features</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.domain.align_habitat_map.html">align_habitat_map</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1241,7 +1241,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#numeric-kernels-habit-kernels">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#numeric-kernels-habit-kernels">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#model-selection">Model selection</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.score_direction.html">score_direction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.knee_index.html">knee_index</a></li>
@@ -1254,7 +1254,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.KNEE.html">habit.kernels.cluster_selection.KNEE</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-metrics">Habitat metrics</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-metrics">Habitat metrics</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.local_entropy_map.html">local_entropy_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.spatial_interaction_matrix.html">spatial_interaction_matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
@@ -1265,7 +1265,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">extract_habitat_nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
@@ -1747,9 +1747,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">extract_habitat_nodes</li>
+      <li class="breadcrumb-item active">align_habitat_map</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.kernels.extract_habitat_nodes.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.domain.align_habitat_map.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1757,38 +1757,53 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="extract-habitat-nodes">
-<h1>extract_habitat_nodes<a class="headerlink" href="#extract-habitat-nodes" title="Link to this heading"></a></h1>
+  <section id="align-habitat-map">
+<h1>align_habitat_map<a class="headerlink" href="#align-habitat-map" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.kernels.extract_habitat_nodes">
-<span class="sig-name descname"><span class="pre">extract_habitat_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_region_voxels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivide_region_voxels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_min_coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">HabitatNodeExtractionResult</span></span></span><a class="reference internal" href="../../_modules/habit/kernels/habitat_graph/nodes.html#extract_habitat_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.kernels.extract_habitat_nodes" title="Link to this definition"></a></dt>
-<dd><p>Convert each connected habitat region into one or more graph nodes.</p>
+<dt class="sig sig-object py" id="habit.domain.align_habitat_map">
+<span class="sig-name descname"><span class="pre">align_habitat_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'centroid'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'overlap'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'centroid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_centroids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moving_centroids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><span class="pre">HabitatMap</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/precision/stability.html#align_habitat_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.align_habitat_map" title="Link to this definition"></a></dt>
+<dd><p>Remap <code class="docutils literal notranslate"><span class="pre">moving</span></code> habitat ids onto the <code class="docutils literal notranslate"><span class="pre">reference</span></code> id space.</p>
+<p>Independently clustered maps (two <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> runs) permute integer
+ids. This operator recovers the correspondence and returns a new
+<a class="reference internal" href="habit.contracts.HabitatMap.html#habit.contracts.HabitatMap" title="habit.contracts.habitat.HabitatMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatMap</span></code></a> whose labels are comparable
+to <code class="docutils literal notranslate"><span class="pre">reference</span></code>. Maps that already share a <code class="docutils literal notranslate"><span class="pre">model_id</span></code> (the
+apply-saved-model path) are returned unchanged: those ids are already
+the same definition.</p>
+<p>Default matching is <strong>centroid</strong> – Hungarian assignment on Euclidean
+distance between per-habitat feature centroids, the in-memory form of
+the test-retest mapper (which pairs habitats by median feature
+vectors). Pass the two fits’ <code class="xref py py-attr docutils literal notranslate"><span class="pre">centroids</span></code>
+when available; otherwise mean image intensity, then spatial centroids.</p>
+<p><code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code> uses the same maximal-overlap Hungarian pairing as
+<a class="reference internal" href="habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a>. Do not feed an already-aligned map back into
+<code class="docutils literal notranslate"><span class="pre">habitat_stability</span></code> expecting a second scientific match: Dice should
+be scored on the original pair (stability matches internally).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>label_array</strong> – Integer habitat label map. Background must be encoded as 0.</p></li>
-<li><p><strong>connectivity</strong> – Connected-component neighborhood rule. Default
-<code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> is 8-connected in 2D / 26-connected in 3D. Pass
-<code class="docutils literal notranslate"><span class="pre">&quot;face&quot;</span></code> for 4-connected / 6-connected neighborhoods.</p></li>
-<li><p><strong>min_region_voxels</strong> – Components smaller than this voxel count are ignored.</p></li>
-<li><p><strong>erosion_radius</strong> – Optional binary erosion iterations applied per habitat
-before connected-component labeling. The default is 0 because
-medical image habitats may contain small but meaningful regions.</p></li>
-<li><p><strong>subdivide_region_voxels</strong> – Connected components whose voxel count exceeds
-this value are split into fixed-size grid blocks, one node per block.
-The default is 0, which disables splitting. Use a positive value when
-a single large habitat blob would otherwise dominate graph features.</p></li>
-<li><p><strong>block_size</strong> – Edge length of each grid block in voxels when splitting.</p></li>
-<li><p><strong>block_min_coverage</strong> – Minimum covered fraction of a block volume required
-to keep that block as a node when splitting.</p></li>
+<li><p><strong>reference</strong> – Habitat map whose ids are the target space.</p></li>
+<li><p><strong>moving</strong> – Independently labelled map to remap.</p></li>
+<li><p><strong>image</strong> – Optional intensity volume for the reference map (and for
+the moving map when <code class="docutils literal notranslate"><span class="pre">moving_image</span></code> is omitted). Accepts a
+NumPy array or an object with <code class="docutils literal notranslate"><span class="pre">.data</span></code> (<code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code>).</p></li>
+<li><p><strong>moving_image</strong> – Optional intensity volume for the moving map.</p></li>
+<li><p><strong>method</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;centroid&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;overlap&quot;</span></code>.</p></li>
+<li><p><strong>reference_centroids</strong> – Optional cluster centres of the reference fit,
+shape <code class="docutils literal notranslate"><span class="pre">(n_habitats,</span> <span class="pre">n_features)</span></code>, rows in
+<code class="docutils literal notranslate"><span class="pre">reference.habitat_ids</span></code> order (row <code class="docutils literal notranslate"><span class="pre">i</span></code> is habitat
+<code class="docutils literal notranslate"><span class="pre">habitat_ids[i]</span></code>).</p></li>
+<li><p><strong>moving_centroids</strong> – Optional cluster centres of the moving fit.</p></li>
+<li><p><strong>force</strong> – If True, align even when <code class="docutils literal notranslate"><span class="pre">model_id</span></code> already matches.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Nodes grouped by habitat label plus
-component maps used by contact-based edge builders.</p>
+<dd class="field-even"><p>A new map with remapped labels, <code class="docutils literal notranslate"><span class="pre">model_id</span></code> / <code class="docutils literal notranslate"><span class="pre">habitat_ids</span></code>
+taken from <code class="docutils literal notranslate"><span class="pre">reference</span></code> so a later compare treats the pair as
+sharing a definition. The input <code class="docutils literal notranslate"><span class="pre">moving</span></code> map is returned as-is
+when the model ids already match and <code class="docutils literal notranslate"><span class="pre">force</span></code> is False.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>HabitatNodeExtractionResult</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – If the grids differ or centroid inputs are incomplete.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1799,8 +1814,8 @@ component maps used by contact-based edge builders.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.kernels.extract_graph_features_for_labels.html" class="btn btn-neutral float-left" title="extract_graph_features_for_labels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.kernels.build_centroid_distance_graph.html" class="btn btn-neutral float-right" title="build_centroid_distance_graph" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.domain.identify_precise_features.html" class="btn btn-neutral float-left" title="identify_precise_features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.domain.habitat_stability.html" class="btn btn-neutral float-right" title="habitat_stability" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

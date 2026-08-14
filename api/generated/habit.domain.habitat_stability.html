@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="TablePreprocessor" href="habit.domain.TablePreprocessor.html" />
-    <link rel="prev" title="identify_precise_features" href="habit.domain.identify_precise_features.html" /> 
+    <link rel="prev" title="align_habitat_map" href="habit.domain.align_habitat_map.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -438,6 +446,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -612,6 +621,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -939,6 +949,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">habitat_stability</a></li>
 </ul>
 </li>
@@ -1256,6 +1267,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1365,6 +1377,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
@@ -1755,6 +1768,10 @@ maximal voxel overlap (Hungarian assignment), then the Dice similarity
 is computed per matched pair. Reference habitats left unmatched (the
 perturbed map has fewer clusters) score Dice 0 – a vanished habitat is
 a stability failure, not missing data.</p>
+<p>Matching is the overlap kernel shared with <a class="reference internal" href="habit.domain.align_habitat_map.html#habit.domain.align_habitat_map" title="habit.domain.align_habitat_map"><code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code></a>
+(<code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code>). This function does <strong>not</strong> rewrite the input
+maps; it only scores them. Pass the original independently clustered
+pair, not a map that was already remapped by a different matcher.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1781,7 +1798,7 @@ habitat: <code class="docutils literal notranslate"><span class="pre">perturbati
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.domain.identify_precise_features.html" class="btn btn-neutral float-left" title="identify_precise_features" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.domain.align_habitat_map.html" class="btn btn-neutral float-left" title="align_habitat_map" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="habit.domain.TablePreprocessor.html" class="btn btn-neutral float-right" title="TablePreprocessor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

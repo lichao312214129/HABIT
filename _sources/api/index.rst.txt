@@ -419,6 +419,7 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.precision_panel
    habit.domain.aggregate_panels
    habit.domain.identify_precise_features
+   habit.domain.align_habitat_map
    habit.domain.habitat_stability
 
 Table protocols

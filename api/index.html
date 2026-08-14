@@ -447,7 +447,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -950,6 +950,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -2477,7 +2478,10 @@ resulting precise-feature artefact. See <a class="reference internal" href="../e
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.identify_precise_features.html#habit.domain.identify_precise_features" title="habit.domain.identify_precise_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.identify_precise_features</span></code></a>(...)</p></td>
 <td><p>Select the features that clear the LCL threshold in EVERY experiment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.habitat_stability</span></code></a>(reference, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.align_habitat_map.html#habit.domain.align_habitat_map" title="habit.domain.align_habitat_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.align_habitat_map</span></code></a>(reference, ...)</p></td>
+<td><p>Remap <code class="docutils literal notranslate"><span class="pre">moving</span></code> habitat ids onto the <code class="docutils literal notranslate"><span class="pre">reference</span></code> id space.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.habitat_stability</span></code></a>(reference, ...)</p></td>
 <td><p>Score habitat stability between a reference map and perturbed maps.</p></td>
 </tr>
 </tbody>
@@ -3413,7 +3417,7 @@ radiological — pass an <code class="docutils literal notranslate"><span class=
 <td><p>Habitat-pair effect sizes (Cliff's delta or Cohen's d).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_components</span></code></a>(data, *)</p></td>
-<td><p>PCA or CVA of (subject, habitat) rows in feature space.</p></td>
+<td><p>Habitat contrast on a few CVA or PCA component scores.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.viz.plot_habitat_feature_violin</span></code></a>(data, *)</p></td>
 <td><p>Grouped violins (or box + strip when n is small) for a feature shortlist.</p></td>

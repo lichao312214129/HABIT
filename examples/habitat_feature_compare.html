@@ -447,7 +447,7 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-pca-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / PCA / violin / bars)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -950,6 +950,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1772,11 +1773,12 @@ Mean / Median / Energy / Kurtosis / Skewness, GLCM Contrast, plus
 figures. The default effect figure is the <strong>features x pair</strong> Cliff’s
 <span class="math notranslate nohighlight">\(\delta\)</span> heatmap; pass <code class="docutils literal notranslate"><span class="pre">pair=(a,</span> <span class="pre">b)</span></code> to keep the single-pair
 lollipop. When a table has dozens of features the heatmap keeps the
-top-k by max <span class="math notranslate nohighlight">\(|\delta|\)</span> and
-<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a> (PCA or CVA) summarises
-habitat separation. Bars are <strong>one panel per feature</strong> (independent
-y-axis) so Energy and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code> are not forced onto one linear
-scale.</p>
+top-k by max <span class="math notranslate nohighlight">\(|\delta|\)</span>. If that pair x feature heatmap would
+still be too tall, compare habitats on a few CVA/PCA component scores
+instead (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>) – the
+same contrast, with CV1/PC1 as the “features”. Bars are <strong>one panel
+per feature</strong> (independent y-axis) so Energy and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code>
+are not forced onto one linear scale.</p>
 <p><code class="docutils literal notranslate"><span class="pre">graph</span></code> columns (<code class="docutils literal notranslate"><span class="pre">single_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code>) can live on the same
 joined <a class="reference internal" href="../api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable" title="habit.contracts.FeatureTable"><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureTable</span></code></a>. They are subject-level
 topology metrics and do <strong>not</strong> match <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>, so
@@ -1867,7 +1869,7 @@ under <code class="docutils literal notranslate"><span class="pre">out/</span></
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_effect.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_effect</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_effect_pair.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_components</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;pca&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_components</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;cva&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_components.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_violin</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_violin.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
@@ -1917,7 +1919,8 @@ claim).</p>
 <p><span class="caption-text">Default effect figure: features x pair Cliff’s delta
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a> with no <code class="docutils literal notranslate"><span class="pre">pair</span></code>).
 Starred cells are BH q &lt; 0.05. With dozens of features the heatmap
-keeps the top-k by max <span class="math notranslate nohighlight">\(|\delta|\)</span>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+keeps the top-k by max <span class="math notranslate nohighlight">\(|\delta|\)</span>. If that heatmap would be
+too tall, compare habitats on a few CVA/PCA components instead.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
@@ -1929,13 +1932,14 @@ keeps the top-k by max <span class="math notranslate nohighlight">\(|\delta|\)</
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/habitat_feature_components.png"><img alt="PCA of subject-by-habitat feature rows" src="../_images/habitat_feature_components.png" width="620" />
+<a class="reference internal image-reference" href="../_images/habitat_feature_components.png"><img alt="Habitat contrast on CVA component scores" src="../_images/habitat_feature_components.png" width="620" />
 </a>
 <figcaption>
-<p><span class="caption-text">PCA of (subject, habitat) rows
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">method=&quot;pca&quot;</span></code>).
-With dozens of features this summarises habitat separation; CVA
-(Fisher LDA) is the supervised alternative.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">Same contrast, shown on 2 CVA components (use this when there are
+dozens of features)
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_components.html#habit.viz.plot_habitat_feature_components" title="habit.viz.plot_habitat_feature_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_components()</span></code></a>, default
+<code class="docutils literal notranslate"><span class="pre">method=&quot;cva&quot;</span></code>). Each panel is how H1..Hk differ on that score;
+loadings name the original features those axes represent.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">

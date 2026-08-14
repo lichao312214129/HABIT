@@ -16,11 +16,12 @@ Mean / Median / Energy / Kurtosis / Skewness, GLCM Contrast, plus
 figures. The default effect figure is the **features x pair** Cliff's
 :math:`\delta` heatmap; pass ``pair=(a, b)`` to keep the single-pair
 lollipop. When a table has dozens of features the heatmap keeps the
-top-k by max :math:`|\delta|` and
-:func:`~habit.viz.plot_habitat_feature_components` (PCA or CVA) summarises
-habitat separation. Bars are **one panel per feature** (independent
-y-axis) so Energy and ``volume_fraction`` are not forced onto one linear
-scale.
+top-k by max :math:`|\delta|`. If that pair x feature heatmap would
+still be too tall, compare habitats on a few CVA/PCA component scores
+instead (:func:`~habit.viz.plot_habitat_feature_components`) -- the
+same contrast, with CV1/PC1 as the "features". Bars are **one panel
+per feature** (independent y-axis) so Energy and ``volume_fraction``
+are not forced onto one linear scale.
 
 ``graph`` columns (``single_h*`` / ``pair_h*_h*``) can live on the same
 joined :class:`~habit.contracts.FeatureTable`. They are subject-level
@@ -92,7 +93,8 @@ claim).
    Default effect figure: features x pair Cliff's delta
    (:func:`~habit.viz.plot_habitat_feature_effect` with no ``pair``).
    Starred cells are BH q < 0.05. With dozens of features the heatmap
-   keeps the top-k by max :math:`|\delta|`.
+   keeps the top-k by max :math:`|\delta|`. If that heatmap would be
+   too tall, compare habitats on a few CVA/PCA components instead.
 
 .. figure:: ../_static/images/examples/habitat_feature_effect_pair.png
    :alt: Single-pair Cliff's delta lollipop
@@ -102,13 +104,14 @@ claim).
    (:func:`~habit.viz.plot_habitat_feature_effect` with ``pair=(2, 1)``).
 
 .. figure:: ../_static/images/examples/habitat_feature_components.png
-   :alt: PCA of subject-by-habitat feature rows
+   :alt: Habitat contrast on CVA component scores
    :width: 620
 
-   PCA of (subject, habitat) rows
-   (:func:`~habit.viz.plot_habitat_feature_components`, ``method="pca"``).
-   With dozens of features this summarises habitat separation; CVA
-   (Fisher LDA) is the supervised alternative.
+   Same contrast, shown on 2 CVA components (use this when there are
+   dozens of features)
+   (:func:`~habit.viz.plot_habitat_feature_components`, default
+   ``method="cva"``). Each panel is how H1..Hk differ on that score;
+   loadings name the original features those axes represent.
 
 .. figure:: ../_static/images/examples/habitat_feature_violin.png
    :alt: Per-feature habitat distributions

@@ -742,6 +742,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -791,6 +799,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-cva-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / CVA / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -965,6 +974,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1292,6 +1302,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.aggregate_panels.html">aggregate_panels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.identify_precise_features.html">identify_precise_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.align_habitat_map.html">align_habitat_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.habitat_stability.html">habitat_stability</a></li>
 </ul>
 </li>
@@ -1609,6 +1620,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -1718,6 +1730,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
@@ -2111,7 +2124,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-<span class="sd">&quot;&quot;&quot;Habitat stability under perturbation: matched Dice scores.</span>
+<span class="sd">&quot;&quot;&quot;Habitat stability under perturbation: matched Dice scores and label align.</span>
 
 <span class="sd">When habitats are computed independently on the original and on a perturbed</span>
 <span class="sd">image, the cluster labels are not comparable -- cluster 1 of the second fit</span>
@@ -2122,26 +2135,166 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">exactly that on :class:`~habit.contracts.habitat.HabitatMap` objects; WHO</span>
 <span class="sd">produced the maps (per-subject GMM, cohort model, any recipe) is not this</span>
 <span class="sd">layer&#39;s concern.</span>
+
+<span class="sd">:func:`align_habitat_map` is the in-memory remapper the test-retest recipe</span>
+<span class="sd">deferred: habitat maps in, remapped map out. Default matching is by</span>
+<span class="sd">feature-space centroids (the test-retest idea); overlap matching is the</span>
+<span class="sd">same assignment ``habitat_stability`` uses for Dice.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear_sum_assignment</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts.habitat</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">align_label_array</span><span class="p">,</span>
+    <span class="n">match_labels_by_overlap</span><span class="p">,</span>
+    <span class="n">present_habitat_ids</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;habitat_stability&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;align_habitat_map&quot;</span><span class="p">,</span> <span class="s2">&quot;habitat_stability&quot;</span><span class="p">]</span>
+
+<span class="n">AlignMethod</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_present_labels</span><span class="p">(</span><span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the sorted non-background labels of a habitat label image.&quot;&quot;&quot;</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">labels</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">argument_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a numeric volume from an array or an ImageVolume-like object.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map: </span><span class="si">{</span><span class="n">argument_name</span><span class="si">}</span><span class="s2"> is required.&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_same_model_id</span><span class="p">(</span><span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">moving</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True when both maps already share a non-empty habitat-model id.&quot;&quot;&quot;</span>
+    <span class="n">ref_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">mov_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">model_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">ref_id</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ref_id</span> <span class="o">==</span> <span class="n">mov_id</span>
+
+
+<div class="viewcode-block" id="align_habitat_map">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.align_habitat_map.html#habit.domain.align_habitat_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">align_habitat_map</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="n">moving</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">moving_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">AlignMethod</span> <span class="o">=</span> <span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+    <span class="n">reference_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">moving_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatMap</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remap ``moving`` habitat ids onto the ``reference`` id space.</span>
+
+<span class="sd">    Independently clustered maps (two ``fit_predict`` runs) permute integer</span>
+<span class="sd">    ids. This operator recovers the correspondence and returns a new</span>
+<span class="sd">    :class:`~habit.contracts.habitat.HabitatMap` whose labels are comparable</span>
+<span class="sd">    to ``reference``. Maps that already share a ``model_id`` (the</span>
+<span class="sd">    apply-saved-model path) are returned unchanged: those ids are already</span>
+<span class="sd">    the same definition.</span>
+
+<span class="sd">    Default matching is **centroid** -- Hungarian assignment on Euclidean</span>
+<span class="sd">    distance between per-habitat feature centroids, the in-memory form of</span>
+<span class="sd">    the test-retest mapper (which pairs habitats by median feature</span>
+<span class="sd">    vectors). Pass the two fits&#39; :attr:`~habit.contracts.habitat.HabitatModel.centroids`</span>
+<span class="sd">    when available; otherwise mean image intensity, then spatial centroids.</span>
+
+<span class="sd">    ``method=&quot;overlap&quot;`` uses the same maximal-overlap Hungarian pairing as</span>
+<span class="sd">    :func:`habitat_stability`. Do not feed an already-aligned map back into</span>
+<span class="sd">    ``habitat_stability`` expecting a second scientific match: Dice should</span>
+<span class="sd">    be scored on the original pair (stability matches internally).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        reference: Habitat map whose ids are the target space.</span>
+<span class="sd">        moving: Independently labelled map to remap.</span>
+<span class="sd">        image: Optional intensity volume for the reference map (and for</span>
+<span class="sd">            the moving map when ``moving_image`` is omitted). Accepts a</span>
+<span class="sd">            NumPy array or an object with ``.data`` (``ImageVolume``).</span>
+<span class="sd">        moving_image: Optional intensity volume for the moving map.</span>
+<span class="sd">        method: ``&quot;centroid&quot;`` (default) or ``&quot;overlap&quot;``.</span>
+<span class="sd">        reference_centroids: Optional cluster centres of the reference fit,</span>
+<span class="sd">            shape ``(n_habitats, n_features)``, rows in</span>
+<span class="sd">            ``reference.habitat_ids`` order (row ``i`` is habitat</span>
+<span class="sd">            ``habitat_ids[i]``).</span>
+<span class="sd">        moving_centroids: Optional cluster centres of the moving fit.</span>
+<span class="sd">        force: If True, align even when ``model_id`` already matches.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new map with remapped labels, ``model_id`` / ``habitat_ids``</span>
+<span class="sd">        taken from ``reference`` so a later compare treats the pair as</span>
+<span class="sd">        sharing a definition. The input ``moving`` map is returned as-is</span>
+<span class="sd">        when the model ids already match and ``force`` is False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: If the grids differ or centroid inputs are incomplete.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;align_habitat_map: moving map has shape &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">force</span> <span class="ow">and</span> <span class="n">_same_model_id</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">moving</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">moving</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;align_habitat_map: method must be &#39;centroid&#39; or &#39;overlap&#39;; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">ref_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mov_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref_image</span> <span class="o">=</span> <span class="n">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span>
+        <span class="n">mov_image</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_as_image_array</span><span class="p">(</span><span class="n">moving_image</span><span class="p">,</span> <span class="s2">&quot;moving_image&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">moving_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">ref_image</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">moving_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;align_habitat_map: moving_image requires image for the reference.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">remapped</span> <span class="o">=</span> <span class="n">align_label_array</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">label_array</span><span class="p">),</span>
+            <span class="n">image</span><span class="o">=</span><span class="n">ref_image</span><span class="p">,</span>
+            <span class="n">moving_image</span><span class="o">=</span><span class="n">mov_image</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span>
+            <span class="n">reference_centroids</span><span class="o">=</span><span class="n">reference_centroids</span><span class="p">,</span>
+            <span class="n">moving_centroids</span><span class="o">=</span><span class="n">moving_centroids</span><span class="p">,</span>
+            <span class="n">reference_ids</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">reference_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">moving_ids</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moving</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">return</span> <span class="n">HabitatMap</span><span class="p">(</span>
+        <span class="n">subject_id</span><span class="o">=</span><span class="n">moving</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+        <span class="n">label_array</span><span class="o">=</span><span class="n">remapped</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">moving</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
+        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="n">provenance</span><span class="o">=</span><span class="n">moving</span><span class="o">.</span><span class="n">provenance</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span>
+            <span class="n">produced_by</span><span class="o">=</span><span class="s2">&quot;align_habitat_map&quot;</span><span class="p">,</span>
+            <span class="n">spec_fingerprint</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;align_habitat_map:</span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="habitat_stability">
@@ -2158,6 +2311,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    is computed per matched pair. Reference habitats left unmatched (the</span>
 <span class="sd">    perturbed map has fewer clusters) score Dice 0 -- a vanished habitat is</span>
 <span class="sd">    a stability failure, not missing data.</span>
+
+<span class="sd">    Matching is the overlap kernel shared with :func:`align_habitat_map`</span>
+<span class="sd">    (``method=&quot;overlap&quot;``). This function does **not** rewrite the input</span>
+<span class="sd">    maps; it only scores them. Pass the original independently clustered</span>
+<span class="sd">    pair, not a map that was already remapped by a different matcher.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference: Habitat map of the original subject.</span>
@@ -2176,7 +2334,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">perturbed</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;habitat_stability: at least one perturbed map is required.&quot;</span><span class="p">)</span>
     <span class="n">reference_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
-    <span class="n">reference_ids</span> <span class="o">=</span> <span class="n">_present_labels</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">)</span>
+    <span class="n">reference_ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">)</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">moved</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
         <span class="n">moved_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moved</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
@@ -2185,40 +2343,35 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;habitat_stability: perturbed map </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> has shape &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moved_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">reference_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
-        <span class="n">moved_ids</span> <span class="o">=</span> <span class="n">_present_labels</span><span class="p">(</span><span class="n">moved_labels</span><span class="p">)</span>
-        <span class="c1"># Overlap matrix: rows = reference habitats, columns = perturbed.</span>
-        <span class="n">overlap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">reference_ids</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">moved_ids</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reference_ids</span><span class="p">):</span>
-            <span class="n">selector</span> <span class="o">=</span> <span class="n">reference_labels</span> <span class="o">==</span> <span class="n">habitat_id</span>
-            <span class="n">overlap</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">selector</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">moved_labels</span> <span class="o">==</span> <span class="n">moved_id</span><span class="p">)))</span>
-                <span class="k">for</span> <span class="n">moved_id</span> <span class="ow">in</span> <span class="n">moved_ids</span>
-            <span class="p">]</span>
-        <span class="k">if</span> <span class="n">overlap</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-            <span class="c1"># Hungarian assignment on the negative overlap maximises the</span>
-            <span class="c1"># total matched overlap (scipy minimises).</span>
-            <span class="n">rows</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">linear_sum_assignment</span><span class="p">(</span><span class="o">-</span><span class="n">overlap</span><span class="p">)</span>
-            <span class="n">matched</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">matched</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">reference_ids</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_labels_by_overlap</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">,</span> <span class="n">moved_labels</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;habitat_stability: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="c1"># Invert {moving_id: reference_id} so each reference habitat looks up</span>
+        <span class="c1"># its matched moving id (unmatched reference habitats score Dice 0).</span>
+        <span class="n">matched_moving</span> <span class="o">=</span> <span class="p">{</span><span class="n">ref_id</span><span class="p">:</span> <span class="n">mov_id</span> <span class="k">for</span> <span class="n">mov_id</span><span class="p">,</span> <span class="n">ref_id</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">reference_ids</span><span class="p">:</span>
+            <span class="n">habitat_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">)</span>
             <span class="n">n_reference</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">reference_labels</span> <span class="o">==</span> <span class="n">habitat_id</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matched</span><span class="p">:</span>
-                <span class="n">column</span> <span class="o">=</span> <span class="n">matched</span><span class="p">[</span><span class="n">row</span><span class="p">]</span>
-                <span class="n">moved_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">moved_ids</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">habitat_id</span> <span class="ow">in</span> <span class="n">matched_moving</span><span class="p">:</span>
+                <span class="n">moved_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matched_moving</span><span class="p">[</span><span class="n">habitat_id</span><span class="p">])</span>
                 <span class="n">n_moved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">moved_labels</span> <span class="o">==</span> <span class="n">moved_id</span><span class="p">))</span>
-                <span class="n">intersection</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">overlap</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">])</span>
+                <span class="n">intersection</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">reference_labels</span> <span class="o">==</span> <span class="n">habitat_id</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">moved_labels</span> <span class="o">==</span> <span class="n">moved_id</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">dice</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="mf">2.0</span> <span class="o">*</span> <span class="n">intersection</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_reference</span> <span class="o">+</span> <span class="n">n_moved</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">n_reference</span> <span class="o">+</span> <span class="n">n_moved</span> <span class="o">&gt;</span> <span class="mi">0</span>
                     <span class="k">else</span> <span class="mf">0.0</span>
                 <span class="p">)</span>
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">),</span> <span class="n">moved_id</span><span class="p">,</span> <span class="n">dice</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="n">n_moved</span><span class="p">)</span>
+                    <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="n">moved_id</span><span class="p">,</span> <span class="n">dice</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="n">n_moved</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">habitat_id</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">habitat_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">n_reference</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                 <span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
         <span class="n">records</span><span class="p">,</span>
