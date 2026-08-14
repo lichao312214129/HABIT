@@ -26,7 +26,9 @@ Intell 2024;6(2):e230118) as composable domain components:
   and cohort-level ICC tables on voxel feature fields;
 * :func:`identify_precise_features` applying the LCL screen across
   experiments and returning the serialisable :class:`PreciseFeatureSet`;
-* :func:`habitat_stability` scoring habitat maps under perturbation.
+* :func:`habitat_stability` scoring habitat maps under perturbation;
+* :func:`align_habitat_map` remapping independently clustered labels onto
+  a reference (centroid / test-retest matcher, or overlap Hungarian).
 """
 
 from __future__ import annotations
@@ -52,7 +54,7 @@ from habit.domain.precision.perturbations import (
 )
 from habit.domain.precision.precise_set import PreciseFeatureSet
 from habit.domain.precision.registry import ImagePerturbationRegistry
-from habit.domain.precision.stability import habitat_stability
+from habit.domain.precision.stability import align_habitat_map, habitat_stability
 
 __all__ = [
     "BSplineDeformPerturbation",
@@ -69,6 +71,7 @@ __all__ = [
     "TranslationPerturbation",
     "TranslationPerturbationParams",
     "aggregate_panels",
+    "align_habitat_map",
     "habitat_stability",
     "identify_precise_features",
     "precision_panel",

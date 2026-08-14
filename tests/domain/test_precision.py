@@ -45,6 +45,7 @@ from habit.domain.precision import (
     RotationPerturbation,
     TranslationPerturbation,
     aggregate_panels,
+    align_habitat_map,
     habitat_stability,
     identify_precise_features,
     precision_panel,
@@ -720,3 +721,122 @@ class TestHabitatStability:
     def test_empty_raises(self) -> None:
         with pytest.raises(HABITAPIError, match="at least one"):
             habitat_stability(make_habitat_map("P1"), [])
+
+
+class TestAlignHabitatMap:
+    def test_permuted_labels_become_comparable(self) -> None:
+        """Independent clustering with swapped ids remaps onto the reference."""
+        reference = make_habitat_map("P1")
+        swapped_array = np.asarray(reference.label_array).copy()
+        swapped_array[swapped_array == 1] = 9
+        swapped_array[swapped_array == 2] = 1
+        swapped_array[swapped_array == 9] = 2
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=swapped_array,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        image = np.zeros(reference.label_array.shape, dtype=np.float64)
+        image[reference.label_array == 1] = 1.0
+        image[reference.label_array == 2] = 10.0
+        aligned = align_habitat_map(reference, moving, image=image)
+        assert np.array_equal(aligned.label_array, reference.label_array)
+        assert aligned.model_id == reference.model_id
+        # After remap, raw pixel disagreement is spatial, not an id swap.
+        disagree = (
+            (aligned.label_array != reference.label_array)
+            & ((aligned.label_array > 0) | (reference.label_array > 0))
+        )
+        assert int(np.count_nonzero(disagree)) == 0
+
+    def test_explicit_centroids_recover_permutation(self) -> None:
+        """Cluster centres from two fits drive the test-retest assignment."""
+        reference = make_habitat_map("P1")
+        swapped_array = np.asarray(reference.label_array).copy()
+        swapped_array[swapped_array == 1] = 9
+        swapped_array[swapped_array == 2] = 1
+        swapped_array[swapped_array == 9] = 2
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=swapped_array,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        aligned = align_habitat_map(
+            reference,
+            moving,
+            reference_centroids=np.array([[0.0], [10.0]]),
+            moving_centroids=np.array([[10.0], [0.0]]),
+        )
+        assert np.array_equal(aligned.label_array, reference.label_array)
+
+    def test_same_model_id_is_identity(self) -> None:
+        """Apply-same-model maps keep their labels even if ids look swapped."""
+        reference = make_habitat_map("P1")
+        swapped_array = np.asarray(reference.label_array).copy()
+        swapped_array[swapped_array == 1] = 9
+        swapped_array[swapped_array == 2] = 1
+        swapped_array[swapped_array == 9] = 2
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=swapped_array,
+            geometry=reference.geometry,
+            model_id=reference.model_id,
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        image = np.zeros(reference.label_array.shape, dtype=np.float64)
+        image[reference.label_array == 1] = 1.0
+        image[reference.label_array == 2] = 10.0
+        aligned = align_habitat_map(reference, moving, image=image)
+        assert aligned is moving
+        assert np.array_equal(aligned.label_array, swapped_array)
+
+    def test_force_aligns_shared_model(self) -> None:
+        """force=True remaps even when model_id already matches."""
+        reference = make_habitat_map("P1")
+        swapped_array = np.asarray(reference.label_array).copy()
+        swapped_array[swapped_array == 1] = 9
+        swapped_array[swapped_array == 2] = 1
+        swapped_array[swapped_array == 9] = 2
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=swapped_array,
+            geometry=reference.geometry,
+            model_id=reference.model_id,
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        aligned = align_habitat_map(
+            reference,
+            moving,
+            method="overlap",
+            force=True,
+        )
+        assert np.array_equal(aligned.label_array, reference.label_array)
+
+    def test_spatial_disagreement_survives_remap(self) -> None:
+        """A shifted habitat still disagrees after ids are aligned."""
+        reference = make_habitat_map("P1")
+        moved_array = np.zeros((4, 4, 4), dtype=np.int32)
+        moved_array[1:3, 0:2, 0:2] = 2  # swapped id AND shifted
+        moved_array[2:4, 0:2, 0:2] = 1
+        moving = HabitatMap(
+            subject_id="P1",
+            label_array=moved_array,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        aligned = align_habitat_map(reference, moving, method="overlap")
+        disagree = (
+            (aligned.label_array != reference.label_array)
+            & ((aligned.label_array > 0) | (reference.label_array > 0))
+        )
+        assert int(np.count_nonzero(disagree)) > 0

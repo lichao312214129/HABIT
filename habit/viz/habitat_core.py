@@ -811,6 +811,13 @@ def plot_ith_summary(
     return fig
 
 
+def _shared_habitat_model_id(labels_a: object, labels_b: object) -> bool:
+    """True when both inputs are HabitatMaps that already share a model id."""
+    id_a = getattr(labels_a, "model_id", None)
+    id_b = getattr(labels_b, "model_id", None)
+    return bool(id_a) and id_a == id_b
+
+
 def plot_habitat_label_compare(
     image: np.ndarray,
     labels_a: np.ndarray,
@@ -826,9 +833,17 @@ def plot_habitat_label_compare(
     show_disagreement: bool = True,
     colorbar: ColorbarSpec = True,
     colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
+    align_labels: Optional[bool] = None,
 ) -> "Figure":
     """
     Side-by-side habitat overlays, optional disagreement mask.
+
+    Independently clustered maps permute integer ids. By default this
+    remaps ``labels_b`` onto ``labels_a`` by intensity centroids (the
+    test-retest matcher) before colouring and before the disagreement
+    panel, so habitat 1 on the left is the same habitat as habitat 1 on
+    the right. Maps that already share a ``model_id`` (apply-saved-model)
+    are left unchanged -- those ids are already the same definition.
 
     Args:
         image: Anatomy volume ``(z, y, x)`` or 2D.
@@ -846,6 +861,8 @@ def plot_habitat_label_compare(
             (default ``True``). The disagreement panel is not a habitat
             map and does not get this bar. Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
+        align_labels: ``None`` (default) aligns unless both inputs share a
+            ``model_id``; ``True`` always aligns; ``False`` never aligns.
 
     Returns:
         A matplotlib ``Figure``.
@@ -862,6 +879,20 @@ def plot_habitat_label_compare(
     image_vol = _as_volume(image, "image")
     a = np.asarray(_as_volume(labels_a, "labels_a"), dtype=np.int32)
     b = np.asarray(_as_volume(labels_b, "labels_b"), dtype=np.int32)
+    should_align = (
+        True
+        if align_labels is True
+        else False
+        if align_labels is False
+        else not _shared_habitat_model_id(labels_a, labels_b)
+    )
+    if should_align:
+        from habit.kernels.habitat_label_match import align_label_array
+
+        try:
+            b = align_label_array(a, b, image=image_vol, method="centroid")
+        except ValueError as exc:
+            raise HABITAPIError(f"plot_habitat_label_compare: {exc}") from exc
     if image_vol.shape != a.shape or image_vol.shape != b.shape:
         raise HABITAPIError(
             "plot_habitat_label_compare: image/labels shapes must match; "

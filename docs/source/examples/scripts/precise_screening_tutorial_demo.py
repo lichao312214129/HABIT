@@ -426,6 +426,8 @@ if __name__ == "__main__":
     deformed = BSplineDeformPerturbation(
         sigma_range=(1.0, 2.0),
         magnitude_range=(10.0, 15.0),
+        target_dice=0.85,
+        dice_tolerance=0.03,
         device="cpu",
     )(ffd_subject, rng=np.random.default_rng(7))
     print("FFD done.", flush=True)
@@ -505,3 +507,219 @@ if __name__ == "__main__":
             title="Local entropy (kernel=7) on anatomy",
         )
         _save_figure(fig_k, "precise_screen_kernel_scale.png")
+
+    # BEGIN stability
+    # Paste after the Script block. Uses subject, retest, ffd_subject, deformed,
+    # anatomy, mask, entropy_large, modality, ROI, MODALITIES, direction, spacing.
+    from habit import (
+        Cohort,
+        align_habitat_map,
+        extract_graph_features,
+        habitat_stability,
+        habitat_volume_fractions,
+        ith_score,
+        one_step_habitat,
+        spatial_interaction_matrix,
+    )
+    from habit.viz import plot_habitat_label_compare
+    from habit.viz.orientation import imshow_physical_extent
+
+    Path("out").mkdir(exist_ok=True)
+
+    # --- Prior-style (ROI unchanged): voxel entropy original vs retest ---
+    entropy_retest = local_entropy_map(
+        np.asarray(retest.image(modality).data), kernel_size=7, bins=16
+    )
+    roi = np.asarray(mask) > 0
+    orig_e = np.asarray(entropy_large, dtype=np.float64)
+    ret_e = np.asarray(entropy_retest, dtype=np.float64)
+    abs_diff = np.abs(orig_e - ret_e)
+    roi_diff = abs_diff[roi]
+    thresh = float(np.nanpercentile(roi_diff, 75)) if roi_diff.size else 0.0
+    voxel_state = np.zeros(orig_e.shape, dtype=np.int32)
+    voxel_state[roi & (abs_diff <= thresh)] = 1
+    voxel_state[roi & (abs_diff > thresh)] = 2
+    print("Prior-style voxel entropy (ROI unchanged)")
+    print(f"  precise/stable voxels: {int(np.sum(voxel_state == 1))}")
+    print(f"  unstable voxels: {int(np.sum(voxel_state == 2))}")
+
+    index = _densest_roi_index(np.asarray(mask), axis=0)
+    orig_sl = _orient(np.take(orig_e, index, axis=0), direction=direction)
+    ret_sl = _orient(np.take(ret_e, index, axis=0), direction=direction)
+    state_sl = _orient(np.take(voxel_state, index, axis=0), direction=direction)
+    extent = imshow_physical_extent(
+        (int(orig_sl.shape[0]), int(orig_sl.shape[1])),
+        spacing,
+        slice_axis=0,
+        ndim=3,
+    )
+    from matplotlib.colors import ListedColormap
+
+    import matplotlib.pyplot as plt
+
+    with use_style("radiology"):
+        fig_voxel, axes_v = plt.subplots(
+            1, 3, figsize=(11.4, 3.9), constrained_layout=True, facecolor="white"
+        )
+        for ax, data, title, cmap, vmin, vmax in (
+            (axes_v[0], orig_sl, "Entropy, original", "cividis", None, None),
+            (axes_v[1], ret_sl, "Entropy, Prior retest", "cividis", None, None),
+            (
+                axes_v[2],
+                state_sl,
+                "Stable vs unstable voxels",
+                ListedColormap(["#FFFFFF", "#009E73", "#D55E00"]),
+                0,
+                2,
+            ),
+        ):
+            ax.imshow(
+                data,
+                cmap=cmap,
+                interpolation="nearest",
+                origin="upper",
+                extent=extent,
+                aspect="equal",
+                vmin=vmin,
+                vmax=vmax,
+            )
+            ax.set_title(title)
+            ax.axis("off")
+        fig_voxel.suptitle("Prior-style voxel stability (mask unchanged)")
+        fig_voxel.savefig(
+            "out/precise_voxel_stable_vs_unstable.png",
+            dpi=150,
+            bbox_inches="tight",
+            facecolor="white",
+        )
+        plt.close(fig_voxel)
+
+    # --- BSpline (ROI changes): habitats before vs after + per-habitat Dice ---
+    crop_cohort = Cohort(subjects=(ffd_subject,))
+    warped_cohort = Cohort(subjects=(deformed,))
+    orig_habitats = one_step_habitat(
+        modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+    ).fit_predict(crop_cohort)
+    warped_habitats = one_step_habitat(
+        modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+    ).fit_predict(warped_cohort)
+    ref_map = orig_habitats.habitat_maps[0]
+    mov_map = warped_habitats.habitat_maps[0]
+    # Independent one_step fits permute integer ids. Remap the warped map
+    # onto the reference by cluster-centroid distance (test-retest matcher)
+    # so habitat 1 means the same tissue on both sides. Dice still uses the
+    # original pair: habitat_stability matches by overlap internally.
+    ref_model = orig_habitats.subject_models[ref_map.subject_id]
+    mov_model = warped_habitats.subject_models[mov_map.subject_id]
+    aligned_map = align_habitat_map(
+        ref_map,
+        mov_map,
+        reference_centroids=ref_model.centroids,
+        moving_centroids=mov_model.centroids,
+    )
+    dice_frame = habitat_stability(ref_map, [mov_map])
+    print("Habitat Dice after BSplineDeform (Hungarian match)")
+    print(dice_frame.to_string(index=False))
+
+    fig_cmp = plot_habitat_label_compare(
+        ffd_subject.image(modality),
+        ref_map,
+        aligned_map,
+        titles=("Original ROI habitats", "Warped ROI habitats"),
+    )
+    fig_cmp.savefig(
+        "out/precise_habitat_stability_compare.png", dpi=150, bbox_inches="tight"
+    )
+    plt.close(fig_cmp)
+
+    with use_style("radiology"):
+        fig_dice, ax_d = plt.subplots(figsize=(5.4, 3.2))
+        habitat_ids = dice_frame["habitat_id"].to_numpy()
+        ax_d.bar(
+            [f"H{int(h)}" for h in habitat_ids],
+            dice_frame["dice"].to_numpy(dtype=float),
+            color="#0072B2",
+        )
+        ax_d.set_ylim(0.0, 1.05)
+        ax_d.set_ylabel("Dice")
+        ax_d.set_title("Per-habitat Dice (matched)")
+        fig_dice.tight_layout()
+        fig_dice.savefig(
+            "out/precise_habitat_dice.png", dpi=150, bbox_inches="tight"
+        )
+        plt.close(fig_dice)
+
+    def _habitat_feature_row(label_array: np.ndarray) -> dict[str, float]:
+        """ITH / MSI / graph / volume scalars for one habitat map."""
+        labels_arr = np.asarray(label_array)
+        ids = tuple(int(v) for v in np.unique(labels_arr) if int(v) > 0)
+        volumes = habitat_volume_fractions(labels_arr, ids)
+        n_classes = int(max(ids)) + 1 if ids else 1
+        msi = spatial_interaction_matrix(labels_arr, n_classes=n_classes)
+        graph = extract_graph_features(labels_arr)
+        row: dict[str, float] = {
+            "ith_score": float(ith_score(labels_arr)),
+            "msi_mean": float(np.mean(msi)) if msi.size else 0.0,
+        }
+        for hid, frac in volumes.items():
+            row[f"volume_h{hid}"] = float(frac)
+        for key in (
+            "graph_num_habitats",
+            "graph_num_nodes_total",
+        ):
+            if key in graph:
+                row[key] = float(graph[key])
+        return row
+
+    before = _habitat_feature_row(ref_map.label_array)
+    after = _habitat_feature_row(mov_map.label_array)
+    names = sorted(set(before) | set(after))
+    rel = []
+    for name in names:
+        a = float(before.get(name, 0.0))
+        b = float(after.get(name, 0.0))
+        rel.append(abs(a - b) / (abs(a) + abs(b) + 1e-8))
+    stable_cut = 0.15
+    stable_feats = [n for n, r in zip(names, rel) if r <= stable_cut]
+    unstable_feats = [n for n, r in zip(names, rel) if r > stable_cut]
+    print("Habitat-level features after BSplineDeform (relative change <= 0.15)")
+    print(f"  stable: {stable_feats}")
+    print(f"  unstable: {unstable_feats}")
+
+    with use_style("radiology"):
+        fig_feat, ax_f = plt.subplots(figsize=(7.2, 3.4))
+        colors_f = ["#009E73" if r <= stable_cut else "#D55E00" for r in rel]
+        ax_f.bar(range(len(names)), rel, color=colors_f)
+        ax_f.axhline(stable_cut, color="0.25", linestyle="--", linewidth=1.0)
+        ax_f.set_xticks(range(len(names)))
+        ax_f.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
+        ax_f.set_ylabel("Relative change")
+        ax_f.set_title("ITH / MSI / graph / volume: stable vs unstable")
+        fig_feat.tight_layout()
+        fig_feat.savefig(
+            "out/precise_habitat_feature_stability.png",
+            dpi=150,
+            bbox_inches="tight",
+        )
+        plt.close(fig_feat)
+    print(
+        "Wrote out/precise_voxel_stable_vs_unstable.png, "
+        "out/precise_habitat_stability_compare.png, "
+        "out/precise_habitat_dice.png, "
+        "out/precise_habitat_feature_stability.png"
+    )
+    # END stability
+
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _example_roi import copy_out_figures_to_gallery
+
+    copy_out_figures_to_gallery(
+        (
+            "precise_voxel_stable_vs_unstable.png",
+            "precise_habitat_stability_compare.png",
+            "precise_habitat_dice.png",
+            "precise_habitat_feature_stability.png",
+        )
+    )

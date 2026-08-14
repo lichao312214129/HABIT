@@ -231,7 +231,9 @@ def test_label_compare_and_triptych(toy_labels: np.ndarray) -> None:
     roi = toy_labels > 0
     sv[roi] = np.arange(1, int(roi.sum()) + 1, dtype=np.int32)
 
-    compare = plot_habitat_label_compare(image, toy_labels, labels_b, axis=0)
+    compare = plot_habitat_label_compare(
+        image, toy_labels, labels_b, axis=0, align_labels=False
+    )
     compare.canvas.draw()
     compare_cbars = [ax for ax in compare.axes if not ax.images]
     assert compare_cbars
@@ -244,3 +246,69 @@ def test_label_compare_and_triptych(toy_labels: np.ndarray) -> None:
     assert triptych_cbars
     assert any(ax.get_ylabel() == "Habitat" for ax in triptych_cbars)
     plt.close(triptych)
+
+
+@pytest.mark.unit
+def test_label_compare_aligns_permuted_ids_by_default() -> None:
+    """Independent maps with swapped ids agree after default centroid align."""
+    import matplotlib.pyplot as plt
+
+    labels_a = np.zeros((8, 8, 8), dtype=np.int32)
+    labels_a[0:4, 0:4, 0:4] = 1
+    labels_a[4:8, 0:4, 0:4] = 2
+    labels_b = np.zeros_like(labels_a)
+    labels_b[0:4, 0:4, 0:4] = 2
+    labels_b[4:8, 0:4, 0:4] = 1
+    image = np.zeros((8, 8, 8), dtype=np.float64)
+    image[labels_a == 1] = 1.0
+    image[labels_a == 2] = 10.0
+    fig = plot_habitat_label_compare(image, labels_a, labels_b, axis=0)
+    fig.canvas.draw()
+    plt.close(fig)
+    from habit.kernels.habitat_label_match import align_label_array
+
+    aligned = align_label_array(labels_a, labels_b, image=image, method="centroid")
+    disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
+    assert int(np.count_nonzero(disagree)) == 0
+
+
+@pytest.mark.unit
+def test_label_compare_skips_align_when_model_ids_match() -> None:
+    """Shared model_id (apply-saved-model) is a no-op even if ids are swapped."""
+    from habit.contracts import Geometry, HabitatMap, Provenance
+
+    labels_a = np.zeros((6, 6, 6), dtype=np.int32)
+    labels_a[0:3, 0:3, 0:3] = 1
+    labels_a[3:6, 0:3, 0:3] = 2
+    labels_b = np.zeros_like(labels_a)
+    labels_b[0:3, 0:3, 0:3] = 2
+    labels_b[3:6, 0:3, 0:3] = 1
+    geometry = Geometry.from_array((6, 6, 6))
+    provenance = Provenance.source("viz_test")
+    map_a = HabitatMap(
+        subject_id="P1",
+        label_array=labels_a,
+        geometry=geometry,
+        model_id="shared-model",
+        habitat_ids=(1, 2),
+        provenance=provenance,
+    )
+    map_b = HabitatMap(
+        subject_id="P1",
+        label_array=labels_b,
+        geometry=geometry,
+        model_id="shared-model",
+        habitat_ids=(1, 2),
+        provenance=provenance,
+    )
+    image = np.zeros((6, 6, 6), dtype=np.float64)
+    image[labels_a == 1] = 1.0
+    image[labels_a == 2] = 10.0
+    import matplotlib.pyplot as plt
+
+    fig = plot_habitat_label_compare(image, map_a, map_b, axis=0)
+    fig.canvas.draw()
+    plt.close(fig)
+    # Auto-skip leaves the permutation in place: disagreement is the full ROI.
+    disagree = (labels_a != labels_b) & ((labels_a > 0) | (labels_b > 0))
+    assert int(np.count_nonzero(disagree)) == int(np.count_nonzero(labels_a > 0))

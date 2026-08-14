@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Habitat stability under perturbation: matched Dice scores.
+"""Habitat stability under perturbation: matched Dice scores and label align.
 
 When habitats are computed independently on the original and on a perturbed
 image, the cluster labels are not comparable -- cluster 1 of the second fit
@@ -23,26 +23,163 @@ reports the Dice similarity of every matched pair. This module implements
 exactly that on :class:`~habit.contracts.habitat.HabitatMap` objects; WHO
 produced the maps (per-subject GMM, cohort model, any recipe) is not this
 layer's concern.
+
+:func:`align_habitat_map` is the in-memory remapper the test-retest recipe
+deferred: habitat maps in, remapped map out. Default matching is by
+feature-space centroids (the test-retest idea); overlap matching is the
+same assignment ``habitat_stability`` uses for Dice.
 """
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Any, Literal, Optional, Sequence
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import linear_sum_assignment
 
 from habit.contracts.habitat import HabitatMap
 from habit.exceptions import HABITAPIError
+from habit.kernels.habitat_label_match import (
+    align_label_array,
+    match_labels_by_overlap,
+    present_habitat_ids,
+)
 
-__all__ = ["habitat_stability"]
+__all__ = ["align_habitat_map", "habitat_stability"]
+
+AlignMethod = Literal["centroid", "overlap"]
 
 
-def _present_labels(label_array: np.ndarray) -> np.ndarray:
-    """Return the sorted non-background labels of a habitat label image."""
-    labels = np.unique(label_array)
-    return labels[labels != 0]
+def _as_image_array(image: Any, argument_name: str) -> np.ndarray:
+    """Extract a numeric volume from an array or an ImageVolume-like object."""
+    if image is None:
+        raise HABITAPIError(f"align_habitat_map: {argument_name} is required.")
+    data = getattr(image, "data", image)
+    return np.asarray(data)
+
+
+def _same_model_id(reference: HabitatMap, moving: HabitatMap) -> bool:
+    """True when both maps already share a non-empty habitat-model id."""
+    ref_id = str(reference.model_id or "")
+    mov_id = str(moving.model_id or "")
+    return bool(ref_id) and ref_id == mov_id
+
+
+def align_habitat_map(
+    reference: HabitatMap,
+    moving: HabitatMap,
+    *,
+    image: Optional[Any] = None,
+    moving_image: Optional[Any] = None,
+    method: AlignMethod = "centroid",
+    reference_centroids: Optional[np.ndarray] = None,
+    moving_centroids: Optional[np.ndarray] = None,
+    force: bool = False,
+) -> HabitatMap:
+    """
+    Remap ``moving`` habitat ids onto the ``reference`` id space.
+
+    Independently clustered maps (two ``fit_predict`` runs) permute integer
+    ids. This operator recovers the correspondence and returns a new
+    :class:`~habit.contracts.habitat.HabitatMap` whose labels are comparable
+    to ``reference``. Maps that already share a ``model_id`` (the
+    apply-saved-model path) are returned unchanged: those ids are already
+    the same definition.
+
+    Default matching is **centroid** -- Hungarian assignment on Euclidean
+    distance between per-habitat feature centroids, the in-memory form of
+    the test-retest mapper (which pairs habitats by median feature
+    vectors). Pass the two fits' :attr:`~habit.contracts.habitat.HabitatModel.centroids`
+    when available; otherwise mean image intensity, then spatial centroids.
+
+    ``method="overlap"`` uses the same maximal-overlap Hungarian pairing as
+    :func:`habitat_stability`. Do not feed an already-aligned map back into
+    ``habitat_stability`` expecting a second scientific match: Dice should
+    be scored on the original pair (stability matches internally).
+
+    Args:
+        reference: Habitat map whose ids are the target space.
+        moving: Independently labelled map to remap.
+        image: Optional intensity volume for the reference map (and for
+            the moving map when ``moving_image`` is omitted). Accepts a
+            NumPy array or an object with ``.data`` (``ImageVolume``).
+        moving_image: Optional intensity volume for the moving map.
+        method: ``"centroid"`` (default) or ``"overlap"``.
+        reference_centroids: Optional cluster centres of the reference fit,
+            shape ``(n_habitats, n_features)``, rows in
+            ``reference.habitat_ids`` order (row ``i`` is habitat
+            ``habitat_ids[i]``).
+        moving_centroids: Optional cluster centres of the moving fit.
+        force: If True, align even when ``model_id`` already matches.
+
+    Returns:
+        A new map with remapped labels, ``model_id`` / ``habitat_ids``
+        taken from ``reference`` so a later compare treats the pair as
+        sharing a definition. The input ``moving`` map is returned as-is
+        when the model ids already match and ``force`` is False.
+
+    Raises:
+        HABITAPIError: If the grids differ or centroid inputs are incomplete.
+    """
+    if moving.label_array.shape != reference.label_array.shape:
+        raise HABITAPIError(
+            "align_habitat_map: moving map has shape "
+            f"{moving.label_array.shape}, expected {reference.label_array.shape}."
+        )
+    if not force and _same_model_id(reference, moving):
+        return moving
+    resolved = str(method).strip().lower()
+    if resolved not in ("centroid", "overlap"):
+        raise HABITAPIError(
+            f"align_habitat_map: method must be 'centroid' or 'overlap'; "
+            f"got {method!r}."
+        )
+    ref_image: Optional[np.ndarray] = None
+    mov_image: Optional[np.ndarray] = None
+    if image is not None:
+        ref_image = _as_image_array(image, "image")
+        mov_image = (
+            _as_image_array(moving_image, "moving_image")
+            if moving_image is not None
+            else ref_image
+        )
+    elif moving_image is not None:
+        raise HABITAPIError(
+            "align_habitat_map: moving_image requires image for the reference."
+        )
+    try:
+        remapped = align_label_array(
+            np.asarray(reference.label_array),
+            np.asarray(moving.label_array),
+            image=ref_image,
+            moving_image=mov_image,
+            method=resolved,
+            reference_centroids=reference_centroids,
+            moving_centroids=moving_centroids,
+            reference_ids=(
+                np.asarray(reference.habitat_ids, dtype=np.int64)
+                if reference_centroids is not None
+                else None
+            ),
+            moving_ids=(
+                np.asarray(moving.habitat_ids, dtype=np.int64)
+                if moving_centroids is not None
+                else None
+            ),
+        )
+    except ValueError as exc:
+        raise HABITAPIError(f"align_habitat_map: {exc}") from exc
+    return HabitatMap(
+        subject_id=moving.subject_id,
+        label_array=remapped,
+        geometry=moving.geometry,
+        model_id=reference.model_id,
+        habitat_ids=reference.habitat_ids,
+        provenance=moving.provenance.derive(
+            produced_by="align_habitat_map",
+            spec_fingerprint=f"align_habitat_map:{resolved}",
+        ),
+    )
 
 
 def habitat_stability(
@@ -57,6 +194,11 @@ def habitat_stability(
     is computed per matched pair. Reference habitats left unmatched (the
     perturbed map has fewer clusters) score Dice 0 -- a vanished habitat is
     a stability failure, not missing data.
+
+    Matching is the overlap kernel shared with :func:`align_habitat_map`
+    (``method="overlap"``). This function does **not** rewrite the input
+    maps; it only scores them. Pass the original independently clustered
+    pair, not a map that was already remapped by a different matcher.
 
     Args:
         reference: Habitat map of the original subject.
@@ -75,7 +217,7 @@ def habitat_stability(
     if not perturbed:
         raise HABITAPIError("habitat_stability: at least one perturbed map is required.")
     reference_labels = np.asarray(reference.label_array)
-    reference_ids = _present_labels(reference_labels)
+    reference_ids = present_habitat_ids(reference_labels)
     records = []
     for index, moved in enumerate(perturbed):
         moved_labels = np.asarray(moved.label_array)
@@ -84,40 +226,35 @@ def habitat_stability(
                 f"habitat_stability: perturbed map {index} has shape "
                 f"{moved_labels.shape}, expected {reference_labels.shape}."
             )
-        moved_ids = _present_labels(moved_labels)
-        # Overlap matrix: rows = reference habitats, columns = perturbed.
-        overlap = np.zeros((reference_ids.size, moved_ids.size), dtype=np.int64)
-        for row, habitat_id in enumerate(reference_ids):
-            selector = reference_labels == habitat_id
-            overlap[row] = [
-                int(np.count_nonzero(selector & (moved_labels == moved_id)))
-                for moved_id in moved_ids
-            ]
-        if overlap.size:
-            # Hungarian assignment on the negative overlap maximises the
-            # total matched overlap (scipy minimises).
-            rows, columns = linear_sum_assignment(-overlap)
-            matched = dict(zip(rows.tolist(), columns.tolist()))
-        else:
-            matched = {}
-        for row, habitat_id in enumerate(reference_ids):
+        try:
+            mapping = match_labels_by_overlap(reference_labels, moved_labels)
+        except ValueError as exc:
+            raise HABITAPIError(f"habitat_stability: {exc}") from exc
+        # Invert {moving_id: reference_id} so each reference habitat looks up
+        # its matched moving id (unmatched reference habitats score Dice 0).
+        matched_moving = {ref_id: mov_id for mov_id, ref_id in mapping.items()}
+        for habitat_id in reference_ids:
+            habitat_id = int(habitat_id)
             n_reference = int(np.count_nonzero(reference_labels == habitat_id))
-            if row in matched:
-                column = matched[row]
-                moved_id = int(moved_ids[column])
+            if habitat_id in matched_moving:
+                moved_id = int(matched_moving[habitat_id])
                 n_moved = int(np.count_nonzero(moved_labels == moved_id))
-                intersection = int(overlap[row, column])
+                intersection = int(
+                    np.count_nonzero(
+                        (reference_labels == habitat_id) & (moved_labels == moved_id)
+                    )
+                )
                 dice = (
                     2.0 * intersection / (n_reference + n_moved)
                     if n_reference + n_moved > 0
                     else 0.0
                 )
                 records.append(
-                    (index, int(habitat_id), moved_id, dice, n_reference, n_moved)
+                    (index, habitat_id, moved_id, dice, n_reference, n_moved)
                 )
             else:
                 records.append(
-                    (index, int(habitat_id), None, 0.0, n_reference, 0)
+                    (index, habitat_id, None, 0.0, n_reference, 0)
                 )
     return pd.DataFrame.from_records(
         records,

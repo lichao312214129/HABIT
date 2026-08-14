@@ -302,6 +302,7 @@ from habit.domain.precision import (
     TranslationPerturbation,
     TranslationPerturbationParams,
     aggregate_panels,
+    align_habitat_map,
     habitat_stability,
     identify_precise_features,
     precision_panel,
@@ -577,6 +578,7 @@ __all__ = [
     "precision_panel",
     "aggregate_panels",
     "identify_precise_features",
+    "align_habitat_map",
     "habitat_stability",
     "prior2024_retest_perturbation",
 ]
