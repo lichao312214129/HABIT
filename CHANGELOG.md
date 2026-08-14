@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Graph topology default edge rule is now voxel adjacency with a minimum
+  contact of 10 voxels (``edge_method='adjacency'``,
+  ``adjacency_min_voxels=10``). Previously the default was centroid
+  proximity (``edge_method='centroid_distance'``, ``distance_threshold=5.0``)
+  and adjacency edges used ``adjacency_min_voxels=1``. An edge now exists
+  when two regions are adjacent and the shared-boundary voxel count is
+  >= 10. Pass ``edge_method='centroid_distance'`` to keep the old rule.
 - Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
   immediately before ``habit model``.
 - Docs: Python API quickstart uses the same demo YAML as the CLI via

@@ -97,6 +97,26 @@ def test_volume_msi_ith_figures(toy_labels: np.ndarray) -> None:
 
 
 @pytest.mark.unit
+def test_plot_ith_summary_uses_slim_bars_for_few_habitats() -> None:
+    """1–3 habitats must not autoscale into one fat column."""
+    import matplotlib.pyplot as plt
+
+    per_habitat = {1: (3, 40), 2: (2, 25), 3: (1, 10)}
+    fig = plot_ith_summary(0.42, per_habitat=per_habitat)
+    ith_bars = fig.axes[0].patches
+    frag_bars = fig.axes[1].patches
+    assert len(ith_bars) == 1
+    assert len(frag_bars) == 3
+    # Slimmer than the old 0.42 / 0.55 defaults and matplotlib's 0.8.
+    assert ith_bars[0].get_width() <= 0.24
+    assert all(bar.get_width() <= 0.30 for bar in frag_bars)
+    # Padded xlim so the single ITH bar does not fill the panel.
+    x0, x1 = fig.axes[0].get_xlim()
+    assert (x1 - x0) >= 2.4
+    plt.close(fig)
+
+
+@pytest.mark.unit
 def test_plot_msi_matrix_rejects_unknown_scale(toy_labels: np.ndarray) -> None:
     """Unknown MSI display scales fail fast."""
     matrix = spatial_interaction_matrix(toy_labels, n_classes=3)
@@ -162,5 +182,16 @@ def test_label_compare_and_triptych(toy_labels: np.ndarray) -> None:
     roi = toy_labels > 0
     sv[roi] = np.arange(1, int(roi.sum()) + 1, dtype=np.int32)
 
-    plt.close(plot_habitat_label_compare(image, toy_labels, labels_b, axis=0))
-    plt.close(plot_partition_triptych(image, sv, toy_labels, axis=0))
+    compare = plot_habitat_label_compare(image, toy_labels, labels_b, axis=0)
+    compare.canvas.draw()
+    compare_cbars = [ax for ax in compare.axes if not ax.images]
+    assert compare_cbars
+    assert any(ax.get_ylabel() == "Habitat" for ax in compare_cbars)
+    plt.close(compare)
+
+    triptych = plot_partition_triptych(image, sv, toy_labels, axis=0)
+    triptych.canvas.draw()
+    triptych_cbars = [ax for ax in triptych.axes if not ax.images]
+    assert triptych_cbars
+    assert any(ax.get_ylabel() == "Habitat" for ax in triptych_cbars)
+    plt.close(triptych)

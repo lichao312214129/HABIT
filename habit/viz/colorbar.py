@@ -27,7 +27,7 @@ This module is an internal viz helper. It is not part of the public API.
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Union
+from typing import Any, List, Mapping, Optional, Sequence, Tuple, Union
 
 from habit.exceptions import HABITAPIError
 from habit.viz.labels import sanitize_label
@@ -38,11 +38,17 @@ __all__ = [
     "DEFAULT_COLORBAR_FRACTION",
     "DEFAULT_COLORBAR_PAD",
     "DEFAULT_COLORBAR_SHRINK",
+    "DEFAULT_HABITAT_CBAR_LABEL",
+    "add_discrete_habitat_colorbar",
     "add_image_colorbar",
     "add_image_colorbar_from_spec",
     "colorbar_is_enabled",
     "colorbar_style_kwargs",
+    "discrete_habitat_mappable",
 ]
+
+#: English colorbar label for integer habitat-ID maps (journal figures).
+DEFAULT_HABITAT_CBAR_LABEL: str = "Habitat"
 
 #: Height of the bar relative to the parent axes when the image is
 #: square or tall. Obviously shorter than a full-height axes bar.
@@ -155,6 +161,7 @@ def add_image_colorbar(
     fraction: Optional[float] = None,
     aspect: Optional[float] = None,
     ticks: Optional[Any] = None,
+    ticklabels: Optional[Sequence[Any]] = None,
     extend: Optional[str] = None,
     **kwargs: Any,
 ) -> Any:
@@ -178,6 +185,9 @@ def add_image_colorbar(
             ``0.028``, thinner than matplotlib's ``0.046``).
         aspect: Long/short ratio of the bar (default ``22``, thinner).
         ticks: Optional tick locations forwarded to the colorbar.
+        ticklabels: Optional tick labels (ASCII-sanitised). Used for
+            discrete habitat bars so display slots ``1..K`` can show the
+            original integer habitat IDs.
         extend: Matplotlib ``extend`` mode (``\"neither\"``, ``\"min\"``,
             ``\"max\"``, ``\"both\"``).
         **kwargs: Extra arguments forwarded to ``Figure.colorbar``.
@@ -219,8 +229,126 @@ def add_image_colorbar(
         cbar.set_label(sanitize_label(label))
     if ticks is not None:
         cbar.set_ticks(ticks)
+    if ticklabels is not None:
+        cbar.set_ticklabels([sanitize_label(str(text)) for text in ticklabels])
     cbar.ax.set_facecolor("white")
     _pin_colorbar_to_image(ax, cbar.ax, shrink_value)
+    return cbar
+
+
+def discrete_habitat_mappable(
+    habitat_ids: Sequence[int],
+    colors: Sequence[Any],
+) -> Tuple[Any, List[float], List[str]]:
+    """
+    Build a discrete ScalarMappable keyed by integer habitat IDs.
+
+    Background ``0`` is excluded. Each present ID becomes one equal-sized
+    colour block (ListedColormap + BoundaryNorm) even when the ID sequence
+    has gaps (``1, 3, 5`` → three blocks labelled ``1``, ``3``, ``5``).
+    Tick locations sit at the centre of each block so the bar is a
+    categorical legend, not a continuous smear.
+
+    Args:
+        habitat_ids: Positive integer habitat IDs (``0`` is ignored).
+            Order is preserved after de-duplication.
+        colors: RGB tuples or hex strings, cycled if shorter than the
+            unique ID list.
+
+    Returns:
+        ``(mappable, tick_locations, tick_labels)``. Tick locations are
+        ``1..K`` in display space; labels are the original habitat IDs.
+
+    Raises:
+        HABITAPIError: When no positive habitat IDs remain, or ``colors``
+            is empty.
+    """
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import BoundaryNorm, ListedColormap
+
+    ordered: List[int] = []
+    seen: set[int] = set()
+    for raw in habitat_ids:
+        habitat_id = int(raw)
+        if habitat_id <= 0 or habitat_id in seen:
+            continue
+        seen.add(habitat_id)
+        ordered.append(habitat_id)
+    if not ordered:
+        raise HABITAPIError(
+            "discrete_habitat_mappable: no positive habitat IDs."
+        )
+    if not colors:
+        raise HABITAPIError(
+            "discrete_habitat_mappable: colors must not be empty."
+        )
+    n_habitats = len(ordered)
+    face_colors = [colors[index % len(colors)] for index in range(n_habitats)]
+    cmap = ListedColormap(face_colors)
+    # Boundaries at 0.5, 1.5, ..., K+0.5 centre integer ticks on each block.
+    boundaries = [0.5 + float(index) for index in range(n_habitats + 1)]
+    norm = BoundaryNorm(boundaries, ncolors=n_habitats)
+    mappable = ScalarMappable(cmap=cmap, norm=norm)
+    mappable.set_array([])
+    ticks = [float(index) for index in range(1, n_habitats + 1)]
+    ticklabels = [str(habitat_id) for habitat_id in ordered]
+    return mappable, ticks, ticklabels
+
+
+def add_discrete_habitat_colorbar(
+    ax: Any,
+    habitat_ids: Sequence[int],
+    colors: Sequence[Any],
+    *,
+    colorbar: ColorbarSpec = True,
+    label: str = DEFAULT_HABITAT_CBAR_LABEL,
+    **defaults: Any,
+) -> Any:
+    """
+    Attach a discrete habitat-ID colorbar, or skip when disabled / empty.
+
+    One tick and one opaque colour per positive habitat ID. Background
+    ``0`` does not appear on the bar.
+
+    Args:
+        ax: Parent image axes.
+        habitat_ids: Positive integer habitat IDs.
+        colors: Palette aligned with ``habitat_ids`` (cycled if shorter).
+        colorbar: ``True`` / ``False`` or a style mapping (same spec as
+            :func:`add_image_colorbar_from_spec`).
+        label: Default colorbar label (English ``\"Habitat\"``).
+        **defaults: Extra :func:`add_image_colorbar` kwargs.
+
+    Returns:
+        The matplotlib ``Colorbar``, or ``None`` when disabled or when
+        there are no positive habitat IDs.
+    """
+    if not colorbar_is_enabled(colorbar):
+        return None
+    ordered = [int(v) for v in habitat_ids if int(v) > 0]
+    if not ordered:
+        return None
+    mappable, ticks, ticklabels = discrete_habitat_mappable(ordered, colors)
+    cbar = add_image_colorbar_from_spec(
+        mappable,
+        colorbar,
+        ax=ax,
+        label=label,
+        ticks=ticks,
+        ticklabels=ticklabels,
+        **defaults,
+    )
+    if cbar is not None:
+        # Pin ticks to block centres. Matplotlib's default colorbar locator
+        # otherwise snaps to boundaries and the bar reads as a continuum.
+        from matplotlib.ticker import FixedFormatter, FixedLocator
+
+        cbar.ax.yaxis.set_major_locator(FixedLocator(ticks))
+        cbar.ax.yaxis.set_major_formatter(
+            FixedFormatter([sanitize_label(str(text)) for text in ticklabels])
+        )
+        cbar.minorticks_off()
+        cbar.ax.tick_params(which="major", length=3.0, width=0.6)
     return cbar
 
 

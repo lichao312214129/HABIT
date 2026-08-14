@@ -98,10 +98,10 @@ with centroid :math:`\mathbf{c}_{v}` = mean of the region's voxel
 **indices** (float), :math:`n_{v}=|B|` or :math:`|C|`, and a half-open
 bounding box. Node ids are stable strings ``h{k}_c{id}``.
 
-Edges: centroid distance (default)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Edges: centroid distance
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-``edge_method='centroid_distance'``. Let :math:`\tau=`
+``edge_method='centroid_distance'`` (not the default). Let :math:`\tau=`
 ``distance_threshold`` (default ``5.0`` voxel units). An undirected edge
 exists between distinct nodes :math:`u,v` when
 
@@ -136,10 +136,10 @@ Edge weight ``w`` from ``edge_weight``:
 
 ``contact_voxels`` is unused for this method (stored as missing).
 
-Edges: voxel adjacency
-~~~~~~~~~~~~~~~~~~~~~~
+Edges: voxel adjacency (default)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``edge_method='adjacency'``. Paint every node onto an integer id array
+``edge_method='adjacency'`` (default). Paint every node onto an integer id array
 (background and non-requested labels stay ``0``). For each unique
 neighbour offset in a **half-space** (first non-zero component :math:`=+1`,
 so each unordered voxel pair is counted once):
@@ -156,7 +156,9 @@ pairs whose ids are :math:`(u,v)`. An edge exists iff
 
    N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}
 
-(default ``1``). ``contact_voxels`` :math:`=N_{\mathrm{adj}}`. Distance on
+(default ``10``). An edge exists when two regions are adjacent and the
+contact (shared-boundary) voxel count is >= 10. ``contact_voxels``
+:math:`=N_{\mathrm{adj}}`. Distance on
 the edge is still the centroid Euclidean distance (used by distance
 summaries). Weight is ``1`` unless ``edge_weight='contact_voxels'``, in
 which case :math:`w=N_{\mathrm{adj}}`. Pairwise intra / inter filtering
@@ -431,13 +433,13 @@ below match the kernel dataclass.
    * - ``include_pairwise_habitat_graph``
      - Pairwise inter-habitat graphs (default ``true``)
    * - ``edge_method``
-     - ``centroid_distance`` (default) or ``adjacency``
+     - ``adjacency`` (default) or ``centroid_distance``
    * - ``distance_threshold``
      - Centroid distance threshold in **voxel** units (default ``5.0``)
    * - ``adjacency_connectivity``
      - For ``adjacency``: ``face`` (6-conn), ``edge`` (18), ``corner`` (26); default ``face``
    * - ``adjacency_min_voxels``
-     - Minimum adjacent voxel-pair count to create an adjacency edge (default ``1``)
+     - Minimum adjacent voxel-pair count to create an adjacency edge (default ``10``). An edge exists when two regions are adjacent and the contact voxel count is >= 10.
    * - ``edge_weight``
      - ``none`` (default), ``distance``, ``inverse_distance``, or ``contact_voxels``
    * - ``min_region_voxels``

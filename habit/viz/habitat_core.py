@@ -36,12 +36,20 @@ from habit.utils.optional_deps import require
 from habit.viz.habitat_overlay import (
     _as_volume,
     _direction_matrix,
+    _habitat_color_list,
+    _habitat_color_lookup,
     _imshow_physical_extent,
+    _positive_habitat_ids,
     _prepare_overlay_slice,
     _slice_index,
     _spacing_xyz,
 )
-from habit.viz.colorbar import ColorbarSpec, add_image_colorbar_from_spec
+from habit.viz.colorbar import (
+    ColorbarSpec,
+    DEFAULT_HABITAT_CBAR_LABEL,
+    add_discrete_habitat_colorbar,
+    add_image_colorbar_from_spec,
+)
 from habit.viz.labels import sanitize_label
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
@@ -79,6 +87,77 @@ _MSI_SCALES = ("linear", "log1p", "normalized", "raw")
 #: Default bar width as a fraction of the category slot (thinner than
 #: matplotlib's 0.8 so a few habitats do not look like a solid block).
 _BAR_WIDTH = 0.55
+
+#: ITH summary bars: slimmer than ``_BAR_WIDTH`` / matplotlib 0.8. A single
+#: fat column looks clumsy when only 1–3 habitats are present.
+_ITH_BAR_WIDTH = 0.36
+
+
+def _resolved_bar_width(
+    n_categories: int,
+    bar_width: Optional[float] = None,
+    *,
+    default: float = _ITH_BAR_WIDTH,
+) -> float:
+    """
+    Return a bar width in category-slot units.
+
+    An explicit ``bar_width`` wins. Otherwise the default is thinned further
+    when few categories would otherwise produce oversized columns.
+
+    Args:
+        n_categories: Number of bars (treated as at least 1).
+        bar_width: Optional override; must be finite and ``> 0``.
+        default: Width used when many categories are present.
+
+    Returns:
+        Width in data units (one unit = one category slot).
+
+    Raises:
+        HABITAPIError: If ``bar_width`` is non-finite or ``<= 0``.
+    """
+    if bar_width is not None:
+        width = float(bar_width)
+        if not np.isfinite(width) or width <= 0.0:
+            raise HABITAPIError(
+                f"bar_width must be a finite value > 0; got {bar_width!r}."
+            )
+        return width
+    n = max(int(n_categories), 1)
+    # Keep 1–3 habitats as slim columns; approach ``default`` as n grows.
+    if n <= 1:
+        return min(default, 0.22)
+    if n == 2:
+        return min(default, 0.26)
+    if n == 3:
+        return min(default, 0.28)
+    return float(default)
+
+
+def _set_category_xlim(
+    ax: Any,
+    n_categories: int,
+    bar_width: float,
+) -> None:
+    """
+    Pad the x-axis so a handful of bars do not fill the panel.
+
+    Matplotlib autoscales xlim to the bar patches, so a single bar of any
+    width still looks fat. Add gutters (and extra empty slots when ``n`` is
+    small) and centre the real categories at integer x = 0 .. n-1.
+
+    Args:
+        ax: Matplotlib axes that already hold the bars.
+        n_categories: Number of bars.
+        bar_width: Width used for those bars (data units).
+    """
+    n = max(int(n_categories), 1)
+    # Half-bar plus a fixed gutter, then extra empty slots for 1–3 categories
+    # so the ink occupies ~8–12% of the axes instead of ~90%.
+    base_pad = 0.5 * float(bar_width) + 0.50
+    extra_slots = max(0.0, 1.05 - 0.28 * float(n))
+    pad = base_pad + extra_slots
+    ax.set_xlim(-pad, float(n - 1) + pad)
 
 
 def _plt():
@@ -648,14 +727,21 @@ def plot_ith_summary(
     *,
     per_habitat: Optional[Mapping[int, Tuple[int, int]]] = None,
     title: Optional[str] = None,
+    bar_width: Optional[float] = None,
 ) -> "Figure":
     """
     Summarise ITH score, optionally with per-habitat region counts.
+
+    Bars are thinner than matplotlib's default and the x-axis is padded when
+    few habitats are present, so 1–3 columns stay slim instead of filling
+    the panel.
 
     Args:
         ith: Scalar ITH in ``[0, 1)``.
         per_habitat: Optional habitat id → ``(num_regions, largest_size)``.
         title: Optional figure title.
+        bar_width: Optional bar width in category-slot units. When omitted,
+            a slim default is used and further reduced for 1–3 categories.
 
     Returns:
         A matplotlib ``Figure``.
@@ -676,14 +762,16 @@ def plot_ith_summary(
                 figsize=style.figsize(columns=2, height_mm=62.0),
                 constrained_layout=True,
             )
+            ith_width = _resolved_bar_width(1, bar_width)
             axes[0].bar(
                 [0],
                 [score],
                 color=bar_ith,
                 edgecolor="white",
-                width=0.42,
+                width=ith_width,
                 linewidth=0.4,
             )
+            _set_category_xlim(axes[0], 1, ith_width)
             axes[0].set_ylim(0.0, max(1.0, score * 1.15))
             axes[0].set_xticks([0])
             axes[0].set_xticklabels([sanitize_label("ITH")])
@@ -693,15 +781,18 @@ def plot_ith_summary(
             axes[0].spines["right"].set_visible(False)
             axes[0].grid(True, axis="y", alpha=0.25, linewidth=0.6)
             axes[0].set_axisbelow(True)
-            x = np.arange(len(ids))
+            n_hab = len(ids)
+            frag_width = _resolved_bar_width(n_hab, bar_width)
+            x = np.arange(n_hab)
             axes[1].bar(
                 x,
                 counts,
-                width=_BAR_WIDTH,
+                width=frag_width,
                 color=bar_frag,
                 edgecolor="white",
                 linewidth=0.4,
             )
+            _set_category_xlim(axes[1], n_hab, frag_width)
             axes[1].set_xticks(x)
             axes[1].set_xticklabels([sanitize_label(f"H{i}") for i in ids])
             axes[1].set_ylabel(sanitize_label("Connected regions"))
@@ -717,14 +808,16 @@ def plot_ith_summary(
                 figsize=style.figsize(columns=1, height_mm=58.0),
                 constrained_layout=True,
             )
+            ith_width = _resolved_bar_width(1, bar_width)
             ax.bar(
                 [0],
                 [score],
                 color=bar_ith,
                 edgecolor="white",
-                width=0.42,
+                width=ith_width,
                 linewidth=0.4,
             )
+            _set_category_xlim(ax, 1, ith_width)
             ax.set_ylim(0.0, max(1.0, score * 1.15))
             ax.set_xticks([0])
             ax.set_xticklabels([sanitize_label("ITH")])
@@ -752,6 +845,8 @@ def plot_habitat_label_compare(
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
     show_disagreement: bool = True,
+    colorbar: ColorbarSpec = True,
+    colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
 ) -> "Figure":
     """
     Side-by-side habitat overlays, optional disagreement mask.
@@ -768,6 +863,10 @@ def plot_habitat_label_compare(
         spacing: Optional SimpleITK spacing ``(x, y[, z])``.
         display_convention: Radiological / neurological / native.
         show_disagreement: If True, add a third panel for label mismatch.
+        colorbar: Discrete habitat-ID colorbar on the last habitat panel
+            (default ``True``). The disagreement panel is not a habitat
+            map and does not get this bar. Pass ``False`` to hide it.
+        colorbar_label: Colorbar label (English default ``\"Habitat\"``).
 
     Returns:
         A matplotlib ``Figure``.
@@ -798,6 +897,9 @@ def plot_habitat_label_compare(
     )
     direction_matrix = _direction_matrix(resolved_direction, ndim=image_vol.ndim)
     spacing_xyz = _spacing_xyz(resolved_spacing, ndim=image_vol.ndim)
+    # Union of A/B IDs so both habitat panels and the shared colorbar match.
+    habitat_ids = _positive_habitat_ids(np.concatenate([a.ravel(), b.ravel()]))
+    id_to_color = _habitat_color_lookup(habitat_ids)
 
     panels = 3 if show_disagreement else 2
     plt = _plt()
@@ -823,6 +925,7 @@ def plot_habitat_label_compare(
                 alpha=float(alpha),
                 direction=direction_matrix,
                 convention=convention,
+                id_to_color=id_to_color,
             )
             extent = _imshow_physical_extent(
                 (int(rgb.shape[0]), int(rgb.shape[1])),
@@ -873,6 +976,13 @@ def plot_habitat_label_compare(
             axes[2].set_title(sanitize_label("Disagreement"))
             axes[2].axis("off")
 
+        add_discrete_habitat_colorbar(
+            axes[1],
+            habitat_ids,
+            _habitat_color_list(habitat_ids),
+            colorbar=colorbar,
+            label=colorbar_label,
+        )
         fig.suptitle(sanitize_label("Habitat label compare"))
     return fig
 
@@ -893,6 +1003,8 @@ def plot_partition_triptych(
     direction: Optional[Sequence[float]] = None,
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+    colorbar: ColorbarSpec = True,
+    colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
 ) -> "Figure":
     """
     Two-step partition view: greyscale | supervoxel overlay | habitat overlay.
@@ -908,6 +1020,10 @@ def plot_partition_triptych(
         direction: Optional SimpleITK direction cosines.
         spacing: Optional SimpleITK spacing.
         display_convention: Display convention for flips.
+        colorbar: Discrete habitat-ID colorbar on the habitat panel only
+            (default ``True``). Anatomy and supervoxel panels are not
+            habitat maps. Pass ``False`` to hide it.
+        colorbar_label: Colorbar label (English default ``\"Habitat\"``).
 
     Returns:
         A matplotlib ``Figure``.
@@ -955,6 +1071,8 @@ def plot_partition_triptych(
     # Fake RGB greyscale for consistent imshow path.
     anatomy_rgb = np.stack([grey, grey, grey], axis=-1)
 
+    habitat_ids = _positive_habitat_ids(hab)
+    hab_id_to_color = _habitat_color_lookup(habitat_ids)
     sv_rgb, _sv_labs = _prepare_overlay_slice(
         image_vol,
         sv,
@@ -972,6 +1090,7 @@ def plot_partition_triptych(
         alpha=float(alpha),
         direction=direction_matrix,
         convention=convention,
+        id_to_color=hab_id_to_color,
     )
 
     plt = _plt()
@@ -1003,5 +1122,12 @@ def plot_partition_triptych(
             ax.set_aspect("equal", adjustable="box")
             ax.set_title(sanitize_label(panel_title))
             ax.axis("off")
+        add_discrete_habitat_colorbar(
+            axes[2],
+            habitat_ids,
+            _habitat_color_list(habitat_ids),
+            colorbar=colorbar,
+            label=colorbar_label,
+        )
         fig.suptitle(sanitize_label("Two-step partitions"))
     return fig

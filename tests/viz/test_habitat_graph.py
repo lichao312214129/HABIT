@@ -87,7 +87,13 @@ def test_plot_habitat_graph_slice_returns_figure_and_saves(tmp_path) -> None:
     assert output_path.is_file()
     assert output_path.stat().st_size > 0
 
-    titles = " ".join(ax.get_title() for ax in fig.axes)
+    image_axes = [ax for ax in fig.axes if ax.images]
+    cbar_axes = [ax for ax in fig.axes if not ax.images]
+    assert len(image_axes) == 1
+    assert len(cbar_axes) == 1
+    fig.canvas.draw()
+    assert cbar_axes[0].get_ylabel() == "Habitat"
+    titles = " ".join(ax.get_title() for ax in image_axes)
     assert titles.isascii()
     assert "Habitat" in titles
 
@@ -108,12 +114,90 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
     assert output_path.is_file()
     assert output_path.stat().st_size > 0
 
+    image_axes = [ax for ax in fig.axes if ax.images]
+    cbar_axes = [ax for ax in fig.axes if ax not in image_axes]
+    assert image_axes
+    assert cbar_axes
+    for ax in image_axes:
+        for image in ax.images:
+            alpha = image.get_alpha()
+            assert alpha is None or float(alpha) == pytest.approx(1.0)
+        for line in ax.lines:
+            assert float(line.get_alpha()) == pytest.approx(1.0)
+        for collection in ax.collections:
+            face_alpha = collection.get_alpha()
+            if face_alpha is not None:
+                assert float(face_alpha) == pytest.approx(1.0)
+    fig.canvas.draw()
+    cbar_labels = " ".join(ax.get_ylabel() for ax in cbar_axes)
+    assert "Habitat" in cbar_labels
+    panel_titles = [ax.get_title() for ax in image_axes]
     joined = " ".join(
         [fig._suptitle.get_text() if fig._suptitle is not None else ""]
-        + [ax.get_title() for ax in fig.axes]
+        + panel_titles
     )
     assert joined.isascii()
     assert "graph" in joined.lower() or "Habitat" in joined
+    # Per-panel titles drop the redundant "Intra-habitat graph" / "slice N"
+    # (those live on the figure title) so neighbouring panels cannot collide.
+    for title in panel_titles:
+        assert "Intra-habitat graph" not in title
+        assert "slice" not in title.lower()
+    assert any(title.startswith("H") for title in panel_titles)
+    assert "All habitats" in panel_titles
+
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def _many_habitat_2d_labels(n_habitats: int = 8) -> np.ndarray:
+    """
+    Build a crowded 2D map so the network figure has many H1..Hn panels.
+
+    Args:
+        n_habitats: Number of distinct habitat labels to place.
+
+    Returns:
+        Integer label array with ``n_habitats`` blobs and background 0.
+    """
+    rows, cols = 4, 4
+    cell = 12
+    labels = np.zeros((rows * cell, cols * cell), dtype=np.int32)
+    for habitat in range(1, n_habitats + 1):
+        row = (habitat - 1) // cols
+        col = (habitat - 1) % cols
+        r0 = row * cell + 2
+        c0 = col * cell + 2
+        labels[r0 : r0 + 7, c0 : c0 + 7] = habitat
+    return labels
+
+
+def test_plot_habitat_graph_network_2d_titles_do_not_overlap() -> None:
+    """Many-habitat grids keep short panel titles from colliding horizontally."""
+    labels = _many_habitat_2d_labels(8)
+    fig = plot_habitat_graph_network_2d(labels, options=_viz_options())
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    titled_axes = [ax for ax in fig.axes if ax.get_title()]
+    assert len(titled_axes) >= 8
+    bboxes = [ax.title.get_window_extent(renderer=renderer) for ax in titled_axes]
+    for i, box_a in enumerate(bboxes):
+        for j, box_b in enumerate(bboxes[i + 1 :], start=i + 1):
+            assert not box_a.overlaps(box_b), (
+                "subplot titles overlap: "
+                f"{titled_axes[i].get_title()!r} vs "
+                f"{titled_axes[j].get_title()!r}"
+            )
+    for ax in titled_axes:
+        title = ax.get_title()
+        assert title.isascii()
+        assert "Intra-habitat graph" not in title
+        assert "slice" not in title.lower()
+    assert any(ax.get_title() == "All habitats" for ax in titled_axes)
+    if fig._suptitle is not None:
+        assert "slice" in fig._suptitle.get_text().lower()
 
     import matplotlib.pyplot as plt
 

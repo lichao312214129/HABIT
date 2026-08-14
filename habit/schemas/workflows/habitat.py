@@ -673,7 +673,11 @@ class GraphFeatureBlock(BaseModel):
         True, description="Compute pairwise inter-habitat region graphs."
     )
     edge_method: Literal["centroid_distance", "adjacency"] = Field(
-        "centroid_distance", description="Rule used to identify graph edges."
+        "adjacency",
+        description=(
+            "Rule used to identify graph edges. Default 'adjacency': connect "
+            "regions that share a boundary."
+        ),
     )
     distance_threshold: float = Field(
         5.0, ge=0.0, description="Centroid distance threshold in pixel units."
@@ -686,11 +690,13 @@ class GraphFeatureBlock(BaseModel):
         ),
     )
     adjacency_min_voxels: int = Field(
-        1,
+        10,
         ge=1,
         description=(
             "Minimum number of adjacent voxel pairs required to create an "
-            "edge when edge_method is 'adjacency'."
+            "edge when edge_method is 'adjacency'. Default 10: an edge exists "
+            "only when two regions are adjacent and the contact voxel count "
+            "is >= 10."
         ),
     )
     edge_weight: Literal["none", "distance", "inverse_distance", "contact_voxels"] = Field(

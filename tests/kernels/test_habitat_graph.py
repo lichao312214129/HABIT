@@ -86,6 +86,53 @@ def test_centroid_distance_graph_connects_regions_within_threshold() -> None:
 
 
 @pytest.mark.unit
+def test_adjacency_min_voxels_default_requires_ten_contact_voxels() -> None:
+    """Default adjacency edges require at least 10 shared-boundary voxel pairs."""
+    # Two 1-voxel-thick strips: each column is one face-adjacent (1, 2) pair.
+    labels_nine: np.ndarray = np.array(
+        [[1] * 9, [2] * 9],
+        dtype=np.int32,
+    )
+    labels_ten: np.ndarray = np.array(
+        [[1] * 10, [2] * 10],
+        dtype=np.int32,
+    )
+    nodes_nine = extract_habitat_nodes(label_array=labels_nine, connectivity="face")
+    nodes_ten = extract_habitat_nodes(label_array=labels_ten, connectivity="face")
+
+    # Function default adjacency_min_voxels is 10.
+    graph_nine = build_adjacency_graph(
+        node_result=nodes_nine,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        edge_weight="contact_voxels",
+    )
+    graph_ten = build_adjacency_graph(
+        node_result=nodes_ten,
+        labels=(1, 2),
+        graph_kind="pairwise",
+        edge_weight="contact_voxels",
+    )
+    assert len(graph_nine.edges) == 0
+    assert len(graph_ten.edges) == 1
+    assert graph_ten.edges[0].contact_voxels == 10
+
+    # Extractor default matches: 9 contacts → no pair edge; 10 → one edge.
+    options = HabitatGraphFeatureOptions(
+        erosion_radius=0,
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+    assert options.edge_method == "adjacency"
+    assert options.adjacency_min_voxels == 10
+    feats_nine = extract_graph_features(labels_nine, options=options)
+    feats_ten = extract_graph_features(labels_ten, options=options)
+    assert feats_nine["pair_h1_h2_n_edges"] == 0.0
+    assert feats_ten["pair_h1_h2_n_edges"] == 1.0
+    assert feats_ten["pair_h1_h2_contact_voxels_sum"] == 10.0
+
+
+@pytest.mark.unit
 def test_adjacency_graph_counts_face_adjacent_voxels() -> None:
     """The adjacency strategy should count face-adjacent voxel pairs between habitats."""
     label_array: np.ndarray = np.array(
@@ -392,6 +439,9 @@ def test_default_options_enable_erosion_and_subdivision() -> None:
     assert options.block_size == 5
     assert options.distance_threshold == 5.0
     assert options.pairwise_include_intra_edges is True
+    assert options.edge_method == "adjacency"
+    assert options.adjacency_connectivity == "face"
+    assert options.adjacency_min_voxels == 10
 
 
 @pytest.mark.unit

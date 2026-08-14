@@ -32,8 +32,9 @@ Minimal YAML fragment::
      - graph
 
    graph:
-     edge_method: centroid_distance
-     distance_threshold: 5.0
+     edge_method: adjacency
+     adjacency_connectivity: face
+     adjacency_min_voxels: 10
      erosion_radius: 1
      subdivide_region_voxels: 1000
      include_single_habitat_graph: true
@@ -48,6 +49,12 @@ Outputs:
   ``out_dir/visualizations/graph/`` (2D needs ``[viz]``; 3D also needs
   ``[view]``)
 
+By default an **edge exists when two regions are adjacent** (face-sharing
+voxels; ``adjacency_connectivity: face``) **and** the contact
+(shared-boundary) voxel count is **>= 10** (``adjacency_min_voxels: 10``).
+Use ``edge_method: centroid_distance`` plus ``distance_threshold`` if you
+want the older centroid-proximity rule instead.
+
 Parameter reference: :doc:`../configuration/feature_extraction`.
 
 Python API
@@ -61,7 +68,7 @@ Python API
    feats = extract_graph_features(label_array)
    fig = plot_habitat_graph_network_2d(label_array)
 
-Optional: ``HabitatGraphFeatureOptions(distance_threshold=...)``, registry
+Optional: ``HabitatGraphFeatureOptions(adjacency_min_voxels=...)``, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
 :func:`~habit.viz.render_habitat_graph_network_3d` /
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).

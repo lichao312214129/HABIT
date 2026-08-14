@@ -44,8 +44,9 @@ class GraphHabitatFeaturesParams(BaseModel):
     include_single_habitat_graph: bool = True
     #: Compute pairwise inter-habitat region graphs.
     include_pairwise_habitat_graph: bool = True
-    #: Rule used to identify graph edges.
-    edge_method: Literal["centroid_distance", "adjacency"] = "centroid_distance"
+    #: Rule used to identify graph edges. Default ``"adjacency"``: connect
+    #: regions that share a boundary.
+    edge_method: Literal["centroid_distance", "adjacency"] = "adjacency"
     #: Centroid distance threshold in pixel units.
     distance_threshold: float = Field(default=5.0, ge=0.0)
     #: Neighbor definition for the ``"adjacency"`` edge method: ``"face"`` =
@@ -53,8 +54,9 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: 26-connectivity.
     adjacency_connectivity: Literal["face", "edge", "corner"] = "face"
     #: Minimum number of adjacent voxel pairs required to create an edge when
-    #: ``edge_method`` is ``"adjacency"``.
-    adjacency_min_voxels: int = Field(default=1, ge=1)
+    #: ``edge_method`` is ``"adjacency"``. Default ``10``: an edge exists only
+    #: when two regions are adjacent and the contact voxel count is >= 10.
+    adjacency_min_voxels: int = Field(default=10, ge=1)
     #: Optional edge weight source.
     edge_weight: Literal["none", "distance", "inverse_distance", "contact_voxels"] = (
         "none"
@@ -92,9 +94,11 @@ class GraphHabitatFeatures:
     Graph-topology features of one subject's habitat map.
 
     Each connected habitat region (optionally eroded and subdivided into grid
-    blocks) becomes a graph node; edges connect region centroids within a
-    distance threshold (``centroid_distance``) or region pairs sharing enough
-    face/edge/corner-adjacent voxels (``adjacency``). NetworkX-derived topology
+    blocks) becomes a graph node. By default (``edge_method='adjacency'``) an
+    edge exists when two regions are adjacent and the number of contact
+    (shared-boundary) voxels is at least ``adjacency_min_voxels`` (default
+    ``10``). The alternative ``centroid_distance`` method connects centroids
+    within ``distance_threshold``. NetworkX-derived topology
     metrics are reported per habitat (``single_h*`` columns) and per habitat
     pair (``pair_h*_h*`` columns), covering degree/edge counts, density,
     components, modularity, clustering, path length, betweenness, assortativity,
@@ -114,10 +118,10 @@ class GraphHabitatFeatures:
         self,
         include_single_habitat_graph: bool = True,
         include_pairwise_habitat_graph: bool = True,
-        edge_method: Literal["centroid_distance", "adjacency"] = "centroid_distance",
+        edge_method: Literal["centroid_distance", "adjacency"] = "adjacency",
         distance_threshold: float = 5.0,
         adjacency_connectivity: Literal["face", "edge", "corner"] = "face",
-        adjacency_min_voxels: int = 1,
+        adjacency_min_voxels: int = 10,
         edge_weight: Literal[
             "none", "distance", "inverse_distance", "contact_voxels"
         ] = "none",

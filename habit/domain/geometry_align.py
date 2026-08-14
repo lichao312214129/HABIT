@@ -55,6 +55,7 @@ __all__ = [
     "align_mask_to_reference",
     "align_subject_masks",
     "coerce_on_geometry_mismatch",
+    "anatomy_aware_field_geometry",
 ]
 
 _logger = get_module_logger(__name__)
@@ -246,6 +247,100 @@ def _geometry_payload(geometry: Geometry) -> Dict[str, Any]:
     }
 
 
+def _align_event_from_mask_or_subject(
+    mask: ImageVolume,
+    subject_metadata: Optional[Mapping[str, Any]] = None,
+) -> Optional[Mapping[str, Any]]:
+    """
+    Return the ``geometry_align`` event that produced ``mask``, if any.
+
+    Args:
+        mask: Possibly aligned ROI mask.
+        subject_metadata: Optional ``Subject.metadata`` that stores a list of
+            align events when :func:`align_subject_masks` rewrote the mapping.
+
+    Returns:
+        One align-event mapping, or ``None`` when the mask was never aligned.
+    """
+    metadata = getattr(mask, "metadata", None)
+    if isinstance(metadata, Mapping):
+        event = metadata.get(GEOMETRY_ALIGN_METADATA_KEY)
+        if isinstance(event, Mapping) and event.get("action"):
+            return event
+    if not isinstance(subject_metadata, Mapping):
+        return None
+    bundle = subject_metadata.get(GEOMETRY_ALIGN_METADATA_KEY)
+    if not isinstance(bundle, Mapping):
+        return None
+    events = bundle.get("events")
+    if not isinstance(events, list):
+        return None
+    roi = getattr(mask, "roi_name", None) or getattr(mask, "modality", None)
+    for event in events:
+        if not isinstance(event, Mapping):
+            continue
+        if roi is None or event.get("roi_name") == roi:
+            return event
+    return None
+
+
+def anatomy_aware_field_geometry(
+    mask: ImageVolume,
+    *,
+    subject_metadata: Optional[Mapping[str, Any]] = None,
+) -> Geometry:
+    """
+    Geometry a voxel field / habitat map should carry for display.
+
+    Same-shape alignment (:func:`resample_mask_to_reference` ``adopt_geometry``)
+    copies the **image** header onto the mask so index-space
+    ``is_compatible_with`` checks pass. Demo NRRDs often keep the anatomically
+    correct superior/inferior sign only on the original mask (``+z = Inferior``)
+    while the intensity header claims LPS identity. Habitat products that
+    inherit the adopted image header then flip coronal / sagittal in
+    :func:`habit.viz.orientation.resolve_display_geometry`.
+
+    When provenance records a same-shape adopt that changed ``direction``,
+    this helper keeps the image index grid (shape / spacing / origin) and
+    restores the source-mask direction so :class:`~habit.contracts.habitat.HabitatMap`
+    disagrees with the image header and the existing label-wins display rule
+    orients superior up.
+
+    Args:
+        mask: ROI mask used to build the voxel field (possibly aligned).
+        subject_metadata: Optional subject metadata with align events.
+
+    Returns:
+        Geometry for :class:`~habit.contracts.habitat.VoxelFeatureField`.
+    """
+    fallback = mask.geometry
+    event = _align_event_from_mask_or_subject(mask, subject_metadata)
+    if event is None:
+        return fallback
+    if event.get("action") != "adopt_geometry":
+        return fallback
+    mismatches = event.get("mismatches") or []
+    if "direction" not in mismatches:
+        return fallback
+    source = event.get("source_geometry")
+    if not isinstance(source, Mapping):
+        return fallback
+    source_direction = source.get("direction")
+    if source_direction is None:
+        return fallback
+    restored = tuple(float(value) for value in source_direction)
+    current = tuple(float(value) for value in fallback.direction)
+    if restored == current:
+        return fallback
+    return Geometry(
+        shape=tuple(int(value) for value in fallback.shape),
+        spacing=tuple(float(value) for value in fallback.spacing),
+        origin=tuple(float(value) for value in fallback.origin),
+        direction=restored,
+        frame_of_reference=fallback.frame_of_reference,
+    )
+
+
 def resample_mask_to_reference(
     mask: MaskVolume,
     reference: Union[ImageVolume, Geometry],
@@ -258,7 +353,10 @@ def resample_mask_to_reference(
     Align a label mask onto a reference voxel grid.
 
     Same-shaped masks keep their voxels and adopt the reference geometry
-    (index-space identity). Differently shaped masks are nearest-neighbour
+    (index-space identity) so later ``is_compatible_with`` checks pass.
+    :func:`anatomy_aware_field_geometry` then restores the source-mask
+    direction onto voxel-field / habitat-map products when that adopt
+    changed only the header. Differently shaped masks are nearest-neighbour
     resampled in physical space via SimpleITK.
 
     Args:

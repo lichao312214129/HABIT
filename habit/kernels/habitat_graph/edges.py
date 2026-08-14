@@ -344,7 +344,7 @@ def build_adjacency_graph(
     labels: Tuple[int, ...],
     graph_kind: str,
     adjacency_connectivity: str = "face",
-    adjacency_min_voxels: int = 1,
+    adjacency_min_voxels: int = 10,
     edge_weight: EdgeWeightMode = "none",
     include_intra_edges: bool = False,
 ) -> HabitatGraph:
@@ -365,7 +365,8 @@ def build_adjacency_graph(
         adjacency_connectivity: Neighbor definition: ``"face"`` (6-conn in 3D),
             ``"edge"`` (18-conn in 3D), or ``"corner"`` (26-conn in 3D).
         adjacency_min_voxels: Minimum adjacent voxel pair count required to
-            create an edge.  Must be >= 1.
+            create an edge. Must be >= 1. Default ``10``: an edge exists only
+            when two regions are adjacent and share at least 10 contact voxels.
         edge_weight: ``"contact_voxels"`` stores the voxel-pair count as the edge
             weight; ``"none"`` keeps an unweighted binary graph.
         include_intra_edges: For pairwise graphs, also connect same-label node

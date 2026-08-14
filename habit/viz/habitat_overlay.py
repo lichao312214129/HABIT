@@ -22,13 +22,19 @@ palette (opaque by default). Pass ``alpha<1`` only for an explicit blend.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
 from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
+from habit.viz.colorbar import (
+    ColorbarSpec,
+    DEFAULT_HABITAT_CBAR_LABEL,
+    add_discrete_habitat_colorbar,
+)
 from habit.viz.labels import sanitize_label
+from habit.viz.style import use_style
 from habit.viz.orientation import (
     DEFAULT_DISPLAY_CONVENTION,
     DEFAULT_NATIVE_DIRECTION,
@@ -184,36 +190,95 @@ def _draw_label_contour(
     )
 
 
+def _positive_habitat_ids(labels: np.ndarray) -> List[int]:
+    """
+    Return sorted unique habitat IDs, excluding background ``0``.
+
+    Args:
+        labels: Integer label array (any shape).
+
+    Returns:
+        Sorted positive integer IDs.
+    """
+    return sorted(
+        {int(value) for value in np.unique(np.asarray(labels)) if int(value) > 0}
+    )
+
+
+def _habitat_color_lookup(
+    habitat_ids: Sequence[int],
+    colors: Sequence[Tuple[float, float, float]] = _HABITAT_COLORS,
+) -> Dict[int, Tuple[float, float, float]]:
+    """
+    Map each habitat ID to a stable RGB triple.
+
+    Colour index follows the sorted-ID order so every panel that shares
+    the same ID list paints habitat ``k`` with the same colour (a slice
+    that happens to miss an ID does not re-index the palette).
+
+    Args:
+        habitat_ids: Positive integer habitat IDs (already unique).
+        colors: RGB triples cycled when there are more IDs than colours.
+
+    Returns:
+        ``habitat_id → (r, g, b)`` in ``[0, 1]``.
+    """
+    return {
+        int(habitat_id): colors[index % len(colors)]
+        for index, habitat_id in enumerate(habitat_ids)
+    }
+
+
+def _habitat_color_list(
+    habitat_ids: Sequence[int],
+    colors: Sequence[Tuple[float, float, float]] = _HABITAT_COLORS,
+) -> List[Tuple[float, float, float]]:
+    """Return palette colours aligned with ``habitat_ids`` (for the colorbar)."""
+    lookup = _habitat_color_lookup(habitat_ids, colors)
+    return [lookup[int(habitat_id)] for habitat_id in habitat_ids]
+
+
 def _blend_overlay(
     grey: np.ndarray,
     labels: np.ndarray,
     *,
     alpha: float,
     colors: Sequence[Tuple[float, float, float]],
+    id_to_color: Optional[Mapping[int, Tuple[float, float, float]]] = None,
 ) -> np.ndarray:
     """
     Paint habitat colours onto a greyscale slice (label 0 stays anatomy).
 
     ``alpha=1`` replaces habitat voxels (opaque). Values in ``(0, 1)`` blend
-    as an explicit option.
+    as an explicit option. Default callers pass ``alpha=1.0``.
 
     Args:
         grey: 2D float array in ``[0, 1]``.
         labels: 2D integer label map, same shape as ``grey``.
         alpha: Opacity of habitat colours in ``(0, 1]``.
-        colors: RGB triples cycled across habitat IDs.
+        colors: RGB triples used when ``id_to_color`` is omitted.
+        id_to_color: Optional ID-keyed RGB map (volume-level, so orthogonal
+            slices share colours). When omitted, colours are assigned from
+            the IDs present on this slice.
 
     Returns:
         RGB float array of shape ``(H, W, 3)`` in ``[0, 1]``.
     """
     rgb = np.stack([grey, grey, grey], axis=-1)
     overlay = rgb.copy()
-    habitat_ids = sorted(int(v) for v in np.unique(labels) if int(v) > 0)
-    for index, habitat_id in enumerate(habitat_ids):
+    habitat_ids = _positive_habitat_ids(labels)
+    lookup = (
+        dict(id_to_color)
+        if id_to_color is not None
+        else _habitat_color_lookup(habitat_ids, colors)
+    )
+    for habitat_id in habitat_ids:
         mask = labels == habitat_id
         if not np.any(mask):
             continue
-        color = colors[index % len(colors)]
+        color = lookup.get(habitat_id)
+        if color is None:
+            color = colors[(habitat_id - 1) % len(colors)]
         for channel, value in enumerate(color):
             channel_plane = overlay[..., channel]
             channel_plane[mask] = (1.0 - alpha) * channel_plane[mask] + alpha * value
@@ -443,6 +508,7 @@ def _prepare_overlay_slice(
     alpha: float,
     direction: Optional[np.ndarray],
     convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
+    id_to_color: Optional[Mapping[int, Tuple[float, float, float]]] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Normalize, orient, and paint one orthogonal slice; return RGB + labels."""
     grey = _normalize_grey(_take_slice(image_vol, axis_id, slice_index))
@@ -453,7 +519,13 @@ def _prepare_overlay_slice(
     labs = _orient_slice_for_display(
         labs, slice_axis=axis_id, direction=direction, convention=convention
     )
-    rgb = _blend_overlay(grey, labs, alpha=float(alpha), colors=_HABITAT_COLORS)
+    rgb = _blend_overlay(
+        grey,
+        labs,
+        alpha=float(alpha),
+        colors=_HABITAT_COLORS,
+        id_to_color=id_to_color,
+    )
     return rgb, labs
 
 
@@ -469,6 +541,8 @@ def plot_habitat_overlay(
     spacing: Optional[Sequence[float]] = None,
     display_convention: DisplayConvention = DEFAULT_DISPLAY_CONVENTION,
     contour: bool = True,
+    colorbar: ColorbarSpec = True,
+    colorbar_label: str = DEFAULT_HABITAT_CBAR_LABEL,
 ) -> "Figure":
     """
     Draw habitat labels as an opaque colour overlay on the source image.
@@ -516,6 +590,12 @@ def plot_habitat_overlay(
         display_convention: ``\"radiological\"`` (default), ``\"neurological\"``,
             or ``\"native\"`` (no display flips). See
             :mod:`habit.viz.orientation`.
+        colorbar: Draw a discrete habitat-ID colorbar (default ``True``).
+            One tick / colour per positive ID; background ``0`` is omitted.
+            Pass ``False`` to hide it, or a mapping of colorbar style
+            kwargs (``shrink``, ``pad``, ``fraction``, ``aspect``,
+            ``label``, ...).
+        colorbar_label: Colorbar label (English default ``\"Habitat\"``).
 
     Returns:
         A matplotlib ``Figure``. The caller owns persistence / display.
@@ -549,99 +629,124 @@ def plot_habitat_overlay(
     )
     direction_matrix = _direction_matrix(resolved_direction, ndim=image_vol.ndim)
     spacing_xyz = _spacing_xyz(resolved_spacing, ndim=image_vol.ndim)
+    # Volume-level ID→colour so orthogonal slices and the colorbar match.
+    habitat_ids = _positive_habitat_ids(label_int)
+    id_to_color = _habitat_color_lookup(habitat_ids)
 
-    if image_vol.ndim == 2 or axis is not None:
-        axis_id = 0 if image_vol.ndim == 2 else int(axis)
-        if image_vol.ndim == 3 and axis_id not in (0, 1, 2):
-            raise HABITAPIError(
-                f"plot_habitat_overlay: axis must be 0, 1, or 2; got {axis_id}."
+    with use_style("radiology"):
+        if image_vol.ndim == 2 or axis is not None:
+            axis_id = 0 if image_vol.ndim == 2 else int(axis)
+            if image_vol.ndim == 3 and axis_id not in (0, 1, 2):
+                raise HABITAPIError(
+                    f"plot_habitat_overlay: axis must be 0, 1, or 2; got {axis_id}."
+                )
+            slice_index = _slice_index(label_int, axis_id, index)
+            rgb, labs = _prepare_overlay_slice(
+                image_vol,
+                label_int,
+                axis_id=axis_id,
+                slice_index=slice_index,
+                alpha=float(alpha),
+                direction=direction_matrix,
+                convention=convention,
+                id_to_color=id_to_color,
             )
-        slice_index = _slice_index(label_int, axis_id, index)
-        rgb, labs = _prepare_overlay_slice(
-            image_vol,
-            label_int,
-            axis_id=axis_id,
-            slice_index=slice_index,
-            alpha=float(alpha),
-            direction=direction_matrix,
-            convention=convention,
-        )
-        extent = _imshow_physical_extent(
-            (int(rgb.shape[0]), int(rgb.shape[1])),
-            spacing_xyz,
-            slice_axis=axis_id,
-            ndim=image_vol.ndim,
-            direction=direction_matrix,
-            convention=convention,
-        )
+            extent = _imshow_physical_extent(
+                (int(rgb.shape[0]), int(rgb.shape[1])),
+                spacing_xyz,
+                slice_axis=axis_id,
+                ndim=image_vol.ndim,
+                direction=direction_matrix,
+                convention=convention,
+            )
 
-        fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
-        # Physical mm extent + equal aspect: 1 mm row == 1 mm col on screen.
-        # adjustable='box' shrinks the axes, never re-squares the voxels.
-        ax.imshow(
-            rgb,
-            interpolation="nearest",
-            origin="upper",
-            extent=extent,
-            aspect="equal",
-        )
-        if contour:
-            _draw_label_contour(ax, labs, extent=extent)
-        ax.set_aspect("equal", adjustable="box")
-        axis_name = ("axis-0", "axis-1", "axis-2")[axis_id] if image_vol.ndim == 3 else "2D"
-        ax.set_title(
-            sanitize_label(
-                title
-                if title is not None
-                else f"Habitat overlay ({axis_name}, index={slice_index})"
+            fig, ax = plt.subplots(1, 1, figsize=(5.5, 5.5), constrained_layout=True)
+            # Physical mm extent + equal aspect: 1 mm row == 1 mm col on screen.
+            # adjustable='box' shrinks the axes, never re-squares the voxels.
+            ax.imshow(
+                rgb,
+                interpolation="nearest",
+                origin="upper",
+                extent=extent,
+                aspect="equal",
             )
+            if contour:
+                _draw_label_contour(ax, labs, extent=extent)
+            ax.set_aspect("equal", adjustable="box")
+            axis_name = (
+                ("axis-0", "axis-1", "axis-2")[axis_id]
+                if image_vol.ndim == 3
+                else "2D"
+            )
+            ax.set_title(
+                sanitize_label(
+                    title
+                    if title is not None
+                    else f"Habitat overlay ({axis_name}, index={slice_index})"
+                )
+            )
+            ax.axis("off")
+            add_discrete_habitat_colorbar(
+                ax,
+                habitat_ids,
+                _habitat_color_list(habitat_ids),
+                colorbar=colorbar,
+                label=colorbar_label,
+            )
+            return fig
+
+        # 3D default: three orthogonal slices through the densest habitat region.
+        # Taller figsize so coronal/sagittal panels (wide FOV, thick-slice height)
+        # are not cramped; each axes uses physical mm extent + equal aspect.
+        fig, axes = plt.subplots(1, 3, figsize=(14.0, 6.5), constrained_layout=True)
+        panel_names = (
+            "Axis 0 (axial-like)",
+            "Axis 1 (coronal-like)",
+            "Axis 2 (sagittal-like)",
         )
-        ax.axis("off")
+        for axis_id, ax in enumerate(axes):
+            slice_index = _slice_index(label_int, axis_id, None)
+            rgb, labs = _prepare_overlay_slice(
+                image_vol,
+                label_int,
+                axis_id=axis_id,
+                slice_index=slice_index,
+                alpha=float(alpha),
+                direction=direction_matrix,
+                convention=convention,
+                id_to_color=id_to_color,
+            )
+            extent = _imshow_physical_extent(
+                (int(rgb.shape[0]), int(rgb.shape[1])),
+                spacing_xyz,
+                slice_axis=axis_id,
+                ndim=image_vol.ndim,
+                direction=direction_matrix,
+                convention=convention,
+            )
+            ax.imshow(
+                rgb,
+                interpolation="nearest",
+                origin="upper",
+                extent=extent,
+                aspect="equal",
+            )
+            if contour:
+                _draw_label_contour(ax, labs, extent=extent)
+            ax.set_aspect("equal", adjustable="box")
+            ax.set_title(sanitize_label(f"{panel_names[axis_id]} @ {slice_index}"))
+            ax.axis("off")
+
+        # Shared discrete bar on the last panel (same IDs on every view).
+        add_discrete_habitat_colorbar(
+            axes[2],
+            habitat_ids,
+            _habitat_color_list(habitat_ids),
+            colorbar=colorbar,
+            label=colorbar_label,
+        )
+        if title is not None:
+            fig.suptitle(sanitize_label(title))
+        else:
+            fig.suptitle(sanitize_label("Habitat overlay on source image"))
         return fig
-
-    # 3D default: three orthogonal slices through the densest habitat region.
-    # Taller figsize so coronal/sagittal panels (wide FOV, thick-slice height)
-    # are not cramped; each axes uses physical mm extent + equal aspect.
-    fig, axes = plt.subplots(1, 3, figsize=(14.0, 6.5), constrained_layout=True)
-    panel_names = (
-        "Axis 0 (axial-like)",
-        "Axis 1 (coronal-like)",
-        "Axis 2 (sagittal-like)",
-    )
-    for axis_id, ax in enumerate(axes):
-        slice_index = _slice_index(label_int, axis_id, None)
-        rgb, labs = _prepare_overlay_slice(
-            image_vol,
-            label_int,
-            axis_id=axis_id,
-            slice_index=slice_index,
-            alpha=float(alpha),
-            direction=direction_matrix,
-            convention=convention,
-        )
-        extent = _imshow_physical_extent(
-            (int(rgb.shape[0]), int(rgb.shape[1])),
-            spacing_xyz,
-            slice_axis=axis_id,
-            ndim=image_vol.ndim,
-            direction=direction_matrix,
-            convention=convention,
-        )
-        ax.imshow(
-            rgb,
-            interpolation="nearest",
-            origin="upper",
-            extent=extent,
-            aspect="equal",
-        )
-        if contour:
-            _draw_label_contour(ax, labs, extent=extent)
-        ax.set_aspect("equal", adjustable="box")
-        ax.set_title(sanitize_label(f"{panel_names[axis_id]} @ {slice_index}"))
-        ax.axis("off")
-
-    if title is not None:
-        fig.suptitle(sanitize_label(title))
-    else:
-        fig.suptitle(sanitize_label("Habitat overlay on source image"))
-    return fig

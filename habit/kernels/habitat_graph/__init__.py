@@ -15,8 +15,9 @@
 """L0 kernels for graph-topology habitat features.
 
 A habitat map is turned into region graphs -- one node per connected habitat
-region (optionally subdivided into grid blocks), edges by centroid proximity
-or voxel adjacency -- and NetworkX-derived topology metrics are computed per
+region (optionally subdivided into grid blocks), edges by voxel adjacency
+(default: face-adjacent contact voxels >= 10) or centroid proximity --
+and NetworkX-derived topology metrics are computed per
 habitat (``single_h*``) and per habitat pair (``pair_h*_h*``). Everything here
 is pure: arrays in, numbers out, no IO, no state, no configuration files.
 """

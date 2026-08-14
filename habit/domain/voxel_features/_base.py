@@ -33,6 +33,7 @@ from habit.contracts.image import ImageVolume, MaskVolume
 from habit.contracts.provenance import Provenance
 from habit.contracts.subject import Subject
 from habit.domain.geometry_align import (
+    anatomy_aware_field_geometry,
     GEOMETRY_ALIGN_METADATA_KEY,
     ON_GEOMETRY_MISMATCH_DEFAULT,
     align_mask_to_reference,
@@ -309,6 +310,11 @@ def build_voxel_field(
         feature_names=tuple(names),
         values=matrix,
         voxel_index=voxel_index,
-        geometry=mask.geometry,
+        geometry=anatomy_aware_field_geometry(
+            mask,
+            subject_metadata=subject.metadata
+            if isinstance(subject.metadata, dict)
+            else None,
+        ),
         provenance=provenance,
     )

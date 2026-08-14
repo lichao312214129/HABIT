@@ -485,7 +485,7 @@ Python::
    Stage("quantify4", Spec("non_radiomics"))
    Stage(
        "quantify5",
-       Spec("graph", {"edge_method": "centroid_distance", "distance_threshold": 5.0}),
+       Spec("graph", {"edge_method": "adjacency", "adjacency_min_voxels": 10}),
    )
 
 YAML::

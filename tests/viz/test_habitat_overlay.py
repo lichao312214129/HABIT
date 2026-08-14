@@ -42,10 +42,18 @@ def test_plot_habitat_overlay_3d_returns_three_panel_figure() -> None:
     image, labels = _synthetic_volume()
     fig = plot_habitat_overlay(image, labels, title="Habitat overlay demo")
     assert isinstance(fig, Figure)
-    assert len(fig.axes) == 3
+    image_axes = [ax for ax in fig.axes if ax.images]
+    cbar_axes = [ax for ax in fig.axes if not ax.images]
+    assert len(image_axes) == 3
+    assert len(cbar_axes) == 1
+    fig.canvas.draw()
+    assert cbar_axes[0].get_ylabel() == "Habitat"
+    # Discrete bar: one centred tick per habitat ID (1, 2, 3), not a smear.
+    tick_labels = [text.get_text() for text in cbar_axes[0].get_yticklabels()]
+    assert "1" in tick_labels and "2" in tick_labels and "3" in tick_labels
 
     texts = [fig._suptitle.get_text()] if fig._suptitle is not None else []
-    for ax in fig.axes:
+    for ax in image_axes:
         texts.append(ax.get_title())
     joined = " ".join(texts)
     assert joined.isascii(), joined
@@ -61,7 +69,10 @@ def test_plot_habitat_overlay_single_axis() -> None:
     image, labels = _synthetic_volume()
     fig = plot_habitat_overlay(image, labels, axis=0, index=6)
     assert isinstance(fig, Figure)
-    assert len(fig.axes) == 1
+    image_axes = [ax for ax in fig.axes if ax.images]
+    cbar_axes = [ax for ax in fig.axes if not ax.images]
+    assert len(image_axes) == 1
+    assert len(cbar_axes) == 1
 
     import matplotlib.pyplot as plt
 
@@ -203,10 +214,11 @@ def test_plot_habitat_overlay_anisotropic_spacing_sets_panel_aspects() -> None:
     fig = plot_habitat_overlay(
         image, labels, spacing=spacing, direction=ras, title="Anisotropic"
     )
-    assert len(fig.axes) == 3
+    image_axes = [ax for ax in fig.axes if ax.images]
+    assert len(image_axes) == 3
     fig.canvas.draw()
 
-    for axis_id, ax in enumerate(fig.axes):
+    for axis_id, ax in enumerate(image_axes):
         # Matplotlib reports aspect='equal' as the numeric value 1.0.
         assert float(ax.get_aspect()) == pytest.approx(1.0)
         images = ax.get_images()
@@ -353,3 +365,14 @@ def test_lps_coronal_flips_superior_to_top() -> None:
     coronal[-1, 5] = 1.0  # max z = superior
     out = _orient_slice_for_display(coronal, slice_axis=1, direction=lps)
     assert np.argwhere(out == 1.0)[0, 0] < 5
+
+
+def test_plot_habitat_overlay_colorbar_false_skips_bar() -> None:
+    """colorbar=False keeps only the image panel(s)."""
+    import matplotlib.pyplot as plt
+
+    image, labels = _synthetic_volume()
+    fig = plot_habitat_overlay(image, labels, axis=0, colorbar=False)
+    assert len([ax for ax in fig.axes if ax.images]) == 1
+    assert len([ax for ax in fig.axes if not ax.images]) == 0
+    plt.close(fig)

@@ -7,8 +7,10 @@ Graph features from habitat maps
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=10`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
-:func:`~habit.viz.plot_habitat_graph_network_2d`. Graph topology is a
-habitat-map feature family (same tier as ``volume`` / ``msi``); columns under
+:func:`~habit.viz.plot_habitat_graph_network_2d`. By default an edge exists
+when two regions are **adjacent** and the contact (shared-boundary) voxel
+count is **>= 10**. Graph topology is a habitat-map feature family (same
+tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
 
 Script
@@ -84,8 +86,9 @@ see the how-to for the one-line 3D calls).
    :alt: Off-screen PyVista 3D graph with habitat-colored nodes
    :width: 520
 
-   Centroid nodes with intra- and inter-habitat edges
-   (:func:`~habit.viz.render_habitat_graph_network_3d`).
+   Region-centroid nodes with intra- and inter-habitat adjacency edges
+   (contact voxels >= 10;
+   :func:`~habit.viz.render_habitat_graph_network_3d`).
 
 What to read next
 -----------------

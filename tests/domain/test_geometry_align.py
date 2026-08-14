@@ -24,13 +24,14 @@ from habit.domain.geometry_align import (
     GEOMETRY_ALIGN_METADATA_KEY,
     align_mask_to_reference,
     align_subject_masks,
+    anatomy_aware_field_geometry,
     geometry_mismatch_fields,
 )
 from habit.domain.pipeline import SubjectPipeline
 from habit.domain.voxel_features import RawVoxelFeatures
 from habit.exceptions import GeometryError
 
-from .conftest import make_subject
+from .conftest import make_model, make_subject
 
 
 def _mismatched_mask_subject(subject_id: str = "P1") -> Subject:
@@ -129,7 +130,13 @@ def test_raw_extractor_default_resamples_mismatched_mask() -> None:
     """Direct voxel-extractor API succeeds under the default resample policy."""
     subject = _mismatched_mask_subject()
     field = RawVoxelFeatures(modalities=["T1"])(subject)
-    assert field.geometry.is_compatible_with(subject.image("T1").geometry)
+    image_geom = subject.image("T1").geometry
+    source_direction = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -1.0)
+    # Index grid follows the image; direction stays the original mask header
+    # so HabitatMap display can prefer labelled anatomy (demo LAP +z sign).
+    assert tuple(field.geometry.shape) == tuple(image_geom.shape)
+    assert tuple(field.geometry.direction) == source_direction
+    assert not field.geometry.is_compatible_with(image_geom)
     assert field.values.shape[0] == field.voxel_index.shape[0]
     assert field.values.shape[0] > 0
     assert GEOMETRY_ALIGN_METADATA_KEY in (field.provenance.notes or {})
@@ -169,3 +176,45 @@ def test_align_subject_masks_rewrites_mapping() -> None:
         aligned.image("T1").geometry
     )
     assert GEOMETRY_ALIGN_METADATA_KEY in (aligned.metadata or {})
+
+
+@pytest.mark.unit
+def test_anatomy_aware_geometry_restores_mask_direction_after_adopt() -> None:
+    """Same-shape adopt keeps image index grid but restores mask direction."""
+    subject = _mismatched_mask_subject()
+    image = subject.image("T1")
+    source_direction = tuple(subject.mask("tumor").geometry.direction)
+    aligned = align_mask_to_reference(
+        subject.mask("tumor"),
+        image,
+        subject_id=subject.subject_id,
+        roi_name="tumor",
+        reference_label="T1",
+    )
+    assert aligned.geometry.is_compatible_with(image.geometry)
+    restored = anatomy_aware_field_geometry(aligned)
+    assert tuple(restored.shape) == tuple(image.geometry.shape)
+    assert tuple(restored.direction) == source_direction
+    assert not restored.is_compatible_with(image.geometry)
+
+
+@pytest.mark.unit
+def test_habitat_map_keeps_mask_direction_for_display() -> None:
+    """One-step HabitatMap must carry the mask SI sign, not the image header."""
+    from habit.domain.assignment.nearest_centroid import NearestCentroidAssigner
+    from habit.domain.pipeline import voxel_units
+    from habit.viz.orientation import resolve_display_geometry
+
+    subject = _mismatched_mask_subject()
+    source_direction = tuple(subject.mask("tumor").geometry.direction)
+    field = RawVoxelFeatures(modalities=["T1"])(subject)
+    units = voxel_units(field)
+    assert tuple(units.geometry.direction) == source_direction
+    habitat_map = NearestCentroidAssigner(
+        make_model(n_habitats=1, feature_names=field.feature_names)
+    )(units)
+    assert tuple(habitat_map.geometry.direction) == source_direction
+    resolved, _spacing = resolve_display_geometry(
+        subject.image("T1"), habitat_map
+    )
+    assert resolved == source_direction

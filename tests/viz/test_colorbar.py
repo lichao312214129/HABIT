@@ -28,9 +28,11 @@ from habit.viz import (
 )
 from habit.viz.colorbar import (
     DEFAULT_COLORBAR_SHRINK,
+    add_discrete_habitat_colorbar,
     add_image_colorbar,
     add_image_colorbar_from_spec,
     colorbar_is_enabled,
+    discrete_habitat_mappable,
 )
 
 pytestmark = pytest.mark.unit
@@ -219,4 +221,29 @@ def test_plot_confusion_matrix_colorbar_false_and_kwargs() -> None:
     )
     labels = " ".join(ax.get_ylabel() for ax in _cbar_axes(fig))
     assert "Count" in labels
+    plt.close(fig)
+
+
+def test_discrete_habitat_mappable_skips_background_and_centres_ticks() -> None:
+    """Background 0 is omitted; ticks sit on equal colour blocks labelled by ID."""
+    from matplotlib.colors import BoundaryNorm, ListedColormap
+
+    colors = ((0.0, 0.45, 0.70), (0.90, 0.60, 0.00), (0.00, 0.62, 0.45))
+    mappable, ticks, ticklabels = discrete_habitat_mappable((0, 1, 3, 5), colors)
+    assert ticks == [1.0, 2.0, 3.0]
+    assert ticklabels == ["1", "3", "5"]
+    assert isinstance(mappable.cmap, ListedColormap)
+    assert isinstance(mappable.norm, BoundaryNorm)
+    assert mappable.cmap.N == 3
+
+
+def test_add_discrete_habitat_colorbar_false_and_empty() -> None:
+    """Disabled spec or no positive IDs skip the bar."""
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.imshow(np.ones((4, 4)))
+    assert add_discrete_habitat_colorbar(ax, (1, 2), ["#0072B2"], colorbar=False) is None
+    assert add_discrete_habitat_colorbar(ax, (0, 0), ["#0072B2"]) is None
+    assert len(fig.axes) == 1
     plt.close(fig)

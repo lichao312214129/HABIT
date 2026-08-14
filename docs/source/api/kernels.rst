@@ -55,8 +55,9 @@ Region graphs + NetworkX metrics (same definitions as the built-in
    from habit import HabitatGraphFeatureOptions, extract_graph_features
 
    options = HabitatGraphFeatureOptions(
-       edge_method="centroid_distance",
-       distance_threshold=5.0,
+       edge_method="adjacency",
+       adjacency_connectivity="face",
+       adjacency_min_voxels=10,
        erosion_radius=1,
        subdivide_region_voxels=1000,
    )

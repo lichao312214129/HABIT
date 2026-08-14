@@ -55,15 +55,23 @@ __all__ = [
 
 @dataclass(frozen=True)
 class HabitatGraphFeatureOptions:
-    """Runtime options for graph-based habitat feature extraction."""
+    """Runtime options for graph-based habitat feature extraction.
+
+    Default edge rule: ``edge_method='adjacency'`` with
+    ``adjacency_connectivity='face'`` and ``adjacency_min_voxels=10``. An
+    edge exists when two regions share a boundary and the contact voxel
+    count is at least 10.
+    """
 
     include_single_habitat_graph: bool = True
     include_pairwise_habitat_graph: bool = True
-    edge_method: EdgeMethod = "centroid_distance"
+    # Default edge rule: connect face-adjacent regions whose shared-boundary
+    # (contact) voxel-pair count is at least ``adjacency_min_voxels``.
+    edge_method: EdgeMethod = "adjacency"
     distance_threshold: float = 5.0
     # Adjacency edge parameters (used when edge_method == "adjacency").
     adjacency_connectivity: str = "face"
-    adjacency_min_voxels: int = 1
+    adjacency_min_voxels: int = 10
     edge_weight: EdgeWeightMode = "none"
     min_region_voxels: int = 1
     connectivity: str = "face"
@@ -230,6 +238,10 @@ def extract_graph_features(
 ) -> Dict[str, float]:
     """
     Extract subject-level graph features from a habitat label map.
+
+    Default ``options`` use ``edge_method='adjacency'`` with
+    ``adjacency_min_voxels=10``: an edge exists when two regions are
+    adjacent and the contact (shared-boundary) voxel count is >= 10.
 
     Args:
         label_array: Already segmented habitat map. Label 0 is treated as
