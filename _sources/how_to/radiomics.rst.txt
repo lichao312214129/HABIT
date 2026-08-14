@@ -24,7 +24,7 @@ Habitat-wise tables (when you do have maps) overlay the same anatomy::
 
    from habit.viz import plot_habitat_overlay
 
-   fig = plot_habitat_overlay(volume, habitat_map)
+   fig = plot_habitat_overlay(image, labels, axis=0)
 
 .. figure:: ../_static/images/examples/feature_extract_overlay.png
    :alt: Habitat overlay used before feature tables

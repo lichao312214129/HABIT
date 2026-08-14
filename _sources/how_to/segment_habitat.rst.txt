@@ -25,14 +25,12 @@ Python overlay of the same maps::
 
    from habit.viz import plot_habitat_overlay
 
-   fig = plot_habitat_overlay(volume, habitat_map, title="Two-step habitats")
+   fig = plot_habitat_overlay(image, labels, axis=0, title="Two-step habitats")
 
 Orthogonal 2D panels (omit ``axis``) use ``display_convention="radiological"``
-by default. Pass the ``ImageVolume`` and ``HabitatMap`` (not ``.data`` /
-``label_array``, and not ``direction=volume.direction``). Demo image and ROI
-headers can disagree on ``+z``; the habitat map keeps the mask direction so
-coronal/sagittal stay superior-up. ``display_convention="native"`` skips
-flips. See :mod:`habit.viz.orientation`.
+by default. Pass the ``ImageVolume`` (not ``image.data``) so coronal/sagittal
+superior-up matches ITK-SNAP; ``display_convention="native"`` skips flips.
+See :mod:`habit.viz.orientation`.
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Two-step habitat overlay

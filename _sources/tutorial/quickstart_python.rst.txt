@@ -173,27 +173,23 @@ Outputs land under ``demo_data/results/habitat_two_step/`` (including
 ``habit get-habitat --config …/effective_config.yaml`` for **voxel-identical**
 habitat maps (same seed, data, and policy).
 
-Static matplotlib overlay of the same demo subject (no napari; needs
-``[viz]``)::
+The overlay below is **not** from ``main()`` above. ``main()`` matches the
+CLI YAML (four modalities, ``roi="pre_contrast"``) and draws a different
+map. This PNG is written by the two-step gallery
+(:doc:`../examples/two_step_habitat`) — Script + Draw the figures. Reproduce
+it with one line (needs ``[viz]``)::
 
-   from habit.viz import plot_habitat_overlay, use_style
+   python docs/source/examples/scripts/two_step_habitat_quickstart.py
 
-   volume = cohort[0].image("LAP")
-   habitat_map = result.habitat_maps[0]
-   with use_style("radiology"):
-       # Pass ImageVolume + HabitatMap (not .data / label_array). Demo LAP
-       # image and ROI headers disagree on +z; HabitatMap keeps the mask
-       # direction so coronal/sagittal stay superior-up.
-       fig = plot_habitat_overlay(volume, habitat_map)
-   # fig.savefig("habitat_overlay.png", dpi=200, bbox_inches="tight")
+The plot call in that script (``ROI = "LAP"``)::
+
+   fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Demo subj001 LAP with two-step habitat labels overlaid
    :width: 480
 
-   Publication-style habitat overlay for demo ``subj001`` (same science as
-   the CLI two-step run). Gallery asset from
-   :doc:`../examples/two_step_habitat`.
+   Same file the gallery script writes to ``out/two_step_overlay.png``.
 
 Further notebook-oriented patterns (synthetic cohorts, custom extractors)
 live under :doc:`../examples/index`.
