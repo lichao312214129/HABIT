@@ -56,20 +56,15 @@ def eye_check_habitats(
     if modality is None:
         modality = next(iter(images))
     volume = subject.image(modality)
-    labels = habitat_map.label_array
     sid = getattr(habitat_map, "subject_id", None) or getattr(subject, "subject_id", "?")
     window_title = title or f"{sid} habitats on {modality}"
     print(f"Eye-check: opening napari for {window_title} "
           "(close the window to continue; HABIT_NO_VIEW=1 to skip).")
     print("Tip: for 3D review, also load the image + habitat map in "
           "ITK-SNAP / 3D Slicer / a SimpleITK-based viewer.")
-    view_habitat_napari(
-        volume.data,
-        labels,
-        spacing=volume.spacing,
-        direction=volume.direction,
-        title=window_title,
-    )
+    # Pass volume objects, not direction=volume.direction (image header can
+    # flip coronal/sagittal vs the ROI / HabitatMap).
+    view_habitat_napari(volume, habitat_map, title=window_title)
 
 
 def eye_check_study(

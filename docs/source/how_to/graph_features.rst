@@ -60,26 +60,39 @@ Parameter reference: :doc:`../configuration/feature_extraction`.
 Python API
 ----------
 
-::
+The figure below is written by the graph gallery
+(:doc:`../examples/graph_features`) — one-step with **fixed**
+``n_habitats=10``, then the same plot call. It is **not** from the YAML
+fragment above. Reproduce it::
 
-   from habit import extract_graph_features
+   python docs/source/examples/scripts/graph_features_demo.py
+
+Or paste the same code the gallery shows::
+
+   from habit import cohort_from_directory, extract_graph_features, one_step_habitat
    from habit.viz import plot_habitat_graph_network_2d
 
-   feats = extract_graph_features(label_array)
-   fig = plot_habitat_graph_network_2d(label_array)
+   DATA = "demo_data/preprocessed"
+   MODALITIES = ("LAP",)
+   ROI = "LAP"
+   cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
+   result = one_step_habitat(
+       modalities=MODALITIES, n_habitats=10, random_seed=0, roi=ROI
+   ).fit_predict(cohort)
+   labels = result.habitat_maps[0].label_array
+   feats = extract_graph_features(labels)
+   fig = plot_habitat_graph_network_2d(labels)
 
 Optional: ``HabitatGraphFeatureOptions(adjacency_min_voxels=...)``, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
 :func:`~habit.viz.render_habitat_graph_network_3d` /
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).
-See :doc:`../examples/graph_features`.
 
 .. figure:: ../_static/images/examples/graph_habitat_network_2d.png
    :alt: Habitat graph network on a 2D slice
    :width: 520
 
-   2D intra- / inter-habitat graph
-   (:func:`~habit.viz.plot_habitat_graph_network_2d`).
+   Same file the gallery script writes to ``out/graph_habitat_network_2d.png``.
 
 Also see
 --------

@@ -1,0 +1,53 @@
+---
+description: Docs figures must be produced by the same copy-paste code the page shows
+globs: docs/source/**/*.rst,docs/source/**/*.md,docs/source/examples/scripts/**/*.py,docs/source/_static/images/**
+alwaysApply: true
+---
+
+# Docs figures = taught code (no secret plot path)
+
+A reader who copies the Python on a Sphinx / GitHub Pages page and runs it
+must get **the same figure** that page displays. If the PNG was drawn by a
+different call (`direction=volume.direction`, `.data` / `label_array`, a
+hidden helper, another title, or `if __name__` re-plot), the docs are wrong.
+Users will assume HABIT is broken.
+
+## Hard rules
+
+1. **One plot call.** The `.. figure::` asset for a page must be written by
+   the same `plot_*` / `savefig` the reader is told to copy — the
+   `# BEGIN figures` block, or the rst `code-block` / `::` snippet on that
+   page. Do not show snippet A and ship a PNG from snippet B.
+2. **`if __name__` may only copy.** After the visible block writes `out/*.png`,
+   `__main__` may `copy_out_figures_to_gallery` into
+   `docs/source/_static/images/`. It must **not** call `plot_*` again with
+   different arguments to refresh `_static`.
+3. **Same objects.** Habitat overlays: `ImageVolume` + `HabitatMap`. Do not
+   teach or render with `volume.data`, `label_array`, or
+   `direction=volume.direction` (demo image vs ROI `+z` disagree; that flips
+   coronal / sagittal).
+4. **Reuse, do not restyle.** How-to / quickstart that embed a gallery PNG
+   must show the **same** `plot_*` call (same `title=`, same `axis=`, same
+   objects) as the gallery script that wrote that file, **and** name that
+   script. Do not place a different analysis (CLI YAML, another `HabitatSpec`)
+   immediately above the figure as if it produced those pixels.
+5. **Regen from that script.** After changing a taught plot call or viz
+   defaults, re-run the **visible** script (`HABIT_NO_VIEW=1`) and copy
+   `out/` → `_static`. Do not hand-edit PNGs or plot from a private snippet.
+
+```python
+# ✅ GOOD — page snippet == gallery BEGIN figures == PNG
+fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
+fig.savefig("out/two_step_overlay.png", dpi=150, bbox_inches="tight")
+
+# ❌ BAD — page shows this, PNG was made without direction=
+plot_habitat_overlay(volume.data, habitat_map.label_array, direction=volume.direction)
+```
+
+## Related
+
+| Concern | Rule |
+| --- | --- |
+| Swap-ready `DATA` / no gallery helpers in BEGIN | `docs-examples-user-swappable-data.mdc` |
+| Smoke before done | `docs-examples-must-be-tested.mdc` |
+| Publish HTML | `docs-gh-pages-deploy.mdc` |

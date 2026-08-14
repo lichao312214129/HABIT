@@ -58,4 +58,5 @@ $env:HABIT_NO_VIEW = "1"
 | User-visible product feature smoke | `verify-before-done.mdc` |
 | py310 path / Sphinx build env | `runtime-environment.mdc` |
 | Shell `\` continuations | `docs-windows-shell.mdc` |
+| Figure PNG == taught plot call | `docs-figures-match-taught-code.mdc` |
 | Publish HTML to gh-pages | `docs-gh-pages-deploy.mdc` |

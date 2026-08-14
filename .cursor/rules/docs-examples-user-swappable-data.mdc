@@ -52,5 +52,6 @@ save_example_figure(fig, "graph_habitat_network_2d.png")
 | Concern | Rule |
 | --- | --- |
 | Smoke-test before done | `docs-examples-must-be-tested.mdc` |
+| Figure PNG == taught plot call | `docs-figures-match-taught-code.mdc` |
 | API / Registry kwargs truth | `docs-api-examples-truth.mdc` |
 | Windows one-line shells | `docs-windows-shell.mdc` |

@@ -21,22 +21,30 @@ Run the demo
 
    habit view demo_data/preprocessed/images/subj001/LAP/WATER__WATER__Ax_Dyn_LAVA_Flex+C_Series0009.nrrd demo_data/results/habitat_two_step/subj001_habitats.nrrd
 
-Python overlay of the same maps::
+The figure below is **not** from the CLI YAML above (that config is the
+full demo Spec). It is written by the two-step gallery
+(:doc:`../examples/two_step_habitat`). Reproduce it::
+
+   python docs/source/examples/scripts/two_step_habitat_quickstart.py
+
+The plot call in that script (``ROI = "LAP"``)::
 
    from habit.viz import plot_habitat_overlay
 
-   fig = plot_habitat_overlay(image, labels, axis=0, title="Two-step habitats")
+   fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
 
 Orthogonal 2D panels (omit ``axis``) use ``display_convention="radiological"``
-by default. Pass the ``ImageVolume`` (not ``image.data``) so coronal/sagittal
-superior-up matches ITK-SNAP; ``display_convention="native"`` skips flips.
-See :mod:`habit.viz.orientation`.
+by default. Pass the ``ImageVolume`` and ``HabitatMap`` (not ``.data`` /
+``label_array``, and not ``direction=volume.direction``). Demo image and ROI
+headers can disagree on ``+z``; the habitat map keeps the mask direction so
+coronal/sagittal stay superior-up. ``display_convention="native"`` skips
+flips. See :mod:`habit.viz.orientation`.
 
 .. figure:: ../_static/images/examples/two_step_overlay.png
    :alt: Two-step habitat overlay
    :width: 420
 
-   Overlay from the two-step gallery (:func:`~habit.viz.plot_habitat_overlay`).
+   Same file the gallery script writes to ``out/two_step_overlay.png``.
 
 For fuller 3D inspection, load the source image and ``*_habitats.nrrd``
 together in **ITK-SNAP**, **3D Slicer**, or a **SimpleITK**-based viewer

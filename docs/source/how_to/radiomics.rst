@@ -20,15 +20,21 @@ Your data
 
 Success: feature tables under ``paths.out_dir``.
 
-Habitat-wise tables (when you do have maps) overlay the same anatomy::
+Habitat-wise tables (when you do have maps) overlay the same anatomy.
+The figure is **not** from ``habit radiomics`` above (whole-ROI has no
+labels). It is written by the feature-extraction gallery
+(:doc:`../examples/feature_extraction`). Reproduce it::
+
+   python docs/source/examples/scripts/feature_extraction_demo.py
+
+The plot call in that script (``ROI = "LAP"``)::
 
    from habit.viz import plot_habitat_overlay
 
-   fig = plot_habitat_overlay(image, labels, axis=0)
+   fig = plot_habitat_overlay(subject.image(ROI), habitat_map, title="habitats")
 
 .. figure:: ../_static/images/examples/feature_extract_overlay.png
    :alt: Habitat overlay used before feature tables
    :width: 420
 
-   Overlay from the feature-extraction gallery. Whole-ROI radiomics has no
-   habitat labels — this figure is the habitat-wise twin.
+   Same file the gallery script writes to ``out/feature_extract_overlay.png``.
