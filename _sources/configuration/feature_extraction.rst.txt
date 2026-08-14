@@ -129,9 +129,9 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)
   - ``edge_method``: ``adjacency`` (default) or ``centroid_distance``
   - ``distance_threshold`` (``5.0``, pixel units) — used by ``centroid_distance``
-  - ``adjacency_connectivity`` (``face``) / ``adjacency_min_voxels`` (``10``) — used by ``adjacency``. An edge exists when two regions are adjacent and the contact voxel count is >= 10, measured on the habitat labels as drawn (default ``erosion_radius`` is ``0``).
+  - ``adjacency_connectivity`` (``corner``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available) / ``adjacency_min_voxels`` (``10``) — used by ``adjacency``. An edge exists when two regions are adjacent and the contact voxel count is >= 10, measured on the habitat labels as drawn (default ``erosion_radius`` is ``0``).
   - ``edge_weight``: ``none`` | ``distance`` | ``inverse_distance`` | ``contact_voxels``
-  - ``min_region_voxels`` (``1``), ``connectivity`` (``face`` | ``full``)
+  - ``min_region_voxels`` (``1``), ``connectivity`` (default ``full``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available)
   - ``erosion_radius`` (``0`` / off; set ``>= 1`` to shrink habitats before edges), ``subdivide_region_voxels`` (``1000``; ``0`` disables)
   - ``block_size`` (``5``), ``block_min_coverage`` (``0.5``)
   - ``pairwise_include_intra_edges`` (``true``)

@@ -655,6 +655,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -884,6 +885,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1334,6 +1339,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1349,6 +1362,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -1853,9 +1870,9 @@ deprecated.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>) / <code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code>: <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">5.0</span></code>, pixel units) — used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">face</span></code>) / <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>) — used by <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>. An edge exists when two regions are adjacent and the contact voxel count is &gt;= 10, measured on the habitat labels as drawn (default <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">corner</span></code>: 8-conn in 2D / 26-conn in 3D; <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 remains available) / <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>) — used by <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>. An edge exists when two regions are adjacent and the contact voxel count is &gt;= 10, measured on the habitat labels as drawn (default <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code>: <code class="docutils literal notranslate"><span class="pre">none</span></code> | <code class="docutils literal notranslate"><span class="pre">distance</span></code> | <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> | <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">face</span></code> | <code class="docutils literal notranslate"><span class="pre">full</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> (default <code class="docutils literal notranslate"><span class="pre">full</span></code>: 8-conn in 2D / 26-conn in 3D; <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 remains available)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> (<code class="docutils literal notranslate"><span class="pre">0</span></code> / off; set <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> to shrink habitats before edges), <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">5</span></code>), <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (<code class="docutils literal notranslate"><span class="pre">0.5</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>

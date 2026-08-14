@@ -56,8 +56,9 @@ Region graphs + NetworkX metrics (same definitions as the built-in
 
    options = HabitatGraphFeatureOptions(
        edge_method="adjacency",
-       adjacency_connectivity="face",
+       adjacency_connectivity="corner",
        adjacency_min_voxels=10,
+       connectivity="full",
        erosion_radius=0,
        subdivide_region_voxels=1000,
    )

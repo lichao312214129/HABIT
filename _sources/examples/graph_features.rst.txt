@@ -8,12 +8,14 @@ End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=4`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example **overrides**
-the library defaults (``adjacency_min_voxels=10``, ``erosion_radius=0``)
-to contact **>= 2** voxels via
-:class:`~habit.HabitatGraphFeatureOptions`. By default there is **no
-erosion**; an edge exists when two regions are **adjacent** and the
-contact (shared-boundary) voxel count meets that threshold, measured on
-the habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
+only ``adjacency_min_voxels`` (library default ``10``) to contact **>= 2**
+voxels via :class:`~habit.HabitatGraphFeatureOptions`. It inherits the
+library connectivity defaults (``connectivity='full'``,
+``adjacency_connectivity='corner'``: 8-connected in 2D / 26-connected in
+3D; face 4/6 remains available). ``erosion_radius`` stays ``0``. An edge
+exists when two regions are **adjacent** and the contact
+(shared-boundary) voxel count meets that threshold, measured on the
+habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
 before edges. Graph topology is a habitat-map feature family (same
 tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
@@ -23,9 +25,10 @@ Script
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
-sets ``adjacency_min_voxels=2`` (library default remains 10), then
-extracts graph topology and draws the overlay plus the 2D network. Figures
-land under ``out/`` (swap that path too if you like).
+sets ``adjacency_min_voxels=2`` (library default remains 10; connectivity
+stays the library ``full`` / ``corner`` defaults), then extracts graph
+topology and draws the overlay plus the 2D network. Figures land under
+``out/`` (swap that path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python

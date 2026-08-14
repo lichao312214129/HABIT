@@ -1008,6 +1008,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -1237,6 +1238,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1687,6 +1692,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1702,6 +1715,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -2132,10 +2149,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span>
     <span class="c1">#: Centroid distance threshold in pixel units.</span>
     <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="c1">#: Neighbor definition for the ``&quot;adjacency&quot;`` edge method: ``&quot;face&quot;`` =</span>
-    <span class="c1">#: 6-connectivity in 3D, ``&quot;edge&quot;`` = 18-connectivity, ``&quot;corner&quot;`` =</span>
-    <span class="c1">#: 26-connectivity.</span>
-    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
+    <span class="c1">#: Neighbor definition for the ``&quot;adjacency&quot;`` edge method. Default</span>
+    <span class="c1">#: ``&quot;corner&quot;`` = 8-connectivity in 2D / 26-connectivity in 3D.</span>
+    <span class="c1">#: ``&quot;face&quot;`` = 4/6-connectivity; ``&quot;edge&quot;`` = 8/18-connectivity.</span>
+    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span>
     <span class="c1">#: Minimum number of adjacent voxel pairs required to create an edge when</span>
     <span class="c1">#: ``edge_method`` is ``&quot;adjacency&quot;``. Default ``10``: an edge exists only</span>
     <span class="c1">#: when two regions are adjacent and the contact voxel count is &gt;= 10.</span>
@@ -2146,11 +2163,14 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="c1">#: Minimum connected-region size retained as a graph node.</span>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="c1">#: Connected-component neighborhood rule.</span>
-    <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
-    <span class="c1">#: Binary erosion iterations applied before component labeling to remove</span>
-    <span class="c1">#: boundary noise. Set 0 to disable erosion.</span>
-    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#: Connected-component neighborhood rule. Default ``&quot;full&quot;`` =</span>
+    <span class="c1">#: 8-connectivity in 2D / 26-connectivity in 3D. Pass ``&quot;face&quot;`` for</span>
+    <span class="c1">#: 4/6-connectivity.</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
+    <span class="c1">#: Binary erosion iterations applied before component labeling. Default</span>
+    <span class="c1">#: ``0`` (off): adjacency and contact are measured on the habitat labels</span>
+    <span class="c1">#: as drawn. Pass a positive value to shrink each habitat before edges.</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1">#: Split connected components larger than this voxel count into grid blocks</span>
     <span class="c1">#: so large habitats do not collapse into a single node. Set 0 to disable.</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2180,10 +2200,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Graph-topology features of one subject&#39;s habitat map.</span>
 
 <span class="sd">    Each connected habitat region (optionally eroded and subdivided into grid</span>
-<span class="sd">    blocks) becomes a graph node. By default (``edge_method=&#39;adjacency&#39;``) an</span>
-<span class="sd">    edge exists when two regions are adjacent and the number of contact</span>
-<span class="sd">    (shared-boundary) voxels is at least ``adjacency_min_voxels`` (default</span>
-<span class="sd">    ``10``). The alternative ``centroid_distance`` method connects centroids</span>
+<span class="sd">    blocks) becomes a graph node. By default there is no morphological</span>
+<span class="sd">    erosion (``erosion_radius=0``): adjacency is measured on the habitat</span>
+<span class="sd">    labels as drawn. With ``edge_method=&#39;adjacency&#39;`` an edge exists when</span>
+<span class="sd">    two regions are adjacent (default ``adjacency_connectivity=&#39;corner&#39;``,</span>
+<span class="sd">    8-connected in 2D / 26-connected in 3D) and the number of contact</span>
+<span class="sd">    (shared-boundary) voxels is at least ``adjacency_min_voxels``</span>
+<span class="sd">    (default ``10``). Components use ``connectivity=&#39;full&#39;`` (same 8/26</span>
+<span class="sd">    neighborhood). Pass ``face`` on both fields for 4/6-connectivity.</span>
+<span class="sd">    Pass a positive ``erosion_radius`` to shrink habitats before edges. The</span>
+<span class="sd">    alternative ``centroid_distance`` method connects centroids</span>
 <span class="sd">    within ``distance_threshold``. NetworkX-derived topology</span>
 <span class="sd">    metrics are reported per habitat (``single_h*`` columns) and per habitat</span>
 <span class="sd">    pair (``pair_h*_h*`` columns), covering degree/edge counts, density,</span>
@@ -2208,14 +2234,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">edge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;centroid_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">,</span>
         <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
-        <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span><span class="p">,</span>
+        <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span> <span class="s2">&quot;corner&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span><span class="p">,</span>
         <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">edge_weight</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
             <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="s2">&quot;inverse_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;contact_voxels&quot;</span>
         <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
         <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span><span class="p">,</span>
-        <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span>
+        <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>

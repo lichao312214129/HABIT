@@ -1008,6 +1008,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -1237,6 +1238,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1687,6 +1692,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1702,6 +1715,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -2141,26 +2158,35 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runtime options for graph-based habitat feature extraction.</span>
 
 <span class="sd">    Default edge rule: ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_connectivity=&#39;face&#39;`` and ``adjacency_min_voxels=10``. An</span>
-<span class="sd">    edge exists when two regions share a boundary and the contact voxel</span>
-<span class="sd">    count is at least 10.</span>
+<span class="sd">    ``adjacency_connectivity=&#39;corner&#39;`` (8-connected in 2D / 26-connected</span>
+<span class="sd">    in 3D) and ``adjacency_min_voxels=10``. Components use</span>
+<span class="sd">    ``connectivity=&#39;full&#39;`` (same 8/26 neighborhood). Pass</span>
+<span class="sd">    ``adjacency_connectivity=&#39;face&#39;`` and ``connectivity=&#39;face&#39;`` for</span>
+<span class="sd">    4-connected / 6-connected neighborhoods. Adjacency and the</span>
+<span class="sd">    contact-voxel count are measured on the habitat labels as drawn</span>
+<span class="sd">    (``erosion_radius=0``). An edge exists when two regions share a</span>
+<span class="sd">    boundary and the contact voxel count is at least 10. Pass a</span>
+<span class="sd">    positive ``erosion_radius`` to shrink each habitat before labeling</span>
+<span class="sd">    and edge construction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="c1"># Default edge rule: connect face-adjacent regions whose shared-boundary</span>
-    <span class="c1"># (contact) voxel-pair count is at least ``adjacency_min_voxels``.</span>
+    <span class="c1"># Default edge rule: connect corner-adjacent regions (8-conn in 2D /</span>
+    <span class="c1"># 26-conn in 3D) whose shared-boundary (contact) voxel-pair count is</span>
+    <span class="c1"># at least ``adjacency_min_voxels``. Pass ``&quot;face&quot;`` for 4/6-conn.</span>
     <span class="n">edge_method</span><span class="p">:</span> <span class="n">EdgeMethod</span> <span class="o">=</span> <span class="s2">&quot;adjacency&quot;</span>
     <span class="n">distance_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
     <span class="c1"># Adjacency edge parameters (used when edge_method == &quot;adjacency&quot;).</span>
-    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
+    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span>
     <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
-    <span class="c1"># Default erosion (1 iteration) removes a one-voxel boundary shell to</span>
-    <span class="c1"># suppress segmentation edge noise before connected-component labeling.</span>
-    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
+    <span class="c1"># Default is off: adjacency / contact are measured on the habitat labels</span>
+    <span class="c1"># as drawn. Pass a positive value to shrink each habitat (binary erosion</span>
+    <span class="c1"># iterations) before connected-component labeling and edge construction.</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="c1"># Subdivision is on by default: contiguous habitats would otherwise collapse</span>
     <span class="c1"># into a single graph node and erase internal spatial structure. Components</span>
     <span class="c1"># larger than ``subdivide_region_voxels`` are split into ``block_size`` grid</span>
@@ -2326,8 +2352,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Extract subject-level graph features from a habitat label map.</span>
 
 <span class="sd">    Default ``options`` use ``edge_method=&#39;adjacency&#39;`` with</span>
-<span class="sd">    ``adjacency_min_voxels=10``: an edge exists when two regions are</span>
-<span class="sd">    adjacent and the contact (shared-boundary) voxel count is &gt;= 10.</span>
+<span class="sd">    ``adjacency_min_voxels=10`` and ``erosion_radius=0``: an edge exists</span>
+<span class="sd">    when two regions are adjacent on the habitat labels as drawn and the</span>
+<span class="sd">    contact (shared-boundary) voxel count is &gt;= 10. Pass</span>
+<span class="sd">    ``erosion_radius&gt;=1`` to shrink habitats before edges.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: Already segmented habitat map. Label 0 is treated as</span>

@@ -482,9 +482,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -497,9 +496,8 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1010,6 +1008,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#id5">Implementation</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/whole_each_habitat.html#compare-habitats-cohort-or-one-subject">Compare habitats (cohort or one subject)</a></li>
 </ul>
 </li>
 </ul>
@@ -1239,6 +1238,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.NonRadiomicsHabitatFeaturesParams.html">NonRadiomicsHabitatFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeatures.html">EachHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.EachHabitatRadiomicsFeaturesParams.html">EachHabitatRadiomicsFeaturesParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.to_habitat_feature_panel.html">to_habitat_feature_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.compare_habitat_features.html">compare_habitat_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeaturePanel.html">HabitatFeaturePanel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.HabitatFeatureComparison.html">HabitatFeatureComparison</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeatures.html">WholeHabitatRadiomicsFeatures</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.WholeHabitatRadiomicsFeaturesParams.html">WholeHabitatRadiomicsFeaturesParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.TraditionalRadiomicsHabitatFeatures.html">TraditionalRadiomicsHabitatFeatures</a></li>
@@ -1689,6 +1692,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_calibration.html">plot_calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_decision_curve.html">plot_decision_curve</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_confusion_matrix.html">plot_confusion_matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_summary.html">plot_shap_summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_bar.html">plot_shap_bar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_violin.html">plot_shap_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_heatmap.html">plot_shap_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_dependence.html">plot_shap_dependence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_waterfall.html">plot_shap_waterfall</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_decision.html">plot_shap_decision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_shap_force.html">plot_shap_force</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
@@ -1704,6 +1715,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_violin.html">plot_habitat_feature_violin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
@@ -2431,7 +2446,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">node_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
     <span class="n">graph_kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span><span class="p">,</span>
+    <span class="n">adjacency_connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;corner&quot;</span><span class="p">,</span>
     <span class="n">adjacency_min_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">edge_weight</span><span class="p">:</span> <span class="n">EdgeWeightMode</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
     <span class="n">include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2450,8 +2465,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        labels: One label for a single-habitat graph or two labels for a pairwise</span>
 <span class="sd">            graph.</span>
 <span class="sd">        graph_kind: ``&quot;single&quot;`` or ``&quot;pairwise&quot;``.</span>
-<span class="sd">        adjacency_connectivity: Neighbor definition: ``&quot;face&quot;`` (6-conn in 3D),</span>
-<span class="sd">            ``&quot;edge&quot;`` (18-conn in 3D), or ``&quot;corner&quot;`` (26-conn in 3D).</span>
+<span class="sd">        adjacency_connectivity: Neighbor definition. Default ``&quot;corner&quot;``</span>
+<span class="sd">            is 8-conn in 2D / 26-conn in 3D. ``&quot;face&quot;`` is 4/6-conn;</span>
+<span class="sd">            ``&quot;edge&quot;`` is 8/18-conn.</span>
 <span class="sd">        adjacency_min_voxels: Minimum adjacent voxel pair count required to</span>
 <span class="sd">            create an edge. Must be &gt;= 1. Default ``10``: an edge exists only</span>
 <span class="sd">            when two regions are adjacent and share at least 10 contact voxels.</span>

@@ -34,8 +34,9 @@ Minimal YAML fragment::
 
    graph:
      edge_method: adjacency
-     adjacency_connectivity: face
+     adjacency_connectivity: corner
      adjacency_min_voxels: 10
+     connectivity: full
      erosion_radius: 0
      subdivide_region_voxels: 1000
      include_single_habitat_graph: true
@@ -51,13 +52,17 @@ Outputs:
   ``[view]``)
 
 By default there is **no morphological erosion** (``erosion_radius: 0``).
-An **edge exists when two regions are adjacent** (face-sharing voxels;
-``adjacency_connectivity: face``) **and** the contact (shared-boundary)
-voxel count is **>= 10** (``adjacency_min_voxels: 10``), measured on the
-habitat labels as drawn. Set ``erosion_radius`` to a positive integer if
-you want to shrink each habitat before building edges. Use
-``edge_method: centroid_distance`` plus ``distance_threshold`` if you
-want the older centroid-proximity rule instead.
+Components use **corner connectivity** (``connectivity: full``:
+8-connected in 2D / 26-connected in 3D). An **edge exists when two
+regions are adjacent** under the same neighborhood
+(``adjacency_connectivity: corner``) **and** the contact
+(shared-boundary) voxel count is **>= 10** (``adjacency_min_voxels: 10``),
+measured on the habitat labels as drawn. Face (4/6) remains available via
+``connectivity: face`` and ``adjacency_connectivity: face``. Set
+``erosion_radius`` to a positive integer if you want to shrink each
+habitat before building edges. Use ``edge_method: centroid_distance``
+plus ``distance_threshold`` if you want the older centroid-proximity
+rule instead.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 
