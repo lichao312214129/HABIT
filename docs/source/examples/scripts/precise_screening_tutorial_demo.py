@@ -231,7 +231,8 @@ def _mask_edge_figure(
     direction,
     spacing,
     filename: str,
-) -> None:
+    index: int | None = None,
+) -> int:
     """
     ROI-cropped anatomy with original vs MONAI elastic / B-spline FFD contours.
 
@@ -245,6 +246,11 @@ def _mask_edge_figure(
         direction: SimpleITK direction cosines.
         spacing: SimpleITK spacing ``(x, y, z)``.
         filename: Gallery basename.
+        index: Slice index in the cropped volume. ``None`` selects the
+            densest original-ROI slice (same rule as the habitat compare).
+
+    Returns:
+        Slice index used in the cropped volume.
     """
     from habit.viz import use_style
     from habit.viz.labels import sanitize_label
@@ -259,7 +265,10 @@ def _mask_edge_figure(
     anatomy_c = anatomy_vol[crop]
     orig_c = (original_mask[crop] > 0).astype(np.uint8)
     def_c = (deformed_mask[crop] > 0).astype(np.uint8)
-    index = _densest_roi_index(orig_c, axis=0)
+    if index is None:
+        index = _densest_roi_index(orig_c, axis=0)
+    else:
+        index = int(index)
 
     orig_sl = _orient(np.take(anatomy_c, index, axis=0), direction=direction)
     mask_orig = _orient(np.take(orig_c, index, axis=0), direction=direction)
@@ -375,6 +384,7 @@ def _mask_edge_figure(
 
     n_changed = int(np.sum((deformed_mask > 0) != (original_mask > 0)))
     print(f"  mask voxels changed (MONAI FFD): {n_changed}")
+    return index
 
 
 if __name__ == "__main__":
@@ -487,13 +497,19 @@ if __name__ == "__main__":
         title=f"Prior 2024 simulated retest (demo subject {subject_id})",
         filename="precise_screen_perturbation.png",
     )
+    _ffd_mask = np.asarray(ffd_subject.mask(ROI).data)
+    _def_mask = np.asarray(deformed.mask(ROI).data)
+    _display_union = (_ffd_mask > 0) | (_def_mask > 0)
+    _display_crop = _roi_crop_slices(_display_union.astype(np.uint8), pad=16)
+    display_slice = _densest_roi_index(_ffd_mask[_display_crop], axis=0)
     _mask_edge_figure(
         np.asarray(ffd_subject.image(modality).data, dtype=np.float64),
-        np.asarray(ffd_subject.mask(ROI).data),
-        np.asarray(deformed.mask(ROI).data),
+        _ffd_mask,
+        _def_mask,
         direction=direction,
         spacing=spacing,
         filename="precise_perturb_mask_edge.png",
+        index=display_slice,
     )
 
     with use_style("radiology"):
@@ -509,92 +525,22 @@ if __name__ == "__main__":
         _save_figure(fig_k, "precise_screen_kernel_scale.png")
 
     # BEGIN stability
-    # Paste after the Script block. Uses subject, retest, ffd_subject, deformed,
-    # anatomy, mask, entropy_large, modality, ROI, MODALITIES, direction, spacing.
-    from habit import (
-        Cohort,
-        align_habitat_map,
-        extract_graph_features,
-        habitat_stability,
-        habitat_volume_fractions,
-        ith_score,
-        one_step_habitat,
-        spatial_interaction_matrix,
-    )
-    from habit.viz import plot_habitat_label_compare
-    from habit.viz.orientation import imshow_physical_extent
-
-    Path("out").mkdir(exist_ok=True)
-
-    # --- Prior-style (ROI unchanged): voxel entropy original vs retest ---
-    entropy_retest = local_entropy_map(
-        np.asarray(retest.image(modality).data), kernel_size=7, bins=16
-    )
-    roi = np.asarray(mask) > 0
-    orig_e = np.asarray(entropy_large, dtype=np.float64)
-    ret_e = np.asarray(entropy_retest, dtype=np.float64)
-    abs_diff = np.abs(orig_e - ret_e)
-    roi_diff = abs_diff[roi]
-    thresh = float(np.nanpercentile(roi_diff, 75)) if roi_diff.size else 0.0
-    voxel_state = np.zeros(orig_e.shape, dtype=np.int32)
-    voxel_state[roi & (abs_diff <= thresh)] = 1
-    voxel_state[roi & (abs_diff > thresh)] = 2
-    print("Prior-style voxel entropy (ROI unchanged)")
-    print(f"  precise/stable voxels: {int(np.sum(voxel_state == 1))}")
-    print(f"  unstable voxels: {int(np.sum(voxel_state == 2))}")
-
-    index = _densest_roi_index(np.asarray(mask), axis=0)
-    orig_sl = _orient(np.take(orig_e, index, axis=0), direction=direction)
-    ret_sl = _orient(np.take(ret_e, index, axis=0), direction=direction)
-    state_sl = _orient(np.take(voxel_state, index, axis=0), direction=direction)
-    extent = imshow_physical_extent(
-        (int(orig_sl.shape[0]), int(orig_sl.shape[1])),
-        spacing,
-        slice_axis=0,
-        ndim=3,
-    )
-    from matplotlib.colors import ListedColormap
+    # Paste after the Script block. Uses ffd_subject, deformed, modality,
+    # ROI, MODALITIES, direction, spacing. Same crop + slice as the ROI
+    # contour figure (densest original ROI after the union bbox crop).
+    from habit import Cohort, align_habitat_map, habitat_stability, one_step_habitat
+    from habit.viz import plot_habitat_label_compare, use_style
 
     import matplotlib.pyplot as plt
 
-    with use_style("radiology"):
-        fig_voxel, axes_v = plt.subplots(
-            1, 3, figsize=(11.4, 3.9), constrained_layout=True, facecolor="white"
-        )
-        for ax, data, title, cmap, vmin, vmax in (
-            (axes_v[0], orig_sl, "Entropy, original", "cividis", None, None),
-            (axes_v[1], ret_sl, "Entropy, Prior retest", "cividis", None, None),
-            (
-                axes_v[2],
-                state_sl,
-                "Stable vs unstable voxels",
-                ListedColormap(["#FFFFFF", "#009E73", "#D55E00"]),
-                0,
-                2,
-            ),
-        ):
-            ax.imshow(
-                data,
-                cmap=cmap,
-                interpolation="nearest",
-                origin="upper",
-                extent=extent,
-                aspect="equal",
-                vmin=vmin,
-                vmax=vmax,
-            )
-            ax.set_title(title)
-            ax.axis("off")
-        fig_voxel.suptitle("Prior-style voxel stability (mask unchanged)")
-        fig_voxel.savefig(
-            "out/precise_voxel_stable_vs_unstable.png",
-            dpi=150,
-            bbox_inches="tight",
-            facecolor="white",
-        )
-        plt.close(fig_voxel)
+    Path("out").mkdir(exist_ok=True)
 
-    # --- BSpline (ROI changes): habitats before vs after + per-habitat Dice ---
+    orig_mask = np.asarray(ffd_subject.mask(ROI).data)
+    warped_mask = np.asarray(deformed.mask(ROI).data)
+    display_union = (orig_mask > 0) | (warped_mask > 0)
+    display_crop = _roi_crop_slices(display_union.astype(np.uint8), pad=16)
+    display_slice = _densest_roi_index(orig_mask[display_crop], axis=0)
+
     crop_cohort = Cohort(subjects=(ffd_subject,))
     warped_cohort = Cohort(subjects=(deformed,))
     orig_habitats = one_step_habitat(
@@ -617,38 +563,19 @@ if __name__ == "__main__":
     dice_frame = habitat_stability(ref_map, [mov_map])
     print("Habitat Dice after BSplineDeform (Hungarian match)")
     print(dice_frame.to_string(index=False))
-    roi_labels = (np.asarray(ref_map.label_array) > 0) | (
-        np.asarray(mov_map.label_array) > 0
-    )
-    raw_disagree = int(
-        np.count_nonzero(
-            (ref_map.label_array != mov_map.label_array) & roi_labels
-        )
-    )
-    aligned_disagree = int(
-        np.count_nonzero(
-            (ref_map.label_array != aligned_map.label_array) & roi_labels
-        )
-    )
-    print(
-        f"Disagreement voxels (ROI): raw={raw_disagree} "
-        f"after_overlap_remap={aligned_disagree}"
-    )
-    mov_ids = np.asarray(mov_map.label_array)
-    aln_ids = np.asarray(aligned_map.label_array)
-    was_h3 = mov_ids == 3
-    if np.any(was_h3):
-        mapped, counts = np.unique(aln_ids[was_h3], return_counts=True)
-        print(
-            "Raw panel-2 habitat 3 remaps to: "
-            + ", ".join(f"H{int(i)} ({int(c)} vx)" for i, c in zip(mapped, counts))
-        )
+    print(f"Shared display slice (cropped original ROI): {display_slice}")
 
+    img_c = np.asarray(ffd_subject.image(modality).data)[display_crop]
+    ref_c = np.asarray(ref_map.label_array)[display_crop]
+    aln_c = np.asarray(aligned_map.label_array)[display_crop]
     fig_cmp = plot_habitat_label_compare(
-        ffd_subject.image(modality),
-        ref_map,
-        aligned_map,
+        img_c,
+        ref_c,
+        aln_c,
         titles=("Original ROI habitats", "Warped ROI habitats"),
+        index=display_slice,
+        direction=direction,
+        spacing=spacing,
         align_labels=True,
     )
     fig_cmp.savefig(
@@ -672,65 +599,9 @@ if __name__ == "__main__":
             "out/precise_habitat_dice.png", dpi=150, bbox_inches="tight"
         )
         plt.close(fig_dice)
-
-    def _habitat_feature_row(label_array: np.ndarray) -> dict[str, float]:
-        """ITH / MSI / graph / volume scalars for one habitat map."""
-        labels_arr = np.asarray(label_array)
-        ids = tuple(int(v) for v in np.unique(labels_arr) if int(v) > 0)
-        volumes = habitat_volume_fractions(labels_arr, ids)
-        n_classes = int(max(ids)) + 1 if ids else 1
-        msi = spatial_interaction_matrix(labels_arr, n_classes=n_classes)
-        graph = extract_graph_features(labels_arr)
-        row: dict[str, float] = {
-            "ith_score": float(ith_score(labels_arr)),
-            "msi_mean": float(np.mean(msi)) if msi.size else 0.0,
-        }
-        for hid, frac in volumes.items():
-            row[f"volume_h{hid}"] = float(frac)
-        for key in (
-            "graph_num_habitats",
-            "graph_num_nodes_total",
-        ):
-            if key in graph:
-                row[key] = float(graph[key])
-        return row
-
-    before = _habitat_feature_row(ref_map.label_array)
-    after = _habitat_feature_row(mov_map.label_array)
-    names = sorted(set(before) | set(after))
-    rel = []
-    for name in names:
-        a = float(before.get(name, 0.0))
-        b = float(after.get(name, 0.0))
-        rel.append(abs(a - b) / (abs(a) + abs(b) + 1e-8))
-    stable_cut = 0.15
-    stable_feats = [n for n, r in zip(names, rel) if r <= stable_cut]
-    unstable_feats = [n for n, r in zip(names, rel) if r > stable_cut]
-    print("Habitat-level features after BSplineDeform (relative change <= 0.15)")
-    print(f"  stable: {stable_feats}")
-    print(f"  unstable: {unstable_feats}")
-
-    with use_style("radiology"):
-        fig_feat, ax_f = plt.subplots(figsize=(7.2, 3.4))
-        colors_f = ["#009E73" if r <= stable_cut else "#D55E00" for r in rel]
-        ax_f.bar(range(len(names)), rel, color=colors_f)
-        ax_f.axhline(stable_cut, color="0.25", linestyle="--", linewidth=1.0)
-        ax_f.set_xticks(range(len(names)))
-        ax_f.set_xticklabels(names, rotation=35, ha="right", fontsize=8)
-        ax_f.set_ylabel("Relative change")
-        ax_f.set_title("ITH / MSI / graph / volume: stable vs unstable")
-        fig_feat.tight_layout()
-        fig_feat.savefig(
-            "out/precise_habitat_feature_stability.png",
-            dpi=150,
-            bbox_inches="tight",
-        )
-        plt.close(fig_feat)
     print(
-        "Wrote out/precise_voxel_stable_vs_unstable.png, "
-        "out/precise_habitat_stability_compare.png, "
-        "out/precise_habitat_dice.png, "
-        "out/precise_habitat_feature_stability.png"
+        "Wrote out/precise_habitat_stability_compare.png, "
+        "out/precise_habitat_dice.png"
     )
     # END stability
 
@@ -741,9 +612,7 @@ if __name__ == "__main__":
 
     copy_out_figures_to_gallery(
         (
-            "precise_voxel_stable_vs_unstable.png",
             "precise_habitat_stability_compare.png",
             "precise_habitat_dice.png",
-            "precise_habitat_feature_stability.png",
         )
     )

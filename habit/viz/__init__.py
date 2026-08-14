@@ -103,6 +103,7 @@ from habit.viz.habitat_core import (
     plot_ith_summary,
     plot_msi_matrix,
     plot_partition_triptych,
+    plot_precision_icc,
 )
 from habit.viz.habitat_overlay import plot_habitat_overlay
 from habit.viz.habitat_napari import view_habitat_napari
@@ -169,6 +170,7 @@ __all__ = [
     "plot_ith_summary",
     "plot_habitat_label_compare",
     "plot_partition_triptych",
+    "plot_precision_icc",
     "plot_habitat_feature_heatmap",
     "plot_habitat_feature_effect",
     "plot_habitat_feature_components",

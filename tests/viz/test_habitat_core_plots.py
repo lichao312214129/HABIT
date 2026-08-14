@@ -33,6 +33,7 @@ from habit.viz import (
     plot_ith_summary,
     plot_msi_matrix,
     plot_partition_triptych,
+    plot_precision_icc,
 )
 
 
@@ -387,3 +388,40 @@ def test_label_compare_force_align_ignores_2_3_swap() -> None:
     aligned_disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
     assert int(np.count_nonzero(raw_disagree)) > 0
     assert int(np.count_nonzero(aligned_disagree)) == 0
+
+
+@pytest.mark.unit
+def test_plot_precision_icc_draws_points_and_threshold() -> None:
+    """ICC panel uses vertical CI whiskers and an English threshold label."""
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    evidence = pd.DataFrame(
+        {
+            "experiment": ["repeatability"] * 3,
+            "feature": [
+                "original_firstorder_Entropy-LAP",
+                "original_glcm_Contrast-LAP",
+                "original_glcm_Correlation-LAP",
+            ],
+            "value": [0.82, 0.41, 0.70],
+            "lcl": [0.78, 0.30, 0.55],
+            "ucl": [0.86, 0.50, 0.80],
+            "precise": [True, False, True],
+        }
+    )
+    fig = plot_precision_icc(evidence, lcl_threshold=0.5)
+    assert fig.get_axes()
+    ax = fig.axes[0]
+    assert ax.get_ylabel() == "ICC (95% CI)"
+    assert ax.get_title().isascii()
+    texts = " ".join(t.get_text() for t in ax.get_xticklabels())
+    assert "Entropy" in texts
+    assert "Contrast" in texts
+    legend = ax.get_legend()
+    assert legend is not None
+    legend_text = " ".join(t.get_text() for t in legend.get_texts())
+    assert legend_text.isascii()
+    assert "Precise" in legend_text
+    assert "0.5" in legend_text
+    plt.close(fig)

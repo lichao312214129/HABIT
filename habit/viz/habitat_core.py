@@ -71,6 +71,7 @@ __all__ = [
     "plot_ith_summary",
     "plot_habitat_label_compare",
     "plot_partition_triptych",
+    "plot_precision_icc",
 ]
 
 _VIZ_PURPOSE = "habitat core analysis figures"
@@ -1150,4 +1151,150 @@ def plot_partition_triptych(
             label=colorbar_label,
         )
         fig.suptitle(sanitize_label("Two-step partitions"))
+    return fig
+
+
+#: Point / whisker colours for the precision ICC panel.
+_PRECISE_ICC_COLOR = "#0072B2"
+_UNSTABLE_ICC_COLOR = "#9AA0A6"
+_ICC_THRESHOLD_COLOR = "0.25"
+
+
+def _precision_feature_tick(name: object) -> str:
+    """
+    Shorten a voxel-radiomics column name for an axis tick.
+
+    Args:
+        name: Feature name from a precision evidence table.
+
+    Returns:
+        ASCII tick label (class + feature, modality suffix dropped).
+    """
+    text = sanitize_label(str(name))
+    for prefix in ("original_firstorder_", "original_glcm_", "original_"):
+        if text.startswith(prefix):
+            text = text[len(prefix) :]
+            break
+    if "-" in text:
+        text = text.rsplit("-", 1)[0]
+    return text
+
+
+def plot_precision_icc(
+    evidence: Any,
+    *,
+    lcl_threshold: float = 0.5,
+    title: str = "Precision screen: ICC and 95% CI",
+) -> "Figure":
+    """
+    Draw per-feature ICC points with vertical 95% CI whiskers.
+
+    Each row of ``evidence`` is one feature (optionally one experiment).
+    The point is the ICC; the whisker is ``[lcl, ucl]``. Colour marks
+    precise vs unstable. A dashed horizontal line is the LCL threshold.
+
+    Args:
+        evidence: Long-format table with columns ``feature``, ``value``,
+            ``lcl``, ``ucl``. Optional ``precise`` (bool) and
+            ``experiment``. Typically ``PreciseFeatureSet.to_frame()``.
+        lcl_threshold: Horizontal cutoff drawn on the ICC axis.
+        title: Figure title (English / ASCII).
+
+    Returns:
+        The matplotlib ``Figure``; the caller decides where it is saved.
+
+    Raises:
+        HABITAPIError: When required columns are missing or empty.
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    import pandas as pd
+
+    frame = pd.DataFrame(evidence)
+    required = ("feature", "value", "lcl", "ucl")
+    missing = [name for name in required if name not in frame.columns]
+    if missing:
+        raise HABITAPIError(
+            "plot_precision_icc: evidence must include "
+            f"{required}; missing {missing}."
+        )
+    if frame.empty:
+        raise HABITAPIError("plot_precision_icc: evidence table is empty.")
+
+    values = frame["value"].to_numpy(dtype=float)
+    lower = frame["lcl"].to_numpy(dtype=float)
+    upper = frame["ucl"].to_numpy(dtype=float)
+    if "precise" in frame.columns:
+        precise_flag = frame["precise"].to_numpy(dtype=bool)
+    else:
+        precise_flag = lower >= float(lcl_threshold)
+    labels = [_precision_feature_tick(name) for name in frame["feature"]]
+    if "experiment" in frame.columns and frame["experiment"].nunique() > 1:
+        labels = [
+            f"{label} ({sanitize_label(str(exp))})"
+            for label, exp in zip(labels, frame["experiment"])
+        ]
+
+    n_rows = int(len(labels))
+    x = np.arange(n_rows, dtype=float)
+    yerr = np.vstack([values - lower, upper - values])
+    yerr = np.clip(yerr, 0.0, None)
+    colors = np.where(precise_flag, _PRECISE_ICC_COLOR, _UNSTABLE_ICC_COLOR)
+
+    plt = _plt()
+    from matplotlib.lines import Line2D
+
+    fig_width = max(6.4, 0.55 * n_rows + 2.2)
+    with use_style("radiology"):
+        fig, ax = plt.subplots(figsize=(fig_width, 3.8), constrained_layout=True)
+        for index in range(n_rows):
+            ax.errorbar(
+                x[index],
+                values[index],
+                yerr=yerr[:, index : index + 1],
+                fmt="o",
+                color=colors[index],
+                ecolor=colors[index],
+                elinewidth=1.4,
+                capsize=4.0,
+                markersize=6.0,
+                zorder=3,
+            )
+        ax.axhline(
+            float(lcl_threshold),
+            color=_ICC_THRESHOLD_COLOR,
+            linestyle="--",
+            linewidth=1.2,
+            zorder=2,
+        )
+        ax.set_xticks(list(x))
+        ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=8)
+        ax.set_ylabel("ICC (95% CI)")
+        ax.set_ylim(-0.05, 1.05)
+        ax.set_title(sanitize_label(title))
+        handles = [
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color=_PRECISE_ICC_COLOR,
+                linestyle="None",
+                label="Precise",
+            ),
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color=_UNSTABLE_ICC_COLOR,
+                linestyle="None",
+                label="Unstable",
+            ),
+            Line2D(
+                [0],
+                [0],
+                color=_ICC_THRESHOLD_COLOR,
+                linestyle="--",
+                label=f"LCL threshold ({float(lcl_threshold):g})",
+            ),
+        ]
+        ax.legend(handles=handles, frameon=False, loc="lower right")
     return fig

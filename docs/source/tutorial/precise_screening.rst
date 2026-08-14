@@ -147,10 +147,10 @@ shell command.
    precise = identify_precise_voxel_features(cohort, seed=7)
 
 With the default voxel-radiomics factory this is the paper design
-(needs PyRadiomics). The gallery demo uses raw intensities so it runs
-without that extra; the **call shape is the same**. Restrict the grid
-with ``kernel_radii=(3,)`` / ``bin_widths=(12,)`` to skip an experiment
-you cannot resource.
+(needs PyRadiomics). The gallery demo screens a small first-order +
+GLCM texture set on one cropped subject; the **call shape is the same**.
+Restrict the grid with ``kernel_radii=(1,)`` / ``bin_widths=(12,)`` to
+skip an experiment you cannot resource.
 
 **2. Publish the artefact.** ``precise.save("precise_features.json")``
 writes the feature names plus the evidence panels. Another lab should
@@ -181,11 +181,12 @@ and clustering::
    result = Study(spec).fit_predict(cohort)
 
 .. figure:: ../_static/images/examples/precise_features_icc_lcl.png
-   :alt: ICC and LCL bars for the precision screen
-   :width: 520
+   :alt: ICC point estimates with 95 percent confidence intervals
+   :width: 640
 
-   Repeatability ICC and lower confidence limit per feature, with the
-   0.5 LCL threshold.
+   Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
+   texture feature, with the 0.5 LCL threshold
+   (:func:`~habit.viz.plot_precision_icc`).
 
 .. figure:: ../_static/images/examples/precise_features_overlay.png
    :alt: Habitat overlay after clustering only precise features

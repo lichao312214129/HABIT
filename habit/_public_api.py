@@ -411,6 +411,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_ith_summary",
         "plot_habitat_label_compare",
         "plot_partition_triptych",
+        "plot_precision_icc",
         "plot_habitat_graph_slice",
         "plot_habitat_graph_network_2d",
         "render_habitat_graph_surface_3d",
