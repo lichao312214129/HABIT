@@ -111,6 +111,9 @@ def align_habitat_map(
             ``habitat_ids[i]``).
         moving_centroids: Optional cluster centres of the moving fit.
         force: If True, align even when ``model_id`` already matches.
+            Independent ``one_step`` / ``fit_predict`` runs on the same
+            subject share a model_id (spec + subject-id digest, not image
+            content) and need ``force=True``.
 
     Returns:
         A new map with remapped labels, ``model_id`` / ``habitat_ids``

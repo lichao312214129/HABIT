@@ -869,6 +869,8 @@ def plot_habitat_label_compare(
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
         align_labels: ``None`` (default) aligns unless both inputs share a
             ``model_id``; ``True`` always aligns; ``False`` never aligns.
+            Independent ``one_step`` fits on the same subject share a
+            model_id (spec + subject-id digest) and need ``True``.
         align_method: ``"overlap"`` (default, same-grid visual compare) or
             ``"centroid"`` (feature / intensity centroids).
 

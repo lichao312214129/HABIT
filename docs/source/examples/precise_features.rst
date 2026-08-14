@@ -267,9 +267,9 @@ Paste after the Script block (it uses ``subject``, ``retest``,
    Habitats before vs after the MONAI B-spline warp
    (:func:`~habit.viz.plot_habitat_label_compare`).
    Panel 2 (warped) is relabelled onto the reference ids by spatial
-   overlap (:func:`~habit.align_habitat_map` with ``method="overlap"``)
-   so habitat 2 is the same region in both panels. Disagreement is
-   after that remap, not raw id inequality.
+   overlap (:func:`~habit.align_habitat_map` with ``method="overlap"``
+   and ``force=True``) so habitat 2 is the same region in both panels.
+   Disagreement is after that remap, not raw id inequality.
 
 .. figure:: ../_static/images/examples/precise_habitat_dice.png
    :alt: Per-habitat Dice after Hungarian matching

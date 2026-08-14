@@ -339,3 +339,51 @@ def test_label_compare_skips_align_when_model_ids_match() -> None:
     # Auto-skip leaves the permutation in place: disagreement is the full ROI.
     disagree = (labels_a != labels_b) & ((labels_a > 0) | (labels_b > 0))
     assert int(np.count_nonzero(disagree)) == int(np.count_nonzero(labels_a > 0))
+
+
+@pytest.mark.unit
+def test_label_compare_force_align_ignores_2_3_swap() -> None:
+    """align_labels=True remaps a 2<->3 swap even when model_ids match."""
+    from habit.contracts import Geometry, HabitatMap, Provenance
+    from habit.kernels.habitat_label_match import align_label_array
+
+    labels_a = np.zeros((6, 4, 4), dtype=np.int32)
+    labels_a[0:2, 0:2, 0:2] = 1
+    labels_a[2:4, 0:2, 0:2] = 2
+    labels_a[4:6, 0:2, 0:2] = 3
+    labels_b = labels_a.copy()
+    labels_b[labels_a == 2] = 9
+    labels_b[labels_a == 3] = 2
+    labels_b[labels_b == 9] = 3
+    geometry = Geometry.from_array((6, 4, 4))
+    provenance = Provenance.source("viz_test")
+    map_a = HabitatMap(
+        subject_id="P1",
+        label_array=labels_a,
+        geometry=geometry,
+        model_id="shared-one-step-id",
+        habitat_ids=(1, 2, 3),
+        provenance=provenance,
+    )
+    map_b = HabitatMap(
+        subject_id="P1",
+        label_array=labels_b,
+        geometry=geometry,
+        model_id="shared-one-step-id",
+        habitat_ids=(1, 2, 3),
+        provenance=provenance,
+    )
+    image = np.zeros((6, 4, 4), dtype=np.float64)
+    import matplotlib.pyplot as plt
+
+    fig = plot_habitat_label_compare(
+        image, map_a, map_b, axis=0, align_labels=True
+    )
+    fig.canvas.draw()
+    plt.close(fig)
+    aligned = align_label_array(labels_a, labels_b, method="overlap")
+    assert np.array_equal(aligned, labels_a)
+    raw_disagree = (labels_a != labels_b) & ((labels_a > 0) | (labels_b > 0))
+    aligned_disagree = (aligned != labels_a) & ((aligned > 0) | (labels_a > 0))
+    assert int(np.count_nonzero(raw_disagree)) > 0
+    assert int(np.count_nonzero(aligned_disagree)) == 0

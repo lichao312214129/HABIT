@@ -843,7 +843,12 @@ class TestAlignHabitatMap:
         assert np.array_equal(aligned.label_array, reference.label_array)
 
     def test_overlap_2_3_swap_on_moving_only(self) -> None:
-        """Overlap remaps a 2<->3 permutation on moving; disagreement ignores it."""
+        """Overlap remaps a 2<->3 permutation on moving; disagreement ignores it.
+
+        Independent one_step fits of the same spec on the same subject share
+        a model_id (subject-id digest, not image content). force=True is
+        what actually applies the remap in that situation.
+        """
         labels = np.zeros((6, 4, 4), dtype=np.int32)
         labels[0:2, 0:2, 0:2] = 1
         labels[2:4, 0:2, 0:2] = 2
@@ -856,7 +861,7 @@ class TestAlignHabitatMap:
             subject_id="P1",
             label_array=labels,
             geometry=Geometry.from_array((6, 4, 4)),
-            model_id="ref-model",
+            model_id="shared-one-step-id",
             habitat_ids=(1, 2, 3),
             provenance=provenance(),
         )
@@ -864,11 +869,15 @@ class TestAlignHabitatMap:
             subject_id="P1",
             label_array=swapped,
             geometry=reference.geometry,
-            model_id="other-model",
+            model_id="shared-one-step-id",
             habitat_ids=(1, 2, 3),
             provenance=provenance(),
         )
-        aligned = align_habitat_map(reference, moving, method="overlap")
+        skipped = align_habitat_map(reference, moving, method="overlap")
+        assert skipped is moving
+        aligned = align_habitat_map(
+            reference, moving, method="overlap", force=True
+        )
         assert np.array_equal(reference.label_array, labels)
         assert np.array_equal(aligned.label_array, labels)
         assert not np.array_equal(moving.label_array, labels)

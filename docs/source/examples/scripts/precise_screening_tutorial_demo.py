@@ -608,9 +608,12 @@ if __name__ == "__main__":
     # Independent one_step fits permute integer ids. Remap the warped map
     # (panel 2 only) onto the reference by maximal voxel overlap -- the
     # same Hungarian pairing habitat_stability uses -- so habitat 2 is the
-    # same spatial region on both panels. Feature-space centroids can
-    # disagree with that pairing. Dice is scored on the original pair.
-    aligned_map = align_habitat_map(ref_map, mov_map, method="overlap")
+    # same spatial region on both panels. force=True is required: both
+    # fits share a model_id (same spec + subject id digest) even though
+    # the clusterings are independent. Dice is scored on the original pair.
+    aligned_map = align_habitat_map(
+        ref_map, mov_map, method="overlap", force=True
+    )
     dice_frame = habitat_stability(ref_map, [mov_map])
     print("Habitat Dice after BSplineDeform (Hungarian match)")
     print(dice_frame.to_string(index=False))
@@ -646,6 +649,7 @@ if __name__ == "__main__":
         ref_map,
         aligned_map,
         titles=("Original ROI habitats", "Warped ROI habitats"),
+        align_labels=True,
     )
     fig_cmp.savefig(
         "out/precise_habitat_stability_compare.png", dpi=150, bbox_inches="tight"
