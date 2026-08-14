@@ -15,7 +15,7 @@ the route through ``HabitatSpec.voxel_feature_extractor`` (and optionally
      - Concatenate modality intensities inside the ROI (fastest; synthetic demos)
    * - ``concat``
      - Join heterogeneous families (e.g. ``raw("T1")`` + ``voxel_radiomics("T2")``);
-       see :doc:`../how_to/habitat_components` section 1
+       see :doc:`../how_to/habitat_components` section 1B
    * - ``expression``
      - Restricted arithmetic over modalities (ratios, powers, ``square`` / ``log``);
        see :doc:`custom_voxel_features`

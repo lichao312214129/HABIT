@@ -130,9 +130,8 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -145,9 +144,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1737,8 +1735,9 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">habit</span> <span class="pre">check-config</span> <span class="pre">-c</span> <span class="pre">…</span></code> then the run command</p></li>
 </ol>
 <p>Start: <a class="reference internal" href="before_you_start.html"><span class="doc">Before you start</span></a> → <a class="reference internal" href="prepare_data.html"><span class="doc">Prepare data</span></a> → pipeline pages below.</p>
-<p><strong>Which Spec to put in each habitat stage</strong> (including mixed trees such as
-<code class="docutils literal notranslate"><span class="pre">concat(raw(&quot;T1&quot;),</span> <span class="pre">voxel_radiomics(&quot;T2&quot;))</span></code>): <a class="reference internal" href="habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a>.</p>
+<p><strong>Which Spec to put in each habitat stage</strong> (one series first, then
+combiners such as <code class="docutils literal notranslate"><span class="pre">concat(raw(&quot;T1&quot;),</span> <span class="pre">voxel_radiomics(&quot;T2&quot;))</span></code>):
+<a class="reference internal" href="habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a>.</p>
 <p><strong>Features from habitat maps</strong> (after habitats exist): <a class="reference internal" href="extract_features.html"><span class="doc">Feature extraction</span></a>
 and topology <a class="reference internal" href="graph_features.html"><span class="doc">Graph topology features</span></a> (built-in <code class="docutils literal notranslate"><span class="pre">graph</span></code> family). Gallery:
 <a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>.</p>

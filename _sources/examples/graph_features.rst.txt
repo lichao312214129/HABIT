@@ -7,9 +7,11 @@ Graph features from habitat maps
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=10`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
-:func:`~habit.viz.plot_habitat_graph_network_2d`. By default an edge exists
-when two regions are **adjacent** and the contact (shared-boundary) voxel
-count is **>= 10**. Graph topology is a habitat-map feature family (same
+:func:`~habit.viz.plot_habitat_graph_network_2d`. By default there is **no
+erosion**; an edge exists when two regions are **adjacent** and the
+contact (shared-boundary) voxel count is **>= 10**, measured on the
+habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
+before edges. Graph topology is a habitat-map feature family (same
 tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
 

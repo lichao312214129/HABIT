@@ -129,9 +129,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -144,9 +143,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1901,8 +1899,8 @@ chain</strong> at train time — per-subject state is frozen into
 </pre></div>
 </div>
 <p>Full list of names, every parameter, allowed values, and the YAML twin:
-<a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> (section 1 covers <code class="docutils literal notranslate"><span class="pre">concat</span></code> /
-<code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> trees).</p>
+<a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> (section 1A is one series; 1B is
+<code class="docutils literal notranslate"><span class="pre">concat</span></code> / <code class="docutils literal notranslate"><span class="pre">voxel_radiomics</span></code> trees).</p>
 <p>Discover the same facts in a running interpreter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_plugins</span><span class="p">,</span> <span class="n">get_param_schema</span>
 

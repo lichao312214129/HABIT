@@ -129,9 +129,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -144,9 +143,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1929,8 +1927,9 @@ Explicit <code class="docutils literal notranslate"><span class="pre">stages</sp
 </section>
 <section id="feature-trees-and-the-expression-form">
 <h2>Feature trees and the expression form<a class="headerlink" href="#feature-trees-and-the-expression-form" title="Link to this heading"></a></h2>
-<p>Copy-paste recipes (raw + radiomics, entropy + raw, nested combiners):
-<a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> section 1.</p>
+<p>Copy-paste recipes (single-modality leaves, then combiners):
+<a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> section 1. Nested trees:
+<a class="reference internal" href="../examples/feature_composition.html"><span class="doc">Feature composition: trees, combiners, and statistics</span></a>.</p>
 <p>Extraction stages accept a <strong>tree</strong> of nodes: leaves carry <code class="docutils literal notranslate"><span class="pre">modality=</span></code> /
 <code class="docutils literal notranslate"><span class="pre">modalities=</span></code> parameters, and combiner nodes nest their children under
 <code class="docutils literal notranslate"><span class="pre">params[&quot;children&quot;]</span></code> as plain <code class="docutils literal notranslate"><span class="pre">{&quot;name&quot;,</span> <span class="pre">&quot;params&quot;}</span></code> payloads. Any

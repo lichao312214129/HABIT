@@ -74,8 +74,8 @@ The script above is **one worked recipe**, not the only recipe. Each
    )
 
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components` (section 1 covers ``concat`` /
-``voxel_radiomics`` trees).
+:doc:`../how_to/habitat_components` (section 1A is one series; 1B is
+``concat`` / ``voxel_radiomics`` trees).
 
 Discover the same facts in a running interpreter::
 

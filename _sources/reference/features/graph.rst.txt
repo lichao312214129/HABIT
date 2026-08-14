@@ -63,9 +63,10 @@ For each habitat :math:`k\in\mathcal{H}`:
 2. If ``erosion_radius`` :math:`r\ge 1`, replace :math:`M_k` by
    :math:`r` iterations of binary erosion with structuring element
    :math:`S` and ``border_value=0``. Default in
-   :class:`~habit.kernels.HabitatGraphFeatureOptions` is :math:`r=1`
-   (one-voxel shell removed to suppress segmentation-edge noise).
-   :math:`r=0` disables erosion.
+   :class:`~habit.kernels.HabitatGraphFeatureOptions` is :math:`r=0`
+   (off): adjacency and contact are measured on the habitat labels as
+   drawn. Pass a positive :math:`r` to shrink each habitat before
+   labeling and edges.
 3. Label connected components of the (possibly eroded) mask with
    ``scipy.ndimage.label`` and structure :math:`S`:
 
@@ -157,7 +158,9 @@ pairs whose ids are :math:`(u,v)`. An edge exists iff
    N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}
 
 (default ``10``). An edge exists when two regions are adjacent and the
-contact (shared-boundary) voxel count is >= 10. ``contact_voxels``
+contact (shared-boundary) voxel count is >= 10, measured on the
+(possibly eroded) masks. Default ``erosion_radius=0`` means the habitat
+labels as drawn. ``contact_voxels``
 :math:`=N_{\mathrm{adj}}`. Distance on
 the edge is still the centroid Euclidean distance (used by distance
 summaries). Weight is ``1`` unless ``edge_weight='contact_voxels'``, in
@@ -447,7 +450,7 @@ below match the kernel dataclass.
    * - ``connectivity``
      - Connected-component rule: ``face`` or ``full`` (default ``face``)
    * - ``erosion_radius``
-     - Binary erosion iterations before labeling (default ``1``; ``0`` disables)
+     - Binary erosion iterations before labeling (default ``0`` / off; set ``>= 1`` to shrink habitats before edges)
    * - ``subdivide_region_voxels``
      - Split components larger than this into grid blocks (default ``1000``; ``0`` disables)
    * - ``block_size``

@@ -130,7 +130,7 @@ The composed tree is a normal voxel extractor. Overlay after
 What to read next
 -----------------
 
-* :doc:`../how_to/habitat_components` — chooser: when to use a leaf vs a tree
+* :doc:`../how_to/habitat_components` — chooser: section 1A/4A leaves, 1B/4B combiners
 * :doc:`../api/domain` — registries and protocols, including ``Combiner``
 * :doc:`../api/spec` — Spec trees, fingerprints, YAML isomorphism
 * :doc:`habitat_feature_routes` — the classic per-route extraction designs

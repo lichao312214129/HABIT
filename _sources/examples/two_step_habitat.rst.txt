@@ -85,7 +85,8 @@ The script above is **one worked recipe**, not the only recipe. Each
    )
 
 Full list of names, every parameter, allowed values, and the YAML twin:
-:doc:`../how_to/habitat_components` (sections 1 and 4). Partition names
+:doc:`../how_to/habitat_components` (sections 1 and 4; each splits
+single-modality leaves from combiners). Partition names
 live under ``list_plugins("supervoxelizer")``.
 
 Discover the same facts in a running interpreter::

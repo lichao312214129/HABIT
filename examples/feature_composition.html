@@ -129,9 +129,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#how-a-habitatspec-is-assembled">How a <code class="docutils literal notranslate"><span class="pre">HabitatSpec</span></code> is assembled</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#python-and-yaml-are-the-same-document">Python and YAML are the same document</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extraction">1. Voxel feature extraction</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-one-family-one-or-more-modalities">A. One family, one or more modalities</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-different-families-then-concat">B. Different families, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-nested-combiners-weights-ratios-aliases">C. Nested combiners (weights, ratios, aliases)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-voxel-extraction">A. Single-modality voxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-voxel-composition">B. Multi-modality voxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#voxel-feature-extractor">voxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -144,9 +143,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-features">4. Supervoxel features</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-default-mean-of-the-voxel-field">A. Default — mean of the voxel field</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-per-modality-statistics-then-concat">B. Per-modality statistics, then concat</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#c-supervoxel-radiomics-not-a-voxel-kernel">C. Supervoxel radiomics (not a voxel kernel)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#a-single-modality-supervoxel-extraction">A. Single-modality supervoxel extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#b-multi-modality-supervoxel-composition">B. Multi-modality supervoxel composition</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../how_to/habitat_components.html#supervoxel-feature-extractor">supervoxel_feature_extractor</a></li>
 </ul>
 </li>
@@ -1989,7 +1987,7 @@ signal. They compose with the same combiners:</p>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> — chooser: when to use a leaf vs a tree</p></li>
+<li><p><a class="reference internal" href="../how_to/habitat_components.html"><span class="doc">Choosing habitat Spec components</span></a> — chooser: section 1A/4A leaves, 1B/4B combiners</p></li>
 <li><p><a class="reference internal" href="../api/domain.html"><span class="doc">Domain protocols and registries</span></a> — registries and protocols, including <code class="docutils literal notranslate"><span class="pre">Combiner</span></code></p></li>
 <li><p><a class="reference internal" href="../api/spec.html"><span class="doc">Spec, RunPolicy, and YAML isomorphism</span></a> — Spec trees, fingerprints, YAML isomorphism</p></li>
 <li><p><a class="reference internal" href="habitat_feature_routes.html"><span class="doc">Habitat feature routes (raw, concat, radiomics, SLIC)</span></a> — the classic per-route extraction designs</p></li>
