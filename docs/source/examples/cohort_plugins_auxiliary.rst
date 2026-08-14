@@ -16,7 +16,7 @@ Cohort and plugins
 * :func:`~habit.cohort_from_directory` — batch load
   ``images/<subject>/<modality>/`` + ``masks/``; slice with ``cohort[0]`` or
   ``cohort[i:j]`` for atomic subsets.
-* :func:`~habit.api.plugins.list_plugins` — enumerate registered components.
+* :func:`~habit.list_plugins` — enumerate registered components.
 
 Auxiliary recipes
 -----------------

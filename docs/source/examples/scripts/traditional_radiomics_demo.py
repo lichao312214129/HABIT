@@ -2,7 +2,7 @@
 """
 Standalone traditional radiomics via ``habit.recipes.traditional_radiomics``.
 
-Assembles the v0.1-style config dict in Python (no YAML). Requires
+Assembles the config dict in Python (no YAML). Requires
 ``demo_data/preprocessed/`` and PyRadiomics; pass
 ``--dry-run`` to validate the config without running extraction.
 

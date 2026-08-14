@@ -2,7 +2,7 @@
 """
 Habitat feature preprocessing before clustering: subject-level + cohort-level.
 
-v1 ``HabitatSpec`` chains (v0.1 names in parentheses):
+``HabitatSpec`` chains (older YAML keys in parentheses):
 
 * ``voxel_feature_preprocessors`` — per subject, before clustering units
   (``preprocessing_for_subject_level``).
@@ -43,15 +43,15 @@ import habit.recipes as recipes
 REPO_ROOT: Path = Path(__file__).resolve().parents[4]
 IMAGING_ROOT: Path = REPO_ROOT / "demo_data" / "preprocessed"
 
-# --- v0.1 -> v1 chain mapping (for readers migrating YAML) -----------------
-V0_V1_CHAIN_MAP: Tuple[Tuple[str, str], ...] = (
+# --- Older YAML key -> HabitatSpec field (for readers migrating YAML) ------
+YAML_CHAIN_MAP: Tuple[Tuple[str, str], ...] = (
     ("preprocessing_for_subject_level", "voxel_feature_preprocessors"),
     ("(two-step only, subject)", "supervoxel_feature_preprocessors"),
     ("preprocessing_for_group_level", "cohort_feature_preprocessors"),
 )
-print("=== v0.1 -> v1 preprocessing chain names ===")
-for v0_name, v1_name in V0_V1_CHAIN_MAP:
-    print(f"  {v0_name:40s} -> {v1_name}")
+print("=== Older YAML -> HabitatSpec preprocessing chain names ===")
+for yaml_name, spec_name in YAML_CHAIN_MAP:
+    print(f"  {yaml_name:40s} -> {spec_name}")
 
 # --- Cohort: real demo when available, else synthetic ------------------------
 if IMAGING_ROOT.is_dir():

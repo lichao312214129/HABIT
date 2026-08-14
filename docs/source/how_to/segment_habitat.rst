@@ -79,7 +79,7 @@ runs. On the demo pack (5 subjects, ``LAP``, auto-K 2–10, seed 0) an
 empty ``voxel_feature_preprocessors`` chain still fitted ``model_k=4``
 but used a mean of **2.8** labels per map; ``winsorize`` then ``minmax``
 restored 4/4. Image-level ``zscore_normalization`` is a different step
-(:func:`~habit.api.preprocess_subject`) and is not a substitute. Numbers
+(:func:`~habit.preprocess_subject`) and is not a substitute. Numbers
 and the recommended recipe: :doc:`../examples/habitat_preprocessing`.
 
 Which ``Spec("...")`` names exist, and what each parameter means:

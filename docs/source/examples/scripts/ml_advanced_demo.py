@@ -4,7 +4,7 @@ Advanced tabular ML: ordered feature selection and model comparison.
 
 * ``MLSpec.steps`` — one ordered list of table steps; the list order IS the
   execution order, so a selector can sit before, between or after
-  preprocessors (v0.1's ``before_z_score`` is just "put it first").
+  preprocessors (older YAML ``before_z_score`` is just "put it first").
 * :func:`~habit.recipes.compare_models` — ROC/AUC comparison across saved
   prediction CSVs (the programmatic twin of ``habit compare``).
 

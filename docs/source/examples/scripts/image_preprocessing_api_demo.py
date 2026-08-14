@@ -8,7 +8,7 @@ Image preprocessing API: batch directory pipeline + atomic in-memory operators.
   ``recipes.preprocess_subject``: one :class:`~habit.contracts.Subject` in,
   one Subject out. No ``data_dir`` / ``out_dir`` / YAML.
 * **Atomic volume** — :func:`habit.preprocess_image` for a single
-  :class:`~habit.api.image.ImageVolume`.
+  :class:`~habit.ImageVolume`.
 
 Change DATA / MODALITIES / ROI to your preprocessed tree. Accompanies
 ``docs/source/examples/image_preprocessing_api.rst``.

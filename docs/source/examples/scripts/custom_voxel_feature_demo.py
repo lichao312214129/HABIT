@@ -54,8 +54,8 @@ class T1T2Contrast:
     """
     Example DIY extractor: per-voxel ``(T1 - T2) / (T1 + T2 + eps)``.
 
-    Mirrors the v0.1 ``FeatureExtractorRegistry`` plugin pattern, but targets
-    the v1 :class:`~habit.domain.protocols.VoxelFeatureExtractor` protocol.
+    Mirrors the registry plugin pattern, targeting the
+    :class:`~habit.domain.protocols.VoxelFeatureExtractor` protocol.
     """
 
     def __init__(

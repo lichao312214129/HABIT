@@ -222,9 +222,9 @@ Run a YAML config from Python
 
 :func:`habit.recipes.run_from_yaml` is the programmatic twin of the CLI: it
 reads a YAML file, detects its version, and dispatches to the same recipes
-the command line uses. **v0.1** documents are translated through
-:class:`~habit.spec.legacy.LegacyConfigAdapter`; **v1** documents are read
-directly (habitat train/predict and ML train/cv workflows):
+the command line uses. Documents with ``version: '1.0'`` are read directly
+(habitat train/predict and ML train/cv workflows); older YAML is translated
+through :class:`~habit.spec.legacy.LegacyConfigAdapter`:
 
 .. code-block:: python
 
@@ -236,8 +236,8 @@ directly (habitat train/predict and ML train/cv workflows):
        save=True,            # write outputs like the CLI would (default False)
    )
 
-To translate a v0.1 document by hand — for example to swap the data source or
-run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
+To translate an older YAML document by hand — for example to swap the data
+source or run on an in-memory cohort — use ``LegacyConfigAdapter`` and call
 :meth:`~habit.recipes.Study.fit_predict` (full details in :doc:`spec`):
 
 .. code-block:: python
@@ -503,11 +503,6 @@ validation rows, and ``inner_cv`` without a grid searches over nothing. There
 is deliberately no Bayesian/Optuna backend, which would be a new hard
 dependency.
 
-The older configuration-object entry points (``run_ml``, ``run_kfold``,
-``run_model_comparison`` from ``habit.api.machine_learning``) remain
-available for YAML-parity workflows; the CLI commands ``habit model`` /
-``habit cv`` / ``habit compare`` use them.
-
 CLI users keep ``habit get-habitat -c ...``; that path translates YAML through
 ``LegacyConfigAdapter`` / ``HabitatSpec`` into the same domain core, and
 :func:`~habit.recipes.run_from_yaml` exposes the identical path to Python
@@ -517,11 +512,9 @@ Feature extraction (config-driven)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``habit.recipes.extract_habitat_features`` and
-``habit.recipes.traditional_radiomics`` are thin wrappers around the v0.1
-engine (``habit.compat.engines`` via ``habit.api.habitat``). They exist so
-``habit extract`` and ``habit radiomics`` can route through L4 recipes without
-new direct ``habit.compat.engines`` imports in the command layer. They are **not** the
-recommended v1 Python path: no domain-native cohort assembly, no
+``habit.recipes.traditional_radiomics`` exist so ``habit extract`` and
+``habit radiomics`` can route through L4 recipes. They are **not** the
+recommended Python path: no domain-native cohort assembly, no
 ``SubjectPipeline`` / ``TablePipeline``, and no ``StudyResult`` contract.
 For habitat features in library code, prefer
 :class:`~habit.domain.SubjectPipeline` ``.extract_features(...)`` with the

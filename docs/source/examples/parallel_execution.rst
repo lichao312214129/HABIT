@@ -10,15 +10,15 @@ result matches serial execution.
 YAML: two tracks
 ----------------
 
-* **v1 document** — top-level ``policy:`` block with ``RunPolicy`` field names
-  (``workers``, ``backend``, ``parallel_mode``, ``subject_timeout_sec``, …).
-  Annotated example: ``config/habitat/config_habitat_two_step_v1.yaml``.
-* **v0.1 document** — same knobs at the YAML **top level** as
-  ``processes``, ``individual_subject_timeout_sec``,
-  ``individual_subject_parallel_mode``, … The CLI /
-  :func:`~habit.recipes.run_from_yaml` translate them into ``policy`` via
-  :class:`~habit.spec.legacy.LegacyConfigAdapter`. Field rename table:
-  :doc:`../api/spec`. Full habitat reference:
+* **Native document** — top-level ``policy:`` block with ``RunPolicy`` field
+  names (``workers``, ``backend``, ``parallel_mode``,
+  ``subject_timeout_sec``, …). Annotated example:
+  ``config/habitat/config_habitat_two_step_v1.yaml``.
+* **Older YAML** — same knobs at the YAML **top level** as ``processes``,
+  ``individual_subject_timeout_sec``, ``individual_subject_parallel_mode``,
+  … The CLI / :func:`~habit.recipes.run_from_yaml` translate them into
+  ``policy`` via :class:`~habit.spec.legacy.LegacyConfigAdapter`. Field
+  rename table: :doc:`../api/spec`. Full habitat reference:
   :doc:`../configuration/habitat`.
 
 Either way, ProcessPoolBackend is selected only when
@@ -81,6 +81,6 @@ What to read next
 * :doc:`two_step_habitat` — the serial baseline
 * :doc:`fault_tolerance` — continue vs Cohort.map, fail_fast, CompatibilityError
 * :doc:`run_from_yaml` — policy blocks in v1 YAML documents
-* :doc:`../api/spec` — RunPolicy fields + v0.1 ↔ v1 YAML mapping
+* :doc:`../api/spec` — RunPolicy fields + YAML field mapping
 * :doc:`../api/execution` — SerialBackend / ProcessPoolBackend knobs
 * :doc:`../configuration/habitat` — Stage-1 parallel / checkpoint YAML reference

@@ -48,7 +48,7 @@ DirectoryResultWriter
 ---------------------
 
 The write-side counterpart of ``DirectoryDataSource``, implementing the
-``ResultWriter`` protocol with the v0.1 directory layout:
+``ResultWriter`` protocol with the conventional directory layout:
 
 .. code-block:: python
 

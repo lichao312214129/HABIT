@@ -2,14 +2,15 @@ Habitat feature preprocessing chains
 ======================================
 
 Clustering operates on **preprocessed feature matrices**, not raw intensities.
-v1 ``HabitatSpec`` exposes three ordered chains (v0.1 names in parentheses):
+``HabitatSpec`` exposes three ordered chains (older YAML keys in
+parentheses):
 
 .. list-table::
    :header-rows: 1
    :widths: 35 35 30
 
-   * - v1 field
-     - v0.1 YAML key
+   * - HabitatSpec field
+     - Older YAML key
      - When it runs
    * - ``voxel_feature_preprocessors``
      - ``preprocessing_for_subject_level``
@@ -60,7 +61,7 @@ Output (abbreviated)
 
 ::
 
-   === v0.1 -> v1 preprocessing chain names ===
+   === Older YAML -> HabitatSpec preprocessing chain names ===
      preprocessing_for_subject_level          -> voxel_feature_preprocessors
      (two-step only, subject)                 -> supervoxel_feature_preprocessors
      preprocessing_for_group_level            -> cohort_feature_preprocessors
@@ -109,7 +110,7 @@ chain does not fail — it under-expresses habitats. Cohort ``model_k`` was
 still 4, but per-subject maps used a mean of **2.8** labels (one subject
 only 2). The YAML-style voxel chain ``winsorize`` then ``minmax`` restored
 **4 / 4** habitats on every subject. Image-level
-``zscore_normalization`` via :func:`~habit.api.preprocess_subject` (ROI
+``zscore_normalization`` via :func:`~habit.preprocess_subject` (ROI
 masked) before the same empty chain recovered a mean of **3.8**, but
 k-means then warned that distinct intensities were fewer than
 ``n_supervoxels`` — z-scoring a single modality can collapse the

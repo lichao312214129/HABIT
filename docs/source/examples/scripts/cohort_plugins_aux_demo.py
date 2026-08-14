@@ -5,7 +5,7 @@ Cohort assembly, plugins, auxiliary workflows, and config tooling.
 Covers:
 
 * :func:`~habit.cohort_from_directory` (batch) and single-subject slice
-* :func:`~habit.api.plugins.list_plugins`
+* :func:`~habit.list_plugins`
 * :func:`~habit.recipes.dice`, :func:`~habit.recipes.dicom_info`,
   :func:`~habit.recipes.merge_tables`
 * :func:`~habit.recipes.icc_analysis`, :func:`~habit.recipes.test_retest_analysis`

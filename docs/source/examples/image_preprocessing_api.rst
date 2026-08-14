@@ -4,14 +4,14 @@ Image preprocessing API (batch + atomic)
 **Level:** atomic / recipe · **Data:** ``demo_data/preprocessed`` ·
 **Extras:** none · **Time:** ~1–4 min
 
-Public symbols (registered in ``habit.api.registry``):
+Public symbols:
 
 * :func:`~habit.run_preprocess` / recipe :func:`~habit.recipes.preprocess_images`
   — **batch** directory pipeline (``data_dir`` → ``processed_images/``).
 * :func:`~habit.preprocess_subject` — **atomic** subject-level operator
   (``Subject`` in → ``Subject`` out; no YAML, no filesystem).
 * :func:`~habit.preprocess_image` — **atomic** single-volume operator
-  (:class:`~habit.api.image.ImageVolume` in → ``ImageVolume`` out).
+  (:class:`~habit.ImageVolume` in → ``ImageVolume`` out).
 
 The atomic surfaces satisfy the embedding red line: a third-party notebook
 can call ``preprocess_subject(cohort[0], steps)`` on one failing case without

@@ -17,8 +17,7 @@ Two ways to provide data
 ------------------------
 
 **Recommended:** list every image / mask path in a small YAML file, then set
-that file as ``data_dir`` (v0.1) or ``data.source`` (v1) in your workflow
-config.
+that file as ``data_dir`` or ``data.source`` in your workflow config.
 
 **Alternative:** point ``data_dir`` / ``data.source`` at a folder that already
 follows the HABIT tree (shown below).
@@ -36,10 +35,10 @@ Option A — path list YAML (recommended)
 
 3. In the workflow config, point at this file (not at a single ``.nii.gz``)::
 
-      # v0.1 (habit get-habitat / preprocess YAML)
+      # habit get-habitat / preprocess YAML
       data_dir: ./file_habitat_registered_single_roi.yaml
 
-      # v1 habitat YAML
+      # native habitat YAML
       data:
         source: config/habitat/file_habitat_registered_single_roi.yaml
 
@@ -108,10 +107,9 @@ modality folder.
 
 Then in the workflow YAML::
 
-   # v0.1
    data_dir: ../../demo_data/preprocessed
 
-   # v1
+   # or
    data:
      source: demo_data/preprocessed
 

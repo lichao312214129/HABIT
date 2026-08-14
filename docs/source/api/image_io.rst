@@ -1,9 +1,9 @@
 Low-level image I/O helpers
 ===========================
 
-File I/O helpers from ``habit.api.image``. Prefer contracts volumes inside
-pipelines (:doc:`data_model`); use these when you need SimpleITK-backed read /
-geometry checks outside a ``Subject``.
+File I/O helpers (``read_image`` / ``read_mask`` / geometry checks). Prefer
+contracts volumes inside pipelines (:doc:`data_model`); use these when you
+need SimpleITK-backed read / geometry checks outside a ``Subject``.
 
 .. code-block:: python
 

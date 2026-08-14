@@ -8,7 +8,7 @@ stage:
 
 * a variance filter belongs **first**, on the raw table — after z-scoring
   every feature variance is 1.0, so the same step placed later selects
-  nothing meaningful (v0.1 spelled this ``before_z_score: true``);
+  nothing meaningful (older YAML spelled this ``before_z_score: true``);
 * stateful preprocessing (z-score, min-max, …) sits wherever the design puts
   it, including *between* two selectors;
 * supervised selection (ANOVA, LASSO, …) normally follows the scaling.

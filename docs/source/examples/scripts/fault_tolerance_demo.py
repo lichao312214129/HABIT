@@ -24,8 +24,10 @@ import numpy as np
 
 from habit import (
     CompatibilityError,
+    FeatureResult,
     GeometryError,
     GeometryPolicy,
+    GeometryReport,
     ImageMaskPair,
     ImageVolume,
     MaskVolume,
@@ -34,8 +36,6 @@ from habit import (
     extract_batch,
     load_plugins,
 )
-from habit.api.image import GeometryReport
-from habit.api.radiomics import FeatureResult
 from habit.contracts import Cohort, Subject
 from habit.execution import SerialBackend
 
