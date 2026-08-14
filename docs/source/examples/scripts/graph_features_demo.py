@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """
-One subject → one-step habitats (K=10) → graph features + plots.
+One subject → one-step habitats (K=5) → graph features + plots.
+
+This gallery overrides the library defaults: fixed K=5 habitats and
+adjacency contact >= 5 voxels. Library defaults remain
+``adjacency_min_voxels=10`` and ``erosion_radius=0``.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -13,7 +17,12 @@ from __future__ import annotations
 # BEGIN example
 from pathlib import Path
 
-from habit import cohort_from_directory, extract_graph_features, one_step_habitat
+from habit import (
+    HabitatGraphFeatureOptions,
+    cohort_from_directory,
+    extract_graph_features,
+    one_step_habitat,
+)
 
 # Change DATA / MODALITIES / ROI to your preprocessed layout
 DATA = "demo_data/preprocessed"
@@ -21,18 +30,20 @@ MODALITIES = ("LAP",)
 ROI = "LAP"
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
-# Fixed K=10 (not "auto") so the graph has a known number of habitats.
+# Fixed K=5 (not "auto") so the graph has a known number of habitats.
+# This example overrides the library default adjacency_min_voxels=10.
 result = one_step_habitat(
-    modalities=MODALITIES, n_habitats=10, random_seed=0, roi=ROI
+    modalities=MODALITIES, n_habitats=5, random_seed=0, roi=ROI
 ).fit_predict(cohort)
 
 labels = result.habitat_maps[0].label_array
-feats = extract_graph_features(labels)
+options = HabitatGraphFeatureOptions(adjacency_min_voxels=5)
+feats = extract_graph_features(labels, options=options)
 print(len(feats), "graph features")
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses cohort, result, labels, and MODALITIES.
+# Paste after the Script block. Uses cohort, result, labels, options, and MODALITIES.
 from habit.viz import plot_habitat_graph_network_2d, plot_habitat_overlay
 
 Path("out").mkdir(exist_ok=True)
@@ -40,11 +51,11 @@ Path("out").mkdir(exist_ok=True)
 fig = plot_habitat_overlay(
     cohort[0].image(MODALITIES[0]),
     result.habitat_maps[0],
-    title="One-step habitats (K=10)",
+    title="One-step habitats (K=5)",
 )
 fig.savefig("out/graph_habitat_slice_2d.png", dpi=150, bbox_inches="tight")
-# Network plot takes the label array (the public API requires an array).
-fig = plot_habitat_graph_network_2d(labels)
+# Same edge options as extract_graph_features so the 2D plot matches.
+fig = plot_habitat_graph_network_2d(labels, options=options)
 fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
 print("Wrote out/graph_habitat_slice_2d.png and out/graph_habitat_network_2d.png")
 # END figures
@@ -83,7 +94,11 @@ if __name__ == "__main__":
             labels, spacing=spacing_zyx, black_background=False, render_window=1200
         )
         network = render_habitat_graph_network_3d(
-            labels, spacing=spacing_zyx, black_background=False, render_window=1200
+            labels,
+            options=options,
+            spacing=spacing_zyx,
+            black_background=False,
+            render_window=1200,
         )
         if surface is not None:
             plt.imsave(gallery / "graph_habitat_surface_3d.png", surface)

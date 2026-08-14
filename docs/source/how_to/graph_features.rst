@@ -7,8 +7,9 @@ metrics) from habitat label maps, optionally with 2D/3D figures.
 Need habitat maps first (:doc:`segment_habitat`). Reviewer-grade formulas
 (nodes, edges, metrics, VOI normalization):
 :doc:`../reference/features/graph`. Short end-to-end gallery:
-:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=10``,
-then graph features + overlay / 2D network).
+:doc:`../examples/graph_features` (one-step with **fixed** ``n_habitats=5``
+and example override ``adjacency_min_voxels=5``; library default remains
+10, then graph features + overlay / 2D network).
 
 ``graph`` is a **built-in** light family under
 :doc:`../reference/features/index` (same tier as ``volume`` / ``msi`` /
@@ -65,14 +66,21 @@ Python API
 
 The figure below is written by the graph gallery
 (:doc:`../examples/graph_features`) — one-step with **fixed**
-``n_habitats=10``, then the same plot call. It is **not** from the YAML
-fragment above. Reproduce it::
+``n_habitats=5`` and the same ``options`` on extract + plot. That
+``adjacency_min_voxels=5`` is an **example override**; the library /
+YAML default above remains ``10``. It is **not** from the YAML
+fragment. Reproduce it::
 
    python docs/source/examples/scripts/graph_features_demo.py
 
 Or paste the same code the gallery shows::
 
-   from habit import cohort_from_directory, extract_graph_features, one_step_habitat
+   from habit import (
+       HabitatGraphFeatureOptions,
+       cohort_from_directory,
+       extract_graph_features,
+       one_step_habitat,
+   )
    from habit.viz import plot_habitat_graph_network_2d
 
    DATA = "demo_data/preprocessed"
@@ -80,13 +88,14 @@ Or paste the same code the gallery shows::
    ROI = "LAP"
    cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:1]
    result = one_step_habitat(
-       modalities=MODALITIES, n_habitats=10, random_seed=0, roi=ROI
+       modalities=MODALITIES, n_habitats=5, random_seed=0, roi=ROI
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
-   feats = extract_graph_features(labels)
-   fig = plot_habitat_graph_network_2d(labels)
+   options = HabitatGraphFeatureOptions(adjacency_min_voxels=5)
+   feats = extract_graph_features(labels, options=options)
+   fig = plot_habitat_graph_network_2d(labels, options=options)
 
-Optional: ``HabitatGraphFeatureOptions(adjacency_min_voxels=...)``, registry
+Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 ``HabitatFeatureExtractorRegistry.create("graph", ...)``, and 3D
 :func:`~habit.viz.render_habitat_graph_network_3d` /
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).

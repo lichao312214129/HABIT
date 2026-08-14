@@ -5,12 +5,15 @@ Graph features from habitat maps
 ``[view]`` for figures · **Time:** ~20–90 s
 
 End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
-``n_habitats=10`` (not ``"auto"``) →
+``n_habitats=5`` (not ``"auto"``) →
 :func:`~habit.extract_graph_features` → overlay +
-:func:`~habit.viz.plot_habitat_graph_network_2d`. By default there is **no
+:func:`~habit.viz.plot_habitat_graph_network_2d`. This example **overrides**
+the library defaults (``adjacency_min_voxels=10``, ``erosion_radius=0``)
+to contact **>= 5** voxels via
+:class:`~habit.HabitatGraphFeatureOptions`. By default there is **no
 erosion**; an edge exists when two regions are **adjacent** and the
-contact (shared-boundary) voxel count is **>= 10**, measured on the
-habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
+contact (shared-boundary) voxel count meets that threshold, measured on
+the habitat labels as drawn. Optional ``erosion_radius`` shrinks habitats
 before edges. Graph topology is a habitat-map feature family (same
 tier as ``volume`` / ``msi``); columns under
 :doc:`../reference/features/index`.
@@ -19,7 +22,8 @@ Script
 ------
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
-(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=10**, then
+(:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=5** and
+sets ``adjacency_min_voxels=5`` (library default remains 10), then
 extracts graph topology and draws the overlay plus the 2D network. Figures
 land under ``out/`` (swap that path too if you like).
 
@@ -31,9 +35,9 @@ land under ``out/`` (swap that path too if you like).
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``cohort``, ``result``, and
-``labels``). Writes ``out/graph_habitat_slice_2d.png`` (orthogonal overlay)
-and ``out/graph_habitat_network_2d.png``.
+Paste this after the Script block (it uses ``cohort``, ``result``,
+``labels``, and ``options``). Writes ``out/graph_habitat_slice_2d.png``
+(orthogonal overlay) and ``out/graph_habitat_network_2d.png``.
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -47,9 +51,10 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (fixed ``n_habitats=10``; count depends on the habitat map)::
+Illustrative (fixed ``n_habitats=5``, ``adjacency_min_voxels=5``; count
+depends on the habitat map)::
 
-   2988 graph features
+   808 graph features
 
 Anatomy with habitats
 ---------------------
@@ -89,7 +94,7 @@ see the how-to for the one-line 3D calls).
    :width: 520
 
    Region-centroid nodes with intra- and inter-habitat adjacency edges
-   (contact voxels >= 10;
+   (this example: contact voxels >= 5; library default is 10;
    :func:`~habit.viz.render_habitat_graph_network_3d`).
 
 What to read next
