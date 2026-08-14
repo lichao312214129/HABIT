@@ -698,7 +698,7 @@ def plot_shap_bar(
     base_value: float = 0.0,
 ):
     """
-    Global mean |SHAP| bar chart (``shap.plots.bar``).
+    Global mean-absolute SHAP bar chart (``shap.plots.bar``).
 
     Args:
         shap_values: Attribution matrix ``(n_samples, n_features)``.

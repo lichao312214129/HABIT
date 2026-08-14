@@ -191,7 +191,7 @@ class HabitatFeatureComparison:
         Args:
             k: Maximum number of names to return.
             pair: Optional ``(habitat_a, habitat_b)`` to restrict ranking.
-                When omitted, each feature uses its largest |effect|
+                When omitted, each feature uses its largest absolute effect
                 across pairs.
 
         Returns:

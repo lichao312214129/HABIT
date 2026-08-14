@@ -176,7 +176,7 @@ def _select_features_for_overview(
     max_features: int,
     pair: Optional[Tuple[int, int]],
 ) -> List[str]:
-    """Choose a shortlist: user list, else top-k by |effect|, else by IQR."""
+    """Choose a shortlist: user list, else top-k by absolute effect, else IQR."""
     if features is not None:
         return [str(name) for name in features][: max(int(max_features), 1)]
     if comparison is not None and not comparison.pairwise.empty:
@@ -319,7 +319,7 @@ def plot_habitat_feature_effect(
     Args:
         comparison: Output of ``compare_habitat_features``.
         pair: ``(habitat_a, habitat_b)``. Default: the pair with the
-            largest mean |effect|.
+            largest mean absolute effect.
         top_k: Maximum features to draw.
         title: Optional figure title.
 
@@ -440,11 +440,11 @@ def plot_habitat_feature_violin(
     Grouped violins for a shortlist of features (cohort distributions).
 
     Do not pass hundreds of features -- select them, or let ``max_features``
-    take the top-k by |effect|. A single-subject panel is drawn as points.
+    take the top-k by absolute effect. A single-subject panel is drawn as points.
 
     Args:
         data: Panel or comparison.
-        features: Explicit shortlist. Default: top-k by |effect| or IQR.
+        features: Explicit shortlist. Default: top-k by absolute effect or IQR.
         habitats: Optional habitat subset.
         max_features: Cap when ``features`` is omitted.
         pair: Optional pair used only when ranking by effect size.
@@ -582,7 +582,7 @@ def plot_habitat_feature_bars(
 
     Args:
         data: Panel or comparison.
-        features: Explicit shortlist. Default: top-k by |effect| or IQR.
+        features: Explicit shortlist. Default: top-k by absolute effect or IQR.
         habitats: Optional habitat subset.
         subject_id: If set, that subject's values (no error bars).
         max_features: Cap when ``features`` is omitted.

@@ -131,7 +131,7 @@ Hold-out / CV figures from the demo subset (not a clinical claim).
    :alt: Hold-out SHAP bar
    :width: 420
 
-   Hold-out mean |SHAP| (:func:`~habit.viz.plot_shap_bar`).
+   Hold-out mean-absolute SHAP (:func:`~habit.viz.plot_shap_bar`).
 
 .. figure:: ../_static/images/examples/tabular_ml_shap_violin.png
    :alt: Hold-out SHAP violin
