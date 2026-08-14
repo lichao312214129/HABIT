@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-Habitat-feature contrast figures (heatmap, Cliff's delta, PCA, violin, bars).
+Habitat-feature contrast figures (heatmap, Cliff's delta, CVA/PCA
+components, violin, bars).
 
 Accompanies ``docs/source/reference/features/whole_each_habitat.rst`` and
 ``docs/source/examples/visualization.rst``.
@@ -88,7 +89,7 @@ fig = plot_habitat_feature_effect(cmp)
 fig.savefig("out/habitat_feature_effect.png", dpi=150, bbox_inches="tight")
 fig = plot_habitat_feature_effect(cmp, pair=(2, 1), top_k=5)
 fig.savefig("out/habitat_feature_effect_pair.png", dpi=150, bbox_inches="tight")
-fig = plot_habitat_feature_components(cmp, method="pca")
+fig = plot_habitat_feature_components(cmp, method="cva")
 fig.savefig("out/habitat_feature_components.png", dpi=150, bbox_inches="tight")
 fig = plot_habitat_feature_violin(cmp, features=FEATURES)
 fig.savefig("out/habitat_feature_violin.png", dpi=150, bbox_inches="tight")

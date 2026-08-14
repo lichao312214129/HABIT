@@ -106,12 +106,12 @@ The same objects also describe one subject (differences without p-values).
 Tens-to-hundreds of texture features: draw a habitat x feature heatmap
 and the default **features x pair** Cliff's :math:`\delta` heatmap
 (top-k by max :math:`|\delta|` when the bank is large). Pass
-``pair=(a, b)`` for the single-pair lollipop.
-:func:`~habit.viz.plot_habitat_feature_components` (PCA or CVA) summarises
-habitat separation in a few axes. Violins / bars are for a shortlist,
-not the full bank. Bars are **one panel per feature** (independent
-y-axis) so Energy and ``volume_fraction`` are not forced onto one linear
-scale.
+``pair=(a, b)`` for the single-pair lollipop. If that heatmap would be
+too tall, :func:`~habit.viz.plot_habitat_feature_components` shows the
+same contrast on a few CVA/PCA component scores (not a 2-D embedding).
+Violins / bars are for a shortlist, not the full bank. Bars are **one
+panel per feature** (independent y-axis) so Energy and
+``volume_fraction`` are not forced onto one linear scale.
 
 Runnable gallery (synthetic stand-in table; swap ``table`` for your
 ``each_habitat`` extract)::
@@ -136,7 +136,7 @@ Runnable gallery (synthetic stand-in table; swap ``table`` for your
    fig = plot_habitat_feature_heatmap(cmp)          # overview (z-scored)
    fig = plot_habitat_feature_effect(cmp)           # features x pair Cliff's delta
    fig = plot_habitat_feature_effect(cmp, pair=(1, 2), top_k=20)  # one pair
-   fig = plot_habitat_feature_components(cmp, method="pca")
+   fig = plot_habitat_feature_components(cmp)       # CVA contrast when the heatmap is too tall
    fig = plot_habitat_feature_violin(cmp, max_features=6)
    fig = plot_habitat_feature_heatmap(cmp, subject_id="subj001")  # one subject
    fig = plot_habitat_feature_bars(cmp, subject_id="subj001", max_features=6)
@@ -170,13 +170,16 @@ do not melt through this API.
 
    Default features x pair Cliff's delta (star = BH q < 0.05)
    (:func:`~habit.viz.plot_habitat_feature_effect`). With dozens of
-   features the heatmap keeps the top-k by max :math:`|\delta|`.
+   features the heatmap keeps the top-k by max :math:`|\delta|`. If
+   that heatmap would be too tall, compare habitats on a few CVA/PCA
+   components instead.
 
 .. figure:: ../../_static/images/examples/habitat_feature_components.png
-   :alt: PCA of subject-by-habitat feature rows
+   :alt: Habitat contrast on CVA component scores
    :width: 620
 
-   PCA of (subject, habitat) rows
+   Same contrast, shown on 2 CVA components (use this when there are
+   dozens of features)
    (:func:`~habit.viz.plot_habitat_feature_components`).
 
 .. figure:: ../../_static/images/examples/habitat_feature_violin.png

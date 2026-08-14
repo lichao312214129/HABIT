@@ -340,22 +340,55 @@ def test_effect_heatmap_feature_labels_stay_unique() -> None:
         assert token in joined
 
 
+def _figure_title_text(fig: Figure) -> str:
+    """Join suptitle + axes titles (ASCII contrast copy, not embeddings)."""
+    parts: list[str] = []
+    if getattr(fig, "_suptitle", None) is not None:
+        parts.append(str(fig._suptitle.get_text()))
+    for ax in fig.axes:
+        parts.append(str(ax.get_title()))
+    return "\n".join(parts)
+
+
+def test_components_default_is_cva_habitat_contrast() -> None:
+    """Default method is CVA; the hero is habitat contrast, not a scatter."""
+    import inspect
+
+    comparison = _three_habitat_comparison()
+    signature = inspect.signature(plot_habitat_feature_components)
+    assert signature.parameters["method"].default == "cva"
+    assert signature.parameters["n_components"].default == 2
+    fig = plot_habitat_feature_components(comparison)
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    _assert_ascii(fig)
+    joined = _figure_title_text(fig).lower()
+    assert "cva" in joined
+    assert "contrast" in joined
+    assert "embedding" not in joined
+    assert "dimensionality" not in joined
+    contrast_ax = fig.axes[0]
+    tick_labels = [str(tick.get_text()) for tick in contrast_ax.get_xticklabels()]
+    assert tick_labels == ["H1", "H2", "H3"]
+    assert contrast_ax.patches  # habitat bars or box faces
+
+
 def test_components_pca_and_cva_return_figures() -> None:
-    """PCA and CVA both build a Figure with unique habitat legend labels."""
+    """PCA and CVA both build contrast panels with habitat x-ticks."""
     comparison = _three_habitat_comparison()
     fig_pca = plot_habitat_feature_components(comparison, method="pca")
     fig_cva = plot_habitat_feature_components(comparison, method="cva")
     for fig in (fig_pca, fig_cva):
         assert isinstance(fig, Figure)
+        fig.canvas.draw()
         _assert_ascii(fig)
-    pca_title = str(fig_pca.axes[0].get_title())
-    assert "PCA" in pca_title
-    cva_title = str(fig_cva.axes[0].get_title())
-    assert "CVA" in cva_title
-    legend = fig_pca.axes[0].get_legend()
-    assert legend is not None
-    legend_labels = [str(text.get_text()) for text in legend.get_texts()]
-    assert legend_labels == ["H1", "H2", "H3"]
+        joined = _figure_title_text(fig).lower()
+        assert "contrast" in joined
+        assert "embedding" not in joined
+        ticks = [str(tick.get_text()) for tick in fig.axes[0].get_xticklabels()]
+        assert ticks == ["H1", "H2", "H3"]
+    assert "PCA" in _figure_title_text(fig_pca)
+    assert "CVA" in _figure_title_text(fig_cva)
 
 
 def test_components_cva_uses_pca_when_p_exceeds_n() -> None:
@@ -380,8 +413,26 @@ def test_components_cva_uses_pca_when_p_exceeds_n() -> None:
     )
     wide = compare_habitat_features(table)
     fig = plot_habitat_feature_components(wide, method="cva")
-    title = str(fig.axes[0].get_title())
-    assert title == "CVA (PCA-preprocessed)"
+    title = _figure_title_text(fig)
+    assert "CVA (PCA-preprocessed)" in title
+    assert "contrast" in title.lower()
+    assert "embedding" not in title.lower()
+    _assert_ascii(fig)
+
+
+def test_components_loadings_keep_readable_feature_names() -> None:
+    """Loadings wrap radiomics names; they must not mid-truncate with ..."""
+    comparison = _mixed_scale_comparison()
+    fig = plot_habitat_feature_components(comparison, method="cva")
+    fig.canvas.draw()
+    joined = "\n".join(
+        str(tick.get_text())
+        for ax in fig.axes
+        for tick in list(ax.get_yticklabels()) + list(ax.get_xticklabels())
+    )
+    assert "..." not in joined
+    for token in ("Mean", "Median", "Energy", "Kurtosis"):
+        assert token in joined
     _assert_ascii(fig)
 
 

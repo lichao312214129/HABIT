@@ -20,7 +20,9 @@ The default story is:
 * heatmap -- habitats x features (z-scored), cohort mean or one subject;
 * effect-size -- all habitat-pair Cliff's delta (features x pairs); a
   single-pair lollipop only when the caller names a pair;
-* components -- PCA or CVA (Fisher LDA) of (subject, habitat) rows;
+* components -- habitat contrast on a few CVA/PCA scores when the
+  pair x feature heatmap would be too tall (same job as the delta /
+  bar figures; the "features" are CV1/PC1/...);
 * violin / grouped bar -- only the selected (or top-k) features.
 
 Bar panels are **faceted by feature** so incommensurable scales (Energy vs
@@ -67,8 +69,6 @@ _DEFAULT_DETAIL_FEATURES = 6
 _DEFAULT_EFFECT_TOP_K = 20
 #: All-pair delta heatmap row cap; title states the truncation.
 _DEFAULT_EFFECT_MAX_FEATURES = 15
-#: Annotate subject ids on the components scatter only when n is small.
-_MAX_COMPONENT_ANNOTATIONS = 16
 #: Loadings companion bar: how many features to name on PC1 / CV1.
 _DEFAULT_LOADING_FEATURES = 8
 #: Violin KDE is misleading below this per-habitat point count.
@@ -610,7 +610,9 @@ def plot_habitat_feature_effect(
     q < 0.05 cells are starred and full-colour, others stay pale.
     When more features exist than ``max_features``, only the top-k by
     max absolute effect across pairs are drawn and the title states the
-    truncation (``top 15 of 47 by max |delta|``).
+    truncation (``top 15 of 47 by max |delta|``). If that heatmap would
+    still be too tall, compare habitats on a few CVA/PCA component
+    scores instead (:func:`plot_habitat_feature_components`).
 
     Single-pair lollipop: pass ``pair=(a, b)`` or ``habitats=(a, b)``.
     Filled markers are BH q < 0.05; open markers are not significant
@@ -1062,10 +1064,195 @@ def _component_axis_label(
     return name
 
 
+def _component_figure_title(
+    method: str,
+    *,
+    n_features: int,
+    n_axes: int,
+    used_pca: bool,
+) -> str:
+    """
+    Honest contrast title -- never "embedding" / "dimensionality reduction".
+
+    Args:
+        method: ``"pca"`` or ``"cva"``.
+        n_features: Original feature count that entered the fit.
+        n_axes: Retained component count actually drawn.
+        used_pca: True when CVA first reduced with PCA (p >= n).
+
+    Returns:
+        ASCII figure title such as
+        ``Habitat contrast on CVA components (47 features -> 2 axes)``.
+    """
+    axis_word = "axis" if int(n_axes) == 1 else "axes"
+    if method == "cva" and used_pca:
+        return (
+            "Habitat contrast on CVA (PCA-preprocessed) components "
+            f"({int(n_features)} features -> {int(n_axes)} {axis_word})"
+        )
+    kind = "CVA" if method == "cva" else "PCA"
+    return (
+        f"Habitat contrast on {kind} components "
+        f"({int(n_features)} features -> {int(n_axes)} {axis_word})"
+    )
+
+
+def _scores_by_habitat(
+    scores: np.ndarray,
+    habitat_row: np.ndarray,
+    habitat_ids: Sequence[int],
+) -> List[np.ndarray]:
+    """Finite component scores grouped in ``habitat_ids`` order."""
+    groups: List[np.ndarray] = []
+    for hid in habitat_ids:
+        values = np.asarray(scores[habitat_row == int(hid)], dtype=np.float64)
+        groups.append(values[np.isfinite(values)])
+    return groups
+
+
+def _draw_component_habitat_contrast(
+    ax: "Axes",
+    scores: np.ndarray,
+    habitat_row: np.ndarray,
+    habitat_ids: Sequence[int],
+    colors: Sequence[str],
+    *,
+    axis_label: str,
+) -> None:
+    """
+    One panel: how habitats differ on a single component score.
+
+    Small n (any habitat < 5 points): box + strip. Larger n: mean bars
+    with 95% CI. Independent y-axis; x-ticks are ``H1`` / ``H2`` / ...
+    """
+    groups = _scores_by_habitat(scores, habitat_row, habitat_ids)
+    positions = np.arange(1, len(habitat_ids) + 1, dtype=np.float64)
+    sizes = [int(arr.size) for arr in groups if arr.size > 0]
+    use_bars = bool(sizes) and min(sizes) >= _MIN_VIOLIN_N
+    if use_bars:
+        means = np.full(len(habitat_ids), np.nan, dtype=np.float64)
+        half = np.zeros(len(habitat_ids), dtype=np.float64)
+        for index, values in enumerate(groups):
+            if values.size == 0:
+                continue
+            means[index] = float(np.mean(values))
+            if values.size >= 2:
+                sem = float(np.std(values, ddof=1) / np.sqrt(values.size))
+                half[index] = 1.96 * sem
+        ax.bar(
+            positions,
+            np.nan_to_num(means, nan=0.0),
+            width=0.72,
+            yerr=half,
+            color=list(colors),
+            edgecolor="white",
+            linewidth=0.4,
+            error_kw={"ecolor": "#444444", "elinewidth": 0.7, "capsize": 2},
+        )
+    else:
+        box_pos = [
+            pos for pos, arr in zip(positions, groups) if arr.size > 0
+        ]
+        box_data = [arr for arr in groups if arr.size > 0]
+        if box_data:
+            box = ax.boxplot(
+                box_data,
+                positions=box_pos,
+                widths=0.45,
+                showfliers=False,
+                patch_artist=True,
+                medianprops={"color": "#222222", "linewidth": 0.9},
+                whiskerprops={"color": "#444444", "linewidth": 0.7},
+                capprops={"color": "#444444", "linewidth": 0.7},
+                boxprops={"linewidth": 0.5},
+            )
+            box_colors = [
+                colors[index]
+                for index, arr in enumerate(groups)
+                if arr.size > 0
+            ]
+            for patch, color in zip(box["boxes"], box_colors):
+                patch.set_facecolor(color)
+                patch.set_edgecolor("#222222")
+                patch.set_alpha(0.45)
+        for pos, values, color in zip(positions, groups, colors):
+            if values.size == 0:
+                continue
+            jitter = np.zeros(values.size)
+            if values.size > 1:
+                rng = np.random.default_rng(0)
+                jitter = rng.uniform(-0.12, 0.12, size=values.size)
+            ax.scatter(
+                np.full(values.size, pos) + jitter,
+                values,
+                s=14,
+                color=color,
+                edgecolor="#222222",
+                linewidth=0.3,
+                zorder=3,
+            )
+    ax.set_xticks(positions)
+    ax.set_xticklabels(
+        [sanitize_label(f"H{hid}") for hid in habitat_ids],
+        fontsize=_TICK_FONTSIZE,
+    )
+    ax.set_xlabel(sanitize_label("Habitat"), fontsize=_LABEL_FONTSIZE)
+    ax.set_ylabel(sanitize_label("Component score"), fontsize=_LABEL_FONTSIZE)
+    ax.set_title(sanitize_label(axis_label), fontsize=_PANEL_TITLE_FONTSIZE)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(True, axis="y", alpha=0.25, linewidth=0.6)
+    ax.set_axisbelow(True)
+    _apply_readable_fonts(ax)
+
+
+def _draw_component_loadings(
+    ax: "Axes",
+    loading: np.ndarray,
+    feature_names: Sequence[str],
+    *,
+    axis_label: str,
+    pos_color: str,
+    neg_color: str,
+) -> None:
+    """Horizontal bars: which original features represent this component."""
+    n_show = min(_DEFAULT_LOADING_FEATURES, int(loading.size))
+    order = np.argsort(np.abs(loading))[::-1][:n_show]
+    order = order[np.argsort(loading[order])]
+    y = np.arange(order.size)
+    bar_colors = [
+        pos_color if loading[int(i)] >= 0 else neg_color for i in order
+    ]
+    ax.barh(
+        y,
+        loading[order],
+        color=bar_colors,
+        edgecolor="white",
+        linewidth=0.3,
+        height=0.7,
+    )
+    ax.axvline(0.0, color="#444444", linewidth=0.7)
+    ax.set_yticks(y)
+    ax.set_yticklabels(
+        [_readable_feature_label(feature_names[int(i)]) for i in order],
+        fontsize=_TICK_FONTSIZE,
+    )
+    ax.set_xlabel(sanitize_label("Loading"), fontsize=_LABEL_FONTSIZE)
+    ax.set_title(
+        sanitize_label(f"{axis_label} loadings"),
+        fontsize=_PANEL_TITLE_FONTSIZE,
+    )
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(True, axis="x", alpha=0.25, linewidth=0.6)
+    ax.set_axisbelow(True)
+    _apply_readable_fonts(ax)
+
+
 def plot_habitat_feature_components(
     data: Union["HabitatFeaturePanel", "HabitatFeatureComparison"],
     *,
-    method: Literal["pca", "cva"] = "pca",
+    method: Literal["pca", "cva"] = "cva",
     n_components: int = 2,
     features: Optional[Sequence[str]] = None,
     habitats: Optional[Sequence[int]] = None,
@@ -1074,33 +1261,37 @@ def plot_habitat_feature_components(
     title: Optional[str] = None,
 ) -> "Figure":
     """
-    PCA or CVA of (subject, habitat) rows in feature space.
+    Habitat contrast on a few CVA or PCA component scores.
 
-    Each point is one habitat observation of one subject. Colour is the
-    habitat label. **PCA** is unsupervised. **CVA** is multi-class
-    Fisher LDA (canonical variates that separate habitats) -- not
-    two-block CCA. When ``n_features >= n_samples - n_classes`` the
-    CVA path reduces with PCA first and the title says
-    ``CVA (PCA-preprocessed)`` so the figure does not overclaim a
-    full-rank discriminant.
+    This is the overflow figure when the pair x feature Cliff's-delta
+    heatmap would be too tall: compute a few axes, then show how
+    H1..Hk differ **on those scores** (same job as the delta / bar
+    plots; the "features" are CV1/PC1/...). It is not a 2-D embedding
+    to admire.
 
-    Features are z-scored before the reduction so Energy and
-    ``volume_fraction`` share one Euclidean space. A companion bar
-    shows the largest absolute loadings on PC1 / CV1.
+    Default ``method="cva"`` is multi-class Fisher LDA (canonical
+    variates that separate habitats) -- not two-block CCA. When
+    ``n_features >= n_samples - n_classes`` the CVA path reduces with
+    PCA first and the title says ``CVA (PCA-preprocessed)``. Pass
+    ``method="pca"`` for unsupervised components.
+
+    Features are z-scored before the fit so Energy and
+    ``volume_fraction`` share one Euclidean space. A loadings row
+    names the original features that represent each retained axis.
 
     Args:
         data: Long panel or a :class:`HabitatFeatureComparison`.
-        method: ``"pca"`` (default) or ``"cva"``.
+        method: ``"cva"`` (default) or ``"pca"``.
         n_components: Requested axes. CVA keeps at most
-            ``n_habitats - 1``. A single retained axis is drawn as a
-            1-D strip.
+            ``n_habitats - 1``.
         features: Optional feature subset. Default: all panel features.
         habitats: Optional habitat subset.
-        annotate_subjects: If True, label points with subject ids.
-            Default: annotate only when the point count is small
-            (``<= 16``).
-        show_loadings: Draw the PC1 / CV1 loadings companion bar.
-        title: Optional figure title.
+        annotate_subjects: Unused. Kept so existing callers that
+            passed it still construct; the figure is habitat contrast
+            on scores, not a subject scatter.
+        show_loadings: Draw one loadings panel per retained component.
+        title: Optional figure title. Default names the contrast and
+            the ``p features -> k axes`` reduction.
 
     Returns:
         The matplotlib ``Figure``.
@@ -1109,6 +1300,8 @@ def plot_habitat_feature_components(
         HABITAPIError: Unknown ``method``, empty panel, or a still-
             singular CVA after PCA.
     """
+    # Signature keeps annotate_subjects so older notebooks do not break.
+    _ = annotate_subjects
     method_name = str(method).strip().lower()
     if method_name not in {"pca", "cva"}:
         raise HABITAPIError(
@@ -1116,7 +1309,7 @@ def plot_habitat_feature_components(
             f"'cva'; got {method!r}."
         )
     panel = _as_panel(data)
-    matrix, habitat_row, names, subjects = _subject_habitat_feature_matrix(
+    matrix, habitat_row, names, _subjects = _subject_habitat_feature_matrix(
         panel, features=features, habitats=habitats
     )
     standardised = _standardize_columns(matrix)
@@ -1129,139 +1322,61 @@ def plot_habitat_feature_components(
         scores, loadings, explained, used_pca = _fit_cva_components(
             standardised, habitat_row, n_components=n_components
         )
+    n_kept = int(scores.shape[1])
     if title is not None:
         resolved = title
-    elif method_name == "cva" and used_pca:
-        resolved = "CVA (PCA-preprocessed)"
-    elif method_name == "cva":
-        resolved = "Habitat feature CVA"
     else:
-        resolved = "Habitat feature PCA"
-
-    n_points = int(scores.shape[0])
-    if annotate_subjects is None:
-        annotate = n_points <= _MAX_COMPONENT_ANNOTATIONS
-    else:
-        annotate = bool(annotate_subjects)
+        resolved = _component_figure_title(
+            method_name,
+            n_features=len(names),
+            n_axes=n_kept,
+            used_pca=used_pca,
+        )
 
     plt = _plt()
     habitat_ids = sorted({int(hid) for hid in habitat_row})
+    n_rows = 2 if show_loadings else 1
+    n_cols = max(n_kept, 1)
     with use_style("radiology") as style:
-        if show_loadings:
-            fig, (ax, ax_load) = plt.subplots(
-                1,
-                2,
-                figsize=style.figsize(columns=2, height_mm=92.0),
-                constrained_layout=True,
-                gridspec_kw={"width_ratios": [2.15, 1.0]},
-            )
-        else:
-            fig, ax = plt.subplots(
-                1,
-                1,
-                figsize=style.figsize(columns=1, height_mm=88.0),
-                constrained_layout=True,
-            )
-            ax_load = None
-        palette = list(style.palette)
-        colors = {
-            hid: palette[index % len(palette)]
-            for index, hid in enumerate(habitat_ids)
-        }
-        if scores.shape[1] >= 2:
-            x_vals = scores[:, 0]
-            y_vals = scores[:, 1]
-            xlabel = _component_axis_label(method_name, 0, explained)
-            ylabel = _component_axis_label(method_name, 1, explained)
-        else:
-            x_vals = scores[:, 0]
-            rng = np.random.default_rng(0)
-            y_vals = habitat_row.astype(np.float64) + rng.uniform(
-                -0.12, 0.12, size=n_points
-            )
-            xlabel = _component_axis_label(method_name, 0, explained)
-            ylabel = "Habitat"
-        for hid in habitat_ids:
-            mask = habitat_row == hid
-            ax.scatter(
-                x_vals[mask],
-                y_vals[mask],
-                s=36,
-                color=colors[hid],
-                edgecolor="#222222",
-                linewidth=0.4,
-                label=sanitize_label(f"H{hid}"),
-                zorder=3,
-            )
-        if annotate:
-            for index in range(n_points):
-                ax.annotate(
-                    sanitize_label(subjects[index]),
-                    (float(x_vals[index]), float(y_vals[index])),
-                    textcoords="offset points",
-                    xytext=(3, 3),
-                    fontsize=_TICK_FONTSIZE - 1.0,
-                    color="#333333",
-                )
-        ax.set_xlabel(sanitize_label(xlabel), fontsize=_LABEL_FONTSIZE)
-        ax.set_ylabel(sanitize_label(ylabel), fontsize=_LABEL_FONTSIZE)
-        if scores.shape[1] < 2:
-            ax.set_yticks(habitat_ids)
-            ax.set_yticklabels(
-                [sanitize_label(f"H{hid}") for hid in habitat_ids],
-                fontsize=_TICK_FONTSIZE,
-            )
-        ax.legend(
-            frameon=False,
-            fontsize=_LEGEND_FONTSIZE,
-            loc="best",
+        fig, axes = plt.subplots(
+            n_rows,
+            n_cols,
+            figsize=style.figsize(
+                columns=2 if (n_cols > 1 or show_loadings) else 1,
+                height_mm=min(168.0, 74.0 * n_rows + 30.0),
+            ),
+            squeeze=False,
+            constrained_layout=True,
         )
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        ax.grid(True, alpha=0.25, linewidth=0.6)
-        ax.set_axisbelow(True)
-        ax.set_title(sanitize_label(resolved), fontsize=_TITLE_FONTSIZE)
-        _apply_readable_fonts(ax)
-        if ax_load is not None:
-            loading = loadings[:, 0]
-            order = np.argsort(np.abs(loading))[::-1][
-                : min(_DEFAULT_LOADING_FEATURES, loading.size)
-            ]
-            order = order[np.argsort(loading[order])]
-            y = np.arange(order.size)
-            bar_colors = [
-                style.palette[0] if loading[i] >= 0 else style.palette[1]
-                for i in order
-            ]
-            ax_load.barh(
-                y,
-                loading[order],
-                color=bar_colors,
-                edgecolor="white",
-                linewidth=0.3,
-                height=0.7,
+        fig.set_constrained_layout_pads(
+            w_pad=0.06, h_pad=0.10, wspace=0.12, hspace=0.18
+        )
+        palette = list(style.palette)
+        colors = [palette[index % len(palette)] for index in range(len(habitat_ids))]
+        for comp_i in range(n_kept):
+            axis_label = _component_axis_label(method_name, comp_i, explained)
+            _draw_component_habitat_contrast(
+                axes[0][comp_i],
+                scores[:, comp_i],
+                habitat_row,
+                habitat_ids,
+                colors,
+                axis_label=axis_label,
             )
-            ax_load.axvline(0.0, color="#444444", linewidth=0.7)
-            ax_load.set_yticks(y)
-            ax_load.set_yticklabels(
-                [_readable_feature_label(names[int(i)]) for i in order],
-                fontsize=_TICK_FONTSIZE,
-            )
-            load_axis = (
-                "PC1 loading" if method_name == "pca" else "CV1 loading"
-            )
-            ax_load.set_xlabel(
-                sanitize_label(load_axis), fontsize=_LABEL_FONTSIZE
-            )
-            ax_load.set_title(
-                sanitize_label("Top feature loadings"),
-                fontsize=_PANEL_TITLE_FONTSIZE,
-            )
-            ax_load.spines["top"].set_visible(False)
-            ax_load.spines["right"].set_visible(False)
-            ax_load.grid(True, axis="x", alpha=0.25, linewidth=0.6)
-            ax_load.set_axisbelow(True)
-            _apply_readable_fonts(ax_load)
+            if show_loadings:
+                _draw_component_loadings(
+                    axes[1][comp_i],
+                    loadings[:, comp_i],
+                    names,
+                    axis_label=axis_label.split(" (")[0],
+                    pos_color=style.palette[0],
+                    neg_color=style.palette[1],
+                )
+        unused_from = n_kept
+        for row_i in range(n_rows):
+            for col_i in range(unused_from, n_cols):
+                axes[row_i][col_i].set_visible(False)
+        fig.suptitle(sanitize_label(resolved), fontsize=_TITLE_FONTSIZE)
         _ascii_minus_on_ticks(fig)
     return fig
 
