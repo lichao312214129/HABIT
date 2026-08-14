@@ -343,7 +343,7 @@ def build_adjacency_graph(
     node_result: HabitatNodeExtractionResult,
     labels: Tuple[int, ...],
     graph_kind: str,
-    adjacency_connectivity: str = "face",
+    adjacency_connectivity: str = "corner",
     adjacency_min_voxels: int = 10,
     edge_weight: EdgeWeightMode = "none",
     include_intra_edges: bool = False,
@@ -362,8 +362,9 @@ def build_adjacency_graph(
         labels: One label for a single-habitat graph or two labels for a pairwise
             graph.
         graph_kind: ``"single"`` or ``"pairwise"``.
-        adjacency_connectivity: Neighbor definition: ``"face"`` (6-conn in 3D),
-            ``"edge"`` (18-conn in 3D), or ``"corner"`` (26-conn in 3D).
+        adjacency_connectivity: Neighbor definition. Default ``"corner"``
+            is 8-conn in 2D / 26-conn in 3D. ``"face"`` is 4/6-conn;
+            ``"edge"`` is 8/18-conn.
         adjacency_min_voxels: Minimum adjacent voxel pair count required to
             create an edge. Must be >= 1. Default ``10``: an edge exists only
             when two regions are adjacent and share at least 10 contact voxels.

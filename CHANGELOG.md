@@ -22,6 +22,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- Graph topology defaults now use corner connectivity: components
+  ``connectivity='full'`` and edges ``adjacency_connectivity='corner'``
+  (8-connected in 2D / 26-connected in 3D). Previously both defaulted to
+  ``face`` (4-connected / 6-connected). Pass ``connectivity='face'`` and
+  ``adjacency_connectivity='face'`` to keep the old neighborhood.
 - Graph topology default edge rule is now voxel adjacency with a minimum
   contact of 10 voxels (``edge_method='adjacency'``,
   ``adjacency_min_voxels=10``). Previously the default was centroid

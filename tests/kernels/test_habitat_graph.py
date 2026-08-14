@@ -100,28 +100,36 @@ def test_adjacency_min_voxels_default_requires_ten_contact_voxels() -> None:
     nodes_nine = extract_habitat_nodes(label_array=labels_nine, connectivity="face")
     nodes_ten = extract_habitat_nodes(label_array=labels_ten, connectivity="face")
 
-    # Function default adjacency_min_voxels is 10.
+    # Pin face: 1-voxel-thick strips also share diagonal contacts under
+    # corner connectivity, which would inflate the count past 10 on both
+    # maps. This test is about the min-voxels threshold, not the default
+    # neighborhood.
     graph_nine = build_adjacency_graph(
         node_result=nodes_nine,
         labels=(1, 2),
         graph_kind="pairwise",
+        adjacency_connectivity="face",
         edge_weight="contact_voxels",
     )
     graph_ten = build_adjacency_graph(
         node_result=nodes_ten,
         labels=(1, 2),
         graph_kind="pairwise",
+        adjacency_connectivity="face",
         edge_weight="contact_voxels",
     )
     assert len(graph_nine.edges) == 0
     assert len(graph_ten.edges) == 1
     assert graph_ten.edges[0].contact_voxels == 10
 
-    # Extractor default matches: 9 contacts → no pair edge; 10 → one edge.
-    # Default erosion is off, so contact is measured on the labels as drawn.
+    # Extractor with the same face neighborhood: 9 contacts → no pair
+    # edge; 10 → one edge. Default erosion is off, so contact is measured
+    # on the labels as drawn. Library default adjacency_min_voxels is 10.
     options = HabitatGraphFeatureOptions(
         subdivide_region_voxels=0,
         include_extended_metrics=False,
+        adjacency_connectivity="face",
+        connectivity="face",
     )
     assert options.erosion_radius == 0
     assert options.edge_method == "adjacency"
@@ -149,6 +157,7 @@ def test_adjacency_graph_counts_face_adjacent_voxels() -> None:
         node_result=node_result,
         labels=(1, 2),
         graph_kind="pairwise",
+        adjacency_connectivity="face",
         adjacency_min_voxels=1,
         edge_weight="contact_voxels",
     )
@@ -441,7 +450,8 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.distance_threshold == 5.0
     assert options.pairwise_include_intra_edges is True
     assert options.edge_method == "adjacency"
-    assert options.adjacency_connectivity == "face"
+    assert options.adjacency_connectivity == "corner"
+    assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
 
 
@@ -605,6 +615,59 @@ def test_expected_labels_produce_stable_columns_for_missing_habitats() -> None:
     assert features["pair_h1_h2_n_nodes_2"] == 0.0
     # The present-habitat count still reflects what is actually in the map.
     assert features["graph_num_habitats"] == 1.0
+
+
+@pytest.mark.unit
+def test_default_connectivity_merges_diagonal_same_label() -> None:
+    """Library defaults treat diagonally touching same-label voxels as one node."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 0],
+            [0, 1],
+        ],
+        dtype=np.int32,
+    )
+    default_options = HabitatGraphFeatureOptions(subdivide_region_voxels=0)
+    assert default_options.connectivity == "full"
+    default_feats = extract_graph_features(label_array, options=default_options)
+    face_feats = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            subdivide_region_voxels=0, connectivity="face"
+        ),
+    )
+
+    assert default_feats["single_h1_n_nodes"] == 1.0
+    assert face_feats["single_h1_n_nodes"] == 2.0
+
+
+@pytest.mark.unit
+def test_default_adjacency_connects_diagonal_habitats() -> None:
+    """Library defaults create an inter-edge for diagonally touching habitats."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 0],
+            [0, 2],
+        ],
+        dtype=np.int32,
+    )
+    default_options = HabitatGraphFeatureOptions(
+        adjacency_min_voxels=1, subdivide_region_voxels=0
+    )
+    assert default_options.adjacency_connectivity == "corner"
+    default_feats = extract_graph_features(label_array, options=default_options)
+    face_feats = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            adjacency_min_voxels=1,
+            subdivide_region_voxels=0,
+            adjacency_connectivity="face",
+            connectivity="face",
+        ),
+    )
+
+    assert default_feats["pair_h1_h2_n_edges"] == 1.0
+    assert face_feats["pair_h1_h2_n_edges"] == 0.0
 
 
 @pytest.mark.unit

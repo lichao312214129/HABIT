@@ -106,7 +106,7 @@ def _subdivide_component(
 
 def extract_habitat_nodes(
     label_array: np.ndarray,
-    connectivity: str = "face",
+    connectivity: str = "full",
     min_region_voxels: int = 1,
     erosion_radius: int = 0,
     subdivide_region_voxels: int = 0,
@@ -118,7 +118,9 @@ def extract_habitat_nodes(
 
     Args:
         label_array: Integer habitat label map. Background must be encoded as 0.
-        connectivity: Connected-component neighborhood rule.
+        connectivity: Connected-component neighborhood rule. Default
+            ``"full"`` is 8-connected in 2D / 26-connected in 3D. Pass
+            ``"face"`` for 4-connected / 6-connected neighborhoods.
         min_region_voxels: Components smaller than this voxel count are ignored.
         erosion_radius: Optional binary erosion iterations applied per habitat
             before connected-component labeling. The default is 0 because

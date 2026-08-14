@@ -70,10 +70,12 @@ For each habitat :math:`k\in\mathcal{H}`:
 3. Label connected components of the (possibly eroded) mask with
    ``scipy.ndimage.label`` and structure :math:`S`:
 
+   * ``connectivity='full'`` (default): diagonal-inclusive 8-neighbourhood
+     in 2-D / 26-neighbourhood in 3-D (``generate_binary_structure(rank=d,
+     connectivity=d)``);
    * ``connectivity='face'``: 4-neighbourhood in 2-D / 6-neighbourhood in
-     3-D (``generate_binary_structure(rank=d, connectivity=1)``);
-   * ``connectivity='full'``: diagonal-inclusive
-     (``connectivity=d``).
+     3-D (``generate_binary_structure(rank=d, connectivity=1)``). Face
+     remains available when 4/6-connectivity is required.
 4. Drop a component :math:`C` if :math:`|C| <` ``min_region_voxels``
    (default ``1``).
 5. If ``subdivide_region_voxels`` :math:`s>0` and :math:`|C|>s`, split
@@ -145,10 +147,11 @@ Edges: voxel adjacency (default)
 neighbour offset in a **half-space** (first non-zero component :math:`=+1`,
 so each unordered voxel pair is counted once):
 
-* ``face``: one non-zero offset (4-conn / 6-conn);
+* ``corner`` (default): up to :math:`d` non-zero offsets (8-conn in 2-D,
+  26-conn in 3-D). In 2-D, ``edge`` and ``corner`` coincide;
 * ``edge``: up to two non-zero offsets (8-conn / 18-conn);
-* ``corner``: up to :math:`d` non-zero offsets (8-conn in 2-D, 26-conn in
-  3-D). In 2-D, ``edge`` and ``corner`` coincide.
+* ``face``: one non-zero offset (4-conn / 6-conn). Face remains available
+  when 4/6-connectivity is required.
 
 Let :math:`N_{\mathrm{adj}}(u,v)` be the number of neighbouring voxel
 pairs whose ids are :math:`(u,v)`. An edge exists iff
@@ -440,7 +443,7 @@ below match the kernel dataclass.
    * - ``distance_threshold``
      - Centroid distance threshold in **voxel** units (default ``5.0``)
    * - ``adjacency_connectivity``
-     - For ``adjacency``: ``face`` (6-conn), ``edge`` (18), ``corner`` (26); default ``face``
+     - For ``adjacency``: default ``corner`` (8-conn in 2-D / 26-conn in 3-D); ``edge`` (8/18); ``face`` (4/6) remains available
    * - ``adjacency_min_voxels``
      - Minimum adjacent voxel-pair count to create an adjacency edge (default ``10``). An edge exists when two regions are adjacent and the contact voxel count is >= 10.
    * - ``edge_weight``
@@ -448,7 +451,7 @@ below match the kernel dataclass.
    * - ``min_region_voxels``
      - Drop connected regions smaller than this (default ``1``)
    * - ``connectivity``
-     - Connected-component rule: ``face`` or ``full`` (default ``face``)
+     - Connected-component rule: default ``full`` (8-conn in 2-D / 26-conn in 3-D); ``face`` (4/6) remains available
    * - ``erosion_radius``
      - Binary erosion iterations before labeling (default ``0`` / off; set ``>= 1`` to shrink habitats before edges)
    * - ``subdivide_region_voxels``

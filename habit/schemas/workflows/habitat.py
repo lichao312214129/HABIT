@@ -683,10 +683,11 @@ class GraphFeatureBlock(BaseModel):
         5.0, ge=0.0, description="Centroid distance threshold in pixel units."
     )
     adjacency_connectivity: Literal["face", "edge", "corner"] = Field(
-        "face",
+        "corner",
         description=(
-            "Neighbor definition for the 'adjacency' edge method: 'face' = "
-            "6-connectivity in 3D, 'edge' = 18, 'corner' = 26."
+            "Neighbor definition for the 'adjacency' edge method. Default "
+            "'corner' = 8-connectivity in 2D / 26-connectivity in 3D. "
+            "'face' = 4/6, 'edge' = 8/18."
         ),
     )
     adjacency_min_voxels: int = Field(
@@ -706,7 +707,12 @@ class GraphFeatureBlock(BaseModel):
         1, ge=1, description="Minimum connected-region size retained as a graph node."
     )
     connectivity: Literal["face", "full"] = Field(
-        "face", description="Connected-component neighborhood rule."
+        "full",
+        description=(
+            "Connected-component neighborhood rule. Default 'full' = "
+            "8-connectivity in 2D / 26-connectivity in 3D. Pass 'face' "
+            "for 4/6-connectivity."
+        ),
     )
     erosion_radius: int = Field(
         0,

@@ -58,26 +58,31 @@ class HabitatGraphFeatureOptions:
     """Runtime options for graph-based habitat feature extraction.
 
     Default edge rule: ``edge_method='adjacency'`` with
-    ``adjacency_connectivity='face'`` and ``adjacency_min_voxels=10``.
-    Adjacency and the contact-voxel count are measured on the habitat
-    labels as drawn (``erosion_radius=0``). An edge exists when two
-    regions share a boundary and the contact voxel count is at least 10.
-    Pass a positive ``erosion_radius`` to shrink each habitat before
-    labeling and edge construction.
+    ``adjacency_connectivity='corner'`` (8-connected in 2D / 26-connected
+    in 3D) and ``adjacency_min_voxels=10``. Components use
+    ``connectivity='full'`` (same 8/26 neighborhood). Pass
+    ``adjacency_connectivity='face'`` and ``connectivity='face'`` for
+    4-connected / 6-connected neighborhoods. Adjacency and the
+    contact-voxel count are measured on the habitat labels as drawn
+    (``erosion_radius=0``). An edge exists when two regions share a
+    boundary and the contact voxel count is at least 10. Pass a
+    positive ``erosion_radius`` to shrink each habitat before labeling
+    and edge construction.
     """
 
     include_single_habitat_graph: bool = True
     include_pairwise_habitat_graph: bool = True
-    # Default edge rule: connect face-adjacent regions whose shared-boundary
-    # (contact) voxel-pair count is at least ``adjacency_min_voxels``.
+    # Default edge rule: connect corner-adjacent regions (8-conn in 2D /
+    # 26-conn in 3D) whose shared-boundary (contact) voxel-pair count is
+    # at least ``adjacency_min_voxels``. Pass ``"face"`` for 4/6-conn.
     edge_method: EdgeMethod = "adjacency"
     distance_threshold: float = 5.0
     # Adjacency edge parameters (used when edge_method == "adjacency").
-    adjacency_connectivity: str = "face"
+    adjacency_connectivity: str = "corner"
     adjacency_min_voxels: int = 10
     edge_weight: EdgeWeightMode = "none"
     min_region_voxels: int = 1
-    connectivity: str = "face"
+    connectivity: str = "full"
     # Default is off: adjacency / contact are measured on the habitat labels
     # as drawn. Pass a positive value to shrink each habitat (binary erosion
     # iterations) before connected-component labeling and edge construction.

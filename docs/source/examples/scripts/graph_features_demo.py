@@ -3,8 +3,10 @@
 One subject → one-step habitats (K=4) → graph features + plots.
 
 This gallery overrides the library defaults: fixed K=4 habitats and
-adjacency contact >= 2 voxels. Library defaults remain
-``adjacency_min_voxels=10`` and ``erosion_radius=0``.
+adjacency contact >= 2 voxels. It inherits library connectivity
+(``connectivity='full'``, ``adjacency_connectivity='corner'``).
+Library defaults remain ``adjacency_min_voxels=10`` and
+``erosion_radius=0``.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::

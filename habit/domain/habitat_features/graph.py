@@ -49,10 +49,10 @@ class GraphHabitatFeaturesParams(BaseModel):
     edge_method: Literal["centroid_distance", "adjacency"] = "adjacency"
     #: Centroid distance threshold in pixel units.
     distance_threshold: float = Field(default=5.0, ge=0.0)
-    #: Neighbor definition for the ``"adjacency"`` edge method: ``"face"`` =
-    #: 6-connectivity in 3D, ``"edge"`` = 18-connectivity, ``"corner"`` =
-    #: 26-connectivity.
-    adjacency_connectivity: Literal["face", "edge", "corner"] = "face"
+    #: Neighbor definition for the ``"adjacency"`` edge method. Default
+    #: ``"corner"`` = 8-connectivity in 2D / 26-connectivity in 3D.
+    #: ``"face"`` = 4/6-connectivity; ``"edge"`` = 8/18-connectivity.
+    adjacency_connectivity: Literal["face", "edge", "corner"] = "corner"
     #: Minimum number of adjacent voxel pairs required to create an edge when
     #: ``edge_method`` is ``"adjacency"``. Default ``10``: an edge exists only
     #: when two regions are adjacent and the contact voxel count is >= 10.
@@ -63,8 +63,10 @@ class GraphHabitatFeaturesParams(BaseModel):
     )
     #: Minimum connected-region size retained as a graph node.
     min_region_voxels: int = Field(default=1, ge=1)
-    #: Connected-component neighborhood rule.
-    connectivity: Literal["face", "full"] = "face"
+    #: Connected-component neighborhood rule. Default ``"full"`` =
+    #: 8-connectivity in 2D / 26-connectivity in 3D. Pass ``"face"`` for
+    #: 4/6-connectivity.
+    connectivity: Literal["face", "full"] = "full"
     #: Binary erosion iterations applied before component labeling. Default
     #: ``0`` (off): adjacency and contact are measured on the habitat labels
     #: as drawn. Pass a positive value to shrink each habitat before edges.
@@ -98,9 +100,12 @@ class GraphHabitatFeatures:
     blocks) becomes a graph node. By default there is no morphological
     erosion (``erosion_radius=0``): adjacency is measured on the habitat
     labels as drawn. With ``edge_method='adjacency'`` an edge exists when
-    two regions are adjacent and the number of contact (shared-boundary)
-    voxels is at least ``adjacency_min_voxels`` (default ``10``). Pass a
-    positive ``erosion_radius`` to shrink habitats before edges. The
+    two regions are adjacent (default ``adjacency_connectivity='corner'``,
+    8-connected in 2D / 26-connected in 3D) and the number of contact
+    (shared-boundary) voxels is at least ``adjacency_min_voxels``
+    (default ``10``). Components use ``connectivity='full'`` (same 8/26
+    neighborhood). Pass ``face`` on both fields for 4/6-connectivity.
+    Pass a positive ``erosion_radius`` to shrink habitats before edges. The
     alternative ``centroid_distance`` method connects centroids
     within ``distance_threshold``. NetworkX-derived topology
     metrics are reported per habitat (``single_h*`` columns) and per habitat
@@ -124,13 +129,13 @@ class GraphHabitatFeatures:
         include_pairwise_habitat_graph: bool = True,
         edge_method: Literal["centroid_distance", "adjacency"] = "adjacency",
         distance_threshold: float = 5.0,
-        adjacency_connectivity: Literal["face", "edge", "corner"] = "face",
+        adjacency_connectivity: Literal["face", "edge", "corner"] = "corner",
         adjacency_min_voxels: int = 10,
         edge_weight: Literal[
             "none", "distance", "inverse_distance", "contact_voxels"
         ] = "none",
         min_region_voxels: int = 1,
-        connectivity: Literal["face", "full"] = "face",
+        connectivity: Literal["face", "full"] = "full",
         erosion_radius: int = 0,
         subdivide_region_voxels: int = 1000,
         block_size: int = 5,

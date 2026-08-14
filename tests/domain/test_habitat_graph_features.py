@@ -125,7 +125,8 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.block_size == kernel.block_size == 5
     assert params.distance_threshold == kernel.distance_threshold == 5.0
     assert params.edge_method == kernel.edge_method == "adjacency"
-    assert params.adjacency_connectivity == kernel.adjacency_connectivity == "face"
+    assert params.adjacency_connectivity == kernel.adjacency_connectivity == "corner"
+    assert params.connectivity == kernel.connectivity == "full"
     assert params.adjacency_min_voxels == kernel.adjacency_min_voxels == 10
     assert params.pairwise_include_intra_edges is (
         kernel.pairwise_include_intra_edges
