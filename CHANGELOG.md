@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- `habitat_ith_dispersion`: per-habitat ITH
+  `d_i = 1 - (S_{i,max} / n_i) / S_i`. The global ITH score is the
+  volume-weighted mean of these values.
 - Habitat feature contrast API: ``to_habitat_feature_panel`` /
   ``compare_habitat_features`` melt an ``each_habitat`` table and run
   paired habitat-vs-habitat tests (Cliff's delta or Cohen's d, BH-FDR).
@@ -22,6 +25,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `plot_ith_summary` is a single-panel bar chart: a global `ITH` bar
+  (Okabe–Ito reddish purple) then, when `dispersion` is given, a gap
+  and H1/H2/... bars (bluish green) on a shared 0–1 axis (ylabel
+  `ITH`). Pass `dispersion=habitat_ith_dispersion(labels)`. The old
+  `per_habitat` region-count mapping is rejected; the name remains a
+  deprecated alias for `dispersion` through v1.x.
 - Graph topology defaults now use corner connectivity: components
   ``connectivity='full'`` and edges ``adjacency_connectivity='corner'``
   (8-connected in 2D / 26-connected in 3D). Previously both defaulted to

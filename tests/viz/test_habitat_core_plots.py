@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 
 from habit.kernels.habitat_metrics import (
-    habitat_region_stats,
+    habitat_ith_dispersion,
     habitat_volume_fractions,
     ith_score,
     spatial_interaction_matrix,
@@ -85,7 +85,7 @@ def test_volume_msi_ith_figures(toy_labels: np.ndarray) -> None:
     # n_classes includes background row/column 0.
     matrix = spatial_interaction_matrix(toy_labels, n_classes=3)
     score = ith_score(toy_labels)
-    stats = habitat_region_stats(toy_labels)
+    dispersion = habitat_ith_dispersion(toy_labels)
 
     plt.close(plot_habitat_volume_fractions(frac))
     plt.close(plot_msi_matrix(matrix, habitat_ids=ids))
@@ -93,26 +93,75 @@ def test_volume_msi_ith_figures(toy_labels: np.ndarray) -> None:
     plt.close(plot_msi_matrix(matrix, habitat_ids=ids, scale="raw"))
     plt.close(plot_msi_matrix(matrix, habitat_ids=ids, scale="log1p"))
     plt.close(plot_msi_matrix(matrix, habitat_ids=ids, scale="linear"))
-    plt.close(plot_ith_summary(score, per_habitat=stats))
+    plt.close(plot_ith_summary(score, dispersion=dispersion))
 
 
 @pytest.mark.unit
-def test_plot_ith_summary_uses_slim_bars_for_few_habitats() -> None:
-    """1–3 habitats must not autoscale into one fat column."""
+def test_plot_ith_summary_one_panel_ith_then_habitat_bars() -> None:
+    """Single axes: ITH bar first, then n habitat bars, ylabel ITH."""
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import to_hex
+
+    fig = plot_ith_summary(0.42, dispersion={1: 0.94, 2: 0.91, 3: 0.98})
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    assert ax.get_ylabel() == "ITH"
+    bars = ax.patches
+    assert len(bars) == 4
+    assert all(abs(bar.get_width() - 0.55) < 1e-6 for bar in bars)
+    labels = [tick.get_text() for tick in ax.get_xticklabels()]
+    assert labels[0] == "ITH"
+    assert labels[1:] == ["H1", "H2", "H3"]
+    assert bars[0].get_height() == pytest.approx(0.42)
+    assert to_hex(bars[0].get_facecolor()).lower() == "#cc79a7"
+    assert all(to_hex(bar.get_facecolor()).lower() == "#009e73" for bar in bars[1:])
+    centers = [bar.get_x() + bar.get_width() / 2.0 for bar in bars]
+    assert (centers[1] - centers[0]) > (centers[2] - centers[1])
+    y0, y1 = ax.get_ylim()
+    assert y0 == pytest.approx(0.0)
+    assert y1 == pytest.approx(1.0)
+    plt.close(fig)
+
+
+@pytest.mark.unit
+def test_plot_ith_summary_without_dispersion_is_one_ith_bar() -> None:
+    """No dispersion: still one panel with a single ITH category."""
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import to_hex
+
+    fig = plot_ith_summary(0.42)
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    assert ax.get_ylabel() == "ITH"
+    assert len(ax.patches) == 1
+    assert [tick.get_text() for tick in ax.get_xticklabels()] == ["ITH"]
+    assert ax.patches[0].get_height() == pytest.approx(0.42)
+    assert to_hex(ax.patches[0].get_facecolor()).lower() == "#cc79a7"
+    y0, y1 = ax.get_ylim()
+    assert y0 == pytest.approx(0.0)
+    assert y1 == pytest.approx(1.0)
+    plt.close(fig)
+
+
+@pytest.mark.unit
+def test_plot_ith_summary_rejects_old_region_count_mapping() -> None:
+    """The old id → (n_regions, largest) mapping must not silently plot."""
+    with pytest.raises(Exception, match="habitat_ith_dispersion"):
+        plot_ith_summary(0.42, per_habitat={1: (3, 40), 2: (2, 25)})
+
+
+@pytest.mark.unit
+def test_plot_ith_summary_per_habitat_alias_warns() -> None:
+    """``per_habitat`` still accepts id → float through v1.x, with a warning."""
     import matplotlib.pyplot as plt
 
-    per_habitat = {1: (3, 40), 2: (2, 25), 3: (1, 10)}
-    fig = plot_ith_summary(0.42, per_habitat=per_habitat)
-    ith_bars = fig.axes[0].patches
-    frag_bars = fig.axes[1].patches
-    assert len(ith_bars) == 1
-    assert len(frag_bars) == 3
-    # Slimmer than the old 0.42 / 0.55 defaults and matplotlib's 0.8.
-    assert ith_bars[0].get_width() <= 0.24
-    assert all(bar.get_width() <= 0.30 for bar in frag_bars)
-    # Padded xlim so the single ITH bar does not fill the panel.
-    x0, x1 = fig.axes[0].get_xlim()
-    assert (x1 - x0) >= 2.4
+    with pytest.warns(DeprecationWarning, match="dispersion="):
+        fig = plot_ith_summary(0.42, per_habitat={1: 0.8, 2: 0.6})
+    assert len(fig.axes) == 1
+    ax = fig.axes[0]
+    assert ax.get_ylabel() == "ITH"
+    assert len(ax.patches) == 3
+    assert [tick.get_text() for tick in ax.get_xticklabels()][0] == "ITH"
     plt.close(fig)
 
 

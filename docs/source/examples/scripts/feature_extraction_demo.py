@@ -73,7 +73,7 @@ print(f"Extracted {feature_types} -> {extract_result.output_dir}")
 # BEGIN figures
 # Paste after the Script block. Uses cohort and train_result.
 from habit import (
-    habitat_region_stats,
+    habitat_ith_dispersion,
     habitat_volume_fractions,
     ith_score,
     spatial_interaction_matrix,
@@ -108,7 +108,7 @@ if ids:
     msi = spatial_interaction_matrix(labels, n_classes=n_classes)
     fig = plot_msi_matrix(msi, habitat_ids=tuple(range(1, n_classes)))
     fig.savefig("out/feature_extract_msi_matrix.png", dpi=150, bbox_inches="tight")
-    fig = plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels))
+    fig = plot_ith_summary(ith_score(labels), dispersion=habitat_ith_dispersion(labels))
     fig.savefig("out/feature_extract_ith_summary.png", dpi=150, bbox_inches="tight")
 model = train_result.habitat_model
 report = None if model is None else (model.preprocessing_state or {}).get(

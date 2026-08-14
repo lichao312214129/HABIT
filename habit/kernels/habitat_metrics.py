@@ -37,6 +37,7 @@ __all__ = [
     "msi_features_from_matrix",
     "habitat_volume_fractions",
     "habitat_region_stats",
+    "habitat_ith_dispersion",
     "ith_score",
 ]
 
@@ -238,6 +239,38 @@ def habitat_region_stats(label_array: np.ndarray) -> Dict[int, Tuple[int, int]]:
         )
         stats[habitat_id] = (int(num_regions), int(sizes.max()))
     return stats
+
+
+def habitat_ith_dispersion(label_array: np.ndarray) -> Dict[int, float]:
+    """
+    Per-habitat ITH (dispersion) on the same formula as :func:`ith_score`.
+
+    For habitat ``i`` with voxel count ``S_i``, largest component
+    ``S_i,max``, and ``n_i`` connected regions::
+
+        d_i = 1 - (S_i,max / n_i) / S_i
+
+    The global ITH score is the volume-weighted mean of these values.
+    A single connected blob scores ``0``; many small fragments approach
+    ``1``.
+
+    Args:
+        label_array: Integer habitat labels, ``0`` denoting background.
+
+    Returns:
+        Mapping of habitat id to dispersion in ``[0, 1)``. Habitats
+        absent from the array do not appear. An empty map returns ``{}``.
+    """
+    labels = np.asarray(label_array)
+    stats = habitat_region_stats(labels)
+    dispersion: Dict[int, float] = {}
+    for habitat_id, (num_regions, largest) in stats.items():
+        size = int(np.count_nonzero(labels == habitat_id))
+        if num_regions <= 0 or size <= 0:
+            dispersion[int(habitat_id)] = 0.0
+            continue
+        dispersion[int(habitat_id)] = float(1.0 - (largest / num_regions) / size)
+    return dispersion
 
 
 def ith_score(label_array: np.ndarray) -> float:

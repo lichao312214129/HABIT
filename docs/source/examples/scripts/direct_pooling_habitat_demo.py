@@ -64,7 +64,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from habit import (
-    habitat_region_stats,
+    habitat_ith_dispersion,
     habitat_volume_fractions,
     ith_score,
     spatial_interaction_matrix,
@@ -110,7 +110,7 @@ if ids:
         "direct_pooling_msi_matrix.png",
     )
     _save(
-        plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels)),
+        plot_ith_summary(ith_score(labels), dispersion=habitat_ith_dispersion(labels)),
         "direct_pooling_ith_summary.png",
     )
 

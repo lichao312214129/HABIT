@@ -289,6 +289,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "msi_features_from_matrix",
         "habitat_volume_fractions",
         "habitat_region_stats",
+        "habitat_ith_dispersion",
         "ith_score",
         "HabitatGraphFeatureOptions",
         "extract_graph_features",

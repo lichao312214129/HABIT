@@ -113,7 +113,7 @@ print(prediction.features.frame.to_string(index=False))
 # Paste after the Script block. Uses new_cohort, prediction, train_cohort,
 # train_result, model, spec, and ROI.
 from habit import (
-    habitat_region_stats,
+    habitat_ith_dispersion,
     habitat_volume_fractions,
     ith_score,
     spatial_interaction_matrix,
@@ -149,7 +149,7 @@ if ids:
     msi = spatial_interaction_matrix(labels, n_classes=n_classes)
     fig = plot_msi_matrix(msi, habitat_ids=tuple(range(1, n_classes)))
     fig.savefig("out/apply_msi_matrix.png", dpi=150, bbox_inches="tight")
-    fig = plot_ith_summary(ith_score(labels), per_habitat=habitat_region_stats(labels))
+    fig = plot_ith_summary(ith_score(labels), dispersion=habitat_ith_dispersion(labels))
     fig.savefig("out/apply_ith_summary.png", dpi=150, bbox_inches="tight")
 replay = recipes.Study.from_model(model, spec).predict(train_cohort[:1])
 fig = plot_habitat_label_compare(

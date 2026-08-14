@@ -42,6 +42,7 @@ from habit.kernels.habitat_graph import (
     pair_count,
 )
 from habit.kernels.habitat_metrics import (
+    habitat_ith_dispersion,
     habitat_region_stats,
     habitat_volume_fractions,
     ith_score,
@@ -84,6 +85,7 @@ __all__ = [
     "msi_features_from_matrix",
     "habitat_volume_fractions",
     "habitat_region_stats",
+    "habitat_ith_dispersion",
     "ith_score",
     "HabitatGraphFeatureOptions",
     "extract_graph_features",

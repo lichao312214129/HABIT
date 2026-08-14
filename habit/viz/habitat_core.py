@@ -27,7 +27,8 @@ All axis text is ASCII via :func:`~habit.viz.labels.sanitize_label`.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Mapping, Optional, Sequence, Tuple, Union
+import warnings
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -88,76 +89,69 @@ _MSI_SCALES = ("linear", "log1p", "normalized", "raw")
 #: matplotlib's 0.8 so a few habitats do not look like a solid block).
 _BAR_WIDTH = 0.55
 
-#: ITH summary bars: slimmer than ``_BAR_WIDTH`` / matplotlib 0.8. A single
-#: fat column looks clumsy when only 1–3 habitats are present.
-_ITH_BAR_WIDTH = 0.36
+#: Extra category-slot gap between the global ITH bar and the first
+#: per-habitat bar so the two series do not read as one contiguous group.
+#: Habitat bars themselves stay 1.0 apart (ITH at 0, H1 at 1.5, H2 at 2.5).
+_ITH_HABITAT_GAP = 0.5
 
 
-def _resolved_bar_width(
-    n_categories: int,
-    bar_width: Optional[float] = None,
-    *,
-    default: float = _ITH_BAR_WIDTH,
-) -> float:
+def _finite_bar_width(bar_width: Optional[float], default: float) -> float:
     """
-    Return a bar width in category-slot units.
-
-    An explicit ``bar_width`` wins. Otherwise the default is thinned further
-    when few categories would otherwise produce oversized columns.
+    Return a positive finite bar width.
 
     Args:
-        n_categories: Number of bars (treated as at least 1).
-        bar_width: Optional override; must be finite and ``> 0``.
-        default: Width used when many categories are present.
+        bar_width: Optional override; must be finite and ``> 0`` when set.
+        default: Width used when ``bar_width`` is omitted.
 
     Returns:
-        Width in data units (one unit = one category slot).
+        Width in category-slot units.
 
     Raises:
         HABITAPIError: If ``bar_width`` is non-finite or ``<= 0``.
     """
-    if bar_width is not None:
-        width = float(bar_width)
-        if not np.isfinite(width) or width <= 0.0:
-            raise HABITAPIError(
-                f"bar_width must be a finite value > 0; got {bar_width!r}."
-            )
-        return width
-    n = max(int(n_categories), 1)
-    # Keep 1–3 habitats as slim columns; approach ``default`` as n grows.
-    if n <= 1:
-        return min(default, 0.22)
-    if n == 2:
-        return min(default, 0.26)
-    if n == 3:
-        return min(default, 0.28)
-    return float(default)
+    if bar_width is None:
+        return float(default)
+    width = float(bar_width)
+    if not np.isfinite(width) or width <= 0.0:
+        raise HABITAPIError(
+            f"bar_width must be a finite value > 0; got {bar_width!r}."
+        )
+    return width
 
 
-def _set_category_xlim(
-    ax: Any,
-    n_categories: int,
-    bar_width: float,
-) -> None:
+def _as_ith_dispersion(
+    values: Mapping[Any, Any],
+    *,
+    source: str,
+) -> Dict[int, float]:
     """
-    Pad the x-axis so a handful of bars do not fill the panel.
-
-    Matplotlib autoscales xlim to the bar patches, so a single bar of any
-    width still looks fat. Add gutters (and extra empty slots when ``n`` is
-    small) and centre the real categories at integer x = 0 .. n-1.
+    Coerce habitat-id → per-habitat ITH; reject the old region-count tuples.
 
     Args:
-        ax: Matplotlib axes that already hold the bars.
-        n_categories: Number of bars.
-        bar_width: Width used for those bars (data units).
+        values: Mapping from habitat id to a scalar dispersion.
+        source: Parameter name used in error messages.
+
+    Returns:
+        Habitat id → finite float.
+
+    Raises:
+        HABITAPIError: If a value is a tuple/list or non-finite.
     """
-    n = max(int(n_categories), 1)
-    # Half-bar plus a fixed gutter, then extra empty slots for 1–3 categories
-    # so the ink occupies ~8–12% of the axes instead of ~90%.
-    base_pad = 0.5 * float(bar_width) + 0.50
-    extra_slots = max(0.0, 1.05 - 0.28 * float(n))
-    pad = base_pad + extra_slots
-    ax.set_xlim(-pad, float(n - 1) + pad)
+    out: Dict[int, float] = {}
+    for key, raw in values.items():
+        if isinstance(raw, (tuple, list)):
+            raise HABITAPIError(
+                f"plot_ith_summary: {source} must map habitat id -> float "
+                f"(per-habitat ITH). Got {raw!r} for habitat {key!r}. "
+                "Pass dispersion=habitat_ith_dispersion(labels)."
+            )
+        value = float(raw)
+        if not np.isfinite(value):
+            raise HABITAPIError(
+                f"plot_ith_summary: {source}[{key!r}] must be finite; got {raw!r}."
+            )
+        out[int(key)] = value
+    return out
 
 
 def _plt():
@@ -725,23 +719,32 @@ def plot_msi_matrix(
 def plot_ith_summary(
     ith: float,
     *,
-    per_habitat: Optional[Mapping[int, Tuple[int, int]]] = None,
+    dispersion: Optional[Mapping[int, float]] = None,
+    per_habitat: Optional[Mapping[int, Any]] = None,
     title: Optional[str] = None,
     bar_width: Optional[float] = None,
 ) -> "Figure":
     """
-    Summarise ITH score, optionally with per-habitat region counts.
+    One-panel bar chart: global ITH, then optional per-habitat ITH.
 
-    Bars are thinner than matplotlib's default and the x-axis is padded when
-    few habitats are present, so 1–3 columns stay slim instead of filling
-    the panel.
+    The first bar is the global score (tick ``ITH``, Okabe–Ito reddish
+    purple, palette index 3). When ``dispersion`` is given, a visual gap
+    separates it from H1/H2/... bars (bluish green, palette index 2) on
+    the same 0–1 axis (ylabel ``ITH``). The global score is the
+    volume-weighted mean of those per-habitat values
+    ``d_i = 1 - (S_i,max / n_i) / S_i``. Without ``dispersion`` the
+    figure is still one panel with a single ``ITH`` category — not a
+    stacked number-plus-gauge.
 
     Args:
         ith: Scalar ITH in ``[0, 1)``.
-        per_habitat: Optional habitat id → ``(num_regions, largest_size)``.
-        title: Optional figure title.
-        bar_width: Optional bar width in category-slot units. When omitted,
-            a slim default is used and further reduced for 1–3 categories.
+        dispersion: Optional habitat id → per-habitat ITH. Prefer
+            :func:`~habit.kernels.habitat_ith_dispersion`.
+        per_habitat: Deprecated alias of ``dispersion``. The old
+            ``id → (num_regions, largest_size)`` mapping is rejected.
+        title: Optional figure title. Default is ``ITH summary``.
+        bar_width: Optional bar width in category-slot units. Defaults to
+            the same width as :func:`plot_habitat_volume_fractions`.
 
     Returns:
         A matplotlib ``Figure``.
@@ -749,86 +752,62 @@ def plot_ith_summary(
     score = float(ith)
     if not np.isfinite(score):
         raise HABITAPIError("plot_ith_summary: ith must be finite.")
+    resolved: Optional[Dict[int, float]] = None
+    if dispersion is not None:
+        resolved = _as_ith_dispersion(dispersion, source="dispersion")
+    elif per_habitat is not None:
+        warnings.warn(
+            "plot_ith_summary(per_habitat=...) is deprecated; pass "
+            "dispersion=habitat_ith_dispersion(labels). "
+            "The alias will be kept for all of v1.x.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        resolved = _as_ith_dispersion(per_habitat, source="per_habitat")
+    width = _finite_bar_width(bar_width, _BAR_WIDTH)
     plt = _plt()
     with use_style("radiology") as style:
-        bar_ith = _palette_color(3, style.palette)  # reddish purple
-        bar_frag = _palette_color(2, style.palette)  # bluish green
-        if per_habitat:
-            ids = sorted(int(k) for k in per_habitat.keys())
-            counts = [int(per_habitat[k][0]) for k in ids]
-            fig, axes = plt.subplots(
-                1,
-                2,
-                figsize=style.figsize(columns=2, height_mm=62.0),
-                constrained_layout=True,
-            )
-            ith_width = _resolved_bar_width(1, bar_width)
-            axes[0].bar(
-                [0],
-                [score],
-                color=bar_ith,
-                edgecolor="white",
-                width=ith_width,
-                linewidth=0.4,
-            )
-            _set_category_xlim(axes[0], 1, ith_width)
-            axes[0].set_ylim(0.0, max(1.0, score * 1.15))
-            axes[0].set_xticks([0])
-            axes[0].set_xticklabels([sanitize_label("ITH")])
-            axes[0].set_ylabel(sanitize_label("Score"))
-            axes[0].set_title(sanitize_label(f"ITH = {score:.4f}"))
-            axes[0].spines["top"].set_visible(False)
-            axes[0].spines["right"].set_visible(False)
-            axes[0].grid(True, axis="y", alpha=0.25, linewidth=0.6)
-            axes[0].set_axisbelow(True)
-            n_hab = len(ids)
-            frag_width = _resolved_bar_width(n_hab, bar_width)
-            x = np.arange(n_hab)
-            axes[1].bar(
-                x,
-                counts,
-                width=frag_width,
-                color=bar_frag,
-                edgecolor="white",
-                linewidth=0.4,
-            )
-            _set_category_xlim(axes[1], n_hab, frag_width)
-            axes[1].set_xticks(x)
-            axes[1].set_xticklabels([sanitize_label(f"H{i}") for i in ids])
-            axes[1].set_ylabel(sanitize_label("Connected regions"))
-            axes[1].set_title(sanitize_label("Fragmentation by habitat"))
-            axes[1].spines["top"].set_visible(False)
-            axes[1].spines["right"].set_visible(False)
-            axes[1].grid(True, axis="y", alpha=0.25, linewidth=0.6)
-            axes[1].set_axisbelow(True)
-        else:
-            fig, ax = plt.subplots(
-                1,
-                1,
-                figsize=style.figsize(columns=1, height_mm=58.0),
-                constrained_layout=True,
-            )
-            ith_width = _resolved_bar_width(1, bar_width)
-            ax.bar(
-                [0],
-                [score],
-                color=bar_ith,
-                edgecolor="white",
-                width=ith_width,
-                linewidth=0.4,
-            )
-            _set_category_xlim(ax, 1, ith_width)
-            ax.set_ylim(0.0, max(1.0, score * 1.15))
-            ax.set_xticks([0])
-            ax.set_xticklabels([sanitize_label("ITH")])
-            ax.set_ylabel(sanitize_label("Score"))
-            ax.set_title(sanitize_label(f"ITH = {score:.4f}"))
-            ax.spines["top"].set_visible(False)
-            ax.spines["right"].set_visible(False)
-            ax.grid(True, axis="y", alpha=0.25, linewidth=0.6)
-            ax.set_axisbelow(True)
-        if title is not None:
-            fig.suptitle(sanitize_label(title))
+        # Okabe–Ito: index 3 reddish purple (global), index 2 bluish green.
+        ith_color = _palette_color(3, style.palette)
+        habitat_color = _palette_color(2, style.palette)
+        fig, ax = plt.subplots(
+            1,
+            1,
+            figsize=style.figsize(columns=1, height_mm=62.0),
+            constrained_layout=True,
+        )
+        positions: List[float] = [0.0]
+        heights: List[float] = [score]
+        colors: List[str] = [ith_color]
+        tick_labels: List[str] = ["ITH"]
+        if resolved:
+            ids = sorted(resolved.keys())
+            # ITH at 0; first habitat at 1 + gap so the series is not one block.
+            habitat_offset = 1.0 + _ITH_HABITAT_GAP
+            for index, hid in enumerate(ids):
+                positions.append(float(index) + habitat_offset)
+                heights.append(resolved[hid])
+                colors.append(habitat_color)
+                tick_labels.append(f"H{hid}")
+        ax.bar(
+            positions,
+            heights,
+            width=width,
+            color=colors,
+            edgecolor="white",
+            linewidth=0.4,
+        )
+        ax.set_xticks(positions)
+        ax.set_xticklabels([sanitize_label(label) for label in tick_labels])
+        ax.set_ylabel(sanitize_label("ITH"))
+        ax.set_ylim(0.0, 1.0)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.grid(True, axis="y", alpha=0.25, linewidth=0.6)
+        ax.set_axisbelow(True)
+        ax.set_title(
+            sanitize_label(title if title is not None else "ITH summary")
+        )
     return fig
 
 

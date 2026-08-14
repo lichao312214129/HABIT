@@ -262,7 +262,7 @@ def save_habitat_study_figures(
         Mapping of logical name → written path.
     """
     from habit.kernels.habitat_metrics import (
-        habitat_region_stats,
+        habitat_ith_dispersion,
         habitat_volume_fractions,
         ith_score,
         spatial_interaction_matrix,
@@ -333,7 +333,7 @@ def save_habitat_study_figures(
         written["ith"] = save_example_figure(
             plot_ith_summary(
                 ith_score(labels_c),
-                per_habitat=habitat_region_stats(labels_c),
+                dispersion=habitat_ith_dispersion(labels_c),
             ),
             f"{prefix}_ith_summary.png",
         )

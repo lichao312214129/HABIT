@@ -26,6 +26,7 @@ import numpy as np
 import pytest
 
 from habit.kernels.habitat_metrics import (
+    habitat_ith_dispersion,
     habitat_region_stats,
     habitat_volume_fractions,
     ith_score,
@@ -192,12 +193,22 @@ def test_habitat_region_stats_and_ith_score() -> None:
     assert stats[2] == (1, 2)
     # total = 4; summation = (1/2) + (2/1) = 2.5; ith = 1 - 2.5/4 = 0.375
     assert ith_score(labels) == pytest.approx(0.375)
+    # d_1 = 1 - (1/2)/2 = 0.75; d_2 = 1 - (2/1)/2 = 0.0
+    # volume-weighted mean = (2/4)*0.75 + (2/4)*0.0 = 0.375
+    dispersion = habitat_ith_dispersion(labels)
+    assert dispersion[1] == pytest.approx(0.75)
+    assert dispersion[2] == pytest.approx(0.0)
+    sizes = {1: 2, 2: 2}
+    weighted = sum(dispersion[hid] * sizes[hid] for hid in dispersion) / 4
+    assert weighted == pytest.approx(ith_score(labels))
 
 
 @pytest.mark.unit
 def test_ith_score_degenerate_maps() -> None:
     """Empty and single-region maps score zero."""
     assert ith_score(np.zeros((3, 3, 3), dtype=int)) == 0.0
+    assert habitat_ith_dispersion(np.zeros((3, 3, 3), dtype=int)) == {}
     labels = np.zeros((3, 3, 3), dtype=int)
     labels[0:2, 0:2, 0:2] = 1
     assert ith_score(labels) == pytest.approx(0.0)
+    assert habitat_ith_dispersion(labels)[1] == pytest.approx(0.0)

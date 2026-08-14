@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 from habit import (
     cohort_from_directory,
-    habitat_region_stats,
+    habitat_ith_dispersion,
     habitat_volume_fractions,
     ith_score,
     spatial_interaction_matrix,
@@ -65,7 +65,7 @@ msi = spatial_interaction_matrix(hab, n_classes=max(ids) + 1)
 _save(plot_habitat_volume_fractions(frac), "habitat_volume_fractions.png")
 _save(plot_msi_matrix(msi, habitat_ids=ids), "habitat_msi_matrix.png")
 _save(
-    plot_ith_summary(ith_score(hab), per_habitat=habitat_region_stats(hab)),
+    plot_ith_summary(ith_score(hab), dispersion=habitat_ith_dispersion(hab)),
     "habitat_ith_summary.png",
 )
 
