@@ -374,8 +374,8 @@ def test_domain_extract_graph_writes_visualizations(tmp_path: Path) -> None:
 
     config_dict = _synthetic_extract_dataset(tmp_path)
     config_dict["graph"] = {
-        # The 2x2x2 synthetic regions would not survive the default erosion;
-        # disabling it keeps graph nodes (and therefore 3D renders) non-empty.
+        # Tiny 2x2x2 synthetic regions: keep erosion off explicitly (also the
+        # public default) so graph nodes and 3D renders stay non-empty.
         "erosion_radius": 0,
         "visualize": True,
         "visualization_format": "png",

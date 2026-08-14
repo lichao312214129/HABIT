@@ -58,7 +58,7 @@ Region graphs + NetworkX metrics (same definitions as the built-in
        edge_method="adjacency",
        adjacency_connectivity="face",
        adjacency_min_voxels=10,
-       erosion_radius=1,
+       erosion_radius=0,
        subdivide_region_voxels=1000,
    )
    graph_feats = extract_graph_features(

@@ -118,11 +118,12 @@ def test_adjacency_min_voxels_default_requires_ten_contact_voxels() -> None:
     assert graph_ten.edges[0].contact_voxels == 10
 
     # Extractor default matches: 9 contacts → no pair edge; 10 → one edge.
+    # Default erosion is off, so contact is measured on the labels as drawn.
     options = HabitatGraphFeatureOptions(
-        erosion_radius=0,
         subdivide_region_voxels=0,
         include_extended_metrics=False,
     )
+    assert options.erosion_radius == 0
     assert options.edge_method == "adjacency"
     assert options.adjacency_min_voxels == 10
     feats_nine = extract_graph_features(labels_nine, options=options)
@@ -430,11 +431,11 @@ def test_subdivision_splits_large_region_into_multiple_nodes() -> None:
 
 
 @pytest.mark.unit
-def test_default_options_enable_erosion_and_subdivision() -> None:
-    """Default kernel options should erode and subdivide, per the config schema."""
+def test_default_options_disable_erosion_and_enable_subdivision() -> None:
+    """Default kernel options leave labels as drawn and still subdivide."""
     options = HabitatGraphFeatureOptions()
 
-    assert options.erosion_radius == 1
+    assert options.erosion_radius == 0
     assert options.subdivide_region_voxels == 1000
     assert options.block_size == 5
     assert options.distance_threshold == 5.0
@@ -625,6 +626,31 @@ def test_face_vs_full_connectivity_merges_diagonal_touch() -> None:
     assert len(face.nodes_by_habitat[1]) == 2
     assert len(full.nodes_by_habitat[1]) == 1
     assert full.nodes_by_habitat[1][0].voxel_count == 2
+
+
+@pytest.mark.unit
+def test_default_adjacency_keeps_contact_edges_optional_erosion_separates() -> None:
+    """Defaults keep a contact>=10 inter-edge; erosion=1 can still separate."""
+    # Two 5x10 blocks share a 10-voxel face. Thick enough to survive one
+    # erosion iteration, but erosion peels the shared boundary so they no
+    # longer touch.
+    label_array: np.ndarray = np.zeros((10, 10), dtype=np.int32)
+    label_array[0:5, :] = 1
+    label_array[5:10, :] = 2
+
+    default_options = HabitatGraphFeatureOptions()
+    assert default_options.erosion_radius == 0
+    assert default_options.edge_method == "adjacency"
+    assert default_options.adjacency_min_voxels == 10
+
+    default_feats = extract_graph_features(label_array, options=default_options)
+    eroded_feats = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(erosion_radius=1),
+    )
+
+    assert default_feats["pair_h1_h2_n_edges"] >= 1.0
+    assert eroded_feats["pair_h1_h2_n_edges"] == 0.0
 
 
 @pytest.mark.unit

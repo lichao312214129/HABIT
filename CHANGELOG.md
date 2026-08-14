@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and adjacency edges used ``adjacency_min_voxels=1``. An edge now exists
   when two regions are adjacent and the shared-boundary voxel count is
   >= 10. Pass ``edge_method='centroid_distance'`` to keep the old rule.
+- Graph topology default ``erosion_radius`` is now ``0`` (off). Adjacency
+  and the contact >= 10 rule are measured on the habitat labels as drawn.
+  Previously the default was one binary-erosion iteration before labeling,
+  which could drop thin contacts. Pass ``erosion_radius=1`` (or higher) to
+  shrink habitats before edges.
 - Docs: quickstart reminds Baidu Netdisk ML pack download / extract path
   immediately before ``habit model``.
 - Docs: Python API quickstart uses the same demo YAML as the CLI via

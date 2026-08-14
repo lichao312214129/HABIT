@@ -65,9 +65,10 @@ class GraphHabitatFeaturesParams(BaseModel):
     min_region_voxels: int = Field(default=1, ge=1)
     #: Connected-component neighborhood rule.
     connectivity: Literal["face", "full"] = "face"
-    #: Binary erosion iterations applied before component labeling to remove
-    #: boundary noise. Set 0 to disable erosion.
-    erosion_radius: int = Field(default=1, ge=0)
+    #: Binary erosion iterations applied before component labeling. Default
+    #: ``0`` (off): adjacency and contact are measured on the habitat labels
+    #: as drawn. Pass a positive value to shrink each habitat before edges.
+    erosion_radius: int = Field(default=0, ge=0)
     #: Split connected components larger than this voxel count into grid blocks
     #: so large habitats do not collapse into a single node. Set 0 to disable.
     subdivide_region_voxels: int = Field(default=1000, ge=0)
@@ -94,10 +95,13 @@ class GraphHabitatFeatures:
     Graph-topology features of one subject's habitat map.
 
     Each connected habitat region (optionally eroded and subdivided into grid
-    blocks) becomes a graph node. By default (``edge_method='adjacency'``) an
-    edge exists when two regions are adjacent and the number of contact
-    (shared-boundary) voxels is at least ``adjacency_min_voxels`` (default
-    ``10``). The alternative ``centroid_distance`` method connects centroids
+    blocks) becomes a graph node. By default there is no morphological
+    erosion (``erosion_radius=0``): adjacency is measured on the habitat
+    labels as drawn. With ``edge_method='adjacency'`` an edge exists when
+    two regions are adjacent and the number of contact (shared-boundary)
+    voxels is at least ``adjacency_min_voxels`` (default ``10``). Pass a
+    positive ``erosion_radius`` to shrink habitats before edges. The
+    alternative ``centroid_distance`` method connects centroids
     within ``distance_threshold``. NetworkX-derived topology
     metrics are reported per habitat (``single_h*`` columns) and per habitat
     pair (``pair_h*_h*`` columns), covering degree/edge counts, density,
@@ -127,7 +131,7 @@ class GraphHabitatFeatures:
         ] = "none",
         min_region_voxels: int = 1,
         connectivity: Literal["face", "full"] = "face",
-        erosion_radius: int = 1,
+        erosion_radius: int = 0,
         subdivide_region_voxels: int = 1000,
         block_size: int = 5,
         block_min_coverage: float = 0.5,

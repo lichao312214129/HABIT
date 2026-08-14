@@ -709,11 +709,13 @@ class GraphFeatureBlock(BaseModel):
         "face", description="Connected-component neighborhood rule."
     )
     erosion_radius: int = Field(
-        1,
+        0,
         ge=0,
         description=(
-            "Binary erosion iterations applied before component labeling to "
-            "remove boundary noise. Set 0 to disable erosion."
+            "Binary erosion iterations applied before component labeling. "
+            "Default 0 (off): adjacency and contact are measured on the "
+            "habitat labels as drawn. Set a positive value to shrink each "
+            "habitat before edges."
         ),
     )
     subdivide_region_voxels: int = Field(

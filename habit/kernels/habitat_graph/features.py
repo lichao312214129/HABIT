@@ -58,9 +58,12 @@ class HabitatGraphFeatureOptions:
     """Runtime options for graph-based habitat feature extraction.
 
     Default edge rule: ``edge_method='adjacency'`` with
-    ``adjacency_connectivity='face'`` and ``adjacency_min_voxels=10``. An
-    edge exists when two regions share a boundary and the contact voxel
-    count is at least 10.
+    ``adjacency_connectivity='face'`` and ``adjacency_min_voxels=10``.
+    Adjacency and the contact-voxel count are measured on the habitat
+    labels as drawn (``erosion_radius=0``). An edge exists when two
+    regions share a boundary and the contact voxel count is at least 10.
+    Pass a positive ``erosion_radius`` to shrink each habitat before
+    labeling and edge construction.
     """
 
     include_single_habitat_graph: bool = True
@@ -75,9 +78,10 @@ class HabitatGraphFeatureOptions:
     edge_weight: EdgeWeightMode = "none"
     min_region_voxels: int = 1
     connectivity: str = "face"
-    # Default erosion (1 iteration) removes a one-voxel boundary shell to
-    # suppress segmentation edge noise before connected-component labeling.
-    erosion_radius: int = 1
+    # Default is off: adjacency / contact are measured on the habitat labels
+    # as drawn. Pass a positive value to shrink each habitat (binary erosion
+    # iterations) before connected-component labeling and edge construction.
+    erosion_radius: int = 0
     # Subdivision is on by default: contiguous habitats would otherwise collapse
     # into a single graph node and erase internal spatial structure. Components
     # larger than ``subdivide_region_voxels`` are split into ``block_size`` grid
@@ -240,8 +244,10 @@ def extract_graph_features(
     Extract subject-level graph features from a habitat label map.
 
     Default ``options`` use ``edge_method='adjacency'`` with
-    ``adjacency_min_voxels=10``: an edge exists when two regions are
-    adjacent and the contact (shared-boundary) voxel count is >= 10.
+    ``adjacency_min_voxels=10`` and ``erosion_radius=0``: an edge exists
+    when two regions are adjacent on the habitat labels as drawn and the
+    contact (shared-boundary) voxel count is >= 10. Pass
+    ``erosion_radius>=1`` to shrink habitats before edges.
 
     Args:
         label_array: Already segmented habitat map. Label 0 is treated as

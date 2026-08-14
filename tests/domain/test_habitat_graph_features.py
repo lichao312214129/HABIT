@@ -101,7 +101,7 @@ def test_graph_spec_records_all_options() -> None:
     assert extractor.spec.name == "graph"
     assert extractor.spec.params["distance_threshold"] == 8.0
     assert extractor.spec.params["edge_method"] == "adjacency"
-    assert extractor.spec.params["erosion_radius"] == 1
+    assert extractor.spec.params["erosion_radius"] == 0
 
 
 @pytest.mark.unit
@@ -120,7 +120,7 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     """The pydantic params model mirrors the kernel option defaults."""
     params = GraphHabitatFeaturesParams()
     kernel = HabitatGraphFeatureOptions()
-    assert params.erosion_radius == kernel.erosion_radius == 1
+    assert params.erosion_radius == kernel.erosion_radius == 0
     assert params.subdivide_region_voxels == kernel.subdivide_region_voxels == 1000
     assert params.block_size == kernel.block_size == 5
     assert params.distance_threshold == kernel.distance_threshold == 5.0
