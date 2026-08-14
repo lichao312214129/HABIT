@@ -389,6 +389,14 @@
 <li class="toctree-l3"><a class="reference internal" href="graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="habitat_feature_compare.html">Habitat feature contrast (cohort or one subject)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#script">Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#draw-the-figures">Draw the figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="habitat_feature_compare.html#what-to-read-next">What to read next</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="feature_extraction.html">Habitat and radiomics feature extraction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#habitat-extraction-example">Habitat extraction example</a></li>
 <li class="toctree-l3"><a class="reference internal" href="feature_extraction.html#draw-the-figures">Draw the figures</a></li>
@@ -438,6 +446,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -612,6 +621,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#graph-construction">Graph construction</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#nodes-connected-regions">Nodes (connected regions)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-centroid-distance">Edges: centroid distance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-minimum-voxel-distance">Edges: minimum voxel distance</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/features/graph.html#edges-voxel-adjacency-default">Edges: voxel adjacency (default)</a></li>
 </ul>
 </li>
@@ -1256,6 +1266,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_min_distance_graph.html">build_min_distance_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.build_adjacency_graph.html">build_adjacency_graph</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.pair_count.html">pair_count</a></li>
 </ul>
@@ -2189,6 +2200,72 @@ figures go to <code class="docutils literal notranslate"><span class="pre">out/<
 </a>
 <figcaption>
 <p><span class="caption-text">Label compare (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>).</span><a class="headerlink" href="#id18" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">
+<h2>Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)<a class="headerlink" href="#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars" title="Link to this heading"></a></h2>
+<p>After an <code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> (or any wide <code class="docutils literal notranslate"><span class="pre">habitat_{id}_{feature}</span></code>) table,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compare_habitat_features()</span></code> plus the four
+<code class="docutils literal notranslate"><span class="pre">plot_habitat_feature_*</span></code> helpers are the reviewer figures. Bars are
+<strong>faceted by feature</strong> so Energy and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code> do not share one
+linear y-axis. Regenerated by
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/source/examples/scripts/habitat_feature_compare_demo.py</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cmp.</span>
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;original_firstorder_Mean_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Median_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Energy_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Kurtosis_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;volume_fraction&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
+    <span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cohort mean habitat x feature&quot;</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_heatmap_cohort.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
+    <span class="n">cmp</span><span class="p">,</span>
+    <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj000&quot;</span><span class="p">,</span>
+    <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat feature profile (subj000)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_heatmap_subject.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_effect</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_effect.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_violin</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_violin.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_bars</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_bars.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote habitat-feature contrast figures under out/&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id19">
+<a class="reference internal image-reference" href="../_images/habitat_feature_heatmap_cohort.png"><img alt="Cohort habitat-by-feature z-score heatmap" src="../_images/habitat_feature_heatmap_cohort.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cohort mean heatmap (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id19" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id20">
+<a class="reference internal image-reference" href="../_images/habitat_feature_effect.png"><img alt="Cliff's delta lollipop for habitat contrast" src="../_images/habitat_feature_effect.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cliff’s delta (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id20" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id21">
+<a class="reference internal image-reference" href="../_images/habitat_feature_violin.png"><img alt="Per-feature habitat distributions" src="../_images/habitat_feature_violin.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Distributions (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id21" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id22">
+<a class="reference internal image-reference" href="../_images/habitat_feature_bars.png"><img alt="Per-feature habitat means with independent y-axes" src="../_images/habitat_feature_bars.png" width="620" />
+</a>
+<figcaption>
+<p><span class="caption-text">Faceted bars (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>).</span><a class="headerlink" href="#id22" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

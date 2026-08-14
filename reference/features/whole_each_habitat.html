@@ -446,6 +446,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1873,7 +1874,13 @@ contrast habitats <strong>across the cohort</strong> (paired Cliff’s delta + B
 The same objects also describe one subject (differences without p-values).</p>
 <p>Tens-to-hundreds of texture features: draw a habitat x feature heatmap
 and a top-k effect-size forest. Violins / bars are for a shortlist, not
-the full bank.</p>
+the full bank. Bars are <strong>one panel per feature</strong> (independent y-axis)
+so Energy and <code class="docutils literal notranslate"><span class="pre">volume_fraction</span></code> are not forced onto one linear scale.</p>
+<p>Runnable gallery (synthetic stand-in table; swap <code class="docutils literal notranslate"><span class="pre">table</span></code> for your
+<code class="docutils literal notranslate"><span class="pre">each_habitat</span></code> extract):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">habitat_feature_compare_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">compare_habitat_features</span><span class="p">,</span>
     <span class="n">plot_habitat_feature_bars</span><span class="p">,</span>
@@ -1901,6 +1908,46 @@ remains.</p>
 <a class="reference internal" href="../../examples/habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a>. Graph topology columns
 (<code class="docutils literal notranslate"><span class="pre">single_h*</span></code> / <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code>) can share the joined table but do not
 melt through this API.</p>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_heatmap_cohort.png"><img alt="Cohort habitat-by-feature z-score heatmap" src="../../_images/habitat_feature_heatmap_cohort.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cohort mean heatmap, z-scored per feature
+(<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_heatmap_subject.png"><img alt="Single-subject habitat-by-feature z-score heatmap" src="../../_images/habitat_feature_heatmap_subject.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">One-subject profile
+(<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_effect.png"><img alt="Cliff's delta lollipop for habitat contrast" src="../../_images/habitat_feature_effect.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Ranked Cliff’s delta (filled = BH q &lt; 0.05)
+(<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_effect.html#habit.viz.plot_habitat_feature_effect" title="habit.viz.plot_habitat_feature_effect"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_effect()</span></code></a>).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_violin.png"><img alt="Per-feature habitat distributions" src="../../_images/habitat_feature_violin.png" width="520" />
+</a>
+<figcaption>
+<p><span class="caption-text">Per-feature distributions; box + strip when n &lt; 5
+(<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_violin.html#habit.viz.plot_habitat_feature_violin" title="habit.viz.plot_habitat_feature_violin"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_violin()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../../_images/habitat_feature_bars.png"><img alt="Per-feature habitat means with independent y-axes" src="../../_images/habitat_feature_bars.png" width="620" />
+</a>
+<figcaption>
+<p><span class="caption-text">One panel per feature, independent y-axis
+(<a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_bars.html#habit.viz.plot_habitat_feature_bars" title="habit.viz.plot_habitat_feature_bars"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_bars()</span></code></a>).</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 

@@ -447,6 +447,7 @@
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-graph-topology-figures">Habitat graph topology figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#voxel-texture-feature-map-slices">Voxel texture / feature-map slices</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-core-figures-maps-validation-compare">Habitat-core figures (maps, validation, compare)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html#habitat-feature-contrast-heatmap-cliff-s-delta-violin-bars">Habitat feature contrast (heatmap / Cliff’s delta / violin / bars)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="visualization.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1786,245 +1787,49 @@ wide schema.</p>
 to your preprocessed tree and get-habitat output. Figures land under
 <code class="docutils literal notranslate"><span class="pre">out/</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">cohort_from_directory</span><span class="p">,</span>
-    <span class="n">compare_habitat_features</span><span class="p">,</span>
-    <span class="n">to_habitat_feature_panel</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">discover_habitat_map_paths</span><span class="p">,</span>
-    <span class="n">read_habitat_map</span><span class="p">,</span>
-    <span class="n">resolve_n_habitats</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayImageRef</span><span class="p">,</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">Geometry</span><span class="p">,</span> <span class="n">HabitatMap</span><span class="p">,</span> <span class="n">Subject</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain.habitat_features</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">EachHabitatRadiomicsFeatures</span><span class="p">,</span>
-    <span class="n">GraphHabitatFeatures</span><span class="p">,</span>
-    <span class="n">HabitatVolumeFeatures</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.progress_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomTqdm</span>
-
-<span class="c1"># Change DATA / MAPS / MODALITIES / ROI to your preprocessed layout.</span>
-<span class="c1"># MAPS is the get-habitat out_dir (files named &lt;sid&gt;_habitats.nrrd).</span>
-<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
-<span class="n">MAPS</span> <span class="o">=</span> <span class="s2">&quot;demo_data/results/habitat_two_step&quot;</span>
-<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
-<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
-<span class="c1"># Small real slice: paired Cliff&#39;s delta / BH-FDR need n &gt;= 3.</span>
-<span class="n">N_SUBJECTS</span> <span class="o">=</span> <span class="mi">3</span>
-
-<span class="c1"># First-order only so each_habitat stays gallery-fast on demo volumes.</span>
-<span class="c1"># A paper pipeline would use the bundled roi preset (full texture bank).</span>
-<span class="n">LIGHT_RADIOMICS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;imageType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="p">{}},</span>
-    <span class="s2">&quot;featureClass&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;firstorder&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Mean&quot;</span><span class="p">,</span> <span class="s2">&quot;Median&quot;</span><span class="p">,</span> <span class="s2">&quot;Skewness&quot;</span><span class="p">,</span> <span class="s2">&quot;Kurtosis&quot;</span><span class="p">,</span> <span class="s2">&quot;Energy&quot;</span><span class="p">],</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;additionalInfo&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;correctMask&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">stack_subject_tables</span><span class="p">(</span><span class="n">tables</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Stack one-row-per-subject tables from the same feature family.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        tables: Per-subject tables that share id and feature columns.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        One cohort table (rows = subjects).</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        ValueError: If ``tables`` is empty.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">tables</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stack_subject_tables: no tables to stack.&quot;</span><span class="p">)</span>
-    <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span> <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">FeatureTable</span><span class="p">(</span>
-        <span class="n">frame</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
-        <span class="n">id_columns</span><span class="o">=</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id_columns</span><span class="p">,</span>
-        <span class="n">feature_columns</span><span class="o">=</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">,</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">crop_subject_and_map</span><span class="p">(</span>
-    <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
-    <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
-    <span class="n">modality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Subject</span><span class="p">,</span> <span class="n">HabitatMap</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Crop anatomy and habitat labels to a padded foreground bbox.</span>
-
-<span class="sd">    Demo volumes are full-FOV. Radiomics and graph topology only need the</span>
-<span class="sd">    ROI; cropping keeps this gallery on real data without a full-volume</span>
-<span class="sd">    wait. Swap DATA / MAPS as usual -- the crop follows the habitat mask.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        subject: Imaging subject (one or more modalities).</span>
-<span class="sd">        habitat_map: Habitat labels aligned with the subject.</span>
-<span class="sd">        modality: Image key to keep on the cropped subject.</span>
-<span class="sd">        pad: Voxel padding around the habitat foreground.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Cropped ``(subject, habitat_map)`` sharing one geometry.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">volume</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
-    <span class="n">foreground</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">foreground</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No habitat voxels for </span><span class="si">{</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">foreground</span><span class="p">)</span>
-    <span class="n">mins</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">maxs</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">slices</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">axis</span><span class="p">,</span> <span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mins</span><span class="p">,</span> <span class="n">maxs</span><span class="p">)):</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span><span class="p">)</span>
-        <span class="n">stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">slices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
-    <span class="n">indexer</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slices</span><span class="p">)</span>
-    <span class="n">image_c</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">indexer</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">labels_c</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">indexer</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">spacing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">volume</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span>
-    <span class="n">geometry</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">image_c</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">)</span>
-    <span class="n">cropped_subject</span> <span class="o">=</span> <span class="n">Subject</span><span class="p">(</span>
-        <span class="n">subject_id</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
-        <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">image_c</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">)},</span>
-        <span class="n">masks</span><span class="o">=</span><span class="p">{</span>
-            <span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span>
-                <span class="n">array</span><span class="o">=</span><span class="p">(</span><span class="n">labels_c</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
-                <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">},</span>
-    <span class="p">)</span>
-    <span class="n">cropped_map</span> <span class="o">=</span> <span class="n">HabitatMap</span><span class="p">(</span>
-        <span class="n">subject_id</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
-        <span class="n">label_array</span><span class="o">=</span><span class="n">labels_c</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-        <span class="n">geometry</span><span class="o">=</span><span class="n">geometry</span><span class="p">,</span>
-        <span class="n">model_id</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
-        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span>
-        <span class="n">provenance</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">provenance</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">cropped_subject</span><span class="p">,</span> <span class="n">cropped_map</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_one_subject</span><span class="p">(</span>
-    <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
-    <span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">each</span><span class="p">:</span> <span class="n">EachHabitatRadiomicsFeatures</span><span class="p">,</span>
-    <span class="n">graph</span><span class="p">:</span> <span class="n">GraphHabitatFeatures</span><span class="p">,</span>
-    <span class="n">volume</span><span class="p">:</span> <span class="n">HabitatVolumeFeatures</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FeatureTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Run each_habitat + graph + volume on one subject and join the rows.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        subject: Imaging subject (intensities used by each_habitat).</span>
-<span class="sd">        habitat_map: Existing habitat labels for that subject.</span>
-<span class="sd">        each: Per-habitat radiomics extractor.</span>
-<span class="sd">        graph: Topology extractor (library defaults).</span>
-<span class="sd">        volume: Per-habitat voxel-count / fraction extractor.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        One-row table: wide ``habitat_{id}_{feature}`` columns plus</span>
-<span class="sd">        ``single_h*`` / ``pair_h*_h*`` graph columns.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">each_table</span> <span class="o">=</span> <span class="n">each</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
-    <span class="n">volume_table</span> <span class="o">=</span> <span class="n">volume</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
-    <span class="n">graph_table</span> <span class="o">=</span> <span class="n">graph</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">each_table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">volume_table</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">graph_table</span><span class="p">)</span>
-
-
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="n">N_SUBJECTS</span><span class="p">]</span>
-<span class="n">n_habitats</span> <span class="o">=</span> <span class="n">resolve_n_habitats</span><span class="p">(</span><span class="n">MAPS</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="n">habitat_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_habitats</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">map_paths</span> <span class="o">=</span> <span class="n">discover_habitat_map_paths</span><span class="p">(</span><span class="n">MAPS</span><span class="p">,</span> <span class="s2">&quot;*_habitats.nrrd&quot;</span><span class="p">)</span>
-
-<span class="c1"># Domain extractors: graph uses library defaults (now a default light family).</span>
-<span class="n">each_extractor</span> <span class="o">=</span> <span class="n">EachHabitatRadiomicsFeatures</span><span class="p">(</span>
-    <span class="n">params</span><span class="o">=</span><span class="n">LIGHT_RADIOMICS</span><span class="p">,</span>
-    <span class="n">modalities</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">),</span>
-<span class="p">)</span>
-<span class="n">graph_extractor</span> <span class="o">=</span> <span class="n">GraphHabitatFeatures</span><span class="p">()</span>
-<span class="n">volume_extractor</span> <span class="o">=</span> <span class="n">HabitatVolumeFeatures</span><span class="p">()</span>
-
-<span class="n">per_subject</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FeatureTable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">CustomTqdm</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extract features&quot;</span><span class="p">):</span>
-    <span class="n">sid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">map_paths</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No habitat map for </span><span class="si">{</span><span class="n">sid</span><span class="si">!r}</span><span class="s2"> under </span><span class="si">{</span><span class="n">MAPS</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="s2">&quot;Run get-habitat first or point MAPS at your *_habitats.nrrd folder.&quot;</span>
-        <span class="p">)</span>
-    <span class="n">habitat_map</span> <span class="o">=</span> <span class="n">read_habitat_map</span><span class="p">(</span>
-        <span class="n">map_paths</span><span class="p">[</span><span class="n">sid</span><span class="p">],</span>
-        <span class="n">subject_id</span><span class="o">=</span><span class="n">sid</span><span class="p">,</span>
-        <span class="n">habitat_ids</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">cropped_subject</span><span class="p">,</span> <span class="n">cropped_map</span> <span class="o">=</span> <span class="n">crop_subject_and_map</span><span class="p">(</span>
-        <span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span><span class="p">,</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">per_subject</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">extract_one_subject</span><span class="p">(</span>
-            <span class="n">cropped_subject</span><span class="p">,</span>
-            <span class="n">cropped_map</span><span class="p">,</span>
-            <span class="n">each</span><span class="o">=</span><span class="n">each_extractor</span><span class="p">,</span>
-            <span class="n">graph</span><span class="o">=</span><span class="n">graph_extractor</span><span class="p">,</span>
-            <span class="n">volume</span><span class="o">=</span><span class="n">volume_extractor</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="p">)</span>
-
-<span class="n">table</span> <span class="o">=</span> <span class="n">stack_subject_tables</span><span class="p">(</span><span class="n">per_subject</span><span class="p">)</span>
-<span class="n">wide_cols</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">name</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span>
-    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;habitat_&quot;</span><span class="p">)</span>
-<span class="p">]</span>
-<span class="n">graph_cols</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">name</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span>
-    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;single_h&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pair_h&quot;</span><span class="p">)</span>
-<span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Subjects: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">cohort</span><span class="o">.</span><span class="n">subject_ids</span><span class="p">)</span><span class="si">}</span><span class="s2">; habitats 1..</span><span class="si">{</span><span class="n">n_habitats</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Joined table: </span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> rows x &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">feature_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wide_cols</span><span class="p">)</span><span class="si">}</span><span class="s2"> wide habitat_*, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">graph_cols</span><span class="p">)</span><span class="si">}</span><span class="s2"> graph)&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureTable</span><span class="p">,</span> <span class="n">compare_habitat_features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_habitat_feature_bars</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_effect</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_heatmap</span><span class="p">,</span>
+    <span class="n">plot_habitat_feature_violin</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1"># Contrast melts only habitat_{id}_{feature}. Graph columns stay on `table`</span>
-<span class="c1"># but are ignored by the panel (they are subject-level topology, not a</span>
-<span class="c1"># per-habitat measurement in that wide schema).</span>
-<span class="n">panel</span> <span class="o">=</span> <span class="n">to_habitat_feature_panel</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
-<span class="n">comparison</span> <span class="o">=</span> <span class="n">compare_habitat_features</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
-<span class="n">subject_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subject_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Panel: </span><span class="si">{</span><span class="n">panel</span><span class="o">.</span><span class="n">n_subjects</span><span class="si">}</span><span class="s2"> subjects, &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;habitats=</span><span class="si">{</span><span class="n">panel</span><span class="o">.</span><span class="n">habitat_ids</span><span class="si">}</span><span class="s2">, &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;features=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">panel</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1"># Swap `table` for your each_habitat / extract_habitat_features FeatureTable</span>
+<span class="c1"># (wide columns habitat_{id}_{feature}, one row per subject).</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">n_subjects</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">feature_specs</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;original_firstorder_Mean_of_T2&quot;</span><span class="p">,</span> <span class="mf">120.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;original_firstorder_Median_of_T2&quot;</span><span class="p">,</span> <span class="mf">110.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;original_firstorder_Energy_of_T2&quot;</span><span class="p">,</span> <span class="mf">1.8e9</span><span class="p">,</span> <span class="mf">2.0e8</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;original_firstorder_Kurtosis_of_T2&quot;</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;volume_fraction&quot;</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Cohort contrast: n=</span><span class="si">{</span><span class="n">comparison</span><span class="o">.</span><span class="n">n_subjects</span><span class="si">}</span><span class="s2">, &quot;</span>
-    <span class="sa">f</span><span class="s2">&quot;paired=</span><span class="si">{</span><span class="n">comparison</span><span class="o">.</span><span class="n">paired</span><span class="si">}</span><span class="s2">, effect=</span><span class="si">{</span><span class="n">comparison</span><span class="o">.</span><span class="n">effect</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_subjects</span><span class="p">):</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;subj</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">hid</span><span class="p">,</span> <span class="n">shift</span> <span class="ow">in</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">)):</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;has_habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span> <span class="ow">in</span> <span class="n">feature_specs</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="n">shift</span><span class="p">),</span> <span class="n">scale</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;volume_fraction&quot;</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">))</span>
+            <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;habitat_</span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">FeatureTable</span><span class="p">(</span>
+    <span class="n">frame</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+    <span class="n">id_columns</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,),</span>
+    <span class="n">feature_columns</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;subject&quot;</span>
+    <span class="p">),</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Top absolute-effect features:&quot;</span><span class="p">,</span> <span class="n">comparison</span><span class="o">.</span><span class="n">top_features</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">&quot;Graph sample (</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">):&quot;</span><span class="p">,</span>
-    <span class="p">{</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">table</span><span class="o">.</span><span class="n">frame</span><span class="p">[</span><span class="n">table</span><span class="o">.</span><span class="n">id_columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">subject_id</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">graph_cols</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
-    <span class="p">},</span>
-<span class="p">)</span>
+<span class="n">cmp</span> <span class="o">=</span> <span class="n">compare_habitat_features</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cmp</span><span class="o">.</span><span class="n">n_subjects</span><span class="p">,</span> <span class="s2">&quot;subjects;&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmp</span><span class="o">.</span><span class="n">panel</span><span class="o">.</span><span class="n">feature_names</span><span class="p">),</span> <span class="s2">&quot;features&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -2032,65 +1837,33 @@ to your preprocessed tree and get-habitat output. Figures land under
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
 <p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">comparison</span></code> and
 <code class="docutils literal notranslate"><span class="pre">subject_id</span></code>). Writes <code class="docutils literal notranslate"><span class="pre">out/habitat_feature_compare_*.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses comparison, subject_id, and Path.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">plot_habitat_feature_bars</span><span class="p">,</span>
-    <span class="n">plot_habitat_feature_effect</span><span class="p">,</span>
-    <span class="n">plot_habitat_feature_heatmap</span><span class="p">,</span>
-    <span class="n">plot_habitat_feature_violin</span><span class="p">,</span>
-    <span class="n">use_style</span><span class="p">,</span>
-<span class="p">)</span>
-
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cmp.</span>
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_save</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a figure under out/ and close it.&quot;&quot;&quot;</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-
-<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
-    <span class="n">_save</span><span class="p">(</span>
-        <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
-            <span class="n">comparison</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cohort mean habitat x feature&quot;</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;habitat_feature_compare_heatmap.png&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">_save</span><span class="p">(</span>
-        <span class="n">plot_habitat_feature_effect</span><span class="p">(</span>
-            <span class="n">comparison</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat contrast (Cliff&#39;s delta)&quot;</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;habitat_feature_compare_effect.png&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">_save</span><span class="p">(</span>
-        <span class="n">plot_habitat_feature_violin</span><span class="p">(</span>
-            <span class="n">comparison</span><span class="p">,</span>
-            <span class="n">max_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Top-k habitat feature distributions&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;habitat_feature_compare_violin.png&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">_save</span><span class="p">(</span>
-        <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
-            <span class="n">comparison</span><span class="p">,</span>
-            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Habitat feature profile (</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;habitat_feature_compare_subject_heatmap.png&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">_save</span><span class="p">(</span>
-        <span class="n">plot_habitat_feature_bars</span><span class="p">(</span>
-            <span class="n">comparison</span><span class="p">,</span>
-            <span class="n">subject_id</span><span class="o">=</span><span class="n">subject_id</span><span class="p">,</span>
-            <span class="n">max_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Top-k values (</span><span class="si">{</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="s2">&quot;habitat_feature_compare_bars.png&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+<span class="n">FEATURES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;original_firstorder_Mean_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Median_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Energy_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;original_firstorder_Kurtosis_of_T2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;volume_fraction&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
+    <span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cohort mean habitat x feature&quot;</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_heatmap_cohort.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_heatmap</span><span class="p">(</span>
+    <span class="n">cmp</span><span class="p">,</span>
+    <span class="n">subject_id</span><span class="o">=</span><span class="s2">&quot;subj000&quot;</span><span class="p">,</span>
+    <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat feature profile (subj000)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_heatmap_subject.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_effect</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_effect.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_violin</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_violin.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_feature_bars</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">FEATURES</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/habitat_feature_bars.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote habitat-feature contrast figures under out/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>

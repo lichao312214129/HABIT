@@ -105,7 +105,13 @@ The same objects also describe one subject (differences without p-values).
 
 Tens-to-hundreds of texture features: draw a habitat x feature heatmap
 and a top-k effect-size forest. Violins / bars are for a shortlist, not
-the full bank.
+the full bank. Bars are **one panel per feature** (independent y-axis)
+so Energy and ``volume_fraction`` are not forced onto one linear scale.
+
+Runnable gallery (synthetic stand-in table; swap ``table`` for your
+``each_habitat`` extract)::
+
+   python docs/source/examples/scripts/habitat_feature_compare_demo.py
 
 ::
 
@@ -136,3 +142,39 @@ Runnable real-data gallery (existing ``demo_data`` maps, first-order
 :doc:`../../examples/habitat_feature_compare`. Graph topology columns
 (``single_h*`` / ``pair_h*_h*``) can share the joined table but do not
 melt through this API.
+
+.. figure:: ../../_static/images/examples/habitat_feature_heatmap_cohort.png
+   :alt: Cohort habitat-by-feature z-score heatmap
+   :width: 520
+
+   Cohort mean heatmap, z-scored per feature
+   (:func:`~habit.viz.plot_habitat_feature_heatmap`).
+
+.. figure:: ../../_static/images/examples/habitat_feature_heatmap_subject.png
+   :alt: Single-subject habitat-by-feature z-score heatmap
+   :width: 520
+
+   One-subject profile
+   (:func:`~habit.viz.plot_habitat_feature_heatmap`).
+
+.. figure:: ../../_static/images/examples/habitat_feature_effect.png
+   :alt: Cliff's delta lollipop for habitat contrast
+   :width: 480
+
+   Ranked Cliff's delta (filled = BH q < 0.05)
+   (:func:`~habit.viz.plot_habitat_feature_effect`).
+
+.. figure:: ../../_static/images/examples/habitat_feature_violin.png
+   :alt: Per-feature habitat distributions
+   :width: 520
+
+   Per-feature distributions; box + strip when n < 5
+   (:func:`~habit.viz.plot_habitat_feature_violin`).
+
+.. figure:: ../../_static/images/examples/habitat_feature_bars.png
+   :alt: Per-feature habitat means with independent y-axes
+   :width: 620
+
+   One panel per feature, independent y-axis
+   (:func:`~habit.viz.plot_habitat_feature_bars`).
+
