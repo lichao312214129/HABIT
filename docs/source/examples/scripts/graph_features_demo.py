@@ -18,6 +18,8 @@ from __future__ import annotations
 # BEGIN example
 from pathlib import Path
 
+import numpy as np
+
 from habit import (
     HabitatGraphFeatureOptions,
     cohort_from_directory,
@@ -44,11 +46,22 @@ options = HabitatGraphFeatureOptions(include_extended_metrics=False)
 slice_index = int((labels > 0).reshape(labels.shape[0], -1).sum(axis=1).argmax())
 feats = extract_graph_features(labels[slice_index], options=options)
 print(len(feats), "graph features from representative slice", slice_index)
+# Reproducible 10-feature sample (fixed seed). Swap SAMPLE_SEED if you like.
+SAMPLE_SEED = 0
+rng = np.random.default_rng(SAMPLE_SEED)
+names = sorted(feats)
+sample_names = [str(names[i]) for i in rng.choice(len(names), size=10, replace=False)]
+sample = {name: float(feats[name]) for name in sorted(sample_names)}
+print("Ten sampled graph features (seed=%d):" % SAMPLE_SEED)
+for name, value in sample.items():
+    print(f"  {name}: {value:.6g}")
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses cohort, result, labels, options, and MODALITIES.
-from habit.viz import plot_habitat_graph_network_2d, plot_habitat_overlay
+# Paste after the Script block. Uses cohort, result, labels, options, sample, and MODALITIES.
+import matplotlib.pyplot as plt
+
+from habit.viz import plot_habitat_graph_network_2d, plot_habitat_overlay, use_style
 
 Path("out").mkdir(exist_ok=True)
 # Overlay: ImageVolume + HabitatMap (3-panel orthogonal default).
@@ -67,7 +80,19 @@ fig = plot_habitat_graph_network_2d(
     grid_linestyle="--",
 )
 fig.savefig("out/graph_habitat_network_2d.png", dpi=150, bbox_inches="tight")
-print("Wrote out/graph_habitat_slice_2d.png and out/graph_habitat_network_2d.png")
+# Same `sample` dict printed in the Script block (seed=0).
+with use_style("radiology"):
+    fig, ax = plt.subplots(figsize=(7.4, 3.8), constrained_layout=True)
+    bar_names = list(sample.keys())
+    bar_values = [sample[name] for name in bar_names]
+    ax.barh(bar_names[::-1], bar_values[::-1], color="#4C78A8", height=0.65)
+    ax.set_xlabel("Value")
+    ax.set_title("Ten sampled graph features (seed=0)")
+    fig.savefig("out/graph_feature_sample.png", dpi=150, bbox_inches="tight")
+print(
+    "Wrote out/graph_habitat_slice_2d.png, "
+    "out/graph_habitat_network_2d.png, and out/graph_feature_sample.png"
+)
 # END figures
 
 if __name__ == "__main__":
@@ -83,6 +108,7 @@ if __name__ == "__main__":
         (
             "graph_habitat_slice_2d.png",
             "graph_habitat_network_2d.png",
+            "graph_feature_sample.png",
         )
     )
 

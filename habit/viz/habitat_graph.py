@@ -366,8 +366,21 @@ def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
     return {label: hexes[index] for index, label in enumerate(ordered)}
 
 
-#: Matplotlib scatter area (points^2) for every 2D graph node.
+#: Matplotlib scatter area (points^2) for H1--Hk panel nodes.
 _DEFAULT_NODE_SIZE: float = 64.0
+#: Combined All-habitats panel: many nodes plus intra/inter edges share
+#: one axes, so markers stay smaller than the per-habitat panels.
+_ALL_PANEL_NODE_SIZE: float = 18.0
+#: Marker rim width (points) on H panels vs the crowded All panel.
+_NODE_EDGE_WIDTH: float = 0.5
+_ALL_PANEL_NODE_EDGE_WIDTH: float = 0.30
+#: Featured intra-habitat edges on H1--Hk panels (opaque).
+_FEATURED_INTRA_EDGE_WIDTH: float = 0.7
+#: Combined All-habitats panel strokes (thinner than H panels).
+_ALL_PANEL_INTRA_EDGE_WIDTH: float = 0.35
+_ALL_PANEL_INTER_EDGE_WIDTH: float = 0.45
+_ALL_PANEL_INTRA_EDGE_ALPHA: float = 0.85
+_ALL_PANEL_INTER_EDGE_ALPHA: float = 0.80
 #: Publication-readable type sizes for the multi-panel 2D network figure.
 _PANEL_TITLE_FONTSIZE: float = 11.5
 _AXIS_TEXT_FONTSIZE: float = 10.5
@@ -698,11 +711,25 @@ def _draw_edges_2d(
         )
 
 
+def _scaled_all_panel_node_size(node_size: float) -> float:
+    """
+    Derive the All-habitats marker area from the H-panel ``node_size``.
+
+    Args:
+        node_size: Scatter area used on H1--Hk panels.
+
+    Returns:
+        float: Scatter area for the combined All-habitats panel.
+    """
+    return float(node_size) * (_ALL_PANEL_NODE_SIZE / _DEFAULT_NODE_SIZE)
+
+
 def _draw_nodes_2d(
     ax,
     nodes: Sequence[HabitatGraphNode],
     colors: Dict[int, str],
     node_size: float = _DEFAULT_NODE_SIZE,
+    linewidths: float = _NODE_EDGE_WIDTH,
 ) -> None:
     """
     Scatter 2D graph nodes at projected region centroids, colored by habitat.
@@ -716,6 +743,7 @@ def _draw_nodes_2d(
         colors: Habitat label to hex colour mapping.
         node_size: Matplotlib scatter area in points squared. The same
             value is applied to every node.
+        linewidths: Marker rim width in points.
     """
     if not nodes:
         return
@@ -730,7 +758,7 @@ def _draw_nodes_2d(
         # Dark rim, not white: a white edge on a small marker reads as a
         # pale / hollow node even when face alpha is 1.0.
         edgecolors="#1A1A1A",
-        linewidths=0.5,
+        linewidths=float(linewidths),
         alpha=1.0,
         zorder=4,
     )
@@ -942,7 +970,10 @@ def plot_habitat_graph_network_2d(
         panel_size: Base panel edge length in inches.
         max_cols: Maximum number of panels per row in the grid.
         node_size: Matplotlib scatter area in points squared applied to
-            every node (default ``64``). Voxel count does not scale markers.
+            H1--Hk panel nodes (default ``64``). The All-habitats panel
+            uses a smaller derived area (default ``18``) so a crowded
+            combined graph stays readable. Voxel count does not scale
+            markers.
         colorbar: Discrete habitat-ID colorbar on the combined-graph panel
             (default ``True``). Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
@@ -1030,8 +1061,22 @@ def plot_habitat_graph_network_2d(
                 )
             edges = _single_intra_edges(sub, label, options, node_result)
             # Featured intra-habitat edges stay opaque so the panel is readable.
-            _draw_edges_2d(ax, id_to_node, edges, _INTRA_EDGE_COLOR, 0.7, 1.0, 2)
-            _draw_nodes_2d(ax, sub, colors, node_size=node_size)
+            _draw_edges_2d(
+                ax,
+                id_to_node,
+                edges,
+                _INTRA_EDGE_COLOR,
+                _FEATURED_INTRA_EDGE_WIDTH,
+                1.0,
+                2,
+            )
+            _draw_nodes_2d(
+                ax,
+                sub,
+                colors,
+                node_size=node_size,
+                linewidths=_NODE_EDGE_WIDTH,
+            )
             # Slice index lives on the figure title; keep panel titles short
             # so neighbouring H1 / H2 headings cannot run into each other.
             _style_axis_2d(
@@ -1047,15 +1092,33 @@ def plot_habitat_graph_network_2d(
             ax_cross, label_2d, node_result, options, **grid_kwargs
         )
         _draw_edges_2d(
-            ax_cross, id_to_node, intra_edges, _INTRA_EDGE_COLOR, 0.7, 1.0, 2
+            ax_cross,
+            id_to_node,
+            intra_edges,
+            _INTRA_EDGE_COLOR,
+            _ALL_PANEL_INTRA_EDGE_WIDTH,
+            _ALL_PANEL_INTRA_EDGE_ALPHA,
+            2,
         )
         _draw_edges_2d(
-            ax_cross, id_to_node, inter_edges, _INTER_EDGE_COLOR, 1.1, 1.0, 3
+            ax_cross,
+            id_to_node,
+            inter_edges,
+            _INTER_EDGE_COLOR,
+            _ALL_PANEL_INTER_EDGE_WIDTH,
+            _ALL_PANEL_INTER_EDGE_ALPHA,
+            3,
         )
         all_nodes = [
             node for label in labels for node in node_result.nodes_by_habitat[label]
         ]
-        _draw_nodes_2d(ax_cross, all_nodes, colors, node_size=node_size)
+        _draw_nodes_2d(
+            ax_cross,
+            all_nodes,
+            colors,
+            node_size=_scaled_all_panel_node_size(node_size),
+            linewidths=_ALL_PANEL_NODE_EDGE_WIDTH,
+        )
         _style_axis_2d(
             ax_cross,
             label_2d,

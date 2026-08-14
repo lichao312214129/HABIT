@@ -261,6 +261,47 @@ def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:
     plt.close(fig)
 
 
+def test_plot_habitat_graph_network_2d_all_panel_marks_are_thinner() -> None:
+    """All-habitats panel uses smaller nodes and thinner edges than H panels."""
+    labels = _synthetic_2d_labels()
+    options = HabitatGraphFeatureOptions(
+        edge_method="centroid_distance",
+        distance_threshold=30.0,
+        erosion_radius=0,
+        node_method="component",
+        subdivide_region_voxels=0,
+        include_extended_metrics=False,
+    )
+    fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
+    assert isinstance(fig, Figure)
+    habitat_sizes: list[float] = []
+    all_sizes: list[float] = []
+    habitat_widths: list[float] = []
+    all_widths: list[float] = []
+    for ax in fig.axes:
+        title = ax.get_title()
+        sizes = [
+            float(size)
+            for collection in ax.collections
+            if hasattr(collection, "get_sizes")
+            for size in np.asarray(collection.get_sizes(), dtype=float)
+        ]
+        widths = [float(line.get_linewidth()) for line in ax.lines]
+        if title.startswith("All habitats"):
+            all_sizes.extend(sizes)
+            all_widths.extend(widths)
+        elif title.startswith("H"):
+            habitat_sizes.extend(sizes)
+            habitat_widths.extend(widths)
+    assert habitat_sizes and all_sizes
+    assert max(all_sizes) < min(habitat_sizes)
+    assert habitat_widths and all_widths
+    assert max(all_widths) < max(habitat_widths)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
 def test_plot_habitat_graph_network_2d_other_habitat_edges_are_translucent() -> None:
     """Per-habitat panels draw other habitats' intra-edges more transparent."""
     labels = _synthetic_2d_labels()
