@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Precise features: screen before you cluster &mdash; HABIT Documentation</title>
+  <title>Precise features: atoms, then paper combinations &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
@@ -87,6 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -358,16 +359,14 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -706,6 +705,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -945,6 +948,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1750,7 +1755,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
-      <li class="breadcrumb-item active">Precise features: screen before you cluster</li>
+      <li class="breadcrumb-item active">Precise features: atoms, then paper combinations</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/examples/precise_features.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -1760,462 +1765,480 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="precise-features-screen-before-you-cluster">
-<h1>Precise features: screen before you cluster<a class="headerlink" href="#precise-features-screen-before-you-cluster" title="Link to this heading"></a></h1>
-<p><strong>Level:</strong> recipe · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> ·
-<strong>Time:</strong> ~1–3 min</p>
+  <section id="precise-features-atoms-then-paper-combinations">
+<h1>Precise features: atoms, then paper combinations<a class="headerlink" href="#precise-features-atoms-then-paper-combinations" title="Link to this heading"></a></h1>
+<p><strong>Level:</strong> atomic · <strong>Data:</strong> <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> · <strong>Extras:</strong> <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> ·
+<strong>Time:</strong> ~5–15 min (one cropped subject, first-order + GLCM)</p>
 <p>Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
 or bin width — does not yield the same numbers twice. Clustering features
 that do not survive such perturbation produces habitats nobody can
-reproduce. The precision screen of Prior et al. (<em>Radiol Artif Intell</em>
-2024;6(2):e230118) answers the question <strong>which voxel features deserve to
-define habitats at all</strong>, and HABIT implements it as a first-class recipe.</p>
-<section id="the-three-experiments">
-<h2>The three experiments<a class="headerlink" href="#the-three-experiments" title="Link to this heading"></a></h2>
-<p>Per subject, <a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a> runs up
-to three experiments over the feature maps:</p>
-<ul class="simple">
-<li><p><strong>repeatability</strong> — ICC(3A,1) between the base-setting maps of the
-original image and of one perturbed copy (Gaussian noise estimated by
-Chang’s wavelet method, a sub-voxel translation, a 0.5-degree in-plane
-rotation — the paper’s simulated retest);</p></li>
-<li><p><strong>reproducibility_kernel_radius</strong> — ICC(3C,1) between maps at the given
-kernel radii (the paper contrasts R1 with R3) at fixed bin width;</p></li>
-<li><p><strong>reproducibility_bin_width</strong> — ICC(3C,1) between maps at the given bin
-widths (the paper contrasts B12 with B25 HU) at fixed radius.</p></li>
-</ul>
-<p>Per-feature per-subject ICCs are aggregated by the cohort median, and a
-feature is <em>precise</em> when its median lower confidence limit reaches
-<code class="docutils literal notranslate"><span class="pre">lcl_threshold</span></code> (0.5, the paper’s “at least good” boundary) in <strong>every</strong>
-experiment — subject to the <code class="docutils literal notranslate"><span class="pre">include</span></code> / <code class="docutils literal notranslate"><span class="pre">exclude</span></code> expert overrides (the
-paper used <code class="docutils literal notranslate"><span class="pre">include</span></code> for NGTDM Coarseness).</p>
-<p>The default extractor is the bundled CT voxel-radiomics preset
-(<code class="docutils literal notranslate"><span class="pre">voxel_radiomics_factory</span></code> forwards the grid point as
-<code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> / <code class="docutils literal notranslate"><span class="pre">binWidth</span></code>); any extractor with a
-<code class="docutils literal notranslate"><span class="pre">(kernel_radius,</span> <span class="pre">bin_width)</span> <span class="pre">-&gt;</span> <span class="pre">extractor</span></code> factory can be screened instead.</p>
+reproduce. Prior et al. (<em>Radiol Artif Intell</em> 2024;6(2):e230118) answered
+this with <strong>combinatorial experiments</strong>. HABIT teaches the same design as
+two volume-level atoms, then a small composition.</p>
+<section id="the-two-atoms">
+<h2>The two atoms<a class="headerlink" href="#the-two-atoms" title="Link to this heading"></a></h2>
+<p>Neither call needs a <a class="reference internal" href="../api/generated/habit.contracts.Cohort.html#habit.contracts.Cohort" title="habit.contracts.subject.Cohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cohort</span></code></a>, YAML, or
+<a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>.</p>
+<ol class="arabic">
+<li><p><strong>Perturb</strong> — <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a>: one
+<a class="reference internal" href="../api/generated/habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code></a>, a registered method name, and
+that method’s parameters. Optional <code class="docutils literal notranslate"><span class="pre">mask</span></code> is used by methods that
+consult or warp an ROI. The result stays on the original voxel grid.</p>
+<p>Built-in methods: <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">rigid</span></code>, <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI; extra <code class="docutils literal notranslate"><span class="pre">monai</span></code>).</p>
+</li>
+<li><p><strong>Extract voxel texture</strong> — <a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html#habit.extract_voxel_texture" title="habit.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>: the
+same image and mask, with <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> (the paper’s <code class="docutils literal notranslate"><span class="pre">R</span></code>),
+<code class="docutils literal notranslate"><span class="pre">bin_width</span></code> (the paper’s <code class="docutils literal notranslate"><span class="pre">B</span></code>), and optional <code class="docutils literal notranslate"><span class="pre">feature_classes</span></code>.
+Combinations are repeated calls, not a new API.</p></li>
+</ol>
 </section>
-<section id="from-screen-to-habitat-run">
-<h2>From screen to habitat run<a class="headerlink" href="#from-screen-to-habitat-run" title="Link to this heading"></a></h2>
-<p>The returned <code class="xref py py-class docutils literal notranslate"><span class="pre">PreciseFeatureSet</span></code> is a
-serialisable artefact (<code class="docutils literal notranslate"><span class="pre">save</span></code> / <code class="docutils literal notranslate"><span class="pre">load</span></code>) carrying the full evidence
-panels — publish it alongside the study so others cluster the SAME
-features. Its <code class="docutils literal notranslate"><span class="pre">preprocessor()</span></code> bridges into a habitat spec: a
-<code class="docutils literal notranslate"><span class="pre">feature_whitelist</span></code> preprocessing step that restricts the clustering
-matrix to exactly the precise features. Place it first in
-<code class="docutils literal notranslate"><span class="pre">voxel_feature_preprocessors</span></code> so only precise features reach scaling and
-clustering.</p>
+<section id="paper-combinations">
+<h2>Paper combinations<a class="headerlink" href="#paper-combinations" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Repeatability</strong> — <code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs <code class="docutils literal notranslate"><span class="pre">extract(perturbed)</span></code> at
+the base setting (paper: R3B12). ICC(3A,1) via
+<a class="reference internal" href="../api/generated/habit.precision_panel.html#habit.precision_panel" title="habit.precision_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_panel()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">agreement=&quot;absolute&quot;</span></code>.</p></li>
+<li><p><strong>Reproducibility, kernel</strong> — <code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">kernel_radius=1)</span></code> vs
+<code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">kernel_radius=3)</span></code> at fixed bin width (R1 vs R3).
+ICC(3C,1), <code class="docutils literal notranslate"><span class="pre">agreement=&quot;consistency&quot;</span></code>.</p></li>
+<li><p><strong>Reproducibility, bin width</strong> — <code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">bin_width=12)</span></code> vs
+<code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">bin_width=25)</span></code> at fixed radius (B12 vs B25).
+ICC(3C,1).</p></li>
+</ul>
+<p>A feature is <em>precise</em> when its lower confidence limit reaches 0.5
+(the paper’s “at least good” boundary) in <strong>every</strong> experiment you
+actually ran. <a class="reference internal" href="../api/generated/habit.identify_precise_features.html#habit.identify_precise_features" title="habit.identify_precise_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_features()</span></code></a> is that
+intersection. <code class="xref py py-func docutils literal notranslate"><span class="pre">aggregate_panels()</span></code> takes the per-feature
+median when you have more than one subject.</p>
+<p>The demo below uses one cropped subject (median of one). The optional
+recipe at the end loops the same atoms over a cohort.</p>
 </section>
 <section id="runnable-demo">
 <h2>Runnable demo<a class="headerlink" href="#runnable-demo" title="Link to this heading"></a></h2>
-<p>The demo loads one subject from <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> (swap
-<code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>), crops to the ROI bounding box, and
-screens a small <strong>voxel-texture</strong> set (first-order + GLCM) so the
-repeatability experiment stays fast. The default factory
-(<code class="docutils literal notranslate"><span class="pre">voxel_radiomics_factory</span></code>) is the full paper CT preset.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
+<p>Swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>. The script crops to the ROI
+bounding box so R1 vs R3 stays interactive, then runs the three paper
+combinations on a small first-order + GLCM set.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Cohort</span><span class="p">,</span>
+    <span class="n">HabitatSpec</span><span class="p">,</span>
+    <span class="n">Spec</span><span class="p">,</span>
+    <span class="n">Subject</span><span class="p">,</span>
+    <span class="n">aggregate_panels</span><span class="p">,</span>
+    <span class="n">cohort_from_directory</span><span class="p">,</span>
+    <span class="n">extract_voxel_texture</span><span class="p">,</span>
+    <span class="n">identify_precise_features</span><span class="p">,</span>
+    <span class="n">perturb_image</span><span class="p">,</span>
+    <span class="n">precision_panel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayImageRef</span><span class="p">,</span> <span class="n">Geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Study</span>
+
+<span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
 <span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
 <span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
 <span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_crop_to_roi</span><span class="p">(</span><span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">modality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_crop_to_roi</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">modality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop one subject to the ROI bounding box plus pad (demo speed).&quot;&quot;&quot;</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">mask_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">image_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask_arr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">sl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">))</span>
-    <span class="n">src</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
     <span class="n">geom</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
-        <span class="n">image</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">direction</span>
+        <span class="n">image_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">direction</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">subject</span><span class="p">)(</span>
-        <span class="n">subject_id</span><span class="o">=</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
-        <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">image</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
-        <span class="n">masks</span><span class="o">=</span><span class="p">{</span><span class="n">roi</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">mask</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
-    <span class="p">)</span>
-
-
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">_crop_to_roi</span><span class="p">(</span><span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ROI</span><span class="p">),))</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">texture_params</span><span class="p">(</span><span class="n">bin_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inline PyRadiomics settings: first-order + a few stable GLCM names.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;imageType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="p">{}},</span>
-        <span class="s2">&quot;featureClass&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;firstorder&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">,</span> <span class="s2">&quot;Variance&quot;</span><span class="p">,</span> <span class="s2">&quot;Skewness&quot;</span><span class="p">,</span> <span class="s2">&quot;Kurtosis&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;Contrast&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Correlation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;JointEntropy&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Idm&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;DifferenceEntropy&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">bin_width</span><span class="p">),</span> <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-    <span class="p">}</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">texture_factory</span><span class="p">(</span><span class="n">kernel_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bin_width</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VoxelRadiomicsFeatures</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map the settings grid onto a small voxel-texture extractor.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">VoxelRadiomicsFeatures</span><span class="p">(</span>
-        <span class="n">modalities</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">),</span>
-        <span class="n">kernel_radius</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">kernel_radius</span><span class="p">),</span>
-        <span class="n">params</span><span class="o">=</span><span class="n">texture_params</span><span class="p">(</span><span class="n">bin_width</span><span class="p">),</span>
+    <span class="k">return</span> <span class="n">Subject</span><span class="p">(</span>
+        <span class="n">subject_id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+        <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">image_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
+        <span class="n">masks</span><span class="o">=</span><span class="p">{</span><span class="n">roi</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">mask_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
     <span class="p">)</span>
 
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== precision screen (repeatability experiment) ===&quot;</span><span class="p">)</span>
-<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span>
-    <span class="n">cohort</span><span class="p">,</span>
-    <span class="n">extractor_factory</span><span class="o">=</span><span class="n">texture_factory</span><span class="p">,</span>
-    <span class="n">kernel_radii</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>  <span class="c1"># one radius: skip the kernel-radius experiment</span>
-    <span class="n">bin_widths</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,),</span>  <span class="c1"># one width: skip the bin-width experiment</span>
-    <span class="n">base_kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">base_bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">_crop_to_roi</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ROI</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
+
+<span class="c1"># --- Atom 1: perturb (image + method + params -&gt; same-grid image) ---</span>
+<span class="c1"># gaussian_noise with sigma omitted uses Chang&#39;s wavelet estimator.</span>
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">shifted</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;translation&quot;</span><span class="p">,</span>
+    <span class="n">shift_voxels</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+    <span class="n">random_signs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-    <span class="n">show_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">rotated</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;perturbed methods:&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_noise, translation, rotation&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  grid unchanged: </span><span class="si">{</span><span class="n">perturbed</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># --- Atom 2: extract texture (same image, different paper knobs) ---</span>
+<span class="c1"># Small first-order + GLCM set so R1 vs R3 stays interactive on a crop.</span>
+<span class="c1"># Pass feature_classes=None to use the bundled voxel (paper CT) preset.</span>
+<span class="n">FEATURE_CLASSES</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;firstorder&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">,</span> <span class="s2">&quot;Variance&quot;</span><span class="p">,</span> <span class="s2">&quot;Skewness&quot;</span><span class="p">,</span> <span class="s2">&quot;Kurtosis&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;glcm&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;Contrast&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Correlation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JointEntropy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Idm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DifferenceEntropy&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">feat_r1</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">feature_classes</span><span class="o">=</span><span class="n">FEATURE_CLASSES</span>
+<span class="p">)</span>
+<span class="n">feat_r3</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">feature_classes</span><span class="o">=</span><span class="n">FEATURE_CLASSES</span>
+<span class="p">)</span>
+<span class="n">feat_b25</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">feature_classes</span><span class="o">=</span><span class="n">FEATURE_CLASSES</span>
+<span class="p">)</span>
+<span class="n">feat_pert</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span>
+    <span class="n">perturbed</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">feature_classes</span><span class="o">=</span><span class="n">FEATURE_CLASSES</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">feat_r3</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  voxels: </span><span class="si">{</span><span class="n">feat_r3</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># --- Combine like the paper (small composition, not a new extractor) ---</span>
+<span class="c1"># repeatability: extract(original) vs extract(perturbed) at the base setting</span>
+<span class="c1"># reproducibility: extract(orig, params_A) vs extract(orig, params_B)</span>
+<span class="c1"># precise = intersection of LCL &gt;= 0.5 across experiments that were run</span>
+<span class="n">repeat_panel</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">,</span> <span class="s2">&quot;perturbed&quot;</span><span class="p">:</span> <span class="n">feat_pert</span><span class="p">},</span>
+    <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;absolute&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">kernel_panel</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;R1&quot;</span><span class="p">:</span> <span class="n">feat_r1</span><span class="p">,</span> <span class="s2">&quot;R3&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">},</span>
+    <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;consistency&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">bin_panel</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;B12&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">,</span> <span class="s2">&quot;B25&quot;</span><span class="p">:</span> <span class="n">feat_b25</span><span class="p">},</span>
+    <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;consistency&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_features</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;repeatability&quot;</span><span class="p">:</span> <span class="n">aggregate_panels</span><span class="p">([</span><span class="n">repeat_panel</span><span class="p">]),</span>
+        <span class="s2">&quot;reproducibility_kernel_radius&quot;</span><span class="p">:</span> <span class="n">aggregate_panels</span><span class="p">([</span><span class="n">kernel_panel</span><span class="p">]),</span>
+        <span class="s2">&quot;reproducibility_bin_width&quot;</span><span class="p">:</span> <span class="n">aggregate_panels</span><span class="p">([</span><span class="n">bin_panel</span><span class="p">]),</span>
+    <span class="p">},</span>
+    <span class="n">lcl_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">evidence</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">screened</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+<span class="n">screened</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
 <span class="n">all_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
 <span class="n">unstable</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">all_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">screened</span><span class="p">)]</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  precise (stable) features: </span><span class="si">{</span><span class="n">screened</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  unstable features: </span><span class="si">{</span><span class="n">unstable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  experiments: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">experiments</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  precise: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">screened</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  unstable: </span><span class="si">{</span><span class="n">unstable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">evidence</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== whitelist bridge into a habitat spec ===&quot;</span><span class="p">)</span>
-<span class="n">whitelist</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  whitelist spec: </span><span class="si">{</span><span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">spec</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precise_demo&quot;</span><span class="p">,</span>
-    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-        <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">),</span>
-            <span class="s2">&quot;kernel_radius&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">texture_params</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-    <span class="c1"># The whitelist goes FIRST: only precise features reach scaling/clustering.</span>
-    <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span>
-        <span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
-        <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
-    <span class="p">),</span>
-    <span class="n">supervoxelizer</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;n_supervoxels&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}),</span>
-    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span>
-        <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-    <span class="p">),</span>
-    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">),</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+<span class="c1"># --- Habitat use: all-texture vs precise-texture (same k search) ---</span>
+<span class="n">cropped</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">subject</span><span class="p">,))</span>
+<span class="n">texture_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;imageType&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+    <span class="s2">&quot;featureClass&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">FEATURE_CLASSES</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+    <span class="s2">&quot;setting&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;binWidth&quot;</span><span class="p">:</span> <span class="mf">12.0</span><span class="p">,</span> <span class="s2">&quot;normalize&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+<span class="p">}</span>
+<span class="n">extractor_spec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span>
+    <span class="s2">&quot;voxel_radiomics&quot;</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;modalities&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">),</span>
+        <span class="s2">&quot;kernel_radius&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">texture_params</span><span class="p">,</span>
+    <span class="p">},</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat spec fingerprint: </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat maps: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== artefact round trip ===&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;habit_precise_&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;precise_features.json&quot;</span><span class="p">)</span>
-    <span class="n">reloaded</span> <span class="o">=</span> <span class="n">PreciseFeatureSet</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  saved </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">; reloaded features: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">fitter_spec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span>
+    <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">&quot;min_habitats&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;max_habitats&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="s2">&quot;elbow&quot;</span><span class="p">,</span> <span class="s2">&quot;n_init&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">minmax_spec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;minmax&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;across_features&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+<span class="n">assigner_spec</span> <span class="o">=</span> <span class="n">Spec</span><span class="p">(</span><span class="s2">&quot;nearest_centroid&quot;</span><span class="p">)</span>
+<span class="n">spec_all</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;all_texture_one_step&quot;</span><span class="p">,</span>
+    <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">extractor_spec</span><span class="p">,</span>
+    <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">minmax_spec</span><span class="p">,),</span>
+    <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">fitter_spec</span><span class="p">,</span>
+    <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">assigner_spec</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result_all</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec_all</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cropped</span><span class="p">)</span>
+<span class="n">result_precise</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="n">screened</span><span class="p">:</span>
+    <span class="n">whitelist</span> <span class="o">=</span> <span class="n">precise</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">()</span>
+    <span class="n">spec_precise</span> <span class="o">=</span> <span class="n">HabitatSpec</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precise_one_step&quot;</span><span class="p">,</span>
+        <span class="n">voxel_feature_extractor</span><span class="o">=</span><span class="n">extractor_spec</span><span class="p">,</span>
+        <span class="n">voxel_feature_preprocessors</span><span class="o">=</span><span class="p">(</span><span class="n">whitelist</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span> <span class="n">minmax_spec</span><span class="p">),</span>
+        <span class="n">habitat_model_fitter</span><span class="o">=</span><span class="n">fitter_spec</span><span class="p">,</span>
+        <span class="n">habitat_assigner</span><span class="o">=</span><span class="n">assigner_spec</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+        <span class="n">pooling</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result_precise</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec_precise</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cropped</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat maps: all=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result_all</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> precise=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result_precise</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  no feature passed every experiment; skip precise habitats&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="draw-the-figures">
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
-<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">precise</span></code>, <code class="docutils literal notranslate"><span class="pre">evidence</span></code>,
-<code class="docutils literal notranslate"><span class="pre">cohort</span></code>, <code class="docutils literal notranslate"><span class="pre">result</span></code>, and <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>). Writes
+<p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">image</span></code>, <code class="docutils literal notranslate"><span class="pre">mask</span></code>,
+<code class="docutils literal notranslate"><span class="pre">perturbed</span></code>, <code class="docutils literal notranslate"><span class="pre">shifted</span></code>, <code class="docutils literal notranslate"><span class="pre">rotated</span></code>, <code class="docutils literal notranslate"><span class="pre">precise</span></code>, <code class="docutils literal notranslate"><span class="pre">evidence</span></code>,
+<code class="docutils literal notranslate"><span class="pre">result_all</span></code>, and <code class="docutils literal notranslate"><span class="pre">result_precise</span></code>). Writes
 <code class="docutils literal notranslate"><span class="pre">out/precise_features_*.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses precise, evidence, cohort, result, MODALITIES.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_overlay</span><span class="p">,</span> <span class="n">plot_precision_icc</span>
-
-<span class="n">fig_icc</span> <span class="o">=</span> <span class="n">plot_precision_icc</span><span class="p">(</span>
-    <span class="n">evidence</span><span class="p">,</span>
-    <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Precision screen: ICC and 95% CI&quot;</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses image, mask, perturbed, shifted,</span>
+<span class="c1"># rotated, precise, evidence, result_all, result_precise.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_habitat_label_compare</span><span class="p">,</span>
+    <span class="n">plot_intensity_slice</span><span class="p">,</span>
+    <span class="n">plot_precision_icc</span><span class="p">,</span>
 <span class="p">)</span>
+
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">fig_icc</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_icc_lcl.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-<span class="n">fig_overlay</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
-    <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitats after precise-feature whitelist&quot;</span><span class="p">,</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write one taught figure under out/.&quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">_save_fig</span><span class="p">(</span>
+    <span class="n">plot_intensity_slice</span><span class="p">(</span>
+        <span class="n">perturbed</span><span class="p">,</span>
+        <span class="n">before</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+        <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+        <span class="n">roi_contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original vs Gaussian noise&quot;</span><span class="p">,</span>
+        <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span>
+        <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Gaussian noise&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;precise_features_original_vs_perturbed.png&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">fig_overlay</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_features_overlay.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote out/precise_features_icc_lcl.png and out/precise_features_overlay.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># Small multiples: each panel is one perturb_image call (same slice as above).</span>
+<span class="c1"># plot_intensity_slice is the pair figure; this mosaic only arranges those</span>
+<span class="c1"># already-computed volumes.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
+
+<span class="n">mask_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask_arr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">panels</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Gaussian noise&quot;</span><span class="p">,</span> <span class="n">perturbed</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Translation 0.5 vx&quot;</span><span class="p">,</span> <span class="n">shifted</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Rotation 0.5 deg&quot;</span><span class="p">,</span> <span class="n">rotated</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">orig_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">finite</span> <span class="o">=</span> <span class="n">orig_sl</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">orig_sl</span><span class="p">)]</span>
+<span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">))</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig_m</span><span class="p">,</span> <span class="n">axes_m</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">3.4</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes_m</span><span class="p">,</span> <span class="n">panels</span><span class="p">):</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">sl</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">hi</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">fig_m</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;perturb_image methods (same slice)&quot;</span><span class="p">))</span>
+<span class="n">_save_fig</span><span class="p">(</span><span class="n">fig_m</span><span class="p">,</span> <span class="s2">&quot;precise_features_perturb_methods.png&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_experiment_frame</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rows of one experiment, coloured by that experiment&#39;s own LCL.&quot;&quot;&quot;</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;experiment&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">experiment</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">panel</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;precise&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+
+<span class="n">icc_jobs</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;repeatability&quot;</span><span class="p">,</span> <span class="s2">&quot;precise_features_icc_lcl.png&quot;</span><span class="p">,</span> <span class="s2">&quot;Repeatability ICC and 95% CI&quot;</span><span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;reproducibility_kernel_radius&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;precise_features_icc_kernel.png&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Kernel-radius reproducibility ICC and 95% CI&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="s2">&quot;reproducibility_bin_width&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;precise_features_icc_bin.png&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Bin-width reproducibility ICC and 95% CI&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">icc_jobs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">experiment</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">precise</span><span class="o">.</span><span class="n">experiments</span><span class="p">):</span>
+        <span class="k">continue</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="n">_experiment_frame</span><span class="p">(</span><span class="n">evidence</span><span class="p">,</span> <span class="n">experiment</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;lcl&quot;</span><span class="p">,</span> <span class="s2">&quot;ucl&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">panel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="n">_save_fig</span><span class="p">(</span>
+        <span class="n">plot_precision_icc</span><span class="p">(</span><span class="n">panel</span><span class="p">,</span> <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">),</span>
+        <span class="n">filename</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="n">combined</span> <span class="o">=</span> <span class="n">evidence</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;lcl&quot;</span><span class="p">,</span> <span class="s2">&quot;ucl&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+    <span class="n">_save_fig</span><span class="p">(</span>
+        <span class="n">plot_precision_icc</span><span class="p">(</span>
+            <span class="n">combined</span><span class="p">,</span>
+            <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;All experiments: ICC and 95% CI&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;precise_features_icc_all.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="k">if</span> <span class="n">result_precise</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_save_fig</span><span class="p">(</span>
+        <span class="n">plot_habitat_label_compare</span><span class="p">(</span>
+            <span class="n">image</span><span class="p">,</span>
+            <span class="n">result_all</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">result_precise</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;All texture features&quot;</span><span class="p">,</span> <span class="s2">&quot;Precise features only&quot;</span><span class="p">),</span>
+            <span class="n">align_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;precise_features_all_vs_precise.png&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">written</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Run from the repository root (one line):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">precise_features_demo</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>Perturbation anatomy figures (same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">precise_screening_tutorial_demo</span><span class="o">.</span><span class="n">py</span>
-</pre></div>
-</div>
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
 <p>Illustrative (ICC depends on the subject and extractor; this is one
-<code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject with first-order / GLCM voxel texture, not a
-clinical claim). Feature names and precise/unstable split are printed
-by the script.</p>
+cropped <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject with first-order / GLCM voxel texture, not
+a clinical claim). Feature names and the precise/unstable split are
+printed by the script.</p>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
-<p>The screen’s scientific figure is ICC + 95% CI per texture feature
-(point + vertical whisker; blue = precise, gray = unstable); the
-overlay is the habitat map after clustering <strong>only</strong> those precise
-features. The perturbation panels below are the <strong>same</strong> Prior 2024 /
-MIRP 1.2.0 components applied to one <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> subject
-(not a clinical claim). Regenerated by
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">docs/source/examples/scripts/precise_screening_tutorial_demo.py</span></code>.</p>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
+<a class="reference internal image-reference" href="../_images/precise_features_original_vs_perturbed.png"><img alt="Original anatomy beside a Gaussian-noise perturbed copy" src="../_images/precise_features_original_vs_perturbed.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
-texture feature, with the 0.5 LCL threshold
-(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>). Demo subject; values depend
-on the image and extractor.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Original vs one <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call
+(<code class="docutils literal notranslate"><span class="pre">method=&quot;gaussian_noise&quot;</span></code>), same slice, optional ROI contour
+(<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">before=</span></code>,
+<code class="docutils literal notranslate"><span class="pre">roi_contour=True</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/precise_features_overlay.png"><img alt="Habitat overlay after clustering only precise features" src="../_images/precise_features_overlay.png" width="420" />
+<a class="reference internal image-reference" href="../_images/precise_features_perturb_methods.png"><img alt="Original plus three perturb_image methods on one slice" src="../_images/precise_features_perturb_methods.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Habitats after the whitelist
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Small multiples of atom calls: original, Gaussian noise, 0.5-voxel
+translation, 0.5° rotation. Each perturbed panel is a separate
+<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call. Same axial index as the pair
+figure.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-</section>
-<section id="simulated-retest-components">
-<h2>Simulated-retest components<a class="headerlink" href="#simulated-retest-components" title="Link to this heading"></a></h2>
-<p>Each row is original | perturbed | absolute difference on greyscale
-anatomy (shared intensity window). Images stay on the original voxel
-grid.</p>
 <figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/precise_perturb_noise.png"><img alt="Chang-estimated Gaussian noise on real greyscale anatomy" src="../_images/precise_perturb_noise.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="Repeatability ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Gaussian noise, sigma from Chang’s wavelet estimator (whole image).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) from
+<code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs <code class="docutils literal notranslate"><span class="pre">extract(perturbed)</span></code> at R3B12
+(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/precise_perturb_translation.png"><img alt="0.5-voxel translation on real greyscale anatomy" src="../_images/precise_perturb_translation.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_features_icc_kernel.png"><img alt="Kernel-radius reproducibility ICC with 95 percent confidence intervals" src="../_images/precise_features_icc_kernel.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Translation of 0.5 voxel along x and y (B-spline). MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_translation_fraction</span></code>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">Kernel-radius reproducibility: R1 vs R3 at B12. Colour is this
+experiment’s own LCL, not the intersection flag.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/precise_perturb_rotation.png"><img alt="0.5-degree z rotation on real greyscale anatomy" src="../_images/precise_perturb_rotation.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_features_icc_bin.png"><img alt="Bin-width reproducibility ICC with 95 percent confidence intervals" src="../_images/precise_features_icc_bin.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">In-plane rotation of 0.5° about z (B-spline).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">Bin-width reproducibility: B12 vs B25 at R3.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/precise_screen_perturbation.png"><img alt="Full Prior 2024 noise plus translation plus rotation chain" src="../_images/precise_screen_perturbation.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_features_icc_all.png"><img alt="ICC and 95 percent CI for every experiment on one panel" src="../_images/precise_features_icc_all.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Composed chain: noise → translation → rotation (MIRP 1.2.0 order).</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<p><span class="caption-text">All three experiments. Colour is the PreciseFeatureSet flag: a
+feature is precise only when <strong>every</strong> experiment clears the LCL.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">
-<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original vs nearest-neighbour resampled ROI contours" src="../_images/precise_perturb_mask_edge.png" width="720" />
+<a class="reference internal image-reference" href="../_images/precise_features_all_vs_precise.png"><img alt="Habitat maps from all texture features versus the precise subset" src="../_images/precise_features_all_vs_precise.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">ROI contour change under MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code> (HABIT
-<code class="docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>): cyan = original, dashed vermillion =
-warped ROI, yellow = voxels whose membership changed. Image uses
-bilinear resampling; the mask uses nearest neighbour on the <strong>same</strong>
-displacement field (demo: <code class="docutils literal notranslate"><span class="pre">sigma_range=(1,</span> <span class="pre">2)</span></code>,
-<code class="docutils literal notranslate"><span class="pre">magnitude_range=(10,</span> <span class="pre">15)</span></code> voxels). This is <strong>not</strong> the Prior 2024
-default chain and <strong>not</strong> MIRP morphological grow/shrink. Display
-cropped to the ROI bounding box plus pad so the warp is runnable on
-this 200×360×360 demo volume; the public API accepts a full Subject.
-The habitat-compare figure below uses this <strong>same crop and slice</strong>.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/precise_screen_kernel_scale.png"><img alt="Local entropy at two kernel radii on real anatomy" src="../_images/precise_screen_kernel_scale.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Kernel-radius reproducibility analogue: local entropy at kernel size
-3 vs 7 on the same demo slice.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+<p><span class="caption-text">Same subject, same extractor, same <code class="docutils literal notranslate"><span class="pre">k</span></code> search: all texture
+features vs precise features only
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>,
+<code class="docutils literal notranslate"><span class="pre">align_labels=True</span></code>). Independent one-step fits share a
+<code class="docutils literal notranslate"><span class="pre">model_id</span></code> digest, so alignment must be forced.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
-<section id="custom-perturbations">
-<h2>Custom perturbations<a class="headerlink" href="#custom-perturbations" title="Link to this heading"></a></h2>
-<p>The default recipe chain is <code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>:
-the simulated retest of Prior et al. (<em>Radiol Artif Intell</em> 2024;6(2):e230118,
-Appendix S2) as implemented in MIRP 1.2.0 — Gaussian noise (Chang wavelet
-sigma), a 0.5-voxel translation fraction (MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_translation_fraction</span></code>), and a 0.5° in-plane (z) rotation.
-Images use B-spline interpolation; masks use nearest neighbour. Two geometric
-resamples match MIRP 1.2.0; pass <code class="docutils literal notranslate"><span class="pre">single_resample=True</span></code> to compose them
-into one affine (MIRP ≥ 2 / <code class="xref py py-class docutils literal notranslate"><span class="pre">RigidPerturbation</span></code>).</p>
-<p>The chain is still composable (domain <code class="docutils literal notranslate"><span class="pre">image_perturbation</span></code>):
-<code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, and the
-optional <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI elastic / B-spline FFD; requires
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>). Third-party perturbations
-registered through the <code class="docutils literal notranslate"><span class="pre">habit.image_perturbation</span></code> entry-point group
-slot into the same chain — pass any chain (or single component) as
-<code class="docutils literal notranslate"><span class="pre">perturbation=</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.domain</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">GaussianNoisePerturbation</span><span class="p">,</span>
-    <span class="n">PerturbationChain</span><span class="p">,</span>
-    <span class="n">TranslationPerturbation</span><span class="p">,</span>
-    <span class="n">prior2024_retest_perturbation</span><span class="p">,</span>
-<span class="p">)</span>
+<section id="optional-one-call-recipe">
+<h2>Optional one-call recipe<a class="headerlink" href="#optional-one-call-recipe" title="Link to this heading"></a></h2>
+<p>When you want the same three experiments looped over a cohort (paper
+aggregation = per-feature median),
+<a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a> is the
+composition. It is <strong>not</strong> required to generate a perturbation or a
+texture table.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_precise_voxel_features</span><span class="p">,</span> <span class="n">voxel_radiomics_factory</span>
 
-<span class="n">paper</span> <span class="o">=</span> <span class="n">prior2024_retest_perturbation</span><span class="p">()</span>  <span class="c1"># Appendix S2 defaults</span>
-<span class="n">gentler</span> <span class="o">=</span> <span class="n">PerturbationChain</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">GaussianNoisePerturbation</span><span class="p">(),</span> <span class="n">TranslationPerturbation</span><span class="p">(</span><span class="n">shift_fraction</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)]</span>
+<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span>
+    <span class="n">cohort</span><span class="p">,</span>
+    <span class="n">extractor_factory</span><span class="o">=</span><span class="n">voxel_radiomics_factory</span><span class="p">,</span>
+    <span class="n">kernel_radii</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">bin_widths</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">perturbation</span><span class="o">=</span><span class="n">gentler</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The mask-edge figure on this page is <code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>
-(MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>). It is <strong>not</strong> in <code class="docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>.
-Pass <code class="docutils literal notranslate"><span class="pre">target_dice</span></code> (for example <code class="docutils literal notranslate"><span class="pre">0.85</span></code>) to scale one frozen offset
-field so the Dice between the original and warped ROI lands near that
-value. MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (ROI morphological grow/shrink)
-is still not implemented; do not report the default Precise chain as having
-done grow/shrink.</p>
-</section>
-<section id="voxel-texture-precision-and-same-slice-habitat-follow-up">
-<h2>Voxel texture precision and same-slice habitat follow-up<a class="headerlink" href="#voxel-texture-precision-and-same-slice-habitat-follow-up" title="Link to this heading"></a></h2>
-<p>Feature stability is the <strong>voxel-texture ICC screen</strong> above (first-order
-/ GLCM), not a single raw intensity or a habitat-level relative-change
-bar. The perturbation script (same <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>)
-adds the spatial follow-up when the ROI <strong>shape</strong> changes
-(<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code> with
-<code class="docutils literal notranslate"><span class="pre">target_dice</span></code>): original vs warped anatomy with ROI contours, then
-one-step habitats on <strong>the same crop and the same slice</strong> (densest
-original ROI after the union bounding-box crop), plus Hungarian
-per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code>.</p>
-<p>Paste after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">ffd_subject</span></code>, <code class="docutils literal notranslate"><span class="pre">deformed</span></code>,
-<code class="docutils literal notranslate"><span class="pre">modality</span></code>, <code class="docutils literal notranslate"><span class="pre">ROI</span></code>, <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>, <code class="docutils literal notranslate"><span class="pre">direction</span></code>, and <code class="docutils literal notranslate"><span class="pre">spacing</span></code>).
-Writes <code class="docutils literal notranslate"><span class="pre">out/precise_habitat_stability_compare.png</span></code> and
-<code class="docutils literal notranslate"><span class="pre">out/precise_habitat_dice.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Paste after the Script block. Uses ffd_subject, deformed, modality,</span>
-    <span class="c1"># ROI, MODALITIES, direction, spacing. Same crop + slice as the ROI</span>
-    <span class="c1"># contour figure (densest original ROI after the union bbox crop).</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cohort</span><span class="p">,</span> <span class="n">align_habitat_map</span><span class="p">,</span> <span class="n">habitat_stability</span><span class="p">,</span> <span class="n">one_step_habitat</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_label_compare</span><span class="p">,</span> <span class="n">use_style</span>
-
-    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-    <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">orig_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ffd_subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">warped_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">deformed</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">display_union</span> <span class="o">=</span> <span class="p">(</span><span class="n">orig_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">warped_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">display_crop</span> <span class="o">=</span> <span class="n">_roi_crop_slices</span><span class="p">(</span><span class="n">display_union</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">pad</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-    <span class="n">display_slice</span> <span class="o">=</span> <span class="n">_densest_roi_index</span><span class="p">(</span><span class="n">orig_mask</span><span class="p">[</span><span class="n">display_crop</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">crop_cohort</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">ffd_subject</span><span class="p">,))</span>
-    <span class="n">warped_cohort</span> <span class="o">=</span> <span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">deformed</span><span class="p">,))</span>
-    <span class="n">orig_habitats</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
-        <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">crop_cohort</span><span class="p">)</span>
-    <span class="n">warped_habitats</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
-        <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">warped_cohort</span><span class="p">)</span>
-    <span class="n">ref_map</span> <span class="o">=</span> <span class="n">orig_habitats</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">mov_map</span> <span class="o">=</span> <span class="n">warped_habitats</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># Independent one_step fits permute integer ids. Remap the warped map</span>
-    <span class="c1"># (panel 2 only) onto the reference by maximal voxel overlap -- the</span>
-    <span class="c1"># same Hungarian pairing habitat_stability uses -- so habitat 2 is the</span>
-    <span class="c1"># same spatial region on both panels. force=True is required: both</span>
-    <span class="c1"># fits share a model_id (same spec + subject id digest) even though</span>
-    <span class="c1"># the clusterings are independent. Dice is scored on the original pair.</span>
-    <span class="n">aligned_map</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span>
-        <span class="n">ref_map</span><span class="p">,</span> <span class="n">mov_map</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;overlap&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-    <span class="n">dice_frame</span> <span class="o">=</span> <span class="n">habitat_stability</span><span class="p">(</span><span class="n">ref_map</span><span class="p">,</span> <span class="p">[</span><span class="n">mov_map</span><span class="p">])</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice after BSplineDeform (Hungarian match)&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">dice_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shared display slice (cropped original ROI): </span><span class="si">{</span><span class="n">display_slice</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="n">img_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ffd_subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)[</span><span class="n">display_crop</span><span class="p">]</span>
-    <span class="n">ref_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)[</span><span class="n">display_crop</span><span class="p">]</span>
-    <span class="n">aln_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">aligned_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)[</span><span class="n">display_crop</span><span class="p">]</span>
-    <span class="n">fig_cmp</span> <span class="o">=</span> <span class="n">plot_habitat_label_compare</span><span class="p">(</span>
-        <span class="n">img_c</span><span class="p">,</span>
-        <span class="n">ref_c</span><span class="p">,</span>
-        <span class="n">aln_c</span><span class="p">,</span>
-        <span class="n">titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Original ROI habitats&quot;</span><span class="p">,</span> <span class="s2">&quot;Warped ROI habitats&quot;</span><span class="p">),</span>
-        <span class="n">index</span><span class="o">=</span><span class="n">display_slice</span><span class="p">,</span>
-        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
-        <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
-        <span class="n">align_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">fig_cmp</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
-        <span class="s2">&quot;out/precise_habitat_stability_compare.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
-    <span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_cmp</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
-        <span class="n">fig_dice</span><span class="p">,</span> <span class="n">ax_d</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.4</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">))</span>
-        <span class="n">habitat_ids</span> <span class="o">=</span> <span class="n">dice_frame</span><span class="p">[</span><span class="s2">&quot;habitat_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="n">ax_d</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">habitat_ids</span><span class="p">],</span>
-            <span class="n">dice_frame</span><span class="p">[</span><span class="s2">&quot;dice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
-        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Dice&quot;</span><span class="p">)</span>
-        <span class="n">ax_d</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice (matched)&quot;</span><span class="p">)</span>
-        <span class="n">fig_dice</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-        <span class="n">fig_dice</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
-            <span class="s2">&quot;out/precise_habitat_dice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span>
-        <span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig_dice</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="s2">&quot;Wrote out/precise_habitat_stability_compare.png, &quot;</span>
-        <span class="s2">&quot;out/precise_habitat_dice.png&quot;</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
-<figure class="align-default" id="id9">
-<a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="Habitat maps before and after B-spline ROI warp on the same slice" src="../_images/precise_habitat_stability_compare.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Habitats before vs after the MONAI B-spline warp
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>), on the <strong>same
-axis and slice</strong> as the ROI-contour figure above. Panel 2 (warped)
-is relabelled onto the reference ids by spatial overlap
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code> with <code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code> and
-<code class="docutils literal notranslate"><span class="pre">force=True</span></code>) so habitat 2 is the same region in both panels.
-Disagreement is after that remap, not raw id inequality.</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id10">
-<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after Hungarian matching" src="../_images/precise_habitat_dice.png" width="420" />
-</a>
-<figcaption>
-<p><span class="caption-text">Per-habitat Dice from <a class="reference internal" href="../api/generated/habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a>.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
-</figcaption>
-</figure>
+<p>Pass your own <code class="docutils literal notranslate"><span class="pre">extractor_factory</span></code> to keep the small first-order +
+GLCM set, or a custom <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> chain via
+<code class="docutils literal notranslate"><span class="pre">perturbation=</span></code> (Subject-level
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PerturbationChain</span></code>).
+<code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code> is the
+Appendix S2 default (Chang noise + 0.5-voxel translation + 0.5°
+rotation). MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (mask grow/shrink) is
+not implemented.</p>
 </section>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Tutorial (principle + claims): <a class="reference internal" href="../tutorial/precise_screening.html"><span class="doc">Morphology-aware precise screening</span></a></p></li>
-<li><p>Domain API: <a class="reference internal" href="../api/domain.html"><span class="doc">Domain protocols and registries</span></a> — the <code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code> protocol and registry</p></li>
+<li><p>Domain API: <a class="reference internal" href="../api/domain.html"><span class="doc">Domain protocols and registries</span></a> — the two atoms and <code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code></p></li>
 <li><p><a class="reference internal" href="../api/kernels.html"><span class="doc">Numeric kernels (habit.kernels)</span></a> — the perturbation and voxel-ICC numeric kernels</p></li>
 <li><p><a class="reference internal" href="habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a> / <a class="reference internal" href="habitat_preprocessing_api.html"><span class="doc">Habitat feature-preprocessing API (subject + cohort chains)</span></a> — chains the whitelist
 joins</p></li>

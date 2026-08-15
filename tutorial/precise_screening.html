@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
@@ -359,16 +360,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -707,6 +706,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -946,6 +949,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1765,11 +1770,12 @@
 <p>Goal: decide <strong>which voxel features are allowed to define habitats</strong>, then
 cluster only those features. This is not a new clustering algorithm. It is
 the precision screen of Prior et al. (<em>Radiol Artif Intell</em>
-2024;6(2):e230118) as implemented in HABIT, with an explicit morphological
-reading of what the screen does and what it does <strong>not</strong> claim.</p>
-<p>Runnable gallery (ICC table, overlay, and per-perturbation anatomy):
-<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a>. Public recipe:
-<a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>.</p>
+2024;6(2):e230118), taught as the same combinatorial experiments the
+paper ran.</p>
+<p>Runnable gallery (atoms, paper combinations, all-vs-precise habitats):
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>. Volume-level atoms:
+<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> and
+<a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html#habit.extract_voxel_texture" title="habit.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>.</p>
 <section id="what-is-screened">
 <h2>What is screened<a class="headerlink" href="#what-is-screened" title="Link to this heading"></a></h2>
 <p>A voxel radiomic map <span class="math notranslate nohighlight">\(F(\mathbf{x})\)</span> is a <strong>local morphological
@@ -1778,9 +1784,22 @@ is the kernel radius (and, for many features, a grey-level bin width). If
 that map does not survive a simulated re-acquisition, or a change of
 neighbourhood scale, clustering it produces partitions nobody can
 reproduce.</p>
-<p>Per subject, HABIT runs up to three experiments (recipe
-<a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a>; domain
-<a class="reference internal" href="../api/generated/habit.domain.identify_precise_features.html#habit.domain.identify_precise_features" title="habit.domain.identify_precise_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_features()</span></code></a>):</p>
+<p>The paper’s combinations are two atoms, then a small composition:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_voxel_texture</span><span class="p">,</span> <span class="n">perturb_image</span><span class="p">,</span> <span class="n">precision_panel</span>
+
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">feat_r3</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">feat_pert</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">perturbed</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">feat_r1</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">feat_b25</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="n">repeat</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;original&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">,</span> <span class="s2">&quot;perturbed&quot;</span><span class="p">:</span> <span class="n">feat_pert</span><span class="p">},</span> <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;absolute&quot;</span>
+<span class="p">)</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">({</span><span class="s2">&quot;R1&quot;</span><span class="p">:</span> <span class="n">feat_r1</span><span class="p">,</span> <span class="s2">&quot;R3&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">},</span> <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;consistency&quot;</span><span class="p">)</span>
+<span class="n">binw</span> <span class="o">=</span> <span class="n">precision_panel</span><span class="p">({</span><span class="s2">&quot;B12&quot;</span><span class="p">:</span> <span class="n">feat_r3</span><span class="p">,</span> <span class="s2">&quot;B25&quot;</span><span class="p">:</span> <span class="n">feat_b25</span><span class="p">},</span> <span class="n">agreement</span><span class="o">=</span><span class="s2">&quot;consistency&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <ul class="simple">
 <li><p><strong>repeatability</strong> — ICC(3A,1) between the base-setting maps of the
 original image and of one perturbed copy;</p></li>
@@ -1789,21 +1808,31 @@ kernel radii (the paper contrasts R1 with R3) at fixed bin width;</p></li>
 <li><p><strong>reproducibility_bin_width</strong> — ICC(3C,1) between maps at the given bin
 widths (the paper contrasts B12 with B25 HU) at fixed radius.</p></li>
 </ul>
-<p>A feature is <em>precise</em> when the cohort <strong>median lower confidence limit</strong>
-of its ICC reaches <code class="docutils literal notranslate"><span class="pre">lcl_threshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>, the paper’s “at
-least good” boundary) in <strong>every</strong> experiment that was actually run —
-subject to <code class="docutils literal notranslate"><span class="pre">include</span></code> / <code class="docutils literal notranslate"><span class="pre">exclude</span></code> expert overrides (the paper kept
-NGTDM Coarseness via <code class="docutils literal notranslate"><span class="pre">include</span></code>).</p>
-<p>The default perturbation chain is
-<code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>: Gaussian
-noise (Chang wavelet <span class="math notranslate nohighlight">\(\sigma\)</span>), a 0.5-voxel translation fraction,
-and a 0.5° in-plane rotation (Prior et al. 2024, Appendix S2 / MIRP
-1.2.0). Images use B-spline interpolation; masks use nearest neighbour.
-Perturbed volumes stay on the <strong>original grid</strong> so maps remain
-voxel-wise comparable. The figures below apply each component to one
-subject from <code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> (swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> /
-<code class="docutils literal notranslate"><span class="pre">ROI</span></code> in the gallery script). They are a teaching demo, not a clinical
-claim.</p>
+<p>A feature is <em>precise</em> when the <strong>lower confidence limit</strong> of its ICC
+reaches <code class="docutils literal notranslate"><span class="pre">lcl_threshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>) in <strong>every</strong> experiment that
+was actually run. <a class="reference internal" href="../api/generated/habit.identify_precise_features.html#habit.identify_precise_features" title="habit.identify_precise_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_features()</span></code></a> is that
+intersection; <code class="xref py py-func docutils literal notranslate"><span class="pre">aggregate_panels()</span></code> takes the cohort median
+when you have more than one subject.</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/precise_features_original_vs_perturbed.png"><img alt="Original greyscale slice beside a Gaussian-noise perturbed copy" src="../_images/precise_features_original_vs_perturbed.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Intensity perturbation: original vs
+<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">method=&quot;gaussian_noise&quot;</span></code>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>). Demo subject from
+<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>; not a clinical claim.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/precise_features_perturb_methods.png"><img alt="Original plus three perturb_image methods on one slice" src="../_images/precise_features_perturb_methods.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">The same atom with different methods: Gaussian noise, 0.5-voxel
+translation, 0.5° z rotation. Each panel is one
+<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call. Geometric methods resample back
+onto the original grid.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="why-morphology-aware">
 <h2>Why “morphology-aware”<a class="headerlink" href="#why-morphology-aware" title="Link to this heading"></a></h2>
@@ -1818,102 +1847,40 @@ habitat coordinate.</p></li>
 <li><p><strong>Acquisition perturbation moves anatomy.</strong> Translation and rotation
 are rigid morphological changes of the patient in the scanner. Noise
 is not morphology, but it is part of the paper’s simulated retest.
-HABIT transforms <strong>masks with the image</strong> (nearest neighbour), because
-a shifted acquisition images a shifted patient.</p></li>
+HABIT can transform <strong>masks with the image</strong> (nearest neighbour) when
+you call the registered component on a Subject, because a shifted
+acquisition images a shifted patient.</p></li>
 <li><p><strong>Agreement is computed on the common ROI.</strong> HABIT aligns condition
 fields on shared ROI coordinates and drops any voxel that is NaN in
-any condition (documented refinement over padding with zeros). The
-pairing is therefore the <strong>intersection of the morphologies</strong>, not a
-rectangular crop filled with dummy intensities.</p></li>
+any condition. The pairing is therefore the <strong>intersection of the
+morphologies</strong>, not a rectangular crop filled with dummy intensities.</p></li>
 </ol>
-<p>HABIT also exposes <a class="reference internal" href="../api/generated/habit.domain.habitat_stability.html#habit.domain.habitat_stability" title="habit.domain.habitat_stability"><code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code></a>:
-after clustering, habitat <em>maps</em> from a perturbed re-run are matched
-(Hungarian algorithm) and compared by Dice. That is a map-level
-morphological check. It is <strong>not</strong> the Prior 2024 feature screen.</p>
-<figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="../_images/precise_perturb_noise.png"><img alt="Original greyscale slice, Chang-estimated Gaussian noise, and absolute difference" src="../_images/precise_perturb_noise.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Intensity perturbation: original (left), Gaussian noise with Chang
-wavelet <span class="math notranslate nohighlight">\(\sigma\)</span> (middle), absolute difference (right). Noise is
-added to the <strong>whole</strong> image. Demo subject from
-<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>; not a clinical claim.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="../_images/precise_perturb_translation.png"><img alt="Original greyscale slice, 0.5-voxel translation, and absolute difference" src="../_images/precise_perturb_translation.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Geometric perturbation: sub-voxel translation of 0.5 voxel along x and
-y (B-spline on the image). The difference panel shows the interpolation
-residual. Same voxel grid as the original.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id3">
-<a class="reference internal image-reference" href="../_images/precise_perturb_rotation.png"><img alt="Original greyscale slice, 0.5-degree z rotation, and absolute difference" src="../_images/precise_perturb_rotation.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Geometric perturbation: 0.5° in-plane rotation about z (axial),
-B-spline, resampled back onto the original grid.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id4">
-<a class="reference internal image-reference" href="../_images/precise_screen_perturbation.png"><img alt="Original anatomy beside the full Prior 2024 simulated-retest chain" src="../_images/precise_screen_perturbation.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Full Prior 2024 / MIRP 1.2.0 chain: Gaussian noise, then 0.5-voxel
-translation, then 0.5° z rotation (two geometric resamples). Demo
-subject; not a clinical claim.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id5">
-<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="ROI contours before and after nearest-neighbour geometric resampling" src="../_images/precise_perturb_mask_edge.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text"><strong>ROI contour (MONAI B-spline / elastic FFD).</strong> Optional follow-up
-<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code> (MONAI
-<code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>): one displacement field warps the image (bilinear)
-and the ROI (nearest neighbour). Cyan =
-original contour, dashed vermillion = warped contour, yellow = voxels
-whose membership changed. Not the Prior 2024 default chain; not MIRP
-morphological grow/shrink. The demo crops to the ROI bounding box plus
-pad (this LAP volume is 200×360×360); the public API warps a full
-Subject. Requires <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;habitat-analysis[monai]&quot;</span></code>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<figure class="align-default" id="id6">
-<a class="reference internal image-reference" href="../_images/precise_screen_kernel_scale.png"><img alt="Local entropy at two kernel radii on real anatomy" src="../_images/precise_screen_kernel_scale.png" width="720" />
-</a>
-<figcaption>
-<p><span class="caption-text">Morphological scale: local entropy at kernel size 3 vs 7 (same slice,
-same demo subject). Features whose pattern disagrees across scales
-fail the kernel-radius experiment.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
-</figcaption>
-</figure>
 </section>
 <section id="how-to-apply">
 <h2>How to apply<a class="headerlink" href="#how-to-apply" title="Link to this heading"></a></h2>
 <p>Work from a directory that has images in HABIT’s preprocessed layout
 (<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code> in the gallery). One physical line per
-shell command.</p>
-<p><strong>1. Screen.</strong> Copy-ready shape (swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / extractor):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_precise_voxel_features</span>
+shell command. Full copy-ready script:
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</p>
+<p><strong>1. Atoms.</strong> Load one image and mask, then perturb and extract:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span><span class="p">,</span> <span class="n">extract_voxel_texture</span><span class="p">,</span> <span class="n">perturb_image</span>
 
 <span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
-<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">feat_r1</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">feat_r3</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>With the default voxel-radiomics factory this is the paper design
-(needs PyRadiomics). The gallery demo screens a small first-order +
-GLCM texture set on one cropped subject; the <strong>call shape is the same</strong>.
-Restrict the grid with <code class="docutils literal notranslate"><span class="pre">kernel_radii=(1,)</span></code> / <code class="docutils literal notranslate"><span class="pre">bin_widths=(12,)</span></code> to
-skip an experiment you cannot resource.</p>
-<p><strong>2. Publish the artefact.</strong> <code class="docutils literal notranslate"><span class="pre">precise.save(&quot;precise_features.json&quot;)</span></code>
+<p><strong>2. Combine.</strong> Build one <a class="reference internal" href="../api/generated/habit.precision_panel.html#habit.precision_panel" title="habit.precision_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_panel()</span></code></a> per experiment,
+aggregate if you have several subjects, then
+<a class="reference internal" href="../api/generated/habit.identify_precise_features.html#habit.identify_precise_features" title="habit.identify_precise_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_features()</span></code></a>.</p>
+<p><strong>3. Publish the artefact.</strong> <code class="docutils literal notranslate"><span class="pre">precise.save(&quot;precise_features.json&quot;)</span></code>
 writes the feature names plus the evidence panels. Another lab should
 cluster the <strong>same</strong> names, not re-screen after seeing the endpoint.</p>
-<p><strong>3. Whitelist into a habitat spec.</strong> Place the whitelist <strong>first</strong> in
+<p><strong>4. Whitelist into a habitat spec.</strong> Place the whitelist <strong>first</strong> in
 <code class="docutils literal notranslate"><span class="pre">voxel_feature_preprocessors</span></code> so only precise columns reach scaling
 and clustering:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">HabitatSpec</span><span class="p">,</span> <span class="n">Spec</span>
@@ -1937,23 +1904,43 @@ and clustering:</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">Study</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id7">
+<figure class="align-default" id="id3">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
 </a>
 <figcaption>
 <p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
 texture feature, with the 0.5 LCL threshold
-(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>).</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>). Kernel / bin ICC panels
+and the all-vs-precise habitat compare live on
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id8">
-<a class="reference internal image-reference" href="../_images/precise_features_overlay.png"><img alt="Habitat overlay after clustering only precise features" src="../_images/precise_features_overlay.png" width="420" />
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/precise_features_all_vs_precise.png"><img alt="Habitat maps from all texture features versus the precise subset" src="../_images/precise_features_all_vs_precise.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Habitats after the whitelist
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+<p><span class="caption-text">Same subject, same extractor, same <code class="docutils literal notranslate"><span class="pre">k</span></code> search: all texture
+features vs precise features only
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>,
+<code class="docutils literal notranslate"><span class="pre">align_labels=True</span></code>).</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+</section>
+<section id="optional-one-call-recipe">
+<h2>Optional one-call recipe<a class="headerlink" href="#optional-one-call-recipe" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a> loops the same
+atoms over a cohort and aggregates by the per-feature median. Use it
+when you do not want to write the three <code class="docutils literal notranslate"><span class="pre">precision_panel</span></code> calls
+yourself. It is not required to generate a perturbation or a texture
+table.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.recipes</span><span class="w"> </span><span class="kn">import</span> <span class="n">identify_precise_voxel_features</span>
+
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
+<span class="n">precise</span> <span class="o">=</span> <span class="n">identify_precise_voxel_features</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="what-is-not-claimed">
 <h2>What is not claimed<a class="headerlink" href="#what-is-not-claimed" title="Link to this heading"></a></h2>
@@ -1963,11 +1950,8 @@ reproducible under the stated perturbations</em>, not that it encodes a
 cell type, a driver mutation, or a clinical outcome.</p></li>
 <li><p><strong>Not ROI grow/shrink.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
 (morphological dilation/erosion of the mask) is <strong>not</strong> in Prior 2024
-Appendix S2 and is <strong>not</strong> implemented. The mask-edge figure above is
-the optional MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code> warp
-(<code class="xref py py-class docutils literal notranslate"><span class="pre">BSplineDeformPerturbation</span></code>), which is
-also <strong>not</strong> in <code class="docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code>. Do not report the
-default Precise chain as having done either grow/shrink or MONAI FFD.</p></li>
+Appendix S2 and is <strong>not</strong> implemented. Do not report the default
+Precise chain as having done grow/shrink.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
 discovery analysis. An external test set is a different protocol.</p></li>
@@ -1990,9 +1974,9 @@ Radiomics for Habitat Computation by Machine Learning in Cancer.
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Gallery: <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a></p></li>
-<li><p>Domain API: <a class="reference internal" href="../api/domain.html"><span class="doc">Domain protocols and registries</span></a> (<code class="docutils literal notranslate"><span class="pre">ImagePerturbation</span></code>,
-<code class="docutils literal notranslate"><span class="pre">identify_precise_features</span></code>)</p></li>
+<li><p>Gallery: <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a></p></li>
+<li><p>Domain API: <a class="reference internal" href="../api/domain.html"><span class="doc">Domain protocols and registries</span></a> (<code class="docutils literal notranslate"><span class="pre">perturb_image</span></code>,
+<code class="docutils literal notranslate"><span class="pre">extract_voxel_texture</span></code>, <code class="docutils literal notranslate"><span class="pre">identify_precise_features</span></code>)</p></li>
 <li><p>Kernels: <a class="reference internal" href="../api/kernels.html"><span class="doc">Numeric kernels (habit.kernels)</span></a> (perturbation and voxel ICC)</p></li>
 <li><p>Clustering defaults: <a class="reference internal" href="../configuration/habitat.html"><span class="doc">Habitat Segmentation Configuration</span></a></p></li>
 </ul>

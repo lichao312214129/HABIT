@@ -87,6 +87,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -358,17 +359,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#the-three-first-class-experiments">The three first-class experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#perturbations-are-not-a-fixed-enum">Perturbations are not a fixed enum</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -707,6 +705,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -946,6 +948,8 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1771,13 +1775,15 @@
 as the feature extractor, but the input is the representative cross-section
 rather than the full 3D volume. Display knobs override <code class="docutils literal notranslate"><span class="pre">options</span></code> for
 drawing only (extraction still uses <code class="docutils literal notranslate"><span class="pre">options</span></code>).</p>
-<p>Each H1–Hk panel shows only that habitat (full colour) plus its
-intra-edges (darkened habitat colour). Other habitats are not drawn
-as gray fills or gray edges; a light ROI silhouette remains for
-spatial context. The All-habitats panel shows every habitat’s nodes
-and <strong>inter-habitat edges only</strong>, each edge two-tone in the two
-endpoint habitat colours (no purple, no intra-edges). All panels
-share the same solid-dot node size and the same edge linewidth.</p>
+<p>Each H1–Hk panel fills only that habitat in its palette colour and
+overlays white intra-edges plus white nodes (solid dots, thin dark
+outline). Other habitats use one mid-dark gray wash for shape
+context (not a light fill that hides white strokes). The All-habitats panel fills every habitat in
+palette colours and overlays <strong>inter-habitat edges only</strong>, all
+white (no purple, no two-tone, no intra-edges). All panels share
+the same solid-dot node size. Edge linewidth is shared unless the
+All panel has <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1000</span></code> inter-edges, in which case that panel
+uses a slightly thinner, lower-alpha white stroke.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1787,9 +1793,9 @@ share the same solid-dot node size and the same edge linewidth.</p>
 largest cross-section. Ignored for 2D input.</p></li>
 <li><p><strong>show_background</strong> – Whether to draw habitat partitions behind the
 graph (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). On H1–Hk panels the featured
-habitat is full colour and other foreground is a light ROI
-wash; background 0 stays undrawn. The All-habitats panel
-stays fully coloured. Nodes are solid filled dots.</p></li>
+habitat is full colour and other foreground is a mid-dark
+gray wash; background 0 stays undrawn. The All-habitats panel
+stays fully coloured. Graph nodes and edges are white.</p></li>
 <li><p><strong>show_grid</strong> – Draw the uniform-grid lattice (default <code class="docutils literal notranslate"><span class="pre">True</span></code>).
 Also draws when <code class="docutils literal notranslate"><span class="pre">block_size</span></code> is passed in <code class="docutils literal notranslate"><span class="pre">component</span></code> mode.</p></li>
 <li><p><strong>block_size</strong> – Display cube edge in voxels. <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) uses

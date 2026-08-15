@@ -232,33 +232,27 @@ See :doc:`../examples/feature_composition` for a runnable tour.
 Precision screen: perturbations and precise features
 ----------------------------------------------------
 
-The ninth protocol, ``ImagePerturbation``, turns one subject into a
-perturbed copy of itself — a simulated re-acquisition. The paper default
-is :func:`~habit.domain.precision.prior2024_retest_perturbation` (Prior et
-al., *Radiol Artif Intell* 2024;6(2):e230118, Appendix S2 / MIRP 1.2.0):
+Two volume-level atoms match the combinatorial design of Prior et al.
+(*Radiol Artif Intell* 2024;6(2):e230118). Neither needs a
+:class:`~habit.contracts.subject.Cohort` or YAML.
 
 .. code-block:: python
 
-   import numpy as np
-   from habit.domain import prior2024_retest_perturbation
+   from habit import extract_voxel_texture, perturb_image
 
-   retest = prior2024_retest_perturbation()  # noise + 0.5-voxel fraction + 0.5°
-   perturbed = retest(subject, rng=np.random.default_rng(0))  # Subject -> Subject
+   perturbed = perturb_image(image, method="gaussian_noise", seed=7)
+   feat_r1 = extract_voxel_texture(image, mask, kernel_radius=1, bin_width=12)
+   feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
 
-Compose ``gaussian_noise`` / ``translation`` / ``rotation`` / ``rigid``
-when you need a different chain. Optional ``bspline_deform`` (MONAI
-``Rand3DElastic``; extra ``monai``) warps image and ROI with one
-elastic / B-spline field — it is **not** part of
-:func:`~habit.domain.precision.prior2024_retest_perturbation`.
-Per-feature ICCs between the original
-and perturbed feature maps (repeatability) and across kernel radius /
-bin width settings (reproducibility) decide which features may define
-habitats. The analysis functions work on any
-``{condition: VoxelFeatureField}`` mapping:
+``perturb_image`` wraps the registered ``image_perturbation`` methods
+(``gaussian_noise``, ``translation``, ``rotation``, ``rigid``,
+``bspline_deform``). ``extract_voxel_texture`` is one voxel-radiomics
+pass; paper combinations are repeated calls (R1 vs R3, B12 vs B25,
+original vs perturbed). Then compose ICC panels:
 
 .. code-block:: python
 
-   from habit.domain import aggregate_panels, identify_precise_features, precision_panel
+   from habit import aggregate_panels, identify_precise_features, precision_panel
 
    panel = precision_panel(
        {"original": field, "perturbed": perturbed_field},
@@ -270,12 +264,16 @@ habitats. The analysis functions work on any
    )
    precise.save("precise_features.json")
 
-``PreciseFeatureSet.preprocessor()`` returns a ``FeatureWhitelist`` — the
-``feature_whitelist`` preprocessing method that restricts a habitat run to
-exactly the precise features. The end-to-end recipe is
-:func:`habit.recipes.identify_precise_voxel_features`; the runnable tour is
-:doc:`../examples/precise_features`. Custom perturbations join through the
-``image_perturbation`` registry / entry-point group.
+The ninth protocol, ``ImagePerturbation``, is the Subject-level form of
+the same methods (``component(subject, rng=...)``). The paper default
+chain is :func:`~habit.domain.precision.prior2024_retest_perturbation`
+(Appendix S2 / MIRP 1.2.0). Optional ``bspline_deform`` (MONAI
+``Rand3DElastic``; extra ``monai``) is **not** in that chain.
+
+``PreciseFeatureSet.preprocessor()`` returns a ``FeatureWhitelist``.
+The one-call recipe is
+:func:`habit.recipes.identify_precise_voxel_features`; the runnable tour
+is :doc:`../examples/precise_features`.
 
 Randomness (``Seedable``)
 -------------------------

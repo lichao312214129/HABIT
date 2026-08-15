@@ -712,8 +712,7 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#the-three-first-class-experiments">The three first-class experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#perturbations-are-not-a-fixed-enum">Perturbations are not a fixed enum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
@@ -2188,13 +2187,17 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: What the 3D renderers need PyVista / scikit-image for.</span>
 <span class="n">_VIEW_PURPOSE</span> <span class="o">=</span> <span class="s2">&quot;3D habitat graph rendering&quot;</span>
 
-<span class="c1">#: 3D renderer only: inter-habitat tubes stay a single accent; 2D All-panel</span>
-<span class="c1">#: inter-edges use the habitat palette (two-tone), not this purple.</span>
+<span class="c1">#: 3D renderer only: inter-habitat tubes stay a single accent. The 2D</span>
+<span class="c1">#: graph overlay is white (nodes + edges) on the coloured habitat fill.</span>
 <span class="n">_INTER_EDGE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#8E44AD&quot;</span>
-<span class="c1">#: 3D renderer only: intra-habitat tubes. 2D intra-edges use a darkened</span>
-<span class="c1">#: habitat colour so they stay visible on the matching fill (no gray).</span>
+<span class="c1">#: 3D renderer only: intra-habitat tubes. 2D intra-edges are white.</span>
 <span class="n">_INTRA_EDGE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#9AA0A6&quot;</span>
 <span class="n">_BACKGROUND_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#D9DCE1&quot;</span>
+<span class="c1">#: 2D graph overlay: solid white nodes and white edges on the fill.</span>
+<span class="n">_GRAPH_NODE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#FFFFFF&quot;</span>
+<span class="n">_GRAPH_EDGE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#FFFFFF&quot;</span>
+<span class="c1">#: Thin dark rim so a white dot stays visible on pink / light habitats.</span>
+<span class="n">_NODE_OUTLINE_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#1A1A1A&quot;</span>
 
 
 <span class="c1">#: Type alias for an undirected edge expressed as a pair of node ids.</span>
@@ -2484,15 +2487,17 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="c1">#: Matplotlib scatter area (points^2). H1--Hk and All panels share this</span>
-<span class="c1">#: smaller solid-dot size (was 64 on H panels / 18 on All).</span>
+<span class="c1">#: small solid-dot size.</span>
 <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">28.0</span>
-<span class="c1">#: Shared graph-edge stroke (points) on every 2D panel.</span>
+<span class="c1">#: Shared graph-edge stroke (points) on every 2D panel. The All panel</span>
+<span class="c1">#: may drop below this only when inter-edges exceed the hairball gate.</span>
 <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.60</span>
-<span class="c1">#: Solid filled dots: no marker rim (a light rim reads as a hollow node).</span>
-<span class="n">_NODE_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-<span class="c1">#: Darken habitat fill RGB by this factor so intra-edges stay visible</span>
-<span class="c1">#: on the matching coloured region (still a habitat colour, not gray).</span>
-<span class="n">_INTRA_EDGE_DARKEN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.60</span>
+<span class="c1">#: Thin dark outline (points) around each solid white node.</span>
+<span class="n">_NODE_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span>
+<span class="c1">#: All-panel hairball gate: thin / fade white inter-edges past this count.</span>
+<span class="n">_HAIRBALL_INTER_EDGE_COUNT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">_HAIRBALL_EDGE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.40</span>
+<span class="n">_HAIRBALL_EDGE_ALPHA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.45</span>
 <span class="c1">#: Publication-readable type sizes for the multi-panel 2D network figure.</span>
 <span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">11.5</span>
 <span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.5</span>
@@ -2796,22 +2801,23 @@ window.runMermaid = runMermaid;</script>
         <span class="n">spine</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_darken_color</span><span class="p">(</span><span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_INTRA_EDGE_DARKEN</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_panel_edge_style</span><span class="p">(</span><span class="n">n_inter_edges</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Darken a habitat hex colour toward black for intra-edges on that fill.</span>
+<span class="sd">    Return ``(linewidth, alpha)`` for All-panel inter-habitat edges.</span>
+
+<span class="sd">    H panels and the All panel share ``_DEFAULT_EDGE_WIDTH`` unless the</span>
+<span class="sd">    All panel has a hairball (``&gt;= 1000`` inter-edges). Then the All</span>
+<span class="sd">    panel uses a slightly thinner, lower-alpha white stroke.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        color: Habitat hex (or any matplotlib colour).</span>
-<span class="sd">        factor: Multiplier in ``(0, 1]`` applied to each RGB channel.</span>
+<span class="sd">        n_inter_edges: Number of inter-habitat edges on the All panel.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        RGB triple in ``[0, 1]``.</span>
+<span class="sd">        Tuple[float, float]: Linewidth in points and opacity in ``(0, 1]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_rgb</span>
-
-    <span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span> <span class="o">=</span> <span class="n">to_rgb</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">factor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">red</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">green</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">blue</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_inter_edges</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">_HAIRBALL_INTER_EDGE_COUNT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_HAIRBALL_EDGE_WIDTH</span><span class="p">,</span> <span class="n">_HAIRBALL_EDGE_ALPHA</span>
+    <span class="k">return</span> <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">,</span> <span class="mf">1.0</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_draw_edges_2d</span><span class="p">(</span>
@@ -2842,94 +2848,39 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_draw_two_tone_edges_2d</span><span class="p">(</span>
-    <span class="n">ax</span><span class="p">,</span>
-    <span class="n">id_to_node</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">HabitatGraphNode</span><span class="p">],</span>
-    <span class="n">edges</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">_EdgePair</span><span class="p">],</span>
-    <span class="n">colors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">zorder</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Draw inter-habitat edges as two halves, each in an endpoint habitat colour.</span>
-
-<span class="sd">    An Hi--Hj edge is not a single purple stroke: the half nearer Hi uses</span>
-<span class="sd">    Hi&#39;s palette colour and the half nearer Hj uses Hj&#39;s.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        ax: Target matplotlib axes.</span>
-<span class="sd">        id_to_node: Node lookup by id.</span>
-<span class="sd">        edges: Undirected inter-habitat node-id pairs.</span>
-<span class="sd">        colors: Habitat label to hex colour mapping.</span>
-<span class="sd">        linewidth: Stroke width in points (same as intra-edges).</span>
-<span class="sd">        alpha: Stroke opacity.</span>
-<span class="sd">        zorder: Matplotlib z-order.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
-        <span class="n">node_a</span> <span class="o">=</span> <span class="n">id_to_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-        <span class="n">node_b</span> <span class="o">=</span> <span class="n">id_to_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">node_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">node_b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">x_a</span><span class="p">,</span> <span class="n">y_a</span> <span class="o">=</span> <span class="n">_centroid_xy_display</span><span class="p">(</span><span class="n">node_a</span><span class="p">)</span>
-        <span class="n">x_b</span><span class="p">,</span> <span class="n">y_b</span> <span class="o">=</span> <span class="n">_centroid_xy_display</span><span class="p">(</span><span class="n">node_b</span><span class="p">)</span>
-        <span class="n">x_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">x_a</span> <span class="o">+</span> <span class="n">x_b</span><span class="p">)</span>
-        <span class="n">y_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_a</span> <span class="o">+</span> <span class="n">y_b</span><span class="p">)</span>
-        <span class="n">color_a</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">node_a</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">),</span> <span class="s2">&quot;#444444&quot;</span><span class="p">)</span>
-        <span class="n">color_b</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">node_b</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">),</span> <span class="s2">&quot;#444444&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">x_a</span><span class="p">,</span> <span class="n">y_a</span><span class="p">,</span> <span class="n">x_mid</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">,</span> <span class="n">color_a</span><span class="p">),</span>
-            <span class="p">(</span><span class="n">x_mid</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">,</span> <span class="n">x_b</span><span class="p">,</span> <span class="n">y_b</span><span class="p">,</span> <span class="n">color_b</span><span class="p">),</span>
-        <span class="p">):</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span>
-                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
-                <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
-                <span class="n">alpha</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span>
-                <span class="n">zorder</span><span class="o">=</span><span class="n">zorder</span><span class="p">,</span>
-                <span class="n">solid_capstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-
-
 <span class="k">def</span><span class="w"> </span><span class="nf">_draw_nodes_2d</span><span class="p">(</span>
     <span class="n">ax</span><span class="p">,</span>
     <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
-    <span class="n">colors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">node_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_DEFAULT_NODE_SIZE</span><span class="p">,</span>
     <span class="n">linewidths</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Scatter 2D graph nodes at projected region centroids, colored by habitat.</span>
+<span class="sd">    Scatter solid white nodes with a thin dark outline.</span>
 
-<span class="sd">    Every marker is the same solid filled dot (no hollow rim). Region voxel</span>
-<span class="sd">    count is not encoded in marker size so small blocks stay as readable</span>
-<span class="sd">    as large ones. H panels and the All-habitats panel share ``node_size``.</span>
+<span class="sd">    Colour lives on the habitat fill, not on the graph layer. Every</span>
+<span class="sd">    marker is the same small filled dot so H panels and the All-habitats</span>
+<span class="sd">    panel share ``node_size``. Region voxel count is not encoded in</span>
+<span class="sd">    marker size.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ax: Target matplotlib axes.</span>
 <span class="sd">        nodes: Nodes to draw.</span>
-<span class="sd">        colors: Habitat label to hex colour mapping.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared. The same</span>
 <span class="sd">            value is applied to every node.</span>
-<span class="sd">        linewidths: Marker rim width in points. ``0`` (default) draws a</span>
-<span class="sd">            solid filled dot with no outline.</span>
+<span class="sd">        linewidths: Dark marker-rim width in points (default thin</span>
+<span class="sd">            outline so white dots stay visible on light fills).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">_centroid_xy_display</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
     <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">_centroid_xy_display</span><span class="p">(</span><span class="n">n</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
-    <span class="n">node_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">habitat_label</span><span class="p">),</span> <span class="s2">&quot;#444444&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
-    <span class="n">use_rim</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">linewidths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
         <span class="n">xs</span><span class="p">,</span>
         <span class="n">ys</span><span class="p">,</span>
         <span class="n">s</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">node_size</span><span class="p">),</span>
-        <span class="n">c</span><span class="o">=</span><span class="n">node_colors</span><span class="p">,</span>
-        <span class="c1"># No rim by default: a light or white edge on a small marker</span>
-        <span class="c1"># reads as a hollow node even when face alpha is 1.0.</span>
-        <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;#1A1A1A&quot;</span> <span class="k">if</span> <span class="n">use_rim</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
-        <span class="n">linewidths</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidths</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_rim</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">_GRAPH_NODE_COLOR</span><span class="p">,</span>
+        <span class="n">edgecolors</span><span class="o">=</span><span class="n">_NODE_OUTLINE_COLOR</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">linewidths</span><span class="p">),</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
     <span class="p">)</span>
@@ -3120,13 +3071,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    rather than the full 3D volume. Display knobs override ``options`` for</span>
 <span class="sd">    drawing only (extraction still uses ``options``).</span>
 
-<span class="sd">    Each H1--Hk panel shows only that habitat (full colour) plus its</span>
-<span class="sd">    intra-edges (darkened habitat colour). Other habitats are not drawn</span>
-<span class="sd">    as gray fills or gray edges; a light ROI silhouette remains for</span>
-<span class="sd">    spatial context. The All-habitats panel shows every habitat&#39;s nodes</span>
-<span class="sd">    and **inter-habitat edges only**, each edge two-tone in the two</span>
-<span class="sd">    endpoint habitat colours (no purple, no intra-edges). All panels</span>
-<span class="sd">    share the same solid-dot node size and the same edge linewidth.</span>
+<span class="sd">    Each H1--Hk panel fills only that habitat in its palette colour and</span>
+<span class="sd">    overlays white intra-edges plus white nodes (solid dots, thin dark</span>
+<span class="sd">    outline). Other habitats are not painted gray; a faint ROI wash</span>
+<span class="sd">    keeps shape context. The All-habitats panel fills every habitat in</span>
+<span class="sd">    palette colours and overlays **inter-habitat edges only**, all</span>
+<span class="sd">    white (no purple, no two-tone, no intra-edges). All panels share</span>
+<span class="sd">    the same solid-dot node size. Edge linewidth is shared unless the</span>
+<span class="sd">    All panel has ``&gt;= 1000`` inter-edges, in which case that panel</span>
+<span class="sd">    uses a slightly thinner, lower-alpha white stroke.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
@@ -3135,9 +3088,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            largest cross-section. Ignored for 2D input.</span>
 <span class="sd">        show_background: Whether to draw habitat partitions behind the</span>
 <span class="sd">            graph (default ``True``). On H1--Hk panels the featured</span>
-<span class="sd">            habitat is full colour and other foreground is a light ROI</span>
+<span class="sd">            habitat is full colour and other foreground is a faint ROI</span>
 <span class="sd">            wash; background 0 stays undrawn. The All-habitats panel</span>
-<span class="sd">            stays fully coloured. Nodes are solid filled dots.</span>
+<span class="sd">            stays fully coloured. Graph nodes and edges are white.</span>
 <span class="sd">        show_grid: Draw the uniform-grid lattice (default ``True``).</span>
 <span class="sd">            Also draws when ``block_size`` is passed in ``component`` mode.</span>
 <span class="sd">        block_size: Display cube edge in voxels. ``None`` (default) uses</span>
@@ -3164,7 +3117,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        OptionalDependencyError: When matplotlib is not installed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.legend_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandlerTuple</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
 
     <span class="n">labels_array</span> <span class="o">=</span> <span class="n">_as_label_array</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span>
@@ -3221,13 +3173,13 @@ window.runMermaid = runMermaid;</script>
             <span class="n">_apply_display_grid</span><span class="p">(</span>
                 <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
             <span class="p">)</span>
-            <span class="c1"># Featured habitat only: no other-habitat intra-edges, no gray.</span>
+            <span class="c1"># Featured habitat only: white intra-edges, no gray fills.</span>
             <span class="n">edges</span> <span class="o">=</span> <span class="n">_single_intra_edges</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">node_result</span><span class="p">)</span>
             <span class="n">_draw_edges_2d</span><span class="p">(</span>
                 <span class="n">ax</span><span class="p">,</span>
                 <span class="n">id_to_node</span><span class="p">,</span>
                 <span class="n">edges</span><span class="p">,</span>
-                <span class="n">_darken_color</span><span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="s2">&quot;#444444&quot;</span><span class="p">)),</span>
+                <span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
                 <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">,</span>
                 <span class="mf">1.0</span><span class="p">,</span>
                 <span class="mi">2</span><span class="p">,</span>
@@ -3235,7 +3187,6 @@ window.runMermaid = runMermaid;</script>
             <span class="n">_draw_nodes_2d</span><span class="p">(</span>
                 <span class="n">ax</span><span class="p">,</span>
                 <span class="n">sub</span><span class="p">,</span>
-                <span class="n">colors</span><span class="p">,</span>
                 <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
                 <span class="n">linewidths</span><span class="o">=</span><span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
             <span class="p">)</span>
@@ -3253,14 +3204,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_apply_display_grid</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
         <span class="p">)</span>
-        <span class="c1"># Inter-habitat edges only; two-tone in the endpoint habitat colours.</span>
-        <span class="n">_draw_two_tone_edges_2d</span><span class="p">(</span>
+        <span class="c1"># Inter-habitat edges only; solid white (thin/fade if hairball).</span>
+        <span class="n">all_edge_width</span><span class="p">,</span> <span class="n">all_edge_alpha</span> <span class="o">=</span> <span class="n">_all_panel_edge_style</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inter_edges</span><span class="p">))</span>
+        <span class="n">_draw_edges_2d</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="n">id_to_node</span><span class="p">,</span>
             <span class="n">inter_edges</span><span class="p">,</span>
-            <span class="n">colors</span><span class="p">,</span>
-            <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">,</span>
-            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
+            <span class="n">all_edge_width</span><span class="p">,</span>
+            <span class="n">all_edge_alpha</span><span class="p">,</span>
             <span class="mi">3</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">all_nodes</span> <span class="o">=</span> <span class="p">[</span>
@@ -3269,7 +3221,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_draw_nodes_2d</span><span class="p">(</span>
             <span class="n">ax_cross</span><span class="p">,</span>
             <span class="n">all_nodes</span><span class="p">,</span>
-            <span class="n">colors</span><span class="p">,</span>
             <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
             <span class="n">linewidths</span><span class="o">=</span><span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3294,38 +3245,55 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">cbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
-        <span class="n">first_color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="n">second_color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">first_color</span>
+        <span class="c1"># Dark legend frame so solid-white node / edge swatches stay visible.</span>
+        <span class="n">node_handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+            <span class="n">markersize</span><span class="o">=</span><span class="mf">6.5</span><span class="p">,</span>
+            <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_GRAPH_NODE_COLOR</span><span class="p">,</span>
+            <span class="n">markeredgecolor</span><span class="o">=</span><span class="n">_NODE_OUTLINE_COLOR</span><span class="p">,</span>
+            <span class="n">markeredgewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Node&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">intra_handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">_darken_color</span><span class="p">(</span><span class="n">first_color</span><span class="p">),</span>
-            <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Intra-habitat edge&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">inter_handle</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">first_color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
-            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">second_color</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">),</span>
+        <span class="n">inter_handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
+            <span class="n">lw</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Inter-habitat edge&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">grid_handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">grid_color</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#D1D5DB&quot;</span><span class="p">,</span>
             <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
             <span class="n">linestyle</span><span class="o">=</span><span class="n">grid_linestyle</span><span class="p">,</span>
             <span class="n">label</span><span class="o">=</span><span class="n">_grid_caption</span><span class="p">(</span><span class="n">display_size</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-            <span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">intra_handle</span><span class="p">,</span> <span class="n">inter_handle</span><span class="p">,</span> <span class="n">grid_handle</span><span class="p">],</span>
+            <span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">node_handle</span><span class="p">,</span> <span class="n">intra_handle</span><span class="p">,</span> <span class="n">inter_handle</span><span class="p">,</span> <span class="n">grid_handle</span><span class="p">],</span>
             <span class="n">labels</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Node&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;Intra-habitat edge&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;Inter-habitat edge&quot;</span><span class="p">,</span>
                 <span class="n">_grid_caption</span><span class="p">(</span><span class="n">display_size</span><span class="p">),</span>
             <span class="p">],</span>
-            <span class="n">handler_map</span><span class="o">=</span><span class="p">{</span><span class="nb">tuple</span><span class="p">:</span> <span class="n">HandlerTuple</span><span class="p">(</span><span class="n">ndivide</span><span class="o">=</span><span class="kc">None</span><span class="p">)},</span>
             <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
-            <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">_FIG_LEGEND_FONTSIZE</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#4B5563&quot;</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;#1A1A1A&quot;</span><span class="p">,</span>
+            <span class="n">labelcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
             <span class="p">(</span>

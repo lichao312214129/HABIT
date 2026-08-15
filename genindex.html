@@ -440,6 +440,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#see-also">See also</a></li>
@@ -711,16 +712,14 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1059,6 +1058,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -1298,6 +1301,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -3009,10 +3014,10 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="api/generated/habit.domain.TablePipeline.html#habit.domain.TablePipeline.evaluate">evaluate() (TablePipeline method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.SurvivalOutcome.html#habit.contracts.SurvivalOutcome.event_column">event_column (SurvivalOutcome attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.contracts.SurvivalOutcome.html#habit.contracts.SurvivalOutcome.event_mask">event_mask() (SurvivalOutcome method)</a>
 </li>
       <li><a href="api/generated/habit.contracts.SurvivalOutcome.html#habit.contracts.SurvivalOutcome.event_value">event_value (SurvivalOutcome attribute)</a>
@@ -3041,6 +3046,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes">extract_habitat_nodes() (in module habit.kernels)</a>
 </li>
+      <li><a href="api/generated/habit.extract_voxel_texture.html#habit.extract_voxel_texture">extract_voxel_texture() (in module habit)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.extract_voxel_texture.html#habit.domain.extract_voxel_texture">(in module habit.domain)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -3469,8 +3480,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.contracts.FeatureTable.html#habit.contracts.FeatureTable.id_columns">id_columns (FeatureTable attribute)</a>
 </li>
-      <li><a href="api/generated/habit.domain.identify_precise_features.html#habit.domain.identify_precise_features">identify_precise_features() (in module habit.domain)</a>
+      <li><a href="api/generated/habit.identify_precise_features.html#habit.identify_precise_features">identify_precise_features() (in module habit)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.identify_precise_features.html#habit.domain.identify_precise_features">(in module habit.domain)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features">identify_precise_voxel_features() (in module habit.recipes)</a>
 </li>
       <li><a href="api/generated/habit.contracts.Subject.html#habit.contracts.Subject.image">image() (Subject method)</a>
@@ -4005,6 +4020,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.spec.RunPolicy.html#habit.spec.RunPolicy.persistent_worker_recycle_after_tasks">persistent_worker_recycle_after_tasks (RunPolicy attribute)</a>
 </li>
+      <li><a href="api/generated/habit.perturb_image.html#habit.perturb_image">perturb_image() (in module habit)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.perturb_image.html#habit.domain.perturb_image">(in module habit.domain)</a>
+</li>
+      </ul></li>
       <li><a href="api/generated/habit.domain.PerturbationChain.html#habit.domain.PerturbationChain">PerturbationChain (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.recipes.ModelResult.html#habit.recipes.ModelResult.pipeline">pipeline (ModelResult attribute)</a>
@@ -4137,8 +4158,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.PreciseFeatureSet.html#habit.domain.PreciseFeatureSet">PreciseFeatureSet (class in habit.domain)</a>
 </li>
-      <li><a href="api/generated/habit.domain.precision_panel.html#habit.domain.precision_panel">precision_panel() (in module habit.domain)</a>
+      <li><a href="api/generated/habit.precision_panel.html#habit.precision_panel">precision_panel() (in module habit)</a>
+
+      <ul>
+        <li><a href="api/generated/habit.domain.precision_panel.html#habit.domain.precision_panel">(in module habit.domain)</a>
 </li>
+      </ul></li>
       <li><a href="api/generated/habit.domain.AutogluonTabularClassifier.html#habit.domain.AutogluonTabularClassifier.predict">predict() (AutogluonTabularClassifier method)</a>
 
       <ul>

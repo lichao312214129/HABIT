@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>render_habitat_graph_surface_3d &mdash; HABIT Documentation</title>
+  <title>perturb_image &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.viz.render_habitat_graph_surface_3d.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.domain.perturb_image.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="render_habitat_graph_network_3d" href="habit.viz.render_habitat_graph_network_3d.html" />
-    <link rel="prev" title="plot_habitat_graph_network_2d" href="habit.viz.plot_habitat_graph_network_2d.html" /> 
+    <link rel="next" title="extract_voxel_texture" href="habit.domain.extract_voxel_texture.html" />
+    <link rel="prev" title="RigidPerturbationParams" href="habit.domain.RigidPerturbationParams.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -838,7 +838,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#domain-components-habit-domain">Domain components (<code class="docutils literal notranslate"><span class="pre">habit.domain</span></code>)</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#domain-components-habit-domain">Domain components (<code class="docutils literal notranslate"><span class="pre">habit.domain</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../index.html#pipelines">Pipelines</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.SubjectPipeline.html">SubjectPipeline</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.TablePipeline.html">TablePipeline</a></li>
@@ -938,7 +938,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.FeatureWhitelistParams.html">FeatureWhitelistParams</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#id1">Precision screen</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#id1">Precision screen</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.ImagePerturbation.html">ImagePerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbation.html">GaussianNoisePerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.GaussianNoisePerturbationParams.html">GaussianNoisePerturbationParams</a></li>
@@ -948,7 +948,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
@@ -1329,7 +1329,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#styles">Styles</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.StyleSpec.html">StyleSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.use_style.html">use_style</a></li>
@@ -1370,7 +1370,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
@@ -1390,7 +1390,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
@@ -1755,9 +1755,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">render_habitat_graph_surface_3d</li>
+      <li class="breadcrumb-item active">perturb_image</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.viz.render_habitat_graph_surface_3d.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.domain.perturb_image.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1765,33 +1765,51 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="render-habitat-graph-surface-3d">
-<h1>render_habitat_graph_surface_3d<a class="headerlink" href="#render-habitat-graph-surface-3d" title="Link to this heading"></a></h1>
+  <section id="perturb-image">
+<h1>perturb_image<a class="headerlink" href="#perturb-image" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.viz.render_habitat_graph_surface_3d">
-<span class="sig-name descname"><span class="pre">render_habitat_graph_surface_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">1.0,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black_background</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_smooth_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/viz/habitat_graph.html#render_habitat_graph_surface_3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.viz.render_habitat_graph_surface_3d" title="Link to this definition"></a></dt>
-<dd><p>Render a 3D surface view of the habitat volume (PyVista).</p>
+<dt class="sig sig-object py" id="habit.domain.perturb_image">
+<span class="sig-name descname"><span class="pre">perturb_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.MaskVolume.html#habit.MaskVolume" title="habit.api.image.MaskVolume"><span class="pre">MaskVolume</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="(in NumPy v2.5)"><span class="pre">Generator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/precision/atoms.html#perturb_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.domain.perturb_image" title="Link to this definition"></a></dt>
+<dd><p>Return a same-grid perturbed copy of one image.</p>
+<p>This is the atomic teaching / experiment call: one volume, one
+registered method, and that method’s parameters. Built-in names are
+<code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (the last needs the optional <code class="docutils literal notranslate"><span class="pre">monai</span></code> extra).
+Geometric methods resample back onto the original voxel grid so the
+result stays voxel-wise comparable to <code class="docutils literal notranslate"><span class="pre">image</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mask</span></code> is optional. When given, methods that need an ROI (for
+example <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code> with <code class="docutils literal notranslate"><span class="pre">noise_method=&quot;roi_std&quot;</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> with <code class="docutils literal notranslate"><span class="pre">target_dice</span></code>) see it, and geometric
+methods warp the mask internally. This function still returns only
+the perturbed intensity volume. Use the registered component on a
+<a class="reference internal" href="habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> when you also need the
+warped mask.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>label_array</strong> – 3D habitat label map (background encoded as 0).</p></li>
-<li><p><strong>spacing</strong> – Voxel spacing as <code class="docutils literal notranslate"><span class="pre">(sz,</span> <span class="pre">sy,</span> <span class="pre">sx)</span></code>.</p></li>
-<li><p><strong>black_background</strong> – Whether the scene uses a black background.</p></li>
-<li><p><strong>render_window</strong> – Off-screen render window edge length in pixels.</p></li>
-<li><p><strong>surface_smooth_iter</strong> – Laplacian smoothing iterations; 0 disables.</p></li>
+<li><p><strong>image</strong> – Source intensity volume.</p></li>
+<li><p><strong>method</strong> – Registered <code class="docutils literal notranslate"><span class="pre">image_perturbation</span></code> name.</p></li>
+<li><p><strong>mask</strong> – Optional ROI used by methods that consult or warp a mask.</p></li>
+<li><p><strong>seed</strong> – Used when <code class="docutils literal notranslate"><span class="pre">rng</span></code> is omitted; each call with the same
+seed and parameters is reproducible.</p></li>
+<li><p><strong>rng</strong> – Random generator; overrides <code class="docutils literal notranslate"><span class="pre">seed</span></code> when set.</p></li>
+<li><p><strong>**params</strong> – Constructor kwargs of the named method (validated by
+that method’s params model). Examples: <code class="docutils literal notranslate"><span class="pre">sigma</span></code> /
+<code class="docutils literal notranslate"><span class="pre">noise_method</span></code> for <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>; <code class="docutils literal notranslate"><span class="pre">shift_voxels</span></code> or
+<code class="docutils literal notranslate"><span class="pre">shift_fraction</span></code> for <code class="docutils literal notranslate"><span class="pre">translation</span></code>; <code class="docutils literal notranslate"><span class="pre">angle_degrees</span></code>
+for <code class="docutils literal notranslate"><span class="pre">rotation</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>RGB render of shape <code class="docutils literal notranslate"><span class="pre">(H,</span> <span class="pre">W,</span> <span class="pre">3)</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
-when the volume holds no renderable habitat surface.</p>
+<dd class="field-even"><p>Perturbed intensity volume on the same grid as <code class="docutils literal notranslate"><span class="pre">image</span></code>.
+<code class="docutils literal notranslate"><span class="pre">metadata[&quot;perturbation&quot;]</span></code> records the component <code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code>.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[np.ndarray]</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – When <code class="docutils literal notranslate"><span class="pre">label_array</span></code> is not 3D.</p></li>
-<li><p><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError" title="habit.exceptions.OptionalDependencyError"><strong>OptionalDependencyError</strong></a> – When pyvista or scikit-image is missing.</p></li>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – When <code class="docutils literal notranslate"><span class="pre">method</span></code> is unknown or <code class="docutils literal notranslate"><span class="pre">params</span></code> fail
+    validation.</p></li>
+<li><p><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError" title="habit.exceptions.OptionalDependencyError"><strong>OptionalDependencyError</strong></a> – When the method’s extra is missing
+    (<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> without MONAI).</p></li>
 </ul>
 </dd>
 </dl>
@@ -1803,8 +1821,8 @@ when the volume holds no renderable habitat surface.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.viz.plot_habitat_graph_network_2d.html" class="btn btn-neutral float-left" title="plot_habitat_graph_network_2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.viz.render_habitat_graph_network_3d.html" class="btn btn-neutral float-right" title="render_habitat_graph_network_3d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.domain.RigidPerturbationParams.html" class="btn btn-neutral float-left" title="RigidPerturbationParams" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.domain.extract_voxel_texture.html" class="btn btn-neutral float-right" title="extract_voxel_texture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

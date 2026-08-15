@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>render_habitat_graph_surface_3d &mdash; HABIT Documentation</title>
+  <title>extract_voxel_texture &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.viz.render_habitat_graph_surface_3d.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.extract_voxel_texture.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="render_habitat_graph_network_3d" href="habit.viz.render_habitat_graph_network_3d.html" />
-    <link rel="prev" title="plot_habitat_graph_network_2d" href="habit.viz.plot_habitat_graph_network_2d.html" /> 
+    <link rel="next" title="precision_panel" href="habit.precision_panel.html" />
+    <link rel="prev" title="perturb_image" href="habit.perturb_image.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -696,7 +696,7 @@
 <p class="caption" role="heading"><span class="caption-text">Python API</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#study-recipes-habit-recipes">Study recipes (<code class="docutils literal notranslate"><span class="pre">habit.recipes</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-analysis">Habitat analysis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.Study.html">Study</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.two_step_habitat.html">two_step_habitat</a></li>
@@ -704,9 +704,9 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.direct_pooling_habitat.html">direct_pooling_habitat</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#precision-screen">Precision screen</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="habit.perturb_image.html">perturb_image</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.precision_panel.html">precision_panel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
@@ -1329,7 +1329,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#styles">Styles</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.StyleSpec.html">StyleSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.use_style.html">use_style</a></li>
@@ -1370,7 +1370,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
@@ -1390,7 +1390,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">render_habitat_graph_surface_3d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_intensity_slice.html">plot_intensity_slice</a></li>
@@ -1755,9 +1755,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">render_habitat_graph_surface_3d</li>
+      <li class="breadcrumb-item active">extract_voxel_texture</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.viz.render_habitat_graph_surface_3d.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.extract_voxel_texture.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1765,34 +1765,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="render-habitat-graph-surface-3d">
-<h1>render_habitat_graph_surface_3d<a class="headerlink" href="#render-habitat-graph-surface-3d" title="Link to this heading"></a></h1>
+  <section id="extract-voxel-texture">
+<h1>extract_voxel_texture<a class="headerlink" href="#extract-voxel-texture" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.viz.render_habitat_graph_surface_3d">
-<span class="sig-name descname"><span class="pre">render_habitat_graph_surface_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">1.0,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">black_background</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">render_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_smooth_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/habit/viz/habitat_graph.html#render_habitat_graph_surface_3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.viz.render_habitat_graph_surface_3d" title="Link to this definition"></a></dt>
-<dd><p>Render a 3D surface view of the habitat volume (PyVista).</p>
+<dt class="sig sig-object py" id="habit.extract_voxel_texture">
+<span class="sig-name descname"><span class="pre">extract_voxel_texture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.MaskVolume.html#habit.MaskVolume" title="habit.api.image.MaskVolume"><span class="pre">MaskVolume</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.14)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxel_batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_torch_radiomics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.habitat.VoxelFeatureField"><span class="pre">VoxelFeatureField</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/voxel_features/extract.html#extract_voxel_texture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.extract_voxel_texture" title="Link to this definition"></a></dt>
+<dd><p>Extract a per-voxel texture table from one image and one mask.</p>
+<p>This is the atomic teaching / experiment call. Paper combinations are
+repeated calls on the same volumes with different knobs, for example
+<code class="docutils literal notranslate"><span class="pre">kernel_radius=1</span></code> vs <code class="docutils literal notranslate"><span class="pre">kernel_radius=3</span></code> (R1 vs R3) or
+<code class="docutils literal notranslate"><span class="pre">bin_width=12</span></code> vs <code class="docutils literal notranslate"><span class="pre">bin_width=25</span></code> (B12 vs B25). The returned
+<a class="reference internal" href="habit.contracts.VoxelFeatureField.html#habit.contracts.VoxelFeatureField" title="habit.contracts.habitat.VoxelFeatureField"><code class="xref py py-class docutils literal notranslate"><span class="pre">VoxelFeatureField</span></code></a> is the input to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">precision_panel()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>label_array</strong> – 3D habitat label map (background encoded as 0).</p></li>
-<li><p><strong>spacing</strong> – Voxel spacing as <code class="docutils literal notranslate"><span class="pre">(sz,</span> <span class="pre">sy,</span> <span class="pre">sx)</span></code>.</p></li>
-<li><p><strong>black_background</strong> – Whether the scene uses a black background.</p></li>
-<li><p><strong>render_window</strong> – Off-screen render window edge length in pixels.</p></li>
-<li><p><strong>surface_smooth_iter</strong> – Laplacian smoothing iterations; 0 disables.</p></li>
+<li><p><strong>image</strong> – Intensity volume.</p></li>
+<li><p><strong>mask</strong> – ROI mask; one row is emitted per foreground voxel.</p></li>
+<li><p><strong>kernel_radius</strong> – Neighbourhood radius in voxels (the paper’s <code class="docutils literal notranslate"><span class="pre">R</span></code>).
+Radius 1 is a 3x3x3 cube; radius 3 is 7x7x7.</p></li>
+<li><p><strong>bin_width</strong> – Grey-level discretisation width (the paper’s <code class="docutils literal notranslate"><span class="pre">B</span></code>).</p></li>
+<li><p><strong>feature_classes</strong> – Optional PyRadiomics class-to-names map, e.g.
+<code class="docutils literal notranslate"><span class="pre">{&quot;firstorder&quot;:</span> <span class="pre">[&quot;Entropy&quot;,</span> <span class="pre">&quot;Mean&quot;],</span> <span class="pre">&quot;glcm&quot;:</span> <span class="pre">[&quot;Contrast&quot;]}</span></code>.
+When omitted (and <code class="docutils literal notranslate"><span class="pre">params</span></code> is omitted) the bundled voxel
+preset is used.</p></li>
+<li><p><strong>params</strong> – Full in-memory PyRadiomics settings. Mutually exclusive
+with <code class="docutils literal notranslate"><span class="pre">feature_classes</span></code>. <code class="docutils literal notranslate"><span class="pre">bin_width</span></code> still overwrites
+<code class="docutils literal notranslate"><span class="pre">setting.binWidth</span></code>.</p></li>
+<li><p><strong>voxel_batch</strong> – ROI voxels processed per batch.</p></li>
+<li><p><strong>use_torch_radiomics</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code>, or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>RGB render of shape <code class="docutils literal notranslate"><span class="pre">(H,</span> <span class="pre">W,</span> <span class="pre">3)</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>
-when the volume holds no renderable habitat surface.</p>
+<dd class="field-even"><p>One row per ROI voxel, one column per enabled feature. Provenance
+carries the extractor <a class="reference internal" href="habit.spec.Spec.html#habit.spec.Spec" title="habit.spec.specs.Spec"><code class="xref py py-class docutils literal notranslate"><span class="pre">Spec</span></code></a>.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[np.ndarray]</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – When <code class="docutils literal notranslate"><span class="pre">label_array</span></code> is not 3D.</p></li>
-<li><p><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError" title="habit.exceptions.OptionalDependencyError"><strong>OptionalDependencyError</strong></a> – When pyvista or scikit-image is missing.</p></li>
-</ul>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – When <code class="docutils literal notranslate"><span class="pre">feature_classes</span></code> and <code class="docutils literal notranslate"><span class="pre">params</span></code> are both
+    set, or <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> is not positive.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1803,8 +1813,8 @@ when the volume holds no renderable habitat surface.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.viz.plot_habitat_graph_network_2d.html" class="btn btn-neutral float-left" title="plot_habitat_graph_network_2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.viz.render_habitat_graph_network_3d.html" class="btn btn-neutral float-right" title="render_habitat_graph_network_3d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.perturb_image.html" class="btn btn-neutral float-left" title="perturb_image" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.precision_panel.html" class="btn btn-neutral float-right" title="precision_panel" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

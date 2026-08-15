@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -359,16 +360,14 @@
 <li class="toctree-l3"><a class="reference internal" href="habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -707,6 +706,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -946,6 +949,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1881,7 +1886,7 @@ the ROI, optional cyan contour.</p>
 <li><p><a class="reference internal" href="habitat_feature_routes.html"><span class="doc">Habitat feature routes (raw, concat, radiomics, SLIC)</span></a> — habitat feature routes</p></li>
 <li><p><a class="reference internal" href="habitat_preprocessing.html"><span class="doc">Habitat feature preprocessing chains</span></a> — habitat preprocessing</p></li>
 <li><p><a class="reference internal" href="habitat_preprocessing_api.html"><span class="doc">Habitat feature-preprocessing API (subject + cohort chains)</span></a> — habitat preprocessing API</p></li>
-<li><p><a class="reference internal" href="precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a> — precise features</p></li>
+<li><p><a class="reference internal" href="precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a> — precise features</p></li>
 <li><p><a class="reference internal" href="custom_voxel_features.html"><span class="doc">DIY voxel features (expression + custom plugin)</span></a> — custom voxel features</p></li>
 <li><p><a class="reference internal" href="graph_features.html"><span class="doc">Graph features from habitat maps</span></a> — graph topology; one-step → extract → 2D/3D figures</p></li>
 <li><p><a class="reference internal" href="habitat_feature_compare.html"><span class="doc">Habitat feature contrast (cohort or one subject)</span></a> — each_habitat contrast figures (heatmap / pair-delta / CVA components / violin / faceted bars)</p></li>

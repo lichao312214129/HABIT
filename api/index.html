@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -359,16 +360,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#voxel-texture-precision-and-same-slice-habitat-follow-up">Voxel texture precision and same-slice habitat follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -707,6 +706,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -946,6 +949,8 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1828,9 +1833,21 @@ build a <a class="reference internal" href="generated/habit.recipes.Study.html#h
 <h3>Precision screen<a class="headerlink" href="#precision-screen" title="Link to this heading"></a></h3>
 <p>The precise-feature screen of Prior et al. (Radiol Artif Intell
 2024;6(2):e230118): which voxel features are repeatable and reproducible
-enough to define habitats. See <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a>.</p>
+enough to define habitats. See <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.perturb_image</span></code></a>(image, method, *[, ...])</p></td>
+<td><p>Return a same-grid perturbed copy of one image.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.extract_voxel_texture.html#habit.extract_voxel_texture" title="habit.extract_voxel_texture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.extract_voxel_texture</span></code></a>(image, mask, *)</p></td>
+<td><p>Extract a per-voxel texture table from one image and one mask.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.precision_panel.html#habit.precision_panel" title="habit.precision_panel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.precision_panel</span></code></a>(conditions, *[, ...])</p></td>
+<td><p>Compute the per-feature ICC panel of ONE subject under ONE experiment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.identify_precise_features.html#habit.identify_precise_features" title="habit.identify_precise_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.identify_precise_features</span></code></a>(experiments, *)</p></td>
+<td><p>Select the features that clear the LCL threshold in EVERY experiment.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.recipes.identify_precise_voxel_features</span></code></a>(...)</p></td>
 <td><p>Identify the voxel features precise enough to define habitats.</p></td>
 </tr>
@@ -2433,7 +2450,7 @@ chains.</p>
 <section id="id1">
 <h3>Precision screen<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>Simulated-retest perturbations, the per-feature ICC analysis, and the
-resulting precise-feature artefact. See <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: screen before you cluster</span></a>.</p>
+resulting precise-feature artefact. See <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.ImagePerturbation.html#habit.domain.ImagePerturbation" title="habit.domain.ImagePerturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.ImagePerturbation</span></code></a>(*args, **kwargs)</p></td>
@@ -2462,6 +2479,12 @@ resulting precise-feature artefact. See <a class="reference internal" href="../e
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html#habit.domain.RigidPerturbationParams" title="habit.domain.RigidPerturbationParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.RigidPerturbationParams</span></code></a>(*[, ...])</p></td>
 <td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">RigidPerturbation</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.perturb_image.html#habit.domain.perturb_image" title="habit.domain.perturb_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.perturb_image</span></code></a>(image, method, *)</p></td>
+<td><p>Return a same-grid perturbed copy of one image.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.extract_voxel_texture.html#habit.domain.extract_voxel_texture" title="habit.domain.extract_voxel_texture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.extract_voxel_texture</span></code></a>(image, ...)</p></td>
+<td><p>Extract a per-voxel texture table from one image and one mask.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.PerturbationChain.html#habit.domain.PerturbationChain" title="habit.domain.PerturbationChain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.PerturbationChain</span></code></a>(steps)</p></td>
 <td><p>Apply several image perturbations in sequence to one subject.</p></td>
