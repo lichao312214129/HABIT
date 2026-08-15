@@ -11,6 +11,8 @@ and a PreciseFeatureSet:
 * precise = intersection of those flags (identify_precise_features)
 
 Habitats from the full texture set vs the precise subset come after.
+An optional follow-up warps the ROI contour (Subject-level
+bspline_deform) and scores habitat-table feature ICC + 95% CI.
 The one-call recipe identify_precise_voxel_features is optional (see
 the rst page), not this script.
 
@@ -325,6 +327,220 @@ if result_precise is not None:
 print("Wrote " + ", ".join(f"out/{name}" for name in written))
 # END figures
 
+# BEGIN roi_followup
+# Optional follow-up (not Prior Appendix S2, not MIRP ROI grow/shrink):
+# warp image+mask together, then score habitat-map Dice and habitat-table
+# feature ICC(3A,1) with a 95% CI. Paste after the Script block. Uses
+# _crop_to_roi, DATA, MODALITIES, ROI.
+from typing import Dict, List, Optional
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from habit import (
+    HabitatMap,
+    ImagePerturbationRegistry,
+    align_habitat_map,
+    habitat_stability,
+    habitat_volume_fractions,
+    icc3a_1,
+    ith_score,
+    one_step_habitat,
+)
+from habit.viz import plot_habitat_label_compare, plot_precision_icc, use_style
+from habit.viz.labels import sanitize_label
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+Path("out").mkdir(exist_ok=True)
+
+deform = ImagePerturbationRegistry.create(
+    "bspline_deform",
+    target_dice=0.85,
+    dice_tolerance=0.03,
+    sigma_range=(1.0, 2.0),
+    magnitude_range=(10.0, 15.0),
+    device="cpu",
+)
+
+
+def _habitat_feature_row(habitat_map: HabitatMap) -> Dict[str, float]:
+    """Volume fractions and ITH from one HabitatMap (aligned ids)."""
+    labels = np.asarray(habitat_map.label_array)
+    habitat_ids = tuple(int(hid) for hid in habitat_map.habitat_ids)
+    fractions = habitat_volume_fractions(labels, habitat_ids)
+    row: Dict[str, float] = {
+        f"habitat_{hid}_volume_fraction": float(fractions[hid])
+        for hid in habitat_ids
+    }
+    row["ith_score"] = float(ith_score(labels))
+    return row
+
+
+FEATURE_ORDER = (
+    "habitat_1_volume_fraction",
+    "habitat_2_volume_fraction",
+    "habitat_3_volume_fraction",
+    "ith_score",
+)
+orig_rows: List[Dict[str, float]] = []
+warp_rows: List[Dict[str, float]] = []
+first_bundle: Optional[tuple] = None
+icc_source = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
+for item in icc_source:
+    cropped = _crop_to_roi(item, MODALITIES[0], ROI)
+    print(f"FFD + one-step habitats: {cropped.subject_id}", flush=True)
+    warped_item = deform(cropped, rng=np.random.default_rng(7))
+    orig_fit = one_step_habitat(
+        modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+    ).fit_predict(Cohort(subjects=(cropped,)))
+    warp_fit = one_step_habitat(
+        modalities=MODALITIES, n_habitats=3, random_seed=0, roi=ROI
+    ).fit_predict(Cohort(subjects=(warped_item,)))
+    ref_map = orig_fit.habitat_maps[0]
+    mov_map = warp_fit.habitat_maps[0]
+    # Independent one_step fits share a model_id digest; force overlap align
+    # so table columns (habitat_1_...) name the same spatial region.
+    aligned_map = align_habitat_map(ref_map, mov_map, method="overlap", force=True)
+    orig_rows.append(_habitat_feature_row(ref_map))
+    warp_rows.append(_habitat_feature_row(aligned_map))
+    if first_bundle is None:
+        first_bundle = (
+            cropped,
+            warped_item,
+            ref_map,
+            aligned_map,
+            habitat_stability(ref_map, [mov_map]),
+        )
+
+cropped, warped_item, ref_map, aligned_map, dice_frame = first_bundle
+print("Habitat Dice after bspline_deform (Hungarian match)")
+print(dice_frame.to_string(index=False))
+
+# Shared axial index: densest original ROI (same crop, same slice).
+orig_mask = np.asarray(cropped.mask(ROI).data)
+warped_mask = np.asarray(warped_item.mask(ROI).data)
+counts = np.sum(orig_mask > 0, axis=(1, 2))
+index = int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(orig_mask.shape[0] // 2)
+grey = np.take(np.asarray(cropped.image(MODALITIES[0]).data), index, axis=0)
+mask_orig = np.take(orig_mask > 0, index, axis=0).astype(np.uint8)
+mask_warp = np.take(warped_mask > 0, index, axis=0).astype(np.uint8)
+xor_map = np.abs(mask_warp.astype(np.float64) - mask_orig.astype(np.float64))
+finite = grey[np.isfinite(grey)]
+lo, hi = np.percentile(finite, (1.0, 99.0))
+original_color = "#00E5FF"
+warped_color = "#D55E00"
+xor_color = "#F0E442"
+with use_style("radiology"):
+    fig_edge, axes_edge = plt.subplots(
+        1, 2, figsize=(8.8, 4.4), constrained_layout=True
+    )
+    for ax, show_xor, title in (
+        (axes_edge[0], False, "Original vs warped ROI"),
+        (axes_edge[1], True, "Membership change (XOR)"),
+    ):
+        ax.imshow(
+            grey, cmap="gray", interpolation="nearest", origin="upper", vmin=lo, vmax=hi
+        )
+        if show_xor and np.any(xor_map > 0):
+            ax.contourf(
+                xor_map, levels=[0.5, 1.5], colors=[xor_color], alpha=0.55, origin="upper"
+            )
+        ax.contour(mask_orig, levels=[0.5], colors=[original_color], linewidths=1.6, origin="upper")
+        ax.contour(
+            mask_warp,
+            levels=[0.5],
+            colors=[warped_color],
+            linewidths=1.6,
+            linestyles="--",
+            origin="upper",
+        )
+        ax.set_title(sanitize_label(title))
+        ax.axis("off")
+    fig_edge.legend(
+        handles=[
+            Line2D([0], [0], color=original_color, lw=1.6, label="Original ROI"),
+            Line2D(
+                [0], [0], color=warped_color, lw=1.6, ls="--", label="Warped ROI"
+            ),
+            Patch(facecolor=xor_color, edgecolor="none", alpha=0.55, label="XOR"),
+        ],
+        loc="lower center",
+        ncol=3,
+        frameon=False,
+        bbox_to_anchor=(0.5, -0.04),
+    )
+fig_edge.savefig("out/precise_perturb_mask_edge.png", dpi=150, bbox_inches="tight")
+
+fig_cmp = plot_habitat_label_compare(
+    cropped.image(MODALITIES[0]),
+    ref_map,
+    aligned_map,
+    titles=("Original ROI habitats", "Warped ROI habitats"),
+    index=index,
+    align_labels=False,
+    display_convention="native",
+)
+fig_cmp.savefig(
+    "out/precise_habitat_stability_compare.png", dpi=150, bbox_inches="tight"
+)
+
+with use_style("radiology"):
+    fig_dice, ax_dice = plt.subplots(figsize=(5.4, 3.2), constrained_layout=True)
+    ax_dice.bar(
+        [f"H{int(hid)}" for hid in dice_frame["habitat_id"].to_numpy()],
+        dice_frame["dice"].to_numpy(dtype=float),
+        color="#0072B2",
+    )
+    ax_dice.set_ylim(0.0, 1.05)
+    ax_dice.set_ylabel("Dice")
+    ax_dice.set_title(sanitize_label("Per-habitat Dice (matched)"))
+fig_dice.savefig("out/precise_habitat_dice.png", dpi=150, bbox_inches="tight")
+
+# ICC(3A,1) on the habitat-table features: one row per subject, two columns
+# (original vs overlap-aligned warped map). n=3 => wide 95% CIs (honest).
+feature_names = [
+    name
+    for name in FEATURE_ORDER
+    if name in orig_rows[0] and name in warp_rows[0]
+]
+icc_records = []
+for name in feature_names:
+    matrix = np.column_stack(
+        [
+            [float(row[name]) for row in orig_rows],
+            [float(row[name]) for row in warp_rows],
+        ]
+    )
+    if not np.isfinite(matrix).all():
+        continue
+    estimate = icc3a_1(matrix)
+    icc_records.append(
+        {
+            "feature": name,
+            "value": estimate.value,
+            "lcl": estimate.lcl,
+            "ucl": estimate.ucl,
+            "precise": estimate.lcl >= 0.5,
+        }
+    )
+icc_frame = pd.DataFrame(icc_records)
+print("Habitat-table feature ICC(3A,1) with 95% CI (n=3 subjects)")
+print(icc_frame.to_string(index=False))
+fig_icc = plot_precision_icc(
+    icc_frame,
+    lcl_threshold=0.5,
+    title="Habitat-table features: ICC and 95% CI (FFD retest)",
+)
+fig_icc.savefig("out/precise_habitat_feature_icc.png", dpi=150, bbox_inches="tight")
+print(
+    "Wrote out/precise_perturb_mask_edge.png, "
+    "out/precise_habitat_stability_compare.png, "
+    "out/precise_habitat_dice.png, "
+    "out/precise_habitat_feature_icc.png"
+)
+# END roi_followup
+
 if __name__ == "__main__":
     import sys
 
@@ -340,5 +556,9 @@ if __name__ == "__main__":
             "precise_features_icc_bin.png",
             "precise_features_icc_all.png",
             "precise_features_all_vs_precise.png",
+            "precise_perturb_mask_edge.png",
+            "precise_habitat_stability_compare.png",
+            "precise_habitat_dice.png",
+            "precise_habitat_feature_icc.png",
         )
     )
