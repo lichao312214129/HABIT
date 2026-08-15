@@ -1324,7 +1324,3 @@ def test_default_threshold_skips_one_empty_lattice_cell() -> None:
     features = extract_graph_features(label_array)
     assert features["single_h1_n_nodes"] == 2.0
     assert features["single_h1_n_edges"] == 0.0
-
-
-@pytest.mark.unit
-
