@@ -72,13 +72,17 @@ _VIZ_PURPOSE = "habitat graph topology figures"
 #: What the 3D renderers need PyVista / scikit-image for.
 _VIEW_PURPOSE = "3D habitat graph rendering"
 
-#: 3D renderer only: inter-habitat tubes stay a single accent; 2D All-panel
-#: inter-edges use the habitat palette (two-tone), not this purple.
+#: 3D renderer only: inter-habitat tubes stay a single accent. The 2D
+#: graph overlay is white (nodes + edges) on the coloured habitat fill.
 _INTER_EDGE_COLOR = "#8E44AD"
-#: 3D renderer only: intra-habitat tubes. 2D intra-edges use a darkened
-#: habitat colour so they stay visible on the matching fill (no gray).
+#: 3D renderer only: intra-habitat tubes. 2D intra-edges are white.
 _INTRA_EDGE_COLOR = "#9AA0A6"
 _BACKGROUND_COLOR = "#D9DCE1"
+#: 2D graph overlay: solid white nodes and white edges on the fill.
+_GRAPH_NODE_COLOR = "#FFFFFF"
+_GRAPH_EDGE_COLOR = "#FFFFFF"
+#: Thin dark rim so a white dot stays visible on pink / light habitats.
+_NODE_OUTLINE_COLOR = "#1A1A1A"
 
 
 #: Type alias for an undirected edge expressed as a pair of node ids.
@@ -368,15 +372,17 @@ def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
 
 
 #: Matplotlib scatter area (points^2). H1--Hk and All panels share this
-#: smaller solid-dot size (was 64 on H panels / 18 on All).
+#: small solid-dot size.
 _DEFAULT_NODE_SIZE: float = 28.0
-#: Shared graph-edge stroke (points) on every 2D panel.
+#: Shared graph-edge stroke (points) on every 2D panel. The All panel
+#: may drop below this only when inter-edges exceed the hairball gate.
 _DEFAULT_EDGE_WIDTH: float = 0.60
-#: Solid filled dots: no marker rim (a light rim reads as a hollow node).
-_NODE_EDGE_WIDTH: float = 0.0
-#: Darken habitat fill RGB by this factor so intra-edges stay visible
-#: on the matching coloured region (still a habitat colour, not gray).
-_INTRA_EDGE_DARKEN: float = 0.60
+#: Thin dark outline (points) around each solid white node.
+_NODE_EDGE_WIDTH: float = 0.55
+#: All-panel hairball gate: thin / fade white inter-edges past this count.
+_HAIRBALL_INTER_EDGE_COUNT: int = 1000
+_HAIRBALL_EDGE_WIDTH: float = 0.40
+_HAIRBALL_EDGE_ALPHA: float = 0.45
 #: Publication-readable type sizes for the multi-panel 2D network figure.
 _PANEL_TITLE_FONTSIZE: float = 11.5
 _AXIS_TEXT_FONTSIZE: float = 10.5
@@ -680,22 +686,23 @@ def _style_axis_2d(
         spine.set_visible(False)
 
 
-def _darken_color(color: str, factor: float = _INTRA_EDGE_DARKEN) -> Tuple[float, float, float]:
+def _all_panel_edge_style(n_inter_edges: int) -> Tuple[float, float]:
     """
-    Darken a habitat hex colour toward black for intra-edges on that fill.
+    Return ``(linewidth, alpha)`` for All-panel inter-habitat edges.
+
+    H panels and the All panel share ``_DEFAULT_EDGE_WIDTH`` unless the
+    All panel has a hairball (``>= 1000`` inter-edges). Then the All
+    panel uses a slightly thinner, lower-alpha white stroke.
 
     Args:
-        color: Habitat hex (or any matplotlib colour).
-        factor: Multiplier in ``(0, 1]`` applied to each RGB channel.
+        n_inter_edges: Number of inter-habitat edges on the All panel.
 
     Returns:
-        RGB triple in ``[0, 1]``.
+        Tuple[float, float]: Linewidth in points and opacity in ``(0, 1]``.
     """
-    from matplotlib.colors import to_rgb
-
-    red, green, blue = to_rgb(color)
-    scale = float(factor)
-    return (float(red) * scale, float(green) * scale, float(blue) * scale)
+    if int(n_inter_edges) >= _HAIRBALL_INTER_EDGE_COUNT:
+        return _HAIRBALL_EDGE_WIDTH, _HAIRBALL_EDGE_ALPHA
+    return _DEFAULT_EDGE_WIDTH, 1.0
 
 
 def _draw_edges_2d(
@@ -726,94 +733,39 @@ def _draw_edges_2d(
         )
 
 
-def _draw_two_tone_edges_2d(
-    ax,
-    id_to_node: Dict[str, HabitatGraphNode],
-    edges: Sequence[_EdgePair],
-    colors: Dict[int, str],
-    linewidth: float,
-    alpha: float,
-    zorder: int,
-) -> None:
-    """
-    Draw inter-habitat edges as two halves, each in an endpoint habitat colour.
-
-    An Hi--Hj edge is not a single purple stroke: the half nearer Hi uses
-    Hi's palette colour and the half nearer Hj uses Hj's.
-
-    Args:
-        ax: Target matplotlib axes.
-        id_to_node: Node lookup by id.
-        edges: Undirected inter-habitat node-id pairs.
-        colors: Habitat label to hex colour mapping.
-        linewidth: Stroke width in points (same as intra-edges).
-        alpha: Stroke opacity.
-        zorder: Matplotlib z-order.
-    """
-    for source, target in edges:
-        node_a = id_to_node.get(source)
-        node_b = id_to_node.get(target)
-        if node_a is None or node_b is None:
-            continue
-        x_a, y_a = _centroid_xy_display(node_a)
-        x_b, y_b = _centroid_xy_display(node_b)
-        x_mid = 0.5 * (x_a + x_b)
-        y_mid = 0.5 * (y_a + y_b)
-        color_a = colors.get(int(node_a.habitat_label), "#444444")
-        color_b = colors.get(int(node_b.habitat_label), "#444444")
-        for (x0, y0, x1, y1, color) in (
-            (x_a, y_a, x_mid, y_mid, color_a),
-            (x_mid, y_mid, x_b, y_b, color_b),
-        ):
-            ax.plot(
-                (x0, x1),
-                (y0, y1),
-                color=color,
-                linewidth=linewidth,
-                alpha=float(alpha),
-                zorder=zorder,
-                solid_capstyle="round",
-            )
-
-
 def _draw_nodes_2d(
     ax,
     nodes: Sequence[HabitatGraphNode],
-    colors: Dict[int, str],
     node_size: float = _DEFAULT_NODE_SIZE,
     linewidths: float = _NODE_EDGE_WIDTH,
 ) -> None:
     """
-    Scatter 2D graph nodes at projected region centroids, colored by habitat.
+    Scatter solid white nodes with a thin dark outline.
 
-    Every marker is the same solid filled dot (no hollow rim). Region voxel
-    count is not encoded in marker size so small blocks stay as readable
-    as large ones. H panels and the All-habitats panel share ``node_size``.
+    Colour lives on the habitat fill, not on the graph layer. Every
+    marker is the same small filled dot so H panels and the All-habitats
+    panel share ``node_size``. Region voxel count is not encoded in
+    marker size.
 
     Args:
         ax: Target matplotlib axes.
         nodes: Nodes to draw.
-        colors: Habitat label to hex colour mapping.
         node_size: Matplotlib scatter area in points squared. The same
             value is applied to every node.
-        linewidths: Marker rim width in points. ``0`` (default) draws a
-            solid filled dot with no outline.
+        linewidths: Dark marker-rim width in points (default thin
+            outline so white dots stay visible on light fills).
     """
     if not nodes:
         return
     xs = [_centroid_xy_display(n)[0] for n in nodes]
     ys = [_centroid_xy_display(n)[1] for n in nodes]
-    node_colors = [colors.get(int(n.habitat_label), "#444444") for n in nodes]
-    use_rim = float(linewidths) > 0.0
     ax.scatter(
         xs,
         ys,
         s=float(node_size),
-        c=node_colors,
-        # No rim by default: a light or white edge on a small marker
-        # reads as a hollow node even when face alpha is 1.0.
-        edgecolors="#1A1A1A" if use_rim else "none",
-        linewidths=float(linewidths) if use_rim else 0.0,
+        c=_GRAPH_NODE_COLOR,
+        edgecolors=_NODE_OUTLINE_COLOR,
+        linewidths=float(linewidths),
         alpha=1.0,
         zorder=4,
     )
@@ -999,13 +951,15 @@ def plot_habitat_graph_network_2d(
     rather than the full 3D volume. Display knobs override ``options`` for
     drawing only (extraction still uses ``options``).
 
-    Each H1--Hk panel shows only that habitat (full colour) plus its
-    intra-edges (darkened habitat colour). Other habitats are not drawn
-    as gray fills or gray edges; a light ROI silhouette remains for
-    spatial context. The All-habitats panel shows every habitat's nodes
-    and **inter-habitat edges only**, each edge two-tone in the two
-    endpoint habitat colours (no purple, no intra-edges). All panels
-    share the same solid-dot node size and the same edge linewidth.
+    Each H1--Hk panel fills only that habitat in its palette colour and
+    overlays white intra-edges plus white nodes (solid dots, thin dark
+    outline). Other habitats are not painted gray; a faint ROI wash
+    keeps shape context. The All-habitats panel fills every habitat in
+    palette colours and overlays **inter-habitat edges only**, all
+    white (no purple, no two-tone, no intra-edges). All panels share
+    the same solid-dot node size. Edge linewidth is shared unless the
+    All panel has ``>= 1000`` inter-edges, in which case that panel
+    uses a slightly thinner, lower-alpha white stroke.
 
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
@@ -1014,9 +968,9 @@ def plot_habitat_graph_network_2d(
             largest cross-section. Ignored for 2D input.
         show_background: Whether to draw habitat partitions behind the
             graph (default ``True``). On H1--Hk panels the featured
-            habitat is full colour and other foreground is a light ROI
+            habitat is full colour and other foreground is a faint ROI
             wash; background 0 stays undrawn. The All-habitats panel
-            stays fully coloured. Nodes are solid filled dots.
+            stays fully coloured. Graph nodes and edges are white.
         show_grid: Draw the uniform-grid lattice (default ``True``).
             Also draws when ``block_size`` is passed in ``component`` mode.
         block_size: Display cube edge in voxels. ``None`` (default) uses
@@ -1043,7 +997,6 @@ def plot_habitat_graph_network_2d(
         OptionalDependencyError: When matplotlib is not installed.
     """
     plt = _plt()
-    from matplotlib.legend_handler import HandlerTuple
     from matplotlib.lines import Line2D
 
     labels_array = _as_label_array(label_array)
@@ -1100,13 +1053,13 @@ def plot_habitat_graph_network_2d(
             _apply_display_grid(
                 ax, label_2d, node_result, options, **grid_kwargs
             )
-            # Featured habitat only: no other-habitat intra-edges, no gray.
+            # Featured habitat only: white intra-edges, no gray fills.
             edges = _single_intra_edges(sub, label, options, node_result)
             _draw_edges_2d(
                 ax,
                 id_to_node,
                 edges,
-                _darken_color(colors.get(int(label), "#444444")),
+                _GRAPH_EDGE_COLOR,
                 _DEFAULT_EDGE_WIDTH,
                 1.0,
                 2,
@@ -1114,7 +1067,6 @@ def plot_habitat_graph_network_2d(
             _draw_nodes_2d(
                 ax,
                 sub,
-                colors,
                 node_size=node_size,
                 linewidths=_NODE_EDGE_WIDTH,
             )
@@ -1132,14 +1084,15 @@ def plot_habitat_graph_network_2d(
         _apply_display_grid(
             ax_cross, label_2d, node_result, options, **grid_kwargs
         )
-        # Inter-habitat edges only; two-tone in the endpoint habitat colours.
-        _draw_two_tone_edges_2d(
+        # Inter-habitat edges only; solid white (thin/fade if hairball).
+        all_edge_width, all_edge_alpha = _all_panel_edge_style(len(inter_edges))
+        _draw_edges_2d(
             ax_cross,
             id_to_node,
             inter_edges,
-            colors,
-            _DEFAULT_EDGE_WIDTH,
-            1.0,
+            _GRAPH_EDGE_COLOR,
+            all_edge_width,
+            all_edge_alpha,
             3,
         )
         all_nodes = [
@@ -1148,7 +1101,6 @@ def plot_habitat_graph_network_2d(
         _draw_nodes_2d(
             ax_cross,
             all_nodes,
-            colors,
             node_size=node_size,
             linewidths=_NODE_EDGE_WIDTH,
         )
@@ -1173,38 +1125,55 @@ def plot_habitat_graph_network_2d(
         if cbar is not None:
             cbar.ax.tick_params(labelsize=_AXIS_TEXT_FONTSIZE)
             cbar.ax.yaxis.label.set_size(_AXIS_TEXT_FONTSIZE)
-        first_color = colors[labels[0]]
-        second_color = colors[labels[1]] if len(labels) > 1 else first_color
+        # Dark legend frame so solid-white node / edge swatches stay visible.
+        node_handle = Line2D(
+            [0],
+            [0],
+            linestyle="None",
+            marker="o",
+            markersize=6.5,
+            markerfacecolor=_GRAPH_NODE_COLOR,
+            markeredgecolor=_NODE_OUTLINE_COLOR,
+            markeredgewidth=0.8,
+            label="Node",
+        )
         intra_handle = Line2D(
             [0],
             [0],
-            color=_darken_color(first_color),
-            lw=1.4,
+            color=_GRAPH_EDGE_COLOR,
+            lw=1.6,
             label="Intra-habitat edge",
         )
-        inter_handle = (
-            Line2D([0], [0], color=first_color, lw=1.4),
-            Line2D([0], [0], color=second_color, lw=1.4),
+        inter_handle = Line2D(
+            [0],
+            [0],
+            color=_GRAPH_EDGE_COLOR,
+            lw=1.6,
+            label="Inter-habitat edge",
         )
         grid_handle = Line2D(
             [0],
             [0],
-            color=grid_color,
+            color="#D1D5DB",
             lw=1.2,
             linestyle=grid_linestyle,
             label=_grid_caption(display_size),
         )
         fig.legend(
-            handles=[intra_handle, inter_handle, grid_handle],
+            handles=[node_handle, intra_handle, inter_handle, grid_handle],
             labels=[
+                "Node",
                 "Intra-habitat edge",
                 "Inter-habitat edge",
                 _grid_caption(display_size),
             ],
-            handler_map={tuple: HandlerTuple(ndivide=None)},
             loc="lower center",
-            ncol=3,
+            ncol=4,
             fontsize=_FIG_LEGEND_FONTSIZE,
+            facecolor="#4B5563",
+            edgecolor="#1A1A1A",
+            labelcolor="white",
+            framealpha=0.95,
         )
         fig.suptitle(
             (

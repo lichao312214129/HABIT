@@ -100,12 +100,13 @@ Anatomy with habitats
    :alt: Intra-habitat graphs and inter-habitat edges on a 2D habitat slice
    :width: 720
 
-   Each H panel shows only that habitat and its intra-edges (solid dots,
-   shared node size and edge width). A light ROI wash keeps spatial
-   context; other habitats are not drawn in gray. The All-habitats panel
-   shows inter-habitat edges only, each two-tone in the two endpoint
-   habitat colours. The All panel title reports per-habitat node counts
-   and inter-edge counts. Display knobs ``block_size=5`` /
+   Each H panel fills only that habitat in its palette colour and overlays
+   white intra-edges plus white nodes (solid dots, thin dark outline,
+   shared size). A faint ROI wash keeps shape context; other habitats
+   are not painted gray. The All-habitats panel fills every habitat in
+   palette colours and overlays **inter-habitat edges only**, all white
+   (no purple, no two-tone). The All panel title reports per-habitat
+   node counts and inter-edge counts. Display knobs ``block_size=5`` /
    ``grid_linestyle='--'`` draw the same 5-voxel cubes
    (:func:`~habit.viz.plot_habitat_graph_network_2d`).
 

@@ -205,6 +205,9 @@ def test_plot_habitat_graph_network_2d_all_panel_reports_n_and_edges() -> None:
         legend_text = " ".join(t.get_text() for t in fig.legends[0].get_texts())
         assert "Other-habitat" not in legend_text
         assert "purple" not in legend_text.lower()
+        assert "Node" in legend_text
+        assert "Intra-habitat edge" in legend_text
+        assert "Inter-habitat edge" in legend_text
     habitat_titles = [
         ax.get_title() for ax in fig.axes if ax.get_title().startswith("H")
     ]
@@ -304,6 +307,8 @@ def test_plot_habitat_graph_network_2d_uses_unified_node_and_edge_sizes() -> Non
     assert np.allclose(all_sizes, habitat_sizes[0])
     assert habitat_widths and all_widths
     assert np.allclose(habitat_widths, habitat_widths[0])
+    # Synthetic maps stay well below the 1000-edge hairball gate, so
+    # All-panel inter-edges keep the same linewidth as H-panel intra-edges.
     assert np.allclose(all_widths, habitat_widths[0])
     import matplotlib.pyplot as plt
 
@@ -311,8 +316,8 @@ def test_plot_habitat_graph_network_2d_uses_unified_node_and_edge_sizes() -> Non
 
 
 def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> None:
-    """H panels draw only that habitat's intra-edges; All panel is inter-only."""
-    from matplotlib.colors import to_hex
+    """H panels draw only that habitat's white intra-edges; All is white inter."""
+    from matplotlib.colors import to_hex, to_rgb
 
     labels = _synthetic_2d_labels()
     options = HabitatGraphFeatureOptions(
@@ -325,6 +330,8 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
     )
     fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
     assert isinstance(fig, Figure)
+    white = np.asarray(to_rgb("#FFFFFF"))
+    outline = np.asarray(to_rgb("#1A1A1A"))
     habitat_axes = [ax for ax in fig.axes if ax.get_title().startswith("H")]
     assert habitat_axes
     for ax in habitat_axes:
@@ -334,26 +341,60 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
         for line in ax.lines:
             assert float(line.get_alpha()) == pytest.approx(1.0)
             hex_color = to_hex(line.get_color()).lower()
+            assert hex_color == "#ffffff"
             assert hex_color not in {"#9aa0a6", "#8e44ad", "#c5c8cc"}
         for collection in ax.collections:
+            faces = np.asarray(collection.get_facecolors(), dtype=float)
+            if faces.size:
+                assert np.allclose(faces[:, :3], white, atol=1e-6)
+            edges = np.asarray(collection.get_edgecolors(), dtype=float)
+            if edges.size:
+                assert np.allclose(edges[:, :3], outline, atol=1e-6)
             if hasattr(collection, "get_linewidths"):
                 lws = np.asarray(collection.get_linewidths(), dtype=float)
                 if lws.size:
-                    assert np.allclose(lws, 0.0)
+                    assert np.all(lws > 0.0)
     all_axes = [ax for ax in fig.axes if ax.get_title().startswith("All habitats")]
     assert len(all_axes) == 1
     all_title = all_axes[0].get_title()
     inter_line = [line for line in all_title.splitlines() if line.startswith("inter e=")]
     assert inter_line
     n_inter = int(inter_line[0].split("=", 1)[1])
-    # Two-tone: each inter-edge is two half-strokes.
-    assert len(all_axes[0].lines) == 2 * n_inter
+    # One white stroke per inter-edge (not two-tone halves).
+    assert len(all_axes[0].lines) == n_inter
     for line in all_axes[0].lines:
         hex_color = to_hex(line.get_color()).lower()
+        assert hex_color == "#ffffff"
         assert hex_color != "#8e44ad"
+    for collection in all_axes[0].collections:
+        faces = np.asarray(collection.get_facecolors(), dtype=float)
+        if faces.size:
+            assert np.allclose(faces[:, :3], white, atol=1e-6)
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
+
+def test_all_panel_edge_style_thins_hairball() -> None:
+    """All-panel inter-edges thin and fade only past the 1000-edge gate."""
+    from habit.viz.habitat_graph import (
+        _DEFAULT_EDGE_WIDTH,
+        _HAIRBALL_EDGE_ALPHA,
+        _HAIRBALL_EDGE_WIDTH,
+        _all_panel_edge_style,
+    )
+
+    width, alpha = _all_panel_edge_style(12)
+    assert width == pytest.approx(_DEFAULT_EDGE_WIDTH)
+    assert alpha == pytest.approx(1.0)
+    width, alpha = _all_panel_edge_style(999)
+    assert width == pytest.approx(_DEFAULT_EDGE_WIDTH)
+    assert alpha == pytest.approx(1.0)
+    width, alpha = _all_panel_edge_style(1000)
+    assert width == pytest.approx(_HAIRBALL_EDGE_WIDTH)
+    assert alpha == pytest.approx(_HAIRBALL_EDGE_ALPHA)
+    assert width < _DEFAULT_EDGE_WIDTH
+    assert alpha < 1.0
 
 
 def _many_habitat_2d_labels(n_habitats: int = 8) -> np.ndarray:

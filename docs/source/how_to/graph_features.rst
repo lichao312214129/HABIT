@@ -69,10 +69,10 @@ erosion** (``erosion_radius: 0``). Pass
 ``edge_method: adjacency`` if you want contact-voxel edges (default
 contact count >= 10). ``centroid_distance`` is the older centroid-proximity
 rule. 2D figures draw the **same lattice** as dashed lines. On each
-featured-habitat panel only that habitat and its intra-edges are drawn
-(light ROI backdrop; no gray other-habitat fill or edges). The
-All-habitats panel shows **inter-habitat edges only**, two-tone in the
-habitat palette.
+featured-habitat panel only that habitat is filled in colour; white
+nodes and white intra-edges are overlaid (faint ROI backdrop; no gray
+other-habitat fill). The All-habitats panel shows every habitat fill
+in the palette and **inter-habitat edges only**, drawn in white.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 
