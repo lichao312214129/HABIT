@@ -200,13 +200,10 @@ def habitat_stability(
     Score habitat stability between a reference map and perturbed maps.
 
     Each perturbed map is paired to the reference, then ordinary Dice is
-    computed on that pair:
-
-        dice = 2 * |A ∩ B| / (|A| + |B|)
-
-    where ``A`` is one reference habitat and ``B`` is its matched
-    perturbed habitat. Unmatched reference habitats (fewer clusters on
-    the perturbed map) score Dice 0.
+    computed on that pair: ``2 * intersection / (n_reference + n_matched)``,
+    where the two counts are voxel sizes of one reference habitat and its
+    matched perturbed habitat. Unmatched reference habitats (fewer
+    clusters on the perturbed map) score Dice 0.
 
     Default ``method="overlap"`` is the Prior 2024 Hungarian / overlap
     pairing. ``method="centroid"`` pairs by Hungarian assignment on
