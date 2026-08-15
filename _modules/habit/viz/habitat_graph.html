@@ -2173,6 +2173,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ColorbarSpec</span><span class="p">,</span>
     <span class="n">DEFAULT_HABITAT_CBAR_LABEL</span><span class="p">,</span>
     <span class="n">add_discrete_habitat_colorbar</span><span class="p">,</span>
+    <span class="n">colorbar_is_enabled</span><span class="p">,</span>
+    <span class="n">discrete_habitat_mappable</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.palette</span><span class="w"> </span><span class="kn">import</span> <span class="n">habitat_hex_colors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
@@ -2468,7 +2470,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Compute the habitat-row and pairwise-panel grid shape.</span>
 
 <span class="sd">    Habitat panels use up to ``max_cols`` so H1--H4 sit on the first row</span>
-<span class="sd">    when ``K &lt;= 4``. Six pairwise panels (four habitats) use a 2x3 grid.</span>
+<span class="sd">    when ``K &lt;= 4``. Six pairwise panels (four habitats) use a 2x3</span>
+<span class="sd">    placement inside an equal-cell parent grid so every panel is the</span>
+<span class="sd">    same physical size.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        n_habitats: Number of single-habitat (H) panels.</span>
@@ -2533,6 +2537,9 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_GRID_LINE_WIDTH</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.55</span>
 <span class="c1">#: Default matplotlib linestyle for the display lattice.</span>
 <span class="n">_DEFAULT_GRID_LINESTYLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;--&quot;</span>
+<span class="c1">#: Shared pad (voxels) around the union-of-habitats bbox so every 2D</span>
+<span class="c1">#: graph panel uses the same spatial window.</span>
+<span class="n">_SHARED_WINDOW_PAD</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_centroid_xy_display</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">HabitatGraphNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
@@ -2788,11 +2795,99 @@ window.runMermaid = runMermaid;</script>
         <span class="n">y</span> <span class="o">+=</span> <span class="n">step</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_shared_axis_window_2d</span><span class="p">(</span>
+    <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pad</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_SHARED_WINDOW_PAD</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shared image-coordinate window for every 2D habitat-graph panel.</span>
+
+<span class="sd">    The window is the bounding box of all foreground voxels on this</span>
+<span class="sd">    slice (union of every habitat), plus ``pad`` voxels on each side.</span>
+<span class="sd">    Pairwise panels must not crop or zoom to the two featured habitats.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_2d: Representative slice (background encoded as 0).</span>
+<span class="sd">        pad: Extra voxels around the union bbox (default 3).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(xlim, ylim)`` with ``ylim`` inverted so row 0 is at the top.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">label_2d</span><span class="p">)</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">full_xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_cols</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">full_ylim</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">n_rows</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">array</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">full_xlim</span><span class="p">,</span> <span class="n">full_ylim</span>
+    <span class="n">row0</span><span class="p">,</span> <span class="n">col0</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">coords</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">row1</span><span class="p">,</span> <span class="n">col1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">coords</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pad</span><span class="p">)</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">full_xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">col0</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">full_xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">col1</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">y_bottom</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">full_ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">row1</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">y_top</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">full_ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">row0</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">),</span> <span class="p">(</span><span class="n">y_bottom</span><span class="p">,</span> <span class="n">y_top</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_shared_axis_window</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">xlim</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">ylim</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Lock one axes to the shared ROI window and equal image aspect.</span>
+
+<span class="sd">    ``adjustable=&#39;box&#39;`` plus disabled autoscale keep constrained</span>
+<span class="sd">    layout from expanding data limits on wider pair-row cells.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ax: Target matplotlib axes.</span>
+<span class="sd">        xlim: Shared column limits (image coordinates).</span>
+<span class="sd">        ylim: Shared row limits, inverted (image coordinates).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">*</span><span class="n">xlim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">ylim</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_autoscale_on</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fill_unused_grid_cells</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">gs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">n_cols</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">occupied</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Occupy unused GridSpec cells so constrained_layout cannot collapse</span>
+<span class="sd">    empty slots and make pair-row panels wider than H panels.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fig: Parent figure.</span>
+<span class="sd">        gs: Equal-cell GridSpec.</span>
+<span class="sd">        n_rows: Number of grid rows.</span>
+<span class="sd">        n_cols: Number of grid columns (including a reserved colorbar</span>
+<span class="sd">            column when present).</span>
+<span class="sd">        occupied: ``(row, col)`` cells that already have an axes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_rows</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_cols</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="n">occupied</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">spacer</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">])</span>
+            <span class="n">spacer</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+            <span class="n">spacer</span><span class="o">.</span><span class="n">set_frame_on</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_style_axis_2d</span><span class="p">(</span>
     <span class="n">ax</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">label_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
+    <span class="n">xlim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ylim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">title_fontsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">title_pad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2801,8 +2896,13 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ax: Target matplotlib axes.</span>
-<span class="sd">        label_2d: Slice used only for axis limits (image coordinates).</span>
+<span class="sd">        label_2d: Slice used to derive axis limits when ``xlim`` /</span>
+<span class="sd">            ``ylim`` are omitted.</span>
 <span class="sd">        title: English panel title.</span>
+<span class="sd">        xlim: Shared column limits. ``None`` uses the full-ROI window</span>
+<span class="sd">            of ``label_2d``.</span>
+<span class="sd">        ylim: Shared inverted row limits. ``None`` uses the full-ROI</span>
+<span class="sd">            window of ``label_2d``.</span>
 <span class="sd">        title_fontsize: Optional override in points. ``None`` keeps the</span>
 <span class="sd">            active style preset (single-panel figures stay unchanged).</span>
 <span class="sd">        title_pad: Optional title padding in points.</span>
@@ -2813,9 +2913,9 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">title_pad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">title_kwargs</span><span class="p">[</span><span class="s2">&quot;pad&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">title_pad</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">title_kwargs</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">label_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># image coordinates</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xlim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span> <span class="o">=</span> <span class="n">_shared_axis_window_2d</span><span class="p">(</span><span class="n">label_2d</span><span class="p">)</span>
+    <span class="n">_apply_shared_axis_window</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">xlim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
     <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -3081,8 +3181,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    colours, other habitats use the same gray wash, and only **white</span>
 <span class="sd">    inter-edges between that pair** are drawn (no intra-edges, no</span>
 <span class="sd">    edges to other habitats, no purple). H1--H4 sit on the first row</span>
-<span class="sd">    when ``K &lt;= 4``; six pairs (K=4) use a 2x3 grid below. All panels</span>
-<span class="sd">    share the same solid-dot node size and edge linewidth.</span>
+<span class="sd">    when ``K &lt;= 4``; six pairs (K=4) use a 2x3 placement in an</span>
+<span class="sd">    equal-cell parent grid so every panel is the same physical size.</span>
+<span class="sd">    All panels share one spatial window (union of every habitat on the</span>
+<span class="sd">    slice plus a shared pad), the same solid-dot node size, and the</span>
+<span class="sd">    same edge linewidth.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
@@ -3105,13 +3208,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        grid_linewidth: Lattice stroke width in points.</span>
 <span class="sd">        panel_size: Base panel edge length in inches.</span>
 <span class="sd">        max_cols: Maximum number of H-panel columns (H1--H4 on the first</span>
-<span class="sd">            row when ``K &lt;= 4``). Six pair panels use a 2x3 grid.</span>
+<span class="sd">            row when ``K &lt;= 4``). Six pair panels use a 2x3 placement</span>
+<span class="sd">            inside an equal-cell parent grid.</span>
 <span class="sd">        node_size: Matplotlib scatter area in points squared applied to</span>
 <span class="sd">            every panel (default ``28``). H1--Hk and pairwise panels</span>
 <span class="sd">            share this size. Voxel count does not scale markers.</span>
-<span class="sd">        colorbar: Discrete habitat-ID colorbar on the last pairwise</span>
-<span class="sd">            panel, or the last H panel when there are no pairs</span>
-<span class="sd">            (default ``True``). Pass ``False`` to hide it.</span>
+<span class="sd">        colorbar: Discrete habitat-ID colorbar in a reserved column so</span>
+<span class="sd">            it does not shrink any H or pair panel (default ``True``).</span>
+<span class="sd">            Pass ``False`` to hide it.</span>
 <span class="sd">        colorbar_label: Colorbar label (English default ``\&quot;Habitat\&quot;``).</span>
 
 <span class="sd">    Returns:</span>
@@ -3155,10 +3259,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">h_rows</span><span class="p">,</span> <span class="n">h_cols</span><span class="p">,</span> <span class="n">pair_rows</span><span class="p">,</span> <span class="n">pair_cols</span> <span class="o">=</span> <span class="n">_network_2d_layout</span><span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">),</span> <span class="n">max_cols</span>
     <span class="p">)</span>
+    <span class="n">shared_xlim</span><span class="p">,</span> <span class="n">shared_ylim</span> <span class="o">=</span> <span class="n">_shared_axis_window_2d</span><span class="p">(</span><span class="n">label_2d</span><span class="p">)</span>
+    <span class="c1"># One parent grid: every H / pair cell is the same size. A thin</span>
+    <span class="c1"># trailing column holds the colorbar so it cannot steal width from</span>
+    <span class="c1"># a single panel. Unused cells get spacer axes so constrained</span>
+    <span class="c1"># layout cannot collapse them and widen the pair row.</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">h_cols</span><span class="p">,</span> <span class="n">pair_cols</span><span class="p">)</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h_rows</span> <span class="o">+</span> <span class="n">pair_rows</span><span class="p">)</span>
+    <span class="n">draw_cbar</span> <span class="o">=</span> <span class="n">colorbar_is_enabled</span><span class="p">(</span><span class="n">colorbar</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+    <span class="n">gs_cols</span> <span class="o">=</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">draw_cbar</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">width_ratios</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="p">([</span><span class="mf">0.08</span><span class="p">]</span> <span class="k">if</span> <span class="n">draw_cbar</span> <span class="k">else</span> <span class="p">[])</span>
     <span class="c1"># Extra width + bottom room so short titles and the larger figlegend</span>
     <span class="c1"># cannot collide when many habitats share one row.</span>
-    <span class="n">fig_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">h_cols</span><span class="p">,</span> <span class="n">pair_cols</span><span class="p">)</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.18</span>
-    <span class="n">fig_height</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_rows</span> <span class="o">+</span> <span class="n">pair_rows</span><span class="p">)</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">1.65</span>
+    <span class="n">fig_width</span> <span class="o">=</span> <span class="n">n_cols</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">*</span> <span class="mf">1.18</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.55</span> <span class="k">if</span> <span class="n">draw_cbar</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">fig_height</span> <span class="o">=</span> <span class="n">n_rows</span> <span class="o">*</span> <span class="n">panel_size</span> <span class="o">+</span> <span class="mf">1.65</span>
     <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">set_constrained_layout_pads</span><span class="p">(</span>
@@ -3167,19 +3281,14 @@ window.runMermaid = runMermaid;</script>
             <span class="n">wspace</span><span class="o">=</span><span class="mf">0.12</span><span class="p">,</span>
             <span class="n">hspace</span><span class="o">=</span><span class="mf">0.28</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">h_rows</span> <span class="ow">and</span> <span class="n">pair_rows</span><span class="p">:</span>
-            <span class="n">outer</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span>
-                <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">h_rows</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">pair_rows</span><span class="p">)]</span>
-            <span class="p">)</span>
-            <span class="n">gs_h</span> <span class="o">=</span> <span class="n">outer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subgridspec</span><span class="p">(</span><span class="n">h_rows</span><span class="p">,</span> <span class="n">h_cols</span><span class="p">)</span>
-            <span class="n">gs_p</span> <span class="o">=</span> <span class="n">outer</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subgridspec</span><span class="p">(</span><span class="n">pair_rows</span><span class="p">,</span> <span class="n">pair_cols</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gs_h</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h_rows</span><span class="p">),</span> <span class="n">h_cols</span><span class="p">)</span>
-            <span class="n">gs_p</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">gs_cols</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="n">width_ratios</span><span class="p">)</span>
+        <span class="n">occupied_cells</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="n">habitat_axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">index_h</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_h</span><span class="p">[</span><span class="n">index_h</span> <span class="o">//</span> <span class="n">h_cols</span><span class="p">,</span> <span class="n">index_h</span> <span class="o">%</span> <span class="n">h_cols</span><span class="p">])</span>
+            <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span><span class="n">index_h</span> <span class="o">//</span> <span class="n">h_cols</span><span class="p">,</span> <span class="n">index_h</span> <span class="o">%</span> <span class="n">h_cols</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">cell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cell</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">occupied_cells</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
             <span class="n">habitat_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
             <span class="n">sub</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
             <span class="n">_draw_background_2d</span><span class="p">(</span>
@@ -3215,68 +3324,103 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">ax</span><span class="p">,</span>
                 <span class="n">label_2d</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (n=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span><span class="si">}</span><span class="s2">, e=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">xlim</span><span class="o">=</span><span class="n">shared_xlim</span><span class="p">,</span>
+                <span class="n">ylim</span><span class="o">=</span><span class="n">shared_ylim</span><span class="p">,</span>
                 <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
                 <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">pair_axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">gs_p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">index_p</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
-                <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_p</span><span class="p">[</span><span class="n">index_p</span> <span class="o">//</span> <span class="n">pair_cols</span><span class="p">,</span> <span class="n">index_p</span> <span class="o">%</span> <span class="n">pair_cols</span><span class="p">])</span>
-                <span class="n">pair_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
-                <span class="n">nodes_a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="p">[]))</span>
-                <span class="n">nodes_b</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="p">[]))</span>
-                <span class="n">pair_nodes</span> <span class="o">=</span> <span class="n">nodes_a</span> <span class="o">+</span> <span class="n">nodes_b</span>
-                <span class="n">inter_edges</span> <span class="o">=</span> <span class="n">_pair_inter_edges</span><span class="p">(</span>
-                    <span class="n">node_result</span><span class="p">,</span> <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">,</span> <span class="n">options</span>
-                <span class="p">)</span>
-                <span class="n">_draw_background_2d</span><span class="p">(</span>
-                    <span class="n">ax</span><span class="p">,</span>
-                    <span class="n">label_2d</span><span class="p">,</span>
-                    <span class="n">colors</span><span class="p">,</span>
-                    <span class="n">show_background</span><span class="p">,</span>
-                    <span class="n">featured_labels</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label_a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_b</span><span class="p">)),</span>
-                <span class="p">)</span>
-                <span class="n">_apply_display_grid</span><span class="p">(</span>
-                    <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
-                <span class="p">)</span>
-                <span class="c1"># Pair only: white inter-edges, no intra-edges.</span>
-                <span class="n">_draw_edges_2d</span><span class="p">(</span>
-                    <span class="n">ax</span><span class="p">,</span>
-                    <span class="n">id_to_node</span><span class="p">,</span>
-                    <span class="n">inter_edges</span><span class="p">,</span>
-                    <span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
-                    <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">,</span>
-                    <span class="mf">1.0</span><span class="p">,</span>
-                    <span class="mi">3</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">_draw_nodes_2d</span><span class="p">(</span>
-                    <span class="n">ax</span><span class="p">,</span>
-                    <span class="n">pair_nodes</span><span class="p">,</span>
-                    <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
-                    <span class="n">linewidths</span><span class="o">=</span><span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">_style_axis_2d</span><span class="p">(</span>
-                    <span class="n">ax</span><span class="p">,</span>
-                    <span class="n">label_2d</span><span class="p">,</span>
-                    <span class="n">_pair_panel_title</span><span class="p">(</span>
-                        <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_nodes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">inter_edges</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
-                    <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
-                <span class="p">)</span>
+        <span class="k">for</span> <span class="n">index_p</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+            <span class="n">pair_row</span><span class="p">,</span> <span class="n">pair_col</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">index_p</span><span class="p">,</span> <span class="n">pair_cols</span><span class="p">)</span>
+            <span class="n">cell</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_rows</span> <span class="o">+</span> <span class="n">pair_row</span><span class="p">,</span> <span class="n">pair_col</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">cell</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cell</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">occupied_cells</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+            <span class="n">pair_axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+            <span class="n">nodes_a</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="n">nodes_b</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="p">[]))</span>
+            <span class="n">pair_nodes</span> <span class="o">=</span> <span class="n">nodes_a</span> <span class="o">+</span> <span class="n">nodes_b</span>
+            <span class="n">inter_edges</span> <span class="o">=</span> <span class="n">_pair_inter_edges</span><span class="p">(</span>
+                <span class="n">node_result</span><span class="p">,</span> <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">,</span> <span class="n">options</span>
+            <span class="p">)</span>
+            <span class="n">_draw_background_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">label_2d</span><span class="p">,</span>
+                <span class="n">colors</span><span class="p">,</span>
+                <span class="n">show_background</span><span class="p">,</span>
+                <span class="n">featured_labels</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label_a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_b</span><span class="p">)),</span>
+            <span class="p">)</span>
+            <span class="n">_apply_display_grid</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span> <span class="n">label_2d</span><span class="p">,</span> <span class="n">node_result</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="o">**</span><span class="n">grid_kwargs</span>
+            <span class="p">)</span>
+            <span class="c1"># Pair only: white inter-edges, no intra-edges.</span>
+            <span class="n">_draw_edges_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">id_to_node</span><span class="p">,</span>
+                <span class="n">inter_edges</span><span class="p">,</span>
+                <span class="n">_GRAPH_EDGE_COLOR</span><span class="p">,</span>
+                <span class="n">_DEFAULT_EDGE_WIDTH</span><span class="p">,</span>
+                <span class="mf">1.0</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_draw_nodes_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">pair_nodes</span><span class="p">,</span>
+                <span class="n">node_size</span><span class="o">=</span><span class="n">node_size</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="n">_NODE_EDGE_WIDTH</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_style_axis_2d</span><span class="p">(</span>
+                <span class="n">ax</span><span class="p">,</span>
+                <span class="n">label_2d</span><span class="p">,</span>
+                <span class="n">_pair_panel_title</span><span class="p">(</span>
+                    <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_nodes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">inter_edges</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">xlim</span><span class="o">=</span><span class="n">shared_xlim</span><span class="p">,</span>
+                <span class="n">ylim</span><span class="o">=</span><span class="n">shared_ylim</span><span class="p">,</span>
+                <span class="n">title_fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
+                <span class="n">title_pad</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span>
+            <span class="p">)</span>
 
-        <span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">pair_axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">pair_axes</span> <span class="k">else</span> <span class="n">habitat_axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">add_discrete_habitat_colorbar</span><span class="p">(</span>
-            <span class="n">cbar_ax</span><span class="p">,</span>
-            <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">),</span>
-            <span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">)],</span>
-            <span class="n">colorbar</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span>
-            <span class="n">label</span><span class="o">=</span><span class="n">colorbar_label</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">cbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">draw_cbar</span><span class="p">:</span>
+            <span class="c1"># Dedicated column: do not attach to a panel axes (that</span>
+            <span class="c1"># shrinks only that subplot and breaks equal panel size).</span>
+            <span class="c1"># Occupy every row of the column so pair rows stay the same</span>
+            <span class="c1"># width as the H row.</span>
+            <span class="n">cbar_host</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">])</span>
+            <span class="n">occupied_cells</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">))</span>
+            <span class="n">ordered</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+            <span class="n">mappable</span><span class="p">,</span> <span class="n">ticks</span><span class="p">,</span> <span class="n">ticklabels</span> <span class="o">=</span> <span class="n">discrete_habitat_mappable</span><span class="p">(</span>
+                <span class="n">ordered</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">colors</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ordered</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">n_habitats</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
+            <span class="n">boundaries</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_habitats</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
+                <span class="n">mappable</span><span class="p">,</span>
+                <span class="n">cax</span><span class="o">=</span><span class="n">cbar_host</span><span class="p">,</span>
+                <span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">,</span>
+                <span class="n">boundaries</span><span class="o">=</span><span class="n">boundaries</span><span class="p">,</span>
+                <span class="n">spacing</span><span class="o">=</span><span class="s2">&quot;uniform&quot;</span><span class="p">,</span>
+                <span class="n">drawedges</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">colorbar_label</span><span class="p">)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedFormatter</span><span class="p">,</span> <span class="n">FixedLocator</span>
+
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">FixedLocator</span><span class="p">(</span><span class="n">ticks</span><span class="p">))</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span>
+                <span class="n">FixedFormatter</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">ticklabels</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">minorticks_off</span><span class="p">()</span>
+            <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+                <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span>
+                <span class="n">length</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                <span class="n">width</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                <span class="n">labelsize</span><span class="o">=</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">_AXIS_TEXT_FONTSIZE</span><span class="p">)</span>
+        <span class="n">_fill_unused_grid_cells</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">,</span> <span class="n">gs_cols</span><span class="p">,</span> <span class="n">occupied_cells</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">habitat_axes</span> <span class="o">+</span> <span class="n">pair_axes</span><span class="p">:</span>
+            <span class="n">_apply_shared_axis_window</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">shared_xlim</span><span class="p">,</span> <span class="n">shared_ylim</span><span class="p">)</span>
         <span class="c1"># Dark legend frame so solid-white node / edge swatches stay visible.</span>
         <span class="n">node_handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">],</span>

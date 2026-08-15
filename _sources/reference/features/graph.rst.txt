@@ -84,7 +84,7 @@ For each habitat :math:`k\in\mathcal{H}`:
    (default :math:`b=5` **voxels**, not millimetres) whose origin is the
    VOI bounding-box minimum.
    A cube is kept when its occupied fraction exceeds
-   ``block_min_coverage`` (default ``0.2``; cell-level filter).
+   ``block_min_coverage`` (default ``0.05``; cell-level filter).
    Inside each kept cube, every connected component of every habitat
    becomes its own node at that subregion's voxel-index centroid, so one
    cube may contribute several nodes. In-cell fragments smaller than
@@ -496,7 +496,7 @@ below match the kernel dataclass.
    * - ``block_size``
      - Cube edge length in **voxels** (default ``5``, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at ``distance_threshold=5``.
    * - ``block_min_coverage``
-     - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.2``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
+     - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.05``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``

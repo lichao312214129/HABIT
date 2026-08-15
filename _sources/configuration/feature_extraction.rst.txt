@@ -134,7 +134,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``min_region_voxels`` (``1``), ``connectivity`` (default ``full``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available)
   - ``node_method`` (``uniform_grid`` default; ``component`` for connected-component nodes)
   - ``erosion_radius`` (``0`` / off; set ``>= 1`` to shrink habitats before edges), ``subdivide_region_voxels`` (``1000``; used only by ``component``)
-  - ``block_size`` (``5`` voxels, not millimetres), ``block_min_coverage`` (``0.2``)
+  - ``block_size`` (``5`` voxels, not millimetres), ``block_min_coverage`` (``0.05``)
   - ``pairwise_include_intra_edges`` (``true``)
   - ``include_extended_metrics`` (``true``), ``extended_min_nodes`` (``10``)
 
