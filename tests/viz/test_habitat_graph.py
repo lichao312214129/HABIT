@@ -135,9 +135,14 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
                     rgb = rgba[painted][..., :3]
                     chroma = rgb.max(axis=1) - rgb.min(axis=1)
                     # Featured habitat is full colour; other foreground is
-                    # a light ROI wash (low chroma), not per-habitat gray.
+                    # a mid-dark gray wash (low chroma), not per-habitat gray
+                    # and not a light wash that hides white graph strokes.
                     assert np.any(chroma > 0.15)
-                    assert np.any(chroma <= 0.08)
+                    low_chroma = chroma <= 0.08
+                    assert np.any(low_chroma)
+                    gray_luma = rgb[low_chroma].mean(axis=1)
+                    assert np.all(gray_luma < 0.65)
+                    assert np.all(gray_luma > 0.25)
             else:
                 alpha = image.get_alpha()
                 assert alpha is None or float(alpha) == pytest.approx(1.0)

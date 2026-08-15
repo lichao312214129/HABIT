@@ -102,8 +102,8 @@ Anatomy with habitats
 
    Each H panel fills only that habitat in its palette colour and overlays
    white intra-edges plus white nodes (solid dots, thin dark outline,
-   shared size). A faint ROI wash keeps shape context; other habitats
-   are not painted gray. The All-habitats panel fills every habitat in
+   shared size). Other habitats use a mid-dark gray wash for shape
+   context so white edges stay visible. The All-habitats panel fills every habitat in
    palette colours and overlays **inter-habitat edges only**, all white
    (no purple, no two-tone). The All panel title reports per-habitat
    node counts and inter-edge counts. Display knobs ``block_size=5`` /

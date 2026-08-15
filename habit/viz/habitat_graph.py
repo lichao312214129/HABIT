@@ -387,9 +387,11 @@ _HAIRBALL_EDGE_ALPHA: float = 0.45
 _PANEL_TITLE_FONTSIZE: float = 11.5
 _AXIS_TEXT_FONTSIZE: float = 10.5
 _FIG_LEGEND_FONTSIZE: float = 10.5
-#: Light ROI silhouette behind a featured-habitat panel. One wash for
-#: the whole foreground — not per-habitat gray fills.
-_ROI_BACKDROP_COLOR: str = "#F0F1F3"
+#: Mid-dark gray ROI silhouette behind a featured-habitat panel so
+#: white nodes / edges stay visible when they cross other habitats.
+#: One wash for the whole non-featured foreground — not per-habitat
+#: gray fills, and not a light wash that swallows white strokes.
+_ROI_BACKDROP_COLOR: str = "#7A7E84"
 #: Dashed lattice overlay (same origin / block_size as node extraction).
 _GRID_LINE_COLOR: str = "#6B7280"
 _GRID_LINE_ALPHA: float = 0.45
@@ -443,7 +445,7 @@ def _draw_background_2d(
     same palette as the slice figure. Background ``0`` is left transparent
     (not drawn). On a per-habitat panel, pass ``featured_label`` so that
     habitat stays full colour and every other foreground voxel is a single
-    light ROI wash (``_ROI_BACKDROP_COLOR``) — not per-habitat gray.
+    mid-dark gray wash (``_ROI_BACKDROP_COLOR``) — not per-habitat gray.
     The All-habitats panel omits ``featured_label`` so every habitat stays
     fully coloured.
 
@@ -953,8 +955,8 @@ def plot_habitat_graph_network_2d(
 
     Each H1--Hk panel fills only that habitat in its palette colour and
     overlays white intra-edges plus white nodes (solid dots, thin dark
-    outline). Other habitats are not painted gray; a faint ROI wash
-    keeps shape context. The All-habitats panel fills every habitat in
+    outline). Other habitats use one mid-dark gray wash for shape
+    context (not a light fill that hides white strokes). The All-habitats panel fills every habitat in
     palette colours and overlays **inter-habitat edges only**, all
     white (no purple, no two-tone, no intra-edges). All panels share
     the same solid-dot node size. Edge linewidth is shared unless the
@@ -968,8 +970,8 @@ def plot_habitat_graph_network_2d(
             largest cross-section. Ignored for 2D input.
         show_background: Whether to draw habitat partitions behind the
             graph (default ``True``). On H1--Hk panels the featured
-            habitat is full colour and other foreground is a faint ROI
-            wash; background 0 stays undrawn. The All-habitats panel
+            habitat is full colour and other foreground is a mid-dark
+            gray wash; background 0 stays undrawn. The All-habitats panel
             stays fully coloured. Graph nodes and edges are white.
         show_grid: Draw the uniform-grid lattice (default ``True``).
             Also draws when ``block_size`` is passed in ``component`` mode.
