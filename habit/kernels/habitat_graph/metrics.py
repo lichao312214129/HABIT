@@ -33,6 +33,8 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraph,
     HabitatGraphEdge,
     HabitatGraphNode,
+    pair_feature_prefix,
+    single_feature_prefix,
 )
 
 __all__ = [
@@ -155,6 +157,51 @@ def _contact_voxels(edges: Iterable[HabitatGraphEdge]) -> List[int]:
     ]
 
 
+def _local_contact_scales(
+    graph: HabitatGraph,
+    edges: Iterable[HabitatGraphEdge],
+) -> List[float]:
+    """
+    Normalize each contact count by the smaller node's local area scale.
+
+    A contact count is an interface-like quantity.  For one edge between
+    nodes with voxel counts ``v_i`` and ``v_j``, its natural local scale is
+    ``min(v_i, v_j)**((d-1)/d)`` rather than the whole-ROI interface scale.
+    This makes the mean and maximum contact summaries comparable across local
+    node sizes.  The value is not constrained to ``[0, 1]`` because thin,
+    elongated nodes and diagonal adjacency can create more adjacent voxel
+    pairs than the compact-shape approximation.
+
+    Args:
+        graph: Graph containing node voxel counts and centroid dimensionality.
+        edges: Contact-bearing edges to normalize.
+
+    Returns:
+        List[float]: One finite locally scaled contact value per valid edge.
+    """
+    if not graph.nodes:
+        return []
+    first_node = next(iter(graph.nodes.values()))
+    ndim = int(first_node.centroid.size)
+    if ndim <= 0:
+        return []
+
+    values: List[float] = []
+    exponent = (ndim - 1.0) / ndim
+    for edge in edges:
+        if edge.contact_voxels is None:
+            continue
+        source = graph.nodes.get(edge.source)
+        target = graph.nodes.get(edge.target)
+        if source is None or target is None:
+            continue
+        local_volume = float(min(source.voxel_count, target.voxel_count))
+        local_area_scale = local_volume**exponent if local_volume > 0 else 0.0
+        if local_area_scale > 0:
+            values.append(float(edge.contact_voxels) / local_area_scale)
+    return values
+
+
 def _spatial_dispersion(nodes: Iterable[HabitatGraphNode]) -> float:
     """
     Summarize how broadly node centroids spread in the habitat map.
@@ -270,7 +317,7 @@ def calculate_single_graph_metrics(
         raise ValueError("single graph metrics require exactly one label.")
 
     label = graph.labels[0]
-    prefix = f"single_h{label}"
+    prefix = single_feature_prefix(label)
     nx_graph = _to_networkx(graph)
     n_nodes = nx_graph.number_of_nodes()
     n_edges = nx_graph.number_of_edges()
@@ -433,7 +480,7 @@ def calculate_pairwise_graph_metrics(
         raise ValueError("pairwise graph metrics require exactly two labels.")
 
     label_a, label_b = graph.labels
-    prefix = f"pair_h{label_a}_h{label_b}"
+    prefix = pair_feature_prefix(label_a, label_b)
     # Full graph (inter + optional intra edges) drives whole-graph metrics such
     # as modularity, class assortativity, betweenness, and components.
     nx_graph = _to_networkx(graph)
@@ -449,6 +496,7 @@ def calculate_pairwise_graph_metrics(
         float(edge.distance) for edge in inter_edges if edge.distance is not None
     ]
     contact_values = _contact_voxels(inter_edges)
+    local_contact_values = _local_contact_scales(graph, inter_edges)
     # Cross degree counts only other-class neighbors; it drives the interface
     # metrics R21/R12 and the isolated-node ratios.
     cross_degrees_a = _cross_degree_values(nx_graph, nodes_a, label_b)
@@ -483,6 +531,12 @@ def calculate_pairwise_graph_metrics(
         f"{prefix}_contact_voxels_sum": float(sum(contact_values)),
         f"{prefix}_contact_voxels_mean": _safe_mean(contact_values),
         f"{prefix}_contact_voxels_max": float(max(contact_values)) if contact_values else 0.0,
+        # Sum is normalized later by whole-ROI area scale. Mean / max are
+        # local edge summaries, so use each edge's smaller-node area scale.
+        f"{prefix}_contact_voxels_mean_norm": _safe_mean(local_contact_values),
+        f"{prefix}_contact_voxels_max_norm": (
+            float(max(local_contact_values)) if local_contact_values else 0.0
+        ),
         f"{prefix}_isolated_ratio_1": (
             float(isolated_a / n_nodes_a) if n_nodes_a else 0.0
         ),

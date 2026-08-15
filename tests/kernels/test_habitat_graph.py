@@ -22,10 +22,13 @@ import pytest
 import networkx as nx
 
 from habit.kernels.habitat_graph import (
+    BACKGROUND_SHELL_LABEL,
+    GraphNullModelOptions,
     HabitatGraphFeatureOptions,
     build_adjacency_graph,
     build_centroid_distance_graph,
     build_min_distance_graph,
+    compare_graph_to_degree_preserving_null,
     extract_graph_features,
     extract_graph_features_for_labels,
     extract_habitat_nodes,
@@ -460,6 +463,27 @@ def test_normalized_features_include_habitat_specific_fractions() -> None:
     assert features["pair_h1_h2_n_nodes_2_per_habitat_volume"] == (
         features["pair_h1_h2_n_nodes_2"] / habitat_2_voxels
     )
+    assert features["single_h1_n_edges_per_habitat_volume"] == (
+        features["single_h1_n_edges"] / habitat_1_voxels
+    )
+    assert features["single_h1_connected_components_per_habitat_volume"] == (
+        features["single_h1_connected_components"] / habitat_1_voxels
+    )
+
+    habitat_1_coords = np.argwhere(label_array == 1)
+    habitat_1_bbox = float(
+        np.linalg.norm(habitat_1_coords.max(axis=0) - habitat_1_coords.min(axis=0) + 1)
+    )
+    pair_coords = np.argwhere(np.isin(label_array, (1, 2)))
+    pair_bbox = float(
+        np.linalg.norm(pair_coords.max(axis=0) - pair_coords.min(axis=0) + 1)
+    )
+    assert features[
+        "single_h1_avg_edge_distance_per_habitat_bbox_diagonal"
+    ] == pytest.approx(features["single_h1_avg_edge_distance"] / habitat_1_bbox)
+    assert features[
+        "pair_h1_h2_avg_edge_distance_per_pair_bbox_diagonal"
+    ] == pytest.approx(features["pair_h1_h2_avg_edge_distance"] / pair_bbox)
 
 
 @pytest.mark.unit
@@ -535,6 +559,40 @@ def test_pairwise_contact_voxels_ignore_intra_edges() -> None:
 
 
 @pytest.mark.unit
+def test_contact_summary_norms_use_local_node_area_not_whole_voi() -> None:
+    """Mean/max contact norms must use each edge's smaller-node area scale."""
+    label_array: np.ndarray = np.array(
+        [
+            [1, 1, 2, 2],
+            [1, 1, 2, 2],
+        ],
+        dtype=np.int32,
+    )
+    features = _extract(
+        label_array,
+        edge_method="adjacency",
+        adjacency_connectivity="face",
+        adjacency_min_voxels=1,
+        connectivity="face",
+        include_extended_metrics=False,
+        subdivide_region_voxels=0,
+    )
+
+    # The two 2x2 nodes share two face contacts. In 2D the local interface
+    # scale of the smaller 4-voxel node is sqrt(4)=2, so the local scaled
+    # mean/max are one. The total-contact norm remains a whole-VOI density.
+    assert features["pair_h1_h2_contact_voxels_sum"] == 2.0
+    assert features["pair_h1_h2_contact_voxels_mean_norm"] == pytest.approx(1.0)
+    assert features["pair_h1_h2_contact_voxels_max_norm"] == pytest.approx(1.0)
+    assert features["pair_h1_h2_contact_voxels_sum_norm"] == pytest.approx(
+        2.0 / np.sqrt(8.0)
+    )
+    assert features[
+        "pair_h1_h2_contact_voxels_sum_per_pair_area_scale"
+    ] == pytest.approx(2.0 / np.sqrt(8.0))
+
+
+@pytest.mark.unit
 def test_subdivision_splits_large_region_into_multiple_nodes() -> None:
     """A large blob should become several grid-block nodes when subdivision is on."""
     label_array: np.ndarray = np.ones((10, 10), dtype=np.int32)
@@ -576,6 +634,8 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.adjacency_connectivity == "corner"
     assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
+    assert options.include_background_shell is True
+    assert options.background_shell_width == 1
 
 
 @pytest.mark.unit
@@ -734,6 +794,44 @@ def test_betweenness_norm_reuses_networkx_normalized_values() -> None:
     assert pair_features["pair_h1_h2_betweenness_max_2_norm"] == pytest.approx(
         max_class_2
     )
+
+
+@pytest.mark.unit
+def test_degree_preserving_null_model_is_reproducible_and_opt_in() -> None:
+    """Degree-preserving null comparisons must be repeatable from their seed."""
+    graph = nx.watts_strogatz_graph(12, 4, 0.2, seed=1)
+    options = GraphNullModelOptions(
+        n_random_graphs=8,
+        swaps_per_edge=2,
+        random_seed=17,
+    )
+
+    first = compare_graph_to_degree_preserving_null(
+        graph,
+        nx.average_clustering,
+        options=options,
+    )
+    second = compare_graph_to_degree_preserving_null(
+        graph,
+        nx.average_clustering,
+        options=options,
+    )
+
+    assert first == second
+    assert first.observed == pytest.approx(nx.average_clustering(graph))
+    assert first.n_requested == 8
+    assert first.n_successful == 8
+    assert first.is_valid is True
+    assert np.isfinite(first.z_score)
+    assert 0.0 < first.empirical_two_sided_p <= 1.0
+
+    too_small = compare_graph_to_degree_preserving_null(
+        nx.path_graph(3),
+        nx.average_clustering,
+        options=options,
+    )
+    assert too_small.is_valid is False
+    assert too_small.n_successful == 0
 
 
 @pytest.mark.unit
@@ -1030,7 +1128,9 @@ def test_empty_label_array_returns_zero_habitat_summary() -> None:
 
     assert features["graph_num_habitats"] == 0.0
     assert features["graph_num_nodes_total"] == 0.0
-    assert not any(key.startswith("single_") for key in features)
+    assert features["graph_num_background_nodes"] == 0.0
+    assert "single_bg_n_nodes" in features
+    assert not any(key.startswith("single_h") for key in features)
     assert not any(key.startswith("pair_") for key in features)
 
 
@@ -1138,7 +1238,11 @@ def test_3d_synthetic_volume_extracts_single_and_pairwise_columns() -> None:
     assert features["single_h2_n_nodes"] == 1.0
     assert "pair_h1_h2_n_nodes_1" in features
     assert "pair_h1_h2_edge_density" in features
-    assert features["graph_num_nodes_total"] == 3.0
+    assert features["graph_num_nodes_total"] == (
+        3.0 + features["graph_num_background_nodes"]
+    )
+    assert "single_bg_n_nodes" in features
+    assert "pair_h1_bg_n_nodes_1" in features
 
 
 @pytest.mark.unit
@@ -1229,3 +1333,53 @@ def test_default_threshold_skips_one_empty_lattice_cell() -> None:
     features = extract_graph_features(label_array)
     assert features["single_h1_n_nodes"] == 2.0
     assert features["single_h1_n_edges"] == 0.0
+
+
+@pytest.mark.unit
+def test_background_shell_default_on_adds_bg_columns() -> None:
+    """Default extract includes reserved bg columns; False stays ROI-only."""
+    label_array: np.ndarray = np.zeros((12, 12), dtype=np.int32)
+    label_array[3:9, 3:9] = 1
+    label_array[3:6, 3:6] = 2
+
+    with_shell = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(include_extended_metrics=False),
+    )
+    roi_only = extract_graph_features(
+        label_array,
+        options=HabitatGraphFeatureOptions(
+            include_extended_metrics=False,
+            include_background_shell=False,
+        ),
+    )
+    assert "single_bg_n_nodes" in with_shell
+    assert "pair_h1_bg_n_nodes_1" in with_shell
+    assert "pair_h2_bg_n_nodes_1" in with_shell
+    assert with_shell["graph_num_habitats"] == 2.0
+    assert with_shell["graph_num_background_nodes"] > 0.0
+    assert not any("bg" in key for key in roi_only)
+    assert "graph_num_background_nodes" not in roi_only
+    # Habitat intra columns stay the same when the shell is toggled.
+    assert with_shell["single_h1_n_nodes"] == roi_only["single_h1_n_nodes"]
+    assert with_shell["single_h2_n_nodes"] == roi_only["single_h2_n_nodes"]
+    assert with_shell["graph_num_nodes_total"] > roi_only["graph_num_nodes_total"]
+
+
+@pytest.mark.unit
+def test_background_shell_is_outside_roi() -> None:
+    """Width-1 shell voxels do not overlap habitat voxels."""
+    label_array: np.ndarray = np.zeros((10, 10), dtype=np.int32)
+    label_array[3:7, 3:7] = 1
+    result = extract_habitat_nodes(
+        label_array,
+        include_background_shell=True,
+        background_shell_width=1,
+    )
+    bg_map = result.component_maps[BACKGROUND_SHELL_LABEL]
+    shell = bg_map > 0
+    assert np.any(shell)
+    assert not np.any(shell & (label_array > 0))
+    # A 1-voxel ring sits on the immediate outside of the 4x4 block.
+    assert bool(shell[2, 3])
+    assert not bool(shell[3, 3])

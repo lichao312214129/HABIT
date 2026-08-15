@@ -87,7 +87,11 @@ def _synthetic_3d_labels() -> np.ndarray:
 
 
 def _viz_options() -> HabitatGraphFeatureOptions:
-    """Return deterministic graph options that keep small synthetic nodes."""
+    """Return deterministic graph options that keep small synthetic nodes.
+
+    Layout tests pin ROI-only panel counts, so the shell is off here.
+    Default library options keep ``include_background_shell=True``.
+    """
     return HabitatGraphFeatureOptions(
         edge_method="centroid_distance",
         distance_threshold=12.0,
@@ -95,6 +99,7 @@ def _viz_options() -> HabitatGraphFeatureOptions:
         node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
+        include_background_shell=False,
     )
 
 
@@ -201,6 +206,26 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
         assert "intra e=" not in pair_title
         assert "All habitats" not in pair_title
 
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_plot_habitat_graph_network_2d_default_shows_bg_shell() -> None:
+    """Default options draw a BG panel and habitat-BG pair titles."""
+    labels = _synthetic_2d_labels()
+    fig = plot_habitat_graph_network_2d(labels)
+    assert isinstance(fig, Figure)
+    titles = [ax.get_title() for ax in fig.axes]
+    joined = " ".join(titles)
+    assert "BG" in joined
+    assert any(title.startswith("BG (n=") for title in titles)
+    assert any("H1-BG" in title for title in titles)
+    assert any("bg=" in title for title in titles)
+    if fig.legends:
+        legend_text = " ".join(t.get_text() for t in fig.legends[0].get_texts())
+        assert "BG node" in legend_text
+        assert "Habitat-BG edge" in legend_text
     import matplotlib.pyplot as plt
 
     plt.close(fig)
@@ -322,25 +347,67 @@ def test_block_size_8_vs_5_changes_n_nodes_and_delta_heatmap() -> None:
             {"subject_id": "subj002", **feats_b5},
         ]
     )
+    compare_features = tuple(
+        name
+        for name in table_8.columns
+        if str(name).startswith("single_h")
+    )[:8]
+    fig_heat8 = plot_graph_feature_heatmap(
+        table_8,
+        subjects=("subj001", "subj002"),
+        features=compare_features,
+        zscore=True,
+        title="Graph features: 8-voxel cubes (3D)",
+    )
+    fig_heat5 = plot_graph_feature_heatmap(
+        table_5,
+        subjects=("subj001", "subj002"),
+        features=compare_features,
+        zscore=True,
+        title="Graph features: 5-voxel cubes (3D)",
+    )
     fig_delta = plot_graph_feature_heatmap(
         table_5,
         reference=table_8,
         subjects=("subj001", "subj002"),
-        n_features=8,
-        feature_group="single",
-        select="variance",
+        features=compare_features,
         zscore=True,
         star_significant=True,
         title="Graph features: 5-voxel minus 8-voxel",
     )
+    assert isinstance(fig_heat8, Figure)
+    assert isinstance(fig_heat5, Figure)
     assert isinstance(fig_delta, Figure)
+    assert "8-voxel cubes (3D)" in str(fig_heat8.axes[0].get_title())
+    assert "5-voxel cubes (3D)" in str(fig_heat5.axes[0].get_title())
     assert "5-voxel minus 8-voxel" in str(fig_delta.axes[0].get_title())
     assert str(fig_delta.axes[0].get_title()).isascii()
     import matplotlib.pyplot as plt
 
     plt.close(fig_8)
     plt.close(fig_5)
+    plt.close(fig_heat8)
+    plt.close(fig_heat5)
     plt.close(fig_delta)
+
+
+def test_graph_compare_extracts_full_volume_not_slice() -> None:
+    """8-vs-5 compare tables must come from 3D labels, not one axial slice."""
+    labels_3d = _synthetic_3d_labels()
+    options = HabitatGraphFeatureOptions(
+        include_extended_metrics=False,
+        edge_method="min_distance",
+        distance_threshold=5.0,
+        block_min_coverage=0.2,
+        block_size=8,
+    )
+    slice_index = int(
+        (labels_3d > 0).reshape(labels_3d.shape[0], -1).sum(axis=1).argmax()
+    )
+    feats_slice = extract_graph_features(labels_3d[slice_index], options=options)
+    feats_3d = extract_graph_features(labels_3d, options=options)
+    assert feats_3d["graph_num_nodes_total"] != feats_slice["graph_num_nodes_total"]
+    assert feats_3d["graph_num_nodes_total"] > feats_slice["graph_num_nodes_total"]
 
 
 def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:
@@ -423,6 +490,7 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
         node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
+        include_background_shell=False,
     )
     fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
     assert isinstance(fig, Figure)

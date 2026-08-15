@@ -40,10 +40,12 @@ from habit.kernels.habitat_graph.metrics import (
     calculate_single_graph_metrics,
 )
 from habit.kernels.habitat_graph.models import (
+    BACKGROUND_SHELL_LABEL,
     EdgeMethod,
     EdgeWeightMode,
     HabitatGraphNode,
     NodeMethod,
+    is_background_label,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
 
@@ -102,6 +104,10 @@ class HabitatGraphFeatureOptions:
     pairwise_include_intra_edges: bool = True
     include_extended_metrics: bool = True
     extended_min_nodes: int = 10
+    # Default on: 1-voxel peritumoral shell as a reserved BG class
+    # (not a clustered habitat). Pass False for ROI-only graphs.
+    include_background_shell: bool = True
+    background_shell_width: int = 1
 
 
 # Feature key suffixes grouped by physical dimension, used to attach VOI-size
@@ -114,11 +120,10 @@ _LENGTH_NORM_SUFFIXES = (
     "_std_edge_distance",
     "_spatial_dispersion",
 )
-_CONTACT_NORM_SUFFIXES = (
-    "_contact_voxels_sum",
-    "_contact_voxels_mean",
-    "_contact_voxels_max",
-)
+# Only a contact *sum* has the dimensional behavior of a whole interface.
+# Mean and maximum contact are local edge summaries and are normalized against
+# the local node scale in ``calculate_pairwise_graph_metrics`` instead.
+_CONTACT_NORM_SUFFIXES = ("_contact_voxels_sum",)
 _VOLUME_FRACTION_SUFFIXES = (
     "_avg_node_voxels",
     "_std_node_voxels",
@@ -148,6 +153,32 @@ def _tumor_bbox_diagonal(label_array: np.ndarray) -> float:
     return float(np.linalg.norm(bbox_lengths.astype(float)))
 
 
+def _label_bbox_diagonal(label_array: np.ndarray, labels: Sequence[int]) -> float:
+    """
+    Return the voxel-space bounding-box diagonal for selected habitat labels.
+
+    Background and the optional synthetic shell are not present in
+    ``label_array``. A zero result therefore means that none of ``labels`` is
+    an observed positive habitat label.
+
+    Args:
+        label_array: Integer habitat label map; background is encoded as 0.
+        labels: Positive habitat labels whose union defines the bounding box.
+
+    Returns:
+        float: Euclidean diagonal of the occupied bounding box in voxel units,
+        or ``0.0`` when no requested positive label is present.
+    """
+    positive_labels = [int(label) for label in labels if int(label) > 0]
+    if not positive_labels:
+        return 0.0
+    coords = np.argwhere(np.isin(label_array, positive_labels))
+    if coords.size == 0:
+        return 0.0
+    bbox_lengths = coords.max(axis=0) - coords.min(axis=0) + 1
+    return float(np.linalg.norm(bbox_lengths.astype(float)))
+
+
 def _augment_with_normalized_features(
     features: Dict[str, float],
     label_array: np.ndarray,
@@ -157,10 +188,11 @@ def _augment_with_normalized_features(
 
     The tumor VOI measure ``V`` is the number of non-background voxels.
     Distance-like features are divided by the tumor bounding-box diagonal,
-    contact features by ``V**((d-1)/d)``, and count/voxel features by ``V``.
-    Original keys are preserved and each normalized value is stored under
-    ``"<feature>_norm"``. Additional habitat-specific fractions are added with
-    explicit suffixes when a per-label denominator is available.
+    total interface contact by ``V**((d-1)/d)``, and count/voxel features by
+    ``V``. Original keys are preserved and each normalized value is stored
+    under ``"<feature>_norm"``. Additional habitat-specific densities and
+    spatial scales are added with explicit suffixes when their denominator is
+    available.
 
     Args:
         features: Feature dictionary mutated in place with ``*_norm`` entries.
@@ -198,10 +230,10 @@ def _augment_with_normalized_features(
             label = int(single_match.group("label"))
             suffix = single_match.group("suffix")
             habitat_volume = habitat_volumes.get(label, 0.0)
-            if suffix == "n_nodes":
-                features[f"single_h{label}_n_nodes_per_habitat_volume"] = _scaled(
-                    value,
-                    habitat_volume,
+            habitat_bbox_diagonal = _label_bbox_diagonal(label_array, (label,))
+            if suffix in {"n_nodes", "n_edges", "connected_components"}:
+                features[f"single_h{label}_{suffix}_per_habitat_volume"] = _scaled(
+                    value, habitat_volume
                 )
             elif suffix == "avg_node_voxels":
                 features[f"single_h{label}_avg_node_voxels_fraction"] = _scaled(
@@ -213,6 +245,14 @@ def _augment_with_normalized_features(
                     value,
                     habitat_volume,
                 )
+            elif suffix in {
+                "avg_edge_distance",
+                "std_edge_distance",
+                "spatial_dispersion",
+            }:
+                features[
+                    f"single_h{label}_{suffix}_per_habitat_bbox_diagonal"
+                ] = _scaled(value, habitat_bbox_diagonal)
             continue
 
         pair_match = re.match(
@@ -223,6 +263,15 @@ def _augment_with_normalized_features(
             label_a = int(pair_match.group("label_a"))
             label_b = int(pair_match.group("label_b"))
             suffix = pair_match.group("suffix")
+            pair_volume = (
+                habitat_volumes.get(label_a, 0.0) + habitat_volumes.get(label_b, 0.0)
+            )
+            pair_area_scale = (
+                pair_volume ** ((ndim - 1.0) / ndim) if pair_volume > 0 else 0.0
+            )
+            pair_bbox_diagonal = _label_bbox_diagonal(
+                label_array, (label_a, label_b)
+            )
             if suffix == "n_nodes_1":
                 features[
                     f"pair_h{label_a}_h{label_b}_n_nodes_1_per_habitat_volume"
@@ -231,6 +280,34 @@ def _augment_with_normalized_features(
                 features[
                     f"pair_h{label_a}_h{label_b}_n_nodes_2_per_habitat_volume"
                 ] = _scaled(value, habitat_volumes.get(label_b, 0.0))
+            elif suffix == "contact_voxels_sum":
+                features[
+                    f"pair_h{label_a}_h{label_b}_"
+                    "contact_voxels_sum_per_pair_area_scale"
+                ] = _scaled(value, pair_area_scale)
+            elif suffix in {"avg_edge_distance", "std_edge_distance"}:
+                features[
+                    f"pair_h{label_a}_h{label_b}_"
+                    f"{suffix}_per_pair_bbox_diagonal"
+                ] = _scaled(value, pair_bbox_diagonal)
+            continue
+
+        pair_bg_match = re.match(
+            r"^pair_h(?P<label_a>\d+)_bg_(?P<suffix>.+)$",
+            key,
+        )
+        if pair_bg_match:
+            label_a = int(pair_bg_match.group("label_a"))
+            suffix = pair_bg_match.group("suffix")
+            if suffix == "n_nodes_1":
+                features[f"pair_h{label_a}_bg_n_nodes_1_per_habitat_volume"] = (
+                    _scaled(value, habitat_volumes.get(label_a, 0.0))
+                )
+
+
+def _true_habitat_labels(labels: Sequence[int]) -> List[int]:
+    """Drop the reserved background class from a label list."""
+    return sorted(int(label) for label in labels if not is_background_label(label))
 
 
 def _flatten_nodes(
@@ -283,24 +360,32 @@ def extract_graph_features(
         block_size=options.block_size,
         block_min_coverage=options.block_min_coverage,
         node_method=options.node_method,
+        include_background_shell=options.include_background_shell,
+        background_shell_width=options.background_shell_width,
     )
 
-    present_labels = sorted(node_result.nodes_by_habitat.keys())
+    present_labels = _true_habitat_labels(node_result.nodes_by_habitat.keys())
     if expected_labels is not None:
-        habitat_labels = sorted(int(label) for label in expected_labels)
+        habitat_labels = _true_habitat_labels(expected_labels)
     else:
         habitat_labels = present_labels
+    bg_nodes = list(node_result.nodes_by_habitat.get(BACKGROUND_SHELL_LABEL, []))
     features: Dict[str, float] = {
-        # Count of habitats actually present in this subject, independent of
-        # the canonical id set used for column coverage.
+        # Count of true habitats only (the reserved shell is not a habitat).
         "graph_num_habitats": float(len(present_labels)),
         "graph_num_nodes_total": float(
             sum(len(nodes) for nodes in node_result.nodes_by_habitat.values())
         ),
     }
+    if options.include_background_shell:
+        features["graph_num_background_nodes"] = float(len(bg_nodes))
+
+    single_labels = list(habitat_labels)
+    if options.include_background_shell:
+        single_labels.append(BACKGROUND_SHELL_LABEL)
 
     if options.include_single_habitat_graph:
-        for habitat_label in habitat_labels:
+        for habitat_label in single_labels:
             # Labels listed in ``expected_labels`` but absent from this map
             # yield an empty node list, i.e. a zero-valued empty graph.
             nodes = node_result.nodes_by_habitat.get(habitat_label, [])
@@ -380,6 +465,52 @@ def extract_graph_features(
                     extended_min_nodes=options.extended_min_nodes,
                 )
             )
+        if options.include_background_shell:
+            for habitat_label in habitat_labels:
+                pair_nodes = _flatten_nodes(
+                    [
+                        node_result.nodes_by_habitat.get(habitat_label, []),
+                        node_result.nodes_by_habitat.get(
+                            BACKGROUND_SHELL_LABEL, []
+                        ),
+                    ]
+                )
+                pair_labels = (habitat_label, BACKGROUND_SHELL_LABEL)
+                if options.edge_method == "adjacency":
+                    graph = build_adjacency_graph(
+                        node_result=node_result,
+                        labels=pair_labels,
+                        graph_kind="pairwise",
+                        adjacency_connectivity=options.adjacency_connectivity,
+                        adjacency_min_voxels=options.adjacency_min_voxels,
+                        edge_weight=options.edge_weight,
+                        include_intra_edges=options.pairwise_include_intra_edges,
+                    )
+                elif options.edge_method == "min_distance":
+                    graph = build_min_distance_graph(
+                        node_result=node_result,
+                        labels=pair_labels,
+                        graph_kind="pairwise",
+                        distance_threshold=options.distance_threshold,
+                        edge_weight=options.edge_weight,
+                        include_intra_edges=options.pairwise_include_intra_edges,
+                    )
+                else:
+                    graph = build_centroid_distance_graph(
+                        nodes=pair_nodes,
+                        labels=pair_labels,
+                        graph_kind="pairwise",
+                        distance_threshold=options.distance_threshold,
+                        edge_weight=options.edge_weight,
+                        include_intra_edges=options.pairwise_include_intra_edges,
+                    )
+                features.update(
+                    calculate_pairwise_graph_metrics(
+                        graph,
+                        include_extended_metrics=options.include_extended_metrics,
+                        extended_min_nodes=options.extended_min_nodes,
+                    )
+                )
 
     _augment_with_normalized_features(features, labels_array)
     return features

@@ -41,6 +41,7 @@ from habit.kernels.habitat_graph.features import (
     pair_count,
 )
 from habit.kernels.habitat_graph.models import (
+    BACKGROUND_SHELL_LABEL,
     EdgeMethod,
     EdgeWeightMode,
     GraphKind,
@@ -49,10 +50,17 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraphEdge,
     HabitatGraphNode,
     HabitatNodeExtractionResult,
+    is_background_label,
+    pair_feature_prefix,
+    single_feature_prefix,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
 
 __all__ = [
+    "BACKGROUND_SHELL_LABEL",
+    "is_background_label",
+    "single_feature_prefix",
+    "pair_feature_prefix",
     "EdgeMethod",
     "EdgeWeightMode",
     "GraphKind",

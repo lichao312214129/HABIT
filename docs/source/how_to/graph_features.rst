@@ -42,6 +42,8 @@ Minimal YAML fragment::
      include_single_habitat_graph: true
      include_pairwise_habitat_graph: true
      include_extended_metrics: true
+     include_background_shell: true
+     background_shell_width: 1
      visualize: false
      visualization_show_grid: true
      visualization_block_size: null
@@ -64,8 +66,11 @@ the closest voxels of two nodes are within 5** voxel-index units
 Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
 empty lattice cell between cubes is closest-voxel distance about 8,
 which is greater than 5, so those stay disconnected. There is **no morphological
-erosion** (``erosion_radius: 0``). Pass
-``node_method: component`` for connected-component nodes, and
+erosion** (``erosion_radius: 0``). The default graph also includes a
+**1-voxel peritumoral background shell** (``include_background_shell:
+true``): a reserved ``bg`` class around the ROI, not a clustered
+habitat. Pass ``include_background_shell: false`` for ROI-only graphs.
+Pass ``node_method: component`` for connected-component nodes, and
 ``edge_method: adjacency`` if you want contact-voxel edges (default
 contact count >= 10). ``centroid_distance`` is the older centroid-proximity
 rule. 2D figures draw the **same lattice** as dashed lines. On each
@@ -107,8 +112,9 @@ Or paste the same code the gallery shows::
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
    options = HabitatGraphFeatureOptions(include_extended_metrics=False)
-   slice_index = int((labels > 0).reshape(labels.shape[0], -1).sum(axis=1).argmax())
-   feats = extract_graph_features(labels[slice_index], options=options)
+   # Full 3D map for features (default includes the 1-voxel BG shell).
+   # The 2D network below is display-only.
+   feats = extract_graph_features(labels, options=options)
    fig = plot_habitat_graph_network_2d(
        labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
    )
@@ -118,12 +124,60 @@ Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
 :func:`~habit.viz.render_habitat_graph_network_3d` /
 :func:`~habit.viz.render_habitat_graph_surface_3d` (needs ``[view]``).
 
+Degree-preserving null-model API
+---------------------------------
+
+Use a null model only for topology metrics whose interpretation must control
+for the degree sequence; it is not a normalization for physical contact,
+distance, dispersion, or node-volume features. The result records the
+requested and successful random graphs, so inspect ``is_valid`` before using
+the Z score::
+
+   import networkx as nx
+   from habit import (
+       GraphNullModelOptions,
+       build_min_distance_graph,
+       compare_graph_to_degree_preserving_null,
+       extract_habitat_nodes,
+   )
+
+   # ``labels`` is the same uniformly resampled 3D label map used above.
+   nodes = extract_habitat_nodes(
+       label_array=labels,
+       node_method="uniform_grid",
+       block_size=8,
+       block_min_coverage=0.2,
+   )
+   graph = build_min_distance_graph(
+       node_result=nodes,
+       labels=(1,),  # Compare topology of habitat 1.
+       graph_kind="single",
+       distance_threshold=5.0,
+   )
+   result = compare_graph_to_degree_preserving_null(
+       graph,
+       nx.average_clustering,
+       options=GraphNullModelOptions(
+           n_random_graphs=200,
+           swaps_per_edge=10,
+           random_seed=42,
+       ),
+   )
+   if result.is_valid:
+       print(result.observed, result.z_score, result.empirical_two_sided_p)
+
+The random graphs preserve each node's degree, total nodes, and total edges,
+but do not preserve components, physical coordinates, distances, contacts, or
+habitat labels. See :doc:`../reference/features/graph` for the list of
+features for which this reference is appropriate and the reporting limits.
+
 .. figure:: ../_static/images/examples/graph_habitat_network_2d.png
    :alt: Habitat graph network on a 2D slice
    :width: 520
 
    Same file the gallery script writes to ``out/graph_habitat_network_2d.png``.
-   The gallery also compares these same habitat maps at ``block_size=5``.
+   Features come from the full 3D map; this 2D network is display-only.
+   The gallery also compares the same 3D maps at ``block_size=5``.
 
 Also see
 --------

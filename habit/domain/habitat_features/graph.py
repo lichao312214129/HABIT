@@ -102,6 +102,14 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: Minimum node count in the analysis subgraph required to compute
     #: small-world sigma; smaller graphs return 0 for that metric.
     extended_min_nodes: int = Field(default=10, ge=3)
+    #: Include a peritumoral background shell as a reserved class
+    #: (``single_bg_*`` / ``pair_h*_bg_*``), not a clustered habitat.
+    #: Default True. Pass False for ROI-only graphs.
+    include_background_shell: bool = True
+    #: Dilation width of the shell in voxels (>= 1). Default is a
+    #: 1-voxel ring outside the ROI, clipped to the array. Uses the
+    #: same ``connectivity`` neighbourhood as node extraction.
+    background_shell_width: int = Field(default=1, ge=1)
 
 
 @HabitatFeatureExtractorRegistry.register("graph")
@@ -158,6 +166,8 @@ class GraphHabitatFeatures:
         pairwise_include_intra_edges: bool = True,
         include_extended_metrics: bool = True,
         extended_min_nodes: int = 10,
+        include_background_shell: bool = True,
+        background_shell_width: int = 1,
     ) -> None:
         self._options = HabitatGraphFeatureOptions(
             include_single_habitat_graph=include_single_habitat_graph,
@@ -177,6 +187,8 @@ class GraphHabitatFeatures:
             pairwise_include_intra_edges=pairwise_include_intra_edges,
             include_extended_metrics=include_extended_metrics,
             extended_min_nodes=extended_min_nodes,
+            include_background_shell=include_background_shell,
+            background_shell_width=background_shell_width,
         )
 
     @property

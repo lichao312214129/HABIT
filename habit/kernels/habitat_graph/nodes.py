@@ -22,12 +22,13 @@ import numpy as np
 from scipy import ndimage as ndi
 
 from habit.kernels.habitat_graph.models import (
+    BACKGROUND_SHELL_LABEL,
     HabitatGraphNode,
     HabitatNodeExtractionResult,
     NodeMethod,
 )
 
-__all__ = ["extract_habitat_nodes"]
+__all__ = ["BACKGROUND_SHELL_LABEL", "extract_habitat_nodes"]
 
 
 def _connectivity_structure(ndim: int, connectivity: str) -> np.ndarray:
@@ -171,6 +172,56 @@ def _node_from_coords(
     )
 
 
+def _background_shell_mask(
+    label_array: np.ndarray,
+    width: int,
+    connectivity: str,
+) -> np.ndarray:
+    """
+    Return the peritumoral shell (dilated VOI minus the original VOI).
+
+    Dilation uses the same neighbourhood as graph ``connectivity``
+    (``face`` or ``full``) and stays inside the array bounds.
+
+    Args:
+        label_array: Integer habitat map (background encoded as 0).
+        width: Dilation iterations (>= 1). One iteration is a 1-voxel ring.
+        connectivity: ``"face"`` or ``"full"``.
+
+    Returns:
+        np.ndarray: Boolean mask of shell voxels. Empty when the VOI is empty.
+    """
+    if width < 1:
+        raise ValueError("background_shell_width must be >= 1.")
+    structure = _connectivity_structure(label_array.ndim, connectivity)
+    voi = label_array > 0
+    if not np.any(voi):
+        return np.zeros(label_array.shape, dtype=bool)
+    dilated = ndi.binary_dilation(
+        voi, structure=structure, iterations=int(width)
+    )
+    return dilated & ~voi
+
+
+def _remap_nodes_to_background(
+    nodes: List[HabitatGraphNode],
+) -> List[HabitatGraphNode]:
+    """Rewrite painted shell nodes to the reserved background class."""
+    remapped: List[HabitatGraphNode] = []
+    for node in nodes:
+        remapped.append(
+            HabitatGraphNode(
+                node_id=f"bg_c{int(node.component_id)}",
+                habitat_label=BACKGROUND_SHELL_LABEL,
+                component_id=int(node.component_id),
+                centroid=node.centroid,
+                voxel_count=int(node.voxel_count),
+                bbox=node.bbox,
+            )
+        )
+    return remapped
+
+
 def _extract_uniform_grid_nodes(
     label_array: np.ndarray,
     labels: List[int],
@@ -179,6 +230,7 @@ def _extract_uniform_grid_nodes(
     erosion_radius: int,
     block_size: int,
     block_min_coverage: float,
+    grid_origin: Optional[np.ndarray] = None,
 ) -> HabitatNodeExtractionResult:
     """
     Tessellate the tumour VOI and emit one node per cell subregion.
@@ -205,12 +257,20 @@ def _extract_uniform_grid_nodes(
         block_size: Cube edge length in voxels.
         block_min_coverage: Minimum occupied fraction of a cube to keep
             the cell (strictly greater than this value).
+        grid_origin: Optional lattice origin in voxel indices. ``None``
+            uses the non-background bounding-box minimum of ``working``.
+            Pass the tumour-VOI origin when extracting the background
+            shell so habitat cubes stay on the same lattice.
 
     Returns:
         HabitatNodeExtractionResult: Nodes, component maps, and lattice.
     """
     working = _eroded_label_array(label_array, labels, structure, erosion_radius)
-    origin = _voi_grid_origin(working)
+    origin = (
+        np.asarray(grid_origin, dtype=int)
+        if grid_origin is not None
+        else _voi_grid_origin(working)
+    )
     nodes_by_habitat: Dict[int, List[HabitatGraphNode]] = {}
     component_maps: Dict[int, np.ndarray] = {
         int(label): np.zeros(working.shape, dtype=np.int32) for label in labels
@@ -290,88 +350,17 @@ def _extract_uniform_grid_nodes(
     )
 
 
-def extract_habitat_nodes(
+def _extract_component_nodes(
     label_array: np.ndarray,
-    connectivity: str = "full",
-    min_region_voxels: int = 1,
-    erosion_radius: int = 0,
-    subdivide_region_voxels: int = 0,
-    block_size: int = 8,
-    block_min_coverage: float = 0.2,
-    node_method: NodeMethod = "uniform_grid",
+    labels: List[int],
+    structure: np.ndarray,
+    min_region_voxels: int,
+    erosion_radius: int,
+    subdivide_region_voxels: int,
+    block_size: int,
+    block_min_coverage: float,
 ) -> HabitatNodeExtractionResult:
-    """
-    Convert a habitat label map into graph nodes.
-
-    Default ``node_method='uniform_grid'`` paints a global axis-aligned
-    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not
-    millimetres) over the tumour VOI. Cubes whose occupied fraction
-    exceeds ``block_min_coverage`` (default 0.2) are kept; **each
-    connected subregion inside a kept cube becomes its own node** at
-    that subregion's voxel-index centroid (several habitats and/or
-    several components of one habitat can share a cube). Pass
-    ``node_method='component'`` for the older connected-component nodes,
-    optionally split when a component exceeds
-    ``subdivide_region_voxels``.
-
-    Args:
-        label_array: Integer habitat label map. Background must be encoded as 0.
-        connectivity: Connected-component neighborhood rule. Default
-            ``"full"`` is 8-connected in 2D / 26-connected in 3D. Pass
-            ``"face"`` for 4-connected / 6-connected neighborhoods. Used by
-            ``component`` mode and by optional erosion in both modes.
-        min_region_voxels: Components / residual nodes smaller than this
-            voxel count are ignored.
-        erosion_radius: Optional binary erosion iterations applied per habitat
-            before node extraction. The default is 0.
-        subdivide_region_voxels: In ``component`` mode, split components
-            larger than this into grid blocks. ``0`` disables splitting.
-            Ignored by ``uniform_grid``.
-        block_size: Cube edge length in voxels (default 8), not millimetres.
-            With the default ``distance_threshold=5``, face-adjacent
-            8-cubes connect (closest voxels are one hop apart). One empty
-            lattice cell between cubes is closest-voxel distance about 8
-            and stays disconnected.
-        block_min_coverage: Minimum occupied fraction of a cube to keep
-            the cell (default 0.2; a cube is kept when coverage is
-            strictly greater than this value). Applied per cell, not
-            per subregion. Tiny in-cell fragments are dropped by
-            ``min_region_voxels``.
-        node_method: ``"uniform_grid"`` (default) or ``"component"``.
-
-    Returns:
-        HabitatNodeExtractionResult: Nodes grouped by habitat label plus
-        component maps used by contact-based edge builders. ``uniform_grid``
-        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.
-    """
-    if label_array.ndim not in (2, 3):
-        raise ValueError("label_array must be 2D or 3D.")
-    if min_region_voxels < 1:
-        raise ValueError("min_region_voxels must be >= 1.")
-    if erosion_radius < 0:
-        raise ValueError("erosion_radius must be >= 0.")
-    if subdivide_region_voxels < 0:
-        raise ValueError("subdivide_region_voxels must be >= 0.")
-    if block_size < 1:
-        raise ValueError("block_size must be >= 1.")
-    if not 0.0 <= block_min_coverage <= 1.0:
-        raise ValueError("block_min_coverage must be in [0, 1].")
-    if node_method not in ("uniform_grid", "component"):
-        raise ValueError("node_method must be 'uniform_grid' or 'component'.")
-
-    labels = [int(v) for v in np.unique(label_array) if int(v) > 0]
-    structure = _connectivity_structure(label_array.ndim, connectivity)
-    if node_method == "uniform_grid":
-        return _extract_uniform_grid_nodes(
-            label_array=label_array,
-            labels=labels,
-            structure=structure,
-            min_region_voxels=min_region_voxels,
-            erosion_radius=erosion_radius,
-            block_size=block_size,
-            block_min_coverage=block_min_coverage,
-        )
-
+    """Connected-component nodes (optional size split). Habitat labels only."""
     nodes_by_habitat: Dict[int, List[HabitatGraphNode]] = {}
     component_maps: Dict[int, np.ndarray] = {}
 
@@ -412,7 +401,6 @@ def extract_habitat_nodes(
                 )
 
             if block_groups:
-                # One graph node per kept block; each block gets a unique id.
                 for block_coords in block_groups:
                     block_component_id = next_block_component_id
                     next_block_component_id += 1
@@ -428,7 +416,6 @@ def extract_habitat_nodes(
                         )
                     )
             else:
-                # Keep the whole component as a single node (default behavior).
                 kept_component_map[tuple(coords.T)] = component_id
                 habitat_nodes.append(
                     HabitatGraphNode(
@@ -448,4 +435,192 @@ def extract_habitat_nodes(
         label_array=label_array,
         nodes_by_habitat=nodes_by_habitat,
         component_maps=component_maps,
+    )
+
+
+def _merge_background_shell_nodes(
+    habitat_result: HabitatNodeExtractionResult,
+    *,
+    label_array: np.ndarray,
+    connectivity: str,
+    min_region_voxels: int,
+    block_size: int,
+    block_min_coverage: float,
+    node_method: NodeMethod,
+    background_shell_width: int,
+) -> HabitatNodeExtractionResult:
+    """
+    Append reserved-class shell nodes without moving the habitat lattice.
+
+    Habitat nodes stay exactly as extracted from the original VOI. The
+    shell is a second extract on ``dilated VOI AND NOT VOI``, using the
+    same ``block_size`` / coverage (and the same grid origin in
+    ``uniform_grid`` mode).
+    """
+    shell = _background_shell_mask(
+        label_array, background_shell_width, connectivity
+    )
+    paint_id = 1
+    shell_labels = np.zeros(label_array.shape, dtype=np.int32)
+    shell_labels[shell] = paint_id
+    structure = _connectivity_structure(label_array.ndim, connectivity)
+    if node_method == "uniform_grid":
+        origin = habitat_result.grid_origin
+        origin_arr = (
+            np.asarray(origin, dtype=int) if origin is not None else None
+        )
+        shell_result = _extract_uniform_grid_nodes(
+            label_array=shell_labels,
+            labels=[paint_id],
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=0,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+            grid_origin=origin_arr,
+        )
+    else:
+        shell_result = _extract_component_nodes(
+            label_array=shell_labels,
+            labels=[paint_id],
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=0,
+            subdivide_region_voxels=0,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+        )
+    bg_nodes = _remap_nodes_to_background(
+        list(shell_result.nodes_by_habitat.get(paint_id, []))
+    )
+    bg_map = shell_result.component_maps.get(
+        paint_id, np.zeros(label_array.shape, dtype=np.int32)
+    )
+    nodes_by_habitat = dict(habitat_result.nodes_by_habitat)
+    nodes_by_habitat[BACKGROUND_SHELL_LABEL] = bg_nodes
+    component_maps = dict(habitat_result.component_maps)
+    component_maps[BACKGROUND_SHELL_LABEL] = bg_map
+    return HabitatNodeExtractionResult(
+        label_array=habitat_result.label_array,
+        nodes_by_habitat=nodes_by_habitat,
+        component_maps=component_maps,
+        grid_origin=habitat_result.grid_origin,
+        grid_block_size=habitat_result.grid_block_size,
+    )
+
+
+def extract_habitat_nodes(
+    label_array: np.ndarray,
+    connectivity: str = "full",
+    min_region_voxels: int = 1,
+    erosion_radius: int = 0,
+    subdivide_region_voxels: int = 0,
+    block_size: int = 8,
+    block_min_coverage: float = 0.2,
+    node_method: NodeMethod = "uniform_grid",
+    include_background_shell: bool = True,
+    background_shell_width: int = 1,
+) -> HabitatNodeExtractionResult:
+    """
+    Convert a habitat label map into graph nodes.
+
+    Default ``node_method='uniform_grid'`` paints a global axis-aligned
+    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not
+    millimetres) over the tumour VOI. Cubes whose occupied fraction
+    exceeds ``block_min_coverage`` (default 0.2) are kept; **each
+    connected subregion inside a kept cube becomes its own node** at
+    that subregion's voxel-index centroid (several habitats and/or
+    several components of one habitat can share a cube). Pass
+    ``node_method='component'`` for the older connected-component nodes,
+    optionally split when a component exceeds
+    ``subdivide_region_voxels``.
+
+    Args:
+        label_array: Integer habitat label map. Background must be encoded as 0.
+        connectivity: Connected-component neighborhood rule. Default
+            ``"full"`` is 8-connected in 2D / 26-connected in 3D. Pass
+            ``"face"`` for 4-connected / 6-connected neighborhoods. Used by
+            ``component`` mode and by optional erosion in both modes.
+        min_region_voxels: Components / residual nodes smaller than this
+            voxel count are ignored.
+        erosion_radius: Optional binary erosion iterations applied per habitat
+            before node extraction. The default is 0.
+        subdivide_region_voxels: In ``component`` mode, split components
+            larger than this into grid blocks. ``0`` disables splitting.
+            Ignored by ``uniform_grid``.
+        block_size: Cube edge length in voxels (default 8), not millimetres.
+            With the default ``distance_threshold=5``, face-adjacent
+            8-cubes connect (closest voxels are one hop apart). One empty
+            lattice cell between cubes is closest-voxel distance about 8
+            and stays disconnected.
+        block_min_coverage: Minimum occupied fraction of a cube to keep
+            the cell (default 0.2; a cube is kept when coverage is
+            strictly greater than this value). Applied per cell, not
+            per subregion. Tiny in-cell fragments are dropped by
+            ``min_region_voxels``.
+        node_method: ``"uniform_grid"`` (default) or ``"component"``.
+        include_background_shell: If True (default), add a peritumoral
+            background shell as a reserved class (not a clustered
+            habitat). Habitat nodes stay on the original VOI lattice.
+        background_shell_width: Dilation width in voxels (>= 1). Default
+            is a 1-voxel ring outside the ROI, clipped to the array.
+
+    Returns:
+        HabitatNodeExtractionResult: Nodes grouped by habitat label plus
+        component maps used by contact-based edge builders. ``uniform_grid``
+        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.
+        When the shell is on, ``nodes_by_habitat`` also has
+        :data:`~habit.kernels.habitat_graph.models.BACKGROUND_SHELL_LABEL`.
+    """
+    if label_array.ndim not in (2, 3):
+        raise ValueError("label_array must be 2D or 3D.")
+    if min_region_voxels < 1:
+        raise ValueError("min_region_voxels must be >= 1.")
+    if erosion_radius < 0:
+        raise ValueError("erosion_radius must be >= 0.")
+    if subdivide_region_voxels < 0:
+        raise ValueError("subdivide_region_voxels must be >= 0.")
+    if block_size < 1:
+        raise ValueError("block_size must be >= 1.")
+    if not 0.0 <= block_min_coverage <= 1.0:
+        raise ValueError("block_min_coverage must be in [0, 1].")
+    if node_method not in ("uniform_grid", "component"):
+        raise ValueError("node_method must be 'uniform_grid' or 'component'.")
+    if background_shell_width < 1:
+        raise ValueError("background_shell_width must be >= 1.")
+
+    labels = [int(v) for v in np.unique(label_array) if int(v) > 0]
+    structure = _connectivity_structure(label_array.ndim, connectivity)
+    if node_method == "uniform_grid":
+        habitat_result = _extract_uniform_grid_nodes(
+            label_array=label_array,
+            labels=labels,
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=erosion_radius,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+        )
+    else:
+        habitat_result = _extract_component_nodes(
+            label_array=label_array,
+            labels=labels,
+            structure=structure,
+            min_region_voxels=min_region_voxels,
+            erosion_radius=erosion_radius,
+            subdivide_region_voxels=subdivide_region_voxels,
+            block_size=block_size,
+            block_min_coverage=block_min_coverage,
+        )
+    if not include_background_shell:
+        return habitat_result
+    return _merge_background_shell_nodes(
+        habitat_result,
+        label_array=label_array,
+        connectivity=connectivity,
+        min_region_voxels=min_region_voxels,
+        block_size=block_size,
+        block_min_coverage=block_min_coverage,
+        node_method=node_method,
+        background_shell_width=background_shell_width,
     )

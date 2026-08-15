@@ -134,6 +134,10 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.adjacency_connectivity == kernel.adjacency_connectivity == "corner"
     assert params.connectivity == kernel.connectivity == "full"
     assert params.adjacency_min_voxels == kernel.adjacency_min_voxels == 10
+    assert params.include_background_shell is (
+        kernel.include_background_shell is True
+    )
+    assert params.background_shell_width == kernel.background_shell_width == 1
     assert params.pairwise_include_intra_edges is (
         kernel.pairwise_include_intra_edges
     )

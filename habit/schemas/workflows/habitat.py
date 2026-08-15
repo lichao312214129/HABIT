@@ -792,6 +792,23 @@ class GraphFeatureBlock(BaseModel):
             "small-world sigma; smaller graphs return 0 for that metric."
         ),
     )
+    include_background_shell: bool = Field(
+        True,
+        description=(
+            "Include a 1-voxel (by default) peritumoral background shell as "
+            "a reserved class (single_bg_* / pair_h*_bg_*), not a clustered "
+            "habitat. Pass false for ROI-only graphs."
+        ),
+    )
+    background_shell_width: int = Field(
+        1,
+        ge=1,
+        description=(
+            "Dilation width of the background shell in voxels. Default 1 "
+            "is a one-voxel ring outside the ROI, clipped to the array. "
+            "Uses the same connectivity neighbourhood as node extraction."
+        ),
+    )
 
     # --- Figure rendering (consumed by the L4 recipe, not the extractor) ---
     visualize: bool = Field(

@@ -7,13 +7,18 @@ This gallery uses the library graph defaults: an 8-voxel cube lattice
 centroid, and closest-voxel edges (``edge_method='min_distance'``,
 ``distance_threshold=5``). It only fixes ``n_habitats=4``.
 
-Heatmaps use the **same representative axial slice** as the 2D network
-(not a full-volume extract). ``include_extended_metrics=False`` keeps
-the gallery interactive. A second extract on those same slices uses
-``block_size=5`` only as a comparison override (library default stays 8).
-For a 3D cohort table, load ``habitat_graph_features.csv`` from
-``habit extract`` and pass ``subjects=`` / ``features=`` to the same
-plot function.
+Tables, heatmaps, and the 5-minus-8 delta use **full 3D** habitat maps
+(``HabitatMap.label_array``). The 2D network figures are display-only:
+they draw a representative axial slice so you can see the lattice.
+``include_extended_metrics=False`` keeps the 3D extract tractable.
+The library default includes a 1-voxel peritumoral background shell
+(``include_background_shell=True``); both 8- and 5-voxel extracts use
+that same default so the lattice compare is not confounded. Pass
+``include_background_shell=False`` for ROI-only graphs.
+A second 3D extract uses ``block_size=5`` only as a comparison override
+(library default stays 8). For a larger cohort table, load
+``habitat_graph_features.csv`` from ``habit extract`` and pass
+``subjects=`` / ``features=`` to the same plot function.
 
 Accompanies ``docs/source/examples/graph_features.rst``.
 Run from the repository root::
@@ -24,6 +29,7 @@ Run from the repository root::
 from __future__ import annotations
 
 # BEGIN example
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -44,8 +50,8 @@ SUBJECTS = ("subj001", "subj002", "subj003")
 
 cohort = cohort_from_directory(DATA, modalities=MODALITIES, roi=ROI)[:3]
 # Fixed K=4 (not "auto") so the graph has a known number of habitats.
-# One fit for overlay, both 2D networks, and both heatmap tables.
-# Extended metrics OFF: they dominate runtime even at block_size=8.
+# One fit for overlay, 2D display networks, and both 3D heatmap tables.
+# Extended metrics OFF: they dominate runtime on a full 3D map.
 result = one_step_habitat(
     modalities=MODALITIES, n_habitats=4, random_seed=0, roi=ROI
 ).fit_predict(cohort)
@@ -57,46 +63,34 @@ options_5 = HabitatGraphFeatureOptions(
     include_extended_metrics=False,
     block_size=5,
 )
-# Same representative axial slice as plot_habitat_graph_network_2d.
+# Full 3D HabitatMap.label_array for tables / heatmaps / delta.
+# Do not extract from a 2D slice — the 2D network is display-only.
 rows_8 = []
 rows_5 = []
+t0 = time.perf_counter()
 for subject, habitat_map in zip(cohort, result.habitat_maps):
     labels_3d = habitat_map.label_array
-    slice_index = int(
-        (labels_3d > 0).reshape(labels_3d.shape[0], -1).sum(axis=1).argmax()
-    )
-    slice_2d = labels_3d[slice_index]
     expected = habitat_map.habitat_ids
     feats_8 = extract_graph_features(
-        slice_2d,
+        labels_3d,
         options=options,
         expected_labels=expected,
     )
     feats_5 = extract_graph_features(
-        slice_2d,
+        labels_3d,
         options=options_5,
         expected_labels=expected,
     )
     rows_8.append({"subject_id": subject.subject_id, **feats_8})
     rows_5.append({"subject_id": subject.subject_id, **feats_5})
+elapsed_s = time.perf_counter() - t0
 table = pd.DataFrame(rows_8)
 table_5 = pd.DataFrame(rows_5)
-# Align subject x feature, then 5-voxel minus 8-voxel (same columns).
-subject_col = "subject_id"
-feature_cols = [
-    name
-    for name in table.columns
-    if name != subject_col and name in table_5.columns
-]
-delta = (
-    table_5.set_index(subject_col)[feature_cols]
-    - table.set_index(subject_col)[feature_cols]
-).reset_index()
 print(
     table.shape[0],
     "subjects x",
     table.shape[1] - 1,
-    "graph features from representative slices",
+    "graph features from full 3D habitat maps",
 )
 print(
     "block_size=8 nodes:",
@@ -104,7 +98,10 @@ print(
     "| block_size=5 nodes:",
     list(table_5["graph_num_nodes_total"]),
 )
-print("aligned 5-minus-8 delta features:", delta.shape[1] - 1)
+print(
+    f"3D graph extract (block_size=8 and 5, {table.shape[0]} subjects): "
+    f"{elapsed_s:.1f}s"
+)
 # END example
 
 # BEGIN figures
@@ -162,8 +159,8 @@ print(
 # END figures
 
 # BEGIN compare
-# Same HabitatMap / same slice as above. Only block_size changes (8 vs 5).
-# options_5 / table_5 / table come from the Script block (one fit, two extracts).
+# 2D networks are display-only (representative slice). Tables are 3D.
+# Same HabitatMap / one fit. Only block_size changes (8 vs 5).
 fig = plot_habitat_graph_network_2d(
     labels,
     options=options,
@@ -180,15 +177,38 @@ fig = plot_habitat_graph_network_2d(
     grid_linestyle="--",
 )
 fig.savefig("out/graph_habitat_network_2d_block5.png", dpi=150, bbox_inches="tight")
-# table_5 minus table (8-voxel): column z-score of the raw delta.
+# Same people and columns on both 3D tables (and the 5-minus-8 delta).
+# Rank once on the 8-voxel 3D table; do not re-rank the 5-voxel table.
+numeric_8 = table.set_index("subject_id").loc[list(SUBJECTS)]
+single_cols = [
+    name for name in numeric_8.columns if str(name).startswith("single_h")
+]
+compare_features = tuple(
+    numeric_8[single_cols].var(axis=0, skipna=True).nlargest(40).index
+)
+fig = plot_graph_feature_heatmap(
+    table,
+    subjects=SUBJECTS,
+    features=compare_features,
+    zscore=True,
+    title="Graph features: 8-voxel cubes (3D)",
+)
+fig.savefig("out/graph_feature_heatmap_block8.png", dpi=150, bbox_inches="tight")
+fig = plot_graph_feature_heatmap(
+    table_5,
+    subjects=SUBJECTS,
+    features=compare_features,
+    zscore=True,
+    title="Graph features: 5-voxel cubes (3D)",
+)
+fig.savefig("out/graph_feature_heatmap_block5.png", dpi=150, bbox_inches="tight")
+# 3D table_5 minus 3D table (8-voxel): column z-score of the raw delta.
 # star_significant marks features (not cells) after paired t + FDR-BH.
 fig = plot_graph_feature_heatmap(
     table_5,
     reference=table,
     subjects=SUBJECTS,
-    n_features=40,
-    feature_group="single",
-    select="variance",
+    features=compare_features,
     zscore=True,
     star_significant=True,
     title="Graph features: 5-voxel minus 8-voxel",
@@ -197,7 +217,9 @@ fig = plot_graph_feature_heatmap(
 fig.savefig("out/graph_feature_delta_5_minus_8.png", dpi=150, bbox_inches="tight")
 print(
     "Wrote out/graph_habitat_network_2d.png, "
-    "out/graph_habitat_network_2d_block5.png, and "
+    "out/graph_habitat_network_2d_block5.png, "
+    "out/graph_feature_heatmap_block8.png, "
+    "out/graph_feature_heatmap_block5.png, and "
     "out/graph_feature_delta_5_minus_8.png"
 )
 # END compare
@@ -218,6 +240,8 @@ if __name__ == "__main__":
             "graph_habitat_network_2d_block5.png",
             "graph_feature_heatmap_single.png",
             "graph_feature_heatmap_pair.png",
+            "graph_feature_heatmap_block8.png",
+            "graph_feature_heatmap_block5.png",
             "graph_feature_delta_5_minus_8.png",
         )
     )
