@@ -735,7 +735,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -986,6 +986,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1743,6 +1744,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2418,17 +2420,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
     <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert a habitat label map into graph nodes.</span>
 
 <span class="sd">    Default ``node_method=&#39;uniform_grid&#39;`` paints a global axis-aligned</span>
-<span class="sd">    lattice of cubes with edge ``block_size`` (default 5 **voxels**, not</span>
+<span class="sd">    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not</span>
 <span class="sd">    millimetres) over the tumour VOI. Cubes whose occupied fraction</span>
-<span class="sd">    exceeds ``block_min_coverage`` (default 0.05) are kept; **each</span>
+<span class="sd">    exceeds ``block_min_coverage`` (default 0.2) are kept; **each</span>
 <span class="sd">    connected subregion inside a kept cube becomes its own node** at</span>
 <span class="sd">    that subregion&#39;s voxel-index centroid (several habitats and/or</span>
 <span class="sd">    several components of one habitat can share a cube). Pass</span>
@@ -2449,13 +2451,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        subdivide_region_voxels: In ``component`` mode, split components</span>
 <span class="sd">            larger than this into grid blocks. ``0`` disables splitting.</span>
 <span class="sd">            Ignored by ``uniform_grid``.</span>
-<span class="sd">        block_size: Cube edge length in voxels (default 5), not millimetres.</span>
+<span class="sd">        block_size: Cube edge length in voxels (default 8), not millimetres.</span>
 <span class="sd">            With the default ``distance_threshold=5``, face-adjacent</span>
-<span class="sd">            5-cubes connect (closest voxels are one hop apart). One empty</span>
-<span class="sd">            lattice cell between cubes is closest-voxel distance 6 and</span>
-<span class="sd">            stays disconnected.</span>
+<span class="sd">            8-cubes connect (closest voxels are one hop apart). One empty</span>
+<span class="sd">            lattice cell between cubes is closest-voxel distance about 8</span>
+<span class="sd">            and stays disconnected.</span>
 <span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
-<span class="sd">            the cell (default 0.05; a cube is kept when coverage is</span>
+<span class="sd">            the cell (default 0.2; a cube is kept when coverage is</span>
 <span class="sd">            strictly greater than this value). Applied per cell, not</span>
 <span class="sd">            per subregion. Tiny in-cell fragments are dropped by</span>
 <span class="sd">            ``min_region_voxels``.</span>

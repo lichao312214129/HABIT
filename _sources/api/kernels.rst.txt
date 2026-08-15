@@ -59,7 +59,7 @@ Region graphs + NetworkX metrics (same definitions as the built-in
    options = HabitatGraphFeatureOptions(
        edge_method="min_distance",
        node_method="uniform_grid",
-       block_size=5,
+       block_size=8,
        distance_threshold=5.0,
        erosion_radius=0,
    )

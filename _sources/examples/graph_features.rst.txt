@@ -12,12 +12,12 @@ axial slice** as the 2D network (not a full-volume extract) →
 column z-score; two figures: ``single_h*`` and ``pair_h*``) plus overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example uses the
 library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
-``node_method='uniform_grid'`` (5-voxel cubes, not millimetres; one
+``node_method='uniform_grid'`` (8-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
 ``edge_method='min_distance'`` (closest voxels within 5).
 ``include_extended_metrics=False`` is required here: extended metrics
-plus a 5-voxel lattice on a full 3D map are the main time sink. The 2D
-network draws that same lattice as dashed lines. Graph topology is a
+on a full 3D map are the main time sink. The 2D network draws that
+same 8-voxel lattice as dashed lines. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns
 under :doc:`../reference/features/index`.
 
@@ -32,7 +32,7 @@ Script
 
 Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
-uses the library node/edge defaults (uniform 5-voxel cubes, one node
+uses the library node/edge defaults (uniform 8-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
 off). One ``fit_predict`` on three subjects feeds the overlay, the 2D
 network, and the heatmap table. Figures land under ``out/`` (swap that
@@ -120,8 +120,8 @@ Anatomy with habitats
    **white inter-edges between that pair** are drawn (no intra-edges,
    no purple). Four habitats yield six pair panels in a 2x3 placement
    under the H1--H4 row; every panel uses the same ROI window and the
-   same physical size. Display knobs ``block_size=5`` /
-   ``grid_linestyle='--'`` draw the same 5-voxel cubes
+   same physical size. Display knobs ``block_size=8`` /
+   ``grid_linestyle='--'`` draw the same 8-voxel cubes
    (:func:`~habit.viz.plot_habitat_graph_network_2d`). Heatmaps use
    this same representative slice, not the full 3D volume.
 
@@ -143,7 +143,7 @@ see the how-to for the one-line 3D calls).
    :width: 520
 
    Region-centroid nodes with intra- and inter-habitat min-distance edges
-   (library defaults: uniform 5-voxel cubes, closest-voxel threshold 5;
+   (library defaults: uniform 8-voxel cubes, closest-voxel threshold 5;
    :func:`~habit.viz.render_habitat_graph_network_3d`).
 
 What to read next

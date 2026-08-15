@@ -240,7 +240,7 @@ Domain: ``habitat_feature_extractor``
        "graph",
        edge_method="min_distance",
        node_method="uniform_grid",
-       block_size=5,
+       block_size=8,
    )
    non_rad = HabitatFeatureExtractorRegistry.create("non_radiomics")
    trad = HabitatFeatureExtractorRegistry.create("traditional")

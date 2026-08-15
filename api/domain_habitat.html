@@ -382,7 +382,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -633,6 +633,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1390,6 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2002,7 +2004,7 @@ no string <code class="docutils literal notranslate"><span class="pre">&quot;aut
     <span class="s2">&quot;graph&quot;</span><span class="p">,</span>
     <span class="n">edge_method</span><span class="o">=</span><span class="s2">&quot;min_distance&quot;</span><span class="p">,</span>
     <span class="n">node_method</span><span class="o">=</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
-    <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">non_rad</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;non_radiomics&quot;</span><span class="p">)</span>
 <span class="n">trad</span> <span class="o">=</span> <span class="n">HabitatFeatureExtractorRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;traditional&quot;</span><span class="p">)</span>

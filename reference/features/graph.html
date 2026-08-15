@@ -1392,6 +1392,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1845,10 +1846,10 @@ remains available when 4/6-connectivity is required.</p></li>
 <li><p><strong>Default</strong> <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> skips per-component
 splitting. Instead the whole tumour VOI is painted with a <strong>global</strong>
 axis-aligned lattice of cubes of edge <code class="docutils literal notranslate"><span class="pre">block_size</span></code> <span class="math notranslate nohighlight">\(b\)</span>
-(default <span class="math notranslate nohighlight">\(b=5\)</span> <strong>voxels</strong>, not millimetres) whose origin is the
+(default <span class="math notranslate nohighlight">\(b=8\)</span> <strong>voxels</strong>, not millimetres) whose origin is the
 VOI bounding-box minimum.
 A cube is kept when its occupied fraction exceeds
-<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.05</span></code>; cell-level filter).
+<code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>; cell-level filter).
 Inside each kept cube, every connected component of every habitat
 becomes its own node at that subregion’s voxel-index centroid, so one
 cube may contribute several nodes. In-cell fragments smaller than
@@ -1906,9 +1907,9 @@ d(u,v) &amp; \text{``distance''}\\
 <h3>Edges: minimum voxel distance<a class="headerlink" href="#edges-minimum-voxel-distance" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (<strong>default</strong>). Reuses
 <code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> <span class="math notranslate nohighlight">\(\tau\)</span> (default <code class="docutils literal notranslate"><span class="pre">5.0</span></code> voxel-index units).
-With the default 5-voxel cubes, face-adjacent cubes connect (closest
+With the default 8-voxel cubes, face-adjacent cubes connect (closest
 voxels are one hop apart). One empty lattice cell between cubes is
-closest-voxel distance 6, which is greater than <span class="math notranslate nohighlight">\(\tau=5\)</span>, so those
+closest-voxel distance about 8, which is greater than <span class="math notranslate nohighlight">\(\tau=5\)</span>, so those
 stay disconnected.
 An undirected edge exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when the
 closest-point (Hausdorff-min) distance between their voxels satisfies</p>
@@ -2221,10 +2222,10 @@ below match the kernel dataclass.</p>
 <td><p>In <code class="docutils literal notranslate"><span class="pre">component</span></code> mode, split components larger than this (default <code class="docutils literal notranslate"><span class="pre">1000</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> disables)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code></p></td>
-<td><p>Cube edge length in <strong>voxels</strong> (default <code class="docutils literal notranslate"><span class="pre">5</span></code>, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at <code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code>.</p></td>
+<td><p>Cube edge length in <strong>voxels</strong> (default <code class="docutils literal notranslate"><span class="pre">8</span></code>, not millimetres). Face-adjacent 8-cubes connect; one empty lattice cell (closest-voxel distance about 8) stays disconnected at <code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code></p></td>
-<td><p>Minimum <strong>strict</strong> occupied fraction of a cube to keep the cell (default <code class="docutils literal notranslate"><span class="pre">0.05</span></code>). Applied per cell; tiny in-cell fragments use <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
+<td><p>Minimum <strong>strict</strong> occupied fraction of a cube to keep the cell (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Applied per cell; tiny in-cell fragments use <code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code></p></td>
 <td><p>Add same-habitat proximity edges in pairwise graphs (default <code class="docutils literal notranslate"><span class="pre">true</span></code>); interface metrics still use inter-class edges only</p></td>
@@ -2266,7 +2267,7 @@ below match the kernel dataclass.</p>
 <td><p>Draw the equal-volume cube lattice on 2D figures (default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code></p></td>
-<td><p>Display cube edge in voxels (default <code class="docutils literal notranslate"><span class="pre">null</span></code> → extraction <code class="docutils literal notranslate"><span class="pre">block_size</span></code>, library default 5)</p></td>
+<td><p>Display cube edge in voxels (default <code class="docutils literal notranslate"><span class="pre">null</span></code> → extraction <code class="docutils literal notranslate"><span class="pre">block_size</span></code>, library default 8)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code></p></td>
 <td><p>Lattice line style (default <code class="docutils literal notranslate"><span class="pre">--</span></code> dashed)</p></td>

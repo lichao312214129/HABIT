@@ -735,7 +735,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -986,6 +986,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1743,6 +1744,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2206,14 +2208,14 @@ window.runMermaid = runMermaid;</script>
     <span class="c1">#: In ``component`` mode, split components larger than this voxel count.</span>
     <span class="c1">#: ``0`` disables that split. Ignored by ``uniform_grid``.</span>
     <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="c1">#: Cube edge length in voxels (default 5), not millimetres. Paired</span>
-    <span class="c1">#: with ``distance_threshold=5``: face-adjacent cubes connect; one</span>
-    <span class="c1">#: empty lattice cell (closest-voxel distance 6) stays disconnected.</span>
-    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1">#: Cube edge length in voxels (default 8), not millimetres. Paired</span>
+    <span class="c1">#: with ``distance_threshold=5``: face-adjacent 8-cubes connect; one</span>
+    <span class="c1">#: empty lattice cell (closest-voxel distance about 8) stays disconnected.</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="c1">#: Minimum covered fraction of a cube to keep the cell (strictly</span>
-    <span class="c1">#: greater than this value; default 0.05). Applied per cell; tiny</span>
+    <span class="c1">#: greater than this value; default 0.2). Applied per cell; tiny</span>
     <span class="c1">#: in-cell fragments are dropped by ``min_region_voxels``.</span>
-    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="c1">#: Add same-habitat proximity edges to pairwise graphs so whole-graph</span>
     <span class="c1">#: metrics (modularity, assortativity, betweenness) reflect real tissue</span>
     <span class="c1">#: organization; interface metrics still use inter-class edges only.</span>
@@ -2235,7 +2237,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Graph-topology features of one subject&#39;s habitat map.</span>
 
 <span class="sd">    Default nodes are per-cell subregion centroids on a global VOI</span>
-<span class="sd">    lattice (``node_method=&#39;uniform_grid&#39;``, ``block_size=5`` voxels,</span>
+<span class="sd">    lattice (``node_method=&#39;uniform_grid&#39;``, ``block_size=8`` voxels,</span>
 <span class="sd">    not mm): each kept cube can contribute several nodes.</span>
 <span class="sd">    Default edges connect cubes whose closest voxels are within</span>
 <span class="sd">    ``distance_threshold`` (``edge_method=&#39;min_distance&#39;``, default 5).</span>
@@ -2280,8 +2282,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">node_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
         <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
-        <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
         <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>

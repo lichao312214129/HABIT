@@ -4,14 +4,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>extract_graph_features &mdash; HABIT Documentation</title>
+  <title>plot_graph_feature_heatmap &mdash; HABIT Documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=211e58f4" />
 
   
-    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.kernels.extract_graph_features.html" />
+    <link rel="canonical" href="https://lichao312214129.github.io/HABIT/api/generated/habit.viz.plot_graph_feature_heatmap.html" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="extract_graph_features_for_labels" href="habit.kernels.extract_graph_features_for_labels.html" />
-    <link rel="prev" title="HabitatGraphFeatureOptions" href="habit.kernels.HabitatGraphFeatureOptions.html" /> 
+    <link rel="next" title="render_habitat_graph_surface_3d" href="habit.viz.render_habitat_graph_surface_3d.html" />
+    <link rel="prev" title="plot_habitat_graph_network_2d" href="habit.viz.plot_habitat_graph_network_2d.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -1249,7 +1249,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#numeric-kernels-habit-kernels">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#numeric-kernels-habit-kernels">Numeric kernels (<code class="docutils literal notranslate"><span class="pre">habit.kernels</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../index.html#model-selection">Model selection</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.score_direction.html">score_direction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.knee_index.html">knee_index</a></li>
@@ -1262,7 +1262,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.cluster_selection.KNEE.html">habit.kernels.cluster_selection.KNEE</a></li>
 </ul>
 </li>
-<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-metrics">Habitat metrics</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-metrics">Habitat metrics</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.local_entropy_map.html">local_entropy_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.spatial_interaction_matrix.html">spatial_interaction_matrix</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.msi_features_from_matrix.html">msi_features_from_matrix</a></li>
@@ -1271,7 +1271,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.habitat_ith_dispersion.html">habitat_ith_dispersion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.ith_score.html">ith_score</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.HabitatGraphFeatureOptions.html">HabitatGraphFeatureOptions</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">extract_graph_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features.html">extract_graph_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_graph_features_for_labels.html">extract_graph_features_for_labels</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.extract_habitat_nodes.html">extract_habitat_nodes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html">build_centroid_distance_graph</a></li>
@@ -1330,7 +1330,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#visualization-habit-viz">Visualization (<code class="docutils literal notranslate"><span class="pre">habit.viz</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../index.html#styles">Styles</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.StyleSpec.html">StyleSpec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.use_style.html">use_style</a></li>
@@ -1371,7 +1371,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_permutation_importance.html">plot_permutation_importance</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#habitat-clustering-and-overlay">Habitat clustering and overlay</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_2d.html">plot_habitat_clustering_pca_2d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d.html">plot_habitat_clustering_pca_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_clustering_pca_3d_interactive.html">plot_habitat_clustering_pca_3d_interactive</a></li>
@@ -1391,7 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
-<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1757,9 +1757,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
-      <li class="breadcrumb-item active">extract_graph_features</li>
+      <li class="breadcrumb-item active">plot_graph_feature_heatmap</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/api/generated/habit.kernels.extract_graph_features.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/api/generated/habit.viz.plot_graph_feature_heatmap.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1767,37 +1767,60 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="extract-graph-features">
-<h1>extract_graph_features<a class="headerlink" href="#extract-graph-features" title="Link to this heading"></a></h1>
+  <section id="plot-graph-feature-heatmap">
+<h1>plot_graph_feature_heatmap<a class="headerlink" href="#plot-graph-feature-heatmap" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="habit.kernels.extract_graph_features">
-<span class="sig-name descname"><span class="pre">extract_graph_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.kernels.HabitatGraphFeatureOptions.html#habit.kernels.HabitatGraphFeatureOptions" title="habit.kernels.habitat_graph.features.HabitatGraphFeatureOptions"><span class="pre">HabitatGraphFeatureOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">HabitatGraphFeatureOptions(include_single_habitat_graph=True,</span> <span class="pre">include_pairwise_habitat_graph=True,</span> <span class="pre">edge_method='min_distance',</span> <span class="pre">distance_threshold=5.0,</span> <span class="pre">adjacency_connectivity='corner',</span> <span class="pre">adjacency_min_voxels=10,</span> <span class="pre">edge_weight='none',</span> <span class="pre">min_region_voxels=1,</span> <span class="pre">connectivity='full',</span> <span class="pre">erosion_radius=0,</span> <span class="pre">node_method='uniform_grid',</span> <span class="pre">subdivide_region_voxels=1000,</span> <span class="pre">block_size=8,</span> <span class="pre">block_min_coverage=0.2,</span> <span class="pre">pairwise_include_intra_edges=True,</span> <span class="pre">include_extended_metrics=True,</span> <span class="pre">extended_min_nodes=10)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/habit/kernels/habitat_graph/features.html#extract_graph_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.kernels.extract_graph_features" title="Link to this definition"></a></dt>
-<dd><p>Extract subject-level graph features from a habitat label map.</p>
-<p>Default <code class="docutils literal notranslate"><span class="pre">options</span></code> use <code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (8-voxel cubes,
-one node per in-cell subregion centroid) and
-<code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> with <code class="docutils literal notranslate"><span class="pre">distance_threshold=5.0</span></code>.
-Pass <code class="docutils literal notranslate"><span class="pre">node_method='component'</span></code> / <code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code> for the
-older connected-component contact graph.</p>
+<dt class="sig sig-object py" id="habit.viz.plot_graph_feature_heatmap">
+<span class="sig-name descname"><span class="pre">plot_graph_feature_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subjects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'single'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'pair'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'all'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'variance'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sample'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'variance'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zscore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'subject_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/habit/viz/habitat_graph.html#plot_graph_feature_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.viz.plot_graph_feature_heatmap" title="Link to this definition"></a></dt>
+<dd><p>Draw a subject x graph-feature heatmap (not habitat x texture).</p>
+<p>Columns in a graph table mix incompatible units (counts, ratios,
+path lengths). <code class="docutils literal notranslate"><span class="pre">zscore=True</span></code> (default) standardizes each selected
+feature across the <strong>selected subjects</strong> so a row is a relative
+profile, not a raw magnitude. Raw mixed units are not comparable;
+pass <code class="docutils literal notranslate"><span class="pre">zscore=False</span></code> only when every drawn column shares a scale.</p>
+<p>Visualization parameters (who / which features / how many) are
+first-class: pass <code class="docutils literal notranslate"><span class="pre">subjects</span></code> and either an explicit <code class="docutils literal notranslate"><span class="pre">features</span></code>
+list or <code class="docutils literal notranslate"><span class="pre">n_features</span></code> + <code class="docutils literal notranslate"><span class="pre">feature_group</span></code> + <code class="docutils literal notranslate"><span class="pre">select</span></code>. The default
+cap is 40 columns so the full ~400-feature bank is never dumped
+onto one figure.</p>
+<p>This is a different figure from
+<a class="reference internal" href="habit.viz.plot_habitat_feature_heatmap.html#habit.viz.plot_habitat_feature_heatmap" title="habit.viz.plot_habitat_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_feature_heatmap()</span></code></a> (habitats x
+radiomics features).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>label_array</strong> – Already segmented habitat map. Label 0 is treated as
-background and excluded from graph construction.</p></li>
-<li><p><strong>options</strong> – Graph construction and metric options.</p></li>
-<li><p><strong>expected_labels</strong> – Optional canonical habitat ids to report. When given,
-every listed label produces its <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> columns and every
-unordered pair its <code class="docutils literal notranslate"><span class="pre">pair_h*_h*</span></code> columns even when the label is
-absent from this subject (empty graphs yield zero-valued metrics),
-so cohort-level tables have stable columns. When <code class="docutils literal notranslate"><span class="pre">None</span></code>, only
-labels actually present in <code class="docutils literal notranslate"><span class="pre">label_array</span></code> are reported (the
-historical v0.1 behaviour).</p></li>
+<li><p><strong>table</strong> – Wide frame, one row per subject. Identifier column
+defaults to <code class="docutils literal notranslate"><span class="pre">subject_id</span></code>. Domain FeatureTable frames use
+<code class="docutils literal notranslate"><span class="pre">subject</span></code> — pass <code class="docutils literal notranslate"><span class="pre">subject_col='subject'</span></code>.</p></li>
+<li><p><strong>subjects</strong> – Subject ids to show, in y-axis order. <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps
+every row. Missing ids raise <a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">HABITAPIError</span></code></a>.</p></li>
+<li><p><strong>features</strong> – Exact column list. When set, it overrides
+<code class="docutils literal notranslate"><span class="pre">n_features</span></code>, <code class="docutils literal notranslate"><span class="pre">select</span></code>, and <code class="docutils literal notranslate"><span class="pre">feature_group</span></code>.</p></li>
+<li><p><strong>n_features</strong> – Column cap when <code class="docutils literal notranslate"><span class="pre">features</span></code> is omitted (default 40).</p></li>
+<li><p><strong>feature_group</strong> – <code class="docutils literal notranslate"><span class="pre">'single'</span></code> (<code class="docutils literal notranslate"><span class="pre">single_h*</span></code>), <code class="docutils literal notranslate"><span class="pre">'pair'</span></code>
+(<code class="docutils literal notranslate"><span class="pre">pair_h*</span></code>), or <code class="docutils literal notranslate"><span class="pre">'all'</span></code> (those plus <code class="docutils literal notranslate"><span class="pre">graph_num_*</span></code>).
+<code class="docutils literal notranslate"><span class="pre">graph_num_*</span></code> is excluded from <code class="docutils literal notranslate"><span class="pre">single</span></code> / <code class="docutils literal notranslate"><span class="pre">pair</span></code>.</p></li>
+<li><p><strong>select</strong> – When <code class="docutils literal notranslate"><span class="pre">features</span></code> is omitted, take the top-k columns by
+cross-subject variance (<code class="docutils literal notranslate"><span class="pre">'variance'</span></code>) or a reproducible
+random subset (<code class="docutils literal notranslate"><span class="pre">'sample'</span></code>, seeded by <code class="docutils literal notranslate"><span class="pre">sample_seed</span></code>).</p></li>
+<li><p><strong>sample_seed</strong> – RNG seed for <code class="docutils literal notranslate"><span class="pre">select='sample'</span></code>.</p></li>
+<li><p><strong>zscore</strong> – Column-wise z-score across the selected subjects
+(default <code class="docutils literal notranslate"><span class="pre">True</span></code>). Requires at least two subjects.</p></li>
+<li><p><strong>subject_col</strong> – Identifier column name (default <code class="docutils literal notranslate"><span class="pre">'subject_id'</span></code>).</p></li>
+<li><p><strong>title</strong> – Optional English figure title. <code class="docutils literal notranslate"><span class="pre">None</span></code> builds one from
+the group and whether values are z-scored.</p></li>
+<li><p><strong>ax</strong> – Optional existing axes. <code class="docutils literal notranslate"><span class="pre">None</span></code> creates a new figure.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Flat feature dictionary ready for table assembly.</p>
+<dd class="field-even"><p>The matplotlib <code class="docutils literal notranslate"><span class="pre">Figure</span></code>. The caller decides whether to save it.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>]</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="habit.exceptions.HABITAPIError.html#habit.exceptions.HABITAPIError" title="habit.exceptions.HABITAPIError"><strong>HABITAPIError</strong></a> – Missing subjects / columns, empty selection,
+    invalid knobs, or <code class="docutils literal notranslate"><span class="pre">zscore=True</span></code> with fewer than two rows.</p></li>
+<li><p><a class="reference internal" href="habit.exceptions.OptionalDependencyError.html#habit.exceptions.OptionalDependencyError" title="habit.exceptions.OptionalDependencyError"><strong>OptionalDependencyError</strong></a> – When matplotlib is not installed.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1808,8 +1831,8 @@ historical v0.1 behaviour).</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="habit.kernels.HabitatGraphFeatureOptions.html" class="btn btn-neutral float-left" title="HabitatGraphFeatureOptions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="habit.kernels.extract_graph_features_for_labels.html" class="btn btn-neutral float-right" title="extract_graph_features_for_labels" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="habit.viz.plot_habitat_graph_network_2d.html" class="btn btn-neutral float-left" title="plot_habitat_graph_network_2d" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="habit.viz.render_habitat_graph_surface_3d.html" class="btn btn-neutral float-right" title="render_habitat_graph_surface_3d" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

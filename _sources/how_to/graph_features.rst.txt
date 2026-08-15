@@ -35,8 +35,8 @@ Minimal YAML fragment::
      edge_method: min_distance
      distance_threshold: 5.0
      node_method: uniform_grid
-     block_size: 5
-     block_min_coverage: 0.05
+     block_size: 8
+     block_min_coverage: 0.2
      connectivity: full
      erosion_radius: 0
      include_single_habitat_graph: true
@@ -55,15 +55,15 @@ Outputs:
   ``[view]``)
 
 By default nodes sit at **per-cell subregion centroids** on a global
-VOI lattice (``node_method: uniform_grid``, ``block_size: 5``
+VOI lattice (``node_method: uniform_grid``, ``block_size: 8``
 **voxels**, not millimetres). A cube is kept when its occupied fraction
-exceeds ``block_min_coverage``; each connected habitat fragment inside
-that cube becomes its own node. An **edge exists when the closest
-voxels of two nodes are within 5** voxel-index units
+exceeds ``block_min_coverage`` (default ``0.2``); each connected habitat
+fragment inside that cube becomes its own node. An **edge exists when
+the closest voxels of two nodes are within 5** voxel-index units
 (``edge_method: min_distance``, ``distance_threshold: 5``).
-Face-adjacent 5-cubes connect (closest voxels are one hop apart). One
-empty lattice cell between cubes is closest-voxel distance 6, which is
-greater than 5, so those stay disconnected. There is **no morphological
+Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
+empty lattice cell between cubes is closest-voxel distance about 8,
+which is greater than 5, so those stay disconnected. There is **no morphological
 erosion** (``erosion_radius: 0``). Pass
 ``node_method: component`` for connected-component nodes, and
 ``edge_method: adjacency`` if you want contact-voxel edges (default
@@ -82,7 +82,7 @@ Python API
 
 The figure below is written by the graph gallery
 (:doc:`../examples/graph_features`) — one-step with **fixed**
-``n_habitats=4`` and the library graph defaults (uniform 5-voxel cubes
+``n_habitats=4`` and the library graph defaults (uniform 8-voxel cubes
 with per-subregion centroid nodes + min-distance edges + dashed
 lattice). Reproduce it::
 
@@ -110,7 +110,7 @@ Or paste the same code the gallery shows::
    slice_index = int((labels > 0).reshape(labels.shape[0], -1).sum(axis=1).argmax())
    feats = extract_graph_features(labels[slice_index], options=options)
    fig = plot_habitat_graph_network_2d(
-       labels, options=options, show_grid=True, block_size=5, grid_linestyle="--"
+       labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"
    )
 
 Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry

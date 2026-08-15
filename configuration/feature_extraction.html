@@ -382,7 +382,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -633,6 +633,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1390,6 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1795,7 +1797,7 @@
 <span class="c1"># graph:</span>
 <span class="c1">#   edge_method: min_distance</span>
 <span class="c1">#   node_method: uniform_grid</span>
-<span class="c1">#   block_size: 5</span>
+<span class="c1">#   block_size: 8</span>
 <span class="c1">#   visualize: false</span>
 
 <span class="nt">n_habitats</span><span class="p">:</span>
@@ -1891,13 +1893,13 @@ deprecated.</p></li>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_single_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>) / <code class="docutils literal notranslate"><span class="pre">include_pairwise_habitat_graph</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">edge_method</span></code>: <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> (default), <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>, or <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">5.0</span></code>, voxel-index units) — used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>. With default 5-voxel cubes, face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance_threshold</span></code> (<code class="docutils literal notranslate"><span class="pre">5.0</span></code>, voxel-index units) — used by <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>. With default 8-voxel cubes, face-adjacent cubes connect; one empty lattice cell (closest-voxel distance about 8) stays disconnected.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">adjacency_connectivity</span></code> (<code class="docutils literal notranslate"><span class="pre">corner</span></code>: 8-conn in 2D / 26-conn in 3D; <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 remains available) / <code class="docutils literal notranslate"><span class="pre">adjacency_min_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>) — used by <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>. An edge exists when two regions are adjacent and the contact voxel count is &gt;= 10, measured on the habitat labels as drawn (default <code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">edge_weight</span></code>: <code class="docutils literal notranslate"><span class="pre">none</span></code> | <code class="docutils literal notranslate"><span class="pre">distance</span></code> | <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code> | <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">min_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code>), <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> (default <code class="docutils literal notranslate"><span class="pre">full</span></code>: 8-conn in 2D / 26-conn in 3D; <code class="docutils literal notranslate"><span class="pre">face</span></code> = 4/6 remains available)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">node_method</span></code> (<code class="docutils literal notranslate"><span class="pre">uniform_grid</span></code> default; <code class="docutils literal notranslate"><span class="pre">component</span></code> for connected-component nodes)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">erosion_radius</span></code> (<code class="docutils literal notranslate"><span class="pre">0</span></code> / off; set <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1</span></code> to shrink habitats before edges), <code class="docutils literal notranslate"><span class="pre">subdivide_region_voxels</span></code> (<code class="docutils literal notranslate"><span class="pre">1000</span></code>; used only by <code class="docutils literal notranslate"><span class="pre">component</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">5</span></code> voxels, not millimetres), <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (<code class="docutils literal notranslate"><span class="pre">0.05</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">8</span></code> voxels, not millimetres), <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (<code class="docutils literal notranslate"><span class="pre">0.2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>), <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
 </ul>
@@ -1909,7 +1911,7 @@ deprecated.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_dpi</span></code> (<code class="docutils literal notranslate"><span class="pre">600</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_show_background</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_show_grid</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">null</span></code> → extraction <code class="docutils literal notranslate"><span class="pre">block_size</span></code>, default 5 voxels)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">visualization_block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">null</span></code> → extraction <code class="docutils literal notranslate"><span class="pre">block_size</span></code>, default 8 voxels)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_grid_linestyle</span></code> (<code class="docutils literal notranslate"><span class="pre">--</span></code> dashed)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">visualization_save_3d</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>; 3D needs optional <code class="docutils literal notranslate"><span class="pre">[view]</span></code> stack)</p></li>
 </ul>

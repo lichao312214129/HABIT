@@ -1391,6 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1774,16 +1775,16 @@
 <code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> (not <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>) →
 <code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code> on the <strong>same representative
 axial slice</strong> as the 2D network (not a full-volume extract) →
-<code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code> (Subject x graph-feature,
+<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a> (Subject x graph-feature,
 column z-score; two figures: <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> and <code class="docutils literal notranslate"><span class="pre">pair_h*</span></code>) plus overlay +
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>. This example uses the
 library defaults on <code class="xref py py-class docutils literal notranslate"><span class="pre">HabitatGraphFeatureOptions</span></code>:
-<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (5-voxel cubes, not millimetres; one
+<code class="docutils literal notranslate"><span class="pre">node_method='uniform_grid'</span></code> (8-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
 <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (closest voxels within 5).
 <code class="docutils literal notranslate"><span class="pre">include_extended_metrics=False</span></code> is required here: extended metrics
-plus a 5-voxel lattice on a full 3D map are the main time sink. The 2D
-network draws that same lattice as dashed lines. Graph topology is a
+on a full 3D map are the main time sink. The 2D network draws that
+same 8-voxel lattice as dashed lines. Graph topology is a
 habitat-map feature family (same tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns
 under <a class="reference internal" href="../reference/features/index.html"><span class="doc">Features from habitat maps</span></a>.</p>
 <p>The old ten-bar “Sampled feature values” figure is gone; use the two
@@ -1795,14 +1796,14 @@ when your table has all five rows (for example a
 <h2>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h2>
 <p>Change <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code> to your preprocessed tree
 (<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=4</strong> and
-uses the library node/edge defaults (uniform 5-voxel cubes, one node
+uses the library node/edge defaults (uniform 8-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
 off). One <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> on three subjects feeds the overlay, the 2D
 network, and the heatmap table. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that
 path too if you like).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
@@ -1815,30 +1816,38 @@ path too if you like).</p>
 <span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
 <span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
 <span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+<span class="c1"># Visualization: which people to show. Add ids (and load more rows) for all 5.</span>
+<span class="n">SUBJECTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;subj001&quot;</span><span class="p">,</span> <span class="s2">&quot;subj002&quot;</span><span class="p">,</span> <span class="s2">&quot;subj003&quot;</span><span class="p">)</span>
 
-<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="c1"># Fixed K=4 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
-<span class="c1"># Node/edge defaults: per-cell subregion centroids + min-distance.</span>
-<span class="c1"># Extended metrics are off so a full 3D mixed lattice stays interactive.</span>
+<span class="c1"># One fit for overlay, 2D network, and the heatmap table.</span>
+<span class="c1"># Extended metrics OFF: they dominate runtime even at block_size=8.</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 
-<span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="c1"># Same representative axial slice as the 2D network figure.</span>
-<span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
-<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">),</span> <span class="s2">&quot;graph features from representative slice&quot;</span><span class="p">,</span> <span class="n">slice_index</span><span class="p">)</span>
-<span class="c1"># Reproducible 10-feature sample (fixed seed). Swap SAMPLE_SEED if you like.</span>
-<span class="n">SAMPLE_SEED</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">SAMPLE_SEED</span><span class="p">)</span>
-<span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
-<span class="n">sample_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
-<span class="n">sample</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">feats</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sample_names</span><span class="p">)}</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ten sampled graph features (seed=</span><span class="si">%d</span><span class="s2">):&quot;</span> <span class="o">%</span> <span class="n">SAMPLE_SEED</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">sample</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Same representative axial slice as plot_habitat_graph_network_2d.</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">):</span>
+    <span class="n">labels_3d</span> <span class="o">=</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span>
+    <span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">labels_3d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
+        <span class="n">labels_3d</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+        <span class="n">expected_labels</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <span class="o">**</span><span class="n">feats</span><span class="p">})</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="s2">&quot;subjects x&quot;</span><span class="p">,</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;graph features from representative slices&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1854,13 +1863,16 @@ path too if you like).</p>
 visualization parameters — set who and which columns to show; do not
 dump the full bank onto one figure. Raw mixed units are not comparable;
 the default is a column-wise z-score across the selected subjects.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cohort, result, labels, options, sample, and MODALITIES.</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">,</span> <span class="n">plot_habitat_overlay</span><span class="p">,</span> <span class="n">use_style</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses cohort, result, table, options, SUBJECTS, MODALITIES.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">plot_graph_feature_heatmap</span><span class="p">,</span>
+    <span class="n">plot_habitat_graph_network_2d</span><span class="p">,</span>
+    <span class="n">plot_habitat_overlay</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># Overlay: ImageVolume + HabitatMap (3-panel orthogonal default).</span>
+<span class="c1"># Overlay + 2D network: first of the three subjects.</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_overlay</span><span class="p">(</span>
     <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
     <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
@@ -1868,26 +1880,39 @@ the default is a column-wise z-score across the selected subjects.</p>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_slice_2d.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="c1"># Same edge options as extract_graph_features so the 2D plot matches.</span>
+<span class="c1"># block_size=8 is the library default (8-voxel cubes on the legend).</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
     <span class="n">labels</span><span class="p">,</span>
     <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
     <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
     <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_network_2d.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
-<span class="c1"># Same `sample` dict printed in the Script block (seed=0).</span>
-<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">7.4</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">bar_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">bar_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">bar_names</span><span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">bar_names</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">bar_values</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C78A8&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.65</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Ten sampled graph features (seed=0)&quot;</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_feature_sample.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="c1"># Cohort heatmaps: set people and features here (do not dump all columns).</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_graph_feature_heatmap</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="o">=</span><span class="n">SUBJECTS</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">feature_group</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+    <span class="n">select</span><span class="o">=</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Single-habitat graph features (column z-score)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_feature_heatmap_single.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_graph_feature_heatmap</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="o">=</span><span class="n">SUBJECTS</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">feature_group</span><span class="o">=</span><span class="s2">&quot;pair&quot;</span><span class="p">,</span>
+    <span class="n">select</span><span class="o">=</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Pairwise graph features (column z-score)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_feature_heatmap_pair.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
     <span class="s2">&quot;Wrote out/graph_habitat_slice_2d.png, &quot;</span>
-    <span class="s2">&quot;out/graph_habitat_network_2d.png, and out/graph_feature_sample.png&quot;</span>
+    <span class="s2">&quot;out/graph_habitat_network_2d.png, &quot;</span>
+    <span class="s2">&quot;out/graph_feature_heatmap_single.png, and &quot;</span>
+    <span class="s2">&quot;out/graph_feature_heatmap_pair.png&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -1907,17 +1932,17 @@ count depends on the slice and <code class="docutils literal notranslate"><span 
 <section id="cohort-heatmaps">
 <h2>Cohort heatmaps<a class="headerlink" href="#cohort-heatmaps" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="_static/images/examples/graph_feature_heatmap_single.png"><img alt="Subject by single-habitat graph-feature heatmap, column z-scored" src="_static/images/examples/graph_feature_heatmap_single.png" width="720" />
+<a class="reference internal image-reference" href="../_images/graph_feature_heatmap_single.png"><img alt="Subject by single-habitat graph-feature heatmap, column z-scored" src="../_images/graph_feature_heatmap_single.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Up to 40 <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> columns (highest cross-subject variance) for
 <code class="docutils literal notranslate"><span class="pre">subjects=(&quot;subj001&quot;,</span> <span class="pre">&quot;subj002&quot;,</span> <span class="pre">&quot;subj003&quot;)</span></code>. Color is a
 column-wise z-score
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="_static/images/examples/graph_feature_heatmap_pair.png"><img alt="Subject by pairwise graph-feature heatmap, column z-scored" src="_static/images/examples/graph_feature_heatmap_pair.png" width="720" />
+<a class="reference internal image-reference" href="../_images/graph_feature_heatmap_pair.png"><img alt="Subject by pairwise graph-feature heatmap, column z-scored" src="../_images/graph_feature_heatmap_pair.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Same call with <code class="docutils literal notranslate"><span class="pre">feature_group='pair'</span></code> (<code class="docutils literal notranslate"><span class="pre">pair_h*</span></code> only;
@@ -1952,8 +1977,8 @@ palette colours, other habitats use the same gray wash, and only
 <strong>white inter-edges between that pair</strong> are drawn (no intra-edges,
 no purple). Four habitats yield six pair panels in a 2x3 placement
 under the H1–H4 row; every panel uses the same ROI window and the
-same physical size. Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> /
-<code class="docutils literal notranslate"><span class="pre">grid_linestyle='--'</span></code> draw the same 5-voxel cubes
+same physical size. Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=8</span></code> /
+<code class="docutils literal notranslate"><span class="pre">grid_linestyle='--'</span></code> draw the same 8-voxel cubes
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>). Heatmaps use
 this same representative slice, not the full 3D volume.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
@@ -1976,7 +2001,7 @@ see the how-to for the one-line 3D calls).</p>
 </a>
 <figcaption>
 <p><span class="caption-text">Region-centroid nodes with intra- and inter-habitat min-distance edges
-(library defaults: uniform 5-voxel cubes, closest-voxel threshold 5;
+(library defaults: uniform 8-voxel cubes, closest-voxel threshold 5;
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>

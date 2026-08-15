@@ -1744,6 +1744,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2150,12 +2151,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the slice figure; describe this slice-local 2D graph separately in</span>
 <span class="sd">publications when 3D volumetric features are also reported.</span>
 
+<span class="sd">:func:`plot_graph_feature_heatmap` is a different figure: rows are</span>
+<span class="sd">subjects and columns are graph-feature values (``single_h*`` /</span>
+<span class="sd">``pair_h*``), not habitats x texture features. Cap the column count</span>
+<span class="sd">(default 40) and let the caller choose people and features; do not dump</span>
+<span class="sd">the full ~400-column bank onto one axes.</span>
+
 <span class="sd">All text drawn on the figures is English-only.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -2169,6 +2177,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">extract_habitat_nodes</span><span class="p">,</span>
     <span class="n">iter_label_pairs</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.utils.optional_deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.colorbar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ColorbarSpec</span><span class="p">,</span>
@@ -2177,15 +2186,18 @@ window.runMermaid = runMermaid;</script>
     <span class="n">colorbar_is_enabled</span><span class="p">,</span>
     <span class="n">discrete_habitat_mappable</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.palette</span><span class="w"> </span><span class="kn">import</span> <span class="n">habitat_hex_colors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.style</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;plot_habitat_graph_slice&quot;</span><span class="p">,</span>
     <span class="s2">&quot;plot_habitat_graph_network_2d&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plot_graph_feature_heatmap&quot;</span><span class="p">,</span>
     <span class="s2">&quot;render_habitat_graph_surface_3d&quot;</span><span class="p">,</span>
     <span class="s2">&quot;render_habitat_graph_network_3d&quot;</span><span class="p">,</span>
 <span class="p">]</span>
@@ -2194,6 +2206,19 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_VIZ_PURPOSE</span> <span class="o">=</span> <span class="s2">&quot;habitat graph topology figures&quot;</span>
 <span class="c1">#: What the 3D renderers need PyVista / scikit-image for.</span>
 <span class="n">_VIEW_PURPOSE</span> <span class="o">=</span> <span class="s2">&quot;3D habitat graph rendering&quot;</span>
+<span class="c1">#: Default column cap so a ~400-feature graph table stays readable.</span>
+<span class="n">_DEFAULT_HEATMAP_FEATURES</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="c1">#: Single-habitat columns look like ``single_h1_avg_degree``.</span>
+<span class="n">_SINGLE_FEATURE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^single_h\d+_&quot;</span><span class="p">)</span>
+<span class="c1">#: Pairwise columns look like ``pair_h1_h2_edge_density``.</span>
+<span class="n">_PAIR_FEATURE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^pair_h\d+_h\d+_&quot;</span><span class="p">)</span>
+<span class="c1">#: Subject-level counts (``graph_num_habitats``, ``graph_num_nodes_total``).</span>
+<span class="n">_GRAPH_NUM_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^graph_num_&quot;</span><span class="p">)</span>
+<span class="c1">#: Heatmap typography (GitHub Pages / gallery readability).</span>
+<span class="n">_HEATMAP_TITLE_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">11.0</span>
+<span class="n">_HEATMAP_LABEL_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span>
+<span class="n">_HEATMAP_CBAR_FONTSIZE</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">9.0</span>
 
 <span class="c1">#: 3D renderer only: inter-habitat tubes stay a single accent. The 2D</span>
 <span class="c1">#: graph overlay is white (nodes + edges) on the coloured habitat fill.</span>
@@ -2644,7 +2669,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        options: Extraction options (nodes / edges still use these).</span>
 <span class="sd">        block_size: Plot-function override. ``None`` uses</span>
-<span class="sd">            ``options.block_size`` (library default 5 voxels).</span>
+<span class="sd">            ``options.block_size`` (library default 8 voxels).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        int: Cube edge length in voxels, ``&gt;= 1``.</span>
@@ -2698,7 +2723,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        block_size: Cube edge length in voxels.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Caption such as ``\&quot;5-voxel cubes\&quot;``.</span>
+<span class="sd">        Caption such as ``\&quot;8-voxel cubes\&quot;``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">block_size</span><span class="p">)</span><span class="si">}</span><span class="s2">-voxel cubes&quot;</span>
 
@@ -3064,7 +3089,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Display knobs (``show_grid``, ``block_size``, ``grid_linestyle``, …)</span>
 <span class="sd">    override ``options`` for drawing only. Node extraction still uses</span>
 <span class="sd">    ``options``. Default lattice: ``block_size=None`` →</span>
-<span class="sd">    ``options.block_size`` (library default 5 voxels), dashed lines.</span>
+<span class="sd">    ``options.block_size`` (library default 8 voxels), dashed lines.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        label_array: 2D or 3D habitat label map (background encoded as 0).</span>
@@ -3201,7 +3226,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        show_grid: Draw the uniform-grid lattice (default ``True``).</span>
 <span class="sd">            Also draws when ``block_size`` is passed in ``component`` mode.</span>
 <span class="sd">        block_size: Display cube edge in voxels. ``None`` (default) uses</span>
-<span class="sd">            ``options.block_size`` (library default 5 voxels) so the lattice</span>
+<span class="sd">            ``options.block_size`` (library default 8 voxels) so the lattice</span>
 <span class="sd">            matches the nodes.</span>
 <span class="sd">        grid_linestyle: Matplotlib line style (default ``\&quot;--\&quot;`` dashed).</span>
 <span class="sd">        grid_color: Lattice colour.</span>
@@ -3479,6 +3504,421 @@ window.runMermaid = runMermaid;</script>
             <span class="p">),</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">_PANEL_TITLE_FONTSIZE</span><span class="p">,</span>
         <span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Subject x graph-feature heatmap (matplotlib)</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ascii_minus_on_ticks</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="s2">&quot;Figure&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Persist ASCII &#39;-&#39; on numeric axes (including colorbars).</span>
+
+<span class="sd">    ``use_style`` restores rcParams on exit, so a later ``get_ticklabels``</span>
+<span class="sd">    would otherwise regenerate U+2212. A FuncFormatter stays on the axes.</span>
+<span class="sd">    Categorical ticks (subject ids, feature names) keep their FixedFormatter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matplotlib</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;viz&quot;</span><span class="p">,</span> <span class="n">purpose</span><span class="o">=</span><span class="n">_VIZ_PURPOSE</span><span class="p">)</span>
+    <span class="n">ticker</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">ticker</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">ticker</span><span class="o">.</span><span class="n">FuncFormatter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">_pos</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u2212</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="p">,</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="p">):</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">axis</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">ticker</span><span class="o">.</span><span class="n">ScalarFormatter</span><span class="p">):</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_zscore_columns</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Z-score each feature (column) across subjects; NaN-safe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        matrix: Subject x feature values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Same shape; columns with fewer than two finite</span>
+<span class="sd">        values become NaN; zero-variance columns become 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">continue</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">finite</span><span class="p">]))</span>
+        <span class="n">sd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">sd</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">values</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="n">sd</span>
+            <span class="n">scaled</span><span class="p">[</span><span class="o">~</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">out</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaled</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_graph_feature_column</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True for graph-family columns (single / pair / graph_num).&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">_SINGLE_FEATURE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">_PAIR_FEATURE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">_GRAPH_NUM_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_columns_for_feature_group</span><span class="p">(</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">feature_group</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter graph-feature column names by family.</span>
+
+<span class="sd">    ``single`` / ``pair`` keep only ``single_h*`` / ``pair_h*``.</span>
+<span class="sd">    ``graph_num_*`` is excluded from those two groups and included only</span>
+<span class="sd">    when ``feature_group=&#39;all&#39;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">feature_group</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: feature_group must be &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;single&#39;, &#39;pair&#39;, or &#39;all&#39;; got </span><span class="si">{</span><span class="n">feature_group</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">selected</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;single&quot;</span> <span class="ow">and</span> <span class="n">_SINGLE_FEATURE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;pair&quot;</span> <span class="ow">and</span> <span class="n">_PAIR_FEATURE_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span> <span class="ow">and</span> <span class="n">_is_graph_feature_column</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">selected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">selected</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_graph_feature_tick</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ASCII tick: keep the habitat prefix, wrap the metric on a second line.&quot;&quot;&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">sanitize_label</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">single</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(single_h\d+)_(.+)$&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">single</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">single</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">pair</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(pair_h\d+_h\d+)_(.+)$&quot;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pair</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pair</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">pair</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">label</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_subject_frame</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">:</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">subject_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Restrict and reorder rows to the requested subject ids.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">subject_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">hint</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;subject&quot;</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">subject_col</span> <span class="o">!=</span> <span class="s2">&quot;subject&quot;</span><span class="p">:</span>
+            <span class="n">hint</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot; FeatureTable frames from GraphHabitatFeatures use &quot;</span>
+                <span class="s2">&quot;subject_col=&#39;subject&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: subject column &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subject_col</span><span class="si">!r}</span><span class="s2"> is not in the table. Available columns: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subjects</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: table has no subject rows.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">frame</span>
+    <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subjects</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">wanted</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: subjects is an empty sequence.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: subject id(s) not in the table: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">. Available: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">available</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="p">{</span><span class="n">item</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wanted</span><span class="p">)}</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">wanted</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">frame</span><span class="p">[</span><span class="s2">&quot;_habit_subject_order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;_habit_subject_order&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_habit_subject_order&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coerce_numeric_column</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Coerce one series to float, turning non-numeric cells into NaN.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_select_heatmap_features</span><span class="p">(</span>
+    <span class="n">frame</span><span class="p">:</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">n_features</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">feature_group</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
+    <span class="n">select</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">],</span>
+    <span class="n">sample_seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">subject_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose which graph-feature columns to draw.</span>
+
+<span class="sd">    An explicit ``features`` list wins (must exist) and ignores</span>
+<span class="sd">    ``n_features`` / ``select`` / ``feature_group``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wanted</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">features</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wanted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: features is an empty sequence.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">wanted</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: feature column(s) not in &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;the table: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">wanted</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: n_features must be &gt;= 1; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">select</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: select must be &#39;variance&#39; or &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;sample&#39;; got </span><span class="si">{</span><span class="n">select</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">candidates</span> <span class="o">=</span> <span class="n">_columns_for_feature_group</span><span class="p">(</span>
+        <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">!=</span> <span class="n">subject_col</span><span class="p">],</span>
+        <span class="n">feature_group</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: no columns matched &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;feature_group=</span><span class="si">{</span><span class="n">feature_group</span><span class="si">!r}</span><span class="s2">. Expected names such as &quot;</span>
+            <span class="s2">&quot;single_h1_avg_degree, pair_h1_h2_edge_density, or &quot;</span>
+            <span class="s2">&quot;graph_num_habitats (group=&#39;all&#39; only).&quot;</span>
+        <span class="p">)</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_features</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">cap</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
+    <span class="n">numeric</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">candidates</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_coerce_numeric_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">numeric</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;sample&quot;</span><span class="p">:</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">sample_seed</span><span class="p">))</span>
+        <span class="n">chosen</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">cap</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">candidates</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">chosen</span><span class="p">]</span>
+    <span class="n">variances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)):</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span>
+        <span class="n">variances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="p">)</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">variances</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">candidates</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[:</span><span class="n">cap</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="plot_graph_feature_heatmap">
+<a class="viewcode-back" href="../../../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_graph_feature_heatmap</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">:</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">features</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_DEFAULT_HEATMAP_FEATURES</span><span class="p">,</span>
+    <span class="n">feature_group</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;single&quot;</span><span class="p">,</span> <span class="s2">&quot;pair&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;single&quot;</span><span class="p">,</span>
+    <span class="n">select</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span>
+    <span class="n">sample_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">zscore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">subject_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Figure&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a subject x graph-feature heatmap (not habitat x texture).</span>
+
+<span class="sd">    Columns in a graph table mix incompatible units (counts, ratios,</span>
+<span class="sd">    path lengths). ``zscore=True`` (default) standardizes each selected</span>
+<span class="sd">    feature across the **selected subjects** so a row is a relative</span>
+<span class="sd">    profile, not a raw magnitude. Raw mixed units are not comparable;</span>
+<span class="sd">    pass ``zscore=False`` only when every drawn column shares a scale.</span>
+
+<span class="sd">    Visualization parameters (who / which features / how many) are</span>
+<span class="sd">    first-class: pass ``subjects`` and either an explicit ``features``</span>
+<span class="sd">    list or ``n_features`` + ``feature_group`` + ``select``. The default</span>
+<span class="sd">    cap is 40 columns so the full ~400-feature bank is never dumped</span>
+<span class="sd">    onto one figure.</span>
+
+<span class="sd">    This is a different figure from</span>
+<span class="sd">    :func:`~habit.viz.plot_habitat_feature_heatmap` (habitats x</span>
+<span class="sd">    radiomics features).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table: Wide frame, one row per subject. Identifier column</span>
+<span class="sd">            defaults to ``subject_id``. Domain FeatureTable frames use</span>
+<span class="sd">            ``subject`` — pass ``subject_col=&#39;subject&#39;``.</span>
+<span class="sd">        subjects: Subject ids to show, in y-axis order. ``None`` keeps</span>
+<span class="sd">            every row. Missing ids raise :class:`~habit.exceptions.HABITAPIError`.</span>
+<span class="sd">        features: Exact column list. When set, it overrides</span>
+<span class="sd">            ``n_features``, ``select``, and ``feature_group``.</span>
+<span class="sd">        n_features: Column cap when ``features`` is omitted (default 40).</span>
+<span class="sd">        feature_group: ``&#39;single&#39;`` (``single_h*``), ``&#39;pair&#39;``</span>
+<span class="sd">            (``pair_h*``), or ``&#39;all&#39;`` (those plus ``graph_num_*``).</span>
+<span class="sd">            ``graph_num_*`` is excluded from ``single`` / ``pair``.</span>
+<span class="sd">        select: When ``features`` is omitted, take the top-k columns by</span>
+<span class="sd">            cross-subject variance (``&#39;variance&#39;``) or a reproducible</span>
+<span class="sd">            random subset (``&#39;sample&#39;``, seeded by ``sample_seed``).</span>
+<span class="sd">        sample_seed: RNG seed for ``select=&#39;sample&#39;``.</span>
+<span class="sd">        zscore: Column-wise z-score across the selected subjects</span>
+<span class="sd">            (default ``True``). Requires at least two subjects.</span>
+<span class="sd">        subject_col: Identifier column name (default ``&#39;subject_id&#39;``).</span>
+<span class="sd">        title: Optional English figure title. ``None`` builds one from</span>
+<span class="sd">            the group and whether values are z-scored.</span>
+<span class="sd">        ax: Optional existing axes. ``None`` creates a new figure.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The matplotlib ``Figure``. The caller decides whether to save it.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: Missing subjects / columns, empty selection,</span>
+<span class="sd">            invalid knobs, or ``zscore=True`` with fewer than two rows.</span>
+<span class="sd">        OptionalDependencyError: When matplotlib is not installed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: table must be a pandas &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;DataFrame; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">_resolve_subject_frame</span><span class="p">(</span>
+        <span class="n">table</span><span class="p">,</span> <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span> <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span>
+    <span class="p">)</span>
+    <span class="n">chosen</span> <span class="o">=</span> <span class="n">_select_heatmap_features</span><span class="p">(</span>
+        <span class="n">frame</span><span class="p">,</span>
+        <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+        <span class="n">n_features</span><span class="o">=</span><span class="n">n_features</span><span class="p">,</span>
+        <span class="n">feature_group</span><span class="o">=</span><span class="n">feature_group</span><span class="p">,</span>
+        <span class="n">select</span><span class="o">=</span><span class="n">select</span><span class="p">,</span>
+        <span class="n">sample_seed</span><span class="o">=</span><span class="n">sample_seed</span><span class="p">,</span>
+        <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">subject_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">sanitize_label</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">frame</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">zscore</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: zscore=True needs at least 2 &quot;</span>
+            <span class="s2">&quot;subjects (column-wise standardization across people). &quot;</span>
+            <span class="s2">&quot;Pass zscore=False for a single row, or include more &quot;</span>
+            <span class="s2">&quot;people via subjects=...&quot;</span>
+        <span class="p">)</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="n">frame</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">shown</span> <span class="o">=</span> <span class="n">_zscore_columns</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="k">if</span> <span class="n">zscore</span> <span class="k">else</span> <span class="n">matrix</span>
+
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">_plt</span><span class="p">()</span>
+    <span class="n">n_feat</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">n_subj</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cell_in</span> <span class="o">=</span> <span class="mf">0.32</span>
+    <span class="n">left_in</span><span class="p">,</span> <span class="n">right_in</span><span class="p">,</span> <span class="n">top_in</span><span class="p">,</span> <span class="n">bottom_in</span> <span class="o">=</span> <span class="mf">1.15</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">1.85</span>
+    <span class="n">fig_w</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">14.0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">6.4</span><span class="p">,</span> <span class="n">left_in</span> <span class="o">+</span> <span class="n">right_in</span> <span class="o">+</span> <span class="n">cell_in</span> <span class="o">*</span> <span class="n">n_feat</span><span class="p">))</span>
+    <span class="n">fig_h</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">7.2</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="n">top_in</span> <span class="o">+</span> <span class="n">bottom_in</span> <span class="o">+</span> <span class="mf">0.42</span> <span class="o">*</span> <span class="n">n_subj</span><span class="p">))</span>
+    <span class="n">group_titles</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;single&quot;</span><span class="p">:</span> <span class="s2">&quot;Single-habitat graph features&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="s2">&quot;Pairwise graph features&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="s2">&quot;Graph features&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="s2">&quot;column z-score&quot;</span> <span class="k">if</span> <span class="n">zscore</span> <span class="k">else</span> <span class="s2">&quot;raw values&quot;</span>
+        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Graph features (</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_titles</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">feature_group</span><span class="p">)]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">style</span><span class="p">:</span>
+        <span class="n">axes</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_w</span><span class="p">,</span> <span class="n">fig_h</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">left_in</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span>
+                <span class="n">right</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">right_in</span> <span class="o">/</span> <span class="n">fig_w</span><span class="p">,</span>
+                <span class="n">top</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">top_in</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span>
+                <span class="n">bottom</span><span class="o">=</span><span class="n">bottom_in</span> <span class="o">/</span> <span class="n">fig_h</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">figure</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">shown</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">shown</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">zscore</span> <span class="ow">and</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">vmax</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="o">-</span><span class="n">vmax</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;RdBu_r&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vmin</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">vmax</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;cividis&quot;</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+            <span class="n">shown</span><span class="p">,</span>
+            <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)))</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">_graph_feature_tick</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">chosen</span><span class="p">],</span>
+            <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+            <span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Graph feature&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_LABEL_FONTSIZE</span>
+        <span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Subject&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.035</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span>
+            <span class="n">sanitize_label</span><span class="p">(</span>
+                <span class="s2">&quot;Z-score (across subjects)&quot;</span>
+                <span class="k">if</span> <span class="n">zscore</span>
+                <span class="k">else</span> <span class="s2">&quot;Feature value (mixed units)&quot;</span>
+            <span class="p">),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_CBAR_FONTSIZE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">resolved</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_TITLE_FONTSIZE</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">_HEATMAP_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_size</span><span class="p">(</span><span class="n">_HEATMAP_LABEL_FONTSIZE</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="n">_ascii_minus_on_ticks</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fig</span></div>
 
 

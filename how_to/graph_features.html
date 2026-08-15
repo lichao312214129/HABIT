@@ -1391,6 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1797,8 +1798,8 @@ physical line per shell command (Windows / conda PowerShell):</p>
   <span class="n">edge_method</span><span class="p">:</span> <span class="n">min_distance</span>
   <span class="n">distance_threshold</span><span class="p">:</span> <span class="mf">5.0</span>
   <span class="n">node_method</span><span class="p">:</span> <span class="n">uniform_grid</span>
-  <span class="n">block_size</span><span class="p">:</span> <span class="mi">5</span>
-  <span class="n">block_min_coverage</span><span class="p">:</span> <span class="mf">0.05</span>
+  <span class="n">block_size</span><span class="p">:</span> <span class="mi">8</span>
+  <span class="n">block_min_coverage</span><span class="p">:</span> <span class="mf">0.2</span>
   <span class="n">connectivity</span><span class="p">:</span> <span class="n">full</span>
   <span class="n">erosion_radius</span><span class="p">:</span> <span class="mi">0</span>
   <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
@@ -1818,15 +1819,15 @@ physical line per shell command (Windows / conda PowerShell):</p>
 <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
 </ul>
 <p>By default nodes sit at <strong>per-cell subregion centroids</strong> on a global
-VOI lattice (<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">5</span></code>
+VOI lattice (<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">uniform_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">block_size:</span> <span class="pre">8</span></code>
 <strong>voxels</strong>, not millimetres). A cube is kept when its occupied fraction
-exceeds <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code>; each connected habitat fragment inside
-that cube becomes its own node. An <strong>edge exists when the closest
-voxels of two nodes are within 5</strong> voxel-index units
+exceeds <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.2</span></code>); each connected habitat
+fragment inside that cube becomes its own node. An <strong>edge exists when
+the closest voxels of two nodes are within 5</strong> voxel-index units
 (<code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">min_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">distance_threshold:</span> <span class="pre">5</span></code>).
-Face-adjacent 5-cubes connect (closest voxels are one hop apart). One
-empty lattice cell between cubes is closest-voxel distance 6, which is
-greater than 5, so those stay disconnected. There is <strong>no morphological
+Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
+empty lattice cell between cubes is closest-voxel distance about 8,
+which is greater than 5, so those stay disconnected. There is <strong>no morphological
 erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>). Pass
 <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> for connected-component nodes, and
 <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code> if you want contact-voxel edges (default
@@ -1843,7 +1844,7 @@ palette colours and <strong>white inter-edges between that pair only</strong>.</
 <h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading"></a></h2>
 <p>The figure below is written by the graph gallery
 (<a class="reference internal" href="../examples/graph_features.html"><span class="doc">Graph features from habitat maps</span></a>) — one-step with <strong>fixed</strong>
-<code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> and the library graph defaults (uniform 5-voxel cubes
+<code class="docutils literal notranslate"><span class="pre">n_habitats=4</span></code> and the library graph defaults (uniform 8-voxel cubes
 with per-subregion centroid nodes + min-distance edges + dashed
 lattice). Reproduce it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">graph_features_demo</span><span class="o">.</span><span class="n">py</span>
@@ -1870,7 +1871,7 @@ lattice). Reproduce it:</p>
 <span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
 <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
-    <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
+    <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
