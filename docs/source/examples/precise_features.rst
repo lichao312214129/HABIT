@@ -1,63 +1,64 @@
-Precise features: screen before you cluster
-===========================================
+Precise features: atoms, then paper combinations
+================================================
 
-**Level:** recipe · **Data:** ``demo_data/preprocessed`` · **Extras:** ``[viz]`` ·
-**Time:** ~1–3 min
+**Level:** atomic · **Data:** ``demo_data/preprocessed`` · **Extras:** ``[viz]`` ·
+**Time:** ~5–15 min (one cropped subject, first-order + GLCM)
 
 Voxel-wise radiomics is noisy: extracting a feature map twice from the same
 anatomy — a simulated re-acquisition, or a slightly different kernel radius
 or bin width — does not yield the same numbers twice. Clustering features
 that do not survive such perturbation produces habitats nobody can
-reproduce. The precision screen of Prior et al. (*Radiol Artif Intell*
-2024;6(2):e230118) answers the question **which voxel features deserve to
-define habitats at all**, and HABIT implements it as a first-class recipe.
+reproduce. Prior et al. (*Radiol Artif Intell* 2024;6(2):e230118) answered
+this with **combinatorial experiments**. HABIT teaches the same design as
+two volume-level atoms, then a small composition.
 
-The three experiments
----------------------
+The two atoms
+-------------
 
-Per subject, :func:`~habit.recipes.identify_precise_voxel_features` runs up
-to three experiments over the feature maps:
+Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
+:func:`~habit.recipes.identify_precise_voxel_features`.
 
-* **repeatability** — ICC(3A,1) between the base-setting maps of the
-  original image and of one perturbed copy (Gaussian noise estimated by
-  Chang's wavelet method, a sub-voxel translation, a 0.5-degree in-plane
-  rotation — the paper's simulated retest);
-* **reproducibility_kernel_radius** — ICC(3C,1) between maps at the given
-  kernel radii (the paper contrasts R1 with R3) at fixed bin width;
-* **reproducibility_bin_width** — ICC(3C,1) between maps at the given bin
-  widths (the paper contrasts B12 with B25 HU) at fixed radius.
+1. **Perturb** — :func:`~habit.perturb_image`: one
+   :class:`~habit.api.image.ImageVolume`, a registered method name, and
+   that method's parameters. Optional ``mask`` is used by methods that
+   consult or warp an ROI. The result stays on the original voxel grid.
 
-Per-feature per-subject ICCs are aggregated by the cohort median, and a
-feature is *precise* when its median lower confidence limit reaches
-``lcl_threshold`` (0.5, the paper's "at least good" boundary) in **every**
-experiment — subject to the ``include`` / ``exclude`` expert overrides (the
-paper used ``include`` for NGTDM Coarseness).
+   Built-in methods: ``gaussian_noise``, ``translation``, ``rotation``,
+   ``rigid``, ``bspline_deform`` (MONAI; extra ``monai``).
 
-The default extractor is the bundled CT voxel-radiomics preset
-(``voxel_radiomics_factory`` forwards the grid point as
-``kernel_radius`` / ``binWidth``); any extractor with a
-``(kernel_radius, bin_width) -> extractor`` factory can be screened instead.
+2. **Extract voxel texture** — :func:`~habit.extract_voxel_texture`: the
+   same image and mask, with ``kernel_radius`` (the paper's ``R``),
+   ``bin_width`` (the paper's ``B``), and optional ``feature_classes``.
+   Combinations are repeated calls, not a new API.
 
-From screen to habitat run
---------------------------
+Paper combinations
+------------------
 
-The returned :class:`~habit.domain.precision.PreciseFeatureSet` is a
-serialisable artefact (``save`` / ``load``) carrying the full evidence
-panels — publish it alongside the study so others cluster the SAME
-features. Its ``preprocessor()`` bridges into a habitat spec: a
-``feature_whitelist`` preprocessing step that restricts the clustering
-matrix to exactly the precise features. Place it first in
-``voxel_feature_preprocessors`` so only precise features reach scaling and
-clustering.
+* **Repeatability** — ``extract(original)`` vs ``extract(perturbed)`` at
+  the base setting (paper: R3B12). ICC(3A,1) via
+  :func:`~habit.precision_panel` with ``agreement="absolute"``.
+* **Reproducibility, kernel** — ``extract(..., kernel_radius=1)`` vs
+  ``extract(..., kernel_radius=3)`` at fixed bin width (R1 vs R3).
+  ICC(3C,1), ``agreement="consistency"``.
+* **Reproducibility, bin width** — ``extract(..., bin_width=12)`` vs
+  ``extract(..., bin_width=25)`` at fixed radius (B12 vs B25).
+  ICC(3C,1).
+
+A feature is *precise* when its lower confidence limit reaches 0.5
+(the paper's "at least good" boundary) in **every** experiment you
+actually ran. :func:`~habit.identify_precise_features` is that
+intersection. :func:`~habit.aggregate_panels` takes the per-feature
+median when you have more than one subject.
+
+The demo below uses one cropped subject (median of one). The optional
+recipe at the end loops the same atoms over a cohort.
 
 Runnable demo
 -------------
 
-The demo loads one subject from ``demo_data/preprocessed`` (swap
-``DATA`` / ``MODALITIES`` / ``ROI``), crops to the ROI bounding box, and
-screens a small **voxel-texture** set (first-order + GLCM) so the
-repeatability experiment stays fast. The default factory
-(``voxel_radiomics_factory``) is the full paper CT preset.
+Swap ``DATA`` / ``MODALITIES`` / ``ROI``. The script crops to the ROI
+bounding box so R1 vs R3 stays interactive, then runs the three paper
+combinations on a small first-order + GLCM set.
 
 .. literalinclude:: scripts/precise_features_demo.py
    :language: python
@@ -67,8 +68,9 @@ repeatability experiment stays fast. The default factory
 Draw the figures
 ----------------
 
-Paste this after the Script block (it uses ``precise``, ``evidence``,
-``cohort``, ``result``, and ``MODALITIES``). Writes
+Paste this after the Script block (it uses ``image``, ``mask``,
+``perturbed``, ``shifted``, ``rotated``, ``precise``, ``evidence``,
+``result_all``, and ``result_precise``). Writes
 ``out/precise_features_*.png``.
 
 .. literalinclude:: scripts/precise_features_demo.py
@@ -80,188 +82,108 @@ Run from the repository root (one line)::
 
    python docs/source/examples/scripts/precise_features_demo.py
 
-Perturbation anatomy figures (same ``DATA`` / ``MODALITIES`` / ``ROI``)::
-
-   python docs/source/examples/scripts/precise_screening_tutorial_demo.py
-
 Output
 ------
 
 Illustrative (ICC depends on the subject and extractor; this is one
-``demo_data`` subject with first-order / GLCM voxel texture, not a
-clinical claim). Feature names and precise/unstable split are printed
-by the script.
+cropped ``demo_data`` subject with first-order / GLCM voxel texture, not
+a clinical claim). Feature names and the precise/unstable split are
+printed by the script.
 
 Figures
 -------
 
-The screen's scientific figure is ICC + 95% CI per texture feature
-(point + vertical whisker; blue = precise, gray = unstable); the
-overlay is the habitat map after clustering **only** those precise
-features. The perturbation panels below are the **same** Prior 2024 /
-MIRP 1.2.0 components applied to one ``demo_data/preprocessed`` subject
-(not a clinical claim). Regenerated by
-``python docs/source/examples/scripts/precise_screening_tutorial_demo.py``.
+.. figure:: ../_static/images/examples/precise_features_original_vs_perturbed.png
+   :alt: Original anatomy beside a Gaussian-noise perturbed copy
+   :width: 720
+
+   Original vs one :func:`~habit.perturb_image` call
+   (``method="gaussian_noise"``), same slice, optional ROI contour
+   (:func:`~habit.viz.plot_intensity_slice`, ``before=``,
+   ``roi_contour=True``).
+
+.. figure:: ../_static/images/examples/precise_features_perturb_methods.png
+   :alt: Original plus three perturb_image methods on one slice
+   :width: 720
+
+   Small multiples of atom calls: original, Gaussian noise, 0.5-voxel
+   translation, 0.5° rotation. Each perturbed panel is a separate
+   :func:`~habit.perturb_image` call. Same axial index as the pair
+   figure.
 
 .. figure:: ../_static/images/examples/precise_features_icc_lcl.png
-   :alt: ICC point estimates with 95 percent confidence intervals
+   :alt: Repeatability ICC point estimates with 95 percent confidence intervals
    :width: 640
 
-   Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
-   texture feature, with the 0.5 LCL threshold
-   (:func:`~habit.viz.plot_precision_icc`). Demo subject; values depend
-   on the image and extractor.
+   Repeatability ICC (point) and 95% CI (vertical whisker) from
+   ``extract(original)`` vs ``extract(perturbed)`` at R3B12
+   (:func:`~habit.viz.plot_precision_icc`).
 
-.. figure:: ../_static/images/examples/precise_features_overlay.png
-   :alt: Habitat overlay after clustering only precise features
-   :width: 420
+.. figure:: ../_static/images/examples/precise_features_icc_kernel.png
+   :alt: Kernel-radius reproducibility ICC with 95 percent confidence intervals
+   :width: 640
 
-   Habitats after the whitelist
-   (:func:`~habit.viz.plot_habitat_overlay`).
+   Kernel-radius reproducibility: R1 vs R3 at B12. Colour is this
+   experiment's own LCL, not the intersection flag.
 
-Simulated-retest components
----------------------------
+.. figure:: ../_static/images/examples/precise_features_icc_bin.png
+   :alt: Bin-width reproducibility ICC with 95 percent confidence intervals
+   :width: 640
 
-Each row is original | perturbed | absolute difference on greyscale
-anatomy (shared intensity window). Images stay on the original voxel
-grid.
+   Bin-width reproducibility: B12 vs B25 at R3.
 
-.. figure:: ../_static/images/examples/precise_perturb_noise.png
-   :alt: Chang-estimated Gaussian noise on real greyscale anatomy
+.. figure:: ../_static/images/examples/precise_features_icc_all.png
+   :alt: ICC and 95 percent CI for every experiment on one panel
    :width: 720
 
-   Gaussian noise, sigma from Chang's wavelet estimator (whole image).
+   All three experiments. Colour is the PreciseFeatureSet flag: a
+   feature is precise only when **every** experiment clears the LCL.
 
-.. figure:: ../_static/images/examples/precise_perturb_translation.png
-   :alt: 0.5-voxel translation on real greyscale anatomy
+.. figure:: ../_static/images/examples/precise_features_all_vs_precise.png
+   :alt: Habitat maps from all texture features versus the precise subset
    :width: 720
 
-   Translation of 0.5 voxel along x and y (B-spline). MIRP
-   ``perturbation_translation_fraction``.
+   Same subject, same extractor, same ``k`` search: all texture
+   features vs precise features only
+   (:func:`~habit.viz.plot_habitat_label_compare`,
+   ``align_labels=True``). Independent one-step fits share a
+   ``model_id`` digest, so alignment must be forced.
 
-.. figure:: ../_static/images/examples/precise_perturb_rotation.png
-   :alt: 0.5-degree z rotation on real greyscale anatomy
-   :width: 720
+Optional one-call recipe
+------------------------
 
-   In-plane rotation of 0.5° about z (B-spline).
-
-.. figure:: ../_static/images/examples/precise_screen_perturbation.png
-   :alt: Full Prior 2024 noise plus translation plus rotation chain
-   :width: 720
-
-   Composed chain: noise → translation → rotation (MIRP 1.2.0 order).
-
-.. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
-   :alt: Original vs nearest-neighbour resampled ROI contours
-   :width: 720
-
-   ROI contour change under MONAI ``Rand3DElastic`` (HABIT
-   ``BSplineDeformPerturbation``): cyan = original, dashed vermillion =
-   warped ROI, yellow = voxels whose membership changed. Image uses
-   bilinear resampling; the mask uses nearest neighbour on the **same**
-   displacement field (demo: ``sigma_range=(1, 2)``,
-   ``magnitude_range=(10, 15)`` voxels). This is **not** the Prior 2024
-   default chain and **not** MIRP morphological grow/shrink. Display
-   cropped to the ROI bounding box plus pad so the warp is runnable on
-   this 200×360×360 demo volume; the public API accepts a full Subject.
-   The habitat-compare figure below uses this **same crop and slice**.
-
-.. figure:: ../_static/images/examples/precise_screen_kernel_scale.png
-   :alt: Local entropy at two kernel radii on real anatomy
-   :width: 720
-
-   Kernel-radius reproducibility analogue: local entropy at kernel size
-   3 vs 7 on the same demo slice.
-
-Custom perturbations
---------------------
-
-The default recipe chain is :func:`~habit.domain.precision.prior2024_retest_perturbation`:
-the simulated retest of Prior et al. (*Radiol Artif Intell* 2024;6(2):e230118,
-Appendix S2) as implemented in MIRP 1.2.0 — Gaussian noise (Chang wavelet
-sigma), a 0.5-voxel translation fraction (MIRP
-``perturbation_translation_fraction``), and a 0.5° in-plane (z) rotation.
-Images use B-spline interpolation; masks use nearest neighbour. Two geometric
-resamples match MIRP 1.2.0; pass ``single_resample=True`` to compose them
-into one affine (MIRP ≥ 2 / :class:`~habit.domain.precision.RigidPerturbation`).
-
-The chain is still composable (domain ``image_perturbation``):
-``gaussian_noise``, ``translation``, ``rotation``, ``rigid``, and the
-optional ``bspline_deform`` (MONAI elastic / B-spline FFD; requires
-``pip install "habitat-analysis[monai]"``). Third-party perturbations
-registered through the ``habit.image_perturbation`` entry-point group
-slot into the same chain — pass any chain (or single component) as
-``perturbation=``.
+When you want the same three experiments looped over a cohort (paper
+aggregation = per-feature median),
+:func:`~habit.recipes.identify_precise_voxel_features` is the
+composition. It is **not** required to generate a perturbation or a
+texture table.
 
 .. code-block:: python
 
-   from habit.domain import (
-       GaussianNoisePerturbation,
-       PerturbationChain,
-       TranslationPerturbation,
-       prior2024_retest_perturbation,
+   from habit.recipes import identify_precise_voxel_features, voxel_radiomics_factory
+
+   precise = identify_precise_voxel_features(
+       cohort,
+       extractor_factory=voxel_radiomics_factory,
+       kernel_radii=(1, 3),
+       bin_widths=(12, 25),
+       seed=7,
    )
 
-   paper = prior2024_retest_perturbation()  # Appendix S2 defaults
-   gentler = PerturbationChain(
-       [GaussianNoisePerturbation(), TranslationPerturbation(shift_fraction=0.25)]
-   )
-   precise = identify_precise_voxel_features(cohort, perturbation=gentler)
-
-The mask-edge figure on this page is :class:`~habit.domain.precision.BSplineDeformPerturbation`
-(MONAI ``Rand3DElastic``). It is **not** in ``prior2024_retest_perturbation()``.
-Pass ``target_dice`` (for example ``0.85``) to scale one frozen offset
-field so the Dice between the original and warped ROI lands near that
-value. MIRP ``perturbation_roi_adapt_size`` (ROI morphological grow/shrink)
-is still not implemented; do not report the default Precise chain as having
-done grow/shrink.
-
-Voxel texture precision and same-slice habitat follow-up
---------------------------------------------------------
-
-Feature stability is the **voxel-texture ICC screen** above (first-order
-/ GLCM), not a single raw intensity or a habitat-level relative-change
-bar. The perturbation script (same ``DATA`` / ``MODALITIES`` / ``ROI``)
-adds the spatial follow-up when the ROI **shape** changes
-(:class:`~habit.domain.precision.BSplineDeformPerturbation` with
-``target_dice``): original vs warped anatomy with ROI contours, then
-one-step habitats on **the same crop and the same slice** (densest
-original ROI after the union bounding-box crop), plus Hungarian
-per-habitat Dice from :func:`~habit.domain.precision.habitat_stability`.
-
-Paste after the Script block (it uses ``ffd_subject``, ``deformed``,
-``modality``, ``ROI``, ``MODALITIES``, ``direction``, and ``spacing``).
-Writes ``out/precise_habitat_stability_compare.png`` and
-``out/precise_habitat_dice.png``.
-
-.. literalinclude:: scripts/precise_screening_tutorial_demo.py
-   :language: python
-   :start-after: # BEGIN stability
-   :end-before: # END stability
-
-.. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
-   :alt: Habitat maps before and after B-spline ROI warp on the same slice
-   :width: 720
-
-   Habitats before vs after the MONAI B-spline warp
-   (:func:`~habit.viz.plot_habitat_label_compare`), on the **same
-   axis and slice** as the ROI-contour figure above. Panel 2 (warped)
-   is relabelled onto the reference ids by spatial overlap
-   (:func:`~habit.align_habitat_map` with ``method="overlap"`` and
-   ``force=True``) so habitat 2 is the same region in both panels.
-   Disagreement is after that remap, not raw id inequality.
-
-.. figure:: ../_static/images/examples/precise_habitat_dice.png
-   :alt: Per-habitat Dice after Hungarian matching
-   :width: 420
-
-   Per-habitat Dice from :func:`~habit.domain.habitat_stability`.
+Pass your own ``extractor_factory`` to keep the small first-order +
+GLCM set, or a custom :func:`~habit.perturb_image` chain via
+``perturbation=`` (Subject-level
+:class:`~habit.domain.precision.PerturbationChain`).
+:func:`~habit.domain.precision.prior2024_retest_perturbation` is the
+Appendix S2 default (Chang noise + 0.5-voxel translation + 0.5°
+rotation). MIRP ``perturbation_roi_adapt_size`` (mask grow/shrink) is
+not implemented.
 
 What to read next
 -----------------
 
 * Tutorial (principle + claims): :doc:`../tutorial/precise_screening`
-* Domain API: :doc:`../api/domain` — the ``ImagePerturbation`` protocol and registry
+* Domain API: :doc:`../api/domain` — the two atoms and ``ImagePerturbation``
 * :doc:`../api/kernels` — the perturbation and voxel-ICC numeric kernels
 * :doc:`habitat_preprocessing` / :doc:`habitat_preprocessing_api` — chains the whitelist
   joins

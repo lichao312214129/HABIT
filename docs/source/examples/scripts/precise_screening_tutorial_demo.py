@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 """
-Precise-screening perturbation figures on real preprocessed anatomy.
+Optional extra perturbation catalogue (not the taught gallery).
 
-Accompanies ``docs/source/tutorial/precise_screening.rst`` and
-``docs/source/examples/precise_features.rst``.
+Gallery figures for precise features now come from
+``precise_features_demo.py`` (``perturb_image`` / ``extract_voxel_texture``
+atoms). This script is kept as a private catalogue of Subject-level
+perturbation components; do not copy its PNGs into the Sphinx pages.
 
 Each Prior 2024 / MIRP 1.2.0 component is applied with the public
 ``image_perturbation`` API. The ROI-contour figure is a separate optional
@@ -27,6 +29,7 @@ from habit.contracts import ArrayImageRef, Geometry
 from habit.domain import (
     BSplineDeformPerturbation,
     GaussianNoisePerturbation,
+    RigidPerturbation,
     RotationPerturbation,
     TranslationPerturbation,
     prior2024_retest_perturbation,
@@ -409,6 +412,13 @@ if __name__ == "__main__":
         random_signs=False,
     )(subject, rng=rng)
     rotated = RotationPerturbation(angle_degrees=0.5, axis="z")(subject, rng=rng)
+    rigid = RigidPerturbation(
+        shift_voxels=(0.5, 0.5, 0.0),
+        angle_degrees=0.5,
+        axis="z",
+        random_signs=False,
+        random_sign=False,
+    )(subject, rng=rng)
     retest = prior2024_retest_perturbation()(subject, rng=np.random.default_rng(7))
 
     # Optional follow-up (not Prior 2024): MONAI elastic / B-spline FFD.
@@ -485,6 +495,17 @@ if __name__ == "__main__":
         after_label="Rotation 0.5 deg (z)",
         title=f"In-plane rotation (demo subject {subject_id})",
         filename="precise_perturb_rotation.png",
+    )
+    _perturbation_triptych(
+        np.asarray(anatomy, dtype=np.float64),
+        np.asarray(rigid.image(modality).data, dtype=np.float64),
+        index=slice_index,
+        direction=direction,
+        spacing=spacing,
+        before_label="Original",
+        after_label="Rigid (one resample)",
+        title=f"Rigid translation+rotation (demo subject {subject_id})",
+        filename="precise_perturb_rigid.png",
     )
     _perturbation_triptych(
         np.asarray(anatomy, dtype=np.float64),

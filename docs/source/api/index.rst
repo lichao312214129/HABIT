@@ -74,6 +74,10 @@ enough to define habitats. See :doc:`../examples/precise_features`.
 .. autosummary::
    :toctree: generated
 
+   habit.perturb_image
+   habit.extract_voxel_texture
+   habit.precision_panel
+   habit.identify_precise_features
    habit.recipes.identify_precise_voxel_features
    habit.recipes.voxel_radiomics_factory
 
@@ -413,6 +417,8 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.RotationPerturbationParams
    habit.domain.RigidPerturbation
    habit.domain.RigidPerturbationParams
+   habit.domain.perturb_image
+   habit.domain.extract_voxel_texture
    habit.domain.PerturbationChain
    habit.domain.prior2024_retest_perturbation
    habit.domain.PreciseFeatureSet

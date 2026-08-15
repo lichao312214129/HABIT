@@ -62,6 +62,7 @@ from habit.domain.voxel_features import (
     RawVoxelFeatures,
     RawVoxelFeaturesParams,
     VoxelFeatureExtractorRegistry,
+    extract_voxel_texture,
 )
 from habit.domain.supervoxel import (
     GmmSupervoxelizer,
@@ -305,6 +306,7 @@ from habit.domain.precision import (
     align_habitat_map,
     habitat_stability,
     identify_precise_features,
+    perturb_image,
     precision_panel,
     prior2024_retest_perturbation,
 )
@@ -374,6 +376,7 @@ __all__ = [
     "RawVoxelFeatures",
     "RawVoxelFeaturesParams",
     "VoxelFeatureExtractorRegistry",
+    "extract_voxel_texture",
     # Built-in supervoxelizers.
     "SlicSupervoxelizer",
     "SlicSupervoxelizerParams",
@@ -578,6 +581,7 @@ __all__ = [
     "precision_panel",
     "aggregate_panels",
     "identify_precise_features",
+    "perturb_image",
     "align_habitat_map",
     "habitat_stability",
     "prior2024_retest_perturbation",

@@ -268,6 +268,8 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "precision_panel",
         "aggregate_panels",
         "identify_precise_features",
+        "perturb_image",
+        "extract_voxel_texture",
         "align_habitat_map",
         "habitat_stability",
         "prior2024_retest_perturbation",

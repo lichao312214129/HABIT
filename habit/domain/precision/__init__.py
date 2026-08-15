@@ -38,6 +38,7 @@ from habit.domain.precision.analysis import (
     identify_precise_features,
     precision_panel,
 )
+from habit.domain.precision.atoms import perturb_image
 from habit.domain.precision.chain import PerturbationChain
 from habit.domain.precision.perturbations import (
     BSplineDeformPerturbation,
@@ -74,6 +75,7 @@ __all__ = [
     "align_habitat_map",
     "habitat_stability",
     "identify_precise_features",
+    "perturb_image",
     "precision_panel",
     "prior2024_retest_perturbation",
 ]

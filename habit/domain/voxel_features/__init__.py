@@ -25,6 +25,7 @@ from habit.domain.voxel_features.concat import (
     ConcatVoxelFeatures,
     ConcatVoxelFeaturesParams,
 )
+from habit.domain.voxel_features.extract import extract_voxel_texture
 from habit.domain.voxel_features.expression import (
     ExpressionVoxelFeatures,
     ExpressionVoxelFeaturesParams,
@@ -50,6 +51,7 @@ __all__ = [
     "roi_voxels",
     "ConcatVoxelFeatures",
     "ConcatVoxelFeaturesParams",
+    "extract_voxel_texture",
     "ExpressionVoxelFeatures",
     "ExpressionVoxelFeaturesParams",
     "KineticVoxelFeatures",
