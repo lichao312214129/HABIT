@@ -71,8 +71,9 @@ contact count >= 10). ``centroid_distance`` is the older centroid-proximity
 rule. 2D figures draw the **same lattice** as dashed lines. On each
 featured-habitat panel only that habitat is filled in colour; white
 nodes and white intra-edges are overlaid (mid-dark gray backdrop so
-white strokes stay visible; no light-gray other-habitat fill). The All-habitats panel shows every habitat fill
-in the palette and **inter-habitat edges only**, drawn in white.
+white strokes stay visible; no light-gray other-habitat fill). Each
+unordered habitat pair has its own panel with those two fills in
+palette colours and **white inter-edges between that pair only**.
 
 Parameter reference: :doc:`../configuration/feature_extraction`.
 

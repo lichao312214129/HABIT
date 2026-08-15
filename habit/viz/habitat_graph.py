@@ -314,47 +314,66 @@ def _combined_graph(
     return id_to_node, intra_edges, inter_edges
 
 
-def _all_habitats_title(
-    labels: Sequence[int],
-    nodes_by_habitat: Dict[int, Sequence[HabitatGraphNode]],
-    inter_edges: Sequence[_EdgePair],
+def _pair_panel_title(
+    label_a: int,
+    label_b: int,
+    n_nodes: int,
+    n_inter_edges: int,
 ) -> str:
     """
-    Build the English All-habitats panel title with node and inter-edge counts.
+    Build the English pairwise-panel title.
 
     Args:
-        labels: Sorted habitat IDs present on the drawn slice.
-        nodes_by_habitat: Nodes grouped by habitat label.
-        inter_edges: Combined inter-habitat edges drawn on the All panel.
+        label_a: First habitat id of the unordered pair.
+        label_b: Second habitat id of the unordered pair.
+        n_nodes: Nodes drawn on this panel (both habitats).
+        n_inter_edges: Inter-habitat edges drawn on this panel.
 
     Returns:
-        Multiline title, for example::
-
-            All habitats
-            n=60 (H1=12, H2=14, H3=20, H4=14)
-            inter e=12
-
-        Per-habitat counts wrap every four habitats so crowded grids stay
-        readable. Figure text stays English-only.
+        Title such as ``H1-H2 (n=26, inter e=12)``. Figure text stays
+        English-only.
     """
-    counts = [len(nodes_by_habitat[int(label)]) for label in labels]
-    total = int(sum(counts))
-    parts = [
-        f"H{int(label)}={count}" for label, count in zip(labels, counts)
-    ]
-    # Wrap every four habitats so an 8-habitat grid does not overflow.
-    wrapped: List[str] = []
-    for start in range(0, len(parts), 4):
-        wrapped.append(", ".join(parts[start : start + 4]))
-    if len(wrapped) == 1:
-        n_line = f"n={total} ({wrapped[0]})"
-    else:
-        n_line = f"n={total} ({wrapped[0]},\n  " + ",\n  ".join(wrapped[1:]) + ")"
     return (
-        f"All habitats\n"
-        f"{n_line}\n"
-        f"inter e={len(inter_edges)}"
+        f"H{int(label_a)}-H{int(label_b)} "
+        f"(n={int(n_nodes)}, inter e={int(n_inter_edges)})"
     )
+
+
+def _network_2d_layout(
+    n_habitats: int,
+    n_pairs: int,
+    max_cols: int,
+) -> Tuple[int, int, int, int]:
+    """
+    Compute the habitat-row and pairwise-panel grid shape.
+
+    Habitat panels use up to ``max_cols`` so H1--H4 sit on the first row
+    when ``K <= 4``. Six pairwise panels (four habitats) use a 2x3 grid.
+
+    Args:
+        n_habitats: Number of single-habitat (H) panels.
+        n_pairs: Number of unordered habitat-pair panels.
+        max_cols: Maximum H-panel columns (also used for large pair grids).
+
+    Returns:
+        Tuple[int, int, int, int]:
+        ``(h_rows, h_cols, pair_rows, pair_cols)``.
+    """
+    n_habitats = int(n_habitats)
+    n_pairs = int(n_pairs)
+    max_cols = max(1, int(max_cols))
+    h_cols = min(max_cols, max(1, n_habitats))
+    h_rows = int(np.ceil(n_habitats / h_cols)) if n_habitats else 0
+    if n_pairs <= 0:
+        return h_rows, h_cols, 0, 1
+    if n_pairs == 6:
+        pair_cols = 3
+    elif n_pairs <= 3:
+        pair_cols = n_pairs
+    else:
+        pair_cols = min(max_cols, n_pairs)
+    pair_rows = int(np.ceil(n_pairs / pair_cols))
+    return h_rows, h_cols, pair_rows, pair_cols
 
 
 # ---------------------------------------------------------------------------
@@ -371,18 +390,14 @@ def _habitat_colors(labels: Sequence[int]) -> Dict[int, str]:
     return {label: hexes[index] for index, label in enumerate(ordered)}
 
 
-#: Matplotlib scatter area (points^2). H1--Hk and All panels share this
-#: small solid-dot size.
+#: Matplotlib scatter area (points^2). H1--Hk and pairwise panels share
+#: this small solid-dot size.
 _DEFAULT_NODE_SIZE: float = 28.0
-#: Shared graph-edge stroke (points) on every 2D panel. The All panel
-#: may drop below this only when inter-edges exceed the hairball gate.
+#: Shared graph-edge stroke (points) on every 2D panel (H intra-edges
+#: and pairwise inter-edges use the same width).
 _DEFAULT_EDGE_WIDTH: float = 0.60
 #: Thin dark outline (points) around each solid white node.
 _NODE_EDGE_WIDTH: float = 0.55
-#: All-panel hairball gate: thin / fade white inter-edges past this count.
-_HAIRBALL_INTER_EDGE_COUNT: int = 1000
-_HAIRBALL_EDGE_WIDTH: float = 0.40
-_HAIRBALL_EDGE_ALPHA: float = 0.45
 #: Publication-readable type sizes for the multi-panel 2D network figure.
 _PANEL_TITLE_FONTSIZE: float = 11.5
 _AXIS_TEXT_FONTSIZE: float = 10.5
@@ -436,18 +451,17 @@ def _draw_background_2d(
     label_2d: np.ndarray,
     colors: Optional[Dict[int, str]],
     show_background: bool,
-    featured_label: Optional[int] = None,
+    featured_labels: Optional[Sequence[int]] = None,
 ) -> None:
     """
     Draw spatial context behind 2D network graphs.
 
     When ``colors`` is provided, each habitat partition is painted with the
     same palette as the slice figure. Background ``0`` is left transparent
-    (not drawn). On a per-habitat panel, pass ``featured_label`` so that
-    habitat stays full colour and every other foreground voxel is a single
-    mid-dark gray wash (``_ROI_BACKDROP_COLOR``) — not per-habitat gray.
-    The All-habitats panel omits ``featured_label`` so every habitat stays
-    fully coloured.
+    (not drawn). Pass ``featured_labels`` so those habitats stay full
+    colour and every other foreground voxel is a single mid-dark gray
+    wash (``_ROI_BACKDROP_COLOR``) — not per-habitat gray. H panels pass
+    one id; pairwise panels pass the two ids of that pair.
 
     Args:
         ax: Target matplotlib axes.
@@ -455,9 +469,8 @@ def _draw_background_2d(
         colors: Habitat label to hex colour mapping, or ``None`` for a
             gray tissue silhouette.
         show_background: When ``False``, nothing is drawn.
-        featured_label: Habitat id to keep in full colour on a
-            per-habitat panel. ``None`` paints every habitat at alpha 1
-            (All-habitats panel).
+        featured_labels: Habitat ids to keep in full colour. ``None``
+            paints every habitat at alpha 1.
     """
     if not show_background:
         return
@@ -468,18 +481,19 @@ def _draw_background_2d(
         if not ordered:
             return
         rgba = np.zeros((*label_2d.shape, 4), dtype=float)
-        if featured_label is None:
+        if featured_labels is None:
             for label in ordered:
                 mask = label_2d == label
                 if np.any(mask):
                     rgba[mask] = to_rgba(colors[label], alpha=1.0)
         else:
-            featured = int(featured_label)
+            featured = {int(value) for value in featured_labels}
             roi = label_2d > 0
             rgba[roi] = to_rgba(_ROI_BACKDROP_COLOR, alpha=1.0)
-            featured_mask = label_2d == featured
-            if featured in colors and np.any(featured_mask):
-                rgba[featured_mask] = to_rgba(colors[featured], alpha=1.0)
+            for label in featured:
+                featured_mask = label_2d == label
+                if label in colors and np.any(featured_mask):
+                    rgba[featured_mask] = to_rgba(colors[label], alpha=1.0)
         ax.imshow(rgba, interpolation="nearest", zorder=0)
         return
     silhouette = np.where(label_2d > 0, 1.0, np.nan)
@@ -688,25 +702,6 @@ def _style_axis_2d(
         spine.set_visible(False)
 
 
-def _all_panel_edge_style(n_inter_edges: int) -> Tuple[float, float]:
-    """
-    Return ``(linewidth, alpha)`` for All-panel inter-habitat edges.
-
-    H panels and the All panel share ``_DEFAULT_EDGE_WIDTH`` unless the
-    All panel has a hairball (``>= 1000`` inter-edges). Then the All
-    panel uses a slightly thinner, lower-alpha white stroke.
-
-    Args:
-        n_inter_edges: Number of inter-habitat edges on the All panel.
-
-    Returns:
-        Tuple[float, float]: Linewidth in points and opacity in ``(0, 1]``.
-    """
-    if int(n_inter_edges) >= _HAIRBALL_INTER_EDGE_COUNT:
-        return _HAIRBALL_EDGE_WIDTH, _HAIRBALL_EDGE_ALPHA
-    return _DEFAULT_EDGE_WIDTH, 1.0
-
-
 def _draw_edges_2d(
     ax,
     id_to_node: Dict[str, HabitatGraphNode],
@@ -745,8 +740,8 @@ def _draw_nodes_2d(
     Scatter solid white nodes with a thin dark outline.
 
     Colour lives on the habitat fill, not on the graph layer. Every
-    marker is the same small filled dot so H panels and the All-habitats
-    panel share ``node_size``. Region voxel count is not encoded in
+    marker is the same small filled dot so H panels and pairwise
+    panels share ``node_size``. Region voxel count is not encoded in
     marker size.
 
     Args:
@@ -956,12 +951,13 @@ def plot_habitat_graph_network_2d(
     Each H1--Hk panel fills only that habitat in its palette colour and
     overlays white intra-edges plus white nodes (solid dots, thin dark
     outline). Other habitats use one mid-dark gray wash for shape
-    context (not a light fill that hides white strokes). The All-habitats panel fills every habitat in
-    palette colours and overlays **inter-habitat edges only**, all
-    white (no purple, no two-tone, no intra-edges). All panels share
-    the same solid-dot node size. Edge linewidth is shared unless the
-    All panel has ``>= 1000`` inter-edges, in which case that panel
-    uses a slightly thinner, lower-alpha white stroke.
+    context (not a light fill that hides white strokes). Each unordered
+    habitat pair gets its own panel: those two habitats stay in palette
+    colours, other habitats use the same gray wash, and only **white
+    inter-edges between that pair** are drawn (no intra-edges, no
+    edges to other habitats, no purple). H1--H4 sit on the first row
+    when ``K <= 4``; six pairs (K=4) use a 2x3 grid below. All panels
+    share the same solid-dot node size and edge linewidth.
 
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
@@ -969,10 +965,10 @@ def plot_habitat_graph_network_2d(
         slice_index: Explicit axis-0 slice for 3D input; ``None`` selects the
             largest cross-section. Ignored for 2D input.
         show_background: Whether to draw habitat partitions behind the
-            graph (default ``True``). On H1--Hk panels the featured
-            habitat is full colour and other foreground is a mid-dark
-            gray wash; background 0 stays undrawn. The All-habitats panel
-            stays fully coloured. Graph nodes and edges are white.
+            graph (default ``True``). Featured habitats (one on an H
+            panel, two on a pair panel) are full colour; other
+            foreground is a mid-dark gray wash; background 0 stays
+            undrawn. Graph nodes and edges are white.
         show_grid: Draw the uniform-grid lattice (default ``True``).
             Also draws when ``block_size`` is passed in ``component`` mode.
         block_size: Display cube edge in voxels. ``None`` (default) uses
@@ -983,11 +979,13 @@ def plot_habitat_graph_network_2d(
         grid_alpha: Lattice opacity.
         grid_linewidth: Lattice stroke width in points.
         panel_size: Base panel edge length in inches.
-        max_cols: Maximum number of panels per row in the grid.
+        max_cols: Maximum number of H-panel columns (H1--H4 on the first
+            row when ``K <= 4``). Six pair panels use a 2x3 grid.
         node_size: Matplotlib scatter area in points squared applied to
-            every panel (default ``28``). H1--Hk and All-habitats share
-            this size. Voxel count does not scale markers.
-        colorbar: Discrete habitat-ID colorbar on the combined-graph panel
+            every panel (default ``28``). H1--Hk and pairwise panels
+            share this size. Voxel count does not scale markers.
+        colorbar: Discrete habitat-ID colorbar on the last pairwise
+            panel, or the last H panel when there are no pairs
             (default ``True``). Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
 
@@ -1009,7 +1007,16 @@ def plot_habitat_graph_network_2d(
     labels = sorted(node_result.nodes_by_habitat.keys())
     if not labels:
         return None
-    id_to_node, _intra_edges, inter_edges = _combined_graph(node_result, options)
+    id_to_node: Dict[str, HabitatGraphNode] = {
+        node.node_id: node
+        for label in labels
+        for node in node_result.nodes_by_habitat[label]
+    }
+    pairs = (
+        list(iter_label_pairs(labels))
+        if options.include_pairwise_habitat_graph
+        else []
+    )
     display_size = _display_block_size(options, block_size)
     grid_kwargs = dict(
         show_grid=show_grid,
@@ -1020,42 +1027,47 @@ def plot_habitat_graph_network_2d(
         grid_linewidth=grid_linewidth,
     )
 
-    n_panels = len(labels) + 1
-    cols = min(max_cols, max(1, n_panels))
-    rows = int(np.ceil(n_panels / cols))
+    h_rows, h_cols, pair_rows, pair_cols = _network_2d_layout(
+        len(labels), len(pairs), max_cols
+    )
     # Extra width + bottom room so short titles and the larger figlegend
     # cannot collide when many habitats share one row.
-    fig_width = cols * panel_size * 1.18
-    # Extra height for the All-panel multiline title (n / inter).
-    fig_height = rows * panel_size + 1.65
+    fig_width = max(h_cols, pair_cols) * panel_size * 1.18
+    fig_height = (h_rows + pair_rows) * panel_size + 1.65
     with use_style("radiology"):
-        fig, axes = plt.subplots(
-            rows,
-            cols,
-            figsize=(fig_width, fig_height),
-            squeeze=False,
-            constrained_layout=True,
-        )
+        fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
         fig.set_constrained_layout_pads(
             w_pad=0.05,
             h_pad=0.12,
             wspace=0.12,
             hspace=0.28,
         )
-        flat = [ax for row in axes for ax in row]
-        for ax in flat[n_panels:]:
-            ax.axis("off")
-        axes_list = flat[:n_panels]
+        if h_rows and pair_rows:
+            outer = fig.add_gridspec(
+                2, 1, height_ratios=[float(h_rows), float(pair_rows)]
+            )
+            gs_h = outer[0].subgridspec(h_rows, h_cols)
+            gs_p = outer[1].subgridspec(pair_rows, pair_cols)
+        else:
+            gs_h = fig.add_gridspec(max(1, h_rows), h_cols)
+            gs_p = None
 
-        for ax, label in zip(axes_list, labels):
+        habitat_axes: List[Any] = []
+        for index_h, label in enumerate(labels):
+            ax = fig.add_subplot(gs_h[index_h // h_cols, index_h % h_cols])
+            habitat_axes.append(ax)
             sub = node_result.nodes_by_habitat[label]
             _draw_background_2d(
-                ax, label_2d, colors, show_background, featured_label=int(label)
+                ax,
+                label_2d,
+                colors,
+                show_background,
+                featured_labels=(int(label),),
             )
             _apply_display_grid(
                 ax, label_2d, node_result, options, **grid_kwargs
             )
-            # Featured habitat only: white intra-edges, no gray fills.
+            # Featured habitat only: white intra-edges, no other-habitat edges.
             edges = _single_intra_edges(sub, label, options, node_result)
             _draw_edges_2d(
                 ax,
@@ -1081,44 +1093,57 @@ def plot_habitat_graph_network_2d(
                 title_fontsize=_PANEL_TITLE_FONTSIZE,
                 title_pad=4.0,
             )
-        ax_cross = axes_list[-1]
-        _draw_background_2d(ax_cross, label_2d, colors, show_background)
-        _apply_display_grid(
-            ax_cross, label_2d, node_result, options, **grid_kwargs
-        )
-        # Inter-habitat edges only; solid white (thin/fade if hairball).
-        all_edge_width, all_edge_alpha = _all_panel_edge_style(len(inter_edges))
-        _draw_edges_2d(
-            ax_cross,
-            id_to_node,
-            inter_edges,
-            _GRAPH_EDGE_COLOR,
-            all_edge_width,
-            all_edge_alpha,
-            3,
-        )
-        all_nodes = [
-            node for label in labels for node in node_result.nodes_by_habitat[label]
-        ]
-        _draw_nodes_2d(
-            ax_cross,
-            all_nodes,
-            node_size=node_size,
-            linewidths=_NODE_EDGE_WIDTH,
-        )
-        _style_axis_2d(
-            ax_cross,
-            label_2d,
-            _all_habitats_title(
-                labels,
-                node_result.nodes_by_habitat,
-                inter_edges,
-            ),
-            title_fontsize=_PANEL_TITLE_FONTSIZE,
-            title_pad=6.0,
-        )
+
+        pair_axes: List[Any] = []
+        if gs_p is not None:
+            for index_p, (label_a, label_b) in enumerate(pairs):
+                ax = fig.add_subplot(gs_p[index_p // pair_cols, index_p % pair_cols])
+                pair_axes.append(ax)
+                nodes_a = list(node_result.nodes_by_habitat.get(label_a, []))
+                nodes_b = list(node_result.nodes_by_habitat.get(label_b, []))
+                pair_nodes = nodes_a + nodes_b
+                inter_edges = _pair_inter_edges(
+                    node_result, label_a, label_b, options
+                )
+                _draw_background_2d(
+                    ax,
+                    label_2d,
+                    colors,
+                    show_background,
+                    featured_labels=(int(label_a), int(label_b)),
+                )
+                _apply_display_grid(
+                    ax, label_2d, node_result, options, **grid_kwargs
+                )
+                # Pair only: white inter-edges, no intra-edges.
+                _draw_edges_2d(
+                    ax,
+                    id_to_node,
+                    inter_edges,
+                    _GRAPH_EDGE_COLOR,
+                    _DEFAULT_EDGE_WIDTH,
+                    1.0,
+                    3,
+                )
+                _draw_nodes_2d(
+                    ax,
+                    pair_nodes,
+                    node_size=node_size,
+                    linewidths=_NODE_EDGE_WIDTH,
+                )
+                _style_axis_2d(
+                    ax,
+                    label_2d,
+                    _pair_panel_title(
+                        label_a, label_b, len(pair_nodes), len(inter_edges)
+                    ),
+                    title_fontsize=_PANEL_TITLE_FONTSIZE,
+                    title_pad=4.0,
+                )
+
+        cbar_ax = pair_axes[-1] if pair_axes else habitat_axes[-1]
         cbar = add_discrete_habitat_colorbar(
-            ax_cross,
+            cbar_ax,
             sorted(colors),
             [colors[label] for label in sorted(colors)],
             colorbar=colorbar,

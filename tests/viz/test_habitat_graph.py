@@ -16,6 +16,8 @@
 
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pytest
 from matplotlib.figure import Figure
@@ -30,6 +32,21 @@ from habit.viz import (
 )
 
 pytestmark = pytest.mark.unit
+
+#: H1 (n=..., e=...) — not H1-H2 pairwise titles.
+_H_PANEL_TITLE = re.compile(r"^H\d+ \(n=")
+#: H1-H2 (n=..., inter e=...)
+_PAIR_PANEL_TITLE = re.compile(r"^H\d+-H\d+")
+
+
+def _is_h_panel_title(title: str) -> bool:
+    """Return True for a single-habitat panel title."""
+    return bool(_H_PANEL_TITLE.match(title))
+
+
+def _is_pair_panel_title(title: str) -> bool:
+    """Return True for a pairwise inter-edge panel title."""
+    return bool(_PAIR_PANEL_TITLE.match(title))
 
 
 def _synthetic_2d_labels() -> np.ndarray:
@@ -126,17 +143,14 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
             if rgba.ndim == 3 and rgba.shape[-1] == 4:
                 alphas = rgba[..., 3]
                 painted = alphas > 0
-                if title.startswith("All habitats"):
-                    assert painted.any()
-                    assert np.allclose(alphas[painted], 1.0)
-                elif title.startswith("H"):
+                if _is_h_panel_title(title) or _is_pair_panel_title(title):
                     assert painted.any()
                     assert np.allclose(alphas[painted], 1.0)
                     rgb = rgba[painted][..., :3]
                     chroma = rgb.max(axis=1) - rgb.min(axis=1)
-                    # Featured habitat is full colour; other foreground is
-                    # a mid-dark gray wash (low chroma), not per-habitat gray
-                    # and not a light wash that hides white graph strokes.
+                    # Featured habitat(s) are full colour; other foreground
+                    # is a mid-dark gray wash (low chroma), not per-habitat
+                    # gray and not a light wash that hides white strokes.
                     assert np.any(chroma > 0.15)
                     low_chroma = chroma <= 0.08
                     assert np.any(low_chroma)
@@ -173,39 +187,37 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
     for title in panel_titles:
         assert "Intra-habitat graph" not in title
         assert "slice" not in title.lower()
-    assert any(title.startswith("H") for title in panel_titles)
-    all_titles = [title for title in panel_titles if title.startswith("All habitats")]
-    assert all_titles
-    all_title = all_titles[0]
-    assert "n=" in all_title
-    assert "H1=" in all_title
-    assert "intra e=" not in all_title
-    assert "inter e=" in all_title
+    assert any(_is_h_panel_title(title) for title in panel_titles)
+    pair_titles = [title for title in panel_titles if _is_pair_panel_title(title)]
+    assert pair_titles
+    for pair_title in pair_titles:
+        assert "n=" in pair_title
+        assert "inter e=" in pair_title
+        assert "intra e=" not in pair_title
+        assert "All habitats" not in pair_title
 
     import matplotlib.pyplot as plt
 
     plt.close(fig)
 
 
-def test_plot_habitat_graph_network_2d_all_panel_reports_n_and_edges() -> None:
-    """All-habitats title lists per-habitat nodes plus inter-edge counts."""
+def test_plot_habitat_graph_network_2d_pair_panels_report_n_and_edges() -> None:
+    """Pairwise titles list node and inter-edge counts; no All-habitats panel."""
     labels = _synthetic_2d_labels()
     fig = plot_habitat_graph_network_2d(labels, options=_viz_options())
     assert isinstance(fig, Figure)
-    all_axes = [
-        ax for ax in fig.axes if ax.get_title().startswith("All habitats")
-    ]
-    assert len(all_axes) == 1
-    title = all_axes[0].get_title()
-    assert title.isascii()
-    lines = [line.strip() for line in title.splitlines() if line.strip()]
-    assert lines[0] == "All habitats"
-    assert lines[1].startswith("n=")
-    assert "H1=" in lines[1]
-    assert "H2=" in lines[1]
-    assert "H3=" in lines[1]
-    assert any(line.startswith("inter e=") for line in lines)
-    assert "intra e=" not in title
+    pair_axes = [ax for ax in fig.axes if _is_pair_panel_title(ax.get_title())]
+    # Three habitats → three unordered pairs.
+    assert len(pair_axes) == 3
+    pair_heads = {ax.get_title().split(" (")[0] for ax in pair_axes}
+    assert pair_heads == {"H1-H2", "H1-H3", "H2-H3"}
+    for ax in pair_axes:
+        title = ax.get_title()
+        assert title.isascii()
+        assert "n=" in title
+        assert "inter e=" in title
+        assert "intra e=" not in title
+        assert "All habitats" not in title
     if fig.legends:
         legend_text = " ".join(t.get_text() for t in fig.legends[0].get_texts())
         assert "Other-habitat" not in legend_text
@@ -214,7 +226,7 @@ def test_plot_habitat_graph_network_2d_all_panel_reports_n_and_edges() -> None:
         assert "Intra-habitat edge" in legend_text
         assert "Inter-habitat edge" in legend_text
     habitat_titles = [
-        ax.get_title() for ax in fig.axes if ax.get_title().startswith("H")
+        ax.get_title() for ax in fig.axes if _is_h_panel_title(ax.get_title())
     ]
     assert habitat_titles
     for habitat_title in habitat_titles:
@@ -276,7 +288,7 @@ def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:
 
 
 def test_plot_habitat_graph_network_2d_uses_unified_node_and_edge_sizes() -> None:
-    """H panels and the All-habitats panel share node size and edge width."""
+    """H panels and pairwise panels share node size and edge width."""
     labels = _synthetic_2d_labels()
     options = HabitatGraphFeatureOptions(
         edge_method="centroid_distance",
@@ -289,9 +301,9 @@ def test_plot_habitat_graph_network_2d_uses_unified_node_and_edge_sizes() -> Non
     fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
     assert isinstance(fig, Figure)
     habitat_sizes: list[float] = []
-    all_sizes: list[float] = []
+    pair_sizes: list[float] = []
     habitat_widths: list[float] = []
-    all_widths: list[float] = []
+    pair_widths: list[float] = []
     for ax in fig.axes:
         title = ax.get_title()
         sizes = [
@@ -301,27 +313,25 @@ def test_plot_habitat_graph_network_2d_uses_unified_node_and_edge_sizes() -> Non
             for size in np.asarray(collection.get_sizes(), dtype=float)
         ]
         widths = [float(line.get_linewidth()) for line in ax.lines]
-        if title.startswith("All habitats"):
-            all_sizes.extend(sizes)
-            all_widths.extend(widths)
-        elif title.startswith("H"):
+        if _is_pair_panel_title(title):
+            pair_sizes.extend(sizes)
+            pair_widths.extend(widths)
+        elif _is_h_panel_title(title):
             habitat_sizes.extend(sizes)
             habitat_widths.extend(widths)
-    assert habitat_sizes and all_sizes
+    assert habitat_sizes and pair_sizes
     assert np.allclose(habitat_sizes, habitat_sizes[0])
-    assert np.allclose(all_sizes, habitat_sizes[0])
-    assert habitat_widths and all_widths
+    assert np.allclose(pair_sizes, habitat_sizes[0])
+    assert habitat_widths and pair_widths
     assert np.allclose(habitat_widths, habitat_widths[0])
-    # Synthetic maps stay well below the 1000-edge hairball gate, so
-    # All-panel inter-edges keep the same linewidth as H-panel intra-edges.
-    assert np.allclose(all_widths, habitat_widths[0])
+    assert np.allclose(pair_widths, habitat_widths[0])
     import matplotlib.pyplot as plt
 
     plt.close(fig)
 
 
 def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> None:
-    """H panels draw only that habitat's white intra-edges; All is white inter."""
+    """H panels draw only that habitat's white intra-edges; pairs are white inter."""
     from matplotlib.colors import to_hex, to_rgb
 
     labels = _synthetic_2d_labels()
@@ -337,7 +347,7 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
     assert isinstance(fig, Figure)
     white = np.asarray(to_rgb("#FFFFFF"))
     outline = np.asarray(to_rgb("#1A1A1A"))
-    habitat_axes = [ax for ax in fig.axes if ax.get_title().startswith("H")]
+    habitat_axes = [ax for ax in fig.axes if _is_h_panel_title(ax.get_title())]
     assert habitat_axes
     for ax in habitat_axes:
         title = ax.get_title()
@@ -359,47 +369,58 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
                 lws = np.asarray(collection.get_linewidths(), dtype=float)
                 if lws.size:
                     assert np.all(lws > 0.0)
-    all_axes = [ax for ax in fig.axes if ax.get_title().startswith("All habitats")]
-    assert len(all_axes) == 1
-    all_title = all_axes[0].get_title()
-    inter_line = [line for line in all_title.splitlines() if line.startswith("inter e=")]
-    assert inter_line
-    n_inter = int(inter_line[0].split("=", 1)[1])
-    # One white stroke per inter-edge (not two-tone halves).
-    assert len(all_axes[0].lines) == n_inter
-    for line in all_axes[0].lines:
-        hex_color = to_hex(line.get_color()).lower()
-        assert hex_color == "#ffffff"
-        assert hex_color != "#8e44ad"
-    for collection in all_axes[0].collections:
-        faces = np.asarray(collection.get_facecolors(), dtype=float)
-        if faces.size:
-            assert np.allclose(faces[:, :3], white, atol=1e-6)
+    pair_axes = [ax for ax in fig.axes if _is_pair_panel_title(ax.get_title())]
+    assert pair_axes
+    for ax in pair_axes:
+        title = ax.get_title()
+        n_inter = int(title.split("inter e=")[-1].rstrip(")"))
+        # One white stroke per inter-edge (not two-tone halves).
+        assert len(ax.lines) == n_inter
+        for line in ax.lines:
+            hex_color = to_hex(line.get_color()).lower()
+            assert hex_color == "#ffffff"
+            assert hex_color != "#8e44ad"
+        for collection in ax.collections:
+            faces = np.asarray(collection.get_facecolors(), dtype=float)
+            if faces.size:
+                assert np.allclose(faces[:, :3], white, atol=1e-6)
     import matplotlib.pyplot as plt
 
     plt.close(fig)
 
 
-def test_all_panel_edge_style_thins_hairball() -> None:
-    """All-panel inter-edges thin and fade only past the 1000-edge gate."""
-    from habit.viz.habitat_graph import (
-        _DEFAULT_EDGE_WIDTH,
-        _HAIRBALL_EDGE_ALPHA,
-        _HAIRBALL_EDGE_WIDTH,
-        _all_panel_edge_style,
-    )
+def test_network_2d_layout_four_habitats_uses_2x3_pair_grid() -> None:
+    """Four habitats: H1--H4 on one row, six pair panels in a 2x3 grid."""
+    from habit.viz.habitat_graph import _network_2d_layout
 
-    width, alpha = _all_panel_edge_style(12)
-    assert width == pytest.approx(_DEFAULT_EDGE_WIDTH)
-    assert alpha == pytest.approx(1.0)
-    width, alpha = _all_panel_edge_style(999)
-    assert width == pytest.approx(_DEFAULT_EDGE_WIDTH)
-    assert alpha == pytest.approx(1.0)
-    width, alpha = _all_panel_edge_style(1000)
-    assert width == pytest.approx(_HAIRBALL_EDGE_WIDTH)
-    assert alpha == pytest.approx(_HAIRBALL_EDGE_ALPHA)
-    assert width < _DEFAULT_EDGE_WIDTH
-    assert alpha < 1.0
+    h_rows, h_cols, pair_rows, pair_cols = _network_2d_layout(4, 6, max_cols=4)
+    assert (h_rows, h_cols) == (1, 4)
+    assert (pair_rows, pair_cols) == (2, 3)
+
+
+def test_plot_habitat_graph_network_2d_four_habitats_six_pair_panels() -> None:
+    """Four habitats draw six pairwise inter-edge panels and no All-habitats hairball."""
+    labels = _many_habitat_2d_labels(4)
+    fig = plot_habitat_graph_network_2d(labels, options=_viz_options())
+    assert isinstance(fig, Figure)
+    h_titles = [ax.get_title() for ax in fig.axes if _is_h_panel_title(ax.get_title())]
+    pair_titles = [
+        ax.get_title() for ax in fig.axes if _is_pair_panel_title(ax.get_title())
+    ]
+    assert len(h_titles) == 4
+    assert len(pair_titles) == 6
+    assert {title.split(" (")[0] for title in pair_titles} == {
+        "H1-H2",
+        "H1-H3",
+        "H1-H4",
+        "H2-H3",
+        "H2-H4",
+        "H3-H4",
+    }
+    assert not any("All habitats" in ax.get_title() for ax in fig.axes)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
 
 
 def _many_habitat_2d_labels(n_habitats: int = 8) -> np.ndarray:
@@ -446,7 +467,8 @@ def test_plot_habitat_graph_network_2d_titles_do_not_overlap() -> None:
         assert title.isascii()
         assert "Intra-habitat graph" not in title
         assert "slice" not in title.lower()
-    assert any(ax.get_title().startswith("All habitats") for ax in titled_axes)
+    assert any(_is_pair_panel_title(ax.get_title()) for ax in titled_axes)
+    assert not any("All habitats" in ax.get_title() for ax in titled_axes)
     if fig._suptitle is not None:
         assert "slice" in fig._suptitle.get_text().lower()
 
