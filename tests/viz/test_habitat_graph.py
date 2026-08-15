@@ -19,11 +19,16 @@ from __future__ import annotations
 import re
 
 import numpy as np
+import pandas as pd
 import pytest
 from matplotlib.figure import Figure
 
-from habit.kernels.habitat_graph import HabitatGraphFeatureOptions
+from habit.kernels.habitat_graph import (
+    HabitatGraphFeatureOptions,
+    extract_graph_features,
+)
 from habit.viz import (
+    plot_graph_feature_heatmap,
     plot_habitat_graph_network_2d,
     plot_habitat_graph_slice,
     render_habitat_graph_network_3d,
@@ -260,6 +265,82 @@ def test_plot_habitat_graph_network_2d_draws_dashed_uniform_grid() -> None:
     import matplotlib.pyplot as plt
 
     plt.close(fig)
+
+
+def test_block_size_8_vs_5_changes_n_nodes_and_delta_heatmap() -> None:
+    """Same labels, only block_size 8 vs 5: node counts differ; delta plots."""
+    labels_a = _synthetic_2d_labels()
+    labels_b = _synthetic_2d_labels()
+    labels_b[20:26, 4:10] = 3
+    options_8 = HabitatGraphFeatureOptions(
+        include_extended_metrics=False,
+        edge_method="min_distance",
+        distance_threshold=5.0,
+        block_min_coverage=0.2,
+        block_size=8,
+    )
+    options_5 = HabitatGraphFeatureOptions(
+        include_extended_metrics=False,
+        edge_method="min_distance",
+        distance_threshold=5.0,
+        block_min_coverage=0.2,
+        block_size=5,
+    )
+    feats_a8 = extract_graph_features(labels_a, options=options_8)
+    feats_a5 = extract_graph_features(labels_a, options=options_5)
+    feats_b8 = extract_graph_features(labels_b, options=options_8)
+    feats_b5 = extract_graph_features(labels_b, options=options_5)
+    assert feats_a8["graph_num_nodes_total"] != feats_a5["graph_num_nodes_total"]
+    assert feats_b8["graph_num_nodes_total"] != feats_b5["graph_num_nodes_total"]
+
+    fig_8 = plot_habitat_graph_network_2d(
+        labels_a, options=options_8, show_grid=True, block_size=8
+    )
+    fig_5 = plot_habitat_graph_network_2d(
+        labels_a, options=options_5, show_grid=True, block_size=5
+    )
+    assert isinstance(fig_8, Figure)
+    assert isinstance(fig_5, Figure)
+    texts_8 = [fig_8._suptitle.get_text() if fig_8._suptitle is not None else ""]
+    texts_5 = [fig_5._suptitle.get_text() if fig_5._suptitle is not None else ""]
+    if fig_8.legends:
+        texts_8.extend(item.get_text() for item in fig_8.legends[0].get_texts())
+    if fig_5.legends:
+        texts_5.extend(item.get_text() for item in fig_5.legends[0].get_texts())
+    assert "8-voxel cubes" in " ".join(texts_8)
+    assert "5-voxel cubes" in " ".join(texts_5)
+
+    table_8 = pd.DataFrame(
+        [
+            {"subject_id": "subj001", **feats_a8},
+            {"subject_id": "subj002", **feats_b8},
+        ]
+    )
+    table_5 = pd.DataFrame(
+        [
+            {"subject_id": "subj001", **feats_a5},
+            {"subject_id": "subj002", **feats_b5},
+        ]
+    )
+    fig_delta = plot_graph_feature_heatmap(
+        table_5,
+        reference=table_8,
+        subjects=("subj001", "subj002"),
+        n_features=8,
+        feature_group="single",
+        select="variance",
+        zscore=True,
+        star_significant=True,
+        title="Graph features: 5-voxel minus 8-voxel",
+    )
+    assert isinstance(fig_delta, Figure)
+    assert "5-voxel minus 8-voxel" in str(fig_delta.axes[0].get_title())
+    assert str(fig_delta.axes[0].get_title()).isascii()
+    import matplotlib.pyplot as plt
+
+    plt.close(fig_8)
+    plt.close(fig_5)
+    plt.close(fig_delta)
 
 
 def test_plot_habitat_graph_network_2d_display_block_size_overrides() -> None:

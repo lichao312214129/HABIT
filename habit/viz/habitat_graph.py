@@ -1405,6 +1405,44 @@ def _ascii_minus_on_ticks(fig: "Figure") -> None:
                 axis.set_major_formatter(formatter)
 
 
+def _heatmap_color_scale(
+    finite: np.ndarray,
+    *,
+    zscore: bool,
+) -> Tuple[Optional[float], Optional[float], str, str]:
+    """
+    Choose colormap limits and the colorbar label for a graph heatmap.
+
+    Z-scored columns (including a column-z-scored ``table - reference``
+    difference) share a zero-centered diverging map. Unsigned raw
+    values keep a sequential map because mixed graph units are not a
+    single signed scale. Signed ``zscore=False`` values also use the
+    diverging map.
+
+    Args:
+        finite: Finite entries of the drawn matrix (may be empty).
+        zscore: Whether the matrix was column-wise z-scored.
+
+    Returns:
+        Tuple of ``(vmin, vmax, cmap_name, colorbar_label)``. ``vmin`` /
+        ``vmax`` are ``None`` when matplotlib should autoscale.
+    """
+    if zscore and finite.size:
+        vmax = float(np.nanmax(np.abs(finite)))
+        vmax = 1.0 if vmax == 0.0 else vmax
+        return -vmax, vmax, "RdBu_r", "Z-score (across subjects)"
+    signed = (
+        finite.size > 0
+        and float(np.nanmin(finite)) < 0.0
+        and float(np.nanmax(finite)) > 0.0
+    )
+    if signed:
+        vmax = float(np.nanmax(np.abs(finite)))
+        vmax = 1.0 if vmax == 0.0 else vmax
+        return -vmax, vmax, "RdBu_r", "Feature difference"
+    return None, None, "cividis", "Feature value (mixed units)"
+
+
 def _zscore_columns(matrix: np.ndarray) -> np.ndarray:
     """
     Z-score each feature (column) across subjects; NaN-safe.
@@ -1611,6 +1649,174 @@ def _select_heatmap_features(
     return [candidates[int(index)] for index in order[:cap]]
 
 
+def _align_reference_frame(
+    table: "pd.DataFrame",
+    reference: "pd.DataFrame",
+    *,
+    subjects: Optional[Sequence[str]],
+    subject_col: str,
+) -> Tuple["pd.DataFrame", "pd.DataFrame", "pd.DataFrame"]:
+    """
+    Align ``table`` and ``reference`` on subjects and shared features.
+
+    Args:
+        table: Minuend frame (for example the 5-voxel extract).
+        reference: Subtrahend frame (for example the 8-voxel extract).
+        subjects: Optional subject-id order applied to both frames.
+        subject_col: Identifier column shared by both frames.
+
+    Returns:
+        Tuple of ``(left, right, delta)``. ``delta`` is
+        ``left - right`` on the intersecting feature columns, with
+        ``subject_col`` restored. Subject order follows ``table``
+        (or ``subjects``).
+
+    Raises:
+        HABITAPIError: Missing subject column, empty intersection, or
+            subjects present in ``table`` but not in ``reference``.
+    """
+    import pandas as pd
+
+    if not isinstance(reference, pd.DataFrame):
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: reference must be a pandas "
+            f"DataFrame; got {type(reference)!r}."
+        )
+    left = _resolve_subject_frame(
+        table, subjects=subjects, subject_col=subject_col
+    )
+    left_ids = [str(item) for item in left[subject_col]]
+    right = _resolve_subject_frame(
+        reference, subjects=left_ids, subject_col=subject_col
+    )
+    feature_cols = [
+        name
+        for name in left.columns
+        if name != subject_col and name in right.columns
+    ]
+    if not feature_cols:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: table and reference share no "
+            "feature columns to subtract."
+        )
+    left_num = left.set_index(subject_col)[feature_cols].apply(
+        lambda col: _coerce_numeric_column(col), axis=0
+    )
+    right_num = right.set_index(subject_col)[feature_cols].apply(
+        lambda col: _coerce_numeric_column(col), axis=0
+    )
+    # Reindex right to left's subject order (already aligned, belt-and-braces).
+    right_num = right_num.reindex(left_num.index)
+    delta = (left_num - right_num).reset_index()
+    return left, right, delta
+
+
+def _paired_ttest_pvalues(
+    left: np.ndarray,
+    right: np.ndarray,
+) -> np.ndarray:
+    """
+    Paired t-test p-value per feature column (subjects x features).
+
+    Equivalent to a one-sample t-test of ``left - right`` against 0.
+    A column is skipped (NaN p-value, no star) when fewer than 3
+    finite pairs remain or the paired difference is constant.
+
+    Args:
+        left: Minuend matrix, shape ``(n_subjects, n_features)``.
+        right: Subtrahend matrix, same shape.
+
+    Returns:
+        np.ndarray: Length ``n_features``; NaN means "do not star".
+    """
+    from scipy.stats import ttest_rel
+
+    matrix_l = np.asarray(left, dtype=np.float64)
+    matrix_r = np.asarray(right, dtype=np.float64)
+    if matrix_l.shape != matrix_r.shape:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: paired tables must have the "
+            f"same aligned shape; got {matrix_l.shape} vs {matrix_r.shape}."
+        )
+    n_features = int(matrix_l.shape[1]) if matrix_l.ndim == 2 else 0
+    pvalues = np.full(n_features, np.nan, dtype=np.float64)
+    for index in range(n_features):
+        values_l = matrix_l[:, index]
+        values_r = matrix_r[:, index]
+        finite = np.isfinite(values_l) & np.isfinite(values_r)
+        if int(finite.sum()) < 3:
+            continue
+        paired = values_l[finite] - values_r[finite]
+        if float(np.std(paired, ddof=1)) == 0.0:
+            continue
+        result = ttest_rel(values_l[finite], values_r[finite])
+        pvalue = float(result.pvalue)
+        if np.isfinite(pvalue):
+            pvalues[index] = pvalue
+    return pvalues
+
+
+def _adjust_pvalues(
+    pvalues: np.ndarray,
+    method: Literal["fdr_bh", "bonferroni", "none"],
+) -> np.ndarray:
+    """
+    Multiple-testing correction over the plotted (finite) p-values.
+
+    ``fdr_bh`` prefers :func:`scipy.stats.false_discovery_control`
+    (Benjamini-Hochberg), then ``statsmodels.stats.multitest``, then
+    Bonferroni. Columns that were skipped (NaN) stay NaN.
+
+    Args:
+        pvalues: Per-feature p-values; NaN entries are not tested.
+        method: ``'fdr_bh'``, ``'bonferroni'``, or ``'none'``.
+
+    Returns:
+        np.ndarray: Adjusted p-values, same shape.
+    """
+    out = np.asarray(pvalues, dtype=np.float64).copy()
+    if method not in ("fdr_bh", "bonferroni", "none"):
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: star_mtc must be 'fdr_bh', "
+            f"'bonferroni', or 'none'; got {method!r}."
+        )
+    finite = np.isfinite(out)
+    tested = out[finite]
+    if tested.size == 0 or method == "none":
+        return out
+    if method == "bonferroni":
+        out[finite] = np.minimum(tested * float(tested.size), 1.0)
+        return out
+    try:
+        from scipy.stats import false_discovery_control
+
+        out[finite] = np.asarray(
+            false_discovery_control(tested, method="bh"), dtype=np.float64
+        )
+        return out
+    except (ImportError, TypeError, ValueError):
+        pass
+    try:
+        from statsmodels.stats.multitest import multipletests
+
+        _rejected, adjusted, _alphac_sidak, _alphac_bonf = multipletests(
+            tested, method="fdr_bh"
+        )
+        out[finite] = np.asarray(adjusted, dtype=np.float64)
+        return out
+    except ImportError:
+        out[finite] = np.minimum(tested * float(tested.size), 1.0)
+        return out
+
+
+def _feature_tick_with_star(name: str, starred: bool) -> str:
+    """Wrapped feature tick; append ASCII `` *`` when the column is significant."""
+    label = _graph_feature_tick(name)
+    if starred:
+        return f"{label} *"
+    return label
+
+
 def plot_graph_feature_heatmap(
     table: "pd.DataFrame",
     *,
@@ -1621,6 +1827,12 @@ def plot_graph_feature_heatmap(
     select: Literal["variance", "sample"] = "variance",
     sample_seed: int = 0,
     zscore: bool = True,
+    reference: Optional["pd.DataFrame"] = None,
+    star_significant: bool = False,
+    star_alpha: float = 0.05,
+    star_test: Literal["ttest_rel"] = "ttest_rel",
+    star_mtc: Literal["fdr_bh", "bonferroni", "none"] = "fdr_bh",
+    cbar_label: Optional[str] = None,
     subject_col: str = "subject_id",
     title: Optional[str] = None,
     ax: Optional[Any] = None,
@@ -1632,7 +1844,29 @@ def plot_graph_feature_heatmap(
     path lengths). ``zscore=True`` (default) standardizes each selected
     feature across the **selected subjects** so a row is a relative
     profile, not a raw magnitude. Raw mixed units are not comparable;
-    pass ``zscore=False`` only when every drawn column shares a scale.
+    pass ``zscore=False`` only when every drawn column already shares
+    one scale. Signed ``zscore=False`` values use a zero-centered
+    diverging map.
+
+    For a lattice comparison (for example 5-voxel minus 8-voxel), pass
+    the 5-voxel frame as ``table`` and the 8-voxel frame as
+    ``reference``. The function aligns subjects and shared feature
+    columns, plots ``table - reference``, and (when ``zscore=True``)
+    column-z-scores that **raw** difference. Do not pass a precomputed
+    (or already z-scored) delta as ``table`` together with
+    ``reference`` — that would subtract twice.
+
+    ``star_significant=True`` marks **features** (x-tick labels), not
+    cells. Each plotted column gets a paired t-test
+    (``scipy.stats.ttest_rel`` of the two source tables; equivalent to
+    a one-sample t of the raw difference against 0). Columns with
+    fewer than 3 finite pairs or a constant difference are skipped.
+    Multiple testing defaults to Benjamini-Hochberg FDR across the
+    **plotted** features (``scipy.stats.false_discovery_control``, then
+    statsmodels, then Bonferroni). Significant names get a trailing
+    `` *``. Starring requires ``reference``; a lone precomputed delta
+    cannot reconstruct the pairing. Default ``star_significant=False``
+    so generic heatmaps stay unmarked.
 
     Visualization parameters (who / which features / how many) are
     first-class: pass ``subjects`` and either an explicit ``features``
@@ -1647,7 +1881,8 @@ def plot_graph_feature_heatmap(
     Args:
         table: Wide frame, one row per subject. Identifier column
             defaults to ``subject_id``. Domain FeatureTable frames use
-            ``subject`` — pass ``subject_col='subject'``.
+            ``subject`` — pass ``subject_col='subject'``. When
+            ``reference`` is set this is the minuend (e.g. 5-voxel).
         subjects: Subject ids to show, in y-axis order. ``None`` keeps
             every row. Missing ids raise :class:`~habit.exceptions.HABITAPIError`.
         features: Exact column list. When set, it overrides
@@ -1659,9 +1894,26 @@ def plot_graph_feature_heatmap(
         select: When ``features`` is omitted, take the top-k columns by
             cross-subject variance (``'variance'``) or a reproducible
             random subset (``'sample'``, seeded by ``sample_seed``).
+            With ``reference``, variance is of the raw difference.
         sample_seed: RNG seed for ``select='sample'``.
         zscore: Column-wise z-score across the selected subjects
             (default ``True``). Requires at least two subjects.
+            ``False`` draws the (possibly subtracted) values as-is.
+        reference: Optional paired frame (e.g. 8-voxel). When set,
+            the plotted matrix is aligned ``table - reference``.
+            Required when ``star_significant=True``.
+        star_significant: If True, append `` *`` to x-tick labels of
+            features that stay significant after ``star_mtc``.
+            Default False; ignored pairing is never inferred from a
+            precomputed delta alone.
+        star_alpha: Significance threshold after correction (default
+            0.05).
+        star_test: Paired test. Only ``'ttest_rel'`` is supported.
+        star_mtc: Multiple-testing method over plotted features:
+            ``'fdr_bh'`` (default), ``'bonferroni'``, or ``'none'``.
+        cbar_label: Optional colorbar label. ``None`` uses a default
+            from the scale (``Z-scored difference`` when
+            ``reference`` and ``zscore`` are both set).
         subject_col: Identifier column name (default ``'subject_id'``).
         title: Optional English figure title. ``None`` builds one from
             the group and whether values are z-scored.
@@ -1672,7 +1924,8 @@ def plot_graph_feature_heatmap(
 
     Raises:
         HABITAPIError: Missing subjects / columns, empty selection,
-            invalid knobs, or ``zscore=True`` with fewer than two rows.
+            invalid knobs, ``star_significant=True`` without
+            ``reference``, or ``zscore=True`` with fewer than two rows.
         OptionalDependencyError: When matplotlib is not installed.
     """
     import pandas as pd
@@ -1682,9 +1935,21 @@ def plot_graph_feature_heatmap(
             "plot_graph_feature_heatmap: table must be a pandas "
             f"DataFrame; got {type(table)!r}."
         )
-    frame = _resolve_subject_frame(
-        table, subjects=subjects, subject_col=subject_col
-    )
+    left_frame: Optional["pd.DataFrame"] = None
+    right_frame: Optional["pd.DataFrame"] = None
+    is_difference = False
+    if reference is not None:
+        left_frame, right_frame, frame = _align_reference_frame(
+            table,
+            reference,
+            subjects=subjects,
+            subject_col=subject_col,
+        )
+        is_difference = True
+    else:
+        frame = _resolve_subject_frame(
+            table, subjects=subjects, subject_col=subject_col
+        )
     chosen = _select_heatmap_features(
         frame,
         features=features,
@@ -1702,6 +1967,44 @@ def plot_graph_feature_heatmap(
             "Pass zscore=False for a single row, or include more "
             "people via subjects=..."
         )
+    if star_significant:
+        if left_frame is None or right_frame is None:
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: star_significant=True "
+                "requires reference= (the paired table). A "
+                "precomputed delta cannot reconstruct pairing."
+            )
+        if str(star_test) != "ttest_rel":
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: star_test must be "
+                f"'ttest_rel'; got {star_test!r}."
+            )
+        alpha = float(star_alpha)
+        if not (0.0 < alpha <= 1.0):
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: star_alpha must be in "
+                f"(0, 1]; got {star_alpha!r}."
+            )
+        left_matrix = np.asarray(
+            left_frame[chosen].apply(
+                lambda col: pd.to_numeric(col, errors="coerce")
+            ),
+            dtype=np.float64,
+        )
+        right_matrix = np.asarray(
+            right_frame[chosen].apply(
+                lambda col: pd.to_numeric(col, errors="coerce")
+            ),
+            dtype=np.float64,
+        )
+        raw_p = _paired_ttest_pvalues(left_matrix, right_matrix)
+        adjusted = _adjust_pvalues(raw_p, star_mtc)
+        starred = [
+            bool(np.isfinite(value) and float(value) < alpha)
+            for value in adjusted
+        ]
+    else:
+        starred = [False] * len(chosen)
     matrix = np.asarray(
         frame[chosen].apply(lambda col: pd.to_numeric(col, errors="coerce")),
         dtype=np.float64,
@@ -1724,7 +2027,9 @@ def plot_graph_feature_heatmap(
         resolved = title
     else:
         scale = "column z-score" if zscore else "raw values"
-        if features is not None:
+        if is_difference:
+            resolved = f"Graph feature difference ({scale})"
+        elif features is not None:
             resolved = f"Graph features ({scale})"
         else:
             resolved = f"{group_titles[str(feature_group)]} ({scale})"
@@ -1742,15 +2047,15 @@ def plot_graph_feature_heatmap(
         else:
             fig = axes.figure
         finite = shown[np.isfinite(shown)]
-        if zscore and finite.size:
-            vmax = float(np.nanmax(np.abs(finite)))
-            vmax = 1.0 if vmax == 0.0 else vmax
-            vmin = -vmax
-            cmap = "RdBu_r"
+        vmin, vmax, cmap, default_cbar = _heatmap_color_scale(
+            finite, zscore=zscore
+        )
+        if cbar_label is not None:
+            cbar_text = cbar_label
+        elif is_difference and zscore:
+            cbar_text = "Z-scored difference"
         else:
-            vmin = None
-            vmax = None
-            cmap = "cividis"
+            cbar_text = default_cbar
         image = axes.imshow(
             shown,
             aspect="auto",
@@ -1763,7 +2068,10 @@ def plot_graph_feature_heatmap(
         axes.set_yticklabels(subject_ids, fontsize=_HEATMAP_TICK_FONTSIZE)
         axes.set_xticks(np.arange(len(chosen)))
         axes.set_xticklabels(
-            [_graph_feature_tick(name) for name in chosen],
+            [
+                _feature_tick_with_star(name, flag)
+                for name, flag in zip(chosen, starred)
+            ],
             rotation=90,
             ha="center",
             va="top",
@@ -1775,11 +2083,7 @@ def plot_graph_feature_heatmap(
         axes.set_ylabel(sanitize_label("Subject"), fontsize=_HEATMAP_LABEL_FONTSIZE)
         cbar = fig.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
         cbar.set_label(
-            sanitize_label(
-                "Z-score (across subjects)"
-                if zscore
-                else "Feature value (mixed units)"
-            ),
+            sanitize_label(cbar_text),
             fontsize=_HEATMAP_CBAR_FONTSIZE,
         )
         cbar.ax.tick_params(labelsize=_HEATMAP_TICK_FONTSIZE)

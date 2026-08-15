@@ -222,6 +222,35 @@ def test_zscore_columns_have_mean_near_zero() -> None:
         )
 
 
+def test_zscore_false_signed_delta_uses_diverging_scale() -> None:
+    """A precomputed 5-minus-8 table draws raw signed values, not z-scores."""
+    table = pd.DataFrame(
+        {
+            "subject_id": ["subj001", "subj002", "subj003"],
+            "single_h1_n_nodes": [4.0, -2.0, 1.0],
+            "single_h2_n_nodes": [-1.0, 3.0, 0.5],
+        }
+    )
+    fig = plot_graph_feature_heatmap(
+        table,
+        features=("single_h1_n_nodes", "single_h2_n_nodes"),
+        zscore=False,
+        title="Graph features: 5-voxel minus 8-voxel",
+    )
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    shown = np.asarray(fig.axes[0].images[0].get_array(), dtype=np.float64)
+    assert shown.shape == (3, 2)
+    np.testing.assert_allclose(shown[:, 0], [4.0, -2.0, 1.0])
+    assert fig.axes[0].images[0].get_cmap().name == "RdBu_r"
+    assert "5-voxel minus 8-voxel" in str(fig.axes[0].get_title())
+    assert "Feature difference" in str(fig.axes[1].get_ylabel())
+    _assert_ascii(fig)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
 def test_title_and_axis_labels_are_english() -> None:
     """Default and custom titles stay English; axis labels are Subject / feature."""
     table = _synthetic_graph_table()
@@ -243,3 +272,118 @@ def test_title_and_axis_labels_are_english() -> None:
     _assert_ascii(default)
     assert "Pairwise" in str(default.axes[0].get_title())
     assert "z-score" in str(default.axes[0].get_title()).lower()
+
+
+def _paired_shift_tables(n_subjects: int = 8) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Build paired 5-voxel / 8-voxel tables with one shifted feature.
+
+    Args:
+        n_subjects: Number of paired rows (must be >= 3 for a t-test).
+
+    Returns:
+        Tuple of ``(table_5, table_8)``. ``single_h1_n_nodes`` has a
+        large paired shift; ``single_h1_avg_degree`` is a null pair.
+    """
+    rng = np.random.default_rng(21)
+    subjects = [f"subj{index + 1:03d}" for index in range(n_subjects)]
+    baseline_shift = rng.normal(loc=10.0, scale=1.0, size=n_subjects)
+    baseline_null = rng.normal(loc=2.0, scale=0.4, size=n_subjects)
+    table_8 = pd.DataFrame(
+        {
+            "subject_id": subjects,
+            "single_h1_n_nodes": baseline_shift,
+            "single_h1_avg_degree": baseline_null,
+        }
+    )
+    table_5 = pd.DataFrame(
+        {
+            "subject_id": subjects,
+            # Large mean shift plus a little noise so the paired
+            # difference is not constant (a constant column is skipped).
+            "single_h1_n_nodes": baseline_shift
+            + 4.0
+            + rng.normal(loc=0.0, scale=0.12, size=n_subjects),
+            "single_h1_avg_degree": baseline_null
+            + rng.normal(loc=0.0, scale=0.02, size=n_subjects),
+        }
+    )
+    return table_5, table_8
+
+
+def test_star_significant_requires_reference() -> None:
+    """A precomputed delta alone must not be starred (pairing unknown)."""
+    table = _synthetic_graph_table()
+    with pytest.raises(HABITAPIError, match="requires reference"):
+        plot_graph_feature_heatmap(
+            table,
+            features=("single_h1_high_var", "single_h2_mid_var"),
+            zscore=True,
+            star_significant=True,
+        )
+
+
+def test_reference_zscore_and_star_marks_shifted_feature() -> None:
+    """Column z-score of the raw delta; FDR star on the shifted feature only."""
+    table_5, table_8 = _paired_shift_tables(n_subjects=8)
+    fig = plot_graph_feature_heatmap(
+        table_5,
+        reference=table_8,
+        features=("single_h1_n_nodes", "single_h1_avg_degree"),
+        zscore=True,
+        star_significant=True,
+        star_alpha=0.05,
+        star_test="ttest_rel",
+        star_mtc="fdr_bh",
+        title="Graph features: 5-voxel minus 8-voxel",
+        cbar_label="Z-scored difference (5 - 8)",
+    )
+    assert isinstance(fig, Figure)
+    ticks = _x_tick_names(fig)
+    assert ticks[0] == "single_h1_n_nodes *"
+    assert ticks[1] == "single_h1_avg_degree"
+    fig.canvas.draw()
+    shown = np.asarray(fig.axes[0].images[0].get_array(), dtype=np.float64)
+    assert shown.shape == (8, 2)
+    for col in range(shown.shape[1]):
+        finite = shown[:, col][np.isfinite(shown[:, col])]
+        assert finite.size >= 2
+        assert abs(float(np.mean(finite))) < 1.0e-8
+    assert fig.axes[0].images[0].get_cmap().name == "RdBu_r"
+    assert "Z-scored difference (5 - 8)" in str(fig.axes[1].get_ylabel())
+    _assert_ascii(fig)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
+def test_star_skips_constant_column() -> None:
+    """A constant paired difference is not starred (n>=3 still)."""
+    subjects = [f"subj{index + 1:03d}" for index in range(6)]
+    table_8 = pd.DataFrame(
+        {
+            "subject_id": subjects,
+            "single_h1_n_nodes": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+            "single_h1_constant": [3.0] * 6,
+        }
+    )
+    table_5 = pd.DataFrame(
+        {
+            "subject_id": subjects,
+            "single_h1_n_nodes": [3.1, 4.0, 5.2, 5.9, 7.1, 8.0],
+            "single_h1_constant": [3.0] * 6,
+        }
+    )
+    fig = plot_graph_feature_heatmap(
+        table_5,
+        reference=table_8,
+        features=("single_h1_n_nodes", "single_h1_constant"),
+        zscore=True,
+        star_significant=True,
+    )
+    ticks = _x_tick_names(fig)
+    assert ticks[0] == "single_h1_n_nodes *"
+    assert ticks[1] == "single_h1_constant"
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)

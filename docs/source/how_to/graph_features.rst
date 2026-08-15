@@ -123,6 +123,7 @@ Optional: other ``HabitatGraphFeatureOptions(...)`` fields, registry
    :width: 520
 
    Same file the gallery script writes to ``out/graph_habitat_network_2d.png``.
+   The gallery also compares these same habitat maps at ``block_size=5``.
 
 Also see
 --------
