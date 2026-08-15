@@ -1780,7 +1780,8 @@
 <dd><p>Side-by-side habitat overlays, optional disagreement mask.</p>
 <p>Independently clustered maps permute integer ids. By default this
 remaps <code class="docutils literal notranslate"><span class="pre">labels_b</span></code> (panel 2 only) onto <code class="docutils literal notranslate"><span class="pre">labels_a</span></code> by maximal voxel
-overlap – the same Hungarian pairing <code class="docutils literal notranslate"><span class="pre">habitat_stability</span></code> uses –
+overlap – the same Hungarian pairing
+<code class="docutils literal notranslate"><span class="pre">habitat_stability(...,</span> <span class="pre">method=&quot;overlap&quot;)</span></code> uses –
 before colouring and before the disagreement panel. Habitat 2 on the
 left is then the same spatial region as habitat 2 on the right.
 Disagreement is <code class="docutils literal notranslate"><span class="pre">aligned_b</span> <span class="pre">!=</span> <span class="pre">a</span></code> on labelled voxels, not raw id

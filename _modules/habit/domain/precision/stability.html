@@ -440,6 +440,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#see-also">See also</a></li>
@@ -528,6 +530,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -711,16 +714,15 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/habitat_preprocessing_api.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../examples/precise_features.html">Precise features: screen before you cluster</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#the-three-experiments">The three experiments</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#from-screen-to-habitat-run">From screen to habitat run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/precise_features.html">Precise features: atoms, then paper combinations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#the-two-atoms">The two atoms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#paper-combinations">Paper combinations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#runnable-demo">Runnable demo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#simulated-retest-components">Simulated-retest components</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#custom-perturbations">Custom perturbations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#voxel-and-habitat-stability-print-figures">Voxel and habitat stability (print + figures)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -736,8 +738,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#output">Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -983,9 +987,11 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1058,6 +1064,10 @@ window.runMermaid = runMermaid;</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../api/index.html#precision-screen">Precision screen</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.extract_voxel_texture.html">extract_voxel_texture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.precision_panel.html">precision_panel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.identify_precise_features.html">identify_precise_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.identify_precise_voxel_features.html">identify_precise_voxel_features</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.recipes.voxel_radiomics_factory.html">voxel_radiomics_factory</a></li>
 </ul>
@@ -1297,6 +1307,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.prior2024_retest_perturbation.html">prior2024_retest_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.PreciseFeatureSet.html">PreciseFeatureSet</a></li>
@@ -1729,6 +1741,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_ith_summary.html">plot_ith_summary</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_label_compare.html">plot_habitat_label_compare</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_partition_triptych.html">plot_partition_triptych</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_precision_icc.html">plot_precision_icc</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_heatmap.html">plot_habitat_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_effect.html">plot_habitat_feature_effect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_components.html">plot_habitat_feature_components</a></li>
@@ -1736,6 +1749,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -2154,7 +2168,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_label_match</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">align_label_array</span><span class="p">,</span>
-    <span class="n">match_labels_by_overlap</span><span class="p">,</span>
+    <span class="n">match_label_ids</span><span class="p">,</span>
     <span class="n">present_habitat_ids</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -2202,15 +2216,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    the same definition.</span>
 
 <span class="sd">    Default matching is **centroid** -- Hungarian assignment on Euclidean</span>
-<span class="sd">    distance between per-habitat feature centroids, the in-memory form of</span>
-<span class="sd">    the test-retest mapper (which pairs habitats by median feature</span>
-<span class="sd">    vectors). Pass the two fits&#39; :attr:`~habit.contracts.habitat.HabitatModel.centroids`</span>
-<span class="sd">    when available; otherwise mean image intensity, then spatial centroids.</span>
+<span class="sd">    distance between per-habitat **mean** feature vectors (the same</span>
+<span class="sd">    quantity k-means stores as a cluster centre). Pass the two fits&#39;</span>
+<span class="sd">    :attr:`~habit.contracts.habitat.HabitatModel.centroids` when available;</span>
+<span class="sd">    otherwise mean image intensity, then spatial means.</span>
 
-<span class="sd">    ``method=&quot;overlap&quot;`` uses the same maximal-overlap Hungarian pairing as</span>
-<span class="sd">    :func:`habitat_stability`. Do not feed an already-aligned map back into</span>
-<span class="sd">    ``habitat_stability`` expecting a second scientific match: Dice should</span>
-<span class="sd">    be scored on the original pair (stability matches internally).</span>
+<span class="sd">    ``method=&quot;overlap&quot;`` uses maximal voxel overlap. Use the same</span>
+<span class="sd">    ``method`` in :func:`habitat_stability` so Dice is scored on the</span>
+<span class="sd">    same pairing. Do not feed an already-aligned map back into</span>
+<span class="sd">    ``habitat_stability``: Dice should be scored on the original pair</span>
+<span class="sd">    (stability matches internally).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference: Habitat map whose ids are the target space.</span>
@@ -2306,25 +2321,46 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">habitat_stability</span><span class="p">(</span>
     <span class="n">reference</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="n">perturbed</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">HabitatMap</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">AlignMethod</span> <span class="o">=</span> <span class="s2">&quot;overlap&quot;</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">moving_images</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">reference_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">moving_centroids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Score habitat stability between a reference map and perturbed maps.</span>
 
-<span class="sd">    Clusters of each perturbed map are matched to the reference clusters by</span>
-<span class="sd">    maximal voxel overlap (Hungarian assignment), then the Dice similarity</span>
-<span class="sd">    is computed per matched pair. Reference habitats left unmatched (the</span>
-<span class="sd">    perturbed map has fewer clusters) score Dice 0 -- a vanished habitat is</span>
-<span class="sd">    a stability failure, not missing data.</span>
+<span class="sd">    Each perturbed map is paired to the reference, then ordinary Dice is</span>
+<span class="sd">    computed on that pair: ``2 * intersection / (n_reference + n_matched)``,</span>
+<span class="sd">    where the two counts are voxel sizes of one reference habitat and its</span>
+<span class="sd">    matched perturbed habitat. Unmatched reference habitats (fewer</span>
+<span class="sd">    clusters on the perturbed map) score Dice 0.</span>
 
-<span class="sd">    Matching is the overlap kernel shared with :func:`align_habitat_map`</span>
-<span class="sd">    (``method=&quot;overlap&quot;``). This function does **not** rewrite the input</span>
-<span class="sd">    maps; it only scores them. Pass the original independently clustered</span>
-<span class="sd">    pair, not a map that was already remapped by a different matcher.</span>
+<span class="sd">    Default ``method=&quot;overlap&quot;`` is the Prior 2024 Hungarian / overlap</span>
+<span class="sd">    pairing. ``method=&quot;centroid&quot;`` pairs by Hungarian assignment on</span>
+<span class="sd">    per-habitat **mean** feature distance (explicit centroids, else mean</span>
+<span class="sd">    intensity of ``image`` / ``moving_images``, else spatial means).</span>
+<span class="sd">    Use the same ``method`` as :func:`align_habitat_map` so the compare</span>
+<span class="sd">    figure and the Dice table share one correspondence.</span>
+
+<span class="sd">    This function does **not** rewrite the input maps. Pass the original</span>
+<span class="sd">    independently clustered pair, not a map that was already remapped.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        reference: Habitat map of the original subject.</span>
 <span class="sd">        perturbed: Habitat maps computed independently on perturbed copies,</span>
 <span class="sd">            each on the same voxel grid as ``reference``.</span>
+<span class="sd">        method: ``&quot;overlap&quot;`` (default) or ``&quot;centroid&quot;``.</span>
+<span class="sd">        image: Optional intensity / feature volume for the reference map.</span>
+<span class="sd">            Required for intensity-mean centroid matching when explicit</span>
+<span class="sd">            centroids are omitted.</span>
+<span class="sd">        moving_images: Optional per-perturbed intensity volumes. When</span>
+<span class="sd">            omitted, ``image`` is reused for every perturbed map.</span>
+<span class="sd">        reference_centroids: Optional explicit reference cluster centres.</span>
+<span class="sd">        moving_centroids: Optional explicit centres, one array per</span>
+<span class="sd">            perturbed map (``None`` entries fall back to image / spatial</span>
+<span class="sd">            means).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Long-format DataFrame with one row per perturbation per reference</span>
@@ -2333,12 +2369,32 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ``n_matched`` voxel counts.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        HABITAPIError: If no perturbed map is given or the grids differ.</span>
+<span class="sd">        HABITAPIError: If no perturbed map is given, the grids differ,</span>
+<span class="sd">            ``method`` is unknown, or centroid inputs are incomplete.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">perturbed</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="s2">&quot;habitat_stability: at least one perturbed map is required.&quot;</span><span class="p">)</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;habitat_stability: method must be &#39;centroid&#39; or &#39;overlap&#39;; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">moving_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">moving_images</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_stability: moving_images must have one entry per &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;perturbed map; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moving_images</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">moving_centroids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;habitat_stability: moving_centroids must have one entry per &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;perturbed map; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moving_centroids</span><span class="p">)</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">perturbed</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
     <span class="n">reference_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
     <span class="n">reference_ids</span> <span class="o">=</span> <span class="n">present_habitat_ids</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">)</span>
+    <span class="n">ref_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_as_image_array</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
     <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">moved</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">perturbed</span><span class="p">):</span>
         <span class="n">moved_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moved</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
@@ -2347,8 +2403,36 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;habitat_stability: perturbed map </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> has shape &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">moved_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, expected </span><span class="si">{</span><span class="n">reference_labels</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
+        <span class="n">mov_image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">moving_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">moving_images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mov_image</span> <span class="o">=</span> <span class="n">_as_image_array</span><span class="p">(</span>
+                <span class="n">moving_images</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;moving_images[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ref_image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mov_image</span> <span class="o">=</span> <span class="n">ref_image</span>
+        <span class="n">mov_cent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">moving_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mov_cent</span> <span class="o">=</span> <span class="n">moving_centroids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_labels_by_overlap</span><span class="p">(</span><span class="n">reference_labels</span><span class="p">,</span> <span class="n">moved_labels</span><span class="p">)</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="n">match_label_ids</span><span class="p">(</span>
+                <span class="n">reference_labels</span><span class="p">,</span>
+                <span class="n">moved_labels</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">ref_image</span><span class="p">,</span>
+                <span class="n">moving_image</span><span class="o">=</span><span class="n">mov_image</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span>
+                <span class="n">reference_centroids</span><span class="o">=</span><span class="n">reference_centroids</span><span class="p">,</span>
+                <span class="n">moving_centroids</span><span class="o">=</span><span class="n">mov_cent</span><span class="p">,</span>
+                <span class="n">reference_ids</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">reference_centroids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="n">moving_ids</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">moved</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">mov_cent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;habitat_stability: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
         <span class="c1"># Invert {moving_id: reference_id} so each reference habitat looks up</span>

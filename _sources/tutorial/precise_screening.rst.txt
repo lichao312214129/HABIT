@@ -188,25 +188,29 @@ uses three cropped subjects.
    :width: 720
 
    One-step habitats on the original vs warped subject. Warped ids are
-   remapped by maximal overlap
-   (:func:`~habit.align_habitat_map`, ``force=True``) so habitat 2 is
-   the same spatial region on both panels.
+   remapped by mean-intensity Hungarian pairing
+   (:func:`~habit.align_habitat_map`, ``method="centroid"``,
+   ``force=True``) so the same colour is the same intensity-defined
+   habitat on both panels.
 
 .. figure:: ../_static/images/examples/precise_habitat_dice.png
    :alt: Per-habitat Dice after Hungarian matching
    :width: 480
 
-   Per-habitat Dice from :func:`~habit.habitat_stability` (Hungarian
-   match on the unaligned pair).
+   Per-habitat Dice from :func:`~habit.habitat_stability`
+   (``method="centroid"``): ordinary
+   :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity pairing.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_icc.png
    :alt: Habitat-table feature ICC point estimates with 95 percent confidence intervals
    :width: 720
 
-   Habitat-table features (volume fraction and ITH) scored with
-   ICC(3A,1) **and the 95% CI**, not a point-only ICC.
-   Three demo subjects, original vs overlap-aligned FFD map
-   (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`).
+   Habitat-table features (volume fraction, ITH, and the default
+   graph family) scored with ICC(3A,1) **and the 95% CI**, not a
+   point-only ICC. The gallery figure is a random subset of 24
+   columns (``random_state=0``); the script still scores every
+   shared column. Three demo subjects, original vs mean-aligned FFD
+   map (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`).
    Colour is ``LCL >= 0.5`` only — this is **not** the voxel-texture
    PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
 

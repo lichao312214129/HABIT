@@ -21,6 +21,7 @@
         <script src="../_static/documentation_options.js?v=cb7bf70b"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -2224,14 +2225,19 @@ change ROI <em>shape</em>. Subject-level
 field warps every image and mask together so the contour stays paired
 with the anatomy. This is <strong>not</strong> Prior Appendix S2 and <strong>not</strong> MIRP
 <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (mask grow/shrink).</p>
-<p>The same block then extracts <strong>habitat-table</strong> features (volume
-fraction and ITH) from the original map and from the overlap-aligned
-warped map, and reports ICC(3A,1) <strong>with a 95% CI</strong> via
-<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>. That is a different question from the
-voxel-texture PreciseFeatureSet above: here the targets are
-subjects, not voxels, and the colour in the ICC panel is only
-<code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>, not the paper’s intersection flag. Three demo
-subjects make the intervals wide; that is expected.</p>
+<p>The same block then extracts <strong>habitat-table</strong> features — volume
+fraction, ITH, and the graph family
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>, single + pairwise; extended
+efficiency / small-world omitted for runtime) — from the original map and
+from the mean-intensity-aligned warped map, and reports ICC(3A,1)
+<strong>with a 95% CI</strong> via <code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>. Habitats are paired by
+Hungarian assignment on per-habitat <strong>mean</strong> intensity (the same
+quantity k-means uses as a cluster centre), then ordinary Dice
+<span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> is scored on that pair. That is a
+different question from the voxel-texture PreciseFeatureSet above:
+here the targets are subjects, not voxels, and the colour in the ICC
+panel is only <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>, not the paper’s intersection flag.
+Three demo subjects make the intervals wide; that is expected.</p>
 <p>Paste after the Script block (it reuses <code class="docutils literal notranslate"><span class="pre">_crop_to_roi</span></code>, <code class="docutils literal notranslate"><span class="pre">DATA</span></code>,
 <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code>, and <code class="docutils literal notranslate"><span class="pre">ROI</span></code>). Writes four more <code class="docutils literal notranslate"><span class="pre">out/precise_*.png</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optional follow-up (not Prior Appendix S2, not MIRP ROI grow/shrink):</span>
@@ -2247,6 +2253,8 @@ subjects make the intervals wide; that is expected.</p>
     <span class="n">HabitatMap</span><span class="p">,</span>
     <span class="n">ImagePerturbationRegistry</span><span class="p">,</span>
     <span class="n">align_habitat_map</span><span class="p">,</span>
+    <span class="n">HabitatGraphFeatureOptions</span><span class="p">,</span>
+    <span class="n">extract_graph_features</span><span class="p">,</span>
     <span class="n">habitat_stability</span><span class="p">,</span>
     <span class="n">habitat_volume_fractions</span><span class="p">,</span>
     <span class="n">icc3a_1</span><span class="p">,</span>
@@ -2271,7 +2279,7 @@ subjects make the intervals wide; that is expected.</p>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_habitat_feature_row</span><span class="p">(</span><span class="n">habitat_map</span><span class="p">:</span> <span class="n">HabitatMap</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Volume fractions and ITH from one HabitatMap (aligned ids).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Volume fractions, ITH, and the full graph-feature dict from one map.&quot;&quot;&quot;</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span><span class="p">)</span>
     <span class="n">habitat_ids</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hid</span><span class="p">)</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">)</span>
     <span class="n">fractions</span> <span class="o">=</span> <span class="n">habitat_volume_fractions</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">habitat_ids</span><span class="p">)</span>
@@ -2280,10 +2288,19 @@ subjects make the intervals wide; that is expected.</p>
         <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">habitat_ids</span>
     <span class="p">}</span>
     <span class="n">row</span><span class="p">[</span><span class="s2">&quot;ith_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ith_score</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+    <span class="c1"># Single + pairwise graph metrics. Extended efficiency / small-world</span>
+    <span class="c1"># / rich-club are omitted: they dominate runtime on a clinical crop.</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">expected_labels</span><span class="o">=</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">row</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">row</span>
 
 
-<span class="n">FEATURE_ORDER</span> <span class="o">=</span> <span class="p">(</span>
+<span class="n">VOLUME_ITH_FIRST</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;habitat_1_volume_fraction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;habitat_2_volume_fraction&quot;</span><span class="p">,</span>
     <span class="s2">&quot;habitat_3_volume_fraction&quot;</span><span class="p">,</span>
@@ -2305,9 +2322,20 @@ subjects make the intervals wide; that is expected.</p>
     <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">Cohort</span><span class="p">(</span><span class="n">subjects</span><span class="o">=</span><span class="p">(</span><span class="n">warped_item</span><span class="p">,)))</span>
     <span class="n">ref_map</span> <span class="o">=</span> <span class="n">orig_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">mov_map</span> <span class="o">=</span> <span class="n">warp_fit</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># Independent one_step fits share a model_id digest; force overlap align</span>
-    <span class="c1"># so table columns (habitat_1_...) name the same spatial region.</span>
-    <span class="n">aligned_map</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span><span class="n">ref_map</span><span class="p">,</span> <span class="n">mov_map</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;overlap&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">orig_image</span> <span class="o">=</span> <span class="n">cropped</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">warp_image</span> <span class="o">=</span> <span class="n">warped_item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># Pair by Hungarian assignment on per-habitat mean intensity (same</span>
+    <span class="c1"># quantity k-means uses as a cluster centre). force=True: independent</span>
+    <span class="c1"># one_step fits share a model_id digest even though ids are permuted.</span>
+    <span class="n">aligned_map</span> <span class="o">=</span> <span class="n">align_habitat_map</span><span class="p">(</span>
+        <span class="n">ref_map</span><span class="p">,</span>
+        <span class="n">mov_map</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="n">orig_image</span><span class="p">,</span>
+        <span class="n">moving_image</span><span class="o">=</span><span class="n">warp_image</span><span class="p">,</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  habitat-table features (incl. graph): </span><span class="si">{</span><span class="n">cropped</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">orig_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">ref_map</span><span class="p">))</span>
     <span class="n">warp_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_habitat_feature_row</span><span class="p">(</span><span class="n">aligned_map</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">first_bundle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2316,11 +2344,17 @@ subjects make the intervals wide; that is expected.</p>
             <span class="n">warped_item</span><span class="p">,</span>
             <span class="n">ref_map</span><span class="p">,</span>
             <span class="n">aligned_map</span><span class="p">,</span>
-            <span class="n">habitat_stability</span><span class="p">(</span><span class="n">ref_map</span><span class="p">,</span> <span class="p">[</span><span class="n">mov_map</span><span class="p">]),</span>
+            <span class="n">habitat_stability</span><span class="p">(</span>
+                <span class="n">ref_map</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">mov_map</span><span class="p">],</span>
+                <span class="n">method</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">,</span>
+                <span class="n">image</span><span class="o">=</span><span class="n">orig_image</span><span class="p">,</span>
+                <span class="n">moving_images</span><span class="o">=</span><span class="p">(</span><span class="n">warp_image</span><span class="p">,),</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
 <span class="n">cropped</span><span class="p">,</span> <span class="n">warped_item</span><span class="p">,</span> <span class="n">ref_map</span><span class="p">,</span> <span class="n">aligned_map</span><span class="p">,</span> <span class="n">dice_frame</span> <span class="o">=</span> <span class="n">first_bundle</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice after bspline_deform (Hungarian match)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat Dice after bspline_deform (mean-intensity match)&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dice_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
 <span class="c1"># Shared axial index: densest original ROI (same crop, same slice).</span>
@@ -2400,16 +2434,15 @@ subjects make the intervals wide; that is expected.</p>
     <span class="p">)</span>
     <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">)</span>
     <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Dice&quot;</span><span class="p">)</span>
-    <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice (matched)&quot;</span><span class="p">))</span>
+    <span class="n">ax_dice</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Per-habitat Dice (mean-intensity match)&quot;</span><span class="p">))</span>
 <span class="n">fig_dice</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_habitat_dice.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 
-<span class="c1"># ICC(3A,1) on the habitat-table features: one row per subject, two columns</span>
-<span class="c1"># (original vs overlap-aligned warped map). n=3 =&gt; wide 95% CIs (honest).</span>
-<span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">name</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FEATURE_ORDER</span>
-    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">orig_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">warp_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="p">]</span>
+<span class="c1"># ICC(3A,1) on every shared habitat-table column (volume, ITH, graph).</span>
+<span class="c1"># One row per subject, two columns (original vs mean-aligned warp).</span>
+<span class="c1"># n=3 =&gt; wide 95% CIs (honest).</span>
+<span class="n">shared_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">orig_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">warp_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">VOLUME_ITH_FIRST</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span><span class="p">]</span>
+<span class="n">feature_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shared_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VOLUME_ITH_FIRST</span><span class="p">)))</span>
 <span class="n">icc_records</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
@@ -2431,12 +2464,23 @@ subjects make the intervals wide; that is expected.</p>
         <span class="p">}</span>
     <span class="p">)</span>
 <span class="n">icc_frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">icc_records</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Habitat-table feature ICC(3A,1) with 95% CI (n=3 subjects)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">icc_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Habitat-table feature ICC(3A,1) with 95% CI &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(n=3 subjects, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">icc_frame</span><span class="p">)</span><span class="si">}</span><span class="s2"> shared columns)&quot;</span>
+<span class="p">)</span>
+<span class="c1"># The full volume + ITH + graph table is too tall for a docs figure.</span>
+<span class="c1"># Draw a reproducible random subset; the printed count is the full set.</span>
+<span class="n">n_plot</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">icc_frame</span><span class="p">))</span>
+<span class="n">plot_frame</span> <span class="o">=</span> <span class="n">icc_frame</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n_plot</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+    <span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plotting a random subset of </span><span class="si">{</span><span class="n">n_plot</span><span class="si">}</span><span class="s2"> columns (seed=0)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">plot_frame</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 <span class="n">fig_icc</span> <span class="o">=</span> <span class="n">plot_precision_icc</span><span class="p">(</span>
-    <span class="n">icc_frame</span><span class="p">,</span>
+    <span class="n">plot_frame</span><span class="p">,</span>
     <span class="n">lcl_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat-table features: ICC and 95% CI (FFD retest)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Habitat-table features: ICC and 95% CI (random subset)&quot;</span><span class="p">,</span>
+    <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig_icc</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/precise_habitat_feature_icc.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
@@ -2463,8 +2507,8 @@ on a <a class="reference internal" href="../api/generated/habit.contracts.Subjec
 <figcaption>
 <p><span class="caption-text">One-step habitats (<code class="docutils literal notranslate"><span class="pre">n_habitats=3</span></code>) on the original vs warped
 subject. The warped map is remapped onto the original ids by
-maximal overlap
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, <code class="docutils literal notranslate"><span class="pre">method=&quot;overlap&quot;</span></code>,
+mean-intensity Hungarian pairing
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, <code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">force=True</span></code>) before
 <a class="reference internal" href="../api/generated/habit.viz.plot_habitat_label_compare.html#habit.viz.plot_habitat_label_compare" title="habit.viz.plot_habitat_label_compare"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_label_compare()</span></code></a>
 (<code class="docutils literal notranslate"><span class="pre">align_labels=False</span></code>, <code class="docutils literal notranslate"><span class="pre">display_convention=&quot;native&quot;</span></code> so the
@@ -2472,11 +2516,13 @@ slice matches the contour figure).</span><a class="headerlink" href="#id9" title
 </figcaption>
 </figure>
 <figure class="align-default" id="id10">
-<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after Hungarian matching" src="../_images/precise_habitat_dice.png" width="480" />
+<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after mean-intensity matching" src="../_images/precise_habitat_dice.png" width="480" />
 </a>
 <figcaption>
-<p><span class="caption-text">Per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code> (Hungarian
-overlap match on the <strong>unaligned</strong> pair).</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+<p><span class="caption-text">Per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code>
+(<code class="docutils literal notranslate"><span class="pre">method=&quot;centroid&quot;</span></code> on the <strong>unaligned</strong> pair): ordinary
+<span class="math notranslate nohighlight">\(2|A\cap B|/(|A|+|B|)\)</span> after the same mean-intensity
+pairing as the compare figure.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id11">
@@ -2484,11 +2530,13 @@ overlap match on the <strong>unaligned</strong> pair).</span><a class="headerlin
 </a>
 <figcaption>
 <p><span class="caption-text">Habitat-table repeatability: ICC(3A,1) point and 95% CI whisker
-per feature, three cropped <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subjects, original vs
-overlap-aligned FFD map (<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>,
-<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>). Colour is <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>
-only — <strong>not</strong> a PreciseFeatureSet. Wide intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are
-honest, not a plotting error.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+for a random subset of 24 shared columns (volume, ITH, graph;
+<code class="docutils literal notranslate"><span class="pre">random_state=0</span></code>), three cropped <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subjects, original
+vs mean-aligned FFD map (<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>,
+<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">orientation=&quot;row&quot;</span></code>).
+Colour is <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code> only — <strong>not</strong> a PreciseFeatureSet. Wide
+intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are honest, not a plotting error. The script
+still scores every shared column; only the figure is subsampled.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
