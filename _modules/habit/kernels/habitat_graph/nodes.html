@@ -529,6 +529,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -738,6 +739,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -983,6 +985,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
@@ -2144,12 +2147,13 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">ndi</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
     <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
     <span class="n">NodeMethod</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;extract_habitat_nodes&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BACKGROUND_SHELL_LABEL&quot;</span><span class="p">,</span> <span class="s2">&quot;extract_habitat_nodes&quot;</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_connectivity_structure</span><span class="p">(</span><span class="n">ndim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2293,6 +2297,56 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_background_shell_mask</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the peritumoral shell (dilated VOI minus the original VOI).</span>
+
+<span class="sd">    Dilation uses the same neighbourhood as graph ``connectivity``</span>
+<span class="sd">    (``face`` or ``full``) and stays inside the array bounds.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat map (background encoded as 0).</span>
+<span class="sd">        width: Dilation iterations (&gt;= 1). One iteration is a 1-voxel ring.</span>
+<span class="sd">        connectivity: ``&quot;face&quot;`` or ``&quot;full&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Boolean mask of shell voxels. Empty when the VOI is empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;background_shell_width must be &gt;= 1.&quot;</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="n">voi</span> <span class="o">=</span> <span class="n">label_array</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">voi</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">dilated</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span>
+        <span class="n">voi</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dilated</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">voi</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remap_nodes_to_background</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rewrite painted shell nodes to the reserved background class.&quot;&quot;&quot;</span>
+    <span class="n">remapped</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="n">remapped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">HabitatGraphNode</span><span class="p">(</span>
+                <span class="n">node_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;bg_c</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">component_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">habitat_label</span><span class="o">=</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span>
+                <span class="n">component_id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">component_id</span><span class="p">),</span>
+                <span class="n">centroid</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">centroid</span><span class="p">,</span>
+                <span class="n">voxel_count</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">voxel_count</span><span class="p">),</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">bbox</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">remapped</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_uniform_grid_nodes</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -2301,6 +2355,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">grid_origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Tessellate the tumour VOI and emit one node per cell subregion.</span>
@@ -2327,12 +2382,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        block_size: Cube edge length in voxels.</span>
 <span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
 <span class="sd">            the cell (strictly greater than this value).</span>
+<span class="sd">        grid_origin: Optional lattice origin in voxel indices. ``None``</span>
+<span class="sd">            uses the non-background bounding-box minimum of ``working``.</span>
+<span class="sd">            Pass the tumour-VOI origin when extracting the background</span>
+<span class="sd">            shell so habitat cubes stay on the same lattice.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        HabitatNodeExtractionResult: Nodes, component maps, and lattice.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">working</span> <span class="o">=</span> <span class="n">_eroded_label_array</span><span class="p">(</span><span class="n">label_array</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">erosion_radius</span><span class="p">)</span>
-    <span class="n">origin</span> <span class="o">=</span> <span class="n">_voi_grid_origin</span><span class="p">(</span><span class="n">working</span><span class="p">)</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grid_origin</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">grid_origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">_voi_grid_origin</span><span class="p">(</span><span class="n">working</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">nodes_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">component_maps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">):</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">working</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span>
@@ -2412,90 +2475,17 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
 
-<div class="viewcode-block" id="extract_habitat_nodes">
-<a class="viewcode-back" href="../../../../api/generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">extract_habitat_nodes</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_component_nodes</span><span class="p">(</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span>
-    <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
-    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">structure</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a habitat label map into graph nodes.</span>
-
-<span class="sd">    Default ``node_method=&#39;uniform_grid&#39;`` paints a global axis-aligned</span>
-<span class="sd">    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not</span>
-<span class="sd">    millimetres) over the tumour VOI. Cubes whose occupied fraction</span>
-<span class="sd">    exceeds ``block_min_coverage`` (default 0.2) are kept; **each</span>
-<span class="sd">    connected subregion inside a kept cube becomes its own node** at</span>
-<span class="sd">    that subregion&#39;s voxel-index centroid (several habitats and/or</span>
-<span class="sd">    several components of one habitat can share a cube). Pass</span>
-<span class="sd">    ``node_method=&#39;component&#39;`` for the older connected-component nodes,</span>
-<span class="sd">    optionally split when a component exceeds</span>
-<span class="sd">    ``subdivide_region_voxels``.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        label_array: Integer habitat label map. Background must be encoded as 0.</span>
-<span class="sd">        connectivity: Connected-component neighborhood rule. Default</span>
-<span class="sd">            ``&quot;full&quot;`` is 8-connected in 2D / 26-connected in 3D. Pass</span>
-<span class="sd">            ``&quot;face&quot;`` for 4-connected / 6-connected neighborhoods. Used by</span>
-<span class="sd">            ``component`` mode and by optional erosion in both modes.</span>
-<span class="sd">        min_region_voxels: Components / residual nodes smaller than this</span>
-<span class="sd">            voxel count are ignored.</span>
-<span class="sd">        erosion_radius: Optional binary erosion iterations applied per habitat</span>
-<span class="sd">            before node extraction. The default is 0.</span>
-<span class="sd">        subdivide_region_voxels: In ``component`` mode, split components</span>
-<span class="sd">            larger than this into grid blocks. ``0`` disables splitting.</span>
-<span class="sd">            Ignored by ``uniform_grid``.</span>
-<span class="sd">        block_size: Cube edge length in voxels (default 8), not millimetres.</span>
-<span class="sd">            With the default ``distance_threshold=5``, face-adjacent</span>
-<span class="sd">            8-cubes connect (closest voxels are one hop apart). One empty</span>
-<span class="sd">            lattice cell between cubes is closest-voxel distance about 8</span>
-<span class="sd">            and stays disconnected.</span>
-<span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
-<span class="sd">            the cell (default 0.2; a cube is kept when coverage is</span>
-<span class="sd">            strictly greater than this value). Applied per cell, not</span>
-<span class="sd">            per subregion. Tiny in-cell fragments are dropped by</span>
-<span class="sd">            ``min_region_voxels``.</span>
-<span class="sd">        node_method: ``&quot;uniform_grid&quot;`` (default) or ``&quot;component&quot;``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        HabitatNodeExtractionResult: Nodes grouped by habitat label plus</span>
-<span class="sd">        component maps used by contact-based edge builders. ``uniform_grid``</span>
-<span class="sd">        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;label_array must be 2D or 3D.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">min_region_voxels</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_region_voxels must be &gt;= 1.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">erosion_radius</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;erosion_radius must be &gt;= 0.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">subdivide_region_voxels</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;subdivide_region_voxels must be &gt;= 0.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">block_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block_size must be &gt;= 1.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">block_min_coverage</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block_min_coverage must be in [0, 1].&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">node_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;node_method must be &#39;uniform_grid&#39; or &#39;component&#39;.&quot;</span><span class="p">)</span>
-
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">node_method</span> <span class="o">==</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_extract_uniform_grid_nodes</span><span class="p">(</span>
-            <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
-            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
-            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
-            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
-            <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
-            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
-            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
-        <span class="p">)</span>
-
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Connected-component nodes (optional size split). Habitat labels only.&quot;&quot;&quot;</span>
     <span class="n">nodes_by_habitat</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">HabitatGraphNode</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">component_maps</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -2536,7 +2526,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">block_groups</span><span class="p">:</span>
-                <span class="c1"># One graph node per kept block; each block gets a unique id.</span>
                 <span class="k">for</span> <span class="n">block_coords</span> <span class="ow">in</span> <span class="n">block_groups</span><span class="p">:</span>
                     <span class="n">block_component_id</span> <span class="o">=</span> <span class="n">next_block_component_id</span>
                     <span class="n">next_block_component_id</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -2552,7 +2541,6 @@ window.runMermaid = runMermaid;</script>
                         <span class="p">)</span>
                     <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Keep the whole component as a single node (default behavior).</span>
                 <span class="n">kept_component_map</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">T</span><span class="p">)]</span> <span class="o">=</span> <span class="n">component_id</span>
                 <span class="n">habitat_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">HabitatGraphNode</span><span class="p">(</span>
@@ -2572,6 +2560,196 @@ window.runMermaid = runMermaid;</script>
         <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
         <span class="n">nodes_by_habitat</span><span class="o">=</span><span class="n">nodes_by_habitat</span><span class="p">,</span>
         <span class="n">component_maps</span><span class="o">=</span><span class="n">component_maps</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_merge_background_shell_nodes</span><span class="p">(</span>
+    <span class="n">habitat_result</span><span class="p">:</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span><span class="p">,</span>
+    <span class="n">background_shell_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Append reserved-class shell nodes without moving the habitat lattice.</span>
+
+<span class="sd">    Habitat nodes stay exactly as extracted from the original VOI. The</span>
+<span class="sd">    shell is a second extract on ``dilated VOI AND NOT VOI``, using the</span>
+<span class="sd">    same ``block_size`` / coverage (and the same grid origin in</span>
+<span class="sd">    ``uniform_grid`` mode).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shell</span> <span class="o">=</span> <span class="n">_background_shell_mask</span><span class="p">(</span>
+        <span class="n">label_array</span><span class="p">,</span> <span class="n">background_shell_width</span><span class="p">,</span> <span class="n">connectivity</span>
+    <span class="p">)</span>
+    <span class="n">paint_id</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">shell_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">shell_labels</span><span class="p">[</span><span class="n">shell</span><span class="p">]</span> <span class="o">=</span> <span class="n">paint_id</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">node_method</span> <span class="o">==</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">:</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">habitat_result</span><span class="o">.</span><span class="n">grid_origin</span>
+        <span class="n">origin_arr</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">shell_result</span> <span class="o">=</span> <span class="n">_extract_uniform_grid_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">shell_labels</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">paint_id</span><span class="p">],</span>
+            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+            <span class="n">erosion_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+            <span class="n">grid_origin</span><span class="o">=</span><span class="n">origin_arr</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shell_result</span> <span class="o">=</span> <span class="n">_extract_component_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">shell_labels</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">paint_id</span><span class="p">],</span>
+            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+            <span class="n">erosion_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">bg_nodes</span> <span class="o">=</span> <span class="n">_remap_nodes_to_background</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">shell_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">paint_id</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="p">)</span>
+    <span class="n">bg_map</span> <span class="o">=</span> <span class="n">shell_result</span><span class="o">.</span><span class="n">component_maps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">paint_id</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">nodes_by_habitat</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">habitat_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="p">)</span>
+    <span class="n">nodes_by_habitat</span><span class="p">[</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg_nodes</span>
+    <span class="n">component_maps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">habitat_result</span><span class="o">.</span><span class="n">component_maps</span><span class="p">)</span>
+    <span class="n">component_maps</span><span class="p">[</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg_map</span>
+    <span class="k">return</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">(</span>
+        <span class="n">label_array</span><span class="o">=</span><span class="n">habitat_result</span><span class="o">.</span><span class="n">label_array</span><span class="p">,</span>
+        <span class="n">nodes_by_habitat</span><span class="o">=</span><span class="n">nodes_by_habitat</span><span class="p">,</span>
+        <span class="n">component_maps</span><span class="o">=</span><span class="n">component_maps</span><span class="p">,</span>
+        <span class="n">grid_origin</span><span class="o">=</span><span class="n">habitat_result</span><span class="o">.</span><span class="n">grid_origin</span><span class="p">,</span>
+        <span class="n">grid_block_size</span><span class="o">=</span><span class="n">habitat_result</span><span class="o">.</span><span class="n">grid_block_size</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="extract_habitat_nodes">
+<a class="viewcode-back" href="../../../../api/generated/habit.kernels.extract_habitat_nodes.html#habit.kernels.extract_habitat_nodes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_habitat_nodes</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span>
+    <span class="n">min_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">erosion_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">subdivide_region_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">node_method</span><span class="p">:</span> <span class="n">NodeMethod</span> <span class="o">=</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
+    <span class="n">include_background_shell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">background_shell_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HabitatNodeExtractionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a habitat label map into graph nodes.</span>
+
+<span class="sd">    Default ``node_method=&#39;uniform_grid&#39;`` paints a global axis-aligned</span>
+<span class="sd">    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not</span>
+<span class="sd">    millimetres) over the tumour VOI. Cubes whose occupied fraction</span>
+<span class="sd">    exceeds ``block_min_coverage`` (default 0.2) are kept; **each</span>
+<span class="sd">    connected subregion inside a kept cube becomes its own node** at</span>
+<span class="sd">    that subregion&#39;s voxel-index centroid (several habitats and/or</span>
+<span class="sd">    several components of one habitat can share a cube). Pass</span>
+<span class="sd">    ``node_method=&#39;component&#39;`` for the older connected-component nodes,</span>
+<span class="sd">    optionally split when a component exceeds</span>
+<span class="sd">    ``subdivide_region_voxels``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat label map. Background must be encoded as 0.</span>
+<span class="sd">        connectivity: Connected-component neighborhood rule. Default</span>
+<span class="sd">            ``&quot;full&quot;`` is 8-connected in 2D / 26-connected in 3D. Pass</span>
+<span class="sd">            ``&quot;face&quot;`` for 4-connected / 6-connected neighborhoods. Used by</span>
+<span class="sd">            ``component`` mode and by optional erosion in both modes.</span>
+<span class="sd">        min_region_voxels: Components / residual nodes smaller than this</span>
+<span class="sd">            voxel count are ignored.</span>
+<span class="sd">        erosion_radius: Optional binary erosion iterations applied per habitat</span>
+<span class="sd">            before node extraction. The default is 0.</span>
+<span class="sd">        subdivide_region_voxels: In ``component`` mode, split components</span>
+<span class="sd">            larger than this into grid blocks. ``0`` disables splitting.</span>
+<span class="sd">            Ignored by ``uniform_grid``.</span>
+<span class="sd">        block_size: Cube edge length in voxels (default 8), not millimetres.</span>
+<span class="sd">            With the default ``distance_threshold=5``, face-adjacent</span>
+<span class="sd">            8-cubes connect (closest voxels are one hop apart). One empty</span>
+<span class="sd">            lattice cell between cubes is closest-voxel distance about 8</span>
+<span class="sd">            and stays disconnected.</span>
+<span class="sd">        block_min_coverage: Minimum occupied fraction of a cube to keep</span>
+<span class="sd">            the cell (default 0.2; a cube is kept when coverage is</span>
+<span class="sd">            strictly greater than this value). Applied per cell, not</span>
+<span class="sd">            per subregion. Tiny in-cell fragments are dropped by</span>
+<span class="sd">            ``min_region_voxels``.</span>
+<span class="sd">        node_method: ``&quot;uniform_grid&quot;`` (default) or ``&quot;component&quot;``.</span>
+<span class="sd">        include_background_shell: If True (default), add a peritumoral</span>
+<span class="sd">            background shell as a reserved class (not a clustered</span>
+<span class="sd">            habitat). Habitat nodes stay on the original VOI lattice.</span>
+<span class="sd">        background_shell_width: Dilation width in voxels (&gt;= 1). Default</span>
+<span class="sd">            is a 1-voxel ring outside the ROI, clipped to the array.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        HabitatNodeExtractionResult: Nodes grouped by habitat label plus</span>
+<span class="sd">        component maps used by contact-based edge builders. ``uniform_grid``</span>
+<span class="sd">        also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.</span>
+<span class="sd">        When the shell is on, ``nodes_by_habitat`` also has</span>
+<span class="sd">        :data:`~habit.kernels.habitat_graph.models.BACKGROUND_SHELL_LABEL`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;label_array must be 2D or 3D.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_region_voxels</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_region_voxels must be &gt;= 1.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">erosion_radius</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;erosion_radius must be &gt;= 0.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subdivide_region_voxels</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;subdivide_region_voxels must be &gt;= 0.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">block_size</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block_size must be &gt;= 1.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">block_min_coverage</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;block_min_coverage must be in [0, 1].&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">node_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;node_method must be &#39;uniform_grid&#39; or &#39;component&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">background_shell_width</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;background_shell_width must be &gt;= 1.&quot;</span><span class="p">)</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label_array</span><span class="p">)</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_connectivity_structure</span><span class="p">(</span><span class="n">label_array</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">node_method</span> <span class="o">==</span> <span class="s2">&quot;uniform_grid&quot;</span><span class="p">:</span>
+        <span class="n">habitat_result</span> <span class="o">=</span> <span class="n">_extract_uniform_grid_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+            <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">habitat_result</span> <span class="o">=</span> <span class="n">_extract_component_nodes</span><span class="p">(</span>
+            <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span>
+            <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+            <span class="n">erosion_radius</span><span class="o">=</span><span class="n">erosion_radius</span><span class="p">,</span>
+            <span class="n">subdivide_region_voxels</span><span class="o">=</span><span class="n">subdivide_region_voxels</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+            <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">include_background_shell</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">habitat_result</span>
+    <span class="k">return</span> <span class="n">_merge_background_shell_nodes</span><span class="p">(</span>
+        <span class="n">habitat_result</span><span class="p">,</span>
+        <span class="n">label_array</span><span class="o">=</span><span class="n">label_array</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
+        <span class="n">min_region_voxels</span><span class="o">=</span><span class="n">min_region_voxels</span><span class="p">,</span>
+        <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+        <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">block_min_coverage</span><span class="p">,</span>
+        <span class="n">node_method</span><span class="o">=</span><span class="n">node_method</span><span class="p">,</span>
+        <span class="n">background_shell_width</span><span class="o">=</span><span class="n">background_shell_width</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>

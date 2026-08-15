@@ -529,6 +529,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -738,6 +739,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -983,6 +985,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/features/graph.html#implementation">Implementation</a></li>
@@ -2162,10 +2165,12 @@ window.runMermaid = runMermaid;</script>
     <span class="n">calculate_single_graph_metrics</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span>
     <span class="n">EdgeMethod</span><span class="p">,</span>
     <span class="n">EdgeWeightMode</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
     <span class="n">NodeMethod</span><span class="p">,</span>
+    <span class="n">is_background_label</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_habitat_nodes</span>
 
@@ -2225,7 +2230,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
     <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
+    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="c1"># Default on: 1-voxel peritumoral shell as a reserved BG class</span>
+    <span class="c1"># (not a clustered habitat). Pass False for ROI-only graphs.</span>
+    <span class="n">include_background_shell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">background_shell_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 
 
@@ -2239,11 +2248,10 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;_std_edge_distance&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_spatial_dispersion&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">_CONTACT_NORM_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;_contact_voxels_sum&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_contact_voxels_mean&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_contact_voxels_max&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="c1"># Only a contact *sum* has the dimensional behavior of a whole interface.</span>
+<span class="c1"># Mean and maximum contact are local edge summaries and are normalized against</span>
+<span class="c1"># the local node scale in ``calculate_pairwise_graph_metrics`` instead.</span>
+<span class="n">_CONTACT_NORM_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_contact_voxels_sum&quot;</span><span class="p">,)</span>
 <span class="n">_VOLUME_FRACTION_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;_avg_node_voxels&quot;</span><span class="p">,</span>
     <span class="s2">&quot;_std_node_voxels&quot;</span><span class="p">,</span>
@@ -2273,6 +2281,32 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bbox_lengths</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)))</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_label_bbox_diagonal</span><span class="p">(</span><span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the voxel-space bounding-box diagonal for selected habitat labels.</span>
+
+<span class="sd">    Background and the optional synthetic shell are not present in</span>
+<span class="sd">    ``label_array``. A zero result therefore means that none of ``labels`` is</span>
+<span class="sd">    an observed positive habitat label.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        label_array: Integer habitat label map; background is encoded as 0.</span>
+<span class="sd">        labels: Positive habitat labels whose union defines the bounding box.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Euclidean diagonal of the occupied bounding box in voxel units,</span>
+<span class="sd">        or ``0.0`` when no requested positive label is present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">positive_labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">positive_labels</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">label_array</span><span class="p">,</span> <span class="n">positive_labels</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">bbox_lengths</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">coords</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bbox_lengths</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)))</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_augment_with_normalized_features</span><span class="p">(</span>
     <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">label_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -2282,10 +2316,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    The tumor VOI measure ``V`` is the number of non-background voxels.</span>
 <span class="sd">    Distance-like features are divided by the tumor bounding-box diagonal,</span>
-<span class="sd">    contact features by ``V**((d-1)/d)``, and count/voxel features by ``V``.</span>
-<span class="sd">    Original keys are preserved and each normalized value is stored under</span>
-<span class="sd">    ``&quot;&lt;feature&gt;_norm&quot;``. Additional habitat-specific fractions are added with</span>
-<span class="sd">    explicit suffixes when a per-label denominator is available.</span>
+<span class="sd">    total interface contact by ``V**((d-1)/d)``, and count/voxel features by</span>
+<span class="sd">    ``V``. Original keys are preserved and each normalized value is stored</span>
+<span class="sd">    under ``&quot;&lt;feature&gt;_norm&quot;``. Additional habitat-specific densities and</span>
+<span class="sd">    spatial scales are added with explicit suffixes when their denominator is</span>
+<span class="sd">    available.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        features: Feature dictionary mutated in place with ``*_norm`` entries.</span>
@@ -2323,10 +2358,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">label</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">single_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">))</span>
             <span class="n">suffix</span> <span class="o">=</span> <span class="n">single_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;suffix&quot;</span><span class="p">)</span>
             <span class="n">habitat_volume</span> <span class="o">=</span> <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;n_nodes&quot;</span><span class="p">:</span>
-                <span class="n">features</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;single_h</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_n_nodes_per_habitat_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span>
-                    <span class="n">value</span><span class="p">,</span>
-                    <span class="n">habitat_volume</span><span class="p">,</span>
+            <span class="n">habitat_bbox_diagonal</span> <span class="o">=</span> <span class="n">_label_bbox_diagonal</span><span class="p">(</span><span class="n">label_array</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,))</span>
+            <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;n_nodes&quot;</span><span class="p">,</span> <span class="s2">&quot;n_edges&quot;</span><span class="p">,</span> <span class="s2">&quot;connected_components&quot;</span><span class="p">}:</span>
+                <span class="n">features</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;single_h</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">_per_habitat_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span>
+                    <span class="n">value</span><span class="p">,</span> <span class="n">habitat_volume</span>
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;avg_node_voxels&quot;</span><span class="p">:</span>
                 <span class="n">features</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;single_h</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_avg_node_voxels_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span>
@@ -2338,6 +2373,14 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">value</span><span class="p">,</span>
                     <span class="n">habitat_volume</span><span class="p">,</span>
                 <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">{</span>
+                <span class="s2">&quot;avg_edge_distance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;std_edge_distance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;spatial_dispersion&quot;</span><span class="p">,</span>
+            <span class="p">}:</span>
+                <span class="n">features</span><span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;single_h</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">_per_habitat_bbox_diagonal&quot;</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">habitat_bbox_diagonal</span><span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="n">pair_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
@@ -2348,6 +2391,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">label_a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;label_a&quot;</span><span class="p">))</span>
             <span class="n">label_b</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;label_b&quot;</span><span class="p">))</span>
             <span class="n">suffix</span> <span class="o">=</span> <span class="n">pair_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;suffix&quot;</span><span class="p">)</span>
+            <span class="n">pair_volume</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pair_area_scale</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pair_volume</span> <span class="o">**</span> <span class="p">((</span><span class="n">ndim</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">ndim</span><span class="p">)</span> <span class="k">if</span> <span class="n">pair_volume</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
+            <span class="n">pair_bbox_diagonal</span> <span class="o">=</span> <span class="n">_label_bbox_diagonal</span><span class="p">(</span>
+                <span class="n">label_array</span><span class="p">,</span> <span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;n_nodes_1&quot;</span><span class="p">:</span>
                 <span class="n">features</span><span class="p">[</span>
                     <span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_h</span><span class="si">{</span><span class="n">label_b</span><span class="si">}</span><span class="s2">_n_nodes_1_per_habitat_volume&quot;</span>
@@ -2356,6 +2408,34 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">features</span><span class="p">[</span>
                     <span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_h</span><span class="si">{</span><span class="n">label_b</span><span class="si">}</span><span class="s2">_n_nodes_2_per_habitat_volume&quot;</span>
                 <span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_b</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;contact_voxels_sum&quot;</span><span class="p">:</span>
+                <span class="n">features</span><span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_h</span><span class="si">{</span><span class="n">label_b</span><span class="si">}</span><span class="s2">_&quot;</span>
+                    <span class="s2">&quot;contact_voxels_sum_per_pair_area_scale&quot;</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pair_area_scale</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;avg_edge_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;std_edge_distance&quot;</span><span class="p">}:</span>
+                <span class="n">features</span><span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_h</span><span class="si">{</span><span class="n">label_b</span><span class="si">}</span><span class="s2">_&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">_per_pair_bbox_diagonal&quot;</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pair_bbox_diagonal</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">pair_bg_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^pair_h(?P&lt;label_a&gt;\d+)_bg_(?P&lt;suffix&gt;.+)$&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pair_bg_match</span><span class="p">:</span>
+            <span class="n">label_a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair_bg_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;label_a&quot;</span><span class="p">))</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">pair_bg_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;suffix&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;n_nodes_1&quot;</span><span class="p">:</span>
+                <span class="n">features</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_bg_n_nodes_1_per_habitat_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+                <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_true_habitat_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop the reserved background class from a label list.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_background_label</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_nodes</span><span class="p">(</span>
@@ -2410,24 +2490,32 @@ window.runMermaid = runMermaid;</script>
         <span class="n">block_size</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_size</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_min_coverage</span><span class="p">,</span>
         <span class="n">node_method</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">node_method</span><span class="p">,</span>
+        <span class="n">include_background_shell</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">,</span>
+        <span class="n">background_shell_width</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">background_shell_width</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">present_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">present_labels</span> <span class="o">=</span> <span class="n">_true_habitat_labels</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">expected_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">habitat_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">expected_labels</span><span class="p">)</span>
+        <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">_true_habitat_labels</span><span class="p">(</span><span class="n">expected_labels</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">present_labels</span>
+    <span class="n">bg_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span> <span class="p">[]))</span>
     <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c1"># Count of habitats actually present in this subject, independent of</span>
-        <span class="c1"># the canonical id set used for column coverage.</span>
+        <span class="c1"># Count of true habitats only (the reserved shell is not a habitat).</span>
         <span class="s2">&quot;graph_num_habitats&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">present_labels</span><span class="p">)),</span>
         <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
             <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="p">),</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
+        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;graph_num_background_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bg_nodes</span><span class="p">))</span>
+
+    <span class="n">single_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
+        <span class="n">single_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">habitat_labels</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">:</span>
             <span class="c1"># Labels listed in ``expected_labels`` but absent from this map</span>
             <span class="c1"># yield an empty node list, i.e. a zero-valued empty graph.</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="p">[])</span>
@@ -2507,6 +2595,52 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">habitat_labels</span><span class="p">:</span>
+                <span class="n">pair_nodes</span> <span class="o">=</span> <span class="n">_flatten_nodes</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="p">[]),</span>
+                        <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span> <span class="p">[]</span>
+                        <span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">pair_labels</span> <span class="o">=</span> <span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
+                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
+                        <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
+                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+                        <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
+                        <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
+                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
+                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+                        <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
+                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
+                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+                        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
+                        <span class="n">nodes</span><span class="o">=</span><span class="n">pair_nodes</span><span class="p">,</span>
+                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
+                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
+                        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
+                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
+                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">calculate_pairwise_graph_metrics</span><span class="p">(</span>
+                        <span class="n">graph</span><span class="p">,</span>
+                        <span class="n">include_extended_metrics</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span><span class="p">,</span>
+                        <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
 
     <span class="n">_augment_with_normalized_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">features</span></div>

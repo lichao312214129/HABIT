@@ -176,6 +176,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -631,6 +632,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#implementation">Implementation</a></li>
@@ -1796,9 +1798,9 @@ fewer than 3 finite pairs or a constant difference are skipped.
 Multiple testing defaults to Benjamini-Hochberg FDR across the
 <strong>plotted</strong> features (<code class="docutils literal notranslate"><span class="pre">scipy.stats.false_discovery_control</span></code>, then
 statsmodels, then Bonferroni). Significant names get a trailing
-`` <a href="#id1"><span class="problematic" id="id2">*</span></a><code class="docutils literal notranslate"><span class="pre">.</span> <span class="pre">Starring</span> <span class="pre">requires</span> <span class="pre">``reference</span></code>; a lone precomputed delta
-cannot reconstruct the pairing. Default <code class="docutils literal notranslate"><span class="pre">star_significant=False</span></code>
-so generic heatmaps stay unmarked.</p>
+ASCII asterisk. Starring requires <code class="docutils literal notranslate"><span class="pre">reference</span></code>; a lone precomputed
+delta cannot reconstruct the pairing. Default
+<code class="docutils literal notranslate"><span class="pre">star_significant=False</span></code> so generic heatmaps stay unmarked.</p>
 <p>Visualization parameters (who / which features / how many) are
 first-class: pass <code class="docutils literal notranslate"><span class="pre">subjects</span></code> and either an explicit <code class="docutils literal notranslate"><span class="pre">features</span></code>
 list or <code class="docutils literal notranslate"><span class="pre">n_features</span></code> + <code class="docutils literal notranslate"><span class="pre">feature_group</span></code> + <code class="docutils literal notranslate"><span class="pre">select</span></code>. The default
@@ -1833,8 +1835,8 @@ With <code class="docutils literal notranslate"><span class="pre">reference</spa
 <li><p><strong>reference</strong> – Optional paired frame (e.g. 8-voxel). When set,
 the plotted matrix is aligned <code class="docutils literal notranslate"><span class="pre">table</span> <span class="pre">-</span> <span class="pre">reference</span></code>.
 Required when <code class="docutils literal notranslate"><span class="pre">star_significant=True</span></code>.</p></li>
-<li><p><strong>star_significant</strong> – If True, append `` <a href="#id3"><span class="problematic" id="id4">*</span></a>`` to x-tick labels of
-features that stay significant after <code class="docutils literal notranslate"><span class="pre">star_mtc</span></code>.
+<li><p><strong>star_significant</strong> – If True, append an ASCII asterisk to x-tick
+labels of features that stay significant after <code class="docutils literal notranslate"><span class="pre">star_mtc</span></code>.
 Default False; ignored pairing is never inferred from a
 precomputed delta alone.</p></li>
 <li><p><strong>star_alpha</strong> – Significance threshold after correction (default

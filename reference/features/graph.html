@@ -177,6 +177,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -632,6 +633,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
@@ -1796,13 +1798,24 @@ habitat maps with the voxel-index and VOI refinements documented below.</p>
 <li><p><strong>Background.</strong> Label <span class="math notranslate nohighlight">\(0\)</span> is background and is <strong>excluded</strong> from node
 extraction, graph construction, and the tumour VOI measure
 <span class="math notranslate nohighlight">\(V\)</span> below. It is not a graph node.</p></li>
+<li><p><strong>Peritumoral shell (default on).</strong> <code class="docutils literal notranslate"><span class="pre">include_background_shell=True</span></code>
+dilates the VOI (<span class="math notranslate nohighlight">\(L&gt;0\)</span>) by <code class="docutils literal notranslate"><span class="pre">background_shell_width</span></code> voxels
+(default 1) using the same <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> neighbourhood as node
+extraction, then keeps <code class="docutils literal notranslate"><span class="pre">dilated</span> <span class="pre">AND</span> <span class="pre">NOT</span> <span class="pre">VOI</span></code> (clipped to the array).
+That ring is a <strong>reserved</strong> class <code class="docutils literal notranslate"><span class="pre">bg</span></code> – not clustered habitat
+<span class="math notranslate nohighlight">\(K+1\)</span>. Columns are <code class="docutils literal notranslate"><span class="pre">single_bg_*</span></code> and <code class="docutils literal notranslate"><span class="pre">pair_h{k}_bg_*</span></code>.
+<code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> still counts true habitats only. Pass
+<code class="docutils literal notranslate"><span class="pre">include_background_shell=False</span></code> for ROI-only graphs.</p></li>
 <li><p><strong>Habitat labels.</strong> <span class="math notranslate nohighlight">\(\mathcal{H}=\{k\in\mathbb{Z}:k&gt;0,\;
 \exists\mathbf{x}\in\Omega,\; L(\mathbf{x})=k\}\)</span>. When the caller supplies
 <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>, every listed id still emits columns even if it is
 absent from this map (empty graph → all metrics <code class="docutils literal notranslate"><span class="pre">0</span></code>), so cohort tables
 keep a stable schema (same contract as <a class="reference internal" href="ith_score.html"><span class="doc">ITH Score</span></a>).</p></li>
 <li><p><strong>Coordinates.</strong> Centroids and distances are in <strong>index / voxel units</strong>,
-not millimetres. Spacing is not applied inside the kernel.</p></li>
+not millimetres. Spacing is not applied inside the kernel. The size
+companions below are physically comparable across subjects only after all
+label maps have been resampled to the same isotropic spacing. They do not
+correct a change of acquisition resolution.</p></li>
 <li><p><strong>Undefined arithmetic.</strong> Empty sequences, zero denominators, non-finite
 NetworkX outputs, and graphs below a metric’s minimum size return
 <code class="docutils literal notranslate"><span class="pre">0.0</span></code> (never NaN in the exported table).</p></li>
@@ -2343,22 +2356,48 @@ above, and <span class="math notranslate nohighlight">\(V_k=\#\{\mathbf{x}:L(\ma
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/\delta_{\mathrm{bbox}}\)</span> (length / bbox diagonal)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_sum</span></code>, <code class="docutils literal notranslate"><span class="pre">*_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">*_max</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x\big/V^{(d-1)/d}\)</span> (interface ~ area scaling)</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_sum</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x\big/V^{(d-1)/d}\)</span> (whole-VOI interface density)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_node_voxels</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_contact_voxels_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">*_contact_voxels_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> uses each contact edge’s local area scale, not global
+<span class="math notranslate nohighlight">\(V\)</span>. For edge <span class="math notranslate nohighlight">\(e=(i,j)\)</span>, let
+<span class="math notranslate nohighlight">\(s_e=\min(n_i,n_j)^{(d-1)/d}\)</span>; the companions are respectively
+<span class="math notranslate nohighlight">\(\operatorname{mean}_e(c_e/s_e)\)</span> and
+<span class="math notranslate nohighlight">\(\max_e(c_e/s_e)\)</span>. They can exceed 1 for thin nodes or
+diagonal adjacency.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_avg_node_voxels</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">*_n_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_1</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_2</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">*_n_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_1</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_nodes_2</span></code>, <code class="docutils literal notranslate"><span class="pre">*_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> <span class="math notranslate nohighlight">\(= x/V\)</span> (counts as densities)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes_per_habitat_volume</span></code> <span class="math notranslate nohighlight">\(= n/V_k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_n_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">single_h{k}_connected_components</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> <span class="math notranslate nohighlight">\(= x/V_k\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_node_voxels</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_node_voxels</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> <span class="math notranslate nohighlight">\(= x/V_k\)</span></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair_*_n_nodes_1</span></code> / <code class="docutils literal notranslate"><span class="pre">_n_nodes_2</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single_h{k}_avg_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code>,
+<code class="docutils literal notranslate"><span class="pre">*_spatial_dispersion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_bbox_diagonal</span></code> <span class="math notranslate nohighlight">\(=x/\delta_k\)</span>, where
+<span class="math notranslate nohighlight">\(\delta_k\)</span> is habitat <span class="math notranslate nohighlight">\(k\)</span>’s bounding-box diagonal</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_avg_edge_distance</span></code>, <code class="docutils literal notranslate"><span class="pre">*_std_edge_distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_pair_bbox_diagonal</span></code> <span class="math notranslate nohighlight">\(=x/\delta_{ab}\)</span>, where
+<span class="math notranslate nohighlight">\(\delta_{ab}\)</span> is the bounding-box diagonal of
+<span class="math notranslate nohighlight">\(L\in\{a,b\}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_contact_voxels_sum</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">*_per_pair_area_scale</span></code> <span class="math notranslate nohighlight">\(=
+x/(V_a+V_b)^{(d-1)/d}\)</span>; unlike <code class="docutils literal notranslate"><span class="pre">*_norm</span></code>, labels outside this
+pair do not dilute the denominator</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pair_*_n_nodes_1</span></code> / <code class="docutils literal notranslate"><span class="pre">_n_nodes_2</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">*_per_habitat_volume</span></code> using <span class="math notranslate nohighlight">\(V_a\)</span> or <span class="math notranslate nohighlight">\(V_b\)</span></p></td>
 </tr>
 </tbody>
@@ -2366,6 +2405,39 @@ above, and <span class="math notranslate nohighlight">\(V_k=\#\{\mathbf{x}:L(\ma
 <p>Hop-normalized path / degree companions (<code class="docutils literal notranslate"><span class="pre">*_avg_path_length_norm</span></code>,
 <code class="docutils literal notranslate"><span class="pre">*_diameter_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">*_avg_degree_norm</span></code>, …) are <strong>already</strong> scaled by
 graph size and are <strong>not</strong> divided by <span class="math notranslate nohighlight">\(V\)</span>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">*_norm</span></code> does not always mean “a nuisance-free feature”. In particular,
+<code class="docutils literal notranslate"><span class="pre">avg_node_voxels_norm</span></code> and <code class="docutils literal notranslate"><span class="pre">*_fraction</span></code> express a node’s share of the
+whole VOI or habitat; under the default fixed 8-voxel lattice they still
+depend on <code class="docutils literal notranslate"><span class="pre">block_size</span></code> and <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code>. Similarly,
+<code class="docutils literal notranslate"><span class="pre">*_avg_edge_distance_norm</span></code> is a local edge length relative to the whole
+ROI extent: with the default fixed 5-voxel distance threshold it may
+decrease as an otherwise similar tumour becomes larger. Report the raw
+construction parameters with either companion.</p>
+</section>
+<section id="null-model-comparisons-for-topology">
+<h2>Null-model comparisons for topology<a class="headerlink" href="#null-model-comparisons-for-topology" title="Link to this heading"></a></h2>
+<p>Some graph quantities are dimensionless but still vary systematically with
+node count, edge count, degree sequence, or the statistical behavior of a
+maximum/minimum. Dividing them by VOI volume is not a valid correction.
+For a hypothesis about organization <strong>beyond the degree sequence</strong>, compare
+the observed value against degree-preserving random graphs instead.</p>
+<p>This is appropriate for <code class="docutils literal notranslate"><span class="pre">avg_clustering</span></code>, <code class="docutils literal notranslate"><span class="pre">avg_path_length</span></code>,
+<code class="docutils literal notranslate"><span class="pre">diameter</span></code>, <code class="docutils literal notranslate"><span class="pre">global_efficiency</span></code>, <code class="docutils literal notranslate"><span class="pre">local_efficiency</span></code>, <code class="docutils literal notranslate"><span class="pre">modularity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">degree_assortativity</span></code>, raw betweenness maxima/standard deviations,
+<code class="docutils literal notranslate"><span class="pre">node_local_efficiency_min/std</span></code>, and pairwise
+<code class="docutils literal notranslate"><span class="pre">habitat_assortativity</span></code>. <code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> and degree summaries are
+fixed by a degree-preserving null and therefore need sample-size-aware
+estimation rather than this null model. <code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code> and
+<code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code> already invoke random-graph reference procedures
+internally; report their seeds/settings and do not treat them as
+volume-normalized quantities.</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">habit.compare_graph_to_degree_preserving_null()</span></code> is an explicit,
+opt-in API. It preserves every node’s degree, node count, and edge count,
+but intentionally does <strong>not</strong> preserve connected components, spatial
+coordinates, edge distances, contact area, or habitat labels. It must not
+be used to normalize <code class="docutils literal notranslate"><span class="pre">contact_voxels_*</span></code>, edge-distance, spatial-dispersion,
+or node-volume features. Check its <code class="docutils literal notranslate"><span class="pre">is_valid</span></code> result: a zero Z score for
+an invalid result is a sentinel, not evidence of no difference.</p>
 <p>Subject-level extras (always written; independent of
 <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>):</p>
 <div class="math notranslate nohighlight">

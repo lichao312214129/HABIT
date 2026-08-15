@@ -30,13 +30,24 @@ Let :math:`L:\Omega\to\{0,1,\ldots,K\}` be an integer habitat label map on a
 * **Background.** Label :math:`0` is background and is **excluded** from node
   extraction, graph construction, and the tumour VOI measure
   :math:`V` below. It is not a graph node.
+* **Peritumoral shell (default on).** ``include_background_shell=True``
+  dilates the VOI (:math:`L>0`) by ``background_shell_width`` voxels
+  (default 1) using the same ``connectivity`` neighbourhood as node
+  extraction, then keeps ``dilated AND NOT VOI`` (clipped to the array).
+  That ring is a **reserved** class ``bg`` -- not clustered habitat
+  :math:`K+1`. Columns are ``single_bg_*`` and ``pair_h{k}_bg_*``.
+  ``graph_num_habitats`` still counts true habitats only. Pass
+  ``include_background_shell=False`` for ROI-only graphs.
 * **Habitat labels.** :math:`\mathcal{H}=\{k\in\mathbb{Z}:k>0,\;
   \exists\mathbf{x}\in\Omega,\; L(\mathbf{x})=k\}`. When the caller supplies
   ``expected_labels``, every listed id still emits columns even if it is
   absent from this map (empty graph → all metrics ``0``), so cohort tables
   keep a stable schema (same contract as :doc:`ith_score`).
 * **Coordinates.** Centroids and distances are in **index / voxel units**,
-  not millimetres. Spacing is not applied inside the kernel.
+  not millimetres. Spacing is not applied inside the kernel. The size
+  companions below are physically comparable across subjects only after all
+  label maps have been resampled to the same isotropic spacing. They do not
+  correct a change of acquisition resolution.
 * **Undefined arithmetic.** Empty sequences, zero denominators, non-finite
   NetworkX outputs, and graphs below a metric's minimum size return
   ``0.0`` (never NaN in the exported table).
@@ -674,22 +685,80 @@ above, and :math:`V_k=\#\{\mathbf{x}:L(\mathbf{x})=k\}`.
      - Companion
    * - ``*_avg_edge_distance``, ``*_std_edge_distance``, ``*_spatial_dispersion``
      - ``*_norm`` :math:`= x/\delta_{\mathrm{bbox}}` (length / bbox diagonal)
-   * - ``*_contact_voxels_sum``, ``*_mean``, ``*_max``
-     - ``*_norm`` :math:`= x\big/V^{(d-1)/d}` (interface ~ area scaling)
+   * - ``*_contact_voxels_sum``
+     - ``*_norm`` :math:`= x\big/V^{(d-1)/d}` (whole-VOI interface density)
+   * - ``*_contact_voxels_mean``, ``*_contact_voxels_max``
+     - ``*_norm`` uses each contact edge's local area scale, not global
+       :math:`V`. For edge :math:`e=(i,j)`, let
+       :math:`s_e=\min(n_i,n_j)^{(d-1)/d}`; the companions are respectively
+       :math:`\operatorname{mean}_e(c_e/s_e)` and
+       :math:`\max_e(c_e/s_e)`. They can exceed 1 for thin nodes or
+       diagonal adjacency.
    * - ``*_avg_node_voxels``, ``*_std_node_voxels``
      - ``*_norm`` :math:`= x/V`
    * - ``*_n_nodes``, ``*_n_nodes_1``, ``*_n_nodes_2``, ``*_n_edges``, ``graph_num_nodes_total``
      - ``*_norm`` :math:`= x/V` (counts as densities)
    * - ``single_h{k}_n_nodes``
      - ``single_h{k}_n_nodes_per_habitat_volume`` :math:`= n/V_k`
+   * - ``single_h{k}_n_edges``, ``single_h{k}_connected_components``
+     - ``*_per_habitat_volume`` :math:`= x/V_k`
    * - ``single_h{k}_avg_node_voxels``, ``*_std_node_voxels``
      - ``*_fraction`` :math:`= x/V_k`
+   * - ``single_h{k}_avg_edge_distance``, ``*_std_edge_distance``,
+       ``*_spatial_dispersion``
+     - ``*_per_habitat_bbox_diagonal`` :math:`=x/\delta_k`, where
+       :math:`\delta_k` is habitat :math:`k`'s bounding-box diagonal
+   * - ``pair_h{a}_h{b}_avg_edge_distance``, ``*_std_edge_distance``
+     - ``*_per_pair_bbox_diagonal`` :math:`=x/\delta_{ab}`, where
+       :math:`\delta_{ab}` is the bounding-box diagonal of
+       :math:`L\in\{a,b\}`
+   * - ``pair_h{a}_h{b}_contact_voxels_sum``
+     - ``*_per_pair_area_scale`` :math:`=
+       x/(V_a+V_b)^{(d-1)/d}`; unlike ``*_norm``, labels outside this
+       pair do not dilute the denominator
    * - ``pair_*_n_nodes_1`` / ``_n_nodes_2``
      - ``*_per_habitat_volume`` using :math:`V_a` or :math:`V_b`
 
 Hop-normalized path / degree companions (``*_avg_path_length_norm``,
 ``*_diameter_norm``, ``*_avg_degree_norm``, …) are **already** scaled by
 graph size and are **not** divided by :math:`V`.
+
+``*_norm`` does not always mean “a nuisance-free feature”. In particular,
+``avg_node_voxels_norm`` and ``*_fraction`` express a node's share of the
+whole VOI or habitat; under the default fixed 8-voxel lattice they still
+depend on ``block_size`` and ``block_min_coverage``. Similarly,
+``*_avg_edge_distance_norm`` is a local edge length relative to the whole
+ROI extent: with the default fixed 5-voxel distance threshold it may
+decrease as an otherwise similar tumour becomes larger. Report the raw
+construction parameters with either companion.
+
+Null-model comparisons for topology
+------------------------------------
+
+Some graph quantities are dimensionless but still vary systematically with
+node count, edge count, degree sequence, or the statistical behavior of a
+maximum/minimum. Dividing them by VOI volume is not a valid correction.
+For a hypothesis about organization **beyond the degree sequence**, compare
+the observed value against degree-preserving random graphs instead.
+
+This is appropriate for ``avg_clustering``, ``avg_path_length``,
+``diameter``, ``global_efficiency``, ``local_efficiency``, ``modularity``,
+``degree_assortativity``, raw betweenness maxima/standard deviations,
+``node_local_efficiency_min/std``, and pairwise
+``habitat_assortativity``. ``degree_entropy`` and degree summaries are
+fixed by a degree-preserving null and therefore need sample-size-aware
+estimation rather than this null model. ``small_world_sigma`` and
+``rich_club_coefficient`` already invoke random-graph reference procedures
+internally; report their seeds/settings and do not treat them as
+volume-normalized quantities.
+
+:func:`habit.compare_graph_to_degree_preserving_null` is an explicit,
+opt-in API. It preserves every node's degree, node count, and edge count,
+but intentionally does **not** preserve connected components, spatial
+coordinates, edge distances, contact area, or habitat labels. It must not
+be used to normalize ``contact_voxels_*``, edge-distance, spatial-dispersion,
+or node-volume features. Check its ``is_valid`` result: a zero Z score for
+an invalid result is a sentinel, not evidence of no difference.
 
 Subject-level extras (always written; independent of
 ``expected_labels``):

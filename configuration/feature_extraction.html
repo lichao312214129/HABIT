@@ -176,6 +176,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -385,6 +386,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -630,6 +632,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
@@ -1902,6 +1905,9 @@ deprecated.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">block_size</span></code> (<code class="docutils literal notranslate"><span class="pre">8</span></code> voxels, not millimetres), <code class="docutils literal notranslate"><span class="pre">block_min_coverage</span></code> (<code class="docutils literal notranslate"><span class="pre">0.2</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pairwise_include_intra_edges</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>), <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (<code class="docutils literal notranslate"><span class="pre">10</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_background_shell</span></code> (<code class="docutils literal notranslate"><span class="pre">true</span></code>): 1-voxel peritumoral <code class="docutils literal notranslate"><span class="pre">bg</span></code>
+class (not a clustered habitat). Pass <code class="docutils literal notranslate"><span class="pre">false</span></code> for ROI-only graphs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">background_shell_width</span></code> (<code class="docutils literal notranslate"><span class="pre">1</span></code> voxel ring, same <code class="docutils literal notranslate"><span class="pre">connectivity</span></code>)</p></li>
 </ul>
 </li>
 <li><p><strong>Visualization fields</strong> (recipe hook; not part of the extractor <code class="docutils literal notranslate"><span class="pre">Spec</span></code>):</p>

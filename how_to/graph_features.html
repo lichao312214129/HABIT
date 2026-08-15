@@ -176,6 +176,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#also-see">Also see</a></li>
 </ul>
 </li>
@@ -631,6 +632,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
@@ -1806,6 +1808,8 @@ physical line per shell command (Windows / conda PowerShell):</p>
   <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">include_background_shell</span><span class="p">:</span> <span class="n">true</span>
+  <span class="n">background_shell_width</span><span class="p">:</span> <span class="mi">1</span>
   <span class="n">visualize</span><span class="p">:</span> <span class="n">false</span>
   <span class="n">visualization_show_grid</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">visualization_block_size</span><span class="p">:</span> <span class="n">null</span>
@@ -1829,8 +1833,11 @@ the closest voxels of two nodes are within 5</strong> voxel-index units
 Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
 empty lattice cell between cubes is closest-voxel distance about 8,
 which is greater than 5, so those stay disconnected. There is <strong>no morphological
-erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>). Pass
-<code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> for connected-component nodes, and
+erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>). The default graph also includes a
+<strong>1-voxel peritumoral background shell</strong> (<code class="docutils literal notranslate"><span class="pre">include_background_shell:</span>
+<span class="pre">true</span></code>): a reserved <code class="docutils literal notranslate"><span class="pre">bg</span></code> class around the ROI, not a clustered
+habitat. Pass <code class="docutils literal notranslate"><span class="pre">include_background_shell:</span> <span class="pre">false</span></code> for ROI-only graphs.
+Pass <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> for connected-component nodes, and
 <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code> if you want contact-voxel edges (default
 contact count &gt;= 10). <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> is the older centroid-proximity
 rule. 2D figures draw the <strong>same lattice</strong> as dashed lines. On each
@@ -1869,8 +1876,9 @@ lattice). Reproduce it:</p>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
-<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="c1"># Full 3D map for features (default includes the 1-voxel BG shell).</span>
+<span class="c1"># The 2D network below is display-only.</span>
+<span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
     <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>
 <span class="p">)</span>
@@ -1880,12 +1888,59 @@ lattice). Reproduce it:</p>
 <code class="docutils literal notranslate"><span class="pre">HabitatFeatureExtractorRegistry.create(&quot;graph&quot;,</span> <span class="pre">...)</span></code>, and 3D
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a> /
 <a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a> (needs <code class="docutils literal notranslate"><span class="pre">[view]</span></code>).</p>
+</section>
+<section id="degree-preserving-null-model-api">
+<h2>Degree-preserving null-model API<a class="headerlink" href="#degree-preserving-null-model-api" title="Link to this heading"></a></h2>
+<p>Use a null model only for topology metrics whose interpretation must control
+for the degree sequence; it is not a normalization for physical contact,
+distance, dispersion, or node-volume features. The result records the
+requested and successful random graphs, so inspect <code class="docutils literal notranslate"><span class="pre">is_valid</span></code> before using
+the Z score:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GraphNullModelOptions</span><span class="p">,</span>
+    <span class="n">build_min_distance_graph</span><span class="p">,</span>
+    <span class="n">compare_graph_to_degree_preserving_null</span><span class="p">,</span>
+    <span class="n">extract_habitat_nodes</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># ``labels`` is the same uniformly resampled 3D label map used above.</span>
+<span class="n">nodes</span> <span class="o">=</span> <span class="n">extract_habitat_nodes</span><span class="p">(</span>
+    <span class="n">label_array</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+    <span class="n">node_method</span><span class="o">=</span><span class="s2">&quot;uniform_grid&quot;</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">block_min_coverage</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
+    <span class="n">node_result</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span>  <span class="c1"># Compare topology of habitat 1.</span>
+    <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+    <span class="n">distance_threshold</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">compare_graph_to_degree_preserving_null</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">,</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">average_clustering</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">GraphNullModelOptions</span><span class="p">(</span>
+        <span class="n">n_random_graphs</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">swaps_per_edge</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">observed</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">z_score</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">empirical_two_sided_p</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The random graphs preserve each node’s degree, total nodes, and total edges,
+but do not preserve components, physical coordinates, distances, contacts, or
+habitat labels. See <a class="reference internal" href="../reference/features/graph.html"><span class="doc">Graph topology features</span></a> for the list of
+features for which this reference is appropriate and the reporting limits.</p>
 <figure class="align-default" id="id1">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="Habitat graph network on a 2D slice" src="../_images/graph_habitat_network_2d.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Same file the gallery script writes to <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code>.
-The gallery also compares these same habitat maps at <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+Features come from the full 3D map; this 2D network is display-only.
+The gallery also compares the same 3D maps at <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
