@@ -1778,12 +1778,13 @@ drawing only (extraction still uses <code class="docutils literal notranslate"><
 <p>Each H1–Hk panel fills only that habitat in its palette colour and
 overlays white intra-edges plus white nodes (solid dots, thin dark
 outline). Other habitats use one mid-dark gray wash for shape
-context (not a light fill that hides white strokes). The All-habitats panel fills every habitat in
-palette colours and overlays <strong>inter-habitat edges only</strong>, all
-white (no purple, no two-tone, no intra-edges). All panels share
-the same solid-dot node size. Edge linewidth is shared unless the
-All panel has <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1000</span></code> inter-edges, in which case that panel
-uses a slightly thinner, lower-alpha white stroke.</p>
+context (not a light fill that hides white strokes). Each unordered
+habitat pair gets its own panel: those two habitats stay in palette
+colours, other habitats use the same gray wash, and only <strong>white
+inter-edges between that pair</strong> are drawn (no intra-edges, no
+edges to other habitats, no purple). H1–H4 sit on the first row
+when <code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">&lt;=</span> <span class="pre">4</span></code>; six pairs (K=4) use a 2x3 grid below. All panels
+share the same solid-dot node size and edge linewidth.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1792,10 +1793,10 @@ uses a slightly thinner, lower-alpha white stroke.</p>
 <li><p><strong>slice_index</strong> – Explicit axis-0 slice for 3D input; <code class="docutils literal notranslate"><span class="pre">None</span></code> selects the
 largest cross-section. Ignored for 2D input.</p></li>
 <li><p><strong>show_background</strong> – Whether to draw habitat partitions behind the
-graph (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). On H1–Hk panels the featured
-habitat is full colour and other foreground is a mid-dark
-gray wash; background 0 stays undrawn. The All-habitats panel
-stays fully coloured. Graph nodes and edges are white.</p></li>
+graph (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). Featured habitats (one on an H
+panel, two on a pair panel) are full colour; other
+foreground is a mid-dark gray wash; background 0 stays
+undrawn. Graph nodes and edges are white.</p></li>
 <li><p><strong>show_grid</strong> – Draw the uniform-grid lattice (default <code class="docutils literal notranslate"><span class="pre">True</span></code>).
 Also draws when <code class="docutils literal notranslate"><span class="pre">block_size</span></code> is passed in <code class="docutils literal notranslate"><span class="pre">component</span></code> mode.</p></li>
 <li><p><strong>block_size</strong> – Display cube edge in voxels. <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) uses
@@ -1806,11 +1807,13 @@ matches the nodes.</p></li>
 <li><p><strong>grid_alpha</strong> – Lattice opacity.</p></li>
 <li><p><strong>grid_linewidth</strong> – Lattice stroke width in points.</p></li>
 <li><p><strong>panel_size</strong> – Base panel edge length in inches.</p></li>
-<li><p><strong>max_cols</strong> – Maximum number of panels per row in the grid.</p></li>
+<li><p><strong>max_cols</strong> – Maximum number of H-panel columns (H1–H4 on the first
+row when <code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">&lt;=</span> <span class="pre">4</span></code>). Six pair panels use a 2x3 grid.</p></li>
 <li><p><strong>node_size</strong> – Matplotlib scatter area in points squared applied to
-every panel (default <code class="docutils literal notranslate"><span class="pre">28</span></code>). H1–Hk and All-habitats share
-this size. Voxel count does not scale markers.</p></li>
-<li><p><strong>colorbar</strong> – Discrete habitat-ID colorbar on the combined-graph panel
+every panel (default <code class="docutils literal notranslate"><span class="pre">28</span></code>). H1–Hk and pairwise panels
+share this size. Voxel count does not scale markers.</p></li>
+<li><p><strong>colorbar</strong> – Discrete habitat-ID colorbar on the last pairwise
+panel, or the last H panel when there are no pairs
 (default <code class="docutils literal notranslate"><span class="pre">True</span></code>). Pass <code class="docutils literal notranslate"><span class="pre">False</span></code> to hide it.</p></li>
 <li><p><strong>colorbar_label</strong> – Colorbar label (English default <code class="docutils literal notranslate"><span class="pre">&quot;Habitat&quot;</span></code>).</p></li>
 </ul>
