@@ -15,7 +15,10 @@ Numeric definitions live in L0 :mod:`habit.kernels.habitat_graph` and are
 identical for the domain extractor, the kernel helper
 :func:`~habit.kernels.extract_graph_features`, and the optional
 :mod:`habit.viz` graph figures (same node / edge construction). This page
-matches that source. It does not invent a second theory.
+matches that source. It does not invent a second theory. The metric
+family is adapted from PathPrism (Liang et al., *Cancer Cell* 2026),
+a histopathology tissue-graph method; HABIT applies it to 2-D / 3-D
+habitat maps with the voxel-index and VOI refinements documented below.
 
 Notation and domains
 --------------------
@@ -268,8 +271,8 @@ centroids; ``0`` if fewer than two nodes:
 be the mean Euclidean distance from each centroid to its nearest **other**
 centroid (KD-tree, :math:`k=2`). The study-region measure is the sum of
 node voxel counts :math:`A=\sum_{v}n_{v}` (not the centroid bounding box;
-absolute values are therefore **not** comparable to PathPrism's 2-D
-bounding-box form). Density :math:`\rho=n/A`. Expected CSR nearest-neighbour
+absolute values are therefore **not** comparable to the 2-D
+bounding-box form in PathPrism, Liang et al., *Cancer Cell* 2026). Density :math:`\rho=n/A`. Expected CSR nearest-neighbour
 distance:
 
 .. math::
@@ -560,6 +563,13 @@ Implementation
   ``habit/adapters/extract_io.py`` (stem ``habitat_graph_features``)
 * Figures: ``habit/viz/habitat_graph.py`` (optional ``[viz]`` / ``[view]``)
 * Deprecated shims: ``habit/compat/graph_plugin.py`` (prefer domain / API)
+
+References
+----------
+
+Liang J, Jiang X, Reitsam NG, et al. Spatial biomarker discovery via
+interpretable semantic learning in histopathology. *Cancer Cell* 2026
+(`DOI <https://doi.org/10.1016/j.ccell.2026.05.014>`__).
 
 See also
 --------
