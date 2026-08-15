@@ -382,7 +382,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -633,6 +633,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1390,6 +1391,7 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1773,8 +1775,10 @@
 <dd><p>Build a graph by connecting regions whose closest voxels are within threshold.</p>
 <p>Unlike <a class="reference internal" href="habit.kernels.build_centroid_distance_graph.html#habit.kernels.build_centroid_distance_graph" title="habit.kernels.build_centroid_distance_graph"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_centroid_distance_graph()</span></code></a>, the distance is the minimum
 Euclidean distance between any voxel of region A and any voxel of region B
-(closest-point / Hausdorff-min), not the distance between centroids. Units
-are voxel indices, matching <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>.</p>
+(closest-voxel / set-separation distance), not the distance between
+centroids and not the Hausdorff distance. Units are voxel indices,
+matching <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>. The same <code class="docutils literal notranslate"><span class="pre">d_min</span></code> is stored on the
+edge as <code class="docutils literal notranslate"><span class="pre">distance</span></code> and is what <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> summarizes.</p>
 <p>An undirected edge exists when <code class="docutils literal notranslate"><span class="pre">min_{a</span> <span class="pre">in</span> <span class="pre">A,</span> <span class="pre">b</span> <span class="pre">in</span> <span class="pre">B}</span> <span class="pre">||a-b||</span> <span class="pre">&lt;=</span> <span class="pre">threshold</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

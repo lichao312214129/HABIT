@@ -163,19 +163,23 @@ voxels are one hop apart). One empty lattice cell between cubes is
 closest-voxel distance about 8, which is greater than :math:`\tau=5`, so those
 stay disconnected.
 An undirected edge exists between distinct nodes :math:`u,v` when the
-closest-point (Hausdorff-min) distance between their voxels satisfies
+closest-voxel (set-separation) distance between their voxels satisfies
 
 .. math::
 
    d_{\min}(u,v)=\min_{p\in B_{u},\,q\in B_{v}}\|p-q\|_{2} \le \tau
 
-This is **not** centroid distance: two large regions can have nearby
-boundaries while their centroids are far apart. Implemented with a
-KD-tree over voxel indices (``scipy.spatial.cKDTree``). Single-habitat
-and pairwise (inter / optional intra) graphs follow the same structure
-as ``centroid_distance``. Edge weight uses :math:`d_{\min}` when
-``edge_weight`` is ``distance`` or ``inverse_distance``.
-``contact_voxels`` is unused (stored as missing).
+This is the minimum pairwise distance between the two voxel sets, **not**
+the Hausdorff distance (which is a max-of-mins) and **not** centroid
+distance: two large regions can have nearby boundaries while their
+centroids are far apart. Implemented with a KD-tree over voxel indices
+(``scipy.spatial.cKDTree``). Single-habitat and pairwise (inter /
+optional intra) graphs follow the same structure as
+``centroid_distance``. The stored edge ``distance`` is this
+:math:`d_{\min}` (so ``avg_edge_distance`` / ``std_edge_distance``
+summarize closest-voxel length, not centroid length). Edge weight uses
+:math:`d_{\min}` when ``edge_weight`` is ``distance`` or
+``inverse_distance``. ``contact_voxels`` is unused (stored as missing).
 
 Edges: voxel adjacency (opt-in)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,8 +257,11 @@ entropy of the **empirical degree histogram**, in bits:
    \qquad
    p_{t} = \#\{v:\deg(v)=t\}/n
 
-Edge-length summaries use the list of centroid distances on **all** edges
-of :math:`G` (population mean / standard deviation; ``0`` if no edges).
+Edge-length summaries use the ``distance`` stored on **all** edges of
+:math:`G` (population mean / standard deviation; ``0`` if no edges).
+That stored length is the closest-voxel :math:`d_{\min}` under the
+default ``min_distance`` method, and the centroid Euclidean distance
+under ``centroid_distance`` or ``adjacency``.
 
 Node-size summaries use :math:`\{n_{v}:v\in V_G\}` (mean, sd, CV).
 
@@ -340,10 +347,13 @@ node sets of the two labels, :math:`n_1=|V_a|`, :math:`n_2=|V_b|`, and
    0 & \text{otherwise}
    \end{cases}
 
-Distance summaries (mean / sd) use centroid distances on
-:math:`E_{\mathrm{inter}}` only.
+Distance summaries (mean / sd) use the stored edge ``distance`` on
+:math:`E_{\mathrm{inter}}` only (closest-voxel :math:`d_{\min}` for
+default ``min_distance``; centroid Euclidean for
+``centroid_distance`` / ``adjacency``).
 
-**Contact voxels** (adjacency method; ``0`` under centroid-distance):
+**Contact voxels** (adjacency method; ``0`` unless
+``edge_method='adjacency'``):
 
 .. math::
 
@@ -405,9 +415,12 @@ Let :math:`G^{\star}` be that analysis subgraph.
   ``nx.rich_club_coefficient(G^*, normalized=True)``; ``0`` on failure or
   no edges.
 * Betweenness distribution: ``betweenness_max`` / ``betweenness_std`` of
-  ``betweenness_centrality(G^*)``. Normalized companions divide by the
-  theoretical maximum betweenness of an undirected graph,
-  :math:`(n-1)(n-2)/2` (``0`` if :math:`n<3`).
+  ``betweenness_centrality(G^*)`` (NetworkX default
+  ``normalized=True``: already divided by the undirected theoretical
+  maximum :math:`(n-1)(n-2)/2`, so values lie in :math:`[0,1]`). The
+  ``*_norm`` companions **copy** those already-normalized values
+  (``0`` if :math:`n<3`). They are **not** divided by that factor a
+  second time.
 * ``degree_skewness``: unbiased sample skewness (``scipy.stats.skew(...,
   bias=False)``) of degrees on :math:`G^{\star}`; ``0`` if fewer than
   three nodes. Pairwise graphs report ``degree_skewness_1`` /
@@ -418,8 +431,10 @@ Let :math:`G^{\star}` be that analysis subgraph.
   ``node_local_efficiency_std``.
 
 Pairwise extended metrics reuse the whole-graph efficiency / small-world /
-rich-club block, then add per-class ``betweenness_max_{1,2}`` (and
-``_norm`` using the **full-graph** :math:`n` in the betweenness scale).
+rich-club block, then add per-class ``betweenness_max_{1,2}`` computed
+on the **full** pairwise graph (NetworkX-normalized by that graph's
+:math:`n`). The ``*_norm`` companions copy those values when the full
+graph has :math:`n\ge 3``.
 
 VOI-normalized companions
 -------------------------
@@ -538,9 +553,11 @@ YAML-only visualization fields (recipe hook; **not** part of the extractor
 What this family does not claim
 -------------------------------
 
-* Distances are **voxel hops in index space**, not physical millimetres.
-  Do not interpret ``avg_edge_distance`` as a millimetre length unless the
-  map is isotropic with 1 mm spacing.
+* Distances are **voxel-index units**, not physical millimetres.
+  ``avg_edge_distance`` follows the edge method: closest-voxel
+  :math:`d_{\min}` for default ``min_distance``, centroid Euclidean
+  for ``centroid_distance`` / ``adjacency``. Do not interpret it as a
+  millimetre length unless the map is isotropic with 1 mm spacing.
 * Small-world :math:`\sigma` is a NetworkX Monte-Carlo ratio on a possibly
   tiny habitat graph. It is not Watts–Strogatz inference for a brain
   connectome, and it is forced to ``0`` below ``extended_min_nodes``.

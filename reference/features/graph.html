@@ -1912,16 +1912,20 @@ voxels are one hop apart). One empty lattice cell between cubes is
 closest-voxel distance about 8, which is greater than <span class="math notranslate nohighlight">\(\tau=5\)</span>, so those
 stay disconnected.
 An undirected edge exists between distinct nodes <span class="math notranslate nohighlight">\(u,v\)</span> when the
-closest-point (Hausdorff-min) distance between their voxels satisfies</p>
+closest-voxel (set-separation) distance between their voxels satisfies</p>
 <div class="math notranslate nohighlight">
 \[d_{\min}(u,v)=\min_{p\in B_{u},\,q\in B_{v}}\|p-q\|_{2} \le \tau\]</div>
-<p>This is <strong>not</strong> centroid distance: two large regions can have nearby
-boundaries while their centroids are far apart. Implemented with a
-KD-tree over voxel indices (<code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code>). Single-habitat
-and pairwise (inter / optional intra) graphs follow the same structure
-as <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>. Edge weight uses <span class="math notranslate nohighlight">\(d_{\min}\)</span> when
-<code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> is <code class="docutils literal notranslate"><span class="pre">distance</span></code> or <code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code>.
-<code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused (stored as missing).</p>
+<p>This is the minimum pairwise distance between the two voxel sets, <strong>not</strong>
+the Hausdorff distance (which is a max-of-mins) and <strong>not</strong> centroid
+distance: two large regions can have nearby boundaries while their
+centroids are far apart. Implemented with a KD-tree over voxel indices
+(<code class="docutils literal notranslate"><span class="pre">scipy.spatial.cKDTree</span></code>). Single-habitat and pairwise (inter /
+optional intra) graphs follow the same structure as
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code>. The stored edge <code class="docutils literal notranslate"><span class="pre">distance</span></code> is this
+<span class="math notranslate nohighlight">\(d_{\min}\)</span> (so <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">std_edge_distance</span></code>
+summarize closest-voxel length, not centroid length). Edge weight uses
+<span class="math notranslate nohighlight">\(d_{\min}\)</span> when <code class="docutils literal notranslate"><span class="pre">edge_weight</span></code> is <code class="docutils literal notranslate"><span class="pre">distance</span></code> or
+<code class="docutils literal notranslate"><span class="pre">inverse_distance</span></code>. <code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused (stored as missing).</p>
 </section>
 <section id="edges-voxel-adjacency-opt-in">
 <h3>Edges: voxel adjacency (opt-in)<a class="headerlink" href="#edges-voxel-adjacency-opt-in" title="Link to this heading"></a></h3>
@@ -1986,8 +1990,11 @@ entropy of the <strong>empirical degree histogram</strong>, in bits:</p>
 = -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
 \qquad
 p_{t} = \#\{v:\deg(v)=t\}/n\]</div>
-<p>Edge-length summaries use the list of centroid distances on <strong>all</strong> edges
-of <span class="math notranslate nohighlight">\(G\)</span> (population mean / standard deviation; <code class="docutils literal notranslate"><span class="pre">0</span></code> if no edges).</p>
+<p>Edge-length summaries use the <code class="docutils literal notranslate"><span class="pre">distance</span></code> stored on <strong>all</strong> edges of
+<span class="math notranslate nohighlight">\(G\)</span> (population mean / standard deviation; <code class="docutils literal notranslate"><span class="pre">0</span></code> if no edges).
+That stored length is the closest-voxel <span class="math notranslate nohighlight">\(d_{\min}\)</span> under the
+default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> method, and the centroid Euclidean distance
+under <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> or <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>.</p>
 <p>Node-size summaries use <span class="math notranslate nohighlight">\(\{n_{v}:v\in V_G\}\)</span> (mean, sd, CV).</p>
 <p><strong>Spatial dispersion.</strong> Mean of the per-axis standard deviations of
 centroids; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than two nodes:</p>
@@ -2053,9 +2060,12 @@ node sets of the two labels, <span class="math notranslate nohighlight">\(n_1=|V
 |E_{\mathrm{inter}}|/(n_1 n_2) &amp; n_1 n_2&gt;0\\
 0 &amp; \text{otherwise}
 \end{cases}\end{split}\]</div>
-<p>Distance summaries (mean / sd) use centroid distances on
-<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only.</p>
-<p><strong>Contact voxels</strong> (adjacency method; <code class="docutils literal notranslate"><span class="pre">0</span></code> under centroid-distance):</p>
+<p>Distance summaries (mean / sd) use the stored edge <code class="docutils literal notranslate"><span class="pre">distance</span></code> on
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only (closest-voxel <span class="math notranslate nohighlight">\(d_{\min}\)</span> for
+default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>; centroid Euclidean for
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>).</p>
+<p><strong>Contact voxels</strong> (adjacency method; <code class="docutils literal notranslate"><span class="pre">0</span></code> unless
+<code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code>):</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\texttt{contact\_voxels\_sum}
 &amp;= \sum_{e\in E_{\mathrm{inter}}} N_{\mathrm{adj}}(e) \\
@@ -2105,9 +2115,12 @@ Monte-Carlo estimate relative to random graphs; treat it as a
 <code class="docutils literal notranslate"><span class="pre">nx.rich_club_coefficient(G^*,</span> <span class="pre">normalized=True)</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> on failure or
 no edges.</p></li>
 <li><p>Betweenness distribution: <code class="docutils literal notranslate"><span class="pre">betweenness_max</span></code> / <code class="docutils literal notranslate"><span class="pre">betweenness_std</span></code> of
-<code class="docutils literal notranslate"><span class="pre">betweenness_centrality(G^*)</span></code>. Normalized companions divide by the
-theoretical maximum betweenness of an undirected graph,
-<span class="math notranslate nohighlight">\((n-1)(n-2)/2\)</span> (<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;3\)</span>).</p></li>
+<code class="docutils literal notranslate"><span class="pre">betweenness_centrality(G^*)</span></code> (NetworkX default
+<code class="docutils literal notranslate"><span class="pre">normalized=True</span></code>: already divided by the undirected theoretical
+maximum <span class="math notranslate nohighlight">\((n-1)(n-2)/2\)</span>, so values lie in <span class="math notranslate nohighlight">\([0,1]\)</span>). The
+<code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions <strong>copy</strong> those already-normalized values
+(<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;3\)</span>). They are <strong>not</strong> divided by that factor a
+second time.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">degree_skewness</span></code>: unbiased sample skewness (<code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span>
 <span class="pre">bias=False)</span></code>) of degrees on <span class="math notranslate nohighlight">\(G^{\star}\)</span>; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than
 three nodes. Pairwise graphs report <code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> /
@@ -2118,8 +2131,10 @@ or no edges among them). Summaries: <code class="docutils literal notranslate"><
 <code class="docutils literal notranslate"><span class="pre">node_local_efficiency_std</span></code>.</p></li>
 </ul>
 <p>Pairwise extended metrics reuse the whole-graph efficiency / small-world /
-rich-club block, then add per-class <code class="docutils literal notranslate"><span class="pre">betweenness_max_{1,2}</span></code> (and
-<code class="docutils literal notranslate"><span class="pre">_norm</span></code> using the <strong>full-graph</strong> <span class="math notranslate nohighlight">\(n\)</span> in the betweenness scale).</p>
+rich-club block, then add per-class <code class="docutils literal notranslate"><span class="pre">betweenness_max_{1,2}</span></code> computed
+on the <strong>full</strong> pairwise graph (NetworkX-normalized by that graph’s
+<span class="math notranslate nohighlight">\(n\)</span>). The <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions copy those values when the full
+graph has <span class="math notranslate nohighlight">\(n\ge 3`\)</span>.</p>
 </section>
 <section id="voi-normalized-companions">
 <h2>VOI-normalized companions<a class="headerlink" href="#voi-normalized-companions" title="Link to this heading"></a></h2>
@@ -2284,9 +2299,11 @@ below match the kernel dataclass.</p>
 <section id="what-this-family-does-not-claim">
 <h2>What this family does not claim<a class="headerlink" href="#what-this-family-does-not-claim" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Distances are <strong>voxel hops in index space</strong>, not physical millimetres.
-Do not interpret <code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> as a millimetre length unless the
-map is isotropic with 1 mm spacing.</p></li>
+<li><p>Distances are <strong>voxel-index units</strong>, not physical millimetres.
+<code class="docutils literal notranslate"><span class="pre">avg_edge_distance</span></code> follows the edge method: closest-voxel
+<span class="math notranslate nohighlight">\(d_{\min}\)</span> for default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>, centroid Euclidean
+for <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>. Do not interpret it as a
+millimetre length unless the map is isotropic with 1 mm spacing.</p></li>
 <li><p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is a NetworkX Monte-Carlo ratio on a possibly
 tiny habitat graph. It is not Watts–Strogatz inference for a brain
 connectome, and it is forced to <code class="docutils literal notranslate"><span class="pre">0</span></code> below <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code>.</p></li>
