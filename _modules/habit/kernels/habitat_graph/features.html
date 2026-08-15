@@ -2167,12 +2167,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">calculate_single_graph_metrics</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span>
     <span class="n">EdgeMethod</span><span class="p">,</span>
     <span class="n">EdgeWeightMode</span><span class="p">,</span>
     <span class="n">HabitatGraphNode</span><span class="p">,</span>
     <span class="n">NodeMethod</span><span class="p">,</span>
-    <span class="n">is_background_label</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.habitat_graph.nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_habitat_nodes</span>
 
@@ -2232,11 +2230,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">block_min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
     <span class="n">pairwise_include_intra_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="c1"># Default on: 1-voxel peritumoral shell as a reserved BG class</span>
-    <span class="c1"># (not a clustered habitat). Pass False for ROI-only graphs.</span>
-    <span class="n">include_background_shell</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">background_shell_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></div>
+    <span class="n">extended_min_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span></div>
 
 
 
@@ -2422,22 +2416,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">]</span> <span class="o">=</span> <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pair_bbox_diagonal</span><span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="n">pair_bg_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;^pair_h(?P&lt;label_a&gt;\d+)_bg_(?P&lt;suffix&gt;.+)$&quot;</span><span class="p">,</span>
-            <span class="n">key</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">pair_bg_match</span><span class="p">:</span>
-            <span class="n">label_a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair_bg_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;label_a&quot;</span><span class="p">))</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="n">pair_bg_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;suffix&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;n_nodes_1&quot;</span><span class="p">:</span>
-                <span class="n">features</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;pair_h</span><span class="si">{</span><span class="n">label_a</span><span class="si">}</span><span class="s2">_bg_n_nodes_1_per_habitat_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">_scaled</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">habitat_volumes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
-                <span class="p">)</span>
-
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_true_habitat_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop the reserved background class from a label list.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_background_label</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the sorted positive habitat labels present in ``labels``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_nodes</span><span class="p">(</span>
@@ -2492,8 +2474,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">block_size</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_size</span><span class="p">,</span>
         <span class="n">block_min_coverage</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">block_min_coverage</span><span class="p">,</span>
         <span class="n">node_method</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">node_method</span><span class="p">,</span>
-        <span class="n">include_background_shell</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">,</span>
-        <span class="n">background_shell_width</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">background_shell_width</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">present_labels</span> <span class="o">=</span> <span class="n">_true_habitat_labels</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -2501,20 +2481,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">_true_habitat_labels</span><span class="p">(</span><span class="n">expected_labels</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">habitat_labels</span> <span class="o">=</span> <span class="n">present_labels</span>
-    <span class="n">bg_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span> <span class="p">[]))</span>
     <span class="n">features</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="c1"># Count of true habitats only (the reserved shell is not a habitat).</span>
         <span class="s2">&quot;graph_num_habitats&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">present_labels</span><span class="p">)),</span>
         <span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
             <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="k">for</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="p">),</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
-        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;graph_num_background_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bg_nodes</span><span class="p">))</span>
 
     <span class="n">single_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
-        <span class="n">single_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_single_habitat_graph</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">single_labels</span><span class="p">:</span>
@@ -2555,7 +2529,8 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_pairwise_habitat_graph</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span> <span class="ow">in</span> <span class="n">iter_label_pairs</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">):</span>
+        <span class="n">pair_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iter_label_pairs</span><span class="p">(</span><span class="n">habitat_labels</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">label_a</span><span class="p">,</span> <span class="n">label_b</span> <span class="ow">in</span> <span class="n">pair_labels</span><span class="p">:</span>  <span class="c1"># noqa: B007</span>
             <span class="n">pair_nodes</span> <span class="o">=</span> <span class="n">_flatten_nodes</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label_a</span><span class="p">,</span> <span class="p">[]),</span>
@@ -2597,52 +2572,6 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">include_background_shell</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">habitat_label</span> <span class="ow">in</span> <span class="n">habitat_labels</span><span class="p">:</span>
-                <span class="n">pair_nodes</span> <span class="o">=</span> <span class="n">_flatten_nodes</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="p">[]),</span>
-                        <span class="n">node_result</span><span class="o">.</span><span class="n">nodes_by_habitat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                            <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">,</span> <span class="p">[]</span>
-                        <span class="p">),</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
-                <span class="n">pair_labels</span> <span class="o">=</span> <span class="p">(</span><span class="n">habitat_label</span><span class="p">,</span> <span class="n">BACKGROUND_SHELL_LABEL</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;adjacency&quot;</span><span class="p">:</span>
-                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_adjacency_graph</span><span class="p">(</span>
-                        <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
-                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                        <span class="n">adjacency_connectivity</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_connectivity</span><span class="p">,</span>
-                        <span class="n">adjacency_min_voxels</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">adjacency_min_voxels</span><span class="p">,</span>
-                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">edge_method</span> <span class="o">==</span> <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span>
-                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_min_distance_graph</span><span class="p">(</span>
-                        <span class="n">node_result</span><span class="o">=</span><span class="n">node_result</span><span class="p">,</span>
-                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
-                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">graph</span> <span class="o">=</span> <span class="n">build_centroid_distance_graph</span><span class="p">(</span>
-                        <span class="n">nodes</span><span class="o">=</span><span class="n">pair_nodes</span><span class="p">,</span>
-                        <span class="n">labels</span><span class="o">=</span><span class="n">pair_labels</span><span class="p">,</span>
-                        <span class="n">graph_kind</span><span class="o">=</span><span class="s2">&quot;pairwise&quot;</span><span class="p">,</span>
-                        <span class="n">distance_threshold</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
-                        <span class="n">edge_weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">edge_weight</span><span class="p">,</span>
-                        <span class="n">include_intra_edges</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">pairwise_include_intra_edges</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="n">features</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="n">calculate_pairwise_graph_metrics</span><span class="p">(</span>
-                        <span class="n">graph</span><span class="p">,</span>
-                        <span class="n">include_extended_metrics</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">include_extended_metrics</span><span class="p">,</span>
-                        <span class="n">extended_min_nodes</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">extended_min_nodes</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
 
     <span class="n">_augment_with_normalized_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">features</span></div>

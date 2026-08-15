@@ -1800,14 +1800,6 @@ habitat maps with the voxel-index and VOI refinements documented below.</p>
 <li><p><strong>Background.</strong> Label <span class="math notranslate nohighlight">\(0\)</span> is background and is <strong>excluded</strong> from node
 extraction, graph construction, and the tumour VOI measure
 <span class="math notranslate nohighlight">\(V\)</span> below. It is not a graph node.</p></li>
-<li><p><strong>Peritumoral shell (default on).</strong> <code class="docutils literal notranslate"><span class="pre">include_background_shell=True</span></code>
-dilates the VOI (<span class="math notranslate nohighlight">\(L&gt;0\)</span>) by <code class="docutils literal notranslate"><span class="pre">background_shell_width</span></code> voxels
-(default 1) using the same <code class="docutils literal notranslate"><span class="pre">connectivity</span></code> neighbourhood as node
-extraction, then keeps <code class="docutils literal notranslate"><span class="pre">dilated</span> <span class="pre">AND</span> <span class="pre">NOT</span> <span class="pre">VOI</span></code> (clipped to the array).
-That ring is a <strong>reserved</strong> class <code class="docutils literal notranslate"><span class="pre">bg</span></code> – not clustered habitat
-<span class="math notranslate nohighlight">\(K+1\)</span>. Columns are <code class="docutils literal notranslate"><span class="pre">single_bg_*</span></code> and <code class="docutils literal notranslate"><span class="pre">pair_h{k}_bg_*</span></code>.
-<code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> still counts true habitats only. Pass
-<code class="docutils literal notranslate"><span class="pre">include_background_shell=False</span></code> for ROI-only graphs.</p></li>
 <li><p><strong>Habitat labels.</strong> <span class="math notranslate nohighlight">\(\mathcal{H}=\{k\in\mathbb{Z}:k&gt;0,\;
 \exists\mathbf{x}\in\Omega,\; L(\mathbf{x})=k\}\)</span>. When the caller supplies
 <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>, every listed id still emits columns even if it is

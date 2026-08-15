@@ -137,9 +137,6 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``block_size`` (``8`` voxels, not millimetres), ``block_min_coverage`` (``0.2``)
   - ``pairwise_include_intra_edges`` (``true``)
   - ``include_extended_metrics`` (``true``), ``extended_min_nodes`` (``10``)
-  - ``include_background_shell`` (``true``): 1-voxel peritumoral ``bg``
-    class (not a clustered habitat). Pass ``false`` for ROI-only graphs.
-  - ``background_shell_width`` (``1`` voxel ring, same ``connectivity``)
 
 - **Visualization fields** (recipe hook; not part of the extractor ``Spec``):
 

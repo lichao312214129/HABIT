@@ -1810,8 +1810,6 @@ physical line per shell command (Windows / conda PowerShell):</p>
   <span class="n">include_single_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">include_pairwise_habitat_graph</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">include_extended_metrics</span><span class="p">:</span> <span class="n">true</span>
-  <span class="n">include_background_shell</span><span class="p">:</span> <span class="n">true</span>
-  <span class="n">background_shell_width</span><span class="p">:</span> <span class="mi">1</span>
   <span class="n">visualize</span><span class="p">:</span> <span class="n">false</span>
   <span class="n">visualization_show_grid</span><span class="p">:</span> <span class="n">true</span>
   <span class="n">visualization_block_size</span><span class="p">:</span> <span class="n">null</span>
@@ -1835,10 +1833,7 @@ the closest voxels of two nodes are within 5</strong> voxel-index units
 Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
 empty lattice cell between cubes is closest-voxel distance about 8,
 which is greater than 5, so those stay disconnected. There is <strong>no morphological
-erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>). The default graph also includes a
-<strong>1-voxel peritumoral background shell</strong> (<code class="docutils literal notranslate"><span class="pre">include_background_shell:</span>
-<span class="pre">true</span></code>): a reserved <code class="docutils literal notranslate"><span class="pre">bg</span></code> class around the ROI, not a clustered
-habitat. Pass <code class="docutils literal notranslate"><span class="pre">include_background_shell:</span> <span class="pre">false</span></code> for ROI-only graphs.
+erosion</strong> (<code class="docutils literal notranslate"><span class="pre">erosion_radius:</span> <span class="pre">0</span></code>).
 Pass <code class="docutils literal notranslate"><span class="pre">node_method:</span> <span class="pre">component</span></code> for connected-component nodes, and
 <code class="docutils literal notranslate"><span class="pre">edge_method:</span> <span class="pre">adjacency</span></code> if you want contact-voxel edges (default
 contact count &gt;= 10). <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> is the older centroid-proximity
@@ -1878,8 +1873,7 @@ lattice). Reproduce it:</p>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label_array</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="c1"># Full 3D map for features (default includes the 1-voxel BG shell).</span>
-<span class="c1"># The 2D network below is display-only.</span>
+<span class="c1"># Full 3D map for features; the 2D network below is display-only.</span>
 <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
     <span class="n">labels</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span>

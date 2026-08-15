@@ -19,11 +19,7 @@ uses the library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
 node per in-cell subregion centroid) and
 ``edge_method='min_distance'`` (closest voxels within 5).
 ``include_extended_metrics=False`` is required here: extended metrics
-on a full 3D map are the main time sink. The library default also
-includes a **1-voxel peritumoral background shell**
-(``include_background_shell=True``): reserved ``bg`` nodes /
-``single_bg_*`` and ``pair_h*_bg_*`` columns, not a clustered habitat.
-Pass ``include_background_shell=False`` for ROI-only graphs. A later section keeps those
+on a full 3D map are the main time sink. A later section keeps those
 **same habitat labels** and only overrides ``block_size=5`` so the
 two 3D lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as ``volume`` / ``msi``); columns
@@ -144,9 +140,7 @@ Anatomy with habitats
 Same habitat labels (one ``fit_predict``, fixed ``K=4``). Only
 ``block_size`` changes: the library default is 8-voxel cubes; ``5`` is
 an explicit comparison override. Edges stay ``min_distance`` /
-``distance_threshold=5`` / ``block_min_coverage=0.2``. Both extracts
-use the default **1-voxel background shell** so the lattice compare is
-not confounded by turning the shell on for only one side. Feature
+``distance_threshold=5`` / ``block_min_coverage=0.2``. Feature
 tables and heatmaps are **full 3D** extracts. The two 2D networks are
 display-only (same representative axial slice as above). The page
 shows both 3D tables (8-voxel and 5-voxel, same subjects and columns)

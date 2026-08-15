@@ -30,14 +30,6 @@ Let :math:`L:\Omega\to\{0,1,\ldots,K\}` be an integer habitat label map on a
 * **Background.** Label :math:`0` is background and is **excluded** from node
   extraction, graph construction, and the tumour VOI measure
   :math:`V` below. It is not a graph node.
-* **Peritumoral shell (default on).** ``include_background_shell=True``
-  dilates the VOI (:math:`L>0`) by ``background_shell_width`` voxels
-  (default 1) using the same ``connectivity`` neighbourhood as node
-  extraction, then keeps ``dilated AND NOT VOI`` (clipped to the array).
-  That ring is a **reserved** class ``bg`` -- not clustered habitat
-  :math:`K+1`. Columns are ``single_bg_*`` and ``pair_h{k}_bg_*``.
-  ``graph_num_habitats`` still counts true habitats only. Pass
-  ``include_background_shell=False`` for ROI-only graphs.
 * **Habitat labels.** :math:`\mathcal{H}=\{k\in\mathbb{Z}:k>0,\;
   \exists\mathbf{x}\in\Omega,\; L(\mathbf{x})=k\}`. When the caller supplies
   ``expected_labels``, every listed id still emits columns even if it is
