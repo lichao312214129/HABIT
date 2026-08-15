@@ -238,9 +238,13 @@ Two volume-level atoms match the combinatorial design of Prior et al.
 
 .. code-block:: python
 
+   import numpy as np
    from habit import extract_voxel_texture, perturb_image
 
-   perturbed = perturb_image(image, method="gaussian_noise", seed=7)
+   retest_rng = np.random.default_rng(7)
+   noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
+   shifted = perturb_image(noisy, method="translation", shift_fraction=0.5, rng=retest_rng)
+   perturbed = perturb_image(shifted, method="rotation", angle_degrees=0.5, rng=retest_rng)
    feat_r1 = extract_voxel_texture(image, mask, kernel_radius=1, bin_width=12)
    feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
 

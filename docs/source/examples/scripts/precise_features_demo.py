@@ -5,8 +5,9 @@ as volume-level atoms, then the small composition that builds ICC / LCL
 and a PreciseFeatureSet:
 
 * perturb_image(image, method, **params) -- one registered method
+* Appendix S2 retest = noise then 0.5-vx translation then 0.5 deg rotation
 * extract_voxel_texture(image, mask, kernel_radius, bin_width, ...)
-* repeatability = extract(original) vs extract(perturbed)
+* repeatability = extract(original) vs extract(chained retest)
 * reproducibility = extract(orig, params_A) vs extract(orig, params_B)
 * precise = intersection of those flags (identify_precise_features)
 
@@ -78,17 +79,27 @@ image = subject.image(MODALITIES[0])
 mask = subject.mask(ROI)
 
 # --- Atom 1: perturb (image + method + params -> same-grid image) ---
-# gaussian_noise with sigma omitted uses Chang's wavelet estimator.
-perturbed = perturb_image(image, method="gaussian_noise", seed=7)
+# Prior Appendix S2 / MIRP 1.2.0 simulated retest as three sequential
+# atoms (not the prior2024_retest_perturbation recipe): Chang-estimated
+# Gaussian noise, then 0.5-voxel translation (random axis signs), then
+# +0.5 deg in-plane (z) rotation. Intensity interpolator defaults to
+# B-spline. One rng is advanced through the chain so the draws match
+# a single PerturbationChain call.
+retest_rng = np.random.default_rng(7)
+noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
 shifted = perturb_image(
-    image,
+    noisy,
     method="translation",
-    shift_voxels=(0.5, 0.5, 0.0),
-    random_signs=False,
-    seed=7,
+    shift_fraction=0.5,
+    rng=retest_rng,
 )
-rotated = perturb_image(image, method="rotation", angle_degrees=0.5, seed=7)
-print("perturbed methods:", "gaussian_noise, translation, rotation")
+perturbed = perturb_image(
+    shifted,
+    method="rotation",
+    angle_degrees=0.5,
+    rng=retest_rng,
+)
+print("perturbed methods:", "gaussian_noise -> translation -> rotation")
 print(f"  grid unchanged: {perturbed.data.shape == image.data.shape}")
 
 # --- Atom 2: extract texture (same image, different paper knobs) ---
@@ -203,8 +214,8 @@ else:
 # END example
 
 # BEGIN figures
-# Paste after the Script block. Uses image, mask, perturbed, shifted,
-# rotated, precise, evidence, result_all, result_precise.
+# Paste after the Script block. Uses image, mask, noisy, shifted,
+# perturbed, precise, evidence, result_all, result_precise.
 from habit.viz import (
     plot_habitat_label_compare,
     plot_intensity_slice,
@@ -227,9 +238,9 @@ _save_fig(
         before=image,
         roi_mask=mask,
         roi_contour=True,
-        title="Original vs Gaussian noise",
+        title="Original vs Appendix S2 retest",
         before_label="Original",
-        image_label="Gaussian noise",
+        image_label="Noise + 0.5 vx + 0.5 deg",
     ),
     "precise_features_original_vs_perturbed.png",
 )
@@ -247,9 +258,9 @@ counts = np.sum(mask_arr > 0, axis=(1, 2))
 index = int(np.argmax(counts)) if int(np.max(counts)) > 0 else int(mask_arr.shape[0] // 2)
 panels = (
     ("Original", image),
-    ("Gaussian noise", perturbed),
-    ("Translation 0.5 vx", shifted),
-    ("Rotation 0.5 deg", rotated),
+    ("Gaussian noise", noisy),
+    ("+ translation 0.5 vx", shifted),
+    ("+ rotation 0.5 deg", perturbed),
 )
 orig_sl = np.take(np.asarray(image.data), index, axis=0)
 finite = orig_sl[np.isfinite(orig_sl)]
@@ -268,7 +279,7 @@ with use_style("radiology"):
         )
         ax.set_title(sanitize_label(label))
         ax.axis("off")
-    fig_m.suptitle(sanitize_label("perturb_image methods (same slice)"))
+    fig_m.suptitle(sanitize_label("Appendix S2 chain (sequential perturb_image atoms)"))
 _save_fig(fig_m, "precise_features_perturb_methods.png")
 
 
@@ -298,7 +309,12 @@ for experiment, filename, title in icc_jobs:
     if panel.empty:
         continue
     _save_fig(
-        plot_precision_icc(panel, lcl_threshold=precise.lcl_threshold, title=title),
+        plot_precision_icc(
+            panel,
+            lcl_threshold=precise.lcl_threshold,
+            title=title,
+            orientation="row",
+        ),
         filename,
     )
 
@@ -309,6 +325,7 @@ if not combined.empty:
             combined,
             lcl_threshold=precise.lcl_threshold,
             title="All experiments: ICC and 95% CI",
+            orientation="row",
         ),
         "precise_features_icc_all.png",
     )
