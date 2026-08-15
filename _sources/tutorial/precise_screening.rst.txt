@@ -27,8 +27,12 @@ The paper's combinations are two atoms, then a small composition:
 .. code-block:: python
 
    from habit import extract_voxel_texture, perturb_image, precision_panel
+   import numpy as np
 
-   perturbed = perturb_image(image, method="gaussian_noise", seed=7)
+   retest_rng = np.random.default_rng(7)
+   noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
+   shifted = perturb_image(noisy, method="translation", shift_fraction=0.5, rng=retest_rng)
+   perturbed = perturb_image(shifted, method="rotation", angle_degrees=0.5, rng=retest_rng)
    feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
    feat_pert = extract_voxel_texture(perturbed, mask, kernel_radius=3, bin_width=12)
    feat_r1 = extract_voxel_texture(image, mask, kernel_radius=1, bin_width=12)
@@ -57,19 +61,19 @@ when you have more than one subject.
    :alt: Original greyscale slice beside a Gaussian-noise perturbed copy
    :width: 720
 
-   Intensity perturbation: original vs
-   :func:`~habit.perturb_image` with ``method="gaussian_noise"``
-   (:func:`~habit.viz.plot_intensity_slice`). Demo subject from
-   ``demo_data/preprocessed``; not a clinical claim.
+   Intensity perturbation: original vs the Appendix S2 chain (Chang
+   noise, then 0.5-voxel translation, then 0.5° rotation)
+   (:func:`~habit.viz.plot_intensity_slice`). One cropped
+   ``demo_data`` subject; not a clinical claim.
 
 .. figure:: ../_static/images/examples/precise_features_perturb_methods.png
    :alt: Original plus three perturb_image methods on one slice
    :width: 720
 
-   The same atom with different methods: Gaussian noise, 0.5-voxel
-   translation, 0.5° z rotation. Each panel is one
-   :func:`~habit.perturb_image` call. Geometric methods resample back
-   onto the original grid.
+   Sequential Appendix S2 atoms on one slice: original, after Chang
+   noise, after +0.5-voxel translation, after +0.5° rotation. Each
+   panel is one :func:`~habit.perturb_image` call. Geometric methods
+   resample back onto the original grid.
 
 Why "morphology-aware"
 ----------------------
@@ -103,13 +107,17 @@ shell command. Full copy-ready script:
 
 **1. Atoms.** Load one image and mask, then perturb and extract::
 
+   import numpy as np
    from habit import cohort_from_directory, extract_voxel_texture, perturb_image
 
    DATA = "demo_data/preprocessed"
    cohort = cohort_from_directory(DATA, modalities=("LAP",), roi="LAP")
    image = cohort[0].image("LAP")
    mask = cohort[0].mask("LAP")
-   perturbed = perturb_image(image, method="gaussian_noise", seed=7)
+   retest_rng = np.random.default_rng(7)
+   noisy = perturb_image(image, method="gaussian_noise", rng=retest_rng)
+   shifted = perturb_image(noisy, method="translation", shift_fraction=0.5, rng=retest_rng)
+   perturbed = perturb_image(shifted, method="rotation", angle_degrees=0.5, rng=retest_rng)
    feat_r1 = extract_voxel_texture(image, mask, kernel_radius=1, bin_width=12)
    feat_r3 = extract_voxel_texture(image, mask, kernel_radius=3, bin_width=12)
 
@@ -149,10 +157,11 @@ and clustering::
    :alt: ICC point estimates with 95 percent confidence intervals
    :width: 640
 
-   Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
-   texture feature, with the 0.5 LCL threshold
-   (:func:`~habit.viz.plot_precision_icc`). Kernel / bin ICC panels
-   and the all-vs-precise habitat compare live on
+   Repeatability forest plot: ICC (point) and 95% CI (horizontal
+   whisker) per voxel texture feature, with the 0.5 LCL threshold
+   (:func:`~habit.viz.plot_precision_icc`, ``orientation="row"``).
+   This gallery figure is **one cropped subject**. Kernel / bin ICC
+   panels and the all-vs-precise habitat compare live on
    :doc:`../examples/precise_features`.
 
 .. figure:: ../_static/images/examples/precise_features_all_vs_precise.png

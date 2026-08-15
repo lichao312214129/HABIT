@@ -1793,8 +1793,12 @@ neighbourhood scale, clustering it produces partitions nobody can
 reproduce.</p>
 <p>The paper’s combinations are two atoms, then a small composition:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_voxel_texture</span><span class="p">,</span> <span class="n">perturb_image</span><span class="p">,</span> <span class="n">precision_panel</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">retest_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">noisy</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
+<span class="n">shifted</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">noisy</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;translation&quot;</span><span class="p">,</span> <span class="n">shift_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">shifted</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
 <span class="n">feat_r3</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">feat_pert</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">perturbed</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">feat_r1</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
@@ -1824,20 +1828,20 @@ when you have more than one subject.</p>
 <a class="reference internal image-reference" href="../_images/precise_features_original_vs_perturbed.png"><img alt="Original greyscale slice beside a Gaussian-noise perturbed copy" src="../_images/precise_features_original_vs_perturbed.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Intensity perturbation: original vs
-<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">method=&quot;gaussian_noise&quot;</span></code>
-(<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>). Demo subject from
-<code class="docutils literal notranslate"><span class="pre">demo_data/preprocessed</span></code>; not a clinical claim.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Intensity perturbation: original vs the Appendix S2 chain (Chang
+noise, then 0.5-voxel translation, then 0.5° rotation)
+(<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>). One cropped
+<code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject; not a clinical claim.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id2">
 <a class="reference internal image-reference" href="../_images/precise_features_perturb_methods.png"><img alt="Original plus three perturb_image methods on one slice" src="../_images/precise_features_perturb_methods.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">The same atom with different methods: Gaussian noise, 0.5-voxel
-translation, 0.5° z rotation. Each panel is one
-<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call. Geometric methods resample back
-onto the original grid.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Sequential Appendix S2 atoms on one slice: original, after Chang
+noise, after +0.5-voxel translation, after +0.5° rotation. Each
+panel is one <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call. Geometric methods
+resample back onto the original grid.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -1870,13 +1874,17 @@ morphologies</strong>, not a rectangular crop filled with dummy intensities.</p>
 shell command. Full copy-ready script:
 <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</p>
 <p><strong>1. Atoms.</strong> Load one image and mask, then perturb and extract:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span><span class="p">,</span> <span class="n">extract_voxel_texture</span><span class="p">,</span> <span class="n">perturb_image</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">cohort_from_directory</span><span class="p">,</span> <span class="n">extract_voxel_texture</span><span class="p">,</span> <span class="n">perturb_image</span>
 
 <span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,),</span> <span class="n">roi</span><span class="o">=</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
 <span class="n">image</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">)</span>
-<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">retest_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">noisy</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
+<span class="n">shifted</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">noisy</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;translation&quot;</span><span class="p">,</span> <span class="n">shift_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">shifted</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
 <span class="n">feat_r1</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 <span class="n">feat_r3</span> <span class="o">=</span> <span class="n">extract_voxel_texture</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">kernel_radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bin_width</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </pre></div>
@@ -1915,10 +1923,11 @@ and clustering:</p>
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) per voxel
-texture feature, with the 0.5 LCL threshold
-(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>). Kernel / bin ICC panels
-and the all-vs-precise habitat compare live on
+<p><span class="caption-text">Repeatability forest plot: ICC (point) and 95% CI (horizontal
+whisker) per voxel texture feature, with the 0.5 LCL threshold
+(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">orientation=&quot;row&quot;</span></code>).
+This gallery figure is <strong>one cropped subject</strong>. Kernel / bin ICC
+panels and the all-vs-precise habitat compare live on
 <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>

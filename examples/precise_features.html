@@ -1806,9 +1806,11 @@ Combinations are repeated calls, not a new API.</p></li>
 <section id="paper-combinations">
 <h2>Paper combinations<a class="headerlink" href="#paper-combinations" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Repeatability</strong> — <code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs <code class="docutils literal notranslate"><span class="pre">extract(perturbed)</span></code> at
-the base setting (paper: R3B12). ICC(3A,1) via
-<a class="reference internal" href="../api/generated/habit.precision_panel.html#habit.precision_panel" title="habit.precision_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_panel()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">agreement=&quot;absolute&quot;</span></code>.</p></li>
+<li><p><strong>Repeatability</strong> — three sequential <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a>
+atoms in Appendix S2 / MIRP 1.2.0 order (Chang noise → 0.5-voxel
+translation → 0.5° rotation), then <code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs
+<code class="docutils literal notranslate"><span class="pre">extract(perturbed)</span></code> at the base setting (paper: R3B12). ICC(3A,1)
+via <a class="reference internal" href="../api/generated/habit.precision_panel.html#habit.precision_panel" title="habit.precision_panel"><code class="xref py py-func docutils literal notranslate"><span class="pre">precision_panel()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">agreement=&quot;absolute&quot;</span></code>.</p></li>
 <li><p><strong>Reproducibility, kernel</strong> — <code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">kernel_radius=1)</span></code> vs
 <code class="docutils literal notranslate"><span class="pre">extract(...,</span> <span class="pre">kernel_radius=3)</span></code> at fixed bin width (R1 vs R3).
 ICC(3C,1), <code class="docutils literal notranslate"><span class="pre">agreement=&quot;consistency&quot;</span></code>.</p></li>
@@ -1821,8 +1823,11 @@ ICC(3C,1).</p></li>
 actually ran. <a class="reference internal" href="../api/generated/habit.identify_precise_features.html#habit.identify_precise_features" title="habit.identify_precise_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_features()</span></code></a> is that
 intersection. <code class="xref py py-func docutils literal notranslate"><span class="pre">aggregate_panels()</span></code> takes the per-feature
 median when you have more than one subject.</p>
-<p>The demo below uses one cropped subject (median of one). The optional
-recipe at the end loops the same atoms over a cohort.</p>
+<p>The voxel-texture screen below is <strong>one cropped subject</strong> (median of
+one). That is a teaching crop, not the paper’s 2436-lesion CT cohort.
+The optional recipe at the end loops the same atoms over a cohort. The
+optional ROI-edge follow-up uses <strong>three</strong> cropped subjects only for
+habitat-table ICC.</p>
 </section>
 <section id="runnable-demo">
 <h2>Runnable demo<a class="headerlink" href="#runnable-demo" title="Link to this heading"></a></h2>
@@ -1883,17 +1888,27 @@ combinations on a small first-order + GLCM set.</p>
 <span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
 
 <span class="c1"># --- Atom 1: perturb (image + method + params -&gt; same-grid image) ---</span>
-<span class="c1"># gaussian_noise with sigma omitted uses Chang&#39;s wavelet estimator.</span>
-<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="c1"># Prior Appendix S2 / MIRP 1.2.0 simulated retest as three sequential</span>
+<span class="c1"># atoms (not the prior2024_retest_perturbation recipe): Chang-estimated</span>
+<span class="c1"># Gaussian noise, then 0.5-voxel translation (random axis signs), then</span>
+<span class="c1"># +0.5 deg in-plane (z) rotation. Intensity interpolator defaults to</span>
+<span class="c1"># B-spline. One rng is advanced through the chain so the draws match</span>
+<span class="c1"># a single PerturbationChain call.</span>
+<span class="n">retest_rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">noisy</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;gaussian_noise&quot;</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">)</span>
 <span class="n">shifted</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span>
-    <span class="n">image</span><span class="p">,</span>
+    <span class="n">noisy</span><span class="p">,</span>
     <span class="n">method</span><span class="o">=</span><span class="s2">&quot;translation&quot;</span><span class="p">,</span>
-    <span class="n">shift_voxels</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
-    <span class="n">random_signs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">shift_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">rotated</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;perturbed methods:&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_noise, translation, rotation&quot;</span><span class="p">)</span>
+<span class="n">perturbed</span> <span class="o">=</span> <span class="n">perturb_image</span><span class="p">(</span>
+    <span class="n">shifted</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">,</span>
+    <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">rng</span><span class="o">=</span><span class="n">retest_rng</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;perturbed methods:&quot;</span><span class="p">,</span> <span class="s2">&quot;gaussian_noise -&gt; translation -&gt; rotation&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  grid unchanged: </span><span class="si">{</span><span class="n">perturbed</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># --- Atom 2: extract texture (same image, different paper knobs) ---</span>
@@ -2011,11 +2026,11 @@ combinations on a small first-order + GLCM set.</p>
 <section id="draw-the-figures">
 <h2>Draw the figures<a class="headerlink" href="#draw-the-figures" title="Link to this heading"></a></h2>
 <p>Paste this after the Script block (it uses <code class="docutils literal notranslate"><span class="pre">image</span></code>, <code class="docutils literal notranslate"><span class="pre">mask</span></code>,
-<code class="docutils literal notranslate"><span class="pre">perturbed</span></code>, <code class="docutils literal notranslate"><span class="pre">shifted</span></code>, <code class="docutils literal notranslate"><span class="pre">rotated</span></code>, <code class="docutils literal notranslate"><span class="pre">precise</span></code>, <code class="docutils literal notranslate"><span class="pre">evidence</span></code>,
+<code class="docutils literal notranslate"><span class="pre">noisy</span></code>, <code class="docutils literal notranslate"><span class="pre">shifted</span></code>, <code class="docutils literal notranslate"><span class="pre">perturbed</span></code>, <code class="docutils literal notranslate"><span class="pre">precise</span></code>, <code class="docutils literal notranslate"><span class="pre">evidence</span></code>,
 <code class="docutils literal notranslate"><span class="pre">result_all</span></code>, and <code class="docutils literal notranslate"><span class="pre">result_precise</span></code>). Writes
 <code class="docutils literal notranslate"><span class="pre">out/precise_features_*.png</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses image, mask, perturbed, shifted,</span>
-<span class="c1"># rotated, precise, evidence, result_all, result_precise.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script block. Uses image, mask, noisy, shifted,</span>
+<span class="c1"># perturbed, precise, evidence, result_all, result_precise.</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_habitat_label_compare</span><span class="p">,</span>
     <span class="n">plot_intensity_slice</span><span class="p">,</span>
@@ -2038,9 +2053,9 @@ combinations on a small first-order + GLCM set.</p>
         <span class="n">before</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
         <span class="n">roi_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
         <span class="n">roi_contour</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original vs Gaussian noise&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Original vs Appendix S2 retest&quot;</span><span class="p">,</span>
         <span class="n">before_label</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span>
-        <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Gaussian noise&quot;</span><span class="p">,</span>
+        <span class="n">image_label</span><span class="o">=</span><span class="s2">&quot;Noise + 0.5 vx + 0.5 deg&quot;</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="s2">&quot;precise_features_original_vs_perturbed.png&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -2058,9 +2073,9 @@ combinations on a small first-order + GLCM set.</p>
 <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">mask_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
 <span class="n">panels</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">(</span><span class="s2">&quot;Original&quot;</span><span class="p">,</span> <span class="n">image</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;Gaussian noise&quot;</span><span class="p">,</span> <span class="n">perturbed</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;Translation 0.5 vx&quot;</span><span class="p">,</span> <span class="n">shifted</span><span class="p">),</span>
-    <span class="p">(</span><span class="s2">&quot;Rotation 0.5 deg&quot;</span><span class="p">,</span> <span class="n">rotated</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Gaussian noise&quot;</span><span class="p">,</span> <span class="n">noisy</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;+ translation 0.5 vx&quot;</span><span class="p">,</span> <span class="n">shifted</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;+ rotation 0.5 deg&quot;</span><span class="p">,</span> <span class="n">perturbed</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="n">orig_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">finite</span> <span class="o">=</span> <span class="n">orig_sl</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">orig_sl</span><span class="p">)]</span>
@@ -2079,7 +2094,7 @@ combinations on a small first-order + GLCM set.</p>
         <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
-    <span class="n">fig_m</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;perturb_image methods (same slice)&quot;</span><span class="p">))</span>
+    <span class="n">fig_m</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Appendix S2 chain (sequential perturb_image atoms)&quot;</span><span class="p">))</span>
 <span class="n">_save_fig</span><span class="p">(</span><span class="n">fig_m</span><span class="p">,</span> <span class="s2">&quot;precise_features_perturb_methods.png&quot;</span><span class="p">)</span>
 
 
@@ -2109,7 +2124,12 @@ combinations on a small first-order + GLCM set.</p>
     <span class="k">if</span> <span class="n">panel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="n">_save_fig</span><span class="p">(</span>
-        <span class="n">plot_precision_icc</span><span class="p">(</span><span class="n">panel</span><span class="p">,</span> <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">),</span>
+        <span class="n">plot_precision_icc</span><span class="p">(</span>
+            <span class="n">panel</span><span class="p">,</span>
+            <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
         <span class="n">filename</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -2120,6 +2140,7 @@ combinations on a small first-order + GLCM set.</p>
             <span class="n">combined</span><span class="p">,</span>
             <span class="n">lcl_threshold</span><span class="o">=</span><span class="n">precise</span><span class="o">.</span><span class="n">lcl_threshold</span><span class="p">,</span>
             <span class="n">title</span><span class="o">=</span><span class="s2">&quot;All experiments: ICC and 95% CI&quot;</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="s2">&quot;precise_features_icc_all.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -2145,10 +2166,10 @@ combinations on a small first-order + GLCM set.</p>
 </section>
 <section id="output">
 <h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
-<p>Illustrative (ICC depends on the subject and extractor; this is one
+<p>Illustrative (ICC depends on the subject and extractor; this is <strong>one</strong>
 cropped <code class="docutils literal notranslate"><span class="pre">demo_data</span></code> subject with first-order / GLCM voxel texture, not
-a clinical claim). Feature names and the precise/unstable split are
-printed by the script.</p>
+a clinical claim and not a multi-patient median). Feature names and the
+precise/unstable split are printed by the script.</p>
 </section>
 <section id="figures">
 <h2>Figures<a class="headerlink" href="#figures" title="Link to this heading"></a></h2>
@@ -2156,9 +2177,9 @@ printed by the script.</p>
 <a class="reference internal image-reference" href="../_images/precise_features_original_vs_perturbed.png"><img alt="Original anatomy beside a Gaussian-noise perturbed copy" src="../_images/precise_features_original_vs_perturbed.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Original vs one <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call
-(<code class="docutils literal notranslate"><span class="pre">method=&quot;gaussian_noise&quot;</span></code>), same slice, optional ROI contour
-(<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">before=</span></code>,
+<p><span class="caption-text">Original vs the Appendix S2 simulated-retest chain (Chang noise, then
+0.5-voxel translation, then 0.5° rotation), same slice, optional ROI
+contour (<a class="reference internal" href="../api/generated/habit.viz.plot_intensity_slice.html#habit.viz.plot_intensity_slice" title="habit.viz.plot_intensity_slice"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_intensity_slice()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">before=</span></code>,
 <code class="docutils literal notranslate"><span class="pre">roi_contour=True</span></code>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
@@ -2166,42 +2187,44 @@ printed by the script.</p>
 <a class="reference internal image-reference" href="../_images/precise_features_perturb_methods.png"><img alt="Original plus three perturb_image methods on one slice" src="../_images/precise_features_perturb_methods.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">Small multiples of atom calls: original, Gaussian noise, 0.5-voxel
-translation, 0.5° rotation. Each perturbed panel is a separate
-<a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call. Same axial index as the pair
-figure.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Sequential atoms of the Appendix S2 chain on one slice: original,
+after Chang noise, after +0.5-voxel translation, after +0.5°
+rotation. Each panel is one <a class="reference internal" href="../api/generated/habit.perturb_image.html#habit.perturb_image" title="habit.perturb_image"><code class="xref py py-func docutils literal notranslate"><span class="pre">perturb_image()</span></code></a> call; the
+last panel is the volume used for repeatability ICC.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id3">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_lcl.png"><img alt="Repeatability ICC point estimates with 95 percent confidence intervals" src="../_images/precise_features_icc_lcl.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Repeatability ICC (point) and 95% CI (vertical whisker) from
-<code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs <code class="docutils literal notranslate"><span class="pre">extract(perturbed)</span></code> at R3B12
-(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Repeatability forest plot: ICC (point) and 95% CI (horizontal
+whisker) from <code class="docutils literal notranslate"><span class="pre">extract(original)</span></code> vs the chained retest at R3B12
+(<a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">orientation=&quot;row&quot;</span></code>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id4">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_kernel.png"><img alt="Kernel-radius reproducibility ICC with 95 percent confidence intervals" src="../_images/precise_features_icc_kernel.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Kernel-radius reproducibility: R1 vs R3 at B12. Colour is this
-experiment’s own LCL, not the intersection flag.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">Kernel-radius reproducibility forest plot: R1 vs R3 at B12. Colour is
+this experiment’s own LCL, not the intersection flag.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id5">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_bin.png"><img alt="Bin-width reproducibility ICC with 95 percent confidence intervals" src="../_images/precise_features_icc_bin.png" width="640" />
 </a>
 <figcaption>
-<p><span class="caption-text">Bin-width reproducibility: B12 vs B25 at R3.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">Bin-width reproducibility forest plot: B12 vs B25 at R3. Paper
+result was already excellent here; points near 1.0 are expected.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id6">
 <a class="reference internal image-reference" href="../_images/precise_features_icc_all.png"><img alt="ICC and 95 percent CI for every experiment on one panel" src="../_images/precise_features_icc_all.png" width="720" />
 </a>
 <figcaption>
-<p><span class="caption-text">All three experiments. Colour is the PreciseFeatureSet flag: a
-feature is precise only when <strong>every</strong> experiment clears the LCL.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<p><span class="caption-text">All three experiments on one forest plot. Colour is the
+PreciseFeatureSet flag: a feature is precise only when <strong>every</strong>
+experiment clears the LCL.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <figure class="align-default" id="id7">

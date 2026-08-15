@@ -35,9 +35,11 @@ Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
 Paper combinations
 ------------------
 
-* **Repeatability** — ``extract(original)`` vs ``extract(perturbed)`` at
-  the base setting (paper: R3B12). ICC(3A,1) via
-  :func:`~habit.precision_panel` with ``agreement="absolute"``.
+* **Repeatability** — three sequential :func:`~habit.perturb_image`
+  atoms in Appendix S2 / MIRP 1.2.0 order (Chang noise → 0.5-voxel
+  translation → 0.5° rotation), then ``extract(original)`` vs
+  ``extract(perturbed)`` at the base setting (paper: R3B12). ICC(3A,1)
+  via :func:`~habit.precision_panel` with ``agreement="absolute"``.
 * **Reproducibility, kernel** — ``extract(..., kernel_radius=1)`` vs
   ``extract(..., kernel_radius=3)`` at fixed bin width (R1 vs R3).
   ICC(3C,1), ``agreement="consistency"``.
@@ -51,8 +53,11 @@ actually ran. :func:`~habit.identify_precise_features` is that
 intersection. :func:`~habit.aggregate_panels` takes the per-feature
 median when you have more than one subject.
 
-The demo below uses one cropped subject (median of one). The optional
-recipe at the end loops the same atoms over a cohort.
+The voxel-texture screen below is **one cropped subject** (median of
+one). That is a teaching crop, not the paper's 2436-lesion CT cohort.
+The optional recipe at the end loops the same atoms over a cohort. The
+optional ROI-edge follow-up uses **three** cropped subjects only for
+habitat-table ICC.
 
 Runnable demo
 -------------
@@ -70,7 +75,7 @@ Draw the figures
 ----------------
 
 Paste this after the Script block (it uses ``image``, ``mask``,
-``perturbed``, ``shifted``, ``rotated``, ``precise``, ``evidence``,
+``noisy``, ``shifted``, ``perturbed``, ``precise``, ``evidence``,
 ``result_all``, and ``result_precise``). Writes
 ``out/precise_features_*.png``.
 
@@ -86,10 +91,10 @@ Run from the repository root (one line)::
 Output
 ------
 
-Illustrative (ICC depends on the subject and extractor; this is one
+Illustrative (ICC depends on the subject and extractor; this is **one**
 cropped ``demo_data`` subject with first-order / GLCM voxel texture, not
-a clinical claim). Feature names and the precise/unstable split are
-printed by the script.
+a clinical claim and not a multi-patient median). Feature names and the
+precise/unstable split are printed by the script.
 
 Figures
 -------
@@ -98,47 +103,49 @@ Figures
    :alt: Original anatomy beside a Gaussian-noise perturbed copy
    :width: 720
 
-   Original vs one :func:`~habit.perturb_image` call
-   (``method="gaussian_noise"``), same slice, optional ROI contour
-   (:func:`~habit.viz.plot_intensity_slice`, ``before=``,
+   Original vs the Appendix S2 simulated-retest chain (Chang noise, then
+   0.5-voxel translation, then 0.5° rotation), same slice, optional ROI
+   contour (:func:`~habit.viz.plot_intensity_slice`, ``before=``,
    ``roi_contour=True``).
 
 .. figure:: ../_static/images/examples/precise_features_perturb_methods.png
    :alt: Original plus three perturb_image methods on one slice
    :width: 720
 
-   Small multiples of atom calls: original, Gaussian noise, 0.5-voxel
-   translation, 0.5° rotation. Each perturbed panel is a separate
-   :func:`~habit.perturb_image` call. Same axial index as the pair
-   figure.
+   Sequential atoms of the Appendix S2 chain on one slice: original,
+   after Chang noise, after +0.5-voxel translation, after +0.5°
+   rotation. Each panel is one :func:`~habit.perturb_image` call; the
+   last panel is the volume used for repeatability ICC.
 
 .. figure:: ../_static/images/examples/precise_features_icc_lcl.png
    :alt: Repeatability ICC point estimates with 95 percent confidence intervals
    :width: 640
 
-   Repeatability ICC (point) and 95% CI (vertical whisker) from
-   ``extract(original)`` vs ``extract(perturbed)`` at R3B12
-   (:func:`~habit.viz.plot_precision_icc`).
+   Repeatability forest plot: ICC (point) and 95% CI (horizontal
+   whisker) from ``extract(original)`` vs the chained retest at R3B12
+   (:func:`~habit.viz.plot_precision_icc`, ``orientation="row"``).
 
 .. figure:: ../_static/images/examples/precise_features_icc_kernel.png
    :alt: Kernel-radius reproducibility ICC with 95 percent confidence intervals
    :width: 640
 
-   Kernel-radius reproducibility: R1 vs R3 at B12. Colour is this
-   experiment's own LCL, not the intersection flag.
+   Kernel-radius reproducibility forest plot: R1 vs R3 at B12. Colour is
+   this experiment's own LCL, not the intersection flag.
 
 .. figure:: ../_static/images/examples/precise_features_icc_bin.png
    :alt: Bin-width reproducibility ICC with 95 percent confidence intervals
    :width: 640
 
-   Bin-width reproducibility: B12 vs B25 at R3.
+   Bin-width reproducibility forest plot: B12 vs B25 at R3. Paper
+   result was already excellent here; points near 1.0 are expected.
 
 .. figure:: ../_static/images/examples/precise_features_icc_all.png
    :alt: ICC and 95 percent CI for every experiment on one panel
    :width: 720
 
-   All three experiments. Colour is the PreciseFeatureSet flag: a
-   feature is precise only when **every** experiment clears the LCL.
+   All three experiments on one forest plot. Colour is the
+   PreciseFeatureSet flag: a feature is precise only when **every**
+   experiment clears the LCL.
 
 .. figure:: ../_static/images/examples/precise_features_all_vs_precise.png
    :alt: Habitat maps from all texture features versus the precise subset
