@@ -255,8 +255,7 @@ def _extract_uniform_grid_nodes(
         local = block_coords - origin - unique_blocks[block_id] * block_size
         cube = np.zeros(cube_shape, dtype=np.int32)
         cube[tuple(local.T)] = block_lab
-        # Keep the reserved background-shell label (negative) as well as
-        # ordinary positive habitat ids that occupy this cube.
+        # Split the cube by habitat id so mixed cells become separate nodes.
         for habitat_label in (
             int(v) for v in np.unique(block_lab) if int(v) != 0
         ):
