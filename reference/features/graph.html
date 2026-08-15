@@ -383,7 +383,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
@@ -634,6 +634,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#see-also">See also</a></li>
 </ul>
 </li>
@@ -1779,7 +1780,10 @@ transitional shims.</p>
 identical for the domain extractor, the kernel helper
 <a class="reference internal" href="../../api/generated/habit.kernels.extract_graph_features.html#habit.kernels.extract_graph_features" title="habit.kernels.extract_graph_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code></a>, and the optional
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">habit.viz</span></code> graph figures (same node / edge construction). This page
-matches that source. It does not invent a second theory.</p>
+matches that source. It does not invent a second theory. The metric
+family is adapted from PathPrism (Liang et al., <em>Cancer Cell</em> 2026),
+a histopathology tissue-graph method; HABIT applies it to 2-D / 3-D
+habitat maps with the voxel-index and VOI refinements documented below.</p>
 </section>
 <section id="notation-and-domains">
 <h2>Notation and domains<a class="headerlink" href="#notation-and-domains" title="Link to this heading"></a></h2>
@@ -1994,8 +1998,8 @@ centroids; <code class="docutils literal notranslate"><span class="pre">0</span>
 be the mean Euclidean distance from each centroid to its nearest <strong>other</strong>
 centroid (KD-tree, <span class="math notranslate nohighlight">\(k=2\)</span>). The study-region measure is the sum of
 node voxel counts <span class="math notranslate nohighlight">\(A=\sum_{v}n_{v}\)</span> (not the centroid bounding box;
-absolute values are therefore <strong>not</strong> comparable to PathPrism’s 2-D
-bounding-box form). Density <span class="math notranslate nohighlight">\(\rho=n/A\)</span>. Expected CSR nearest-neighbour
+absolute values are therefore <strong>not</strong> comparable to the 2-D
+bounding-box form in PathPrism, Liang et al., <em>Cancer Cell</em> 2026). Density <span class="math notranslate nohighlight">\(\rho=n/A\)</span>. Expected CSR nearest-neighbour
 distance:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}d_{\mathrm{CSR}}
@@ -2306,6 +2310,12 @@ a biological cell type or prove that a habitat is a clonal region.</p></li>
 <li><p>Figures: <code class="docutils literal notranslate"><span class="pre">habit/viz/habitat_graph.py</span></code> (optional <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> / <code class="docutils literal notranslate"><span class="pre">[view]</span></code>)</p></li>
 <li><p>Deprecated shims: <code class="docutils literal notranslate"><span class="pre">habit/compat/graph_plugin.py</span></code> (prefer domain / API)</p></li>
 </ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<p>Liang J, Jiang X, Reitsam NG, et al. Spatial biomarker discovery via
+interpretable semantic learning in histopathology. <em>Cancer Cell</em> 2026
+(<a class="reference external" href="https://doi.org/10.1016/j.ccell.2026.05.014">DOI</a>).</p>
 </section>
 <section id="see-also">
 <h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>

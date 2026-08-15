@@ -4,18 +4,28 @@ Graph features from habitat maps
 **Level:** atomic · **Data:** ``demo_data`` or synthetic · **Extras:** ``[viz]`` /
 ``[view]`` for figures · **Time:** ~20–90 s
 
-End-to-end: one subject → :func:`~habit.one_step_habitat` with a **fixed**
+End-to-end: three subjects → :func:`~habit.one_step_habitat` with a **fixed**
 ``n_habitats=4`` (not ``"auto"``) →
-:func:`~habit.extract_graph_features` → a reproducible 10-feature
-sample (fixed seed) → overlay +
+:func:`~habit.extract_graph_features` on the **same representative
+axial slice** as the 2D network (not a full-volume extract) →
+:func:`~habit.viz.plot_graph_feature_heatmap` (Subject x graph-feature,
+column z-score; two figures: ``single_h*`` and ``pair_h*``) plus overlay +
 :func:`~habit.viz.plot_habitat_graph_network_2d`. This example uses the
 library defaults on :class:`~habit.HabitatGraphFeatureOptions`:
 ``node_method='uniform_grid'`` (5-voxel cubes, not millimetres; one
 node per in-cell subregion centroid) and
-``edge_method='min_distance'`` (closest voxels within 5). The 2D network
-draws that same lattice as dashed lines. Graph topology is a habitat-map
-feature family (same tier as ``volume`` / ``msi``); columns under
-:doc:`../reference/features/index`.
+``edge_method='min_distance'`` (closest voxels within 5).
+``include_extended_metrics=False`` is required here: extended metrics
+plus a 5-voxel lattice on a full 3D map are the main time sink. The 2D
+network draws that same lattice as dashed lines. Graph topology is a
+habitat-map feature family (same tier as ``volume`` / ``msi``); columns
+under :doc:`../reference/features/index`.
+
+The old ten-bar "Sampled feature values" figure is gone; use the two
+heatmaps (and the plot kwargs) to choose people and features. Pass
+``subjects=("subj001", "subj002", "subj003", "subj004", "subj005")``
+when your table has all five rows (for example a
+``habitat_graph_features.csv`` from ``habit extract``).
 
 Script
 ------
@@ -24,10 +34,8 @@ Change ``DATA`` / ``MODALITIES`` / ``ROI`` to your preprocessed tree
 (:doc:`../how_to/prepare_data` Option C). The recipe **fixes K=4** and
 uses the library node/edge defaults (uniform 5-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
-off so a full 3D mixed lattice stays interactive), then extracts graph
-topology, prints ten sampled feature values (``SAMPLE_SEED = 0``),
-and draws the overlay plus the 2D network with the dashed
-lattice. Figures land under ``out/`` (swap that
+off). One ``fit_predict`` on three subjects feeds the overlay, the 2D
+network, and the heatmap table. Figures land under ``out/`` (swap that
 path too if you like).
 
 .. literalinclude:: scripts/graph_features_demo.py
@@ -39,10 +47,15 @@ Draw the figures
 ----------------
 
 Paste this after the Script block (it uses ``cohort``, ``result``,
-``labels``, ``options``, and ``sample``). Writes
+``table``, ``options``, ``SUBJECTS``, and ``MODALITIES``). Writes
 ``out/graph_habitat_slice_2d.png`` (orthogonal overlay),
-``out/graph_habitat_network_2d.png``, and
-``out/graph_feature_sample.png``.
+``out/graph_habitat_network_2d.png``,
+``out/graph_feature_heatmap_single.png``, and
+``out/graph_feature_heatmap_pair.png``. Heatmap knobs
+(``subjects``, ``n_features``, ``feature_group``, ``select``) are
+visualization parameters — set who and which columns to show; do not
+dump the full bank onto one figure. Raw mixed units are not comparable;
+the default is a column-wise z-score across the selected subjects.
 
 .. literalinclude:: scripts/graph_features_demo.py
    :language: python
@@ -57,31 +70,29 @@ Output
 ------
 
 Illustrative (fixed ``n_habitats=4``, per-cell subregion centroids;
-count depends on the habitat map)::
+count depends on the slice and ``include_extended_metrics=False``)::
 
-   397 graph features from representative slice 96
-   Ten sampled graph features (seed=0):
-     pair_h1_h2_avg_degree_2_norm: 0.090625
-     pair_h1_h2_connected_components_norm: 0.0153846
-     pair_h1_h2_isolated_ratio_1: 0.685714
-     pair_h1_h3_isolated_ratio_2: 0.115385
-     pair_h1_h4_edge_density: 0.0703297
-     pair_h2_h3_avg_degree_1: 8.8
-     pair_h3_h4_avg_degree_1_norm: 0.0971485
-     single_h1_avg_path_length: 2.75397
-     single_h3_avg_edge_distance: 2.24534
-     single_h3_connected_components_ratio: 0.0384615
+   3 subjects x 397 graph features from representative slices
 
-Sampled feature values
-----------------------
+Cohort heatmaps
+---------------
 
-.. figure:: ../_static/images/examples/graph_feature_sample.png
-   :alt: Horizontal bar chart of ten sampled graph-feature values
-   :width: 560
+.. figure:: ../_static/images/examples/graph_feature_heatmap_single.png
+   :alt: Subject by single-habitat graph-feature heatmap, column z-scored
+   :width: 720
 
-   Ten features drawn with ``numpy.random.default_rng(0)`` from the
-   same ``feats`` dict printed above. Swap ``SAMPLE_SEED`` in the
-   Script block to draw a different set.
+   Up to 40 ``single_h*`` columns (highest cross-subject variance) for
+   ``subjects=("subj001", "subj002", "subj003")``. Color is a
+   column-wise z-score
+   (:func:`~habit.viz.plot_graph_feature_heatmap`).
+
+.. figure:: ../_static/images/examples/graph_feature_heatmap_pair.png
+   :alt: Subject by pairwise graph-feature heatmap, column z-scored
+   :width: 720
+
+   Same call with ``feature_group='pair'`` (``pair_h*`` only;
+   ``graph_num_*`` stays out unless ``feature_group='all'``). Pass
+   ``features=(...)`` for an explicit column list.
 
 Anatomy with habitats
 ---------------------
@@ -90,7 +101,7 @@ Anatomy with habitats
    :alt: One-step habitat labels overlaid on anatomy
    :width: 480
 
-   Habitat labels on the densest axial slice
+   Habitat labels on the densest axial slice of the first subject
    (:func:`~habit.viz.plot_habitat_overlay`).
 
 2D region network
@@ -111,7 +122,8 @@ Anatomy with habitats
    under the H1--H4 row; every panel uses the same ROI window and the
    same physical size. Display knobs ``block_size=5`` /
    ``grid_linestyle='--'`` draw the same 5-voxel cubes
-   (:func:`~habit.viz.plot_habitat_graph_network_2d`).
+   (:func:`~habit.viz.plot_habitat_graph_network_2d`). Heatmaps use
+   this same representative slice, not the full 3D volume.
 
 3D surfaces and network
 -----------------------
