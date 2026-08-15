@@ -98,7 +98,7 @@ class HabitatGraphFeatureOptions:
     # Paired with distance_threshold=5: face-adjacent cubes connect
     # (closest-voxel hop 1); one empty lattice cell is distance 6 > 5.
     block_size: int = 5
-    block_min_coverage: float = 0.2
+    block_min_coverage: float = 0.05
     pairwise_include_intra_edges: bool = True
     include_extended_metrics: bool = True
     extended_min_nodes: int = 10

@@ -759,12 +759,12 @@ class GraphFeatureBlock(BaseModel):
         ),
     )
     block_min_coverage: float = Field(
-        0.2,
+        0.05,
         ge=0.0,
         le=1.0,
         description=(
             "Minimum covered fraction of a block volume to keep it as a "
-            "node (strictly greater than this value; default 0.2)."
+            "node (strictly greater than this value; default 0.05)."
         ),
     )
     pairwise_include_intra_edges: bool = Field(

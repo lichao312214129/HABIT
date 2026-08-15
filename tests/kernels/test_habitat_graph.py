@@ -560,7 +560,7 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.erosion_radius == 0
     assert options.subdivide_region_voxels == 1000
     assert options.block_size == 5
-    assert options.block_min_coverage == 0.2
+    assert options.block_min_coverage == 0.05
     assert options.distance_threshold == 5.0
     assert options.pairwise_include_intra_edges is True
     assert options.edge_method == "min_distance"
@@ -1179,12 +1179,13 @@ def test_default_min_distance_uniform_grid_creates_intra_edges() -> None:
     assert options.edge_method == "min_distance"
     assert options.node_method == "uniform_grid"
     assert options.block_size == 5
-    assert options.block_min_coverage == 0.2
+    assert options.block_min_coverage == 0.05
 
     features = extract_graph_features(label_array, options=options)
-    # 16x16 ones with 5-voxel cubes: a 3x3 lattice of full 5x5 cubes
-    # (the leftover 1-voxel strip has coverage 0.04 and is dropped).
-    assert features["single_h1_n_nodes"] == 9.0
+    # 16x16 ones, 5-voxel cubes: 3x3 full 5x5 cells (coverage 1.0) plus
+    # six 5x1 edge cells (coverage 5/25 = 0.20 > 0.05). The 1x1 corner
+    # has coverage 1/25 = 0.04 and is still dropped.
+    assert features["single_h1_n_nodes"] == 15.0
     assert features["single_h1_n_edges"] >= 12.0
 
 

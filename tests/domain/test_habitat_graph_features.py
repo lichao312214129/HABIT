@@ -127,7 +127,7 @@ def test_graph_params_model_defaults_match_kernel() -> None:
     assert params.erosion_radius == kernel.erosion_radius == 0
     assert params.subdivide_region_voxels == kernel.subdivide_region_voxels == 1000
     assert params.block_size == kernel.block_size == 5
-    assert params.block_min_coverage == kernel.block_min_coverage == 0.2
+    assert params.block_min_coverage == kernel.block_min_coverage == 0.05
     assert params.distance_threshold == kernel.distance_threshold == 5.0
     assert params.edge_method == kernel.edge_method == "min_distance"
     assert params.node_method == kernel.node_method == "uniform_grid"

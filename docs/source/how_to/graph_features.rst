@@ -36,7 +36,7 @@ Minimal YAML fragment::
      distance_threshold: 5.0
      node_method: uniform_grid
      block_size: 5
-     block_min_coverage: 0.2
+     block_min_coverage: 0.05
      connectivity: full
      erosion_radius: 0
      include_single_habitat_graph: true

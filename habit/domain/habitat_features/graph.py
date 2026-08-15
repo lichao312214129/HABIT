@@ -89,9 +89,9 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: empty lattice cell (closest-voxel distance 6) stays disconnected.
     block_size: int = Field(default=5, ge=1)
     #: Minimum covered fraction of a cube to keep the cell (strictly
-    #: greater than this value; default 0.2). Applied per cell; tiny
+    #: greater than this value; default 0.05). Applied per cell; tiny
     #: in-cell fragments are dropped by ``min_region_voxels``.
-    block_min_coverage: float = Field(default=0.2, ge=0.0, le=1.0)
+    block_min_coverage: float = Field(default=0.05, ge=0.0, le=1.0)
     #: Add same-habitat proximity edges to pairwise graphs so whole-graph
     #: metrics (modularity, assortativity, betweenness) reflect real tissue
     #: organization; interface metrics still use inter-class edges only.
@@ -154,7 +154,7 @@ class GraphHabitatFeatures:
         node_method: Literal["uniform_grid", "component"] = "uniform_grid",
         subdivide_region_voxels: int = 1000,
         block_size: int = 5,
-        block_min_coverage: float = 0.2,
+        block_min_coverage: float = 0.05,
         pairwise_include_intra_edges: bool = True,
         include_extended_metrics: bool = True,
         extended_min_nodes: int = 10,
