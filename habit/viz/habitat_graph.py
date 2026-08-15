@@ -53,6 +53,8 @@ from habit.viz.colorbar import (
     ColorbarSpec,
     DEFAULT_HABITAT_CBAR_LABEL,
     add_discrete_habitat_colorbar,
+    colorbar_is_enabled,
+    discrete_habitat_mappable,
 )
 from habit.viz.palette import habitat_hex_colors
 from habit.viz.style import use_style
@@ -348,7 +350,9 @@ def _network_2d_layout(
     Compute the habitat-row and pairwise-panel grid shape.
 
     Habitat panels use up to ``max_cols`` so H1--H4 sit on the first row
-    when ``K <= 4``. Six pairwise panels (four habitats) use a 2x3 grid.
+    when ``K <= 4``. Six pairwise panels (four habitats) use a 2x3
+    placement inside an equal-cell parent grid so every panel is the
+    same physical size.
 
     Args:
         n_habitats: Number of single-habitat (H) panels.
@@ -413,6 +417,9 @@ _GRID_LINE_ALPHA: float = 0.45
 _GRID_LINE_WIDTH: float = 0.55
 #: Default matplotlib linestyle for the display lattice.
 _DEFAULT_GRID_LINESTYLE: str = "--"
+#: Shared pad (voxels) around the union-of-habitats bbox so every 2D
+#: graph panel uses the same spatial window.
+_SHARED_WINDOW_PAD: float = 3.0
 
 
 def _centroid_xy_display(node: HabitatGraphNode) -> Tuple[float, float]:
@@ -668,11 +675,99 @@ def _draw_grid_2d(
         y += step
 
 
+def _shared_axis_window_2d(
+    label_2d: np.ndarray,
+    pad: float = _SHARED_WINDOW_PAD,
+) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    """
+    Shared image-coordinate window for every 2D habitat-graph panel.
+
+    The window is the bounding box of all foreground voxels on this
+    slice (union of every habitat), plus ``pad`` voxels on each side.
+    Pairwise panels must not crop or zoom to the two featured habitats.
+
+    Args:
+        label_2d: Representative slice (background encoded as 0).
+        pad: Extra voxels around the union bbox (default 3).
+
+    Returns:
+        ``(xlim, ylim)`` with ``ylim`` inverted so row 0 is at the top.
+    """
+    array = np.asarray(label_2d)
+    n_rows = int(array.shape[0])
+    n_cols = int(array.shape[1])
+    full_xlim = (-0.5, float(n_cols) - 0.5)
+    full_ylim = (float(n_rows) - 0.5, -0.5)
+    coords = np.argwhere(array > 0)
+    if coords.size == 0:
+        return full_xlim, full_ylim
+    row0, col0 = (int(value) for value in coords.min(axis=0))
+    row1, col1 = (int(value) for value in coords.max(axis=0))
+    pad = float(pad)
+    x0 = max(full_xlim[0], float(col0) - pad - 0.5)
+    x1 = min(full_xlim[1], float(col1) + pad + 0.5)
+    y_bottom = min(full_ylim[0], float(row1) + pad + 0.5)
+    y_top = max(full_ylim[1], float(row0) - pad - 0.5)
+    return (x0, x1), (y_bottom, y_top)
+
+
+def _apply_shared_axis_window(
+    ax: Any,
+    xlim: Tuple[float, float],
+    ylim: Tuple[float, float],
+) -> None:
+    """
+    Lock one axes to the shared ROI window and equal image aspect.
+
+    ``adjustable='box'`` plus disabled autoscale keep constrained
+    layout from expanding data limits on wider pair-row cells.
+
+    Args:
+        ax: Target matplotlib axes.
+        xlim: Shared column limits (image coordinates).
+        ylim: Shared row limits, inverted (image coordinates).
+    """
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_aspect("equal", adjustable="box", anchor="C")
+    ax.set_autoscale_on(False)
+
+
+def _fill_unused_grid_cells(
+    fig: Any,
+    gs: Any,
+    n_rows: int,
+    n_cols: int,
+    occupied: set,
+) -> None:
+    """
+    Occupy unused GridSpec cells so constrained_layout cannot collapse
+    empty slots and make pair-row panels wider than H panels.
+
+    Args:
+        fig: Parent figure.
+        gs: Equal-cell GridSpec.
+        n_rows: Number of grid rows.
+        n_cols: Number of grid columns (including a reserved colorbar
+            column when present).
+        occupied: ``(row, col)`` cells that already have an axes.
+    """
+    for row in range(int(n_rows)):
+        for col in range(int(n_cols)):
+            if (row, col) in occupied:
+                continue
+            spacer = fig.add_subplot(gs[row, col])
+            spacer.set_axis_off()
+            spacer.set_frame_on(False)
+
+
 def _style_axis_2d(
     ax: Any,
     label_2d: np.ndarray,
     title: str,
     *,
+    xlim: Optional[Tuple[float, float]] = None,
+    ylim: Optional[Tuple[float, float]] = None,
     title_fontsize: Optional[float] = None,
     title_pad: Optional[float] = None,
 ) -> None:
@@ -681,8 +776,13 @@ def _style_axis_2d(
 
     Args:
         ax: Target matplotlib axes.
-        label_2d: Slice used only for axis limits (image coordinates).
+        label_2d: Slice used to derive axis limits when ``xlim`` /
+            ``ylim`` are omitted.
         title: English panel title.
+        xlim: Shared column limits. ``None`` uses the full-ROI window
+            of ``label_2d``.
+        ylim: Shared inverted row limits. ``None`` uses the full-ROI
+            window of ``label_2d``.
         title_fontsize: Optional override in points. ``None`` keeps the
             active style preset (single-panel figures stay unchanged).
         title_pad: Optional title padding in points.
@@ -693,9 +793,9 @@ def _style_axis_2d(
     if title_pad is not None:
         title_kwargs["pad"] = title_pad
     ax.set_title(title, **title_kwargs)
-    ax.set_xlim(-0.5, label_2d.shape[1] - 0.5)
-    ax.set_ylim(label_2d.shape[0] - 0.5, -0.5)  # image coordinates
-    ax.set_aspect("equal")
+    if xlim is None or ylim is None:
+        xlim, ylim = _shared_axis_window_2d(label_2d)
+    _apply_shared_axis_window(ax, xlim, ylim)
     ax.set_xticks([])
     ax.set_yticks([])
     for spine in ax.spines.values():
@@ -956,8 +1056,11 @@ def plot_habitat_graph_network_2d(
     colours, other habitats use the same gray wash, and only **white
     inter-edges between that pair** are drawn (no intra-edges, no
     edges to other habitats, no purple). H1--H4 sit on the first row
-    when ``K <= 4``; six pairs (K=4) use a 2x3 grid below. All panels
-    share the same solid-dot node size and edge linewidth.
+    when ``K <= 4``; six pairs (K=4) use a 2x3 placement in an
+    equal-cell parent grid so every panel is the same physical size.
+    All panels share one spatial window (union of every habitat on the
+    slice plus a shared pad), the same solid-dot node size, and the
+    same edge linewidth.
 
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
@@ -980,13 +1083,14 @@ def plot_habitat_graph_network_2d(
         grid_linewidth: Lattice stroke width in points.
         panel_size: Base panel edge length in inches.
         max_cols: Maximum number of H-panel columns (H1--H4 on the first
-            row when ``K <= 4``). Six pair panels use a 2x3 grid.
+            row when ``K <= 4``). Six pair panels use a 2x3 placement
+            inside an equal-cell parent grid.
         node_size: Matplotlib scatter area in points squared applied to
             every panel (default ``28``). H1--Hk and pairwise panels
             share this size. Voxel count does not scale markers.
-        colorbar: Discrete habitat-ID colorbar on the last pairwise
-            panel, or the last H panel when there are no pairs
-            (default ``True``). Pass ``False`` to hide it.
+        colorbar: Discrete habitat-ID colorbar in a reserved column so
+            it does not shrink any H or pair panel (default ``True``).
+            Pass ``False`` to hide it.
         colorbar_label: Colorbar label (English default ``\"Habitat\"``).
 
     Returns:
@@ -1030,10 +1134,20 @@ def plot_habitat_graph_network_2d(
     h_rows, h_cols, pair_rows, pair_cols = _network_2d_layout(
         len(labels), len(pairs), max_cols
     )
+    shared_xlim, shared_ylim = _shared_axis_window_2d(label_2d)
+    # One parent grid: every H / pair cell is the same size. A thin
+    # trailing column holds the colorbar so it cannot steal width from
+    # a single panel. Unused cells get spacer axes so constrained
+    # layout cannot collapse them and widen the pair row.
+    n_cols = max(h_cols, pair_cols)
+    n_rows = max(1, h_rows + pair_rows)
+    draw_cbar = colorbar_is_enabled(colorbar) and bool(colors)
+    gs_cols = n_cols + (1 if draw_cbar else 0)
+    width_ratios = [1.0] * n_cols + ([0.08] if draw_cbar else [])
     # Extra width + bottom room so short titles and the larger figlegend
     # cannot collide when many habitats share one row.
-    fig_width = max(h_cols, pair_cols) * panel_size * 1.18
-    fig_height = (h_rows + pair_rows) * panel_size + 1.65
+    fig_width = n_cols * panel_size * 1.18 + (0.55 if draw_cbar else 0.0)
+    fig_height = n_rows * panel_size + 1.65
     with use_style("radiology"):
         fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
         fig.set_constrained_layout_pads(
@@ -1042,19 +1156,14 @@ def plot_habitat_graph_network_2d(
             wspace=0.12,
             hspace=0.28,
         )
-        if h_rows and pair_rows:
-            outer = fig.add_gridspec(
-                2, 1, height_ratios=[float(h_rows), float(pair_rows)]
-            )
-            gs_h = outer[0].subgridspec(h_rows, h_cols)
-            gs_p = outer[1].subgridspec(pair_rows, pair_cols)
-        else:
-            gs_h = fig.add_gridspec(max(1, h_rows), h_cols)
-            gs_p = None
+        gs = fig.add_gridspec(n_rows, gs_cols, width_ratios=width_ratios)
+        occupied_cells: set = set()
 
         habitat_axes: List[Any] = []
         for index_h, label in enumerate(labels):
-            ax = fig.add_subplot(gs_h[index_h // h_cols, index_h % h_cols])
+            cell = (index_h // h_cols, index_h % h_cols)
+            ax = fig.add_subplot(gs[cell[0], cell[1]])
+            occupied_cells.add(cell)
             habitat_axes.append(ax)
             sub = node_result.nodes_by_habitat[label]
             _draw_background_2d(
@@ -1090,68 +1199,103 @@ def plot_habitat_graph_network_2d(
                 ax,
                 label_2d,
                 f"H{label} (n={len(sub)}, e={len(edges)})",
+                xlim=shared_xlim,
+                ylim=shared_ylim,
                 title_fontsize=_PANEL_TITLE_FONTSIZE,
                 title_pad=4.0,
             )
 
         pair_axes: List[Any] = []
-        if gs_p is not None:
-            for index_p, (label_a, label_b) in enumerate(pairs):
-                ax = fig.add_subplot(gs_p[index_p // pair_cols, index_p % pair_cols])
-                pair_axes.append(ax)
-                nodes_a = list(node_result.nodes_by_habitat.get(label_a, []))
-                nodes_b = list(node_result.nodes_by_habitat.get(label_b, []))
-                pair_nodes = nodes_a + nodes_b
-                inter_edges = _pair_inter_edges(
-                    node_result, label_a, label_b, options
-                )
-                _draw_background_2d(
-                    ax,
-                    label_2d,
-                    colors,
-                    show_background,
-                    featured_labels=(int(label_a), int(label_b)),
-                )
-                _apply_display_grid(
-                    ax, label_2d, node_result, options, **grid_kwargs
-                )
-                # Pair only: white inter-edges, no intra-edges.
-                _draw_edges_2d(
-                    ax,
-                    id_to_node,
-                    inter_edges,
-                    _GRAPH_EDGE_COLOR,
-                    _DEFAULT_EDGE_WIDTH,
-                    1.0,
-                    3,
-                )
-                _draw_nodes_2d(
-                    ax,
-                    pair_nodes,
-                    node_size=node_size,
-                    linewidths=_NODE_EDGE_WIDTH,
-                )
-                _style_axis_2d(
-                    ax,
-                    label_2d,
-                    _pair_panel_title(
-                        label_a, label_b, len(pair_nodes), len(inter_edges)
-                    ),
-                    title_fontsize=_PANEL_TITLE_FONTSIZE,
-                    title_pad=4.0,
-                )
+        for index_p, (label_a, label_b) in enumerate(pairs):
+            pair_row, pair_col = divmod(index_p, pair_cols)
+            cell = (h_rows + pair_row, pair_col)
+            ax = fig.add_subplot(gs[cell[0], cell[1]])
+            occupied_cells.add(cell)
+            pair_axes.append(ax)
+            nodes_a = list(node_result.nodes_by_habitat.get(label_a, []))
+            nodes_b = list(node_result.nodes_by_habitat.get(label_b, []))
+            pair_nodes = nodes_a + nodes_b
+            inter_edges = _pair_inter_edges(
+                node_result, label_a, label_b, options
+            )
+            _draw_background_2d(
+                ax,
+                label_2d,
+                colors,
+                show_background,
+                featured_labels=(int(label_a), int(label_b)),
+            )
+            _apply_display_grid(
+                ax, label_2d, node_result, options, **grid_kwargs
+            )
+            # Pair only: white inter-edges, no intra-edges.
+            _draw_edges_2d(
+                ax,
+                id_to_node,
+                inter_edges,
+                _GRAPH_EDGE_COLOR,
+                _DEFAULT_EDGE_WIDTH,
+                1.0,
+                3,
+            )
+            _draw_nodes_2d(
+                ax,
+                pair_nodes,
+                node_size=node_size,
+                linewidths=_NODE_EDGE_WIDTH,
+            )
+            _style_axis_2d(
+                ax,
+                label_2d,
+                _pair_panel_title(
+                    label_a, label_b, len(pair_nodes), len(inter_edges)
+                ),
+                xlim=shared_xlim,
+                ylim=shared_ylim,
+                title_fontsize=_PANEL_TITLE_FONTSIZE,
+                title_pad=4.0,
+            )
 
-        cbar_ax = pair_axes[-1] if pair_axes else habitat_axes[-1]
-        cbar = add_discrete_habitat_colorbar(
-            cbar_ax,
-            sorted(colors),
-            [colors[label] for label in sorted(colors)],
-            colorbar=colorbar,
-            label=colorbar_label,
-        )
-        if cbar is not None:
-            cbar.ax.tick_params(labelsize=_AXIS_TEXT_FONTSIZE)
+        if draw_cbar:
+            # Dedicated column: do not attach to a panel axes (that
+            # shrinks only that subplot and breaks equal panel size).
+            # Occupy every row of the column so pair rows stay the same
+            # width as the H row.
+            cbar_host = fig.add_subplot(gs[0, n_cols])
+            occupied_cells.add((0, n_cols))
+            ordered = sorted(colors)
+            mappable, ticks, ticklabels = discrete_habitat_mappable(
+                ordered,
+                [colors[label] for label in ordered],
+            )
+            n_habitats = len(ticks)
+            boundaries = [0.5 + float(index) for index in range(n_habitats + 1)]
+            cbar = fig.colorbar(
+                mappable,
+                cax=cbar_host,
+                ticks=ticks,
+                boundaries=boundaries,
+                spacing="uniform",
+                drawedges=True,
+            )
+            cbar.set_label(colorbar_label)
+            from matplotlib.ticker import FixedFormatter, FixedLocator
+
+            cbar.ax.yaxis.set_major_locator(FixedLocator(ticks))
+            cbar.ax.yaxis.set_major_formatter(
+                FixedFormatter([str(text) for text in ticklabels])
+            )
+            cbar.minorticks_off()
+            cbar.ax.tick_params(
+                which="major",
+                length=3.0,
+                width=0.6,
+                labelsize=_AXIS_TEXT_FONTSIZE,
+            )
             cbar.ax.yaxis.label.set_size(_AXIS_TEXT_FONTSIZE)
+        _fill_unused_grid_cells(fig, gs, n_rows, gs_cols, occupied_cells)
+        for ax in habitat_axes + pair_axes:
+            _apply_shared_axis_window(ax, shared_xlim, shared_ylim)
         # Dark legend frame so solid-white node / edge swatches stay visible.
         node_handle = Line2D(
             [0],

@@ -398,6 +398,33 @@ def test_network_2d_layout_four_habitats_uses_2x3_pair_grid() -> None:
     assert (pair_rows, pair_cols) == (2, 3)
 
 
+def test_plot_habitat_graph_network_2d_shared_window_and_panel_size() -> None:
+    """Every H and pair panel shares one ROI window and one physical size."""
+    labels = _many_habitat_2d_labels(4)
+    fig = plot_habitat_graph_network_2d(labels, options=_viz_options())
+    assert isinstance(fig, Figure)
+    fig.canvas.draw()
+    panel_axes = [
+        ax
+        for ax in fig.axes
+        if _is_h_panel_title(ax.get_title()) or _is_pair_panel_title(ax.get_title())
+    ]
+    assert len(panel_axes) == 10
+    xlims = [ax.get_xlim() for ax in panel_axes]
+    ylims = [ax.get_ylim() for ax in panel_axes]
+    assert all(np.allclose(xlim, xlims[0]) for xlim in xlims)
+    assert all(np.allclose(ylim, ylims[0]) for ylim in ylims)
+    renderer = fig.canvas.get_renderer()
+    boxes = [ax.get_window_extent(renderer=renderer) for ax in panel_axes]
+    widths = np.asarray([box.width for box in boxes], dtype=float)
+    heights = np.asarray([box.height for box in boxes], dtype=float)
+    assert np.allclose(widths, widths[0], rtol=0.08, atol=2.0)
+    assert np.allclose(heights, heights[0], rtol=0.08, atol=2.0)
+    import matplotlib.pyplot as plt
+
+    plt.close(fig)
+
+
 def test_plot_habitat_graph_network_2d_four_habitats_six_pair_panels() -> None:
     """Four habitats draw six pairwise inter-edge panels and no All-habitats hairball."""
     labels = _many_habitat_2d_labels(4)

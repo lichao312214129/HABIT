@@ -107,8 +107,9 @@ Anatomy with habitats
    (H1-H2, H1-H3, …) has its own panel: those two habitats stay in
    palette colours, other habitats use the same gray wash, and only
    **white inter-edges between that pair** are drawn (no intra-edges,
-   no purple). Four habitats yield six pair panels in a 2x3 grid under
-   the H1--H4 row. Display knobs ``block_size=5`` /
+   no purple). Four habitats yield six pair panels in a 2x3 placement
+   under the H1--H4 row; every panel uses the same ROI window and the
+   same physical size. Display knobs ``block_size=5`` /
    ``grid_linestyle='--'`` draw the same 5-voxel cubes
    (:func:`~habit.viz.plot_habitat_graph_network_2d`).
 
