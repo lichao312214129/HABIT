@@ -738,6 +738,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -3533,6 +3534,44 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">axis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_heatmap_color_scale</span><span class="p">(</span>
+    <span class="n">finite</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">zscore</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose colormap limits and the colorbar label for a graph heatmap.</span>
+
+<span class="sd">    Z-scored columns (including a column-z-scored ``table - reference``</span>
+<span class="sd">    difference) share a zero-centered diverging map. Unsigned raw</span>
+<span class="sd">    values keep a sequential map because mixed graph units are not a</span>
+<span class="sd">    single signed scale. Signed ``zscore=False`` values also use the</span>
+<span class="sd">    diverging map.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        finite: Finite entries of the drawn matrix (may be empty).</span>
+<span class="sd">        zscore: Whether the matrix was column-wise z-scored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of ``(vmin, vmax, cmap_name, colorbar_label)``. ``vmin`` /</span>
+<span class="sd">        ``vmax`` are ``None`` when matplotlib should autoscale.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">zscore</span> <span class="ow">and</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">vmax</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">vmax</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span> <span class="s2">&quot;Z-score (across subjects)&quot;</span>
+    <span class="n">signed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mf">0.0</span>
+        <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">signed</span><span class="p">:</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))</span>
+        <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">vmax</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">vmax</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="s2">&quot;RdBu_r&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature difference&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cividis&quot;</span><span class="p">,</span> <span class="s2">&quot;Feature value (mixed units)&quot;</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_zscore_columns</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Z-score each feature (column) across subjects; NaN-safe.</span>
@@ -3739,6 +3778,174 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">[</span><span class="n">candidates</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[:</span><span class="n">cap</span><span class="p">]]</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_align_reference_frame</span><span class="p">(</span>
+    <span class="n">table</span><span class="p">:</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">subject_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Align ``table`` and ``reference`` on subjects and shared features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        table: Minuend frame (for example the 5-voxel extract).</span>
+<span class="sd">        reference: Subtrahend frame (for example the 8-voxel extract).</span>
+<span class="sd">        subjects: Optional subject-id order applied to both frames.</span>
+<span class="sd">        subject_col: Identifier column shared by both frames.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of ``(left, right, delta)``. ``delta`` is</span>
+<span class="sd">        ``left - right`` on the intersecting feature columns, with</span>
+<span class="sd">        ``subject_col`` restored. Subject order follows ``table``</span>
+<span class="sd">        (or ``subjects``).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        HABITAPIError: Missing subject column, empty intersection, or</span>
+<span class="sd">            subjects present in ``table`` but not in ``reference``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: reference must be a pandas &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;DataFrame; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">reference</span><span class="p">)</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">_resolve_subject_frame</span><span class="p">(</span>
+        <span class="n">table</span><span class="p">,</span> <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span> <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span>
+    <span class="p">)</span>
+    <span class="n">left_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">left</span><span class="p">[</span><span class="n">subject_col</span><span class="p">]]</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">_resolve_subject_frame</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">subjects</span><span class="o">=</span><span class="n">left_ids</span><span class="p">,</span> <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span>
+    <span class="p">)</span>
+    <span class="n">feature_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">name</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">left</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="n">subject_col</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">right</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">feature_cols</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: table and reference share no &quot;</span>
+            <span class="s2">&quot;feature columns to subtract.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">left_num</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">subject_col</span><span class="p">)[</span><span class="n">feature_cols</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_coerce_numeric_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">right_num</span> <span class="o">=</span> <span class="n">right</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">subject_col</span><span class="p">)[</span><span class="n">feature_cols</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_coerce_numeric_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="c1"># Reindex right to left&#39;s subject order (already aligned, belt-and-braces).</span>
+    <span class="n">right_num</span> <span class="o">=</span> <span class="n">right_num</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">left_num</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">left_num</span> <span class="o">-</span> <span class="n">right_num</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">delta</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_paired_ttest_pvalues</span><span class="p">(</span>
+    <span class="n">left</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">right</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Paired t-test p-value per feature column (subjects x features).</span>
+
+<span class="sd">    Equivalent to a one-sample t-test of ``left - right`` against 0.</span>
+<span class="sd">    A column is skipped (NaN p-value, no star) when fewer than 3</span>
+<span class="sd">    finite pairs remain or the paired difference is constant.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        left: Minuend matrix, shape ``(n_subjects, n_features)``.</span>
+<span class="sd">        right: Subtrahend matrix, same shape.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Length ``n_features``; NaN means &quot;do not star&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">ttest_rel</span>
+
+    <span class="n">matrix_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">matrix_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">matrix_l</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">matrix_r</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: paired tables must have the &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;same aligned shape; got </span><span class="si">{</span><span class="n">matrix_l</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">matrix_r</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">matrix_l</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">matrix_l</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">pvalues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_features</span><span class="p">):</span>
+        <span class="n">values_l</span> <span class="o">=</span> <span class="n">matrix_l</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+        <span class="n">values_r</span> <span class="o">=</span> <span class="n">matrix_r</span><span class="p">[:,</span> <span class="n">index</span><span class="p">]</span>
+        <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values_l</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values_r</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">paired</span> <span class="o">=</span> <span class="n">values_l</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">-</span> <span class="n">values_r</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">paired</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ttest_rel</span><span class="p">(</span><span class="n">values_l</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">values_r</span><span class="p">[</span><span class="n">finite</span><span class="p">])</span>
+        <span class="n">pvalue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">pvalue</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pvalue</span><span class="p">):</span>
+            <span class="n">pvalues</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">pvalue</span>
+    <span class="k">return</span> <span class="n">pvalues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adjust_pvalues</span><span class="p">(</span>
+    <span class="n">pvalues</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;fdr_bh&quot;</span><span class="p">,</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Multiple-testing correction over the plotted (finite) p-values.</span>
+
+<span class="sd">    ``fdr_bh`` prefers :func:`scipy.stats.false_discovery_control`</span>
+<span class="sd">    (Benjamini-Hochberg), then ``statsmodels.stats.multitest``, then</span>
+<span class="sd">    Bonferroni. Columns that were skipped (NaN) stay NaN.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pvalues: Per-feature p-values; NaN entries are not tested.</span>
+<span class="sd">        method: ``&#39;fdr_bh&#39;``, ``&#39;bonferroni&#39;``, or ``&#39;none&#39;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Adjusted p-values, same shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pvalues</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;fdr_bh&quot;</span><span class="p">,</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+            <span class="s2">&quot;plot_graph_feature_heatmap: star_mtc must be &#39;fdr_bh&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;bonferroni&#39;, or &#39;none&#39;; got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">tested</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">tested</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tested</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">tested</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">false_discovery_control</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">false_discovery_control</span><span class="p">(</span><span class="n">tested</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;bh&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.stats.multitest</span><span class="w"> </span><span class="kn">import</span> <span class="n">multipletests</span>
+
+        <span class="n">_rejected</span><span class="p">,</span> <span class="n">adjusted</span><span class="p">,</span> <span class="n">_alphac_sidak</span><span class="p">,</span> <span class="n">_alphac_bonf</span> <span class="o">=</span> <span class="n">multipletests</span><span class="p">(</span>
+            <span class="n">tested</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fdr_bh&quot;</span>
+        <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adjusted</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">tested</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">tested</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_feature_tick_with_star</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">starred</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapped feature tick; append ASCII `` *`` when the column is significant.&quot;&quot;&quot;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">_graph_feature_tick</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">starred</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> *&quot;</span>
+    <span class="k">return</span> <span class="n">label</span>
+
+
 <div class="viewcode-block" id="plot_graph_feature_heatmap">
 <a class="viewcode-back" href="../../../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_graph_feature_heatmap</span><span class="p">(</span>
@@ -3751,6 +3958,12 @@ window.runMermaid = runMermaid;</script>
     <span class="n">select</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;variance&quot;</span><span class="p">,</span>
     <span class="n">sample_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">zscore</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">star_significant</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">star_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">star_test</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ttest_rel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ttest_rel&quot;</span><span class="p">,</span>
+    <span class="n">star_mtc</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;fdr_bh&quot;</span><span class="p">,</span> <span class="s2">&quot;bonferroni&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;fdr_bh&quot;</span><span class="p">,</span>
+    <span class="n">cbar_label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">subject_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">ax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3762,7 +3975,29 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    path lengths). ``zscore=True`` (default) standardizes each selected</span>
 <span class="sd">    feature across the **selected subjects** so a row is a relative</span>
 <span class="sd">    profile, not a raw magnitude. Raw mixed units are not comparable;</span>
-<span class="sd">    pass ``zscore=False`` only when every drawn column shares a scale.</span>
+<span class="sd">    pass ``zscore=False`` only when every drawn column already shares</span>
+<span class="sd">    one scale. Signed ``zscore=False`` values use a zero-centered</span>
+<span class="sd">    diverging map.</span>
+
+<span class="sd">    For a lattice comparison (for example 5-voxel minus 8-voxel), pass</span>
+<span class="sd">    the 5-voxel frame as ``table`` and the 8-voxel frame as</span>
+<span class="sd">    ``reference``. The function aligns subjects and shared feature</span>
+<span class="sd">    columns, plots ``table - reference``, and (when ``zscore=True``)</span>
+<span class="sd">    column-z-scores that **raw** difference. Do not pass a precomputed</span>
+<span class="sd">    (or already z-scored) delta as ``table`` together with</span>
+<span class="sd">    ``reference`` — that would subtract twice.</span>
+
+<span class="sd">    ``star_significant=True`` marks **features** (x-tick labels), not</span>
+<span class="sd">    cells. Each plotted column gets a paired t-test</span>
+<span class="sd">    (``scipy.stats.ttest_rel`` of the two source tables; equivalent to</span>
+<span class="sd">    a one-sample t of the raw difference against 0). Columns with</span>
+<span class="sd">    fewer than 3 finite pairs or a constant difference are skipped.</span>
+<span class="sd">    Multiple testing defaults to Benjamini-Hochberg FDR across the</span>
+<span class="sd">    **plotted** features (``scipy.stats.false_discovery_control``, then</span>
+<span class="sd">    statsmodels, then Bonferroni). Significant names get a trailing</span>
+<span class="sd">    `` *``. Starring requires ``reference``; a lone precomputed delta</span>
+<span class="sd">    cannot reconstruct the pairing. Default ``star_significant=False``</span>
+<span class="sd">    so generic heatmaps stay unmarked.</span>
 
 <span class="sd">    Visualization parameters (who / which features / how many) are</span>
 <span class="sd">    first-class: pass ``subjects`` and either an explicit ``features``</span>
@@ -3777,7 +4012,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        table: Wide frame, one row per subject. Identifier column</span>
 <span class="sd">            defaults to ``subject_id``. Domain FeatureTable frames use</span>
-<span class="sd">            ``subject`` — pass ``subject_col=&#39;subject&#39;``.</span>
+<span class="sd">            ``subject`` — pass ``subject_col=&#39;subject&#39;``. When</span>
+<span class="sd">            ``reference`` is set this is the minuend (e.g. 5-voxel).</span>
 <span class="sd">        subjects: Subject ids to show, in y-axis order. ``None`` keeps</span>
 <span class="sd">            every row. Missing ids raise :class:`~habit.exceptions.HABITAPIError`.</span>
 <span class="sd">        features: Exact column list. When set, it overrides</span>
@@ -3789,9 +4025,26 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        select: When ``features`` is omitted, take the top-k columns by</span>
 <span class="sd">            cross-subject variance (``&#39;variance&#39;``) or a reproducible</span>
 <span class="sd">            random subset (``&#39;sample&#39;``, seeded by ``sample_seed``).</span>
+<span class="sd">            With ``reference``, variance is of the raw difference.</span>
 <span class="sd">        sample_seed: RNG seed for ``select=&#39;sample&#39;``.</span>
 <span class="sd">        zscore: Column-wise z-score across the selected subjects</span>
 <span class="sd">            (default ``True``). Requires at least two subjects.</span>
+<span class="sd">            ``False`` draws the (possibly subtracted) values as-is.</span>
+<span class="sd">        reference: Optional paired frame (e.g. 8-voxel). When set,</span>
+<span class="sd">            the plotted matrix is aligned ``table - reference``.</span>
+<span class="sd">            Required when ``star_significant=True``.</span>
+<span class="sd">        star_significant: If True, append `` *`` to x-tick labels of</span>
+<span class="sd">            features that stay significant after ``star_mtc``.</span>
+<span class="sd">            Default False; ignored pairing is never inferred from a</span>
+<span class="sd">            precomputed delta alone.</span>
+<span class="sd">        star_alpha: Significance threshold after correction (default</span>
+<span class="sd">            0.05).</span>
+<span class="sd">        star_test: Paired test. Only ``&#39;ttest_rel&#39;`` is supported.</span>
+<span class="sd">        star_mtc: Multiple-testing method over plotted features:</span>
+<span class="sd">            ``&#39;fdr_bh&#39;`` (default), ``&#39;bonferroni&#39;``, or ``&#39;none&#39;``.</span>
+<span class="sd">        cbar_label: Optional colorbar label. ``None`` uses a default</span>
+<span class="sd">            from the scale (``Z-scored difference`` when</span>
+<span class="sd">            ``reference`` and ``zscore`` are both set).</span>
 <span class="sd">        subject_col: Identifier column name (default ``&#39;subject_id&#39;``).</span>
 <span class="sd">        title: Optional English figure title. ``None`` builds one from</span>
 <span class="sd">            the group and whether values are z-scored.</span>
@@ -3802,7 +4055,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        HABITAPIError: Missing subjects / columns, empty selection,</span>
-<span class="sd">            invalid knobs, or ``zscore=True`` with fewer than two rows.</span>
+<span class="sd">            invalid knobs, ``star_significant=True`` without</span>
+<span class="sd">            ``reference``, or ``zscore=True`` with fewer than two rows.</span>
 <span class="sd">        OptionalDependencyError: When matplotlib is not installed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -3812,9 +4066,21 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;plot_graph_feature_heatmap: table must be a pandas &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;DataFrame; got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="si">!r}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
-    <span class="n">frame</span> <span class="o">=</span> <span class="n">_resolve_subject_frame</span><span class="p">(</span>
-        <span class="n">table</span><span class="p">,</span> <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span> <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span>
-    <span class="p">)</span>
+    <span class="n">left_frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">right_frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">is_difference</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">left_frame</span><span class="p">,</span> <span class="n">right_frame</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">_align_reference_frame</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">,</span>
+            <span class="n">reference</span><span class="p">,</span>
+            <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span>
+            <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">is_difference</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">_resolve_subject_frame</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">,</span> <span class="n">subjects</span><span class="o">=</span><span class="n">subjects</span><span class="p">,</span> <span class="n">subject_col</span><span class="o">=</span><span class="n">subject_col</span>
+        <span class="p">)</span>
     <span class="n">chosen</span> <span class="o">=</span> <span class="n">_select_heatmap_features</span><span class="p">(</span>
         <span class="n">frame</span><span class="p">,</span>
         <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
@@ -3832,6 +4098,44 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Pass zscore=False for a single row, or include more &quot;</span>
             <span class="s2">&quot;people via subjects=...&quot;</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">star_significant</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">left_frame</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">right_frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: star_significant=True &quot;</span>
+                <span class="s2">&quot;requires reference= (the paired table). A &quot;</span>
+                <span class="s2">&quot;precomputed delta cannot reconstruct pairing.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">star_test</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;ttest_rel&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: star_test must be &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;ttest_rel&#39;; got </span><span class="si">{</span><span class="n">star_test</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">star_alpha</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">alpha</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;plot_graph_feature_heatmap: star_alpha must be in &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(0, 1]; got </span><span class="si">{</span><span class="n">star_alpha</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">left_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">left_frame</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">right_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">right_frame</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">raw_p</span> <span class="o">=</span> <span class="n">_paired_ttest_pvalues</span><span class="p">(</span><span class="n">left_matrix</span><span class="p">,</span> <span class="n">right_matrix</span><span class="p">)</span>
+        <span class="n">adjusted</span> <span class="o">=</span> <span class="n">_adjust_pvalues</span><span class="p">(</span><span class="n">raw_p</span><span class="p">,</span> <span class="n">star_mtc</span><span class="p">)</span>
+        <span class="n">starred</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">adjusted</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">starred</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span>
     <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
         <span class="n">frame</span><span class="p">[</span><span class="n">chosen</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)),</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
@@ -3854,7 +4158,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">resolved</span> <span class="o">=</span> <span class="n">title</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="s2">&quot;column z-score&quot;</span> <span class="k">if</span> <span class="n">zscore</span> <span class="k">else</span> <span class="s2">&quot;raw values&quot;</span>
-        <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_difference</span><span class="p">:</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Graph feature difference (</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">elif</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Graph features (</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">resolved</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_titles</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">feature_group</span><span class="p">)]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">)&quot;</span>
@@ -3872,15 +4178,15 @@ window.runMermaid = runMermaid;</script>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">figure</span>
         <span class="n">finite</span> <span class="o">=</span> <span class="n">shown</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">shown</span><span class="p">)]</span>
-        <span class="k">if</span> <span class="n">zscore</span> <span class="ow">and</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-            <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">finite</span><span class="p">)))</span>
-            <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">vmax</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">vmax</span>
-            <span class="n">vmin</span> <span class="o">=</span> <span class="o">-</span><span class="n">vmax</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;RdBu_r&quot;</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">cmap</span><span class="p">,</span> <span class="n">default_cbar</span> <span class="o">=</span> <span class="n">_heatmap_color_scale</span><span class="p">(</span>
+            <span class="n">finite</span><span class="p">,</span> <span class="n">zscore</span><span class="o">=</span><span class="n">zscore</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">cbar_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cbar_text</span> <span class="o">=</span> <span class="n">cbar_label</span>
+        <span class="k">elif</span> <span class="n">is_difference</span> <span class="ow">and</span> <span class="n">zscore</span><span class="p">:</span>
+            <span class="n">cbar_text</span> <span class="o">=</span> <span class="s2">&quot;Z-scored difference&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vmin</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">vmax</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="s2">&quot;cividis&quot;</span>
+            <span class="n">cbar_text</span> <span class="o">=</span> <span class="n">default_cbar</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
             <span class="n">shown</span><span class="p">,</span>
             <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
@@ -3893,7 +4199,10 @@ window.runMermaid = runMermaid;</script>
         <span class="n">axes</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">subject_ids</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">)</span>
         <span class="n">axes</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)))</span>
         <span class="n">axes</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">_graph_feature_tick</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">chosen</span><span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">_feature_tick_with_star</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">flag</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">flag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">chosen</span><span class="p">,</span> <span class="n">starred</span><span class="p">)</span>
+            <span class="p">],</span>
             <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
             <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
             <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
@@ -3905,11 +4214,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="s2">&quot;Subject&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_LABEL_FONTSIZE</span><span class="p">)</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.035</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span>
-            <span class="n">sanitize_label</span><span class="p">(</span>
-                <span class="s2">&quot;Z-score (across subjects)&quot;</span>
-                <span class="k">if</span> <span class="n">zscore</span>
-                <span class="k">else</span> <span class="s2">&quot;Feature value (mixed units)&quot;</span>
-            <span class="p">),</span>
+            <span class="n">sanitize_label</span><span class="p">(</span><span class="n">cbar_text</span><span class="p">),</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">_HEATMAP_CBAR_FONTSIZE</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">_HEATMAP_TICK_FONTSIZE</span><span class="p">)</span>

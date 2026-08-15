@@ -385,6 +385,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1784,7 +1785,9 @@ node per in-cell subregion centroid) and
 <code class="docutils literal notranslate"><span class="pre">edge_method='min_distance'</span></code> (closest voxels within 5).
 <code class="docutils literal notranslate"><span class="pre">include_extended_metrics=False</span></code> is required here: extended metrics
 on a full 3D map are the main time sink. The 2D network draws that
-same 8-voxel lattice as dashed lines. Graph topology is a
+same 8-voxel lattice as dashed lines. A later section keeps those
+<strong>same habitat labels</strong> and only overrides <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> so the
+two lattices can be compared. Graph topology is a
 habitat-map feature family (same tier as <code class="docutils literal notranslate"><span class="pre">volume</span></code> / <code class="docutils literal notranslate"><span class="pre">msi</span></code>); columns
 under <a class="reference internal" href="../reference/features/index.html"><span class="doc">Features from habitat maps</span></a>.</p>
 <p>The old ten-bar “Sampled feature values” figure is gone; use the two
@@ -1798,9 +1801,10 @@ when your table has all five rows (for example a
 (<a class="reference internal" href="../how_to/prepare_data.html"><span class="doc">Prepare data</span></a> Option C). The recipe <strong>fixes K=4</strong> and
 uses the library node/edge defaults (uniform 8-voxel cubes, one node
 per in-cell subregion centroid + min-distance edges; extended metrics
-off). One <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> on three subjects feeds the overlay, the 2D
-network, and the heatmap table. Figures land under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that
-path too if you like).</p>
+off). One <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code> on three subjects feeds the overlay, both 2D
+networks, and both heatmap tables (library <code class="docutils literal notranslate"><span class="pre">block_size=8</span></code> plus a
+<code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> comparison extract on the same slices). Figures land
+under <code class="docutils literal notranslate"><span class="pre">out/</span></code> (swap that path too if you like).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1821,33 +1825,67 @@ path too if you like).</p>
 
 <span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="c1"># Fixed K=4 (not &quot;auto&quot;) so the graph has a known number of habitats.</span>
-<span class="c1"># One fit for overlay, 2D network, and the heatmap table.</span>
+<span class="c1"># One fit for overlay, both 2D networks, and both heatmap tables.</span>
 <span class="c1"># Extended metrics OFF: they dominate runtime even at block_size=8.</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">one_step_habitat</span><span class="p">(</span>
     <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">n_habitats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cohort</span><span class="p">)</span>
 
+<span class="c1"># Library default stays block_size=8. The 5-voxel options are a</span>
+<span class="c1"># comparison override only (same min_distance / threshold / coverage).</span>
 <span class="n">options</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span><span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">options_5</span> <span class="o">=</span> <span class="n">HabitatGraphFeatureOptions</span><span class="p">(</span>
+    <span class="n">include_extended_metrics</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="c1"># Same representative axial slice as plot_habitat_graph_network_2d.</span>
-<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rows_8</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">rows_5</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">habitat_map</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cohort</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">habitat_maps</span><span class="p">):</span>
     <span class="n">labels_3d</span> <span class="o">=</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">label_array</span>
     <span class="n">slice_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
         <span class="p">(</span><span class="n">labels_3d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">feats</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
-        <span class="n">labels_3d</span><span class="p">[</span><span class="n">slice_index</span><span class="p">],</span>
+    <span class="n">slice_2d</span> <span class="o">=</span> <span class="n">labels_3d</span><span class="p">[</span><span class="n">slice_index</span><span class="p">]</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span>
+    <span class="n">feats_8</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
+        <span class="n">slice_2d</span><span class="p">,</span>
         <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
-        <span class="n">expected_labels</span><span class="o">=</span><span class="n">habitat_map</span><span class="o">.</span><span class="n">habitat_ids</span><span class="p">,</span>
+        <span class="n">expected_labels</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <span class="o">**</span><span class="n">feats</span><span class="p">})</span>
-<span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+    <span class="n">feats_5</span> <span class="o">=</span> <span class="n">extract_graph_features</span><span class="p">(</span>
+        <span class="n">slice_2d</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options_5</span><span class="p">,</span>
+        <span class="n">expected_labels</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rows_8</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <span class="o">**</span><span class="n">feats_8</span><span class="p">})</span>
+    <span class="n">rows_5</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;subject_id&quot;</span><span class="p">:</span> <span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span> <span class="o">**</span><span class="n">feats_5</span><span class="p">})</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows_8</span><span class="p">)</span>
+<span class="n">table_5</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows_5</span><span class="p">)</span>
+<span class="c1"># Align subject x feature, then 5-voxel minus 8-voxel (same columns).</span>
+<span class="n">subject_col</span> <span class="o">=</span> <span class="s2">&quot;subject_id&quot;</span>
+<span class="n">feature_cols</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">name</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="n">subject_col</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table_5</span><span class="o">.</span><span class="n">columns</span>
+<span class="p">]</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">table_5</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">subject_col</span><span class="p">)[</span><span class="n">feature_cols</span><span class="p">]</span>
+    <span class="o">-</span> <span class="n">table</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">subject_col</span><span class="p">)[</span><span class="n">feature_cols</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span>
     <span class="n">table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
     <span class="s2">&quot;subjects x&quot;</span><span class="p">,</span>
     <span class="n">table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;graph features from representative slices&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;block_size=8 nodes:&quot;</span><span class="p">,</span>
+    <span class="nb">list</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">]),</span>
+    <span class="s2">&quot;| block_size=5 nodes:&quot;</span><span class="p">,</span>
+    <span class="nb">list</span><span class="p">(</span><span class="n">table_5</span><span class="p">[</span><span class="s2">&quot;graph_num_nodes_total&quot;</span><span class="p">]),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;aligned 5-minus-8 delta features:&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -1858,7 +1896,8 @@ path too if you like).</p>
 <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_slice_2d.png</span></code> (orthogonal overlay),
 <code class="docutils literal notranslate"><span class="pre">out/graph_habitat_network_2d.png</span></code>,
 <code class="docutils literal notranslate"><span class="pre">out/graph_feature_heatmap_single.png</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">out/graph_feature_heatmap_pair.png</span></code>. Heatmap knobs
+<code class="docutils literal notranslate"><span class="pre">out/graph_feature_heatmap_pair.png</span></code>. The 8-vs-5 comparison block
+below writes the 5-voxel network and the delta heatmap. Heatmap knobs
 (<code class="docutils literal notranslate"><span class="pre">subjects</span></code>, <code class="docutils literal notranslate"><span class="pre">n_features</span></code>, <code class="docutils literal notranslate"><span class="pre">feature_group</span></code>, <code class="docutils literal notranslate"><span class="pre">select</span></code>) are
 visualization parameters — set who and which columns to show; do not
 dump the full bank onto one figure. Raw mixed units are not comparable;
@@ -1931,40 +1970,40 @@ count depends on the slice and <code class="docutils literal notranslate"><span 
 </section>
 <section id="cohort-heatmaps">
 <h2>Cohort heatmaps<a class="headerlink" href="#cohort-heatmaps" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id1">
+<figure class="align-default" id="id7">
 <a class="reference internal image-reference" href="../_images/graph_feature_heatmap_single.png"><img alt="Subject by single-habitat graph-feature heatmap, column z-scored" src="../_images/graph_feature_heatmap_single.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Up to 40 <code class="docutils literal notranslate"><span class="pre">single_h*</span></code> columns (highest cross-subject variance) for
 <code class="docutils literal notranslate"><span class="pre">subjects=(&quot;subj001&quot;,</span> <span class="pre">&quot;subj002&quot;,</span> <span class="pre">&quot;subj003&quot;)</span></code>. Color is a
 column-wise z-score
-(<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>).</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id2">
+<figure class="align-default" id="id8">
 <a class="reference internal image-reference" href="../_images/graph_feature_heatmap_pair.png"><img alt="Subject by pairwise graph-feature heatmap, column z-scored" src="../_images/graph_feature_heatmap_pair.png" width="720" />
 </a>
 <figcaption>
 <p><span class="caption-text">Same call with <code class="docutils literal notranslate"><span class="pre">feature_group='pair'</span></code> (<code class="docutils literal notranslate"><span class="pre">pair_h*</span></code> only;
 <code class="docutils literal notranslate"><span class="pre">graph_num_*</span></code> stays out unless <code class="docutils literal notranslate"><span class="pre">feature_group='all'</span></code>). Pass
-<code class="docutils literal notranslate"><span class="pre">features=(...)</span></code> for an explicit column list.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<code class="docutils literal notranslate"><span class="pre">features=(...)</span></code> for an explicit column list.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="anatomy-with-habitats">
 <h2>Anatomy with habitats<a class="headerlink" href="#anatomy-with-habitats" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id9">
 <a class="reference internal image-reference" href="../_images/graph_habitat_slice_2d.png"><img alt="One-step habitat labels overlaid on anatomy" src="../_images/graph_habitat_slice_2d.png" width="480" />
 </a>
 <figcaption>
 <p><span class="caption-text">Habitat labels on the densest axial slice of the first subject
-(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_overlay.html#habit.viz.plot_habitat_overlay" title="habit.viz.plot_habitat_overlay"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_overlay()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
 <section id="d-region-network">
 <h2>2D region network<a class="headerlink" href="#d-region-network" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id10">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="Per-habitat intra-graphs and pairwise inter-edge panels on a 2D slice" src="../_images/graph_habitat_network_2d.png" width="720" />
 </a>
 <figcaption>
@@ -1977,10 +2016,95 @@ palette colours, other habitats use the same gray wash, and only
 <strong>white inter-edges between that pair</strong> are drawn (no intra-edges,
 no purple). Four habitats yield six pair panels in a 2x3 placement
 under the H1–H4 row; every panel uses the same ROI window and the
-same physical size. Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=8</span></code> /
+same physical size.    Display knobs <code class="docutils literal notranslate"><span class="pre">block_size=8</span></code> /
 <code class="docutils literal notranslate"><span class="pre">grid_linestyle='--'</span></code> draw the same 8-voxel cubes
 (<a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html#habit.viz.plot_habitat_graph_network_2d" title="habit.viz.plot_habitat_graph_network_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_habitat_graph_network_2d()</span></code></a>). Heatmaps use
-this same representative slice, not the full 3D volume.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+this same representative slice, not the full 3D volume.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="voxel-vs-5-voxel-lattice">
+<h2>8-voxel vs 5-voxel lattice<a class="headerlink" href="#voxel-vs-5-voxel-lattice" title="Link to this heading"></a></h2>
+<p>Same habitat labels (one <code class="docutils literal notranslate"><span class="pre">fit_predict</span></code>, fixed <code class="docutils literal notranslate"><span class="pre">K=4</span></code>). Only
+<code class="docutils literal notranslate"><span class="pre">block_size</span></code> changes: the library default is 8-voxel cubes; <code class="docutils literal notranslate"><span class="pre">5</span></code> is
+an explicit comparison override. Edges stay <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> /
+<code class="docutils literal notranslate"><span class="pre">distance_threshold=5</span></code> / <code class="docutils literal notranslate"><span class="pre">block_min_coverage=0.2</span></code>. Both networks
+and both feature tables use the <strong>same representative axial slice</strong> as
+the 2D plot above (not a full-volume extract). The heatmap is
+<code class="docutils literal notranslate"><span class="pre">features_5</span> <span class="pre">-</span> <span class="pre">features_8</span></code> with <code class="docutils literal notranslate"><span class="pre">zscore=True</span></code> (column z-score of
+that raw delta) and <code class="docutils literal notranslate"><span class="pre">star_significant=True</span></code> (paired t-test +
+Benjamini-Hochberg FDR on the <strong>plotted</strong> features; a trailing
+`` <a href="#id1"><span class="problematic" id="id2">*</span></a>`` on the feature name). Set <code class="docutils literal notranslate"><span class="pre">subjects</span></code> / <code class="docutils literal notranslate"><span class="pre">features</span></code> /
+<code class="docutils literal notranslate"><span class="pre">n_features</span></code> the same way as
+<a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html#habit.viz.plot_graph_feature_heatmap" title="habit.viz.plot_graph_feature_heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_graph_feature_heatmap()</span></code></a>. This gallery uses 3
+subjects, so few or no stars are expected; the `` <a href="#id3"><span class="problematic" id="id4">*</span></a>`` is for users
+with larger n.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Same HabitatMap / same slice as above. Only block_size changes (8 vs 5).</span>
+<span class="c1"># options_5 / table_5 / table come from the Script block (one fit, two extracts).</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_network_2d.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_habitat_graph_network_2d</span><span class="p">(</span>
+    <span class="n">labels</span><span class="p">,</span>
+    <span class="n">options</span><span class="o">=</span><span class="n">options_5</span><span class="p">,</span>
+    <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">grid_linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_habitat_network_2d_block5.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="c1"># table_5 minus table (8-voxel): column z-score of the raw delta.</span>
+<span class="c1"># star_significant marks features (not cells) after paired t + FDR-BH.</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_graph_feature_heatmap</span><span class="p">(</span>
+    <span class="n">table_5</span><span class="p">,</span>
+    <span class="n">reference</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+    <span class="n">subjects</span><span class="o">=</span><span class="n">SUBJECTS</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">feature_group</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">,</span>
+    <span class="n">select</span><span class="o">=</span><span class="s2">&quot;variance&quot;</span><span class="p">,</span>
+    <span class="n">zscore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">star_significant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Graph features: 5-voxel minus 8-voxel&quot;</span><span class="p">,</span>
+    <span class="n">cbar_label</span><span class="o">=</span><span class="s2">&quot;Z-scored difference (5 - 8)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;out/graph_feature_delta_5_minus_8.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Wrote out/graph_habitat_network_2d.png, &quot;</span>
+    <span class="s2">&quot;out/graph_habitat_network_2d_block5.png, and &quot;</span>
+    <span class="s2">&quot;out/graph_feature_delta_5_minus_8.png&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../_images/graph_habitat_network_2d.png"><img alt="2D habitat graph network on 8-voxel cubes" src="../_images/graph_habitat_network_2d.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Library default (<code class="docutils literal notranslate"><span class="pre">block_size=8</span></code>). Legend and title say
+<code class="docutils literal notranslate"><span class="pre">8-voxel</span> <span class="pre">cubes</span></code>. Each H panel still reports <code class="docutils literal notranslate"><span class="pre">n</span></code> and intra
+<code class="docutils literal notranslate"><span class="pre">e</span></code>; each pair panel reports <code class="docutils literal notranslate"><span class="pre">n</span></code> and inter <code class="docutils literal notranslate"><span class="pre">e</span></code>.</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/graph_habitat_network_2d_block5.png"><img alt="2D habitat graph network on 5-voxel cubes" src="../_images/graph_habitat_network_2d_block5.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Same call with <code class="docutils literal notranslate"><span class="pre">options</span></code> set to <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> (and the display
+knob <code class="docutils literal notranslate"><span class="pre">block_size=5</span></code> so the dashed lattice matches the nodes).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id13">
+<a class="reference internal image-reference" href="../_images/graph_feature_delta_5_minus_8.png"><img alt="Subject by graph-feature heatmap of 5-voxel minus 8-voxel" src="../_images/graph_feature_delta_5_minus_8.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Subject x feature heatmap of <code class="docutils literal notranslate"><span class="pre">features_5</span> <span class="pre">-</span> <span class="pre">features_8</span></code>
+(<code class="docutils literal notranslate"><span class="pre">zscore=True</span></code>; FDR `` <a href="#id5"><span class="problematic" id="id6">*</span></a>`` on feature names; title
+<code class="docutils literal notranslate"><span class="pre">Graph</span> <span class="pre">features:</span> <span class="pre">5-voxel</span> <span class="pre">minus</span> <span class="pre">8-voxel</span></code>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+<div class="legend">
+</div>
 </figcaption>
 </figure>
 </section>
@@ -1988,21 +2112,21 @@ this same representative slice, not the full 3D volume.</span><a class="headerli
 <h2>3D surfaces and network<a class="headerlink" href="#d-surfaces-and-network" title="Link to this heading"></a></h2>
 <p>Optional off-screen PyVista assets (regenerated when <code class="docutils literal notranslate"><span class="pre">[view]</span></code> is installed;
 see the how-to for the one-line 3D calls).</p>
-<figure class="align-default" id="id5">
+<figure class="align-default" id="id14">
 <a class="reference internal image-reference" href="../_images/graph_habitat_surface_3d.png"><img alt="Off-screen PyVista surface render of habitats" src="../_images/graph_habitat_surface_3d.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Marching-cubes habitat surfaces
-(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a>).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+(<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html#habit.viz.render_habitat_graph_surface_3d" title="habit.viz.render_habitat_graph_surface_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_surface_3d()</span></code></a>).</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-default" id="id6">
+<figure class="align-default" id="id15">
 <a class="reference internal image-reference" href="../_images/graph_habitat_network_3d.png"><img alt="Off-screen PyVista 3D graph with habitat-colored nodes" src="../_images/graph_habitat_network_3d.png" width="520" />
 </a>
 <figcaption>
 <p><span class="caption-text">Region-centroid nodes with intra- and inter-habitat min-distance edges
 (library defaults: uniform 8-voxel cubes, closest-voxel threshold 5;
-<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html#habit.viz.render_habitat_graph_network_3d" title="habit.viz.render_habitat_graph_network_3d"><code class="xref py py-func docutils literal notranslate"><span class="pre">render_habitat_graph_network_3d()</span></code></a>).</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

@@ -99,7 +99,7 @@ For each habitat :math:`k\in\mathcal{H}`:
 
    .. math::
 
-      |B| / b^{d} \;>\; \texttt{block\_min\_coverage}
+      |B| / b^{d} \;>\; \mathrm{block\_min\_coverage}
 
    (strict inequality; default coverage ``0.2``). Each kept block becomes
    its own node. If no block passes, or subdivision is off, the whole
@@ -146,9 +146,9 @@ Edge weight ``w`` from ``edge_weight``:
 
    w =
    \begin{cases}
-   1 & \text{``none'' (default)}\\
-   d(u,v) & \text{``distance''}\\
-   1/(d(u,v)+10^{-6}) & \text{``inverse_distance''}
+   1 & \text{if none (default)} \\
+   d(u,v) & \text{if distance} \\
+   1/(d(u,v)+10^{-6}) & \text{if inverse-distance}
    \end{cases}
 
 ``contact_voxels`` is unused for this method (stored as missing).
@@ -200,7 +200,7 @@ pairs whose ids are :math:`(u,v)`. An edge exists iff
 
 .. math::
 
-   N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}
+   N_{\mathrm{adj}}(u,v) \ge \mathrm{adjacency\_min\_voxels}
 
 (default ``10``). An edge exists when two regions are adjacent and the
 contact (shared-boundary) voxel count is >= 10, measured on the
@@ -216,225 +216,448 @@ Single-habitat metrics
 ----------------------
 
 Prefix ``single_h{k}_``. Let :math:`G=(V_G,E_G)` be the undirected
-NetworkX graph of habitat :math:`k` (:math:`n=|V_G|`, :math:`m=|E_G|`).
-Degree of node :math:`v` is :math:`\deg(v)` (unweighted). Let
-:math:`G_{\mathrm{LCC}}` be a copy of the largest connected component
-(by node count).
+NetworkX graph of habitat :math:`k`, with :math:`n=|V_G|` and
+:math:`m=|E_G|`. Degree :math:`\deg(v)` is unweighted. Let
+:math:`G_{\mathrm{LCC}}` be the largest connected component (by node
+count), :math:`n_{\mathrm{LCC}}=|V(G_{\mathrm{LCC}})|`. Population
+standard deviation :math:`\mathrm{sd}` is ``numpy.std`` (``ddof=0``).
+Empty / undefined cases return :math:`0`.
+
+Size and components:
 
 .. math::
 
-   \texttt{n\_nodes} &= n \\
-   \texttt{n\_edges} &= m \\
-   \texttt{edge\_density} &=
+   \begin{aligned}
+   \mathrm{n\_nodes} &= n \\
+   \mathrm{n\_edges} &= m \\
+   \mathrm{edge\_density} &=
       \begin{cases}
-      m\big/\binom{n}{2} & n\ge 2\\
-      0 & \text{otherwise}
+      m\big/\binom{n}{2} & n\ge 2 \\
+      0 & n<2
       \end{cases} \\
-   \texttt{connected\_components} &=
-      c(G) \quad\text{(0 if }n=0\text{)} \\
-   \texttt{connected\_components\_ratio} &= c(G)/n \quad(0\text{ if }n=0) \\
-   \texttt{largest\_component\_ratio} &= |V(G_{\mathrm{LCC}})|/n
-      \quad(0\text{ if }n=0)
+   \mathrm{connected\_components} &=
+      \begin{cases}
+      c(G) & n>0 \\
+      0 & n=0
+      \end{cases} \\
+   \mathrm{connected\_components\_ratio} &=
+      \begin{cases}
+      c(G)/n & n>0 \\
+      0 & n=0
+      \end{cases} \\
+   \mathrm{largest\_component\_ratio} &=
+      \begin{cases}
+      n_{\mathrm{LCC}}/n & n>0 \\
+      0 & n=0
+      \end{cases}
+   \end{aligned}
 
-Degree statistics (``avg`` / ``max`` / ``min`` over :math:`\{\deg(v)\}`;
-``0`` if :math:`n=0`). Hop-normalized companions divide by
-:math:`n-1` (``0`` if :math:`n\le 1`):
+Degree statistics. Let :math:`\{\deg(v)\}_{v\in V_G}` be empty when
+:math:`n=0`. Hop-normalized companions divide by :math:`n-1`
+(:math:`0` if :math:`n\le 1`). ``degree_cv`` is :math:`0` if
+:math:`\overline{\deg}<10^{-12}`:
 
 .. math::
 
-   \texttt{avg\_degree\_norm}
-   = \overline{\deg}/(n-1),\quad
-   \texttt{degree\_cv}
-   = \mathrm{sd}(\deg)/\overline{\deg}
-
-(``degree_cv`` is ``0`` if the mean is :math:`<10^{-12}`). Shannon
-entropy of the **empirical degree histogram**, in bits:
-
-.. math::
-
-   \texttt{degree\_entropy}
-   = -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
+   \begin{aligned}
+   \mathrm{avg\_degree} &= \overline{\deg} \\
+   \mathrm{max\_degree} &= \max_v \deg(v) \\
+   \mathrm{min\_degree} &= \min_v \deg(v) \\
+   \mathrm{avg\_degree\_norm} &= \overline{\deg}/(n-1) \\
+   \mathrm{max\_degree\_norm} &= \max_v \deg(v)/(n-1) \\
+   \mathrm{min\_degree\_norm} &= \min_v \deg(v)/(n-1) \\
+   \mathrm{degree\_cv} &= \mathrm{sd}(\deg)/\overline{\deg} \\
+   \mathrm{degree\_entropy}
+   &= -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
    \qquad
-   p_{t} = \#\{v:\deg(v)=t\}/n
+   p_{t}=\#\{v:\deg(v)=t\}/n
+   \end{aligned}
 
-Edge-length summaries use the ``distance`` stored on **all** edges of
-:math:`G` (population mean / standard deviation; ``0`` if no edges).
-That stored length is the closest-voxel :math:`d_{\min}` under the
-default ``min_distance`` method, and the centroid Euclidean distance
-under ``centroid_distance`` or ``adjacency``.
-
-Node-size summaries use :math:`\{n_{v}:v\in V_G\}` (mean, sd, CV).
-
-**Spatial dispersion.** Mean of the per-axis standard deviations of
-centroids; ``0`` if fewer than two nodes:
+Edge length uses the stored edge ``distance`` :math:`d_e` on **all**
+edges of :math:`G` (:math:`0` if :math:`m=0`). Default
+``min_distance`` stores closest-voxel :math:`d_{\min}`;
+``centroid_distance`` and ``adjacency`` store centroid Euclidean
+distance. Node size uses voxel counts :math:`\{n_v\}`:
 
 .. math::
 
-   \texttt{spatial\_dispersion}
+   \begin{aligned}
+   \mathrm{avg\_edge\_distance} &= \overline{\{d_e:e\in E_G\}} \\
+   \mathrm{std\_edge\_distance} &= \mathrm{sd}(\{d_e:e\in E_G\}) \\
+   \mathrm{avg\_node\_voxels} &= \overline{\{n_v:v\in V_G\}} \\
+   \mathrm{std\_node\_voxels} &= \mathrm{sd}(\{n_v:v\in V_G\}) \\
+   \mathrm{node\_voxels\_cv} &= \mathrm{sd}(\{n_v\})/\overline{\{n_v\}}
+   \end{aligned}
+
+Spatial dispersion is the mean per-axis standard deviation of
+centroids (:math:`0` if :math:`n<2`):
+
+.. math::
+
+   \mathrm{spatial\_dispersion}
    = \frac{1}{d}\sum_{\alpha=1}^{d}
      \mathrm{sd}\bigl(\{c_{v,\alpha}\}_{v\in V_G}\bigr)
 
-**Nearest-neighbour ratio** (Clark–Evans :math:`R`). Let :math:`d_{\mathrm{NN}}`
-be the mean Euclidean distance from each centroid to its nearest **other**
-centroid (KD-tree, :math:`k=2`). The study-region measure is the sum of
-node voxel counts :math:`A=\sum_{v}n_{v}` (not the centroid bounding box;
-absolute values are therefore **not** comparable to the 2-D
-bounding-box form in PathPrism, Liang et al., *Cancer Cell* 2026). Density :math:`\rho=n/A`. Expected CSR nearest-neighbour
-distance:
+Nearest-neighbour ratio (Clark–Evans :math:`R`). Let
+:math:`d_{\mathrm{NN}}` be the mean Euclidean distance from each
+centroid to its nearest **other** centroid (KD-tree, :math:`k=2`).
+The study-region measure is :math:`A=\sum_{v}n_{v}` (occupied voxel
+count, not the centroid bounding box; absolute values are **not**
+comparable to PathPrism's 2-D bounding-box form). Density
+:math:`\rho=n/A`. Returns :math:`0` if :math:`n<2` or :math:`A\le 0`:
 
 .. math::
 
-   d_{\mathrm{CSR}}
-   =
-   \begin{cases}
-   1\big/(2\sqrt{\rho}) & d=2\\
-   0.5539602785\big/\rho^{1/3} & d=3
-   \end{cases}
+   \begin{aligned}
+   d_{\mathrm{CSR}} &=
+      \begin{cases}
+      1\big/(2\sqrt{\rho}) & d=2 \\
+      \Gamma(4/3)\big/(4\pi/3)^{1/3}\,\rho^{-1/3}
+         = 0.5539602785\,\rho^{-1/3} & d=3
+      \end{cases} \\
+   \mathrm{nearest\_neighbor\_ratio}
+   &= R = d_{\mathrm{NN}}/d_{\mathrm{CSR}}
+   \end{aligned}
 
-The constant :math:`0.5539602785` is :math:`\Gamma(4/3)/(4\pi/3)^{1/3}`.
-Then :math:`R=d_{\mathrm{NN}}/d_{\mathrm{CSR}}` (:math:`R<1` clustering,
-:math:`R=1` CSR, :math:`R>1` regularity). Returns ``0`` if :math:`n<2` or
-:math:`A\le 0`.
+:math:`R<1` clustering, :math:`R=1` CSR, :math:`R>1` regularity.
 
-**Clustering coefficient.** ``nx.average_clustering(G)`` (unweighted) when
-:math:`n>0`, else ``0``.
-
-**Path metrics** are computed on :math:`G_{\mathrm{LCC}}` only, and only
-when that component has at least two nodes. They are **hop counts**, not
-physical millimetres:
+Average clustering is the Watts–Strogatz mean of local clustering
+coefficients (:math:`0` if :math:`n=0`; a node with
+:math:`\deg(v)<2` contributes :math:`0`):
 
 .. math::
 
-   \texttt{avg\_path\_length}
-   &= \text{mean shortest-path length on }G_{\mathrm{LCC}} \\
-   \texttt{diameter}
-   &= \mathrm{diam}(G_{\mathrm{LCC}}) \\
-   \texttt{avg\_path\_length\_norm}
-   &= \texttt{avg\_path\_length}/(|V_{\mathrm{LCC}}|-1) \\
-   \texttt{diameter\_norm}
-   &= \texttt{diameter}/(|V_{\mathrm{LCC}}|-1)
+   \mathrm{avg\_clustering}
+   = \frac{1}{n}\sum_{v\in V_G}
+     \frac{2\,t_v}{\deg(v)\,(\deg(v)-1)}
 
-**Centrality** (same LCC, :math:`|V_{\mathrm{LCC}}|>1`): mean of
-``betweenness_centrality`` and ``closeness_centrality`` (NetworkX defaults:
-betweenness is normalized). **Degree assortativity**:
-``degree_assortativity_coefficient(G)``; non-finite or exception → ``0``.
+where :math:`t_v` is the number of triangles through :math:`v`.
 
-**Modularity.** If :math:`m=0`, ``0``. Otherwise Louvain communities
+Path metrics use **hop counts** on :math:`G_{\mathrm{LCC}}` only, and
+only when :math:`n_{\mathrm{LCC}}\ge 2` (else :math:`0`):
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{avg\_path\_length}
+   &= \frac{1}{n_{\mathrm{LCC}}(n_{\mathrm{LCC}}-1)}
+      \sum_{s\neq t} d_G(s,t)
+      \quad\text{on }G_{\mathrm{LCC}} \\
+   \mathrm{diameter}
+   &= \max_{s,t} d_G(s,t)
+      \quad\text{on }G_{\mathrm{LCC}} \\
+   \mathrm{avg\_path\_length\_norm}
+   &= \mathrm{avg\_path\_length}/(n_{\mathrm{LCC}}-1) \\
+   \mathrm{diameter\_norm}
+   &= \mathrm{diameter}/(n_{\mathrm{LCC}}-1)
+   \end{aligned}
+
+Centrality on the same LCC (:math:`n_{\mathrm{LCC}}>1`). Betweenness
+uses NetworkX ``normalized=True`` (already divided by the undirected
+maximum :math:`(n_{\mathrm{LCC}}-1)(n_{\mathrm{LCC}}-2)/2`).
+Closeness uses the connected-graph form:
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{BC}(v)
+   &= \frac{2}{(n_{\mathrm{LCC}}-1)(n_{\mathrm{LCC}}-2)}
+      \sum_{s\neq v\neq t}
+      \frac{\sigma_{st}(v)}{\sigma_{st}} \\
+   \mathrm{CC}(v)
+   &= (n_{\mathrm{LCC}}-1)\Big/\sum_{u\neq v} d_G(v,u) \\
+   \mathrm{avg\_betweenness}
+   &= \overline{\{\mathrm{BC}(v):v\in V(G_{\mathrm{LCC}})\}} \\
+   \mathrm{avg\_closeness}
+   &= \overline{\{\mathrm{CC}(v):v\in V(G_{\mathrm{LCC}})\}}
+   \end{aligned}
+
+Degree assortativity is Newman's degree–degree Pearson correlation
+on :math:`G` (unweighted). Non-finite values and exceptions become
+:math:`0`:
+
+.. math::
+
+   \mathrm{degree\_assortativity}
+   = r_{\deg}(G)
+
+Modularity uses Louvain communities
 (``louvain_communities(G, weight='weight', seed=0)``) then
-``modularity(G, communities, weight='weight')``. Typical range roughly
-:math:`[-0.5,1]`.
+Newman–Girvan :math:`Q`. If :math:`m=0`, :math:`Q=0`. Typical range
+roughly :math:`[-0.5,1]`:
+
+.. math::
+
+   \mathrm{modularity}
+   = Q
+   = \frac{1}{2W}\sum_{i,j}
+     \left(A_{ij}-\frac{k_i k_j}{2W}\right)\delta(c_i,c_j)
+
+where :math:`W` is the total edge-weight sum, :math:`k_i` is the
+weighted degree, and :math:`c_i` is the Louvain community of node
+:math:`i`. With default ``edge_weight='none'``, every :math:`A_{ij}`
+is :math:`0` or :math:`1`.
 
 Pairwise metrics
 ----------------
 
 Prefix ``pair_h{a}_h{b}_`` with :math:`a<b`. Let :math:`V_a,V_b` be the
-node sets of the two labels, :math:`n_1=|V_a|`, :math:`n_2=|V_b|`, and
-:math:`E_{\mathrm{inter}}` the inter-class edges only
-(``edge_type != 'intra'``).
+node sets of the two labels, :math:`n_1=|V_a|`, :math:`n_2=|V_b|`,
+:math:`N=n_1+n_2`, and :math:`E_{\mathrm{inter}}` the inter-class
+edges only (``edge_type != 'intra'``). Interface metrics below use
+:math:`E_{\mathrm{inter}}` only. Whole-graph metrics (components,
+modularity, assortativity, betweenness, extended efficiency) use the
+**full** pairwise graph (inter + optional intra).
 
 .. math::
 
-   \texttt{n\_nodes\_1}=n_1,\quad
-   \texttt{n\_nodes\_2}=n_2,\quad
-   \texttt{n\_edges}=|E_{\mathrm{inter}}|
+   \begin{aligned}
+   \mathrm{n\_nodes\_1} &= n_1 \\
+   \mathrm{n\_nodes\_2} &= n_2 \\
+   \mathrm{n\_edges} &= |E_{\mathrm{inter}}| \\
+   \mathrm{edge\_density} &=
+      \begin{cases}
+      |E_{\mathrm{inter}}|/(n_1 n_2) & n_1 n_2>0 \\
+      0 & n_1 n_2=0
+      \end{cases}
+   \end{aligned}
 
-.. math::
-
-   \texttt{edge\_density}
-   =
-   \begin{cases}
-   |E_{\mathrm{inter}}|/(n_1 n_2) & n_1 n_2>0\\
-   0 & \text{otherwise}
-   \end{cases}
-
-Distance summaries (mean / sd) use the stored edge ``distance`` on
+Distance summaries use the stored ``distance`` :math:`d_e` on
 :math:`E_{\mathrm{inter}}` only (closest-voxel :math:`d_{\min}` for
 default ``min_distance``; centroid Euclidean for
-``centroid_distance`` / ``adjacency``).
-
-**Contact voxels** (adjacency method; ``0`` unless
-``edge_method='adjacency'``):
+``centroid_distance`` / ``adjacency``):
 
 .. math::
 
-   \texttt{contact\_voxels\_sum}
+   \begin{aligned}
+   \mathrm{avg\_edge\_distance}
+   &= \overline{\{d_e:e\in E_{\mathrm{inter}}\}} \\
+   \mathrm{std\_edge\_distance}
+   &= \mathrm{sd}(\{d_e:e\in E_{\mathrm{inter}}\})
+   \end{aligned}
+
+Contact voxels (adjacency method; :math:`0` unless
+``edge_method='adjacency'``). :math:`N_{\mathrm{adj}}(e)` is the
+adjacent voxel-**pair** count on edge :math:`e`:
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{contact\_voxels\_sum}
    &= \sum_{e\in E_{\mathrm{inter}}} N_{\mathrm{adj}}(e) \\
-   \texttt{contact\_voxels\_mean}
-   &= \text{mean of those counts} \\
-   \texttt{contact\_voxels\_max}
-   &= \text{max, or 0 if none}
+   \mathrm{contact\_voxels\_mean}
+   &= \overline{\{N_{\mathrm{adj}}(e)\}} \\
+   \mathrm{contact\_voxels\_max}
+   &= \max_e N_{\mathrm{adj}}(e)
+      \quad\text{(0 if no inter edges)}
+   \end{aligned}
 
-**Cross degree** of a node in :math:`V_a` is the number of neighbours in
-:math:`V_b` (other-class only). Isolated ratio:
-
-.. math::
-
-   \texttt{isolated\_ratio\_1}
-   = \#\{v\in V_a:\deg_{\mathrm{cross}}(v)=0\}/n_1
-
-(and symmetrically ``_2``). **R21 / R12** (mean other-class neighbours):
+Cross degree of :math:`v\in V_a` counts neighbours in :math:`V_b`
+only. Isolated ratio and R21 / R12 (mean other-class neighbours):
 
 .. math::
 
-   \texttt{avg\_h\{b\}\_per\_h\{a\}}
-   = \overline{\deg_{\mathrm{cross}}}(V_a),
-   \qquad
-   \texttt{avg\_h\{b\}\_per\_h\{a\}\_norm}
-   = \overline{\deg_{\mathrm{cross}}}(V_a)/n_2
+   \begin{aligned}
+   \deg_{\mathrm{cross}}(v)
+   &= \#\{u\sim v:\text{label}(u)\neq\text{label}(v)\} \\
+   \mathrm{isolated\_ratio\_1}
+   &= \#\{v\in V_a:\deg_{\mathrm{cross}}(v)=0\}/n_1 \\
+   \mathrm{isolated\_ratio\_2}
+   &= \#\{v\in V_b:\deg_{\mathrm{cross}}(v)=0\}/n_2 \\
+   \mathrm{avg\_h\{b\}\_per\_h\{a\}}
+   &= \overline{\deg_{\mathrm{cross}}}(V_a) \\
+   \mathrm{avg\_h\{b\}\_per\_h\{a\}\_norm}
+   &= \overline{\deg_{\mathrm{cross}}}(V_a)/n_2 \\
+   \mathrm{avg\_h\{a\}\_per\_h\{b\}}
+   &= \overline{\deg_{\mathrm{cross}}}(V_b) \\
+   \mathrm{avg\_h\{a\}\_per\_h\{b\}\_norm}
+   &= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1
+   \end{aligned}
 
-**AD / CV / EN** use **total** degree (intra + inter) so the triple shares
-one basis: ``avg_degree_1``, ``degree_cv_1``, ``degree_entropy_1`` (and
-``_2``). Hop-normalized AD divides by :math:`n_1+n_2-1`.
+AD / CV / EN use **total** degree (intra + inter) so the triple
+shares one basis. Hop-normalized AD divides by :math:`N-1`:
 
-**Connected components** and modularity use the **full** pairwise graph.
-``connected_components_norm`` divides component count by
-:math:`n_1+n_2`. Mean betweenness is reported per class. Habitat-label
-assortativity is ``attribute_assortativity_coefficient(G, 'habitat_label')``
-when the graph has at least two nodes and one edge; else ``0``.
+.. math::
+
+   \begin{aligned}
+   \mathrm{avg\_degree\_1}
+   &= \overline{\{\deg(v):v\in V_a\}} \\
+   \mathrm{avg\_degree\_1\_norm}
+   &= \mathrm{avg\_degree\_1}/(N-1) \\
+   \mathrm{avg\_degree\_2}
+   &= \overline{\{\deg(v):v\in V_b\}} \\
+   \mathrm{avg\_degree\_2\_norm}
+   &= \mathrm{avg\_degree\_2}/(N-1) \\
+   \mathrm{degree\_cv\_1}
+   &= \mathrm{sd}(\deg|_{V_a})/\overline{\deg|_{V_a}} \\
+   \mathrm{degree\_cv\_2}
+   &= \mathrm{sd}(\deg|_{V_b})/\overline{\deg|_{V_b}} \\
+   \mathrm{degree\_entropy\_1}
+   &= H(\{\deg(v):v\in V_a\}) \\
+   \mathrm{degree\_entropy\_2}
+   &= H(\{\deg(v):v\in V_b\})
+   \end{aligned}
+
+where :math:`H` is the same Shannon entropy as
+``degree_entropy`` above.
+
+Connected components and modularity use the **full** pairwise graph
+:math:`G`:
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{connected\_components} &= c(G) \\
+   \mathrm{connected\_components\_norm} &= c(G)/N \\
+   \mathrm{modularity} &= Q(G)
+      \quad\text{(same Louvain }Q\text{ as single-habitat)}
+   \end{aligned}
+
+Mean betweenness is NetworkX-normalized BC on the **full** graph,
+averaged per class (:math:`0` if :math:`N\le 1` or :math:`m_{\mathrm{full}}=0`).
+Habitat-label assortativity is Newman's attribute assortativity on
+``habitat_label`` (same definedness gate):
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{betweenness\_mean\_1}
+   &= \overline{\{\mathrm{BC}(v):v\in V_a\}} \\
+   \mathrm{betweenness\_mean\_2}
+   &= \overline{\{\mathrm{BC}(v):v\in V_b\}} \\
+   \mathrm{habitat\_assortativity}
+   &= r_{\mathrm{label}}(G)
+   \end{aligned}
 
 Extended metrics
 ----------------
 
-Enabled by ``include_extended_metrics`` (default ``true``). Integration
-metrics run on the **analysis subgraph**: the input graph if it is
-connected and has edges; otherwise the largest connected component (empty
-/ edgeless graphs stay as they are).
+Enabled by ``include_extended_metrics`` (default ``true``). Let
+:math:`G^{\star}` be the **analysis subgraph**: the input graph if it
+is connected and has edges; otherwise its largest connected component
+(empty / edgeless graphs stay as they are). Write
+:math:`n^{\star}=|V(G^{\star})|`. Integration metrics below are
+:math:`0` when :math:`n^{\star}<2` or :math:`G^{\star}` has no edges.
 
-Let :math:`G^{\star}` be that analysis subgraph.
+Global / local efficiency (Latora–Marchiori; hop distances, unweighted):
 
-* ``global_efficiency`` / ``local_efficiency``:
-  ``nx.global_efficiency`` / ``nx.local_efficiency`` on :math:`G^{\star}`
-  when it has at least two nodes and one edge; else ``0``.
-* ``small_world_sigma``: ``networkx.algorithms.smallworld.sigma`` with
-  ``niter=5``, ``nrand=3``, ``seed=0``, **only if**
-  :math:`|V(G^{\star})|\ge` ``extended_min_nodes`` (default ``10``), the
-  graph is connected, and it has at least one edge; else ``0``. This is a
-  Monte-Carlo estimate relative to random graphs; treat it as a
-  **descriptor**, not a hypothesis test.
-* ``rich_club_coefficient``: mean of the **finite** values of
-  ``nx.rich_club_coefficient(G^*, normalized=True)``; ``0`` on failure or
-  no edges.
-* Betweenness distribution: ``betweenness_max`` / ``betweenness_std`` of
-  ``betweenness_centrality(G^*)`` (NetworkX default
-  ``normalized=True``: already divided by the undirected theoretical
-  maximum :math:`(n-1)(n-2)/2`, so values lie in :math:`[0,1]`). The
-  ``*_norm`` companions **copy** those already-normalized values
-  (``0`` if :math:`n<3`). They are **not** divided by that factor a
-  second time.
-* ``degree_skewness``: unbiased sample skewness (``scipy.stats.skew(...,
-  bias=False)``) of degrees on :math:`G^{\star}`; ``0`` if fewer than
-  three nodes. Pairwise graphs report ``degree_skewness_1`` /
-  ``degree_skewness_2`` per class instead of a single skewness.
-* Per-node local efficiency: for each node, global efficiency of the
-  subgraph induced by its neighbours (``0`` if fewer than two neighbours
-  or no edges among them). Summaries: ``node_local_efficiency_min`` /
-  ``node_local_efficiency_std``.
+.. math::
 
-Pairwise extended metrics reuse the whole-graph efficiency / small-world /
-rich-club block, then add per-class ``betweenness_max_{1,2}`` computed
-on the **full** pairwise graph (NetworkX-normalized by that graph's
-:math:`n`). The ``*_norm`` companions copy those values when the full
-graph has :math:`n\ge 3``.
+   \begin{aligned}
+   \mathrm{global\_efficiency}
+   &= \frac{1}{n^{\star}(n^{\star}-1)}
+      \sum_{i\neq j}\frac{1}{d_{ij}} \\
+   \mathrm{local\_efficiency}
+   &= \frac{1}{n^{\star}}\sum_{v}
+      E_{\mathrm{glob}}\bigl(G^{\star}[N(v)]\bigr)
+   \end{aligned}
+
+where :math:`G^{\star}[N(v)]` is the subgraph induced by the
+neighbours of :math:`v`, and a node with fewer than two neighbours
+(or no edges among them) contributes :math:`0`.
+
+Small-world :math:`\sigma` is NetworkX
+``smallworld.sigma`` with ``niter=5``, ``nrand=3``, ``seed=0``,
+**only if** :math:`n^{\star}\ge` ``extended_min_nodes`` (default
+``10``), :math:`G^{\star}` is connected, and it has at least one
+edge; else :math:`0`. Treat it as a **descriptor**, not a hypothesis
+test:
+
+.. math::
+
+   \mathrm{small\_world\_sigma}
+   = \sigma
+   = \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}}
+
+Rich-club: NetworkX ``rich_club_coefficient(G^*, normalized=True)``
+returns :math:`\phi_{\mathrm{norm}}(k)` for each degree threshold
+:math:`k`. HABIT stores the mean of the **finite** values
+(:math:`0` on failure or no edges):
+
+.. math::
+
+   \begin{aligned}
+   \phi(k)
+   &= \frac{2 E_{>k}}{n_{>k}(n_{>k}-1)} \\
+   \phi_{\mathrm{norm}}(k)
+   &= \phi(k)/\phi_{\mathrm{rand}}(k) \\
+   \mathrm{rich\_club\_coefficient}
+   &= \overline{\{\phi_{\mathrm{norm}}(k):\phi_{\mathrm{norm}}(k)\text{ finite}\}}
+   \end{aligned}
+
+Betweenness distribution on :math:`G^{\star}` uses the same
+NetworkX-normalized :math:`\mathrm{BC}(v)\in[0,1]` as above. The
+``*_norm`` companions **copy** those values when
+:math:`n^{\star}\ge 3` (betweenness defined); they are **not**
+divided by :math:`(n^{\star}-1)(n^{\star}-2)/2` a second time:
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{betweenness\_max}
+   &= \max_v \mathrm{BC}(v) \\
+   \mathrm{betweenness\_std}
+   &= \mathrm{sd}(\{\mathrm{BC}(v)\}) \\
+   \mathrm{betweenness\_max\_norm}
+   &=
+      \begin{cases}
+      \mathrm{betweenness\_max} & n^{\star}\ge 3 \\
+      0 & n^{\star}<3
+      \end{cases} \\
+   \mathrm{betweenness\_std\_norm}
+   &=
+      \begin{cases}
+      \mathrm{betweenness\_std} & n^{\star}\ge 3 \\
+      0 & n^{\star}<3
+      \end{cases}
+   \end{aligned}
+
+Degree skewness is the unbiased sample skewness
+(``scipy.stats.skew(..., bias=False)``) of degrees on
+:math:`G^{\star}` (:math:`0` if :math:`n^{\star}<3`). Pairwise graphs
+replace the single value by per-class
+``degree_skewness_1`` / ``degree_skewness_2`` on the **full** graph:
+
+.. math::
+
+   \mathrm{degree\_skewness}
+   = g_1\bigl(\{\deg(v):v\in V(G^{\star})\}\bigr)
+
+Per-node local efficiency is :math:`E_{\mathrm{glob}}` of the
+neighbour-induced subgraph (same :math:`0` rules as above):
+
+.. math::
+
+   \begin{aligned}
+   E_{\mathrm{loc}}(v)
+   &= E_{\mathrm{glob}}\bigl(G^{\star}[N(v)]\bigr) \\
+   \mathrm{node\_local\_efficiency\_min}
+   &= \min_v E_{\mathrm{loc}}(v) \\
+   \mathrm{node\_local\_efficiency\_std}
+   &= \mathrm{sd}(\{E_{\mathrm{loc}}(v)\})
+   \end{aligned}
+
+Pairwise extended metrics reuse the whole-graph efficiency /
+small-world / rich-club / betweenness-distribution block on
+:math:`G^{\star}`, then add per-class maxima of NetworkX-normalized
+BC computed on the **full** pairwise graph (normalized by that
+graph's :math:`N`). The ``*_norm`` companions copy those values when
+:math:`N\ge 3`:
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{betweenness\_max\_1}
+   &= \max_{v\in V_a}\mathrm{BC}(v) \\
+   \mathrm{betweenness\_max\_2}
+   &= \max_{v\in V_b}\mathrm{BC}(v) \\
+   \mathrm{betweenness\_max\_1\_norm}
+   &=
+      \begin{cases}
+      \mathrm{betweenness\_max\_1} & N\ge 3 \\
+      0 & N<3
+      \end{cases}
+   \end{aligned}
 
 VOI-normalized companions
 -------------------------
@@ -468,9 +691,21 @@ Hop-normalized path / degree companions (``*_avg_path_length_norm``,
 ``*_diameter_norm``, ``*_avg_degree_norm``, …) are **already** scaled by
 graph size and are **not** divided by :math:`V`.
 
-Subject-level extras (always written): ``graph_num_habitats`` = number of
-habitats **present** in this map; ``graph_num_nodes_total`` = total nodes
-across present habitats (independent of ``expected_labels``).
+Subject-level extras (always written; independent of
+``expected_labels``):
+
+.. math::
+
+   \begin{aligned}
+   \mathrm{graph\_num\_habitats}
+   &= |\mathcal{H}|
+      \quad\text{(labels actually present in this map)} \\
+   \mathrm{graph\_num\_nodes\_total}
+   &= \sum_{k\in\mathcal{H}} n^{(k)}
+   \end{aligned}
+
+where :math:`n^{(k)}` is ``single_h{k}_n_nodes`` for habitats
+present in the map.
 
 Construction options
 --------------------

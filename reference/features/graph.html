@@ -386,6 +386,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -1859,7 +1860,7 @@ for the older rule: if <code class="docutils literal notranslate"><span class="p
 <span class="math notranslate nohighlight">\(b\)</span> (default <span class="math notranslate nohighlight">\(s=1000\)</span>). A block with voxel set <span class="math notranslate nohighlight">\(B\)</span>
 is <strong>kept</strong> only when</p>
 <div class="math notranslate nohighlight">
-\[|B| / b^{d} \;&gt;\; \texttt{block\_min\_coverage}\]</div>
+\[|B| / b^{d} \;&gt;\; \mathrm{block\_min\_coverage}\]</div>
 <p>(strict inequality; default coverage <code class="docutils literal notranslate"><span class="pre">0.2</span></code>). Each kept block becomes
 its own node. If no block passes, or subdivision is off, the whole
 component is one node.</p>
@@ -1897,9 +1898,9 @@ extended efficiency) use the <strong>full</strong> graph (inter + optional intra
 <div class="math notranslate nohighlight">
 \[\begin{split}w =
 \begin{cases}
-1 &amp; \text{``none'' (default)}\\
-d(u,v) &amp; \text{``distance''}\\
-1/(d(u,v)+10^{-6}) &amp; \text{``inverse_distance''}
+1 &amp; \text{if none (default)} \\
+d(u,v) &amp; \text{if distance} \\
+1/(d(u,v)+10^{-6}) &amp; \text{if inverse-distance}
 \end{cases}\end{split}\]</div>
 <p><code class="docutils literal notranslate"><span class="pre">contact_voxels</span></code> is unused for this method (stored as missing).</p>
 </section>
@@ -1943,7 +1944,7 @@ when 4/6-connectivity is required.</p></li>
 <p>Let <span class="math notranslate nohighlight">\(N_{\mathrm{adj}}(u,v)\)</span> be the number of neighbouring voxel
 pairs whose ids are <span class="math notranslate nohighlight">\((u,v)\)</span>. An edge exists iff</p>
 <div class="math notranslate nohighlight">
-\[N_{\mathrm{adj}}(u,v) \ge \texttt{adjacency\_min\_voxels}\]</div>
+\[N_{\mathrm{adj}}(u,v) \ge \mathrm{adjacency\_min\_voxels}\]</div>
 <p>(default <code class="docutils literal notranslate"><span class="pre">10</span></code>). An edge exists when two regions are adjacent and the
 contact (shared-boundary) voxel count is &gt;= 10, measured on the
 (possibly eroded) masks. Default <code class="docutils literal notranslate"><span class="pre">erosion_radius=0</span></code> means the habitat
@@ -1958,183 +1959,370 @@ matches the centroid-distance case.</p>
 <section id="single-habitat-metrics">
 <h2>Single-habitat metrics<a class="headerlink" href="#single-habitat-metrics" title="Link to this heading"></a></h2>
 <p>Prefix <code class="docutils literal notranslate"><span class="pre">single_h{k}_</span></code>. Let <span class="math notranslate nohighlight">\(G=(V_G,E_G)\)</span> be the undirected
-NetworkX graph of habitat <span class="math notranslate nohighlight">\(k\)</span> (<span class="math notranslate nohighlight">\(n=|V_G|\)</span>, <span class="math notranslate nohighlight">\(m=|E_G|\)</span>).
-Degree of node <span class="math notranslate nohighlight">\(v\)</span> is <span class="math notranslate nohighlight">\(\deg(v)\)</span> (unweighted). Let
-<span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> be a copy of the largest connected component
-(by node count).</p>
+NetworkX graph of habitat <span class="math notranslate nohighlight">\(k\)</span>, with <span class="math notranslate nohighlight">\(n=|V_G|\)</span> and
+<span class="math notranslate nohighlight">\(m=|E_G|\)</span>. Degree <span class="math notranslate nohighlight">\(\deg(v)\)</span> is unweighted. Let
+<span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> be the largest connected component (by node
+count), <span class="math notranslate nohighlight">\(n_{\mathrm{LCC}}=|V(G_{\mathrm{LCC}})|\)</span>. Population
+standard deviation <span class="math notranslate nohighlight">\(\mathrm{sd}\)</span> is <code class="docutils literal notranslate"><span class="pre">numpy.std</span></code> (<code class="docutils literal notranslate"><span class="pre">ddof=0</span></code>).
+Empty / undefined cases return <span class="math notranslate nohighlight">\(0\)</span>.</p>
+<p>Size and components:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\texttt{n\_nodes} &amp;= n \\
-\texttt{n\_edges} &amp;= m \\
-\texttt{edge\_density} &amp;=
+\[\begin{split}\begin{aligned}
+\mathrm{n\_nodes} &amp;= n \\
+\mathrm{n\_edges} &amp;= m \\
+\mathrm{edge\_density} &amp;=
    \begin{cases}
-   m\big/\binom{n}{2} &amp; n\ge 2\\
-   0 &amp; \text{otherwise}
+   m\big/\binom{n}{2} &amp; n\ge 2 \\
+   0 &amp; n&lt;2
    \end{cases} \\
-\texttt{connected\_components} &amp;=
-   c(G) \quad\text{(0 if }n=0\text{)} \\
-\texttt{connected\_components\_ratio} &amp;= c(G)/n \quad(0\text{ if }n=0) \\
-\texttt{largest\_component\_ratio} &amp;= |V(G_{\mathrm{LCC}})|/n
-   \quad(0\text{ if }n=0)\end{split}\]</div>
-<p>Degree statistics (<code class="docutils literal notranslate"><span class="pre">avg</span></code> / <code class="docutils literal notranslate"><span class="pre">max</span></code> / <code class="docutils literal notranslate"><span class="pre">min</span></code> over <span class="math notranslate nohighlight">\(\{\deg(v)\}\)</span>;
-<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n=0\)</span>). Hop-normalized companions divide by
-<span class="math notranslate nohighlight">\(n-1\)</span> (<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n\le 1\)</span>):</p>
+\mathrm{connected\_components} &amp;=
+   \begin{cases}
+   c(G) &amp; n&gt;0 \\
+   0 &amp; n=0
+   \end{cases} \\
+\mathrm{connected\_components\_ratio} &amp;=
+   \begin{cases}
+   c(G)/n &amp; n&gt;0 \\
+   0 &amp; n=0
+   \end{cases} \\
+\mathrm{largest\_component\_ratio} &amp;=
+   \begin{cases}
+   n_{\mathrm{LCC}}/n &amp; n&gt;0 \\
+   0 &amp; n=0
+   \end{cases}
+\end{aligned}\end{split}\]</div>
+<p>Degree statistics. Let <span class="math notranslate nohighlight">\(\{\deg(v)\}_{v\in V_G}\)</span> be empty when
+<span class="math notranslate nohighlight">\(n=0\)</span>. Hop-normalized companions divide by <span class="math notranslate nohighlight">\(n-1\)</span>
+(<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n\le 1\)</span>). <code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> is <span class="math notranslate nohighlight">\(0\)</span> if
+<span class="math notranslate nohighlight">\(\overline{\deg}&lt;10^{-12}\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[\texttt{avg\_degree\_norm}
-= \overline{\deg}/(n-1),\quad
-\texttt{degree\_cv}
-= \mathrm{sd}(\deg)/\overline{\deg}\]</div>
-<p>(<code class="docutils literal notranslate"><span class="pre">degree_cv</span></code> is <code class="docutils literal notranslate"><span class="pre">0</span></code> if the mean is <span class="math notranslate nohighlight">\(&lt;10^{-12}\)</span>). Shannon
-entropy of the <strong>empirical degree histogram</strong>, in bits:</p>
-<div class="math notranslate nohighlight">
-\[\texttt{degree\_entropy}
-= -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
+\[\begin{split}\begin{aligned}
+\mathrm{avg\_degree} &amp;= \overline{\deg} \\
+\mathrm{max\_degree} &amp;= \max_v \deg(v) \\
+\mathrm{min\_degree} &amp;= \min_v \deg(v) \\
+\mathrm{avg\_degree\_norm} &amp;= \overline{\deg}/(n-1) \\
+\mathrm{max\_degree\_norm} &amp;= \max_v \deg(v)/(n-1) \\
+\mathrm{min\_degree\_norm} &amp;= \min_v \deg(v)/(n-1) \\
+\mathrm{degree\_cv} &amp;= \mathrm{sd}(\deg)/\overline{\deg} \\
+\mathrm{degree\_entropy}
+&amp;= -\sum_{t} p_{t}\log_{2}(p_{t}+10^{-12}),
 \qquad
-p_{t} = \#\{v:\deg(v)=t\}/n\]</div>
-<p>Edge-length summaries use the <code class="docutils literal notranslate"><span class="pre">distance</span></code> stored on <strong>all</strong> edges of
-<span class="math notranslate nohighlight">\(G\)</span> (population mean / standard deviation; <code class="docutils literal notranslate"><span class="pre">0</span></code> if no edges).
-That stored length is the closest-voxel <span class="math notranslate nohighlight">\(d_{\min}\)</span> under the
-default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code> method, and the centroid Euclidean distance
-under <code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> or <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>.</p>
-<p>Node-size summaries use <span class="math notranslate nohighlight">\(\{n_{v}:v\in V_G\}\)</span> (mean, sd, CV).</p>
-<p><strong>Spatial dispersion.</strong> Mean of the per-axis standard deviations of
-centroids; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than two nodes:</p>
+p_{t}=\#\{v:\deg(v)=t\}/n
+\end{aligned}\end{split}\]</div>
+<p>Edge length uses the stored edge <code class="docutils literal notranslate"><span class="pre">distance</span></code> <span class="math notranslate nohighlight">\(d_e\)</span> on <strong>all</strong>
+edges of <span class="math notranslate nohighlight">\(G\)</span> (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(m=0\)</span>). Default
+<code class="docutils literal notranslate"><span class="pre">min_distance</span></code> stores closest-voxel <span class="math notranslate nohighlight">\(d_{\min}\)</span>;
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> and <code class="docutils literal notranslate"><span class="pre">adjacency</span></code> store centroid Euclidean
+distance. Node size uses voxel counts <span class="math notranslate nohighlight">\(\{n_v\}\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[\texttt{spatial\_dispersion}
+\[\begin{split}\begin{aligned}
+\mathrm{avg\_edge\_distance} &amp;= \overline{\{d_e:e\in E_G\}} \\
+\mathrm{std\_edge\_distance} &amp;= \mathrm{sd}(\{d_e:e\in E_G\}) \\
+\mathrm{avg\_node\_voxels} &amp;= \overline{\{n_v:v\in V_G\}} \\
+\mathrm{std\_node\_voxels} &amp;= \mathrm{sd}(\{n_v:v\in V_G\}) \\
+\mathrm{node\_voxels\_cv} &amp;= \mathrm{sd}(\{n_v\})/\overline{\{n_v\}}
+\end{aligned}\end{split}\]</div>
+<p>Spatial dispersion is the mean per-axis standard deviation of
+centroids (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n&lt;2\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{spatial\_dispersion}
 = \frac{1}{d}\sum_{\alpha=1}^{d}
   \mathrm{sd}\bigl(\{c_{v,\alpha}\}_{v\in V_G}\bigr)\]</div>
-<p><strong>Nearest-neighbour ratio</strong> (Clark–Evans <span class="math notranslate nohighlight">\(R\)</span>). Let <span class="math notranslate nohighlight">\(d_{\mathrm{NN}}\)</span>
-be the mean Euclidean distance from each centroid to its nearest <strong>other</strong>
-centroid (KD-tree, <span class="math notranslate nohighlight">\(k=2\)</span>). The study-region measure is the sum of
-node voxel counts <span class="math notranslate nohighlight">\(A=\sum_{v}n_{v}\)</span> (not the centroid bounding box;
-absolute values are therefore <strong>not</strong> comparable to the 2-D
-bounding-box form in PathPrism, Liang et al., <em>Cancer Cell</em> 2026). Density <span class="math notranslate nohighlight">\(\rho=n/A\)</span>. Expected CSR nearest-neighbour
-distance:</p>
+<p>Nearest-neighbour ratio (Clark–Evans <span class="math notranslate nohighlight">\(R\)</span>). Let
+<span class="math notranslate nohighlight">\(d_{\mathrm{NN}}\)</span> be the mean Euclidean distance from each
+centroid to its nearest <strong>other</strong> centroid (KD-tree, <span class="math notranslate nohighlight">\(k=2\)</span>).
+The study-region measure is <span class="math notranslate nohighlight">\(A=\sum_{v}n_{v}\)</span> (occupied voxel
+count, not the centroid bounding box; absolute values are <strong>not</strong>
+comparable to PathPrism’s 2-D bounding-box form). Density
+<span class="math notranslate nohighlight">\(\rho=n/A\)</span>. Returns <span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n&lt;2\)</span> or <span class="math notranslate nohighlight">\(A\le 0\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}d_{\mathrm{CSR}}
-=
-\begin{cases}
-1\big/(2\sqrt{\rho}) &amp; d=2\\
-0.5539602785\big/\rho^{1/3} &amp; d=3
-\end{cases}\end{split}\]</div>
-<p>The constant <span class="math notranslate nohighlight">\(0.5539602785\)</span> is <span class="math notranslate nohighlight">\(\Gamma(4/3)/(4\pi/3)^{1/3}\)</span>.
-Then <span class="math notranslate nohighlight">\(R=d_{\mathrm{NN}}/d_{\mathrm{CSR}}\)</span> (<span class="math notranslate nohighlight">\(R&lt;1\)</span> clustering,
-<span class="math notranslate nohighlight">\(R=1\)</span> CSR, <span class="math notranslate nohighlight">\(R&gt;1\)</span> regularity). Returns <code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;2\)</span> or
-<span class="math notranslate nohighlight">\(A\le 0\)</span>.</p>
-<p><strong>Clustering coefficient.</strong> <code class="docutils literal notranslate"><span class="pre">nx.average_clustering(G)</span></code> (unweighted) when
-<span class="math notranslate nohighlight">\(n&gt;0\)</span>, else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
-<p><strong>Path metrics</strong> are computed on <span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> only, and only
-when that component has at least two nodes. They are <strong>hop counts</strong>, not
-physical millimetres:</p>
+\[\begin{split}\begin{aligned}
+d_{\mathrm{CSR}} &amp;=
+   \begin{cases}
+   1\big/(2\sqrt{\rho}) &amp; d=2 \\
+   \Gamma(4/3)\big/(4\pi/3)^{1/3}\,\rho^{-1/3}
+      = 0.5539602785\,\rho^{-1/3} &amp; d=3
+   \end{cases} \\
+\mathrm{nearest\_neighbor\_ratio}
+&amp;= R = d_{\mathrm{NN}}/d_{\mathrm{CSR}}
+\end{aligned}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(R&lt;1\)</span> clustering, <span class="math notranslate nohighlight">\(R=1\)</span> CSR, <span class="math notranslate nohighlight">\(R&gt;1\)</span> regularity.</p>
+<p>Average clustering is the Watts–Strogatz mean of local clustering
+coefficients (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n=0\)</span>; a node with
+<span class="math notranslate nohighlight">\(\deg(v)&lt;2\)</span> contributes <span class="math notranslate nohighlight">\(0\)</span>):</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\texttt{avg\_path\_length}
-&amp;= \text{mean shortest-path length on }G_{\mathrm{LCC}} \\
-\texttt{diameter}
-&amp;= \mathrm{diam}(G_{\mathrm{LCC}}) \\
-\texttt{avg\_path\_length\_norm}
-&amp;= \texttt{avg\_path\_length}/(|V_{\mathrm{LCC}}|-1) \\
-\texttt{diameter\_norm}
-&amp;= \texttt{diameter}/(|V_{\mathrm{LCC}}|-1)\end{split}\]</div>
-<p><strong>Centrality</strong> (same LCC, <span class="math notranslate nohighlight">\(|V_{\mathrm{LCC}}|&gt;1\)</span>): mean of
-<code class="docutils literal notranslate"><span class="pre">betweenness_centrality</span></code> and <code class="docutils literal notranslate"><span class="pre">closeness_centrality</span></code> (NetworkX defaults:
-betweenness is normalized). <strong>Degree assortativity</strong>:
-<code class="docutils literal notranslate"><span class="pre">degree_assortativity_coefficient(G)</span></code>; non-finite or exception → <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
-<p><strong>Modularity.</strong> If <span class="math notranslate nohighlight">\(m=0\)</span>, <code class="docutils literal notranslate"><span class="pre">0</span></code>. Otherwise Louvain communities
+\[\mathrm{avg\_clustering}
+= \frac{1}{n}\sum_{v\in V_G}
+  \frac{2\,t_v}{\deg(v)\,(\deg(v)-1)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(t_v\)</span> is the number of triangles through <span class="math notranslate nohighlight">\(v\)</span>.</p>
+<p>Path metrics use <strong>hop counts</strong> on <span class="math notranslate nohighlight">\(G_{\mathrm{LCC}}\)</span> only, and
+only when <span class="math notranslate nohighlight">\(n_{\mathrm{LCC}}\ge 2\)</span> (else <span class="math notranslate nohighlight">\(0\)</span>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{avg\_path\_length}
+&amp;= \frac{1}{n_{\mathrm{LCC}}(n_{\mathrm{LCC}}-1)}
+   \sum_{s\neq t} d_G(s,t)
+   \quad\text{on }G_{\mathrm{LCC}} \\
+\mathrm{diameter}
+&amp;= \max_{s,t} d_G(s,t)
+   \quad\text{on }G_{\mathrm{LCC}} \\
+\mathrm{avg\_path\_length\_norm}
+&amp;= \mathrm{avg\_path\_length}/(n_{\mathrm{LCC}}-1) \\
+\mathrm{diameter\_norm}
+&amp;= \mathrm{diameter}/(n_{\mathrm{LCC}}-1)
+\end{aligned}\end{split}\]</div>
+<p>Centrality on the same LCC (<span class="math notranslate nohighlight">\(n_{\mathrm{LCC}}&gt;1\)</span>). Betweenness
+uses NetworkX <code class="docutils literal notranslate"><span class="pre">normalized=True</span></code> (already divided by the undirected
+maximum <span class="math notranslate nohighlight">\((n_{\mathrm{LCC}}-1)(n_{\mathrm{LCC}}-2)/2\)</span>).
+Closeness uses the connected-graph form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{BC}(v)
+&amp;= \frac{2}{(n_{\mathrm{LCC}}-1)(n_{\mathrm{LCC}}-2)}
+   \sum_{s\neq v\neq t}
+   \frac{\sigma_{st}(v)}{\sigma_{st}} \\
+\mathrm{CC}(v)
+&amp;= (n_{\mathrm{LCC}}-1)\Big/\sum_{u\neq v} d_G(v,u) \\
+\mathrm{avg\_betweenness}
+&amp;= \overline{\{\mathrm{BC}(v):v\in V(G_{\mathrm{LCC}})\}} \\
+\mathrm{avg\_closeness}
+&amp;= \overline{\{\mathrm{CC}(v):v\in V(G_{\mathrm{LCC}})\}}
+\end{aligned}\end{split}\]</div>
+<p>Degree assortativity is Newman’s degree–degree Pearson correlation
+on <span class="math notranslate nohighlight">\(G\)</span> (unweighted). Non-finite values and exceptions become
+<span class="math notranslate nohighlight">\(0\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{degree\_assortativity}
+= r_{\deg}(G)\]</div>
+<p>Modularity uses Louvain communities
 (<code class="docutils literal notranslate"><span class="pre">louvain_communities(G,</span> <span class="pre">weight='weight',</span> <span class="pre">seed=0)</span></code>) then
-<code class="docutils literal notranslate"><span class="pre">modularity(G,</span> <span class="pre">communities,</span> <span class="pre">weight='weight')</span></code>. Typical range roughly
-<span class="math notranslate nohighlight">\([-0.5,1]\)</span>.</p>
+Newman–Girvan <span class="math notranslate nohighlight">\(Q\)</span>. If <span class="math notranslate nohighlight">\(m=0\)</span>, <span class="math notranslate nohighlight">\(Q=0\)</span>. Typical range
+roughly <span class="math notranslate nohighlight">\([-0.5,1]\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{modularity}
+= Q
+= \frac{1}{2W}\sum_{i,j}
+  \left(A_{ij}-\frac{k_i k_j}{2W}\right)\delta(c_i,c_j)\]</div>
+<p>where <span class="math notranslate nohighlight">\(W\)</span> is the total edge-weight sum, <span class="math notranslate nohighlight">\(k_i\)</span> is the
+weighted degree, and <span class="math notranslate nohighlight">\(c_i\)</span> is the Louvain community of node
+<span class="math notranslate nohighlight">\(i\)</span>. With default <code class="docutils literal notranslate"><span class="pre">edge_weight='none'</span></code>, every <span class="math notranslate nohighlight">\(A_{ij}\)</span>
+is <span class="math notranslate nohighlight">\(0\)</span> or <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="pairwise-metrics">
 <h2>Pairwise metrics<a class="headerlink" href="#pairwise-metrics" title="Link to this heading"></a></h2>
 <p>Prefix <code class="docutils literal notranslate"><span class="pre">pair_h{a}_h{b}_</span></code> with <span class="math notranslate nohighlight">\(a&lt;b\)</span>. Let <span class="math notranslate nohighlight">\(V_a,V_b\)</span> be the
-node sets of the two labels, <span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>, and
-<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class edges only
-(<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>).</p>
+node sets of the two labels, <span class="math notranslate nohighlight">\(n_1=|V_a|\)</span>, <span class="math notranslate nohighlight">\(n_2=|V_b|\)</span>,
+<span class="math notranslate nohighlight">\(N=n_1+n_2\)</span>, and <span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> the inter-class
+edges only (<code class="docutils literal notranslate"><span class="pre">edge_type</span> <span class="pre">!=</span> <span class="pre">'intra'</span></code>). Interface metrics below use
+<span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only. Whole-graph metrics (components,
+modularity, assortativity, betweenness, extended efficiency) use the
+<strong>full</strong> pairwise graph (inter + optional intra).</p>
 <div class="math notranslate nohighlight">
-\[\texttt{n\_nodes\_1}=n_1,\quad
-\texttt{n\_nodes\_2}=n_2,\quad
-\texttt{n\_edges}=|E_{\mathrm{inter}}|\]</div>
-<div class="math notranslate nohighlight">
-\[\begin{split}\texttt{edge\_density}
-=
-\begin{cases}
-|E_{\mathrm{inter}}|/(n_1 n_2) &amp; n_1 n_2&gt;0\\
-0 &amp; \text{otherwise}
-\end{cases}\end{split}\]</div>
-<p>Distance summaries (mean / sd) use the stored edge <code class="docutils literal notranslate"><span class="pre">distance</span></code> on
+\[\begin{split}\begin{aligned}
+\mathrm{n\_nodes\_1} &amp;= n_1 \\
+\mathrm{n\_nodes\_2} &amp;= n_2 \\
+\mathrm{n\_edges} &amp;= |E_{\mathrm{inter}}| \\
+\mathrm{edge\_density} &amp;=
+   \begin{cases}
+   |E_{\mathrm{inter}}|/(n_1 n_2) &amp; n_1 n_2&gt;0 \\
+   0 &amp; n_1 n_2=0
+   \end{cases}
+\end{aligned}\end{split}\]</div>
+<p>Distance summaries use the stored <code class="docutils literal notranslate"><span class="pre">distance</span></code> <span class="math notranslate nohighlight">\(d_e\)</span> on
 <span class="math notranslate nohighlight">\(E_{\mathrm{inter}}\)</span> only (closest-voxel <span class="math notranslate nohighlight">\(d_{\min}\)</span> for
 default <code class="docutils literal notranslate"><span class="pre">min_distance</span></code>; centroid Euclidean for
-<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>).</p>
-<p><strong>Contact voxels</strong> (adjacency method; <code class="docutils literal notranslate"><span class="pre">0</span></code> unless
-<code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code>):</p>
+<code class="docutils literal notranslate"><span class="pre">centroid_distance</span></code> / <code class="docutils literal notranslate"><span class="pre">adjacency</span></code>):</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\texttt{contact\_voxels\_sum}
+\[\begin{split}\begin{aligned}
+\mathrm{avg\_edge\_distance}
+&amp;= \overline{\{d_e:e\in E_{\mathrm{inter}}\}} \\
+\mathrm{std\_edge\_distance}
+&amp;= \mathrm{sd}(\{d_e:e\in E_{\mathrm{inter}}\})
+\end{aligned}\end{split}\]</div>
+<p>Contact voxels (adjacency method; <span class="math notranslate nohighlight">\(0\)</span> unless
+<code class="docutils literal notranslate"><span class="pre">edge_method='adjacency'</span></code>). <span class="math notranslate nohighlight">\(N_{\mathrm{adj}}(e)\)</span> is the
+adjacent voxel-<strong>pair</strong> count on edge <span class="math notranslate nohighlight">\(e\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{contact\_voxels\_sum}
 &amp;= \sum_{e\in E_{\mathrm{inter}}} N_{\mathrm{adj}}(e) \\
-\texttt{contact\_voxels\_mean}
-&amp;= \text{mean of those counts} \\
-\texttt{contact\_voxels\_max}
-&amp;= \text{max, or 0 if none}\end{split}\]</div>
-<p><strong>Cross degree</strong> of a node in <span class="math notranslate nohighlight">\(V_a\)</span> is the number of neighbours in
-<span class="math notranslate nohighlight">\(V_b\)</span> (other-class only). Isolated ratio:</p>
+\mathrm{contact\_voxels\_mean}
+&amp;= \overline{\{N_{\mathrm{adj}}(e)\}} \\
+\mathrm{contact\_voxels\_max}
+&amp;= \max_e N_{\mathrm{adj}}(e)
+   \quad\text{(0 if no inter edges)}
+\end{aligned}\end{split}\]</div>
+<p>Cross degree of <span class="math notranslate nohighlight">\(v\in V_a\)</span> counts neighbours in <span class="math notranslate nohighlight">\(V_b\)</span>
+only. Isolated ratio and R21 / R12 (mean other-class neighbours):</p>
 <div class="math notranslate nohighlight">
-\[\texttt{isolated\_ratio\_1}
-= \#\{v\in V_a:\deg_{\mathrm{cross}}(v)=0\}/n_1\]</div>
-<p>(and symmetrically <code class="docutils literal notranslate"><span class="pre">_2</span></code>). <strong>R21 / R12</strong> (mean other-class neighbours):</p>
+\[\begin{split}\begin{aligned}
+\deg_{\mathrm{cross}}(v)
+&amp;= \#\{u\sim v:\text{label}(u)\neq\text{label}(v)\} \\
+\mathrm{isolated\_ratio\_1}
+&amp;= \#\{v\in V_a:\deg_{\mathrm{cross}}(v)=0\}/n_1 \\
+\mathrm{isolated\_ratio\_2}
+&amp;= \#\{v\in V_b:\deg_{\mathrm{cross}}(v)=0\}/n_2 \\
+\mathrm{avg\_h\{b\}\_per\_h\{a\}}
+&amp;= \overline{\deg_{\mathrm{cross}}}(V_a) \\
+\mathrm{avg\_h\{b\}\_per\_h\{a\}\_norm}
+&amp;= \overline{\deg_{\mathrm{cross}}}(V_a)/n_2 \\
+\mathrm{avg\_h\{a\}\_per\_h\{b\}}
+&amp;= \overline{\deg_{\mathrm{cross}}}(V_b) \\
+\mathrm{avg\_h\{a\}\_per\_h\{b\}\_norm}
+&amp;= \overline{\deg_{\mathrm{cross}}}(V_b)/n_1
+\end{aligned}\end{split}\]</div>
+<p>AD / CV / EN use <strong>total</strong> degree (intra + inter) so the triple
+shares one basis. Hop-normalized AD divides by <span class="math notranslate nohighlight">\(N-1\)</span>:</p>
 <div class="math notranslate nohighlight">
-\[\texttt{avg\_h\{b\}\_per\_h\{a\}}
-= \overline{\deg_{\mathrm{cross}}}(V_a),
-\qquad
-\texttt{avg\_h\{b\}\_per\_h\{a\}\_norm}
-= \overline{\deg_{\mathrm{cross}}}(V_a)/n_2\]</div>
-<p><strong>AD / CV / EN</strong> use <strong>total</strong> degree (intra + inter) so the triple shares
-one basis: <code class="docutils literal notranslate"><span class="pre">avg_degree_1</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_cv_1</span></code>, <code class="docutils literal notranslate"><span class="pre">degree_entropy_1</span></code> (and
-<code class="docutils literal notranslate"><span class="pre">_2</span></code>). Hop-normalized AD divides by <span class="math notranslate nohighlight">\(n_1+n_2-1\)</span>.</p>
-<p><strong>Connected components</strong> and modularity use the <strong>full</strong> pairwise graph.
-<code class="docutils literal notranslate"><span class="pre">connected_components_norm</span></code> divides component count by
-<span class="math notranslate nohighlight">\(n_1+n_2\)</span>. Mean betweenness is reported per class. Habitat-label
-assortativity is <code class="docutils literal notranslate"><span class="pre">attribute_assortativity_coefficient(G,</span> <span class="pre">'habitat_label')</span></code>
-when the graph has at least two nodes and one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+\[\begin{split}\begin{aligned}
+\mathrm{avg\_degree\_1}
+&amp;= \overline{\{\deg(v):v\in V_a\}} \\
+\mathrm{avg\_degree\_1\_norm}
+&amp;= \mathrm{avg\_degree\_1}/(N-1) \\
+\mathrm{avg\_degree\_2}
+&amp;= \overline{\{\deg(v):v\in V_b\}} \\
+\mathrm{avg\_degree\_2\_norm}
+&amp;= \mathrm{avg\_degree\_2}/(N-1) \\
+\mathrm{degree\_cv\_1}
+&amp;= \mathrm{sd}(\deg|_{V_a})/\overline{\deg|_{V_a}} \\
+\mathrm{degree\_cv\_2}
+&amp;= \mathrm{sd}(\deg|_{V_b})/\overline{\deg|_{V_b}} \\
+\mathrm{degree\_entropy\_1}
+&amp;= H(\{\deg(v):v\in V_a\}) \\
+\mathrm{degree\_entropy\_2}
+&amp;= H(\{\deg(v):v\in V_b\})
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(H\)</span> is the same Shannon entropy as
+<code class="docutils literal notranslate"><span class="pre">degree_entropy</span></code> above.</p>
+<p>Connected components and modularity use the <strong>full</strong> pairwise graph
+<span class="math notranslate nohighlight">\(G\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{connected\_components} &amp;= c(G) \\
+\mathrm{connected\_components\_norm} &amp;= c(G)/N \\
+\mathrm{modularity} &amp;= Q(G)
+   \quad\text{(same Louvain }Q\text{ as single-habitat)}
+\end{aligned}\end{split}\]</div>
+<p>Mean betweenness is NetworkX-normalized BC on the <strong>full</strong> graph,
+averaged per class (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(N\le 1\)</span> or <span class="math notranslate nohighlight">\(m_{\mathrm{full}}=0\)</span>).
+Habitat-label assortativity is Newman’s attribute assortativity on
+<code class="docutils literal notranslate"><span class="pre">habitat_label</span></code> (same definedness gate):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{betweenness\_mean\_1}
+&amp;= \overline{\{\mathrm{BC}(v):v\in V_a\}} \\
+\mathrm{betweenness\_mean\_2}
+&amp;= \overline{\{\mathrm{BC}(v):v\in V_b\}} \\
+\mathrm{habitat\_assortativity}
+&amp;= r_{\mathrm{label}}(G)
+\end{aligned}\end{split}\]</div>
 </section>
 <section id="extended-metrics">
 <h2>Extended metrics<a class="headerlink" href="#extended-metrics" title="Link to this heading"></a></h2>
-<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>). Integration
-metrics run on the <strong>analysis subgraph</strong>: the input graph if it is
-connected and has edges; otherwise the largest connected component (empty
-/ edgeless graphs stay as they are).</p>
-<p>Let <span class="math notranslate nohighlight">\(G^{\star}\)</span> be that analysis subgraph.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">global_efficiency</span></code> / <code class="docutils literal notranslate"><span class="pre">local_efficiency</span></code>:
-<code class="docutils literal notranslate"><span class="pre">nx.global_efficiency</span></code> / <code class="docutils literal notranslate"><span class="pre">nx.local_efficiency</span></code> on <span class="math notranslate nohighlight">\(G^{\star}\)</span>
-when it has at least two nodes and one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">small_world_sigma</span></code>: <code class="docutils literal notranslate"><span class="pre">networkx.algorithms.smallworld.sigma</span></code> with
-<code class="docutils literal notranslate"><span class="pre">niter=5</span></code>, <code class="docutils literal notranslate"><span class="pre">nrand=3</span></code>, <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>, <strong>only if</strong>
-<span class="math notranslate nohighlight">\(|V(G^{\star})|\ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default <code class="docutils literal notranslate"><span class="pre">10</span></code>), the
-graph is connected, and it has at least one edge; else <code class="docutils literal notranslate"><span class="pre">0</span></code>. This is a
-Monte-Carlo estimate relative to random graphs; treat it as a
-<strong>descriptor</strong>, not a hypothesis test.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">rich_club_coefficient</span></code>: mean of the <strong>finite</strong> values of
-<code class="docutils literal notranslate"><span class="pre">nx.rich_club_coefficient(G^*,</span> <span class="pre">normalized=True)</span></code>; <code class="docutils literal notranslate"><span class="pre">0</span></code> on failure or
-no edges.</p></li>
-<li><p>Betweenness distribution: <code class="docutils literal notranslate"><span class="pre">betweenness_max</span></code> / <code class="docutils literal notranslate"><span class="pre">betweenness_std</span></code> of
-<code class="docutils literal notranslate"><span class="pre">betweenness_centrality(G^*)</span></code> (NetworkX default
-<code class="docutils literal notranslate"><span class="pre">normalized=True</span></code>: already divided by the undirected theoretical
-maximum <span class="math notranslate nohighlight">\((n-1)(n-2)/2\)</span>, so values lie in <span class="math notranslate nohighlight">\([0,1]\)</span>). The
-<code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions <strong>copy</strong> those already-normalized values
-(<code class="docutils literal notranslate"><span class="pre">0</span></code> if <span class="math notranslate nohighlight">\(n&lt;3\)</span>). They are <strong>not</strong> divided by that factor a
-second time.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">degree_skewness</span></code>: unbiased sample skewness (<code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span>
-<span class="pre">bias=False)</span></code>) of degrees on <span class="math notranslate nohighlight">\(G^{\star}\)</span>; <code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than
-three nodes. Pairwise graphs report <code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> /
-<code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> per class instead of a single skewness.</p></li>
-<li><p>Per-node local efficiency: for each node, global efficiency of the
-subgraph induced by its neighbours (<code class="docutils literal notranslate"><span class="pre">0</span></code> if fewer than two neighbours
-or no edges among them). Summaries: <code class="docutils literal notranslate"><span class="pre">node_local_efficiency_min</span></code> /
-<code class="docutils literal notranslate"><span class="pre">node_local_efficiency_std</span></code>.</p></li>
-</ul>
-<p>Pairwise extended metrics reuse the whole-graph efficiency / small-world /
-rich-club block, then add per-class <code class="docutils literal notranslate"><span class="pre">betweenness_max_{1,2}</span></code> computed
-on the <strong>full</strong> pairwise graph (NetworkX-normalized by that graph’s
-<span class="math notranslate nohighlight">\(n\)</span>). The <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions copy those values when the full
-graph has <span class="math notranslate nohighlight">\(n\ge 3`\)</span>.</p>
+<p>Enabled by <code class="docutils literal notranslate"><span class="pre">include_extended_metrics</span></code> (default <code class="docutils literal notranslate"><span class="pre">true</span></code>). Let
+<span class="math notranslate nohighlight">\(G^{\star}\)</span> be the <strong>analysis subgraph</strong>: the input graph if it
+is connected and has edges; otherwise its largest connected component
+(empty / edgeless graphs stay as they are). Write
+<span class="math notranslate nohighlight">\(n^{\star}=|V(G^{\star})|\)</span>. Integration metrics below are
+<span class="math notranslate nohighlight">\(0\)</span> when <span class="math notranslate nohighlight">\(n^{\star}&lt;2\)</span> or <span class="math notranslate nohighlight">\(G^{\star}\)</span> has no edges.</p>
+<p>Global / local efficiency (Latora–Marchiori; hop distances, unweighted):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{global\_efficiency}
+&amp;= \frac{1}{n^{\star}(n^{\star}-1)}
+   \sum_{i\neq j}\frac{1}{d_{ij}} \\
+\mathrm{local\_efficiency}
+&amp;= \frac{1}{n^{\star}}\sum_{v}
+   E_{\mathrm{glob}}\bigl(G^{\star}[N(v)]\bigr)
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(G^{\star}[N(v)]\)</span> is the subgraph induced by the
+neighbours of <span class="math notranslate nohighlight">\(v\)</span>, and a node with fewer than two neighbours
+(or no edges among them) contributes <span class="math notranslate nohighlight">\(0\)</span>.</p>
+<p>Small-world <span class="math notranslate nohighlight">\(\sigma\)</span> is NetworkX
+<code class="docutils literal notranslate"><span class="pre">smallworld.sigma</span></code> with <code class="docutils literal notranslate"><span class="pre">niter=5</span></code>, <code class="docutils literal notranslate"><span class="pre">nrand=3</span></code>, <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>,
+<strong>only if</strong> <span class="math notranslate nohighlight">\(n^{\star}\ge\)</span> <code class="docutils literal notranslate"><span class="pre">extended_min_nodes</span></code> (default
+<code class="docutils literal notranslate"><span class="pre">10</span></code>), <span class="math notranslate nohighlight">\(G^{\star}\)</span> is connected, and it has at least one
+edge; else <span class="math notranslate nohighlight">\(0\)</span>. Treat it as a <strong>descriptor</strong>, not a hypothesis
+test:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{small\_world\_sigma}
+= \sigma
+= \frac{C/C_{\mathrm{rand}}}{L/L_{\mathrm{rand}}}\]</div>
+<p>Rich-club: NetworkX <code class="docutils literal notranslate"><span class="pre">rich_club_coefficient(G^*,</span> <span class="pre">normalized=True)</span></code>
+returns <span class="math notranslate nohighlight">\(\phi_{\mathrm{norm}}(k)\)</span> for each degree threshold
+<span class="math notranslate nohighlight">\(k\)</span>. HABIT stores the mean of the <strong>finite</strong> values
+(<span class="math notranslate nohighlight">\(0\)</span> on failure or no edges):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\phi(k)
+&amp;= \frac{2 E_{&gt;k}}{n_{&gt;k}(n_{&gt;k}-1)} \\
+\phi_{\mathrm{norm}}(k)
+&amp;= \phi(k)/\phi_{\mathrm{rand}}(k) \\
+\mathrm{rich\_club\_coefficient}
+&amp;= \overline{\{\phi_{\mathrm{norm}}(k):\phi_{\mathrm{norm}}(k)\text{ finite}\}}
+\end{aligned}\end{split}\]</div>
+<p>Betweenness distribution on <span class="math notranslate nohighlight">\(G^{\star}\)</span> uses the same
+NetworkX-normalized <span class="math notranslate nohighlight">\(\mathrm{BC}(v)\in[0,1]\)</span> as above. The
+<code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions <strong>copy</strong> those values when
+<span class="math notranslate nohighlight">\(n^{\star}\ge 3\)</span> (betweenness defined); they are <strong>not</strong>
+divided by <span class="math notranslate nohighlight">\((n^{\star}-1)(n^{\star}-2)/2\)</span> a second time:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{betweenness\_max}
+&amp;= \max_v \mathrm{BC}(v) \\
+\mathrm{betweenness\_std}
+&amp;= \mathrm{sd}(\{\mathrm{BC}(v)\}) \\
+\mathrm{betweenness\_max\_norm}
+&amp;=
+   \begin{cases}
+   \mathrm{betweenness\_max} &amp; n^{\star}\ge 3 \\
+   0 &amp; n^{\star}&lt;3
+   \end{cases} \\
+\mathrm{betweenness\_std\_norm}
+&amp;=
+   \begin{cases}
+   \mathrm{betweenness\_std} &amp; n^{\star}\ge 3 \\
+   0 &amp; n^{\star}&lt;3
+   \end{cases}
+\end{aligned}\end{split}\]</div>
+<p>Degree skewness is the unbiased sample skewness
+(<code class="docutils literal notranslate"><span class="pre">scipy.stats.skew(...,</span> <span class="pre">bias=False)</span></code>) of degrees on
+<span class="math notranslate nohighlight">\(G^{\star}\)</span> (<span class="math notranslate nohighlight">\(0\)</span> if <span class="math notranslate nohighlight">\(n^{\star}&lt;3\)</span>). Pairwise graphs
+replace the single value by per-class
+<code class="docutils literal notranslate"><span class="pre">degree_skewness_1</span></code> / <code class="docutils literal notranslate"><span class="pre">degree_skewness_2</span></code> on the <strong>full</strong> graph:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{degree\_skewness}
+= g_1\bigl(\{\deg(v):v\in V(G^{\star})\}\bigr)\]</div>
+<p>Per-node local efficiency is <span class="math notranslate nohighlight">\(E_{\mathrm{glob}}\)</span> of the
+neighbour-induced subgraph (same <span class="math notranslate nohighlight">\(0\)</span> rules as above):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+E_{\mathrm{loc}}(v)
+&amp;= E_{\mathrm{glob}}\bigl(G^{\star}[N(v)]\bigr) \\
+\mathrm{node\_local\_efficiency\_min}
+&amp;= \min_v E_{\mathrm{loc}}(v) \\
+\mathrm{node\_local\_efficiency\_std}
+&amp;= \mathrm{sd}(\{E_{\mathrm{loc}}(v)\})
+\end{aligned}\end{split}\]</div>
+<p>Pairwise extended metrics reuse the whole-graph efficiency /
+small-world / rich-club / betweenness-distribution block on
+<span class="math notranslate nohighlight">\(G^{\star}\)</span>, then add per-class maxima of NetworkX-normalized
+BC computed on the <strong>full</strong> pairwise graph (normalized by that
+graph’s <span class="math notranslate nohighlight">\(N\)</span>). The <code class="docutils literal notranslate"><span class="pre">*_norm</span></code> companions copy those values when
+<span class="math notranslate nohighlight">\(N\ge 3\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{betweenness\_max\_1}
+&amp;= \max_{v\in V_a}\mathrm{BC}(v) \\
+\mathrm{betweenness\_max\_2}
+&amp;= \max_{v\in V_b}\mathrm{BC}(v) \\
+\mathrm{betweenness\_max\_1\_norm}
+&amp;=
+   \begin{cases}
+   \mathrm{betweenness\_max\_1} &amp; N\ge 3 \\
+   0 &amp; N&lt;3
+   \end{cases}
+\end{aligned}\end{split}\]</div>
 </section>
 <section id="voi-normalized-companions">
 <h2>VOI-normalized companions<a class="headerlink" href="#voi-normalized-companions" title="Link to this heading"></a></h2>
@@ -2178,9 +2366,18 @@ above, and <span class="math notranslate nohighlight">\(V_k=\#\{\mathbf{x}:L(\ma
 <p>Hop-normalized path / degree companions (<code class="docutils literal notranslate"><span class="pre">*_avg_path_length_norm</span></code>,
 <code class="docutils literal notranslate"><span class="pre">*_diameter_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">*_avg_degree_norm</span></code>, …) are <strong>already</strong> scaled by
 graph size and are <strong>not</strong> divided by <span class="math notranslate nohighlight">\(V\)</span>.</p>
-<p>Subject-level extras (always written): <code class="docutils literal notranslate"><span class="pre">graph_num_habitats</span></code> = number of
-habitats <strong>present</strong> in this map; <code class="docutils literal notranslate"><span class="pre">graph_num_nodes_total</span></code> = total nodes
-across present habitats (independent of <code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>).</p>
+<p>Subject-level extras (always written; independent of
+<code class="docutils literal notranslate"><span class="pre">expected_labels</span></code>):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathrm{graph\_num\_habitats}
+&amp;= |\mathcal{H}|
+   \quad\text{(labels actually present in this map)} \\
+\mathrm{graph\_num\_nodes\_total}
+&amp;= \sum_{k\in\mathcal{H}} n^{(k)}
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(n^{(k)}\)</span> is <code class="docutils literal notranslate"><span class="pre">single_h{k}_n_nodes</span></code> for habitats
+present in the map.</p>
 </section>
 <section id="construction-options">
 <h2>Construction options<a class="headerlink" href="#construction-options" title="Link to this heading"></a></h2>
