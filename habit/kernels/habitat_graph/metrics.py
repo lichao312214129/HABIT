@@ -121,7 +121,13 @@ def _largest_component(nx_graph: nx.Graph) -> nx.Graph:
 
 
 def _edge_distances(graph: HabitatGraph) -> List[float]:
-    """Return edge distances, excluding unavailable values."""
+    """
+    Return the distance stored on each edge.
+
+    The stored length depends on the edge method: closest-voxel
+    ``d_min`` for ``min_distance`` (the library default), centroid
+    Euclidean distance for ``centroid_distance`` and ``adjacency``.
+    """
     return [
         float(edge.distance)
         for edge in graph.edges

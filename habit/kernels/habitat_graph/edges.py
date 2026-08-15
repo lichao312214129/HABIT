@@ -232,7 +232,9 @@ def _min_voxel_distance(coords_a: np.ndarray, coords_b: np.ndarray) -> float:
     """
     Return the closest-point Euclidean distance between two voxel sets.
 
-    This is the directed-Hausdorff minimum: ``min_{a in A, b in B} ||a-b||``.
+    This is the set-separation (minimum pairwise) distance
+    ``min_{a in A, b in B} ||a-b||``. It is not the Hausdorff distance,
+    which uses a max-of-mins.
 
     Args:
         coords_a: Voxel coordinates of region A, shape ``(n_a, ndim)``.
@@ -323,8 +325,10 @@ def build_min_distance_graph(
 
     Unlike :func:`build_centroid_distance_graph`, the distance is the minimum
     Euclidean distance between any voxel of region A and any voxel of region B
-    (closest-point / Hausdorff-min), not the distance between centroids. Units
-    are voxel indices, matching ``centroid_distance``.
+    (closest-voxel / set-separation distance), not the distance between
+    centroids and not the Hausdorff distance. Units are voxel indices,
+    matching ``centroid_distance``. The same ``d_min`` is stored on the
+    edge as ``distance`` and is what ``avg_edge_distance`` summarizes.
 
     An undirected edge exists when ``min_{a in A, b in B} ||a-b|| <= threshold``.
 

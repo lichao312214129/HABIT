@@ -19,6 +19,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+import networkx as nx
+
 from habit.kernels.habitat_graph import (
     HabitatGraphFeatureOptions,
     build_adjacency_graph,
@@ -28,6 +30,10 @@ from habit.kernels.habitat_graph import (
     extract_graph_features_for_labels,
     extract_habitat_nodes,
     pair_count,
+)
+from habit.kernels.habitat_graph.extended_metrics import (
+    compute_extended_graph_metrics,
+    compute_extended_pairwise_metrics,
 )
 
 
@@ -191,6 +197,8 @@ def test_min_distance_is_not_centroid_distance_on_elongated_regions() -> None:
     )
     features = extract_graph_features(label_array, options=options)
     assert features["pair_h1_h2_n_edges"] == 1.0
+    # Stored / summarized length is d_min (3), not the centroid gap (4).
+    assert features["pair_h1_h2_avg_edge_distance"] == pytest.approx(3.0)
 
 
 @pytest.mark.unit
@@ -677,32 +685,55 @@ def test_extended_graph_metrics_can_be_disabled() -> None:
 
 
 @pytest.mark.unit
-def test_betweenness_max_norm_scales_with_graph_size() -> None:
-    """Normalized betweenness max should divide by the theoretical maximum."""
-    label_array: np.ndarray = np.array(
+def test_betweenness_norm_reuses_networkx_normalized_values() -> None:
+    """``*_norm`` must copy NetworkX-normalized betweenness, not divide again."""
+    path = nx.path_graph(5)
+    features = compute_extended_graph_metrics(path, "single_h1")
+    betweenness = nx.betweenness_centrality(path)
+    expected_max = float(max(betweenness.values()))
+    expected_std = float(np.std(list(betweenness.values())))
+    assert features["single_h1_betweenness_max"] == pytest.approx(expected_max)
+    assert features["single_h1_betweenness_std"] == pytest.approx(expected_std)
+    assert features["single_h1_betweenness_max_norm"] == pytest.approx(expected_max)
+    assert features["single_h1_betweenness_std_norm"] == pytest.approx(expected_std)
+    double_normalized = expected_max / ((5 - 1) * (5 - 2) / 2.0)
+    assert features["single_h1_betweenness_max_norm"] != pytest.approx(
+        double_normalized
+    )
+
+    tiny = nx.path_graph(2)
+    tiny_features = compute_extended_graph_metrics(tiny, "single_h1")
+    assert tiny_features["single_h1_betweenness_max_norm"] == 0.0
+    assert tiny_features["single_h1_betweenness_std_norm"] == 0.0
+
+    pair = nx.Graph()
+    pair.add_nodes_from(
         [
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [1, 1, 1, 0],
-            [0, 0, 0, 0],
-        ],
-        dtype=np.int32,
+            ("a1", {"habitat_label": 1}),
+            ("a2", {"habitat_label": 1}),
+            ("b1", {"habitat_label": 2}),
+            ("b2", {"habitat_label": 2}),
+        ]
     )
-
-    features = _extract(
-        label_array,
-        distance_threshold=5.0,
-        subdivide_region_voxels=2,
-        erosion_radius=0,
-        include_extended_metrics=True,
+    pair.add_edges_from([("a1", "a2"), ("a2", "b1"), ("b1", "b2")])
+    pair_features = compute_extended_pairwise_metrics(
+        pair,
+        ["a1", "a2"],
+        ["b1", "b2"],
+        "pair_h1_h2",
     )
-
-    n_nodes = features["single_h1_n_nodes"]
-    if n_nodes >= 3 and features["single_h1_betweenness_max"] > 0:
-        scale = (n_nodes - 1.0) * (n_nodes - 2.0) / 2.0
-        assert features["single_h1_betweenness_max_norm"] == (
-            features["single_h1_betweenness_max"] / scale
-        )
+    pair_betweenness = nx.betweenness_centrality(pair)
+    max_class_1 = max(pair_betweenness["a1"], pair_betweenness["a2"])
+    max_class_2 = max(pair_betweenness["b1"], pair_betweenness["b2"])
+    assert pair_features["pair_h1_h2_betweenness_max_1"] == pytest.approx(
+        max_class_1
+    )
+    assert pair_features["pair_h1_h2_betweenness_max_1_norm"] == pytest.approx(
+        max_class_1
+    )
+    assert pair_features["pair_h1_h2_betweenness_max_2_norm"] == pytest.approx(
+        max_class_2
+    )
 
 
 @pytest.mark.unit

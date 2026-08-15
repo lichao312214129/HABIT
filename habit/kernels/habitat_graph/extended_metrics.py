@@ -34,19 +34,28 @@ def _finite_or_zero(value: float) -> float:
     return float(value) if np.isfinite(value) else 0.0
 
 
-def _betweenness_scale(n_nodes: int) -> float:
+def _copy_normalized_betweenness(value: float, n_nodes: int) -> float:
     """
-    Return the theoretical maximum betweenness for an undirected graph.
+    Reuse NetworkX-normalized betweenness; do not divide again.
+
+    NetworkX ``betweenness_centrality(..., normalized=True)`` already
+    divides raw pair-counts by ``(n-1)*(n-2)/2`` on undirected graphs,
+    so the values lie in ``[0, 1]`` and are comparable across graph
+    sizes. Companions named ``*_norm`` must copy that value. Dividing
+    by the same factor a second time is double normalization and is
+    incorrect.
 
     Args:
-        n_nodes: Number of nodes in the graph used for normalization.
+        value: Already-normalized betweenness summary (max or std).
+        n_nodes: Node count of the graph used to compute that betweenness.
 
     Returns:
-        float: Normalization denominator; 0 when ``n_nodes < 3``.
+        float: ``value`` when ``n_nodes >= 3`` (betweenness defined);
+        otherwise ``0.0``.
     """
     if n_nodes < 3:
         return 0.0
-    return float((n_nodes - 1) * (n_nodes - 2) / 2.0)
+    return float(value)
 
 
 def _analysis_subgraph(nx_graph: nx.Graph) -> nx.Graph:
@@ -165,11 +174,12 @@ def _append_betweenness_distribution(
     nx_graph: nx.Graph,
 ) -> None:
     """
-    Add graph-level betweenness distribution summaries with normalization.
+    Add graph-level betweenness distribution summaries.
 
-    ``betweenness_max_norm`` and ``betweenness_std_norm`` divide by the
-    theoretical maximum betweenness in an undirected graph with the same
-    node count, making hub-strength comparable across graph sizes.
+    ``betweenness_max`` and ``betweenness_std`` use NetworkX's default
+    normalized betweenness (already in ``[0, 1]``). The ``*_norm``
+    companions copy those values when ``n >= 3``; they are not divided
+    by ``(n-1)*(n-2)/2`` a second time.
 
     Args:
         features: Feature dictionary updated in place.
@@ -177,7 +187,6 @@ def _append_betweenness_distribution(
         nx_graph: Graph on which betweenness is computed.
     """
     n_nodes = nx_graph.number_of_nodes()
-    bc_scale = _betweenness_scale(n_nodes)
     if n_nodes > 1 and nx_graph.number_of_edges() > 0:
         try:
             betweenness = nx.betweenness_centrality(nx_graph)
@@ -193,11 +202,11 @@ def _append_betweenness_distribution(
 
     features[f"{prefix}_betweenness_max"] = bc_max
     features[f"{prefix}_betweenness_std"] = bc_std
-    features[f"{prefix}_betweenness_max_norm"] = (
-        bc_max / bc_scale if bc_scale > 0 else 0.0
+    features[f"{prefix}_betweenness_max_norm"] = _copy_normalized_betweenness(
+        bc_max, n_nodes
     )
-    features[f"{prefix}_betweenness_std_norm"] = (
-        bc_std / bc_scale if bc_scale > 0 else 0.0
+    features[f"{prefix}_betweenness_std_norm"] = _copy_normalized_betweenness(
+        bc_std, n_nodes
     )
 
 
@@ -302,7 +311,6 @@ def compute_extended_pairwise_metrics(
     features.pop(f"{prefix}_degree_skewness", None)
 
     n_total = nx_graph.number_of_nodes()
-    bc_scale = _betweenness_scale(n_total)
     betweenness: Dict[str, float] = {}
     if n_total > 1 and nx_graph.number_of_edges() > 0:
         try:
@@ -325,8 +333,10 @@ def compute_extended_pairwise_metrics(
         ]
         bc_max = max(bc_values) if bc_values else 0.0
         features[f"{prefix}_betweenness_max{suffix}"] = bc_max
+        # Full-graph n decides whether betweenness is defined; the value
+        # itself is already NetworkX-normalized on that same full graph.
         features[f"{prefix}_betweenness_max{suffix}_norm"] = (
-            bc_max / bc_scale if bc_scale > 0 else 0.0
+            _copy_normalized_betweenness(bc_max, n_total)
         )
 
     return features
