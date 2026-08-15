@@ -11,10 +11,6 @@ Tables, heatmaps, and the 5-minus-8 delta use **full 3D** habitat maps
 (``HabitatMap.label_array``). The 2D network figures are display-only:
 they draw a representative axial slice so you can see the lattice.
 ``include_extended_metrics=False`` keeps the 3D extract tractable.
-The library default includes a 1-voxel peritumoral background shell
-(``include_background_shell=True``); both 8- and 5-voxel extracts use
-that same default so the lattice compare is not confounded. Pass
-``include_background_shell=False`` for ROI-only graphs.
 A second 3D extract uses ``block_size=5`` only as a comparison override
 (library default stays 8). For a larger cohort table, load
 ``habitat_graph_features.csv`` from ``habit extract`` and pass

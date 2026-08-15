@@ -27,8 +27,7 @@ from typing import Dict, List, Literal, Optional, Tuple
 import numpy as np
 
 __all__ = [
-    "BACKGROUND_SHELL_LABEL",
-    "is_background_label",
+    "label_token",
     "single_feature_prefix",
     "pair_feature_prefix",
     "EdgeMethod",
@@ -41,31 +40,20 @@ __all__ = [
     "HabitatNodeExtractionResult",
 ]
 
-#: Reserved class for the optional peritumoral background shell.
-#: This is not a clustered habitat id; feature names use ``bg``, not ``hK+1``.
-BACKGROUND_SHELL_LABEL = -1
 
-
-def is_background_label(label: int) -> bool:
-    """Return True when ``label`` is the reserved peritumoral shell class."""
-    return int(label) == int(BACKGROUND_SHELL_LABEL)
+def label_token(label: int) -> str:
+    """Return ``h{k}`` for one habitat class."""
+    return f"h{int(label)}"
 
 
 def single_feature_prefix(label: int) -> str:
-    """Return ``single_bg`` or ``single_h{k}`` for one graph class."""
-    if is_background_label(label):
-        return "single_bg"
-    return f"single_h{int(label)}"
+    """Return ``single_h{k}`` for one habitat class."""
+    return f"single_{label_token(label)}"
 
 
 def pair_feature_prefix(label_a: int, label_b: int) -> str:
-    """Return ``pair_h1_bg`` or ``pair_h1_h2`` (habitat tokens first)."""
-    tokens = []
-    for label in (int(label_a), int(label_b)):
-        tokens.append("bg" if is_background_label(label) else f"h{label}")
-    habitats = [token for token in tokens if token != "bg"]
-    background = [token for token in tokens if token == "bg"]
-    return "pair_" + "_".join(habitats + background)
+    """Return ``pair_h1_h2`` for one unordered habitat pair."""
+    return f"pair_{label_token(label_a)}_{label_token(label_b)}"
 
 
 #: Edge identification strategy: centroid proximity, voxel adjacency, or

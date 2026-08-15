@@ -22,7 +22,6 @@ import pytest
 import networkx as nx
 
 from habit.kernels.habitat_graph import (
-    BACKGROUND_SHELL_LABEL,
     GraphNullModelOptions,
     HabitatGraphFeatureOptions,
     build_adjacency_graph,
@@ -42,8 +41,8 @@ from habit.kernels.habitat_graph.extended_metrics import (
 
 def _extract(label_array: np.ndarray, **overrides) -> dict:
     """Run the kernel with explicit options (test defaults disable erosion)."""
-    # Existing metric tests pin connected-component nodes; the library
-    # default is now uniform_grid.
+    # Existing metric tests pin connected-component nodes and ROI-only
+    # graphs; the library default is now uniform_grid.
     overrides.setdefault("node_method", "component")
     options = HabitatGraphFeatureOptions(**overrides)
     return extract_graph_features(label_array, options=options)
@@ -634,8 +633,6 @@ def test_default_options_disable_erosion_and_enable_subdivision() -> None:
     assert options.adjacency_connectivity == "corner"
     assert options.connectivity == "full"
     assert options.adjacency_min_voxels == 10
-    assert options.include_background_shell is True
-    assert options.background_shell_width == 1
 
 
 @pytest.mark.unit
@@ -1128,8 +1125,6 @@ def test_empty_label_array_returns_zero_habitat_summary() -> None:
 
     assert features["graph_num_habitats"] == 0.0
     assert features["graph_num_nodes_total"] == 0.0
-    assert features["graph_num_background_nodes"] == 0.0
-    assert "single_bg_n_nodes" in features
     assert not any(key.startswith("single_h") for key in features)
     assert not any(key.startswith("pair_") for key in features)
 
@@ -1238,11 +1233,7 @@ def test_3d_synthetic_volume_extracts_single_and_pairwise_columns() -> None:
     assert features["single_h2_n_nodes"] == 1.0
     assert "pair_h1_h2_n_nodes_1" in features
     assert "pair_h1_h2_edge_density" in features
-    assert features["graph_num_nodes_total"] == (
-        3.0 + features["graph_num_background_nodes"]
-    )
-    assert "single_bg_n_nodes" in features
-    assert "pair_h1_bg_n_nodes_1" in features
+    assert features["graph_num_nodes_total"] == 3.0
 
 
 @pytest.mark.unit
@@ -1336,50 +1327,4 @@ def test_default_threshold_skips_one_empty_lattice_cell() -> None:
 
 
 @pytest.mark.unit
-def test_background_shell_default_on_adds_bg_columns() -> None:
-    """Default extract includes reserved bg columns; False stays ROI-only."""
-    label_array: np.ndarray = np.zeros((12, 12), dtype=np.int32)
-    label_array[3:9, 3:9] = 1
-    label_array[3:6, 3:6] = 2
 
-    with_shell = extract_graph_features(
-        label_array,
-        options=HabitatGraphFeatureOptions(include_extended_metrics=False),
-    )
-    roi_only = extract_graph_features(
-        label_array,
-        options=HabitatGraphFeatureOptions(
-            include_extended_metrics=False,
-            include_background_shell=False,
-        ),
-    )
-    assert "single_bg_n_nodes" in with_shell
-    assert "pair_h1_bg_n_nodes_1" in with_shell
-    assert "pair_h2_bg_n_nodes_1" in with_shell
-    assert with_shell["graph_num_habitats"] == 2.0
-    assert with_shell["graph_num_background_nodes"] > 0.0
-    assert not any("bg" in key for key in roi_only)
-    assert "graph_num_background_nodes" not in roi_only
-    # Habitat intra columns stay the same when the shell is toggled.
-    assert with_shell["single_h1_n_nodes"] == roi_only["single_h1_n_nodes"]
-    assert with_shell["single_h2_n_nodes"] == roi_only["single_h2_n_nodes"]
-    assert with_shell["graph_num_nodes_total"] > roi_only["graph_num_nodes_total"]
-
-
-@pytest.mark.unit
-def test_background_shell_is_outside_roi() -> None:
-    """Width-1 shell voxels do not overlap habitat voxels."""
-    label_array: np.ndarray = np.zeros((10, 10), dtype=np.int32)
-    label_array[3:7, 3:7] = 1
-    result = extract_habitat_nodes(
-        label_array,
-        include_background_shell=True,
-        background_shell_width=1,
-    )
-    bg_map = result.component_maps[BACKGROUND_SHELL_LABEL]
-    shell = bg_map > 0
-    assert np.any(shell)
-    assert not np.any(shell & (label_array > 0))
-    # A 1-voxel ring sits on the immediate outside of the 4x4 block.
-    assert bool(shell[2, 3])
-    assert not bool(shell[3, 3])

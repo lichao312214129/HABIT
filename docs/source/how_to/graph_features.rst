@@ -42,8 +42,6 @@ Minimal YAML fragment::
      include_single_habitat_graph: true
      include_pairwise_habitat_graph: true
      include_extended_metrics: true
-     include_background_shell: true
-     background_shell_width: 1
      visualize: false
      visualization_show_grid: true
      visualization_block_size: null
@@ -66,10 +64,7 @@ the closest voxels of two nodes are within 5** voxel-index units
 Face-adjacent 8-cubes connect (closest voxels are one hop apart). One
 empty lattice cell between cubes is closest-voxel distance about 8,
 which is greater than 5, so those stay disconnected. There is **no morphological
-erosion** (``erosion_radius: 0``). The default graph also includes a
-**1-voxel peritumoral background shell** (``include_background_shell:
-true``): a reserved ``bg`` class around the ROI, not a clustered
-habitat. Pass ``include_background_shell: false`` for ROI-only graphs.
+erosion** (``erosion_radius: 0``).
 Pass ``node_method: component`` for connected-component nodes, and
 ``edge_method: adjacency`` if you want contact-voxel edges (default
 contact count >= 10). ``centroid_distance`` is the older centroid-proximity
@@ -112,8 +107,7 @@ Or paste the same code the gallery shows::
    ).fit_predict(cohort)
    labels = result.habitat_maps[0].label_array
    options = HabitatGraphFeatureOptions(include_extended_metrics=False)
-   # Full 3D map for features (default includes the 1-voxel BG shell).
-   # The 2D network below is display-only.
+   # Full 3D map for features; the 2D network below is display-only.
    feats = extract_graph_features(labels, options=options)
    fig = plot_habitat_graph_network_2d(
        labels, options=options, show_grid=True, block_size=8, grid_linestyle="--"

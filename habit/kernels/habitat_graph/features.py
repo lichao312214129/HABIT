@@ -40,12 +40,10 @@ from habit.kernels.habitat_graph.metrics import (
     calculate_single_graph_metrics,
 )
 from habit.kernels.habitat_graph.models import (
-    BACKGROUND_SHELL_LABEL,
     EdgeMethod,
     EdgeWeightMode,
     HabitatGraphNode,
     NodeMethod,
-    is_background_label,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
 
@@ -104,10 +102,6 @@ class HabitatGraphFeatureOptions:
     pairwise_include_intra_edges: bool = True
     include_extended_metrics: bool = True
     extended_min_nodes: int = 10
-    # Default on: 1-voxel peritumoral shell as a reserved BG class
-    # (not a clustered habitat). Pass False for ROI-only graphs.
-    include_background_shell: bool = True
-    background_shell_width: int = 1
 
 
 # Feature key suffixes grouped by physical dimension, used to attach VOI-size
@@ -292,22 +286,10 @@ def _augment_with_normalized_features(
                 ] = _scaled(value, pair_bbox_diagonal)
             continue
 
-        pair_bg_match = re.match(
-            r"^pair_h(?P<label_a>\d+)_bg_(?P<suffix>.+)$",
-            key,
-        )
-        if pair_bg_match:
-            label_a = int(pair_bg_match.group("label_a"))
-            suffix = pair_bg_match.group("suffix")
-            if suffix == "n_nodes_1":
-                features[f"pair_h{label_a}_bg_n_nodes_1_per_habitat_volume"] = (
-                    _scaled(value, habitat_volumes.get(label_a, 0.0))
-                )
-
 
 def _true_habitat_labels(labels: Sequence[int]) -> List[int]:
-    """Drop the reserved background class from a label list."""
-    return sorted(int(label) for label in labels if not is_background_label(label))
+    """Return the sorted positive habitat labels present in ``labels``."""
+    return sorted(int(label) for label in labels if int(label) > 0)
 
 
 def _flatten_nodes(
@@ -360,8 +342,6 @@ def extract_graph_features(
         block_size=options.block_size,
         block_min_coverage=options.block_min_coverage,
         node_method=options.node_method,
-        include_background_shell=options.include_background_shell,
-        background_shell_width=options.background_shell_width,
     )
 
     present_labels = _true_habitat_labels(node_result.nodes_by_habitat.keys())
@@ -369,20 +349,14 @@ def extract_graph_features(
         habitat_labels = _true_habitat_labels(expected_labels)
     else:
         habitat_labels = present_labels
-    bg_nodes = list(node_result.nodes_by_habitat.get(BACKGROUND_SHELL_LABEL, []))
     features: Dict[str, float] = {
-        # Count of true habitats only (the reserved shell is not a habitat).
         "graph_num_habitats": float(len(present_labels)),
         "graph_num_nodes_total": float(
             sum(len(nodes) for nodes in node_result.nodes_by_habitat.values())
         ),
     }
-    if options.include_background_shell:
-        features["graph_num_background_nodes"] = float(len(bg_nodes))
 
     single_labels = list(habitat_labels)
-    if options.include_background_shell:
-        single_labels.append(BACKGROUND_SHELL_LABEL)
 
     if options.include_single_habitat_graph:
         for habitat_label in single_labels:
@@ -423,7 +397,8 @@ def extract_graph_features(
             )
 
     if options.include_pairwise_habitat_graph:
-        for label_a, label_b in iter_label_pairs(habitat_labels):
+        pair_labels = list(iter_label_pairs(habitat_labels))
+        for label_a, label_b in pair_labels:  # noqa: B007
             pair_nodes = _flatten_nodes(
                 [
                     node_result.nodes_by_habitat.get(label_a, []),
@@ -465,52 +440,6 @@ def extract_graph_features(
                     extended_min_nodes=options.extended_min_nodes,
                 )
             )
-        if options.include_background_shell:
-            for habitat_label in habitat_labels:
-                pair_nodes = _flatten_nodes(
-                    [
-                        node_result.nodes_by_habitat.get(habitat_label, []),
-                        node_result.nodes_by_habitat.get(
-                            BACKGROUND_SHELL_LABEL, []
-                        ),
-                    ]
-                )
-                pair_labels = (habitat_label, BACKGROUND_SHELL_LABEL)
-                if options.edge_method == "adjacency":
-                    graph = build_adjacency_graph(
-                        node_result=node_result,
-                        labels=pair_labels,
-                        graph_kind="pairwise",
-                        adjacency_connectivity=options.adjacency_connectivity,
-                        adjacency_min_voxels=options.adjacency_min_voxels,
-                        edge_weight=options.edge_weight,
-                        include_intra_edges=options.pairwise_include_intra_edges,
-                    )
-                elif options.edge_method == "min_distance":
-                    graph = build_min_distance_graph(
-                        node_result=node_result,
-                        labels=pair_labels,
-                        graph_kind="pairwise",
-                        distance_threshold=options.distance_threshold,
-                        edge_weight=options.edge_weight,
-                        include_intra_edges=options.pairwise_include_intra_edges,
-                    )
-                else:
-                    graph = build_centroid_distance_graph(
-                        nodes=pair_nodes,
-                        labels=pair_labels,
-                        graph_kind="pairwise",
-                        distance_threshold=options.distance_threshold,
-                        edge_weight=options.edge_weight,
-                        include_intra_edges=options.pairwise_include_intra_edges,
-                    )
-                features.update(
-                    calculate_pairwise_graph_metrics(
-                        graph,
-                        include_extended_metrics=options.include_extended_metrics,
-                        extended_min_nodes=options.extended_min_nodes,
-                    )
-                )
 
     _augment_with_normalized_features(features, labels_array)
     return features

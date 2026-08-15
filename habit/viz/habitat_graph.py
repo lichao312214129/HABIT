@@ -52,9 +52,7 @@ from habit.kernels.habitat_graph import (
     build_adjacency_graph,
     build_centroid_distance_graph,
     build_min_distance_graph,
-    BACKGROUND_SHELL_LABEL,
     extract_habitat_nodes,
-    is_background_label,
     iter_label_pairs,
 )
 from habit.exceptions import HABITAPIError
@@ -89,9 +87,9 @@ _VIEW_PURPOSE = "3D habitat graph rendering"
 #: Default column cap so a ~400-feature graph table stays readable.
 _DEFAULT_HEATMAP_FEATURES: int = 40
 #: Single-habitat columns look like ``single_h1_avg_degree``.
-_SINGLE_FEATURE_RE = re.compile(r"^single_(?:h\d+|bg)_")
-#: Pairwise columns look like ``pair_h1_h2_edge_density`` or ``pair_h1_bg_*``.
-_PAIR_FEATURE_RE = re.compile(r"^pair_h\d+_(?:h\d+|bg)_")
+_SINGLE_FEATURE_RE = re.compile(r"^single_h\d+_")
+#: Pairwise columns look like ``pair_h1_h2_edge_density``.
+_PAIR_FEATURE_RE = re.compile(r"^pair_h\d+_h\d+_")
 #: Subject-level counts (``graph_num_habitats``, ``graph_num_nodes_total``).
 _GRAPH_NUM_RE = re.compile(r"^graph_num_")
 #: Heatmap typography (GitHub Pages / gallery readability).
@@ -105,15 +103,11 @@ _HEATMAP_CBAR_FONTSIZE: float = 9.0
 _INTER_EDGE_COLOR = "#8E44AD"
 #: 3D renderer only: intra-habitat tubes. 2D intra-edges are white.
 _INTRA_EDGE_COLOR = "#9AA0A6"
+#: Gray silhouette used when the habitat palette is unavailable.
 _BACKGROUND_COLOR = "#D9DCE1"
 #: 2D graph overlay: solid white nodes and white edges on the fill.
 _GRAPH_NODE_COLOR = "#FFFFFF"
 _GRAPH_EDGE_COLOR = "#FFFFFF"
-#: Reserved peritumoral-shell nodes (not a clustered habitat).
-_BG_NODE_COLOR = "#6B7280"
-#: Habitat–background edges: distinct from white 2D inter-edges and
-#: purple 3D inter-habitat tubes.
-_BG_EDGE_COLOR = "#2A9D8F"
 #: Thin dark rim so a white dot stays visible on pink / light habitats.
 _NODE_OUTLINE_COLOR = "#1A1A1A"
 
@@ -232,8 +226,6 @@ def _extract_nodes(
         block_size=options.block_size,
         block_min_coverage=options.block_min_coverage,
         node_method=options.node_method,
-        include_background_shell=options.include_background_shell,
-        background_shell_width=options.background_shell_width,
     )
 
 
@@ -351,9 +343,7 @@ def _combined_graph(
 
 
 def _class_panel_name(label: int) -> str:
-    """English panel name: ``H1`` or ``BG`` (reserved shell, not a habitat)."""
-    if is_background_label(label):
-        return "BG"
+    """English panel name for one habitat class (``H1``)."""
     return f"H{int(label)}"
 
 
@@ -373,7 +363,7 @@ def _pair_panel_title(
         n_inter_edges: Inter-habitat edges drawn on this panel.
 
     Returns:
-        Title such as ``H1-H2 (n=26, inter e=12)`` or ``H1-BG``.
+        Title such as ``H1-H2 (n=26, inter e=12)``.
         Figure text stays English-only.
     """
     return (
@@ -1147,26 +1137,14 @@ def plot_habitat_graph_network_2d(
 
     labels_array = _as_label_array(label_array)
     crop_pad = 3
-    if options.include_background_shell:
-        crop_pad = max(3, int(options.background_shell_width) + 1)
     label_2d, index, _ = _representative_slice(
         labels_array, slice_index, pad=crop_pad
     )
     colors = _habitat_colors(np.unique(label_2d[label_2d > 0]))
 
     node_result = _extract_nodes(label_2d, options)
-    habitat_labels = sorted(
-        label
-        for label in node_result.nodes_by_habitat
-        if not is_background_label(label)
-    )
-    bg_nodes = list(
-        node_result.nodes_by_habitat.get(BACKGROUND_SHELL_LABEL, [])
-    )
-    show_bg = bool(options.include_background_shell and bg_nodes)
+    habitat_labels = sorted(node_result.nodes_by_habitat)
     panel_labels = list(habitat_labels)
-    if show_bg:
-        panel_labels.append(BACKGROUND_SHELL_LABEL)
     if not panel_labels:
         return None
     id_to_node: Dict[str, HabitatGraphNode] = {
@@ -1179,10 +1157,6 @@ def plot_habitat_graph_network_2d(
         if options.include_pairwise_habitat_graph
         else []
     )
-    if show_bg and options.include_pairwise_habitat_graph:
-        pairs.extend(
-            (label, BACKGROUND_SHELL_LABEL) for label in habitat_labels
-        )
     display_size = _display_block_size(options, block_size)
     grid_kwargs = dict(
         show_grid=show_grid,
@@ -1228,11 +1202,7 @@ def plot_habitat_graph_network_2d(
             occupied_cells.add(cell)
             habitat_axes.append(ax)
             sub = node_result.nodes_by_habitat[label]
-            featured = (
-                tuple(habitat_labels)
-                if is_background_label(label)
-                else (int(label),)
-            )
+            featured = (int(label),)
             _draw_background_2d(
                 ax,
                 label_2d,
@@ -1245,14 +1215,11 @@ def plot_habitat_graph_network_2d(
             )
             # Featured class only: intra-edges, no other-class edges.
             edges = _single_intra_edges(sub, label, options, node_result)
-            edge_color = (
-                _BG_EDGE_COLOR if is_background_label(label) else _GRAPH_EDGE_COLOR
-            )
             _draw_edges_2d(
                 ax,
                 id_to_node,
                 edges,
-                edge_color,
+                _GRAPH_EDGE_COLOR,
                 _DEFAULT_EDGE_WIDTH,
                 1.0,
                 2,
@@ -1262,19 +1229,12 @@ def plot_habitat_graph_network_2d(
                 sub,
                 node_size=node_size,
                 linewidths=_NODE_EDGE_WIDTH,
-                color=(
-                    _BG_NODE_COLOR
-                    if is_background_label(label)
-                    else _GRAPH_NODE_COLOR
-                ),
+                color=_GRAPH_NODE_COLOR,
             )
             # Slice index lives on the figure title; keep panel titles short
             # so neighbouring H1 / H2 headings cannot run into each other.
-            n_bg = len(bg_nodes) if show_bg else 0
             title = (
-                f"{_class_panel_name(label)} (n={len(sub)}, e={len(edges)}"
-                + (f", bg={n_bg}" if show_bg and not is_background_label(label) else "")
-                + ")"
+                f"{_class_panel_name(label)} (n={len(sub)}, e={len(edges)})"
             )
             _style_axis_2d(
                 ax,
@@ -1309,47 +1269,25 @@ def plot_habitat_graph_network_2d(
             _apply_display_grid(
                 ax, label_2d, node_result, options, **grid_kwargs
             )
-            # Pair only: inter-edges, no intra-edges. Habitat–BG uses teal.
-            pair_is_bg = is_background_label(label_a) or is_background_label(
-                label_b
-            )
+            # Pair only: inter-edges, no intra-edges.
             _draw_edges_2d(
                 ax,
                 id_to_node,
                 inter_edges,
-                _BG_EDGE_COLOR if pair_is_bg else _GRAPH_EDGE_COLOR,
+                _GRAPH_EDGE_COLOR,
                 _DEFAULT_EDGE_WIDTH,
                 1.0,
                 3,
             )
-            habitat_pair_nodes = [
-                node
-                for node in pair_nodes
-                if not is_background_label(node.habitat_label)
-            ]
-            bg_pair_nodes = [
-                node
-                for node in pair_nodes
-                if is_background_label(node.habitat_label)
-            ]
             _draw_nodes_2d(
                 ax,
-                habitat_pair_nodes,
+                pair_nodes,
                 node_size=node_size,
                 linewidths=_NODE_EDGE_WIDTH,
-            )
-            _draw_nodes_2d(
-                ax,
-                bg_pair_nodes,
-                node_size=node_size,
-                linewidths=_NODE_EDGE_WIDTH,
-                color=_BG_NODE_COLOR,
             )
             pair_title = _pair_panel_title(
                 label_a, label_b, len(pair_nodes), len(inter_edges)
             )
-            if show_bg and not pair_is_bg:
-                pair_title = pair_title[:-1] + f", bg={len(bg_nodes)})"
             _style_axis_2d(
                 ax,
                 label_2d,
@@ -1441,41 +1379,6 @@ def plot_habitat_graph_network_2d(
             "Inter-habitat edge",
             _grid_caption(display_size),
         ]
-        if show_bg:
-            bg_node_handle = Line2D(
-                [0],
-                [0],
-                linestyle="None",
-                marker="o",
-                markersize=6.5,
-                markerfacecolor=_BG_NODE_COLOR,
-                markeredgecolor=_NODE_OUTLINE_COLOR,
-                markeredgewidth=0.8,
-                label="BG node",
-            )
-            bg_edge_handle = Line2D(
-                [0],
-                [0],
-                color=_BG_EDGE_COLOR,
-                lw=1.6,
-                label="Habitat-BG edge",
-            )
-            legend_handles = [
-                node_handle,
-                bg_node_handle,
-                intra_handle,
-                inter_handle,
-                bg_edge_handle,
-                grid_handle,
-            ]
-            legend_labels = [
-                "Node",
-                "BG node",
-                "Intra-habitat edge",
-                "Inter-habitat edge",
-                "Habitat-BG edge",
-                _grid_caption(display_size),
-            ]
         fig.legend(
             handles=legend_handles,
             labels=legend_labels,
@@ -2385,10 +2288,7 @@ def render_habitat_graph_network_3d(
             f"render_habitat_graph_network_3d requires a 3D volume; "
             f"got shape {tuple(labels_array.shape)}."
         )
-    crop_pad = 3
-    if options.include_background_shell:
-        crop_pad = max(3, int(options.background_shell_width) + 1)
-    cropped = _crop_to_foreground(labels_array, pad=crop_pad)
+    cropped = _crop_to_foreground(labels_array, pad=3)
     colors = _habitat_colors(np.unique(cropped[cropped > 0]))
 
     node_result = _extract_nodes(cropped, options)
@@ -2426,22 +2326,8 @@ def render_habitat_graph_network_3d(
         tube = poly.tube(radius=radius, n_sides=12)
         plotter.add_mesh(tube, color=color, smooth_shading=True, specular=0.3)
 
-    habitat_inter = []
-    bg_inter = []
-    for source, target in inter_edges:
-        node_a = id_to_node.get(source)
-        node_b = id_to_node.get(target)
-        if node_a is None or node_b is None:
-            continue
-        if is_background_label(node_a.habitat_label) or is_background_label(
-            node_b.habitat_label
-        ):
-            bg_inter.append((source, target))
-        else:
-            habitat_inter.append((source, target))
     _add_tubes(intra_edges, _INTRA_EDGE_COLOR, intra_radius)
-    _add_tubes(habitat_inter, _INTER_EDGE_COLOR, inter_radius)
-    _add_tubes(bg_inter, _BG_EDGE_COLOR, inter_radius)
+    _add_tubes(inter_edges, _INTER_EDGE_COLOR, inter_radius)
 
     for label in labels:
         nodes = node_result.nodes_by_habitat[label]
@@ -2450,9 +2336,7 @@ def render_habitat_graph_network_3d(
         pts = np.array([_phys_xyz(n, spacing) for n in nodes])
         cloud = pv.PolyData(pts)
         glyphs = cloud.glyph(geom=pv.Sphere(radius=node_radius), scale=False, orient=False)
-        node_color = (
-            _BG_NODE_COLOR if is_background_label(label) else colors[int(label)]
-        )
+        node_color = colors[int(label)]
         plotter.add_mesh(
             glyphs, color=node_color, smooth_shading=True,
             specular=0.5, specular_power=20, ambient=0.3, diffuse=0.7,

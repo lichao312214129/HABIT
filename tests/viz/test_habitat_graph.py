@@ -87,11 +87,7 @@ def _synthetic_3d_labels() -> np.ndarray:
 
 
 def _viz_options() -> HabitatGraphFeatureOptions:
-    """Return deterministic graph options that keep small synthetic nodes.
-
-    Layout tests pin ROI-only panel counts, so the shell is off here.
-    Default library options keep ``include_background_shell=True``.
-    """
+    """Return deterministic graph options that keep small synthetic nodes."""
     return HabitatGraphFeatureOptions(
         edge_method="centroid_distance",
         distance_threshold=12.0,
@@ -99,7 +95,6 @@ def _viz_options() -> HabitatGraphFeatureOptions:
         node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
-        include_background_shell=False,
     )
 
 
@@ -206,26 +201,6 @@ def test_plot_habitat_graph_network_2d_returns_figure_and_saves(tmp_path) -> Non
         assert "intra e=" not in pair_title
         assert "All habitats" not in pair_title
 
-    import matplotlib.pyplot as plt
-
-    plt.close(fig)
-
-
-def test_plot_habitat_graph_network_2d_default_shows_bg_shell() -> None:
-    """Default options draw a BG panel and habitat-BG pair titles."""
-    labels = _synthetic_2d_labels()
-    fig = plot_habitat_graph_network_2d(labels)
-    assert isinstance(fig, Figure)
-    titles = [ax.get_title() for ax in fig.axes]
-    joined = " ".join(titles)
-    assert "BG" in joined
-    assert any(title.startswith("BG (n=") for title in titles)
-    assert any("H1-BG" in title for title in titles)
-    assert any("bg=" in title for title in titles)
-    if fig.legends:
-        legend_text = " ".join(t.get_text() for t in fig.legends[0].get_texts())
-        assert "BG node" in legend_text
-        assert "Habitat-BG edge" in legend_text
     import matplotlib.pyplot as plt
 
     plt.close(fig)
@@ -490,7 +465,6 @@ def test_plot_habitat_graph_network_2d_featured_panel_omits_other_edges() -> Non
         node_method="component",
         subdivide_region_voxels=0,
         include_extended_metrics=False,
-        include_background_shell=False,
     )
     fig = plot_habitat_graph_network_2d(labels, options=options, show_grid=False)
     assert isinstance(fig, Figure)

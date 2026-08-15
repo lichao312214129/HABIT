@@ -22,13 +22,12 @@ import numpy as np
 from scipy import ndimage as ndi
 
 from habit.kernels.habitat_graph.models import (
-    BACKGROUND_SHELL_LABEL,
     HabitatGraphNode,
     HabitatNodeExtractionResult,
     NodeMethod,
 )
 
-__all__ = ["BACKGROUND_SHELL_LABEL", "extract_habitat_nodes"]
+__all__ = ["extract_habitat_nodes"]
 
 
 def _connectivity_structure(ndim: int, connectivity: str) -> np.ndarray:
@@ -172,56 +171,6 @@ def _node_from_coords(
     )
 
 
-def _background_shell_mask(
-    label_array: np.ndarray,
-    width: int,
-    connectivity: str,
-) -> np.ndarray:
-    """
-    Return the peritumoral shell (dilated VOI minus the original VOI).
-
-    Dilation uses the same neighbourhood as graph ``connectivity``
-    (``face`` or ``full``) and stays inside the array bounds.
-
-    Args:
-        label_array: Integer habitat map (background encoded as 0).
-        width: Dilation iterations (>= 1). One iteration is a 1-voxel ring.
-        connectivity: ``"face"`` or ``"full"``.
-
-    Returns:
-        np.ndarray: Boolean mask of shell voxels. Empty when the VOI is empty.
-    """
-    if width < 1:
-        raise ValueError("background_shell_width must be >= 1.")
-    structure = _connectivity_structure(label_array.ndim, connectivity)
-    voi = label_array > 0
-    if not np.any(voi):
-        return np.zeros(label_array.shape, dtype=bool)
-    dilated = ndi.binary_dilation(
-        voi, structure=structure, iterations=int(width)
-    )
-    return dilated & ~voi
-
-
-def _remap_nodes_to_background(
-    nodes: List[HabitatGraphNode],
-) -> List[HabitatGraphNode]:
-    """Rewrite painted shell nodes to the reserved background class."""
-    remapped: List[HabitatGraphNode] = []
-    for node in nodes:
-        remapped.append(
-            HabitatGraphNode(
-                node_id=f"bg_c{int(node.component_id)}",
-                habitat_label=BACKGROUND_SHELL_LABEL,
-                component_id=int(node.component_id),
-                centroid=node.centroid,
-                voxel_count=int(node.voxel_count),
-                bbox=node.bbox,
-            )
-        )
-    return remapped
-
-
 def _extract_uniform_grid_nodes(
     label_array: np.ndarray,
     labels: List[int],
@@ -284,7 +233,7 @@ def _extract_uniform_grid_nodes(
             grid_block_size=int(block_size),
         )
 
-    coords = np.argwhere(working > 0)
+    coords = np.argwhere(working != 0)
     voxel_labels = working[tuple(coords.T)]
     block_indices = (coords - origin) // block_size
     unique_blocks, inverse = np.unique(block_indices, axis=0, return_inverse=True)
@@ -306,7 +255,11 @@ def _extract_uniform_grid_nodes(
         local = block_coords - origin - unique_blocks[block_id] * block_size
         cube = np.zeros(cube_shape, dtype=np.int32)
         cube[tuple(local.T)] = block_lab
-        for habitat_label in (int(v) for v in np.unique(block_lab) if int(v) > 0):
+        # Keep the reserved background-shell label (negative) as well as
+        # ordinary positive habitat ids that occupy this cube.
+        for habitat_label in (
+            int(v) for v in np.unique(block_lab) if int(v) != 0
+        ):
             labeled, n_cc = ndi.label(cube == habitat_label, structure=structure)
             for cc_id in range(1, int(n_cc) + 1):
                 cc_local = np.argwhere(labeled == cc_id)
@@ -322,7 +275,7 @@ def _extract_uniform_grid_nodes(
                     _node_from_coords(habitat_label, component_id, global_coords)
                 )
 
-    present_after = {int(v) for v in np.unique(working) if int(v) > 0}
+    present_after = {int(v) for v in np.unique(working) if int(v) != 0}
     for habitat_label in labels:
         habitat_nodes = kept_by_habitat.get(habitat_label, [])
         if habitat_nodes:
@@ -437,78 +390,6 @@ def _extract_component_nodes(
         component_maps=component_maps,
     )
 
-
-def _merge_background_shell_nodes(
-    habitat_result: HabitatNodeExtractionResult,
-    *,
-    label_array: np.ndarray,
-    connectivity: str,
-    min_region_voxels: int,
-    block_size: int,
-    block_min_coverage: float,
-    node_method: NodeMethod,
-    background_shell_width: int,
-) -> HabitatNodeExtractionResult:
-    """
-    Append reserved-class shell nodes without moving the habitat lattice.
-
-    Habitat nodes stay exactly as extracted from the original VOI. The
-    shell is a second extract on ``dilated VOI AND NOT VOI``, using the
-    same ``block_size`` / coverage (and the same grid origin in
-    ``uniform_grid`` mode).
-    """
-    shell = _background_shell_mask(
-        label_array, background_shell_width, connectivity
-    )
-    paint_id = 1
-    shell_labels = np.zeros(label_array.shape, dtype=np.int32)
-    shell_labels[shell] = paint_id
-    structure = _connectivity_structure(label_array.ndim, connectivity)
-    if node_method == "uniform_grid":
-        origin = habitat_result.grid_origin
-        origin_arr = (
-            np.asarray(origin, dtype=int) if origin is not None else None
-        )
-        shell_result = _extract_uniform_grid_nodes(
-            label_array=shell_labels,
-            labels=[paint_id],
-            structure=structure,
-            min_region_voxels=min_region_voxels,
-            erosion_radius=0,
-            block_size=block_size,
-            block_min_coverage=block_min_coverage,
-            grid_origin=origin_arr,
-        )
-    else:
-        shell_result = _extract_component_nodes(
-            label_array=shell_labels,
-            labels=[paint_id],
-            structure=structure,
-            min_region_voxels=min_region_voxels,
-            erosion_radius=0,
-            subdivide_region_voxels=0,
-            block_size=block_size,
-            block_min_coverage=block_min_coverage,
-        )
-    bg_nodes = _remap_nodes_to_background(
-        list(shell_result.nodes_by_habitat.get(paint_id, []))
-    )
-    bg_map = shell_result.component_maps.get(
-        paint_id, np.zeros(label_array.shape, dtype=np.int32)
-    )
-    nodes_by_habitat = dict(habitat_result.nodes_by_habitat)
-    nodes_by_habitat[BACKGROUND_SHELL_LABEL] = bg_nodes
-    component_maps = dict(habitat_result.component_maps)
-    component_maps[BACKGROUND_SHELL_LABEL] = bg_map
-    return HabitatNodeExtractionResult(
-        label_array=habitat_result.label_array,
-        nodes_by_habitat=nodes_by_habitat,
-        component_maps=component_maps,
-        grid_origin=habitat_result.grid_origin,
-        grid_block_size=habitat_result.grid_block_size,
-    )
-
-
 def extract_habitat_nodes(
     label_array: np.ndarray,
     connectivity: str = "full",
@@ -518,8 +399,6 @@ def extract_habitat_nodes(
     block_size: int = 8,
     block_min_coverage: float = 0.2,
     node_method: NodeMethod = "uniform_grid",
-    include_background_shell: bool = True,
-    background_shell_width: int = 1,
 ) -> HabitatNodeExtractionResult:
     """
     Convert a habitat label map into graph nodes.
@@ -559,18 +438,11 @@ def extract_habitat_nodes(
             per subregion. Tiny in-cell fragments are dropped by
             ``min_region_voxels``.
         node_method: ``"uniform_grid"`` (default) or ``"component"``.
-        include_background_shell: If True (default), add a peritumoral
-            background shell as a reserved class (not a clustered
-            habitat). Habitat nodes stay on the original VOI lattice.
-        background_shell_width: Dilation width in voxels (>= 1). Default
-            is a 1-voxel ring outside the ROI, clipped to the array.
 
     Returns:
         HabitatNodeExtractionResult: Nodes grouped by habitat label plus
         component maps used by contact-based edge builders. ``uniform_grid``
         also fills ``grid_origin`` / ``grid_block_size`` for dashed overlays.
-        When the shell is on, ``nodes_by_habitat`` also has
-        :data:`~habit.kernels.habitat_graph.models.BACKGROUND_SHELL_LABEL`.
     """
     if label_array.ndim not in (2, 3):
         raise ValueError("label_array must be 2D or 3D.")
@@ -586,13 +458,11 @@ def extract_habitat_nodes(
         raise ValueError("block_min_coverage must be in [0, 1].")
     if node_method not in ("uniform_grid", "component"):
         raise ValueError("node_method must be 'uniform_grid' or 'component'.")
-    if background_shell_width < 1:
-        raise ValueError("background_shell_width must be >= 1.")
 
     labels = [int(v) for v in np.unique(label_array) if int(v) > 0]
     structure = _connectivity_structure(label_array.ndim, connectivity)
     if node_method == "uniform_grid":
-        habitat_result = _extract_uniform_grid_nodes(
+        return _extract_uniform_grid_nodes(
             label_array=label_array,
             labels=labels,
             structure=structure,
@@ -601,26 +471,13 @@ def extract_habitat_nodes(
             block_size=block_size,
             block_min_coverage=block_min_coverage,
         )
-    else:
-        habitat_result = _extract_component_nodes(
-            label_array=label_array,
-            labels=labels,
-            structure=structure,
-            min_region_voxels=min_region_voxels,
-            erosion_radius=erosion_radius,
-            subdivide_region_voxels=subdivide_region_voxels,
-            block_size=block_size,
-            block_min_coverage=block_min_coverage,
-        )
-    if not include_background_shell:
-        return habitat_result
-    return _merge_background_shell_nodes(
-        habitat_result,
+    return _extract_component_nodes(
         label_array=label_array,
-        connectivity=connectivity,
+        labels=labels,
+        structure=structure,
         min_region_voxels=min_region_voxels,
+        erosion_radius=erosion_radius,
+        subdivide_region_voxels=subdivide_region_voxels,
         block_size=block_size,
         block_min_coverage=block_min_coverage,
-        node_method=node_method,
-        background_shell_width=background_shell_width,
     )

@@ -41,7 +41,6 @@ from habit.kernels.habitat_graph.features import (
     pair_count,
 )
 from habit.kernels.habitat_graph.models import (
-    BACKGROUND_SHELL_LABEL,
     EdgeMethod,
     EdgeWeightMode,
     GraphKind,
@@ -50,15 +49,18 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraphEdge,
     HabitatGraphNode,
     HabitatNodeExtractionResult,
-    is_background_label,
     pair_feature_prefix,
     single_feature_prefix,
 )
 from habit.kernels.habitat_graph.nodes import extract_habitat_nodes
+from habit.kernels.habitat_graph.null_models import (
+    GraphNullModelOptions,
+    GraphNullModelResult,
+    GraphStatistic,
+    compare_graph_to_degree_preserving_null,
+)
 
 __all__ = [
-    "BACKGROUND_SHELL_LABEL",
-    "is_background_label",
     "single_feature_prefix",
     "pair_feature_prefix",
     "EdgeMethod",
@@ -70,6 +72,9 @@ __all__ = [
     "HabitatGraphNode",
     "HabitatNodeExtractionResult",
     "HabitatGraphFeatureOptions",
+    "GraphNullModelOptions",
+    "GraphNullModelResult",
+    "GraphStatistic",
     "extract_habitat_nodes",
     "build_centroid_distance_graph",
     "build_min_distance_graph",
@@ -79,4 +84,5 @@ __all__ = [
     "extract_graph_features",
     "extract_graph_features_for_labels",
     "pair_count",
+    "compare_graph_to_degree_preserving_null",
 ]

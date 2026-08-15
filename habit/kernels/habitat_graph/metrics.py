@@ -33,6 +33,7 @@ from habit.kernels.habitat_graph.models import (
     HabitatGraph,
     HabitatGraphEdge,
     HabitatGraphNode,
+    label_token,
     pair_feature_prefix,
     single_feature_prefix,
 )
@@ -544,15 +545,13 @@ def calculate_pairwise_graph_metrics(
             float(isolated_b / n_nodes_b) if n_nodes_b else 0.0
         ),
         # R21/R12: average number of other-class neighbors per node (cross degree).
-        f"{prefix}_avg_h{label_b}_per_h{label_a}": avg_cross_a,
-        f"{prefix}_avg_h{label_b}_per_h{label_a}_norm": _safe_divide(
-            avg_cross_a,
-            float(n_nodes_b),
+        f"{prefix}_avg_{label_token(label_b)}_per_{label_token(label_a)}": avg_cross_a,
+        f"{prefix}_avg_{label_token(label_b)}_per_{label_token(label_a)}_norm": (
+            _safe_divide(avg_cross_a, float(n_nodes_b))
         ),
-        f"{prefix}_avg_h{label_a}_per_h{label_b}": avg_cross_b,
-        f"{prefix}_avg_h{label_a}_per_h{label_b}_norm": _safe_divide(
-            avg_cross_b,
-            float(n_nodes_a),
+        f"{prefix}_avg_{label_token(label_a)}_per_{label_token(label_b)}": avg_cross_b,
+        f"{prefix}_avg_{label_token(label_a)}_per_{label_token(label_b)}_norm": (
+            _safe_divide(avg_cross_b, float(n_nodes_a))
         ),
         # AD1/AD2: average total degree (intra + inter neighbors) per class.
         f"{prefix}_avg_degree_1": avg_degree_a,
