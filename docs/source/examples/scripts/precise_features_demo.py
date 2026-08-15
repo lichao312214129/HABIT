@@ -341,6 +341,8 @@ from habit import (
     HabitatMap,
     ImagePerturbationRegistry,
     align_habitat_map,
+    HabitatGraphFeatureOptions,
+    extract_graph_features,
     habitat_stability,
     habitat_volume_fractions,
     icc3a_1,
@@ -365,7 +367,7 @@ deform = ImagePerturbationRegistry.create(
 
 
 def _habitat_feature_row(habitat_map: HabitatMap) -> Dict[str, float]:
-    """Volume fractions and ITH from one HabitatMap (aligned ids)."""
+    """Volume fractions, ITH, and the full graph-feature dict from one map."""
     labels = np.asarray(habitat_map.label_array)
     habitat_ids = tuple(int(hid) for hid in habitat_map.habitat_ids)
     fractions = habitat_volume_fractions(labels, habitat_ids)
@@ -374,10 +376,19 @@ def _habitat_feature_row(habitat_map: HabitatMap) -> Dict[str, float]:
         for hid in habitat_ids
     }
     row["ith_score"] = float(ith_score(labels))
+    # Single + pairwise graph metrics. Extended efficiency / small-world
+    # / rich-club are omitted: they dominate runtime on a clinical crop.
+    graph = extract_graph_features(
+        labels,
+        expected_labels=habitat_ids,
+        options=HabitatGraphFeatureOptions(include_extended_metrics=False),
+    )
+    for key, value in graph.items():
+        row[str(key)] = float(value)
     return row
 
 
-FEATURE_ORDER = (
+VOLUME_ITH_FIRST = (
     "habitat_1_volume_fraction",
     "habitat_2_volume_fraction",
     "habitat_3_volume_fraction",
@@ -399,9 +410,20 @@ for item in icc_source:
     ).fit_predict(Cohort(subjects=(warped_item,)))
     ref_map = orig_fit.habitat_maps[0]
     mov_map = warp_fit.habitat_maps[0]
-    # Independent one_step fits share a model_id digest; force overlap align
-    # so table columns (habitat_1_...) name the same spatial region.
-    aligned_map = align_habitat_map(ref_map, mov_map, method="overlap", force=True)
+    orig_image = cropped.image(MODALITIES[0])
+    warp_image = warped_item.image(MODALITIES[0])
+    # Pair by Hungarian assignment on per-habitat mean intensity (same
+    # quantity k-means uses as a cluster centre). force=True: independent
+    # one_step fits share a model_id digest even though ids are permuted.
+    aligned_map = align_habitat_map(
+        ref_map,
+        mov_map,
+        method="centroid",
+        image=orig_image,
+        moving_image=warp_image,
+        force=True,
+    )
+    print(f"  habitat-table features (incl. graph): {cropped.subject_id}", flush=True)
     orig_rows.append(_habitat_feature_row(ref_map))
     warp_rows.append(_habitat_feature_row(aligned_map))
     if first_bundle is None:
@@ -410,11 +432,17 @@ for item in icc_source:
             warped_item,
             ref_map,
             aligned_map,
-            habitat_stability(ref_map, [mov_map]),
+            habitat_stability(
+                ref_map,
+                [mov_map],
+                method="centroid",
+                image=orig_image,
+                moving_images=(warp_image,),
+            ),
         )
 
 cropped, warped_item, ref_map, aligned_map, dice_frame = first_bundle
-print("Habitat Dice after bspline_deform (Hungarian match)")
+print("Habitat Dice after bspline_deform (mean-intensity match)")
 print(dice_frame.to_string(index=False))
 
 # Shared axial index: densest original ROI (same crop, same slice).
@@ -494,16 +522,15 @@ with use_style("radiology"):
     )
     ax_dice.set_ylim(0.0, 1.05)
     ax_dice.set_ylabel("Dice")
-    ax_dice.set_title(sanitize_label("Per-habitat Dice (matched)"))
+    ax_dice.set_title(sanitize_label("Per-habitat Dice (mean-intensity match)"))
 fig_dice.savefig("out/precise_habitat_dice.png", dpi=150, bbox_inches="tight")
 
-# ICC(3A,1) on the habitat-table features: one row per subject, two columns
-# (original vs overlap-aligned warped map). n=3 => wide 95% CIs (honest).
-feature_names = [
-    name
-    for name in FEATURE_ORDER
-    if name in orig_rows[0] and name in warp_rows[0]
-]
+# ICC(3A,1) on every shared habitat-table column (volume, ITH, graph).
+# One row per subject, two columns (original vs mean-aligned warp).
+# n=3 => wide 95% CIs (honest).
+shared_names = set(orig_rows[0]) & set(warp_rows[0])
+feature_names = [name for name in VOLUME_ITH_FIRST if name in shared_names]
+feature_names.extend(sorted(name for name in shared_names if name not in set(VOLUME_ITH_FIRST)))
 icc_records = []
 for name in feature_names:
     matrix = np.column_stack(
@@ -525,12 +552,23 @@ for name in feature_names:
         }
     )
 icc_frame = pd.DataFrame(icc_records)
-print("Habitat-table feature ICC(3A,1) with 95% CI (n=3 subjects)")
-print(icc_frame.to_string(index=False))
+print(
+    f"Habitat-table feature ICC(3A,1) with 95% CI "
+    f"(n=3 subjects, {len(icc_frame)} shared columns)"
+)
+# The full volume + ITH + graph table is too tall for a docs figure.
+# Draw a reproducible random subset; the printed count is the full set.
+n_plot = min(24, len(icc_frame))
+plot_frame = icc_frame.sample(n=n_plot, random_state=0).sort_values(
+    "feature", kind="stable"
+)
+print(f"Plotting a random subset of {n_plot} columns (seed=0)")
+print(plot_frame.to_string(index=False))
 fig_icc = plot_precision_icc(
-    icc_frame,
+    plot_frame,
     lcl_threshold=0.5,
-    title="Habitat-table features: ICC and 95% CI (FFD retest)",
+    title="Habitat-table features: ICC and 95% CI (random subset)",
+    orientation="row",
 )
 fig_icc.savefig("out/precise_habitat_feature_icc.png", dpi=150, bbox_inches="tight")
 print(

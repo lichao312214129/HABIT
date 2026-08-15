@@ -41,7 +41,7 @@ from habit.contracts.habitat import HabitatMap
 from habit.exceptions import HABITAPIError
 from habit.kernels.habitat_label_match import (
     align_label_array,
-    match_labels_by_overlap,
+    match_label_ids,
     present_habitat_ids,
 )
 
@@ -87,15 +87,16 @@ def align_habitat_map(
     the same definition.
 
     Default matching is **centroid** -- Hungarian assignment on Euclidean
-    distance between per-habitat feature centroids, the in-memory form of
-    the test-retest mapper (which pairs habitats by median feature
-    vectors). Pass the two fits' :attr:`~habit.contracts.habitat.HabitatModel.centroids`
-    when available; otherwise mean image intensity, then spatial centroids.
+    distance between per-habitat **mean** feature vectors (the same
+    quantity k-means stores as a cluster centre). Pass the two fits'
+    :attr:`~habit.contracts.habitat.HabitatModel.centroids` when available;
+    otherwise mean image intensity, then spatial means.
 
-    ``method="overlap"`` uses the same maximal-overlap Hungarian pairing as
-    :func:`habitat_stability`. Do not feed an already-aligned map back into
-    ``habitat_stability`` expecting a second scientific match: Dice should
-    be scored on the original pair (stability matches internally).
+    ``method="overlap"`` uses maximal voxel overlap. Use the same
+    ``method`` in :func:`habitat_stability` so Dice is scored on the
+    same pairing. Do not feed an already-aligned map back into
+    ``habitat_stability``: Dice should be scored on the original pair
+    (stability matches internally).
 
     Args:
         reference: Habitat map whose ids are the target space.
@@ -188,25 +189,49 @@ def align_habitat_map(
 def habitat_stability(
     reference: HabitatMap,
     perturbed: Sequence[HabitatMap],
+    *,
+    method: AlignMethod = "overlap",
+    image: Optional[Any] = None,
+    moving_images: Optional[Sequence[Any]] = None,
+    reference_centroids: Optional[np.ndarray] = None,
+    moving_centroids: Optional[Sequence[Optional[np.ndarray]]] = None,
 ) -> pd.DataFrame:
     """
     Score habitat stability between a reference map and perturbed maps.
 
-    Clusters of each perturbed map are matched to the reference clusters by
-    maximal voxel overlap (Hungarian assignment), then the Dice similarity
-    is computed per matched pair. Reference habitats left unmatched (the
-    perturbed map has fewer clusters) score Dice 0 -- a vanished habitat is
-    a stability failure, not missing data.
+    Each perturbed map is paired to the reference, then ordinary Dice is
+    computed on that pair:
 
-    Matching is the overlap kernel shared with :func:`align_habitat_map`
-    (``method="overlap"``). This function does **not** rewrite the input
-    maps; it only scores them. Pass the original independently clustered
-    pair, not a map that was already remapped by a different matcher.
+        dice = 2 * |A ∩ B| / (|A| + |B|)
+
+    where ``A`` is one reference habitat and ``B`` is its matched
+    perturbed habitat. Unmatched reference habitats (fewer clusters on
+    the perturbed map) score Dice 0.
+
+    Default ``method="overlap"`` is the Prior 2024 Hungarian / overlap
+    pairing. ``method="centroid"`` pairs by Hungarian assignment on
+    per-habitat **mean** feature distance (explicit centroids, else mean
+    intensity of ``image`` / ``moving_images``, else spatial means).
+    Use the same ``method`` as :func:`align_habitat_map` so the compare
+    figure and the Dice table share one correspondence.
+
+    This function does **not** rewrite the input maps. Pass the original
+    independently clustered pair, not a map that was already remapped.
 
     Args:
         reference: Habitat map of the original subject.
         perturbed: Habitat maps computed independently on perturbed copies,
             each on the same voxel grid as ``reference``.
+        method: ``"overlap"`` (default) or ``"centroid"``.
+        image: Optional intensity / feature volume for the reference map.
+            Required for intensity-mean centroid matching when explicit
+            centroids are omitted.
+        moving_images: Optional per-perturbed intensity volumes. When
+            omitted, ``image`` is reused for every perturbed map.
+        reference_centroids: Optional explicit reference cluster centres.
+        moving_centroids: Optional explicit centres, one array per
+            perturbed map (``None`` entries fall back to image / spatial
+            means).
 
     Returns:
         Long-format DataFrame with one row per perturbation per reference
@@ -215,12 +240,32 @@ def habitat_stability(
         ``n_matched`` voxel counts.
 
     Raises:
-        HABITAPIError: If no perturbed map is given or the grids differ.
+        HABITAPIError: If no perturbed map is given, the grids differ,
+            ``method`` is unknown, or centroid inputs are incomplete.
     """
     if not perturbed:
         raise HABITAPIError("habitat_stability: at least one perturbed map is required.")
+    resolved = str(method).strip().lower()
+    if resolved not in ("centroid", "overlap"):
+        raise HABITAPIError(
+            f"habitat_stability: method must be 'centroid' or 'overlap'; "
+            f"got {method!r}."
+        )
+    if moving_images is not None and len(moving_images) != len(perturbed):
+        raise HABITAPIError(
+            "habitat_stability: moving_images must have one entry per "
+            f"perturbed map; got {len(moving_images)} vs {len(perturbed)}."
+        )
+    if moving_centroids is not None and len(moving_centroids) != len(perturbed):
+        raise HABITAPIError(
+            "habitat_stability: moving_centroids must have one entry per "
+            f"perturbed map; got {len(moving_centroids)} vs {len(perturbed)}."
+        )
     reference_labels = np.asarray(reference.label_array)
     reference_ids = present_habitat_ids(reference_labels)
+    ref_image: Optional[np.ndarray] = (
+        _as_image_array(image, "image") if image is not None else None
+    )
     records = []
     for index, moved in enumerate(perturbed):
         moved_labels = np.asarray(moved.label_array)
@@ -229,8 +274,36 @@ def habitat_stability(
                 f"habitat_stability: perturbed map {index} has shape "
                 f"{moved_labels.shape}, expected {reference_labels.shape}."
             )
+        mov_image: Optional[np.ndarray] = None
+        if moving_images is not None and moving_images[index] is not None:
+            mov_image = _as_image_array(
+                moving_images[index], f"moving_images[{index}]"
+            )
+        elif ref_image is not None:
+            mov_image = ref_image
+        mov_cent = None
+        if moving_centroids is not None:
+            mov_cent = moving_centroids[index]
         try:
-            mapping = match_labels_by_overlap(reference_labels, moved_labels)
+            mapping = match_label_ids(
+                reference_labels,
+                moved_labels,
+                image=ref_image,
+                moving_image=mov_image,
+                method=resolved,
+                reference_centroids=reference_centroids,
+                moving_centroids=mov_cent,
+                reference_ids=(
+                    np.asarray(reference.habitat_ids, dtype=np.int64)
+                    if reference_centroids is not None
+                    else None
+                ),
+                moving_ids=(
+                    np.asarray(moved.habitat_ids, dtype=np.int64)
+                    if mov_cent is not None
+                    else None
+                ),
+            )
         except ValueError as exc:
             raise HABITAPIError(f"habitat_stability: {exc}") from exc
         # Invert {moving_id: reference_id} so each reference habitat looks up

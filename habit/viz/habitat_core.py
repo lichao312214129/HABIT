@@ -28,7 +28,7 @@ All axis text is ASCII via :func:`~habit.viz.labels.sanitize_label`.
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -842,7 +842,8 @@ def plot_habitat_label_compare(
 
     Independently clustered maps permute integer ids. By default this
     remaps ``labels_b`` (panel 2 only) onto ``labels_a`` by maximal voxel
-    overlap -- the same Hungarian pairing ``habitat_stability`` uses --
+    overlap -- the same Hungarian pairing
+    ``habitat_stability(..., method="overlap")`` uses --
     before colouring and before the disagreement panel. Habitat 2 on the
     left is then the same spatial region as habitat 2 on the right.
     Disagreement is ``aligned_b != a`` on labelled voxels, not raw id
@@ -1185,20 +1186,26 @@ def plot_precision_icc(
     *,
     lcl_threshold: float = 0.5,
     title: str = "Precision screen: ICC and 95% CI",
+    orientation: Literal["column", "row"] = "column",
 ) -> "Figure":
     """
-    Draw per-feature ICC points with vertical 95% CI whiskers.
+    Draw per-feature ICC points with 95% CI whiskers.
 
     Each row of ``evidence`` is one feature (optionally one experiment).
     The point is the ICC; the whisker is ``[lcl, ucl]``. Colour marks
-    precise vs unstable. A dashed horizontal line is the LCL threshold.
+    precise vs unstable. A dashed line is the LCL threshold.
+
+    ``orientation="column"`` (default) puts features on *x* and ICC on
+    *y* (vertical whiskers). ``orientation="row"`` flips that for long
+    feature lists (horizontal whiskers).
 
     Args:
         evidence: Long-format table with columns ``feature``, ``value``,
             ``lcl``, ``ucl``. Optional ``precise`` (bool) and
             ``experiment``. Typically ``PreciseFeatureSet.to_frame()``.
-        lcl_threshold: Horizontal cutoff drawn on the ICC axis.
+        lcl_threshold: Cutoff drawn on the ICC axis.
         title: Figure title (English / ASCII).
+        orientation: ``"column"`` or ``"row"``.
 
     Returns:
         The matplotlib ``Figure``; the caller decides where it is saved.
@@ -1219,6 +1226,12 @@ def plot_precision_icc(
         )
     if frame.empty:
         raise HABITAPIError("plot_precision_icc: evidence table is empty.")
+    resolved_orientation = str(orientation).strip().lower()
+    if resolved_orientation not in {"column", "row"}:
+        raise HABITAPIError(
+            "plot_precision_icc: orientation must be 'column' or 'row'; "
+            f"got {orientation!r}."
+        )
 
     values = frame["value"].to_numpy(dtype=float)
     lower = frame["lcl"].to_numpy(dtype=float)
@@ -1243,33 +1256,72 @@ def plot_precision_icc(
     plt = _plt()
     from matplotlib.lines import Line2D
 
-    fig_width = max(6.4, 0.55 * n_rows + 2.2)
+    if resolved_orientation == "row":
+        fig_width = 7.4
+        fig_height = max(4.2, 0.16 * n_rows + 1.6)
+        tick_fontsize = 6 if n_rows > 40 else 8
+    else:
+        fig_width = max(6.4, 0.55 * n_rows + 2.2)
+        fig_height = 3.8
+        tick_fontsize = 8
     with use_style("radiology"):
-        fig, ax = plt.subplots(figsize=(fig_width, 3.8), constrained_layout=True)
-        for index in range(n_rows):
-            ax.errorbar(
-                x[index],
-                values[index],
-                yerr=yerr[:, index : index + 1],
-                fmt="o",
-                color=colors[index],
-                ecolor=colors[index],
-                elinewidth=1.4,
-                capsize=4.0,
-                markersize=6.0,
-                zorder=3,
-            )
-        ax.axhline(
-            float(lcl_threshold),
-            color=_ICC_THRESHOLD_COLOR,
-            linestyle="--",
-            linewidth=1.2,
-            zorder=2,
+        fig, ax = plt.subplots(
+            figsize=(fig_width, fig_height), constrained_layout=True
         )
-        ax.set_xticks(list(x))
-        ax.set_xticklabels(labels, rotation=30, ha="right", fontsize=8)
-        ax.set_ylabel("ICC (95% CI)")
-        ax.set_ylim(-0.05, 1.05)
+        for index in range(n_rows):
+            if resolved_orientation == "row":
+                ax.errorbar(
+                    values[index],
+                    x[index],
+                    xerr=yerr[:, index : index + 1],
+                    fmt="o",
+                    color=colors[index],
+                    ecolor=colors[index],
+                    elinewidth=1.4,
+                    capsize=4.0,
+                    markersize=5.0,
+                    zorder=3,
+                )
+            else:
+                ax.errorbar(
+                    x[index],
+                    values[index],
+                    yerr=yerr[:, index : index + 1],
+                    fmt="o",
+                    color=colors[index],
+                    ecolor=colors[index],
+                    elinewidth=1.4,
+                    capsize=4.0,
+                    markersize=6.0,
+                    zorder=3,
+                )
+        if resolved_orientation == "row":
+            ax.axvline(
+                float(lcl_threshold),
+                color=_ICC_THRESHOLD_COLOR,
+                linestyle="--",
+                linewidth=1.2,
+                zorder=2,
+            )
+            ax.set_yticks(list(x))
+            ax.set_yticklabels(labels, fontsize=tick_fontsize)
+            ax.set_xlabel("ICC (95% CI)")
+            ax.set_xlim(-0.05, 1.05)
+            ax.invert_yaxis()
+        else:
+            ax.axhline(
+                float(lcl_threshold),
+                color=_ICC_THRESHOLD_COLOR,
+                linestyle="--",
+                linewidth=1.2,
+                zorder=2,
+            )
+            ax.set_xticks(list(x))
+            ax.set_xticklabels(
+                labels, rotation=30, ha="right", fontsize=tick_fontsize
+            )
+            ax.set_ylabel("ICC (95% CI)")
+            ax.set_ylim(-0.05, 1.05)
         ax.set_title(sanitize_label(title))
         handles = [
             Line2D(

@@ -573,15 +573,28 @@ if __name__ == "__main__":
     ref_map = orig_habitats.habitat_maps[0]
     mov_map = warped_habitats.habitat_maps[0]
     # Independent one_step fits permute integer ids. Remap the warped map
-    # (panel 2 only) onto the reference by maximal voxel overlap -- the
-    # same Hungarian pairing habitat_stability uses -- so habitat 2 is the
-    # same spatial region on both panels. force=True is required: both
-    # fits share a model_id (same spec + subject id digest) even though
-    # the clusterings are independent. Dice is scored on the original pair.
+    # (panel 2 only) onto the reference by mean-intensity Hungarian
+    # pairing -- the same method="centroid" habitat_stability uses -- so
+    # the same colour is the same intensity-defined habitat. force=True:
+    # both fits share a model_id digest. Dice is scored on the original
+    # pair after that same pairing.
+    orig_image = ffd_subject.image(modality)
+    warp_image = deformed.image(modality)
     aligned_map = align_habitat_map(
-        ref_map, mov_map, method="overlap", force=True
+        ref_map,
+        mov_map,
+        method="centroid",
+        image=orig_image,
+        moving_image=warp_image,
+        force=True,
     )
-    dice_frame = habitat_stability(ref_map, [mov_map])
+    dice_frame = habitat_stability(
+        ref_map,
+        [mov_map],
+        method="centroid",
+        image=orig_image,
+        moving_images=(warp_image,),
+    )
     print("Habitat Dice after BSplineDeform (Hungarian match)")
     print(dice_frame.to_string(index=False))
     print(f"Shared display slice (cropped original ROI): {display_slice}")

@@ -744,6 +744,36 @@ class TestHabitatStability:
         with pytest.raises(HABITAPIError, match="at least one"):
             habitat_stability(make_habitat_map("P1"), [])
 
+    def test_centroid_mean_intensity_recovers_swapped_ids(self) -> None:
+        """Mean-intensity Hungarian pairing, then ordinary Dice on that pair."""
+        reference = make_habitat_map("P1")
+        swapped_array = np.asarray(reference.label_array).copy()
+        swapped_array[swapped_array == 1] = 9
+        swapped_array[swapped_array == 2] = 1
+        swapped_array[swapped_array == 9] = 2
+        swapped = HabitatMap(
+            subject_id="P1",
+            label_array=swapped_array,
+            geometry=reference.geometry,
+            model_id="other-model",
+            habitat_ids=(1, 2),
+            provenance=provenance(),
+        )
+        image = np.zeros(reference.label_array.shape, dtype=np.float64)
+        image[reference.label_array == 1] = 1.0
+        image[reference.label_array == 2] = 10.0
+        frame = habitat_stability(
+            reference, [swapped], method="centroid", image=image
+        )
+        assert set(frame["dice"]) == {1.0}
+        matched = frame.set_index("habitat_id")["matched_id"].to_dict()
+        assert matched == {1: 2, 2: 1}
+
+    def test_unknown_method_raises(self) -> None:
+        reference = make_habitat_map("P1")
+        with pytest.raises(HABITAPIError, match="method"):
+            habitat_stability(reference, [reference], method="dice")  # type: ignore[arg-type]
+
 
 class TestAlignHabitatMap:
     def test_permuted_labels_become_comparable(self) -> None:

@@ -161,14 +161,19 @@ field warps every image and mask together so the contour stays paired
 with the anatomy. This is **not** Prior Appendix S2 and **not** MIRP
 ``perturbation_roi_adapt_size`` (mask grow/shrink).
 
-The same block then extracts **habitat-table** features (volume
-fraction and ITH) from the original map and from the overlap-aligned
-warped map, and reports ICC(3A,1) **with a 95% CI** via
-:func:`~habit.icc3a_1`. That is a different question from the
-voxel-texture PreciseFeatureSet above: here the targets are
-subjects, not voxels, and the colour in the ICC panel is only
-``LCL >= 0.5``, not the paper's intersection flag. Three demo
-subjects make the intervals wide; that is expected.
+The same block then extracts **habitat-table** features — volume
+fraction, ITH, and the graph family
+(:func:`~habit.extract_graph_features`, single + pairwise; extended
+efficiency / small-world omitted for runtime) — from the original map and
+from the mean-intensity-aligned warped map, and reports ICC(3A,1)
+**with a 95% CI** via :func:`~habit.icc3a_1`. Habitats are paired by
+Hungarian assignment on per-habitat **mean** intensity (the same
+quantity k-means uses as a cluster centre), then ordinary Dice
+:math:`2|A\cap B|/(|A|+|B|)` is scored on that pair. That is a
+different question from the voxel-texture PreciseFeatureSet above:
+here the targets are subjects, not voxels, and the colour in the ICC
+panel is only ``LCL >= 0.5``, not the paper's intersection flag.
+Three demo subjects make the intervals wide; that is expected.
 
 Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
 ``MODALITIES``, and ``ROI``). Writes four more ``out/precise_*.png``.
@@ -193,30 +198,34 @@ Paste after the Script block (it reuses ``_crop_to_roi``, ``DATA``,
 
    One-step habitats (``n_habitats=3``) on the original vs warped
    subject. The warped map is remapped onto the original ids by
-   maximal overlap
-   (:func:`~habit.align_habitat_map`, ``method="overlap"``,
+   mean-intensity Hungarian pairing
+   (:func:`~habit.align_habitat_map`, ``method="centroid"``,
    ``force=True``) before
    :func:`~habit.viz.plot_habitat_label_compare`
    (``align_labels=False``, ``display_convention="native"`` so the
    slice matches the contour figure).
 
 .. figure:: ../_static/images/examples/precise_habitat_dice.png
-   :alt: Per-habitat Dice after Hungarian matching
+   :alt: Per-habitat Dice after mean-intensity matching
    :width: 480
 
-   Per-habitat Dice from :func:`~habit.habitat_stability` (Hungarian
-   overlap match on the **unaligned** pair).
+   Per-habitat Dice from :func:`~habit.habitat_stability`
+   (``method="centroid"`` on the **unaligned** pair): ordinary
+   :math:`2|A\cap B|/(|A|+|B|)` after the same mean-intensity
+   pairing as the compare figure.
 
 .. figure:: ../_static/images/examples/precise_habitat_feature_icc.png
    :alt: Habitat-table feature ICC point estimates with 95 percent confidence intervals
    :width: 720
 
    Habitat-table repeatability: ICC(3A,1) point and 95% CI whisker
-   per feature, three cropped ``demo_data`` subjects, original vs
-   overlap-aligned FFD map (:func:`~habit.icc3a_1`,
-   :func:`~habit.viz.plot_precision_icc`). Colour is ``LCL >= 0.5``
-   only — **not** a PreciseFeatureSet. Wide intervals at ``n=3`` are
-   honest, not a plotting error.
+   for a random subset of 24 shared columns (volume, ITH, graph;
+   ``random_state=0``), three cropped ``demo_data`` subjects, original
+   vs mean-aligned FFD map (:func:`~habit.icc3a_1`,
+   :func:`~habit.viz.plot_precision_icc`, ``orientation="row"``).
+   Colour is ``LCL >= 0.5`` only — **not** a PreciseFeatureSet. Wide
+   intervals at ``n=3`` are honest, not a plotting error. The script
+   still scores every shared column; only the figure is subsampled.
 
 Optional one-call recipe
 ------------------------

@@ -40,6 +40,7 @@ __all__ = [
     "align_label_array",
     "habitat_intensity_centroids",
     "habitat_spatial_centroids",
+    "match_label_ids",
     "match_labels_by_centroid",
     "match_labels_by_overlap",
     "present_habitat_ids",
@@ -70,9 +71,9 @@ def habitat_intensity_centroids(
 
     A scalar image yields a centroid of shape ``(n_habitats, 1)``. An image
     with a trailing feature axis ``(..., n_features)`` yields
-    ``(n_habitats, n_features)``. This is the test-retest idea (pair
-    habitats by their feature signature) computed from an image instead of
-    a feature table.
+    ``(n_habitats, n_features)``. The reduction is the **mean** of voxels
+    in that habitat (same quantity k-means uses for a cluster centre),
+    not the median.
 
     Args:
         image: Intensity volume aligned with ``label_array``, or the same
@@ -211,7 +212,7 @@ def match_labels_by_overlap(
     Pair moving habitats to reference habitats by maximal voxel overlap.
 
     This is the Prior 2024 Hungarian / ``munkres`` step. The assignment is
-    the same pairing ``habitat_stability`` uses for Dice.
+    the same pairing ``habitat_stability(..., method="overlap")`` uses.
 
     Args:
         reference: Reference integer label image.
@@ -282,7 +283,7 @@ def remap_label_array(
     return remapped
 
 
-def align_label_array(
+def match_label_ids(
     reference: np.ndarray,
     moving: np.ndarray,
     *,
@@ -293,20 +294,22 @@ def align_label_array(
     moving_centroids: Optional[np.ndarray] = None,
     reference_ids: Optional[np.ndarray] = None,
     moving_ids: Optional[np.ndarray] = None,
-) -> np.ndarray:
+) -> Dict[int, int]:
     """
-    Remap ``moving`` ids onto the ``reference`` id space.
+    Return ``{moving_id: reference_id}`` for one matching method.
 
-    Centroid matching prefers explicit centroid matrices (cluster centres
-    from two independent fits). Otherwise it uses per-habitat mean
-    intensity of ``image`` / ``moving_image``, then spatial centroids.
+    ``method="centroid"`` (default) pairs by Hungarian assignment on
+    Euclidean distance between per-habitat **mean** feature vectors:
+    explicit centroid matrices if given, else mean intensity of
+    ``image`` / ``moving_image``, else spatial (voxel-index) means.
+    ``method="overlap"`` pairs by maximal voxel overlap.
 
     Args:
         reference: Reference integer label image.
         moving: Moving integer label image.
-        image: Optional intensity volume for the reference map. Also used
-            for the moving map when ``moving_image`` is omitted.
-        moving_image: Optional intensity volume for the moving map.
+        image: Optional intensity / feature volume for the reference map.
+            Also used for the moving map when ``moving_image`` is omitted.
+        moving_image: Optional intensity / feature volume for the moving map.
         method: ``"centroid"`` (default) or ``"overlap"``.
         reference_centroids: Optional explicit reference centroids.
         moving_centroids: Optional explicit moving centroids.
@@ -316,17 +319,22 @@ def align_label_array(
         moving_ids: Ids aligned with ``moving_centroids`` rows.
 
     Returns:
-        Remapped copy of ``moving``.
+        Mapping ``{moving_id: reference_id}`` for every assigned pair.
 
     Raises:
-        ValueError: If ``method`` is unknown or centroid inputs are incomplete.
+        ValueError: If ``method`` is unknown, shapes differ, or centroid
+            inputs are incomplete.
     """
     ref_labels = np.asarray(reference)
     mov_labels = np.asarray(moving)
+    if ref_labels.shape != mov_labels.shape:
+        raise ValueError(
+            "match_label_ids: label shapes must match; "
+            f"got {ref_labels.shape} vs {mov_labels.shape}."
+        )
     resolved = str(method).strip().lower()
     if resolved == "overlap":
-        mapping = match_labels_by_overlap(ref_labels, mov_labels)
-        return remap_label_array(mov_labels, mapping)
+        return match_labels_by_overlap(ref_labels, mov_labels)
     if resolved != "centroid":
         raise ValueError(
             f"align_label_array: method must be 'centroid' or 'overlap'; "
@@ -349,18 +357,69 @@ def align_label_array(
             if moving_ids is not None
             else np.arange(1, np.asarray(moving_centroids).shape[0] + 1, dtype=np.int64)
         )
-        mapping = match_labels_by_centroid(
+        return match_labels_by_centroid(
             ref_ids, reference_centroids, mov_ids, moving_centroids
         )
-        return remap_label_array(mov_labels, mapping)
     if image is not None:
         ref_image = np.asarray(image)
         mov_image = np.asarray(moving_image) if moving_image is not None else ref_image
         ref_ids, ref_cent = habitat_intensity_centroids(ref_image, ref_labels)
         mov_ids, mov_cent = habitat_intensity_centroids(mov_image, mov_labels)
-        mapping = match_labels_by_centroid(ref_ids, ref_cent, mov_ids, mov_cent)
-        return remap_label_array(mov_labels, mapping)
+        return match_labels_by_centroid(ref_ids, ref_cent, mov_ids, mov_cent)
     ref_ids, ref_cent = habitat_spatial_centroids(ref_labels)
     mov_ids, mov_cent = habitat_spatial_centroids(mov_labels)
-    mapping = match_labels_by_centroid(ref_ids, ref_cent, mov_ids, mov_cent)
+    return match_labels_by_centroid(ref_ids, ref_cent, mov_ids, mov_cent)
+
+
+def align_label_array(
+    reference: np.ndarray,
+    moving: np.ndarray,
+    *,
+    image: Optional[np.ndarray] = None,
+    moving_image: Optional[np.ndarray] = None,
+    method: str = "centroid",
+    reference_centroids: Optional[np.ndarray] = None,
+    moving_centroids: Optional[np.ndarray] = None,
+    reference_ids: Optional[np.ndarray] = None,
+    moving_ids: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """
+    Remap ``moving`` ids onto the ``reference`` id space.
+
+    Centroid matching prefers explicit centroid matrices (cluster centres
+    from two independent fits). Otherwise it uses per-habitat **mean**
+    intensity of ``image`` / ``moving_image``, then spatial means.
+
+    Args:
+        reference: Reference integer label image.
+        moving: Moving integer label image.
+        image: Optional intensity volume for the reference map. Also used
+            for the moving map when ``moving_image`` is omitted.
+        moving_image: Optional intensity volume for the moving map.
+        method: ``"centroid"`` (default) or ``"overlap"``.
+        reference_centroids: Optional explicit reference centroids.
+        moving_centroids: Optional explicit moving centroids.
+        reference_ids: Ids aligned with ``reference_centroids`` rows.
+            Defaults to ``1 .. n_rows`` when centroids are given, else
+            the present labels.
+        moving_ids: Ids aligned with ``moving_centroids`` rows.
+
+    Returns:
+        Remapped copy of ``moving``.
+
+    Raises:
+        ValueError: If ``method`` is unknown or centroid inputs are incomplete.
+    """
+    mov_labels = np.asarray(moving)
+    mapping = match_label_ids(
+        reference,
+        moving,
+        image=image,
+        moving_image=moving_image,
+        method=method,
+        reference_centroids=reference_centroids,
+        moving_centroids=moving_centroids,
+        reference_ids=reference_ids,
+        moving_ids=moving_ids,
+    )
     return remap_label_array(mov_labels, mapping)

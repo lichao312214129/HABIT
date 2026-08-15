@@ -425,3 +425,25 @@ def test_plot_precision_icc_draws_points_and_threshold() -> None:
     assert "Precise" in legend_text
     assert "0.5" in legend_text
     plt.close(fig)
+
+
+@pytest.mark.unit
+def test_plot_precision_icc_row_orientation_uses_y_ticks() -> None:
+    """Long feature lists can put names on y and ICC on x."""
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    evidence = pd.DataFrame(
+        {
+            "feature": ["ith_score", "habitat_1_volume_fraction"],
+            "value": [0.70, 0.95],
+            "lcl": [0.10, 0.80],
+            "ucl": [0.90, 0.99],
+        }
+    )
+    fig = plot_precision_icc(evidence, orientation="row")
+    ax = fig.axes[0]
+    assert ax.get_xlabel() == "ICC (95% CI)"
+    texts = " ".join(t.get_text() for t in ax.get_yticklabels())
+    assert "ith_score" in texts
+    plt.close(fig)

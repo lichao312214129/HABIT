@@ -22,6 +22,7 @@ import pytest
 from habit.kernels.habitat_label_match import (
     align_label_array,
     habitat_intensity_centroids,
+    match_label_ids,
     match_labels_by_centroid,
     match_labels_by_overlap,
     remap_label_array,
@@ -50,6 +51,21 @@ def test_overlap_recovers_swapped_ids() -> None:
     reference = _two_block_labels()
     mapping = match_labels_by_overlap(reference, _swap_ids(reference))
     assert mapping == {1: 2, 2: 1}
+
+
+def test_match_label_ids_centroid_uses_mean_intensity() -> None:
+    """Mean intensity, not overlap, drives the Hungarian pairing."""
+    reference = _two_block_labels()
+    moving = _swap_ids(reference)
+    image = np.zeros(reference.shape, dtype=np.float64)
+    image[reference == 1] = 1.0
+    image[reference == 2] = 10.0
+    mapping = match_label_ids(
+        reference, moving, method="centroid", image=image
+    )
+    assert mapping == {1: 2, 2: 1}
+    aligned = align_label_array(reference, moving, method="centroid", image=image)
+    assert np.array_equal(aligned, reference)
 
 
 def _three_block_labels() -> np.ndarray:
