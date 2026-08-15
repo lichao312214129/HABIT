@@ -164,6 +164,52 @@ and clustering::
    (:func:`~habit.viz.plot_habitat_label_compare`,
    ``align_labels=True``).
 
+Optional ROI-edge follow-up
+---------------------------
+
+The paper chain does not wrinkle the ROI. Subject-level
+``bspline_deform`` (MONAI ``Rand3DElastic``) warps image and mask
+together. That is **not** Prior Appendix S2 and **not** MIRP
+``perturbation_roi_adapt_size``. Copy-ready code lives on
+:doc:`../examples/precise_features` (the ``# BEGIN roi_followup``
+block). Same crop and slice for the three map figures; the ICC panel
+uses three cropped subjects.
+
+.. figure:: ../_static/images/examples/precise_perturb_mask_edge.png
+   :alt: Original and warped ROI contours on the same anatomy slice
+   :width: 720
+
+   Cyan solid = original ROI; vermillion dashed = warped ROI; yellow =
+   membership change (XOR, right panel). Same axial index as the
+   habitat compare below.
+
+.. figure:: ../_static/images/examples/precise_habitat_stability_compare.png
+   :alt: One-step habitats on the original ROI versus the warped ROI
+   :width: 720
+
+   One-step habitats on the original vs warped subject. Warped ids are
+   remapped by maximal overlap
+   (:func:`~habit.align_habitat_map`, ``force=True``) so habitat 2 is
+   the same spatial region on both panels.
+
+.. figure:: ../_static/images/examples/precise_habitat_dice.png
+   :alt: Per-habitat Dice after Hungarian matching
+   :width: 480
+
+   Per-habitat Dice from :func:`~habit.habitat_stability` (Hungarian
+   match on the unaligned pair).
+
+.. figure:: ../_static/images/examples/precise_habitat_feature_icc.png
+   :alt: Habitat-table feature ICC point estimates with 95 percent confidence intervals
+   :width: 720
+
+   Habitat-table features (volume fraction and ITH) scored with
+   ICC(3A,1) **and the 95% CI**, not a point-only ICC.
+   Three demo subjects, original vs overlap-aligned FFD map
+   (:func:`~habit.icc3a_1`, :func:`~habit.viz.plot_precision_icc`).
+   Colour is ``LCL >= 0.5`` only — this is **not** the voxel-texture
+   PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
+
 Optional one-call recipe
 ------------------------
 
@@ -190,8 +236,9 @@ What is not claimed
   cell type, a driver mutation, or a clinical outcome.
 * **Not ROI grow/shrink.** MIRP ``perturbation_roi_adapt_size``
   (morphological dilation/erosion of the mask) is **not** in Prior 2024
-  Appendix S2 and is **not** implemented. Do not report the default
-  Precise chain as having done grow/shrink.
+  Appendix S2 and is **not** implemented. The optional
+  ``bspline_deform`` follow-up warps the contour with the image; it is
+  not grow/shrink and is not part of the default Precise chain.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a
   discovery analysis. An external test set is a different protocol.

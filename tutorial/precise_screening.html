@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#what-is-screened">What is screened</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-apply">How to apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
@@ -177,6 +178,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../how_to/graph_features.html">Graph topology features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#cli-yaml">CLI / YAML</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#python-api">Python API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#degree-preserving-null-model-api">Degree-preserving null-model API</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../how_to/graph_features.html#also-see">Also see</a></li>
 </ul>
 </li>
@@ -367,6 +369,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#output">Output</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -383,9 +386,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#script">Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#draw-the-figures">Draw the figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#output">Output</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#sampled-feature-values">Sampled feature values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#cohort-heatmaps">Cohort heatmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#anatomy-with-habitats">Anatomy with habitats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-region-network">2D region network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#voxel-vs-5-voxel-lattice">8-voxel vs 5-voxel lattice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#d-surfaces-and-network">3D surfaces and network</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/graph_features.html#what-to-read-next">What to read next</a></li>
 </ul>
@@ -631,9 +635,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#pairwise-metrics">Pairwise metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#extended-metrics">Extended metrics</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#voi-normalized-companions">VOI-normalized companions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#null-model-comparisons-for-topology">Null-model comparisons for topology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#construction-options">Construction options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#what-this-family-does-not-claim">What this family does not claim</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/features/graph.html#see-also">See also</a></li>
 </ul>
 </li>
@@ -1391,6 +1397,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_feature_bars.html">plot_habitat_feature_bars</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_slice.html">plot_habitat_graph_slice</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_habitat_graph_network_2d.html">plot_habitat_graph_network_2d</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.plot_graph_feature_heatmap.html">plot_graph_feature_heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_surface_3d.html">render_habitat_graph_surface_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.render_habitat_graph_network_3d.html">render_habitat_graph_network_3d</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.viz.dense_voxel_feature_map.html">dense_voxel_feature_map</a></li>
@@ -1926,6 +1933,55 @@ features vs precise features only
 </figcaption>
 </figure>
 </section>
+<section id="optional-roi-edge-follow-up">
+<h2>Optional ROI-edge follow-up<a class="headerlink" href="#optional-roi-edge-follow-up" title="Link to this heading"></a></h2>
+<p>The paper chain does not wrinkle the ROI. Subject-level
+<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>) warps image and mask
+together. That is <strong>not</strong> Prior Appendix S2 and <strong>not</strong> MIRP
+<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>. Copy-ready code lives on
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a> (the <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">BEGIN</span> <span class="pre">roi_followup</span></code>
+block). Same crop and slice for the three map figures; the ICC panel
+uses three cropped subjects.</p>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/precise_perturb_mask_edge.png"><img alt="Original and warped ROI contours on the same anatomy slice" src="../_images/precise_perturb_mask_edge.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Cyan solid = original ROI; vermillion dashed = warped ROI; yellow =
+membership change (XOR, right panel). Same axial index as the
+habitat compare below.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="../_images/precise_habitat_stability_compare.png"><img alt="One-step habitats on the original ROI versus the warped ROI" src="../_images/precise_habitat_stability_compare.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">One-step habitats on the original vs warped subject. Warped ids are
+remapped by maximal overlap
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">align_habitat_map()</span></code>, <code class="docutils literal notranslate"><span class="pre">force=True</span></code>) so habitat 2 is
+the same spatial region on both panels.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/precise_habitat_dice.png"><img alt="Per-habitat Dice after Hungarian matching" src="../_images/precise_habitat_dice.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Per-habitat Dice from <code class="xref py py-func docutils literal notranslate"><span class="pre">habitat_stability()</span></code> (Hungarian
+match on the unaligned pair).</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/precise_habitat_feature_icc.png"><img alt="Habitat-table feature ICC point estimates with 95 percent confidence intervals" src="../_images/precise_habitat_feature_icc.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Habitat-table features (volume fraction and ITH) scored with
+ICC(3A,1) <strong>and the 95% CI</strong>, not a point-only ICC.
+Three demo subjects, original vs overlap-aligned FFD map
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">icc3a_1()</span></code>, <a class="reference internal" href="../api/generated/habit.viz.plot_precision_icc.html#habit.viz.plot_precision_icc" title="habit.viz.plot_precision_icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_precision_icc()</span></code></a>).
+Colour is <code class="docutils literal notranslate"><span class="pre">LCL</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code> only — this is <strong>not</strong> the voxel-texture
+PreciseFeatureSet. Wide intervals at <code class="docutils literal notranslate"><span class="pre">n=3</span></code> are expected.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 <section id="optional-one-call-recipe">
 <h2>Optional one-call recipe<a class="headerlink" href="#optional-one-call-recipe" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a> loops the same
@@ -1950,8 +2006,9 @@ reproducible under the stated perturbations</em>, not that it encodes a
 cell type, a driver mutation, or a clinical outcome.</p></li>
 <li><p><strong>Not ROI grow/shrink.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
 (morphological dilation/erosion of the mask) is <strong>not</strong> in Prior 2024
-Appendix S2 and is <strong>not</strong> implemented. Do not report the default
-Precise chain as having done grow/shrink.</p></li>
+Appendix S2 and is <strong>not</strong> implemented. The optional
+<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> follow-up warps the contour with the image; it is
+not grow/shrink and is not part of the default Precise chain.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
 discovery analysis. An external test set is a different protocol.</p></li>
