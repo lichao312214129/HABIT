@@ -29,12 +29,19 @@ figure is built from the representative cross-section so the overlay matches
 the slice figure; describe this slice-local 2D graph separately in
 publications when 3D volumetric features are also reported.
 
+:func:`plot_graph_feature_heatmap` is a different figure: rows are
+subjects and columns are graph-feature values (``single_h*`` /
+``pair_h*``), not habitats x texture features. Cap the column count
+(default 40) and let the caller choose people and features; do not dump
+the full ~400-column bank onto one axes.
+
 All text drawn on the figures is English-only.
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Tuple
+import re
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -48,6 +55,7 @@ from habit.kernels.habitat_graph import (
     extract_habitat_nodes,
     iter_label_pairs,
 )
+from habit.exceptions import HABITAPIError
 from habit.utils.optional_deps import require
 from habit.viz.colorbar import (
     ColorbarSpec,
@@ -56,15 +64,18 @@ from habit.viz.colorbar import (
     colorbar_is_enabled,
     discrete_habitat_mappable,
 )
+from habit.viz.labels import sanitize_label
 from habit.viz.palette import habitat_hex_colors
 from habit.viz.style import use_style
 
 if TYPE_CHECKING:
+    import pandas as pd
     from matplotlib.figure import Figure
 
 __all__ = [
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",
+    "plot_graph_feature_heatmap",
     "render_habitat_graph_surface_3d",
     "render_habitat_graph_network_3d",
 ]
@@ -73,6 +84,19 @@ __all__ = [
 _VIZ_PURPOSE = "habitat graph topology figures"
 #: What the 3D renderers need PyVista / scikit-image for.
 _VIEW_PURPOSE = "3D habitat graph rendering"
+#: Default column cap so a ~400-feature graph table stays readable.
+_DEFAULT_HEATMAP_FEATURES: int = 40
+#: Single-habitat columns look like ``single_h1_avg_degree``.
+_SINGLE_FEATURE_RE = re.compile(r"^single_h\d+_")
+#: Pairwise columns look like ``pair_h1_h2_edge_density``.
+_PAIR_FEATURE_RE = re.compile(r"^pair_h\d+_h\d+_")
+#: Subject-level counts (``graph_num_habitats``, ``graph_num_nodes_total``).
+_GRAPH_NUM_RE = re.compile(r"^graph_num_")
+#: Heatmap typography (GitHub Pages / gallery readability).
+_HEATMAP_TITLE_FONTSIZE: float = 11.0
+_HEATMAP_LABEL_FONTSIZE: float = 10.0
+_HEATMAP_TICK_FONTSIZE: float = 8.0
+_HEATMAP_CBAR_FONTSIZE: float = 9.0
 
 #: 3D renderer only: inter-habitat tubes stay a single accent. The 2D
 #: graph overlay is white (nodes + edges) on the coloured habitat fill.
@@ -523,7 +547,7 @@ def _display_block_size(
     Args:
         options: Extraction options (nodes / edges still use these).
         block_size: Plot-function override. ``None`` uses
-            ``options.block_size`` (library default 5 voxels).
+            ``options.block_size`` (library default 8 voxels).
 
     Returns:
         int: Cube edge length in voxels, ``>= 1``.
@@ -577,7 +601,7 @@ def _grid_caption(block_size: int) -> str:
         block_size: Cube edge length in voxels.
 
     Returns:
-        Caption such as ``\"5-voxel cubes\"``.
+        Caption such as ``\"8-voxel cubes\"``.
     """
     return f"{int(block_size)}-voxel cubes"
 
@@ -941,7 +965,7 @@ def plot_habitat_graph_slice(
     Display knobs (``show_grid``, ``block_size``, ``grid_linestyle``, …)
     override ``options`` for drawing only. Node extraction still uses
     ``options``. Default lattice: ``block_size=None`` →
-    ``options.block_size`` (library default 5 voxels), dashed lines.
+    ``options.block_size`` (library default 8 voxels), dashed lines.
 
     Args:
         label_array: 2D or 3D habitat label map (background encoded as 0).
@@ -1075,7 +1099,7 @@ def plot_habitat_graph_network_2d(
         show_grid: Draw the uniform-grid lattice (default ``True``).
             Also draws when ``block_size`` is passed in ``component`` mode.
         block_size: Display cube edge in voxels. ``None`` (default) uses
-            ``options.block_size`` (library default 5 voxels) so the lattice
+            ``options.block_size`` (library default 8 voxels) so the lattice
             matches the nodes.
         grid_linestyle: Matplotlib line style (default ``\"--\"`` dashed).
         grid_color: Lattice colour.
@@ -1353,6 +1377,418 @@ def plot_habitat_graph_network_2d(
             ),
             fontsize=_PANEL_TITLE_FONTSIZE,
         )
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Subject x graph-feature heatmap (matplotlib)
+# ---------------------------------------------------------------------------
+
+
+def _ascii_minus_on_ticks(fig: "Figure") -> None:
+    """
+    Persist ASCII '-' on numeric axes (including colorbars).
+
+    ``use_style`` restores rcParams on exit, so a later ``get_ticklabels``
+    would otherwise regenerate U+2212. A FuncFormatter stays on the axes.
+    Categorical ticks (subject ids, feature names) keep their FixedFormatter.
+    """
+    matplotlib = require("matplotlib", extra="viz", purpose=_VIZ_PURPOSE)
+    ticker = matplotlib.ticker
+    formatter = ticker.FuncFormatter(
+        lambda value, _pos: f"{value:g}".replace("\u2212", "-")
+    )
+    for ax in fig.axes:
+        for axis in (ax.xaxis, ax.yaxis):
+            current = axis.get_major_formatter()
+            if isinstance(current, ticker.ScalarFormatter):
+                axis.set_major_formatter(formatter)
+
+
+def _zscore_columns(matrix: np.ndarray) -> np.ndarray:
+    """
+    Z-score each feature (column) across subjects; NaN-safe.
+
+    Args:
+        matrix: Subject x feature values.
+
+    Returns:
+        np.ndarray: Same shape; columns with fewer than two finite
+        values become NaN; zero-variance columns become 0.
+    """
+    out = np.asarray(matrix, dtype=np.float64).copy()
+    for col in range(out.shape[1]):
+        values = out[:, col]
+        finite = np.isfinite(values)
+        if int(finite.sum()) < 2:
+            out[:, col] = np.nan
+            continue
+        mu = float(np.mean(values[finite]))
+        sd = float(np.std(values[finite], ddof=0))
+        if sd == 0.0:
+            out[:, col] = 0.0
+        else:
+            scaled = (values - mu) / sd
+            scaled[~finite] = np.nan
+            out[:, col] = scaled
+    return out
+
+
+def _is_graph_feature_column(name: str) -> bool:
+    """Return True for graph-family columns (single / pair / graph_num)."""
+    text = str(name)
+    return bool(
+        _SINGLE_FEATURE_RE.match(text)
+        or _PAIR_FEATURE_RE.match(text)
+        or _GRAPH_NUM_RE.match(text)
+    )
+
+
+def _columns_for_feature_group(
+    columns: Sequence[str],
+    feature_group: Literal["single", "pair", "all"],
+) -> List[str]:
+    """
+    Filter graph-feature column names by family.
+
+    ``single`` / ``pair`` keep only ``single_h*`` / ``pair_h*``.
+    ``graph_num_*`` is excluded from those two groups and included only
+    when ``feature_group='all'``.
+    """
+    group = str(feature_group)
+    if group not in ("single", "pair", "all"):
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: feature_group must be "
+            f"'single', 'pair', or 'all'; got {feature_group!r}."
+        )
+    selected: List[str] = []
+    for name in columns:
+        text = str(name)
+        if group == "single" and _SINGLE_FEATURE_RE.match(text):
+            selected.append(text)
+        elif group == "pair" and _PAIR_FEATURE_RE.match(text):
+            selected.append(text)
+        elif group == "all" and _is_graph_feature_column(text):
+            selected.append(text)
+    return selected
+
+
+def _graph_feature_tick(name: str) -> str:
+    """ASCII tick: keep the habitat prefix, wrap the metric on a second line."""
+    label = sanitize_label(str(name))
+    single = re.match(r"^(single_h\d+)_(.+)$", label)
+    if single:
+        return f"{single.group(1)}\n{single.group(2)}"
+    pair = re.match(r"^(pair_h\d+_h\d+)_(.+)$", label)
+    if pair:
+        return f"{pair.group(1)}\n{pair.group(2)}"
+    return label
+
+
+def _resolve_subject_frame(
+    table: "pd.DataFrame",
+    *,
+    subjects: Optional[Sequence[str]],
+    subject_col: str,
+) -> "pd.DataFrame":
+    """Restrict and reorder rows to the requested subject ids."""
+    if subject_col not in table.columns:
+        hint = ""
+        if "subject" in table.columns and subject_col != "subject":
+            hint = (
+                " FeatureTable frames from GraphHabitatFeatures use "
+                "subject_col='subject'."
+            )
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: subject column "
+            f"{subject_col!r} is not in the table. Available columns: "
+            f"{list(table.columns)}.{hint}"
+        )
+    frame = table.copy()
+    frame[subject_col] = frame[subject_col].astype(str)
+    if subjects is None:
+        if frame.empty:
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: table has no subject rows."
+            )
+        return frame
+    wanted = [str(item) for item in subjects]
+    if not wanted:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: subjects is an empty sequence."
+        )
+    available = set(frame[subject_col].tolist())
+    missing = [item for item in wanted if item not in available]
+    if missing:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: subject id(s) not in the table: "
+            f"{missing}. Available: {sorted(available)}."
+        )
+    order = {item: index for index, item in enumerate(wanted)}
+    frame = frame.loc[frame[subject_col].isin(wanted)].copy()
+    frame["_habit_subject_order"] = frame[subject_col].map(order)
+    frame = frame.sort_values("_habit_subject_order", kind="stable")
+    return frame.drop(columns=["_habit_subject_order"])
+
+
+def _coerce_numeric_column(column: Any) -> Any:
+    """Coerce one series to float, turning non-numeric cells into NaN."""
+    import pandas as pd
+
+    return pd.to_numeric(column, errors="coerce")
+
+
+def _select_heatmap_features(
+    frame: "pd.DataFrame",
+    *,
+    features: Optional[Sequence[str]],
+    n_features: int,
+    feature_group: Literal["single", "pair", "all"],
+    select: Literal["variance", "sample"],
+    sample_seed: int,
+    subject_col: str,
+) -> List[str]:
+    """
+    Choose which graph-feature columns to draw.
+
+    An explicit ``features`` list wins (must exist) and ignores
+    ``n_features`` / ``select`` / ``feature_group``.
+    """
+    if features is not None:
+        wanted = [str(name) for name in features]
+        if not wanted:
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: features is an empty sequence."
+            )
+        missing = [name for name in wanted if name not in frame.columns]
+        if missing:
+            raise HABITAPIError(
+                "plot_graph_feature_heatmap: feature column(s) not in "
+                f"the table: {missing}."
+            )
+        return wanted
+    if int(n_features) < 1:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: n_features must be >= 1; "
+            f"got {n_features}."
+        )
+    method = str(select)
+    if method not in ("variance", "sample"):
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: select must be 'variance' or "
+            f"'sample'; got {select!r}."
+        )
+    candidates = _columns_for_feature_group(
+        [str(name) for name in frame.columns if str(name) != subject_col],
+        feature_group,
+    )
+    if not candidates:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: no columns matched "
+            f"feature_group={feature_group!r}. Expected names such as "
+            "single_h1_avg_degree, pair_h1_h2_edge_density, or "
+            "graph_num_habitats (group='all' only)."
+        )
+    cap = min(int(n_features), len(candidates))
+    if cap >= len(candidates):
+        return list(candidates)
+    numeric = frame[candidates].apply(
+        lambda col: _coerce_numeric_column(col), axis=0
+    )
+    matrix = np.asarray(numeric, dtype=np.float64)
+    if method == "sample":
+        rng = np.random.default_rng(int(sample_seed))
+        chosen = rng.choice(len(candidates), size=cap, replace=False)
+        return [candidates[int(index)] for index in chosen]
+    variances = np.empty(len(candidates), dtype=np.float64)
+    for index in range(len(candidates)):
+        values = matrix[:, index]
+        finite = values[np.isfinite(values)]
+        variances[index] = (
+            float(np.var(finite, ddof=0)) if finite.size else -1.0
+        )
+    order = np.argsort(-variances, kind="stable")
+    return [candidates[int(index)] for index in order[:cap]]
+
+
+def plot_graph_feature_heatmap(
+    table: "pd.DataFrame",
+    *,
+    subjects: Optional[Sequence[str]] = None,
+    features: Optional[Sequence[str]] = None,
+    n_features: int = _DEFAULT_HEATMAP_FEATURES,
+    feature_group: Literal["single", "pair", "all"] = "single",
+    select: Literal["variance", "sample"] = "variance",
+    sample_seed: int = 0,
+    zscore: bool = True,
+    subject_col: str = "subject_id",
+    title: Optional[str] = None,
+    ax: Optional[Any] = None,
+) -> "Figure":
+    """
+    Draw a subject x graph-feature heatmap (not habitat x texture).
+
+    Columns in a graph table mix incompatible units (counts, ratios,
+    path lengths). ``zscore=True`` (default) standardizes each selected
+    feature across the **selected subjects** so a row is a relative
+    profile, not a raw magnitude. Raw mixed units are not comparable;
+    pass ``zscore=False`` only when every drawn column shares a scale.
+
+    Visualization parameters (who / which features / how many) are
+    first-class: pass ``subjects`` and either an explicit ``features``
+    list or ``n_features`` + ``feature_group`` + ``select``. The default
+    cap is 40 columns so the full ~400-feature bank is never dumped
+    onto one figure.
+
+    This is a different figure from
+    :func:`~habit.viz.plot_habitat_feature_heatmap` (habitats x
+    radiomics features).
+
+    Args:
+        table: Wide frame, one row per subject. Identifier column
+            defaults to ``subject_id``. Domain FeatureTable frames use
+            ``subject`` — pass ``subject_col='subject'``.
+        subjects: Subject ids to show, in y-axis order. ``None`` keeps
+            every row. Missing ids raise :class:`~habit.exceptions.HABITAPIError`.
+        features: Exact column list. When set, it overrides
+            ``n_features``, ``select``, and ``feature_group``.
+        n_features: Column cap when ``features`` is omitted (default 40).
+        feature_group: ``'single'`` (``single_h*``), ``'pair'``
+            (``pair_h*``), or ``'all'`` (those plus ``graph_num_*``).
+            ``graph_num_*`` is excluded from ``single`` / ``pair``.
+        select: When ``features`` is omitted, take the top-k columns by
+            cross-subject variance (``'variance'``) or a reproducible
+            random subset (``'sample'``, seeded by ``sample_seed``).
+        sample_seed: RNG seed for ``select='sample'``.
+        zscore: Column-wise z-score across the selected subjects
+            (default ``True``). Requires at least two subjects.
+        subject_col: Identifier column name (default ``'subject_id'``).
+        title: Optional English figure title. ``None`` builds one from
+            the group and whether values are z-scored.
+        ax: Optional existing axes. ``None`` creates a new figure.
+
+    Returns:
+        The matplotlib ``Figure``. The caller decides whether to save it.
+
+    Raises:
+        HABITAPIError: Missing subjects / columns, empty selection,
+            invalid knobs, or ``zscore=True`` with fewer than two rows.
+        OptionalDependencyError: When matplotlib is not installed.
+    """
+    import pandas as pd
+
+    if not isinstance(table, pd.DataFrame):
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: table must be a pandas "
+            f"DataFrame; got {type(table)!r}."
+        )
+    frame = _resolve_subject_frame(
+        table, subjects=subjects, subject_col=subject_col
+    )
+    chosen = _select_heatmap_features(
+        frame,
+        features=features,
+        n_features=n_features,
+        feature_group=feature_group,
+        select=select,
+        sample_seed=sample_seed,
+        subject_col=subject_col,
+    )
+    subject_ids = [sanitize_label(str(item)) for item in frame[subject_col]]
+    if zscore and len(subject_ids) < 2:
+        raise HABITAPIError(
+            "plot_graph_feature_heatmap: zscore=True needs at least 2 "
+            "subjects (column-wise standardization across people). "
+            "Pass zscore=False for a single row, or include more "
+            "people via subjects=..."
+        )
+    matrix = np.asarray(
+        frame[chosen].apply(lambda col: pd.to_numeric(col, errors="coerce")),
+        dtype=np.float64,
+    )
+    shown = _zscore_columns(matrix) if zscore else matrix
+
+    plt = _plt()
+    n_feat = max(len(chosen), 1)
+    n_subj = max(len(subject_ids), 1)
+    cell_in = 0.32
+    left_in, right_in, top_in, bottom_in = 1.15, 1.05, 0.55, 1.85
+    fig_w = min(14.0, max(6.4, left_in + right_in + cell_in * n_feat))
+    fig_h = min(7.2, max(3.6, top_in + bottom_in + 0.42 * n_subj))
+    group_titles = {
+        "single": "Single-habitat graph features",
+        "pair": "Pairwise graph features",
+        "all": "Graph features",
+    }
+    if title is not None:
+        resolved = title
+    else:
+        scale = "column z-score" if zscore else "raw values"
+        if features is not None:
+            resolved = f"Graph features ({scale})"
+        else:
+            resolved = f"{group_titles[str(feature_group)]} ({scale})"
+
+    with use_style("radiology") as style:
+        axes: Any = ax
+        if axes is None:
+            fig, axes = plt.subplots(1, 1, figsize=(fig_w, fig_h), layout=None)
+            fig.subplots_adjust(
+                left=left_in / fig_w,
+                right=1.0 - right_in / fig_w,
+                top=1.0 - top_in / fig_h,
+                bottom=bottom_in / fig_h,
+            )
+        else:
+            fig = axes.figure
+        finite = shown[np.isfinite(shown)]
+        if zscore and finite.size:
+            vmax = float(np.nanmax(np.abs(finite)))
+            vmax = 1.0 if vmax == 0.0 else vmax
+            vmin = -vmax
+            cmap = "RdBu_r"
+        else:
+            vmin = None
+            vmax = None
+            cmap = "cividis"
+        image = axes.imshow(
+            shown,
+            aspect="auto",
+            cmap=cmap,
+            vmin=vmin,
+            vmax=vmax,
+            interpolation="nearest",
+        )
+        axes.set_yticks(np.arange(len(subject_ids)))
+        axes.set_yticklabels(subject_ids, fontsize=_HEATMAP_TICK_FONTSIZE)
+        axes.set_xticks(np.arange(len(chosen)))
+        axes.set_xticklabels(
+            [_graph_feature_tick(name) for name in chosen],
+            rotation=90,
+            ha="center",
+            va="top",
+            fontsize=_HEATMAP_TICK_FONTSIZE,
+        )
+        axes.set_xlabel(
+            sanitize_label("Graph feature"), fontsize=_HEATMAP_LABEL_FONTSIZE
+        )
+        axes.set_ylabel(sanitize_label("Subject"), fontsize=_HEATMAP_LABEL_FONTSIZE)
+        cbar = fig.colorbar(image, ax=axes, fraction=0.035, pad=0.02)
+        cbar.set_label(
+            sanitize_label(
+                "Z-score (across subjects)"
+                if zscore
+                else "Feature value (mixed units)"
+            ),
+            fontsize=_HEATMAP_CBAR_FONTSIZE,
+        )
+        cbar.ax.tick_params(labelsize=_HEATMAP_TICK_FONTSIZE)
+        axes.set_title(sanitize_label(resolved), fontsize=_HEATMAP_TITLE_FONTSIZE)
+        axes.tick_params(axis="both", labelsize=_HEATMAP_TICK_FONTSIZE)
+        axes.xaxis.label.set_size(_HEATMAP_LABEL_FONTSIZE)
+        axes.yaxis.label.set_size(_HEATMAP_LABEL_FONTSIZE)
+        _ = style
+        _ascii_minus_on_ticks(fig)
     return fig
 
 

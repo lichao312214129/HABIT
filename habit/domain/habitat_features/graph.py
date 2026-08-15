@@ -84,14 +84,14 @@ class GraphHabitatFeaturesParams(BaseModel):
     #: In ``component`` mode, split components larger than this voxel count.
     #: ``0`` disables that split. Ignored by ``uniform_grid``.
     subdivide_region_voxels: int = Field(default=1000, ge=0)
-    #: Cube edge length in voxels (default 5), not millimetres. Paired
-    #: with ``distance_threshold=5``: face-adjacent cubes connect; one
-    #: empty lattice cell (closest-voxel distance 6) stays disconnected.
-    block_size: int = Field(default=5, ge=1)
+    #: Cube edge length in voxels (default 8), not millimetres. Paired
+    #: with ``distance_threshold=5``: face-adjacent 8-cubes connect; one
+    #: empty lattice cell (closest-voxel distance about 8) stays disconnected.
+    block_size: int = Field(default=8, ge=1)
     #: Minimum covered fraction of a cube to keep the cell (strictly
-    #: greater than this value; default 0.05). Applied per cell; tiny
+    #: greater than this value; default 0.2). Applied per cell; tiny
     #: in-cell fragments are dropped by ``min_region_voxels``.
-    block_min_coverage: float = Field(default=0.05, ge=0.0, le=1.0)
+    block_min_coverage: float = Field(default=0.2, ge=0.0, le=1.0)
     #: Add same-habitat proximity edges to pairwise graphs so whole-graph
     #: metrics (modularity, assortativity, betweenness) reflect real tissue
     #: organization; interface metrics still use inter-class edges only.
@@ -110,7 +110,7 @@ class GraphHabitatFeatures:
     Graph-topology features of one subject's habitat map.
 
     Default nodes are per-cell subregion centroids on a global VOI
-    lattice (``node_method='uniform_grid'``, ``block_size=5`` voxels,
+    lattice (``node_method='uniform_grid'``, ``block_size=8`` voxels,
     not mm): each kept cube can contribute several nodes.
     Default edges connect cubes whose closest voxels are within
     ``distance_threshold`` (``edge_method='min_distance'``, default 5).
@@ -153,8 +153,8 @@ class GraphHabitatFeatures:
         erosion_radius: int = 0,
         node_method: Literal["uniform_grid", "component"] = "uniform_grid",
         subdivide_region_voxels: int = 1000,
-        block_size: int = 5,
-        block_min_coverage: float = 0.05,
+        block_size: int = 8,
+        block_min_coverage: float = 0.2,
         pairwise_include_intra_edges: bool = True,
         include_extended_metrics: bool = True,
         extended_min_nodes: int = 10,

@@ -59,13 +59,13 @@ __all__ = [
 class HabitatGraphFeatureOptions:
     """Runtime options for graph-based habitat feature extraction.
 
-    Default node rule: ``node_method='uniform_grid'`` with ``block_size=5``
+    Default node rule: ``node_method='uniform_grid'`` with ``block_size=8``
     (global VOI lattice; each kept cube emits one node per connected
     habitat subregion at that subregion's voxel centroid; edge length in
     **voxels**, not millimetres). Default edge rule: ``edge_method='min_distance'``
-    with ``distance_threshold=5.0``. Face-adjacent 5-cubes connect
+    with ``distance_threshold=5.0``. Face-adjacent 8-cubes connect
     (closest voxels are one hop apart). One empty lattice cell between
-    cubes gives closest-voxel distance 6, which is greater than 5, so
+    cubes is closest-voxel distance about 8, which is greater than 5, so
     those stay disconnected. ``adjacency`` and ``centroid_distance``
     remain available.
     ``erosion_radius=0`` measures the habitat labels as drawn.
@@ -94,11 +94,11 @@ class HabitatGraphFeatureOptions:
     # ``subdivide_region_voxels`` are then split (``0`` disables that split).
     node_method: NodeMethod = "uniform_grid"
     subdivide_region_voxels: int = 1000
-    # 5^3 = 125 voxels per full cube. Units are voxels, not millimetres.
-    # Paired with distance_threshold=5: face-adjacent cubes connect
-    # (closest-voxel hop 1); one empty lattice cell is distance 6 > 5.
-    block_size: int = 5
-    block_min_coverage: float = 0.05
+    # 8^3 = 512 voxels per full cube. Units are voxels, not millimetres.
+    # Paired with distance_threshold=5: face-adjacent 8-cubes connect
+    # (closest-voxel hop 1); one empty lattice cell is about 8 > 5.
+    block_size: int = 8
+    block_min_coverage: float = 0.2
     pairwise_include_intra_edges: bool = True
     include_extended_metrics: bool = True
     extended_min_nodes: int = 10
@@ -252,7 +252,7 @@ def extract_graph_features(
     """
     Extract subject-level graph features from a habitat label map.
 
-    Default ``options`` use ``node_method='uniform_grid'`` (5-voxel cubes,
+    Default ``options`` use ``node_method='uniform_grid'`` (8-voxel cubes,
     one node per in-cell subregion centroid) and
     ``edge_method='min_distance'`` with ``distance_threshold=5.0``.
     Pass ``node_method='component'`` / ``edge_method='adjacency'`` for the

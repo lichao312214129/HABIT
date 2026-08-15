@@ -296,17 +296,17 @@ def extract_habitat_nodes(
     min_region_voxels: int = 1,
     erosion_radius: int = 0,
     subdivide_region_voxels: int = 0,
-    block_size: int = 5,
-    block_min_coverage: float = 0.05,
+    block_size: int = 8,
+    block_min_coverage: float = 0.2,
     node_method: NodeMethod = "uniform_grid",
 ) -> HabitatNodeExtractionResult:
     """
     Convert a habitat label map into graph nodes.
 
     Default ``node_method='uniform_grid'`` paints a global axis-aligned
-    lattice of cubes with edge ``block_size`` (default 5 **voxels**, not
+    lattice of cubes with edge ``block_size`` (default 8 **voxels**, not
     millimetres) over the tumour VOI. Cubes whose occupied fraction
-    exceeds ``block_min_coverage`` (default 0.05) are kept; **each
+    exceeds ``block_min_coverage`` (default 0.2) are kept; **each
     connected subregion inside a kept cube becomes its own node** at
     that subregion's voxel-index centroid (several habitats and/or
     several components of one habitat can share a cube). Pass
@@ -327,13 +327,13 @@ def extract_habitat_nodes(
         subdivide_region_voxels: In ``component`` mode, split components
             larger than this into grid blocks. ``0`` disables splitting.
             Ignored by ``uniform_grid``.
-        block_size: Cube edge length in voxels (default 5), not millimetres.
+        block_size: Cube edge length in voxels (default 8), not millimetres.
             With the default ``distance_threshold=5``, face-adjacent
-            5-cubes connect (closest voxels are one hop apart). One empty
-            lattice cell between cubes is closest-voxel distance 6 and
-            stays disconnected.
+            8-cubes connect (closest voxels are one hop apart). One empty
+            lattice cell between cubes is closest-voxel distance about 8
+            and stays disconnected.
         block_min_coverage: Minimum occupied fraction of a cube to keep
-            the cell (default 0.05; a cube is kept when coverage is
+            the cell (default 0.2; a cube is kept when coverage is
             strictly greater than this value). Applied per cell, not
             per subregion. Tiny in-cell fragments are dropped by
             ``min_region_voxels``.

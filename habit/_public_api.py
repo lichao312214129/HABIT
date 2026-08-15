@@ -416,6 +416,7 @@ _PUBLIC_API_MODULES: Dict[str, Tuple[str, ...]] = {
         "plot_precision_icc",
         "plot_habitat_graph_slice",
         "plot_habitat_graph_network_2d",
+        "plot_graph_feature_heatmap",
         "render_habitat_graph_surface_3d",
         "render_habitat_graph_network_3d",
         "dense_voxel_feature_map",

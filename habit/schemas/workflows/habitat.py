@@ -750,21 +750,22 @@ class GraphFeatureBlock(BaseModel):
         ),
     )
     block_size: int = Field(
-        5,
+        8,
         ge=1,
         description=(
-            "Cube edge length in voxels (default 5), not millimetres. "
-            "Paired with distance_threshold=5: face-adjacent cubes "
-            "connect; one empty lattice cell (distance 6) stays disconnected."
+            "Cube edge length in voxels (default 8), not millimetres. "
+            "Paired with distance_threshold=5: face-adjacent 8-cubes "
+            "connect; one empty lattice cell (distance about 8) stays "
+            "disconnected."
         ),
     )
     block_min_coverage: float = Field(
-        0.05,
+        0.2,
         ge=0.0,
         le=1.0,
         description=(
             "Minimum covered fraction of a block volume to keep it as a "
-            "node (strictly greater than this value; default 0.05)."
+            "node (strictly greater than this value; default 0.2)."
         ),
     )
     pairwise_include_intra_edges: bool = Field(
@@ -825,7 +826,7 @@ class GraphFeatureBlock(BaseModel):
         default=None,
         description=(
             "Cube edge length drawn on 2D lattice figures. None uses the "
-            "extraction block_size (library default 5 voxels) so the overlay "
+            "extraction block_size (library default 8 voxels) so the overlay "
             "matches the nodes."
         ),
     )

@@ -256,7 +256,7 @@ def test_plot_habitat_graph_network_2d_draws_dashed_uniform_grid() -> None:
         texts.extend(t.get_text() for t in fig.legends[0].get_texts())
     joined = " ".join(texts)
     assert joined.isascii()
-    assert "5-voxel cubes" in joined
+    assert "8-voxel cubes" in joined
     import matplotlib.pyplot as plt
 
     plt.close(fig)

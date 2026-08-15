@@ -84,10 +84,10 @@ For each habitat :math:`k\in\mathcal{H}`:
 5. **Default** ``node_method='uniform_grid'`` skips per-component
    splitting. Instead the whole tumour VOI is painted with a **global**
    axis-aligned lattice of cubes of edge ``block_size`` :math:`b`
-   (default :math:`b=5` **voxels**, not millimetres) whose origin is the
+   (default :math:`b=8` **voxels**, not millimetres) whose origin is the
    VOI bounding-box minimum.
    A cube is kept when its occupied fraction exceeds
-   ``block_min_coverage`` (default ``0.05``; cell-level filter).
+   ``block_min_coverage`` (default ``0.2``; cell-level filter).
    Inside each kept cube, every connected component of every habitat
    becomes its own node at that subregion's voxel-index centroid, so one
    cube may contribute several nodes. In-cell fragments smaller than
@@ -158,9 +158,9 @@ Edges: minimum voxel distance
 
 ``edge_method='min_distance'`` (**default**). Reuses
 ``distance_threshold`` :math:`\tau` (default ``5.0`` voxel-index units).
-With the default 5-voxel cubes, face-adjacent cubes connect (closest
+With the default 8-voxel cubes, face-adjacent cubes connect (closest
 voxels are one hop apart). One empty lattice cell between cubes is
-closest-voxel distance 6, which is greater than :math:`\tau=5`, so those
+closest-voxel distance about 8, which is greater than :math:`\tau=5`, so those
 stay disconnected.
 An undirected edge exists between distinct nodes :math:`u,v` when the
 closest-point (Hausdorff-min) distance between their voxels satisfies
@@ -497,9 +497,9 @@ below match the kernel dataclass.
    * - ``subdivide_region_voxels``
      - In ``component`` mode, split components larger than this (default ``1000``; ``0`` disables)
    * - ``block_size``
-     - Cube edge length in **voxels** (default ``5``, not millimetres). Face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected at ``distance_threshold=5``.
+     - Cube edge length in **voxels** (default ``8``, not millimetres). Face-adjacent 8-cubes connect; one empty lattice cell (closest-voxel distance about 8) stays disconnected at ``distance_threshold=5``.
    * - ``block_min_coverage``
-     - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.05``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
+     - Minimum **strict** occupied fraction of a cube to keep the cell (default ``0.2``). Applied per cell; tiny in-cell fragments use ``min_region_voxels``
    * - ``pairwise_include_intra_edges``
      - Add same-habitat proximity edges in pairwise graphs (default ``true``); interface metrics still use inter-class edges only
    * - ``include_extended_metrics``
@@ -527,7 +527,7 @@ YAML-only visualization fields (recipe hook; **not** part of the extractor
    * - ``visualization_show_grid``
      - Draw the equal-volume cube lattice on 2D figures (default ``true``)
    * - ``visualization_block_size``
-     - Display cube edge in voxels (default ``null`` → extraction ``block_size``, library default 5)
+     - Display cube edge in voxels (default ``null`` → extraction ``block_size``, library default 8)
    * - ``visualization_grid_linestyle``
      - Lattice line style (default ``--`` dashed)
    * - ``visualization_save_3d``

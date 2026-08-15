@@ -93,6 +93,7 @@ def main() -> int:
         "plot_cluster_validation_from_report, plot_habitat_label_compare, "
         "plot_precision_icc, "
         "plot_voxel_texture_slice, plot_habitat_graph_network_2d, "
+        "plot_graph_feature_heatmap, "
         "plot_habitat_feature_heatmap, plot_habitat_feature_effect, "
         "plot_habitat_feature_components, plot_habitat_feature_violin, "
         "plot_habitat_feature_bars"

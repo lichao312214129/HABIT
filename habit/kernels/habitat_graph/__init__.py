@@ -16,7 +16,7 @@
 
 A habitat map is turned into region graphs -- default nodes are
 per-cell subregion centroids on a global VOI lattice
-(``uniform_grid``, cube edge 5 voxels),
+(``uniform_grid``, cube edge 8 voxels),
 edges by closest-voxel distance (default ``min_distance``, threshold 5),
 with optional voxel adjacency or centroid proximity -- and NetworkX-derived
 topology metrics

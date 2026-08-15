@@ -90,6 +90,7 @@ from habit.viz.habitat_clustering import (
     plot_habitat_clustering_pca_3d_interactive,
 )
 from habit.viz.habitat_graph import (
+    plot_graph_feature_heatmap,
     plot_habitat_graph_network_2d,
     plot_habitat_graph_slice,
     render_habitat_graph_network_3d,
@@ -179,6 +180,7 @@ __all__ = [
     # habitat graph topology figures (2D: [viz] extra; 3D: [view]+[slic] extras)
     "plot_habitat_graph_slice",
     "plot_habitat_graph_network_2d",
+    "plot_graph_feature_heatmap",
     "render_habitat_graph_surface_3d",
     "render_habitat_graph_network_3d",
     # greyscale anatomy / intensity slices (image preprocessing, not texture)

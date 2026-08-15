@@ -33,7 +33,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
    # graph:
    #   edge_method: min_distance
    #   node_method: uniform_grid
-   #   block_size: 5
+   #   block_size: 8
    #   visualize: false
 
    n_habitats:
@@ -128,13 +128,13 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
 
   - ``include_single_habitat_graph`` (``true``) / ``include_pairwise_habitat_graph`` (``true``)
   - ``edge_method``: ``min_distance`` (default), ``adjacency``, or ``centroid_distance``
-  - ``distance_threshold`` (``5.0``, voxel-index units) — used by ``centroid_distance`` and ``min_distance``. With default 5-voxel cubes, face-adjacent cubes connect; one empty lattice cell (closest-voxel distance 6) stays disconnected.
+  - ``distance_threshold`` (``5.0``, voxel-index units) — used by ``centroid_distance`` and ``min_distance``. With default 8-voxel cubes, face-adjacent cubes connect; one empty lattice cell (closest-voxel distance about 8) stays disconnected.
   - ``adjacency_connectivity`` (``corner``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available) / ``adjacency_min_voxels`` (``10``) — used by ``adjacency``. An edge exists when two regions are adjacent and the contact voxel count is >= 10, measured on the habitat labels as drawn (default ``erosion_radius`` is ``0``).
   - ``edge_weight``: ``none`` | ``distance`` | ``inverse_distance`` | ``contact_voxels``
   - ``min_region_voxels`` (``1``), ``connectivity`` (default ``full``: 8-conn in 2D / 26-conn in 3D; ``face`` = 4/6 remains available)
   - ``node_method`` (``uniform_grid`` default; ``component`` for connected-component nodes)
   - ``erosion_radius`` (``0`` / off; set ``>= 1`` to shrink habitats before edges), ``subdivide_region_voxels`` (``1000``; used only by ``component``)
-  - ``block_size`` (``5`` voxels, not millimetres), ``block_min_coverage`` (``0.05``)
+  - ``block_size`` (``8`` voxels, not millimetres), ``block_min_coverage`` (``0.2``)
   - ``pairwise_include_intra_edges`` (``true``)
   - ``include_extended_metrics`` (``true``), ``extended_min_nodes`` (``10``)
 
@@ -145,7 +145,7 @@ This section documents **feature extraction** configuration. CLI: ``habit extrac
   - ``visualization_dpi`` (``600``)
   - ``visualization_show_background`` (``true``)
   - ``visualization_show_grid`` (``true``)
-  - ``visualization_block_size`` (``null`` → extraction ``block_size``, default 5 voxels)
+  - ``visualization_block_size`` (``null`` → extraction ``block_size``, default 8 voxels)
   - ``visualization_grid_linestyle`` (``--`` dashed)
   - ``visualization_save_3d`` (``true``; 3D needs optional ``[view]`` stack)
 
