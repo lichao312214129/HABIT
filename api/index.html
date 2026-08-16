@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
@@ -371,6 +372,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -955,6 +957,12 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1305,6 +1313,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -2487,6 +2499,24 @@ resulting precise-feature artefact. See <a class="reference internal" href="../e
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html#habit.domain.RigidPerturbationParams" title="habit.domain.RigidPerturbationParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.RigidPerturbationParams</span></code></a>(*[, ...])</p></td>
 <td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">RigidPerturbation</span></code>.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation" title="habit.domain.MorphologicalPerturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.MorphologicalPerturbation</span></code></a>([...])</p></td>
+<td><p>Uniformly grow or shrink every ROI (MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbationParams.html#habit.domain.MorphologicalPerturbationParams" title="habit.domain.MorphologicalPerturbationParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.MorphologicalPerturbationParams</span></code></a>(*)</p></td>
+<td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">MorphologicalPerturbation</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation" title="habit.domain.GradientWeightedPerturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.GradientWeightedPerturbation</span></code></a>([...])</p></td>
+<td><p>Locally grow/shrink ROI boundaries where image gradient is low.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbationParams.html#habit.domain.GradientWeightedPerturbationParams" title="habit.domain.GradientWeightedPerturbationParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.GradientWeightedPerturbationParams</span></code></a>(*)</p></td>
+<td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">GradientWeightedPerturbation</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation" title="habit.domain.SliceExtentPerturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.SliceExtentPerturbation</span></code></a>([...])</p></td>
+<td><p>Add or remove whole axial slices at the superior/inferior ROI ends.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbationParams.html#habit.domain.SliceExtentPerturbationParams" title="habit.domain.SliceExtentPerturbationParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.SliceExtentPerturbationParams</span></code></a>(*)</p></td>
+<td><p>Constructor parameters for <code class="xref py py-class docutils literal notranslate"><span class="pre">SliceExtentPerturbation</span></code>.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.domain.perturb_image.html#habit.domain.perturb_image" title="habit.domain.perturb_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.domain.perturb_image</span></code></a>(image, method, *)</p></td>
 <td><p>Return a same-grid perturbed copy of one image.</p></td>
 </tr>
@@ -3205,6 +3235,18 @@ only pick up their documentation there.</p>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.rigid_transform_image.html#habit.kernels.rigid_transform_image" title="habit.kernels.rigid_transform_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.rigid_transform_image</span></code></a>(image, ...)</p></td>
 <td><p>Translate then rotate in ONE resample (MIRP ≥ 2 affine composition).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html#habit.kernels.morphological_grow_shrink" title="habit.kernels.morphological_grow_shrink"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.morphological_grow_shrink</span></code></a>(...)</p></td>
+<td><p>Uniformly dilate (<code class="docutils literal notranslate"><span class="pre">grow_mm</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>) or erode (<code class="docutils literal notranslate"><span class="pre">grow_mm</span> <span class="pre">&lt;</span> <span class="pre">0</span></code>) a mask.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask" title="habit.kernels.boundary_band_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.boundary_band_mask</span></code></a>(mask, band_mm)</p></td>
+<td><p>Return the voxels within <code class="docutils literal notranslate"><span class="pre">band_mm</span></code> of the foreground boundary.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html#habit.kernels.boundary_weighted_perturbation" title="habit.kernels.boundary_weighted_perturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.boundary_weighted_perturbation</span></code></a>(...)</p></td>
+<td><p>Locally grow or shrink a mask where <code class="docutils literal notranslate"><span class="pre">weights</span></code> is high (gradient-weighted).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html#habit.kernels.slice_extent_perturbation" title="habit.kernels.slice_extent_perturbation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.slice_extent_perturbation</span></code></a>(mask)</p></td>
+<td><p>Add or remove whole axial slices at the superior/inferior ROI ends.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/habit.kernels.ICCEstimate.html#habit.kernels.ICCEstimate" title="habit.kernels.ICCEstimate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">habit.kernels.ICCEstimate</span></code></a>(value, lcl, ucl)</p></td>
 <td><p>Point estimate and two-sided confidence limits of one ICC.</p></td>

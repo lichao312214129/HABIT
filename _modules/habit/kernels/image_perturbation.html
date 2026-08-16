@@ -441,6 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#references">References</a></li>
@@ -723,6 +724,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1307,6 +1309,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1657,6 +1665,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -2211,6 +2223,10 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;rotate_image&quot;</span><span class="p">,</span>
     <span class="s2">&quot;rigid_transform_image&quot;</span><span class="p">,</span>
     <span class="s2">&quot;binary_mask_dice&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;morphological_grow_shrink&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;boundary_band_mask&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;boundary_weighted_perturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;slice_extent_perturbation&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1">#: Interpolator names accepted by the geometric kernels, mapped to the SimpleITK</span>
@@ -2569,6 +2585,316 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">n_ref</span> <span class="o">+</span> <span class="n">n_moved</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">1.0</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">intersection</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_ref</span> <span class="o">+</span> <span class="n">n_moved</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_iterations_for_mm</span><span class="p">(</span>
+    <span class="n">distance_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">voxel_scale</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a physical morphological radius to a whole iteration count.</span>
+
+<span class="sd">    Morphology runs on voxel grids with an isotropic structuring element, so</span>
+<span class="sd">    a physical distance becomes an iteration count via the smallest in-plane</span>
+<span class="sd">    spacing (the limiting axis). At least one iteration is applied whenever</span>
+<span class="sd">    the requested distance is positive.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        distance_mm: Requested grow/shrink distance in millimetres.</span>
+<span class="sd">        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order.</span>
+<span class="sd">        voxel_scale: Alias kept for call-site clarity; same as</span>
+<span class="sd">            ``spacing_xyz`` (unused placeholder for anisotropic handling).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A non-negative integer iteration count.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">distance_mm</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">spacing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">spacing_xyz</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">positive</span> <span class="o">=</span> <span class="n">spacing</span><span class="p">[</span><span class="n">spacing</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">positive</span><span class="p">))</span> <span class="k">if</span> <span class="n">positive</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="mf">1.0</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">distance_mm</span> <span class="o">/</span> <span class="n">base</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="morphological_grow_shrink">
+<a class="viewcode-back" href="../../../api/generated/habit.kernels.morphological_grow_shrink.html#habit.kernels.morphological_grow_shrink">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">morphological_grow_shrink</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">grow_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uniformly dilate (``grow_mm &gt; 0``) or erode (``grow_mm &lt; 0``) a mask.</span>
+
+<span class="sd">    This is MIRP ``perturbation_roi_adapt_size``: the systematic component</span>
+<span class="sd">    of inter-rater contour variability, where one observer consistently</span>
+<span class="sd">    traces slightly larger or smaller than another. Only the mask changes;</span>
+<span class="sd">    image intensities are untouched. Applied per foreground label so a</span>
+<span class="sd">    multi-label ROI grows each region instead of merging them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask: Integer / boolean label array in ``(z, y, x)`` order; ``0``</span>
+<span class="sd">            is background.</span>
+<span class="sd">        grow_mm: Physical radius in millimetres. Positive dilates, negative</span>
+<span class="sd">            erodes, zero returns an unchanged copy.</span>
+<span class="sd">        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order, used to</span>
+<span class="sd">            convert millimetres to an iteration count.</span>
+<span class="sd">        connectivity: Structuring-element connectivity in ``{1, 2, 3}``;</span>
+<span class="sd">            ``1`` is the 6-connected face neighbourhood (the conservative,</span>
+<span class="sd">            MIRP-like default).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new label array, same shape and dtype as ``mask``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If erosion removes every foreground voxel (the ROI</span>
+<span class="sd">            would vanish), or ``connectivity`` is outside ``{1, 2, 3}``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">_ndi</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">connectivity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;morphological_grow_shrink: connectivity must be in </span><span class="se">{{</span><span class="s2">1,2,3</span><span class="se">}}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">iterations</span> <span class="o">=</span> <span class="n">_iterations_for_mm</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">grow_mm</span><span class="p">)),</span> <span class="n">spacing_xyz</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">iterations</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">generate_binary_structure</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="n">grow</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">grow_mm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+    <span class="n">foreground_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">foreground_labels</span> <span class="o">=</span> <span class="n">foreground_labels</span><span class="p">[</span><span class="n">foreground_labels</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">foreground_labels</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">if</span> <span class="n">grow</span><span class="p">:</span>
+        <span class="c1"># Grow the UNION of foreground so regions do not overwrite each</span>
+        <span class="c1"># other, then restrict to the original foreground label set.</span>
+        <span class="n">union</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="n">dilated</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span>
+            <span class="n">union</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span>
+        <span class="p">)</span>
+        <span class="c1"># Fill newly claimed background voxels by nearest original label.</span>
+        <span class="n">added</span> <span class="o">=</span> <span class="n">dilated</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">union</span>
+        <span class="k">if</span> <span class="n">added</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">nearest</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">union</span><span class="p">,</span> <span class="n">return_distances</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">added</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">nearest</span><span class="p">[:,</span> <span class="n">added</span><span class="p">])]</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="c1"># Erode each label independently to preserve label identity.</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">foreground_labels</span><span class="p">:</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">==</span> <span class="n">label</span>
+        <span class="n">eroded</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">eroded</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;morphological_grow_shrink: erosion of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">grow_mm</span><span class="p">))</span><span class="si">}</span><span class="s2"> mm removes label </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="si">}</span><span class="s2"> entirely; &quot;</span>
+                <span class="s2">&quot;reduce the magnitude.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="o">~</span><span class="n">eroded</span> <span class="o">&amp;</span> <span class="n">region</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="boundary_band_mask">
+<a class="viewcode-back" href="../../../api/generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">boundary_band_mask</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">band_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">spacing_xyz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the voxels within ``band_mm`` of the foreground boundary.</span>
+
+<span class="sd">    The band is the union of the outer dilation shell and the inner erosion</span>
+<span class="sd">    shell of the foreground, i.e. the strip a radiologist&#39;s mouse actually</span>
+<span class="sd">    traverses. Used to weight boundary perturbations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask: Integer / boolean label array; ``0`` is background.</span>
+<span class="sd">        band_mm: Half-width of the band in millimetres.</span>
+<span class="sd">        spacing_xyz: Voxel spacing in SimpleITK ``(x, y, z)`` order.</span>
+<span class="sd">        connectivity: Structuring-element connectivity in ``{1, 2, 3}``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A boolean array, ``True`` inside the boundary band.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">_ndi</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">union</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">iterations</span> <span class="o">=</span> <span class="n">_iterations_for_mm</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">band_mm</span><span class="p">)),</span> <span class="n">spacing_xyz</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="p">)</span>
+    <span class="n">structure</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">generate_binary_structure</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span> <span class="n">connectivity</span><span class="p">)</span>
+    <span class="n">dilated</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">union</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">)</span>
+    <span class="n">eroded</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">union</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="n">iterations</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">dilated</span> <span class="o">^</span> <span class="n">eroded</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="boundary_weighted_perturbation">
+<a class="viewcode-back" href="../../../api/generated/habit.kernels.boundary_weighted_perturbation.html#habit.kernels.boundary_weighted_perturbation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">boundary_weighted_perturbation</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+    <span class="n">max_radius_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locally grow or shrink a mask where ``weights`` is high (gradient-weighted).</span>
+
+<span class="sd">    Models the fact that inter-rater disagreement concentrates where image</span>
+<span class="sd">    contrast is poor: boundary voxels at high-gradient (sharp) edges are</span>
+<span class="sd">    drawn consistently, whereas low-gradient (fuzzy) edges vary. ``weights``</span>
+<span class="sd">    is typically a normalised gradient-magnitude map; the local perturbation</span>
+<span class="sd">    probability scales with ``1 - weight`` so fuzzy edges move more.</span>
+
+<span class="sd">    A random subset of boundary voxels is flipped (foreground -&gt; background</span>
+<span class="sd">    shrinks, background -&gt; foreground grows) within a local radius, biased</span>
+<span class="sd">    toward the low-weight side.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask: Integer / boolean label array; ``0`` is background.</span>
+<span class="sd">        weights: Per-voxel weight in ``[0, 1]``, same shape as ``mask``;</span>
+<span class="sd">            high means a confident (sharp) edge. Typically a normalised</span>
+<span class="sd">            gradient magnitude of the driving image.</span>
+<span class="sd">        rng: Random generator supplying the flip decisions.</span>
+<span class="sd">        max_radius_voxels: Neighbourhood radius bounding each local flip.</span>
+<span class="sd">        probability: Base flip probability at zero weight; the effective</span>
+<span class="sd">            probability is ``probability * (1 - weight)``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new label array, same shape and dtype as ``mask``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``weights`` shape differs from ``mask``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">_ndi</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;boundary_weighted_perturbation: weights shape &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> != mask shape </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">union</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">band</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">union</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_radius_voxels</span><span class="p">)))</span> <span class="o">^</span> <span class="p">(</span>
+        <span class="n">_ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">union</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_radius_voxels</span><span class="p">)))</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">flip_prob</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">draw</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># Grow: background voxels in the band whose draw falls under the</span>
+    <span class="c1"># local (low-gradient) probability become foreground.</span>
+    <span class="n">grow_sel</span> <span class="o">=</span> <span class="n">band</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">union</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">draw</span> <span class="o">&lt;</span> <span class="n">flip_prob</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">grow_sel</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">nearest</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">union</span><span class="p">,</span> <span class="n">return_distances</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">grow_sel</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">nearest</span><span class="p">[:,</span> <span class="n">grow_sel</span><span class="p">])]</span>
+    <span class="c1"># Shrink: foreground voxels in the band whose draw falls under the</span>
+    <span class="c1"># local probability become background.</span>
+    <span class="n">shrink_sel</span> <span class="o">=</span> <span class="n">band</span> <span class="o">&amp;</span> <span class="n">union</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">draw</span> <span class="o">&lt;</span> <span class="n">flip_prob</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">shrink_sel</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="slice_extent_perturbation">
+<a class="viewcode-back" href="../../../api/generated/habit.kernels.slice_extent_perturbation.html#habit.kernels.slice_extent_perturbation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">slice_extent_perturbation</span><span class="p">(</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">grow_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">shrink_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">rng</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add or remove whole axial slices at the superior/inferior ROI ends.</span>
+
+<span class="sd">    Models z-axis delineation variability: observers often agree in-plane</span>
+<span class="sd">    but differ on the first and last slice they call tumour (slice-extent</span>
+<span class="sd">    or &quot;end-slice&quot; disagreement). Operates on the ``z`` (first) axis only.</span>
+
+<span class="sd">    Provide either fixed ``grow_slices`` / ``shrink_slices`` or a random</span>
+<span class="sd">    ``max_slices`` with ``rng`` (each end independently draws a count in</span>
+<span class="sd">    ``[-max_slices, +max_slices]``; positive grows, negative shrinks).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mask: Integer / boolean label array in ``(z, y, x)`` order.</span>
+<span class="sd">        grow_slices: Number of slices to append at each occupied end by</span>
+<span class="sd">            copying the nearest occupied slice&#39;s labels.</span>
+<span class="sd">        shrink_slices: Number of occupied slices to remove at each end.</span>
+<span class="sd">        rng: Random generator enabling random per-end counts; requires</span>
+<span class="sd">            ``max_slices &gt; 0``.</span>
+<span class="sd">        max_slices: Bound for the random per-end slice count.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A new label array, same shape and dtype as ``mask``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If shrinking removes every occupied slice, or if both</span>
+<span class="sd">            fixed and random modes are mixed inconsistently.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">union</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="n">occupied</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">union</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+    <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">occupied</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">occupied</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">rng</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_slices</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;slice_extent_perturbation: random mode needs max_slices &gt; 0.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">grow_slices</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">shrink_slices</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">start_delta</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="o">-</span><span class="n">max_slices</span><span class="p">,</span> <span class="n">max_slices</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">end_delta</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="o">-</span><span class="n">max_slices</span><span class="p">,</span> <span class="n">max_slices</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start_delta</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grow_slices</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">shrink_slices</span><span class="p">)</span>
+        <span class="n">end_delta</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grow_slices</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">shrink_slices</span><span class="p">)</span>
+
+    <span class="c1"># Shrink (negative delta removes occupied slices from that end).</span>
+    <span class="k">if</span> <span class="n">start_delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="o">-</span><span class="n">start_delta</span><span class="p">,</span> <span class="n">last</span> <span class="o">-</span> <span class="n">first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">first</span> <span class="p">:</span> <span class="n">first</span> <span class="o">+</span> <span class="n">remove</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">end_delta</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="o">-</span><span class="n">end_delta</span><span class="p">,</span> <span class="n">last</span> <span class="o">-</span> <span class="n">first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">last</span> <span class="o">-</span> <span class="n">remove</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">result</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;slice_extent_perturbation: shrinking removes every occupied slice; &quot;</span>
+            <span class="s2">&quot;reduce the slice count.&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># Grow (positive delta copies the nearest occupied slice outward).</span>
+    <span class="k">if</span> <span class="n">start_delta</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">first</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">first</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">start_delta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">target_index</span> <span class="o">=</span> <span class="n">first</span> <span class="o">-</span> <span class="n">offset</span>
+            <span class="k">if</span> <span class="n">target_index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">target_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">if</span> <span class="n">end_delta</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">last</span> <span class="o">&lt;</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">last</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">end_delta</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">target_index</span> <span class="o">=</span> <span class="n">last</span> <span class="o">+</span> <span class="n">offset</span>
+            <span class="k">if</span> <span class="n">target_index</span> <span class="o">&gt;=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">break</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">target_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
 </pre></div>
 
            </div>

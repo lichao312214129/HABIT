@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
@@ -371,6 +372,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -955,6 +957,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1305,6 +1313,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1794,8 +1806,11 @@ two volume-level atoms, then a small composition.</p>
 <a class="reference internal" href="../api/generated/habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageVolume</span></code></a>, a registered method name, and
 that method’s parameters. Optional <code class="docutils literal notranslate"><span class="pre">mask</span></code> is used by methods that
 consult or warp an ROI. The result stays on the original voxel grid.</p>
-<p>Built-in methods: <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>,
-<code class="docutils literal notranslate"><span class="pre">rigid</span></code>, <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI; extra <code class="docutils literal notranslate"><span class="pre">monai</span></code>).</p>
+<p>Built-in intensity methods: <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI; extra <code class="docutils literal notranslate"><span class="pre">monai</span></code>).
+Mask-only contour methods (<code class="docutils literal notranslate"><span class="pre">morphological</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code>) need the Subject-level registry; see the follow-up
+below.</p>
 </li>
 <li><p><strong>Extract voxel texture</strong> — <a class="reference internal" href="../api/generated/habit.extract_voxel_texture.html#habit.extract_voxel_texture" title="habit.extract_voxel_texture"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_voxel_texture()</span></code></a>: the
 same image and mask, with <code class="docutils literal notranslate"><span class="pre">kernel_radius</span></code> (the paper’s <code class="docutils literal notranslate"><span class="pre">R</span></code>),
@@ -2246,8 +2261,11 @@ change ROI <em>shape</em>. Subject-level
 <a class="reference internal" href="../api/generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a>
 <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>) does: one displacement
 field warps every image and mask together so the contour stays paired
-with the anatomy. This is <strong>not</strong> Prior Appendix S2 and <strong>not</strong> MIRP
-<code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (mask grow/shrink).</p>
+with the anatomy. This simulates a <strong>deformable re-acquisition</strong> (image
+and contour move together), not inter-rater contouring; for rater
+variability use the mask-only operators below. This is <strong>not</strong> Prior
+Appendix S2 and <strong>not</strong> the <code class="docutils literal notranslate"><span class="pre">morphological</span></code> grow/shrink operator
+(that follow-up is below).</p>
 <p>The same block then extracts <strong>habitat-table</strong> features — volume
 fraction, ITH, and the graph family
 (<code class="xref py py-func docutils literal notranslate"><span class="pre">extract_graph_features()</span></code>, single + pairwise; extended
@@ -2587,8 +2605,832 @@ GLCM set, or a custom <a class="reference internal" href="../api/generated/habit
 <code class="xref py py-class docutils literal notranslate"><span class="pre">PerturbationChain</span></code>).
 <code class="xref py py-func docutils literal notranslate"><span class="pre">prior2024_retest_perturbation()</span></code> is the
 Appendix S2 default (Chang noise + 0.5-voxel translation + 0.5°
-rotation). MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code> (mask grow/shrink) is
-not implemented.</p>
+rotation). Contour operators (<code class="docutils literal notranslate"><span class="pre">morphological</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code>) are a separate follow-up below; they are <strong>not</strong> in
+that default chain.</p>
+</section>
+<section id="contour-perturbation-p1-p3-p4">
+<h2>Contour perturbation (P1 / P3 / P4)<a class="headerlink" href="#contour-perturbation-p1-p3-p4" title="Link to this heading"></a></h2>
+<p>The paper chain and <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> do not cover three common
+inter-rater patterns: a systematic “always larger / always smaller”
+bias, disagreement that concentrates on fuzzy edges, and first/last
+slice disagreement. Those are mask-only operators on a
+<a class="reference internal" href="../api/generated/habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> — the image is unchanged.
+<code class="docutils literal notranslate"><span class="pre">perturb_image</span></code> returns only the intensity volume, so use
+<a class="reference internal" href="../api/generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a> here.</p>
+<p>Swap <code class="docutils literal notranslate"><span class="pre">DATA</span></code> / <code class="docutils literal notranslate"><span class="pre">MODALITIES</span></code> / <code class="docutils literal notranslate"><span class="pre">ROI</span></code>. Operators run on an ROI
+crop (speed); figures use the uncropped <code class="docutils literal notranslate"><span class="pre">ImageVolume</span></code> / mask so
+orientation and <code class="docutils literal notranslate"><span class="pre">z</span></code> match ITK-SNAP. Writes <code class="docutils literal notranslate"><span class="pre">out/contour_*.png</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit</span><span class="w"> </span><span class="kn">import</span> <span class="n">ImagePerturbationRegistry</span><span class="p">,</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">cohort_from_directory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayImageRef</span><span class="p">,</span> <span class="n">Geometry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">boundary_band_mask</span>
+
+<span class="c1"># Change DATA / MODALITIES / ROI to your preprocessed layout</span>
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">&quot;demo_data/preprocessed&quot;</span>
+<span class="n">MODALITIES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;LAP&quot;</span><span class="p">,)</span>
+<span class="n">ROI</span> <span class="o">=</span> <span class="s2">&quot;LAP&quot;</span>
+
+<span class="n">cohort</span> <span class="o">=</span> <span class="n">cohort_from_directory</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="n">modalities</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">)[:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">full_subject</span> <span class="o">=</span> <span class="n">cohort</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_crop_to_roi</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="n">modality</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">roi</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop one subject to the ROI bounding box plus pad (demo speed).&quot;&quot;&quot;</span>
+    <span class="n">mask_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">image_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">mask_arr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">pad</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mask_arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">sl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">))</span>
+    <span class="c1"># Keep image and mask on one geometry so SimpleITK operators stay aligned.</span>
+    <span class="c1"># Display figures use ``full_subject`` (mask direction) instead of this crop.</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span>
+        <span class="n">image_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">spacing</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">src</span><span class="o">.</span><span class="n">direction</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Subject</span><span class="p">(</span>
+        <span class="n">subject_id</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+        <span class="n">images</span><span class="o">=</span><span class="p">{</span><span class="n">modality</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">image_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
+        <span class="n">masks</span><span class="o">=</span><span class="p">{</span><span class="n">roi</span><span class="p">:</span> <span class="n">ArrayImageRef</span><span class="p">(</span><span class="n">array</span><span class="o">=</span><span class="n">mask_arr</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">geometry</span><span class="o">=</span><span class="n">geom</span><span class="p">)},</span>
+    <span class="p">)</span>
+
+
+<span class="n">subject</span> <span class="o">=</span> <span class="n">_crop_to_roi</span><span class="p">(</span><span class="n">full_subject</span><span class="p">,</span> <span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ROI</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
+<span class="n">orig_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">orig_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">orig_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subject </span><span class="si">{</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="si">}</span><span class="s2"> ROI voxels=</span><span class="si">{</span><span class="n">orig_n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run from the repository root (one line):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">docs</span><span class="o">/</span><span class="n">source</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">contour_perturbation_demo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p><strong>P1 grow</strong> — uniform dilation (MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># P1 grow: one observer traces a systematically larger contour.</span>
+<span class="n">grow</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;morphological&quot;</span><span class="p">,</span> <span class="n">grow_mm</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">grown</span> <span class="o">=</span> <span class="n">grow</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">grown_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grown</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;morphological grow +4 mm: voxels </span><span class="si">{</span><span class="n">orig_n</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">grown_mask</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/contour_morphological_grow.png"><img alt="Original ROI contour beside a uniformly grown contour" src="../_images/contour_morphological_grow.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Uniform grow of +4 mm. Cyan solid = original; vermillion solid =
+grown; yellow = membership change (XOR). Radiological axial slice;
+<code class="docutils literal notranslate"><span class="pre">z</span></code> is the file / ITK index (ITK-SNAP 1-based = <code class="docutils literal notranslate"><span class="pre">z+1</span></code>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>P1 shrink</strong> — uniform erosion:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># P1 shrink: one observer traces a systematically smaller contour.</span>
+<span class="n">shrink</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;morphological&quot;</span><span class="p">,</span> <span class="n">grow_mm</span><span class="o">=-</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">,</span> <span class="n">connectivity</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">shrunk</span> <span class="o">=</span> <span class="n">shrink</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">shrunk_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">shrunk</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;morphological shrink -4 mm: voxels </span><span class="si">{</span><span class="n">orig_n</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">shrunk_mask</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id13">
+<a class="reference internal image-reference" href="../_images/contour_morphological_shrink.png"><img alt="Original ROI contour beside a uniformly shrunk contour" src="../_images/contour_morphological_shrink.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Uniform shrink of -4 mm. Same colours and slice as the grow figure.</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Boundary band</strong> — L0 helper used to reason about the mouse-travel
+strip (<a class="reference internal" href="../api/generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask" title="habit.kernels.boundary_band_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary_band_mask()</span></code></a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># L0 helper: voxels within band_mm of the foreground boundary.</span>
+<span class="n">spacing_xyz</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mask</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span>
+<span class="n">band</span> <span class="o">=</span> <span class="n">boundary_band_mask</span><span class="p">(</span><span class="n">orig_mask</span><span class="p">,</span> <span class="n">band_mm</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing_xyz</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;boundary_band_mask 4 mm: band voxels=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">band</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id14">
+<a class="reference internal image-reference" href="../_images/contour_boundary_band.png"><img alt="Anatomy slice with the 4 mm boundary band filled" src="../_images/contour_boundary_band.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Voxels within 4 mm of the foreground boundary (outer dilation shell
+XOR inner erosion shell).</span><a class="headerlink" href="#id14" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>P3 gradient-weighted</strong> — flip probability
+<code class="docutils literal notranslate"><span class="pre">probability</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">normalised_gradient)</span></code> so fuzzy edges move more:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># P3: flip probability scales with (1 - normalised gradient). Fuzzy</span>
+<span class="c1"># (low-gradient) edges move more than sharp edges. Image is unchanged.</span>
+<span class="n">fuzzy</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;gradient_weighted&quot;</span><span class="p">,</span>
+    <span class="n">modality</span><span class="o">=</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span><span class="p">,</span>
+    <span class="n">max_radius_voxels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">probability</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fuzzy_subject</span> <span class="o">=</span> <span class="n">fuzzy</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">fuzzy_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fuzzy_subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;gradient_weighted: voxels </span><span class="si">{</span><span class="n">orig_n</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">fuzzy_mask</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id15">
+<a class="reference internal image-reference" href="../_images/contour_gradient_weighted.png"><img alt="Gradient weight map beside original and perturbed ROI contours" src="../_images/contour_gradient_weighted.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">Same ITK-SNAP-matching axial slice: anatomy, normalised Gaussian
+gradient (sigma 1; bright = sharp), original (cyan solid) vs
+perturbed (vermillion solid) contours, plus sharp / fuzzy insets.
+Flip probability is <code class="docutils literal notranslate"><span class="pre">0.35</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">w)</span></code> inside a 2-voxel band. The
+orange contour hugs the cyan contour on sharp edges and leaves it
+on fuzzy edges. A filled XOR ring is not shown: the flip band has
+a fixed radius, so XOR width is not the scientific effect.</span><a class="headerlink" href="#id15" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>P4 slice-extent</strong> — add or drop whole axial slices at the z ends:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># P4: copy or clear whole axial slices at the superior / inferior ends.</span>
+<span class="n">extent</span> <span class="o">=</span> <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="s2">&quot;slice_extent&quot;</span><span class="p">,</span> <span class="n">grow_slices</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">roi</span><span class="o">=</span><span class="n">ROI</span>
+<span class="p">)</span>
+<span class="n">extended</span> <span class="o">=</span> <span class="n">extent</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">extended_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">extended</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">orig_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">orig_mask</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">new_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">extended_mask</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;slice_extent grow 2: z [</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">orig_z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">orig_z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">] -&gt; &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">new_z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">new_z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">]&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id16">
+<a class="reference internal image-reference" href="../_images/contour_slice_extent.png"><img alt="First mid and last occupied slices before and after z-extent grow" src="../_images/contour_slice_extent.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">First / mid / last occupied axial slices (full-volume / ITK-SNAP
+<code class="docutils literal notranslate"><span class="pre">z</span></code>). Top row = original; bottom row = after <code class="docutils literal notranslate"><span class="pre">grow_slices=2</span></code>
+(nearest occupied slice copied outward). Mid-slice contour is
+unchanged; the z range is not.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Draw the figures (paste after the operator blocks):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paste after the Script blocks. Uses full_subject plus the cropped operator</span>
+<span class="c1"># outputs. Writes out/contour_*.png. Display follows plot_intensity_slice:</span>
+<span class="c1"># ImageVolume + MaskVolume geometry, radiological convention, ITK-SNAP z.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">ndi</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patheffects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">patheffects</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Patch</span><span class="p">,</span> <span class="n">Rectangle</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_style</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_label</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">habit.viz.orientation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">direction_matrix</span><span class="p">,</span>
+    <span class="n">imshow_physical_extent</span><span class="p">,</span>
+    <span class="n">orient_slice_for_display</span><span class="p">,</span>
+    <span class="n">resolve_display_geometry</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">Path</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">ORIGINAL_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#00E5FF&quot;</span>
+<span class="n">PERTURBED_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#D55E00&quot;</span>
+<span class="n">XOR_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#F0E442&quot;</span>
+<span class="n">BAND_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#0072B2&quot;</span>
+<span class="n">DISPLAY_PAD</span> <span class="o">=</span> <span class="mi">36</span>
+<span class="n">SLICE_AXIS</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">CONVENTION</span> <span class="o">=</span> <span class="s2">&quot;radiological&quot;</span>
+
+<span class="c1"># Uncropped volumes keep the file / ITK-SNAP axial index and the mask</span>
+<span class="c1"># direction (demo LAP: image +z Superior, mask +z Inferior).</span>
+<span class="n">full_image</span> <span class="o">=</span> <span class="n">full_subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">MODALITIES</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">full_mask</span> <span class="o">=</span> <span class="n">full_subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">ROI</span><span class="p">)</span>
+<span class="n">full_grey</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">full_image</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="n">full_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">full_grey</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">resolved_direction</span><span class="p">,</span> <span class="n">resolved_spacing</span> <span class="o">=</span> <span class="n">resolve_display_geometry</span><span class="p">(</span>
+    <span class="n">full_image</span><span class="p">,</span> <span class="n">full_mask</span>
+<span class="p">)</span>
+<span class="n">direction</span> <span class="o">=</span> <span class="n">direction_matrix</span><span class="p">(</span><span class="n">resolved_direction</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">spacing_xyz</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">resolved_spacing</span><span class="p">)</span>
+
+<span class="n">full_roi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">full_mask</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">full_roi</span><span class="p">)</span>
+<span class="n">crop_lo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">nz</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_embed_crop</span><span class="p">(</span><span class="n">cropped</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Place a cropped (z, y, x) array back on the full-volume grid.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">full_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cropped</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">sl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">crop_lo</span><span class="p">,</span> <span class="n">cropped</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">=</span> <span class="n">cropped</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_orient_axial</span><span class="p">(</span><span class="n">volume</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">z_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take axis-0 and apply the same transform as plot_intensity_slice.&quot;&quot;&quot;</span>
+    <span class="n">plane</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">volume</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">z_index</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">SLICE_AXIS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">orient_slice_for_display</span><span class="p">(</span>
+        <span class="n">plane</span><span class="p">,</span>
+        <span class="n">slice_axis</span><span class="o">=</span><span class="n">SLICE_AXIS</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">CONVENTION</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_zoom_box</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DISPLAY_PAD</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (row, col) slices around the oriented ROI, clipped to the plane.&quot;&quot;&quot;</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rows</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">-</span> <span class="n">pad</span><span class="p">)</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mask_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">-</span> <span class="n">pad</span><span class="p">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">mask_2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">cols</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="n">pad</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">r1</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span> <span class="n">c1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_zoom</span><span class="p">(</span><span class="n">panel</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">box</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop one oriented 2D panel to ``box``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">panel</span><span class="p">)[</span><span class="n">box</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tissue_window</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Window like plot_intensity_slice: drop air, then 2nd-90th percentiles.&quot;&quot;&quot;</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">slice_2d</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">finite</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="n">lo_v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="n">hi_v</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">finite</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">hi_v</span> <span class="o">&lt;=</span> <span class="n">lo_v</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lo_v</span><span class="p">,</span> <span class="n">hi_v</span>
+    <span class="n">hist</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">)),</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">lo_v</span><span class="p">,</span> <span class="n">hi_v</span><span class="p">))</span>
+    <span class="n">search_n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="mf">0.25</span><span class="p">)))</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">hist</span><span class="p">[:</span><span class="n">search_n</span><span class="p">]))</span>
+    <span class="n">tissue</span> <span class="o">=</span> <span class="n">finite</span>
+    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">hist</span><span class="p">[</span><span class="n">peak</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">kept</span> <span class="o">=</span> <span class="n">finite</span><span class="p">[</span><span class="n">finite</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">peak</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]</span>
+        <span class="k">if</span> <span class="n">kept</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">16</span><span class="p">:</span>
+            <span class="n">tissue</span> <span class="o">=</span> <span class="n">kept</span>
+    <span class="n">vmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">))</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">tissue</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">vmax</span> <span class="o">&lt;=</span> <span class="n">vmin</span><span class="p">:</span>
+        <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="mf">99.0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extent_mm</span><span class="p">(</span><span class="n">shape_hw</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Physical imshow extent so aspect=&#39;equal&#39; matches voxel spacing.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">imshow_physical_extent</span><span class="p">(</span>
+        <span class="n">shape_hw</span><span class="p">,</span>
+        <span class="n">spacing_xyz</span><span class="p">,</span>
+        <span class="n">slice_axis</span><span class="o">=</span><span class="n">SLICE_AXIS</span><span class="p">,</span>
+        <span class="n">ndim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">CONVENTION</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_slice_caption</span><span class="p">(</span><span class="n">z_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;File / ITK 0-based z and the common 1-based ITK-SNAP slider.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;z=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">z_index</span><span class="p">)</span><span class="si">}</span><span class="s2"> (ITK-SNAP </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">z_index</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_annotate_rl</span><span class="p">(</span><span class="n">ax</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Radiological markers: patient right on the viewer&#39;s left.&quot;&quot;&quot;</span>
+    <span class="n">stroke</span> <span class="o">=</span> <span class="p">[</span><span class="n">patheffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">letter</span> <span class="ow">in</span> <span class="p">((</span><span class="mf">0.07</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.93</span><span class="p">,</span> <span class="s2">&quot;L&quot;</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="mf">0.50</span><span class="p">,</span>
+            <span class="n">letter</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="n">path_effects</span><span class="o">=</span><span class="n">stroke</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_anatomy</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">slice_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">vmin</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">annotate_rl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw one oriented greyscale slice with physical aspect.&quot;&quot;&quot;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">slice_2d</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+        <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">annotate_rl</span><span class="p">:</span>
+        <span class="n">_annotate_rl</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coherent_mask</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Largest component, fill holes, close 1-voxel gaps (display only).</span>
+
+<span class="sd">    Voxel-wise flips otherwise contour as many tiny islands and look like</span>
+<span class="sd">    a sparse dashed line. Closing absorbs nearby speckles into one outline</span>
+<span class="sd">    so local displacement (hug vs deviate) is readable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">binary</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">labeled</span><span class="p">,</span> <span class="n">n_lab</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_lab</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">binary</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">labeled</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_lab</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">labeled</span> <span class="o">==</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">sizes</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_fill_holes</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">keep</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">keep</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_contour</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">mask_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">coherent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Outline a binary mask with a solid line (same extent as anatomy).&quot;&quot;&quot;</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="n">_coherent_mask</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">)</span> <span class="k">if</span> <span class="n">coherent</span> <span class="k">else</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span>
+        <span class="n">binary</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
+        <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="p">],</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
+        <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_draw_fill</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">mask_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill a binary region (XOR / band) in the same display frame.&quot;&quot;&quot;</span>
+    <span class="n">binary</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_2d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">binary</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span>
+        <span class="n">binary</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
+        <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="p">],</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write one taught figure under out/ and close it.&quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+    <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">orig_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">((</span><span class="n">orig_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="n">grown_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">((</span><span class="n">grown_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="n">shrunk_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">((</span><span class="n">shrunk_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="n">band_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="n">fuzzy_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">((</span><span class="n">fuzzy_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="n">extended_full</span> <span class="o">=</span> <span class="n">_embed_crop</span><span class="p">((</span><span class="n">extended_mask</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+
+<span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">orig_full</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">axial_index</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">counts</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">full_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">itk_snap_slice</span> <span class="o">=</span> <span class="n">axial_index</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Display axial numpy/ITK z=</span><span class="si">{</span><span class="n">axial_index</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;(ITK-SNAP 1-based </span><span class="si">{</span><span class="n">itk_snap_slice</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="p">)</span>
+
+<span class="n">grey_ax</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">full_grey</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">)</span>
+<span class="n">mask_o</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">orig_full</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">)</span>
+<span class="n">zoom</span> <span class="o">=</span> <span class="n">_zoom_box</span><span class="p">(</span><span class="n">mask_o</span><span class="p">)</span>
+<span class="n">grey_ax</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">grey_ax</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="n">mask_o</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">mask_o</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">_tissue_window</span><span class="p">(</span><span class="n">grey_ax</span><span class="p">)</span>
+<span class="n">extent</span> <span class="o">=</span> <span class="n">_extent_mm</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">grey_ax</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">grey_ax</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+<span class="n">plane_hw</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">grey_ax</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">grey_ax</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_box_extent</span><span class="p">(</span>
+    <span class="n">parent_extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">parent_shape</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">box</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Physical extent of a row/col crop (origin-upper imshow).&quot;&quot;&quot;</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="n">parent_extent</span>
+    <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">parent_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">parent_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">nrows</span><span class="p">)</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="k">if</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ncols</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="p">)</span>
+    <span class="n">height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">top</span> <span class="o">-</span> <span class="n">bottom</span><span class="p">)</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">c0</span> <span class="o">/</span> <span class="n">ncols</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1</span> <span class="o">/</span> <span class="n">ncols</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span>
+    <span class="n">y_top</span> <span class="o">=</span> <span class="n">top</span> <span class="o">-</span> <span class="p">(</span><span class="n">r0</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)</span> <span class="o">*</span> <span class="n">height</span>
+    <span class="n">y_bot</span> <span class="o">=</span> <span class="n">top</span> <span class="o">-</span> <span class="p">(</span><span class="n">r1</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)</span> <span class="o">*</span> <span class="n">height</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">y_top</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inset_window</span><span class="p">(</span>
+    <span class="n">center</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">shape_hw</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">half</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (row, col) slices around ``center``, clipped to the plane.&quot;&quot;&quot;</span>
+    <span class="n">cr</span><span class="p">,</span> <span class="n">cc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cr</span> <span class="o">-</span> <span class="n">half</span><span class="p">)</span>
+    <span class="n">r1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">shape_hw</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">cr</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cc</span> <span class="o">-</span> <span class="n">half</span><span class="p">)</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">shape_hw</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">cc</span> <span class="o">+</span> <span class="n">half</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">r1</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span> <span class="n">c1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_boundary_foci</span><span class="p">(</span>
+    <span class="n">mask_orig</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mask_new</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pick a sharp (high-w) and fuzzy (low-w) boundary focus for insets.</span>
+
+<span class="sd">    Sharp: high gradient, small distance to the perturbed contour (hugs).</span>
+<span class="sd">    Fuzzy: low gradient, larger distance (deviates). Foci are kept apart</span>
+<span class="sd">    so the two insets show different parts of the same slice.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">orig_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_orig</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">new_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_new</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">boundary</span> <span class="o">=</span> <span class="n">orig_bin</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">orig_bin</span><span class="p">)</span>
+    <span class="n">ys</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">boundary</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ys</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">orig_bin</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">orig_bin</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">mid</span><span class="p">,</span> <span class="n">mid</span>
+    <span class="n">ww</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)[</span><span class="n">ys</span><span class="p">,</span> <span class="n">xs</span><span class="p">]</span>
+    <span class="n">new_edge</span> <span class="o">=</span> <span class="n">new_bin</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">new_bin</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">new_edge</span><span class="p">):</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="o">~</span><span class="n">new_edge</span><span class="p">)</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">dist</span><span class="p">[</span><span class="n">ys</span><span class="p">,</span> <span class="n">xs</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">sharp_i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">ww</span> <span class="o">-</span> <span class="mf">0.20</span> <span class="o">*</span> <span class="n">dd</span><span class="p">))</span>
+    <span class="n">sharp</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="n">sharp_i</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">sharp_i</span><span class="p">]))</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">sharp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">sharp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">fuzzy_score</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">ww</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="n">dd</span>
+    <span class="n">fuzzy_score</span><span class="p">[</span><span class="n">sep</span> <span class="o">&lt;</span> <span class="mf">14.0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">fuzzy_i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">fuzzy_score</span><span class="p">))</span>
+    <span class="n">fuzzy</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="n">fuzzy_i</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">fuzzy_i</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">sharp</span><span class="p">,</span> <span class="n">fuzzy</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mark_inset</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">box_extent</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draw a labelled rectangle on the parent panel.&quot;&quot;&quot;</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">box_extent</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span>
+        <span class="n">Rectangle</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span>
+            <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span>
+            <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">,</span>
+            <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">stroke</span> <span class="o">=</span> <span class="p">[</span><span class="n">patheffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="n">x0</span> <span class="o">+</span> <span class="mf">0.04</span> <span class="o">*</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">),</span>
+        <span class="n">y1</span> <span class="o">-</span> <span class="mf">0.06</span> <span class="o">*</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">),</span>
+        <span class="n">label</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">path_effects</span><span class="o">=</span><span class="n">stroke</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_contour_xor</span><span class="p">(</span>
+    <span class="n">mask_new_full</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">left_title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">right_title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Two-panel axial figure: original vs perturbed contours, plus XOR.&quot;&quot;&quot;</span>
+    <span class="n">mask_n</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">_orient_axial</span><span class="p">(</span><span class="n">mask_new_full</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">),</span> <span class="n">zoom</span><span class="p">)</span>
+    <span class="n">xor_map</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mask_n</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">mask_o</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+    <span class="n">z_txt</span> <span class="o">=</span> <span class="n">_slice_caption</span><span class="p">(</span><span class="n">axial_index</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">9.6</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">show_xor</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">left_title</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">z_txt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">right_title</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">z_txt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">grey_ax</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show_xor</span><span class="p">:</span>
+                <span class="n">_draw_fill</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">xor_map</span><span class="p">,</span> <span class="n">XOR_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.50</span><span class="p">)</span>
+            <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mask_o</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+            <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mask_n</span><span class="p">,</span> <span class="n">PERTURBED_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">coherent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original ROI&quot;</span><span class="p">),</span>
+                <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">PERTURBED_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">new_label</span><span class="p">),</span>
+                <span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">XOR_COLOR</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;XOR&quot;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
+            <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">_save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+
+<span class="n">_save_contour_xor</span><span class="p">(</span>
+    <span class="n">grown_full</span><span class="p">,</span>
+    <span class="s2">&quot;contour_morphological_grow.png&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Original vs grown ROI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Membership change (XOR)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Grown ROI (+4 mm)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_save_contour_xor</span><span class="p">(</span>
+    <span class="n">shrunk_full</span><span class="p">,</span>
+    <span class="s2">&quot;contour_morphological_shrink.png&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Original vs shrunk ROI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Membership change (XOR)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Shrunk ROI (-4 mm)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Boundary band: the strip a radiologist&#39;s mouse actually traverses.</span>
+<span class="n">band_sl</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">_orient_axial</span><span class="p">(</span><span class="n">band_full</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">),</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig_band</span><span class="p">,</span> <span class="n">ax_band</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.2</span><span class="p">,</span> <span class="mf">5.4</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span>
+    <span class="p">)</span>
+    <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">ax_band</span><span class="p">,</span> <span class="n">grey_ax</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+    <span class="n">_draw_fill</span><span class="p">(</span><span class="n">ax_band</span><span class="p">,</span> <span class="n">band_sl</span><span class="p">,</span> <span class="n">BAND_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.40</span><span class="p">)</span>
+    <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_band</span><span class="p">,</span> <span class="n">mask_o</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">ax_band</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Boundary band (4 mm)  </span><span class="si">{</span><span class="n">_slice_caption</span><span class="p">(</span><span class="n">axial_index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig_band</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original ROI&quot;</span><span class="p">),</span>
+            <span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="n">BAND_COLOR</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.40</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Band&quot;</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">fig_band</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+<span class="n">_save_fig</span><span class="p">(</span><span class="n">fig_band</span><span class="p">,</span> <span class="s2">&quot;contour_boundary_band.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># Gradient-weighted: anatomy, gradient, both solid contours, plus</span>
+<span class="c1"># sharp/fuzzy insets. XOR is not the teaching panel: the operator</span>
+<span class="c1"># flips inside a fixed-radius band, so a filled XOR ring looks</span>
+<span class="c1"># uniformly wide even when sharp edges hug and fuzzy edges deviate.</span>
+<span class="n">grad</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">gaussian_gradient_magnitude</span><span class="p">(</span><span class="n">full_grey</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">peak</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">grad</span> <span class="o">/</span> <span class="n">peak</span> <span class="k">if</span> <span class="n">peak</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+<span class="n">w_sl</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">_orient_axial</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">),</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="n">mask_f</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">_orient_axial</span><span class="p">(</span><span class="n">fuzzy_full</span><span class="p">,</span> <span class="n">axial_index</span><span class="p">),</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="n">xor_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mask_f</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">mask_o</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+<span class="n">op_band</span> <span class="o">=</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">orig_full</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">^</span> <span class="n">ndi</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span>
+    <span class="n">orig_full</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">band_sl</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">_orient_axial</span><span class="p">(</span><span class="n">op_band</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span> <span class="n">axial_index</span><span class="p">),</span> <span class="n">zoom</span><span class="p">)</span>
+<span class="n">changed</span> <span class="o">=</span> <span class="n">xor_f</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">band_sl</span><span class="p">):</span>
+    <span class="n">w_band</span> <span class="o">=</span> <span class="n">w_sl</span><span class="p">[</span><span class="n">band_sl</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="n">w_changed</span> <span class="o">=</span> <span class="n">w_sl</span><span class="p">[</span><span class="n">changed</span><span class="p">]</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">changed</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;gradient_weighted </span><span class="si">{</span><span class="n">_slice_caption</span><span class="p">(</span><span class="n">axial_index</span><span class="p">)</span><span class="si">}</span><span class="s2">: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;band mean w=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">w_band</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">; &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;changed voxels=</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">changed</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;mean w=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">w_changed</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">w_changed</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+<span class="n">mask_f_draw</span> <span class="o">=</span> <span class="n">_coherent_mask</span><span class="p">(</span><span class="n">mask_f</span><span class="p">)</span>
+<span class="n">sharp_rc</span><span class="p">,</span> <span class="n">fuzzy_rc</span> <span class="o">=</span> <span class="n">_boundary_foci</span><span class="p">(</span><span class="n">mask_o</span><span class="p">,</span> <span class="n">mask_f_draw</span><span class="p">,</span> <span class="n">w_sl</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;gradient_weighted insets: sharp=</span><span class="si">{</span><span class="n">sharp_rc</span><span class="si">}</span><span class="s2"> w=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">w_sl</span><span class="p">[</span><span class="n">sharp_rc</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">; &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;fuzzy=</span><span class="si">{</span><span class="n">fuzzy_rc</span><span class="si">}</span><span class="s2"> w=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">w_sl</span><span class="p">[</span><span class="n">fuzzy_rc</span><span class="p">])</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="n">sharp_box</span> <span class="o">=</span> <span class="n">_inset_window</span><span class="p">(</span><span class="n">sharp_rc</span><span class="p">,</span> <span class="n">plane_hw</span><span class="p">,</span> <span class="n">half</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">fuzzy_box</span> <span class="o">=</span> <span class="n">_inset_window</span><span class="p">(</span><span class="n">fuzzy_rc</span><span class="p">,</span> <span class="n">plane_hw</span><span class="p">,</span> <span class="n">half</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">sharp_ext</span> <span class="o">=</span> <span class="n">_box_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">plane_hw</span><span class="p">,</span> <span class="n">sharp_box</span><span class="p">)</span>
+<span class="n">fuzzy_ext</span> <span class="o">=</span> <span class="n">_box_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">plane_hw</span><span class="p">,</span> <span class="n">fuzzy_box</span><span class="p">)</span>
+<span class="n">SHARP_BOX_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#F0E442&quot;</span>
+<span class="n">FUZZY_BOX_COLOR</span> <span class="o">=</span> <span class="s2">&quot;#CC79A7&quot;</span>
+<span class="n">z_txt</span> <span class="o">=</span> <span class="n">_slice_caption</span><span class="p">(</span><span class="n">axial_index</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig_gw</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">10.4</span><span class="p">,</span> <span class="mf">9.8</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">gs_gw</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax_an</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_gw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax_w</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_gw</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax_ov</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_gw</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">gs_in</span> <span class="o">=</span> <span class="n">gs_gw</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subgridspec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+    <span class="n">ax_sh</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_in</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax_fz</span> <span class="o">=</span> <span class="n">fig_gw</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs_in</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">ax_an</span><span class="p">,</span> <span class="n">grey_ax</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+    <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_an</span><span class="p">,</span> <span class="n">mask_o</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">ax_an</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1. Anatomy + original ROI  </span><span class="si">{</span><span class="n">z_txt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">im_w</span> <span class="o">=</span> <span class="n">ax_w</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+        <span class="n">w_sl</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;magma&quot;</span><span class="p">,</span>
+        <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;upper&quot;</span><span class="p">,</span>
+        <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span>
+        <span class="n">aspect</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_w</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+    <span class="n">ax_w</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">ax_w</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+    <span class="n">_annotate_rl</span><span class="p">(</span><span class="n">ax_w</span><span class="p">)</span>
+    <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_w</span><span class="p">,</span> <span class="n">mask_o</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">ax_w</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;2. Gradient (bright = sharp)  </span><span class="si">{</span><span class="n">z_txt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">fig_gw</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im_w</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax_w</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.046</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+
+    <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">ax_ov</span><span class="p">,</span> <span class="n">grey_ax</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+    <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_ov</span><span class="p">,</span> <span class="n">mask_o</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_ov</span><span class="p">,</span> <span class="n">mask_f_draw</span><span class="p">,</span> <span class="n">PERTURBED_COLOR</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+    <span class="n">_mark_inset</span><span class="p">(</span><span class="n">ax_ov</span><span class="p">,</span> <span class="n">sharp_ext</span><span class="p">,</span> <span class="n">SHARP_BOX_COLOR</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">)</span>
+    <span class="n">_mark_inset</span><span class="p">(</span><span class="n">ax_ov</span><span class="p">,</span> <span class="n">fuzzy_ext</span><span class="p">,</span> <span class="n">FUZZY_BOX_COLOR</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">)</span>
+    <span class="n">ax_ov</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;3. Original vs perturbed  </span><span class="si">{</span><span class="n">z_txt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ax_in</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="n">box_ext</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">ax_sh</span><span class="p">,</span> <span class="n">sharp_box</span><span class="p">,</span> <span class="n">sharp_ext</span><span class="p">,</span> <span class="s2">&quot;S  Sharp edge (hugs)&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">ax_fz</span><span class="p">,</span> <span class="n">fuzzy_box</span><span class="p">,</span> <span class="n">fuzzy_ext</span><span class="p">,</span> <span class="s2">&quot;F  Fuzzy edge (deviates)&quot;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">_draw_anatomy</span><span class="p">(</span>
+            <span class="n">ax_in</span><span class="p">,</span>
+            <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">grey_ax</span><span class="p">,</span> <span class="n">box</span><span class="p">),</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">box_ext</span><span class="p">,</span>
+            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+            <span class="n">annotate_rl</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_draw_contour</span><span class="p">(</span><span class="n">ax_in</span><span class="p">,</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">mask_o</span><span class="p">,</span> <span class="n">box</span><span class="p">),</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">box_ext</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.4</span><span class="p">)</span>
+        <span class="n">_draw_contour</span><span class="p">(</span>
+            <span class="n">ax_in</span><span class="p">,</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">mask_f_draw</span><span class="p">,</span> <span class="n">box</span><span class="p">),</span> <span class="n">PERTURBED_COLOR</span><span class="p">,</span> <span class="n">box_ext</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.4</span>
+        <span class="p">)</span>
+        <span class="n">ax_in</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">sanitize_label</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">fig_gw</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original ROI&quot;</span><span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">PERTURBED_COLOR</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gradient-weighted ROI&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">Rectangle</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">SHARP_BOX_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sharp inset&quot;</span>
+            <span class="p">),</span>
+            <span class="n">Rectangle</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">FUZZY_BOX_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Fuzzy inset&quot;</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">fig_gw</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+<span class="n">_save_fig</span><span class="p">(</span><span class="n">fig_gw</span><span class="p">,</span> <span class="s2">&quot;contour_gradient_weighted.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># Slice-extent: first / mid / last occupied axial slices, original vs grown.</span>
+<span class="n">orig_occupied</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">orig_full</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">new_occupied</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">extended_full</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">orig_idx</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">orig_occupied</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">orig_occupied</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">orig_occupied</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]),</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">orig_occupied</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+<span class="p">)</span>
+<span class="n">new_idx</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">new_occupied</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">new_occupied</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">new_occupied</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]),</span>
+    <span class="nb">int</span><span class="p">(</span><span class="n">new_occupied</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+<span class="p">)</span>
+<span class="k">with</span> <span class="n">use_style</span><span class="p">(</span><span class="s2">&quot;radiology&quot;</span><span class="p">):</span>
+    <span class="n">fig_z</span><span class="p">,</span> <span class="n">axes_z</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+        <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">11.2</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">orig_idx</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;First occupied&quot;</span><span class="p">,</span> <span class="s2">&quot;Mid occupied&quot;</span><span class="p">,</span> <span class="s2">&quot;Last occupied&quot;</span><span class="p">))</span>
+    <span class="p">):</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">full_grey</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
+        <span class="n">mk</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">orig_full</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">_zoom_box</span><span class="p">(</span><span class="n">mk</span><span class="p">)</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">sl</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">mk</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">mk</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">sl_ext</span> <span class="o">=</span> <span class="n">_extent_mm</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="n">sl_vmin</span><span class="p">,</span> <span class="n">sl_vmax</span> <span class="o">=</span> <span class="n">_tissue_window</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span>
+        <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">axes_z</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">sl</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">sl_ext</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">sl_vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">sl_vmax</span><span class="p">)</span>
+        <span class="n">_draw_contour</span><span class="p">(</span><span class="n">axes_z</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">mk</span><span class="p">,</span> <span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">sl_ext</span><span class="p">)</span>
+        <span class="n">axes_z</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">_slice_caption</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">zi</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">new_idx</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;First occupied&quot;</span><span class="p">,</span> <span class="s2">&quot;Mid occupied&quot;</span><span class="p">,</span> <span class="s2">&quot;Last occupied&quot;</span><span class="p">))</span>
+    <span class="p">):</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">full_grey</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
+        <span class="n">mk</span> <span class="o">=</span> <span class="n">_orient_axial</span><span class="p">(</span><span class="n">extended_full</span><span class="p">,</span> <span class="n">zi</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">_zoom_box</span><span class="p">(</span><span class="n">mk</span><span class="p">)</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">sl</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">mk</span> <span class="o">=</span> <span class="n">_apply_zoom</span><span class="p">(</span><span class="n">mk</span><span class="p">,</span> <span class="n">box</span><span class="p">)</span>
+        <span class="n">sl_ext</span> <span class="o">=</span> <span class="n">_extent_mm</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">sl</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="n">sl_vmin</span><span class="p">,</span> <span class="n">sl_vmax</span> <span class="o">=</span> <span class="n">_tissue_window</span><span class="p">(</span><span class="n">sl</span><span class="p">)</span>
+        <span class="n">_draw_anatomy</span><span class="p">(</span><span class="n">axes_z</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">sl</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">sl_ext</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">sl_vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">sl_vmax</span><span class="p">)</span>
+        <span class="n">_draw_contour</span><span class="p">(</span><span class="n">axes_z</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">mk</span><span class="p">,</span> <span class="n">PERTURBED_COLOR</span><span class="p">,</span> <span class="n">sl_ext</span><span class="p">,</span> <span class="n">coherent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">axes_z</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+            <span class="n">sanitize_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grown </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">_slice_caption</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">fig_z</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">handles</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">ORIGINAL_COLOR</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original ROI&quot;</span><span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">PERTURBED_COLOR</span><span class="p">,</span>
+                <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;slice_extent +2 slices&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower center&quot;</span><span class="p">,</span>
+        <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">fig_z</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+<span class="n">_save_fig</span><span class="p">(</span><span class="n">fig_z</span><span class="p">,</span> <span class="s2">&quot;contour_slice_extent.png&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Wrote &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">written</span><span class="p">))</span>
+</pre></div>
+</div>
 </section>
 <section id="what-to-read-next">
 <h2>What to read next<a class="headerlink" href="#what-to-read-next" title="Link to this heading"></a></h2>

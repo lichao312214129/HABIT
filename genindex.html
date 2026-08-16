@@ -441,6 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/precise_screening.html#references">References</a></li>
@@ -723,6 +724,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1307,6 +1309,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1657,6 +1665,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -2176,6 +2188,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.GmmSupervoxelizer.html#habit.domain.GmmSupervoxelizer.__call__">(GmmSupervoxelizer method)</a>
 </li>
+        <li><a href="api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.__call__">(GradientWeightedPerturbation method)</a>
+</li>
         <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures.__call__">(GraphHabitatFeatures method)</a>
 </li>
         <li><a href="api/generated/habit.domain.HabitatAssigner.html#habit.domain.HabitatAssigner.__call__">(HabitatAssigner method)</a>
@@ -2196,6 +2210,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.Metric.html#habit.domain.Metric.__call__">(Metric method)</a>
 </li>
+        <li><a href="api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation.__call__">(MorphologicalPerturbation method)</a>
+</li>
         <li><a href="api/generated/habit.domain.MsiHabitatFeatures.html#habit.domain.MsiHabitatFeatures.__call__">(MsiHabitatFeatures method)</a>
 </li>
         <li><a href="api/generated/habit.domain.NearestCentroidAssigner.html#habit.domain.NearestCentroidAssigner.__call__">(NearestCentroidAssigner method)</a>
@@ -2215,6 +2231,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.RotationPerturbation.html#habit.domain.RotationPerturbation.__call__">(RotationPerturbation method)</a>
 </li>
         <li><a href="api/generated/habit.domain.SensitivityMetric.html#habit.domain.SensitivityMetric.__call__">(SensitivityMetric method)</a>
+</li>
+        <li><a href="api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation.__call__">(SliceExtentPerturbation method)</a>
 </li>
         <li><a href="api/generated/habit.domain.SlicSupervoxelizer.html#habit.domain.SlicSupervoxelizer.__call__">(SlicSupervoxelizer method)</a>
 </li>
@@ -2342,6 +2360,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.GradientBoostingClassifier.html#habit.domain.GradientBoostingClassifier.__init__">(GradientBoostingClassifier method)</a>
 </li>
+        <li><a href="api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.__init__">(GradientWeightedPerturbation method)</a>
+</li>
         <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures.__init__">(GraphHabitatFeatures method)</a>
 </li>
         <li><a href="api/generated/habit.domain.HabitatAssigner.html#habit.domain.HabitatAssigner.__init__">(HabitatAssigner method)</a>
@@ -2404,6 +2424,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.recipes.ModelResult.html#habit.recipes.ModelResult.__init__">(ModelResult method)</a>
 </li>
+        <li><a href="api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation.__init__">(MorphologicalPerturbation method)</a>
+</li>
         <li><a href="api/generated/habit.domain.MrmrSelector.html#habit.domain.MrmrSelector.__init__">(MrmrSelector method)</a>
 </li>
         <li><a href="api/generated/habit.contracts.MulticlassOutcome.html#habit.contracts.MulticlassOutcome.__init__">(MulticlassOutcome method)</a>
@@ -2451,6 +2473,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.Seedable.html#habit.domain.Seedable.__init__">(Seedable method)</a>
 </li>
         <li><a href="api/generated/habit.execution.SerialBackend.html#habit.execution.SerialBackend.__init__">(SerialBackend method)</a>
+</li>
+        <li><a href="api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation.__init__">(SliceExtentPerturbation method)</a>
 </li>
         <li><a href="api/generated/habit.domain.SlicSupervoxelizer.html#habit.domain.SlicSupervoxelizer.__init__">(SlicSupervoxelizer method)</a>
 </li>
@@ -2705,15 +2729,19 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.BinningParams.html#habit.domain.BinningParams">BinningParams (class in habit.domain)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.BinningPreprocessor.html#habit.domain.BinningPreprocessor">BinningPreprocessor (class in habit.domain)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.BinningPreprocessorParams.html#habit.domain.BinningPreprocessorParams">BinningPreprocessorParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.block_min_coverage">block_min_coverage (GraphHabitatFeaturesParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.block_size">block_size (GraphHabitatFeaturesParams attribute)</a>
+</li>
+      <li><a href="api/generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask">boundary_band_mask() (in module habit.kernels)</a>
+</li>
+      <li><a href="api/generated/habit.kernels.boundary_weighted_perturbation.html#habit.kernels.boundary_weighted_perturbation">boundary_weighted_perturbation() (in module habit.kernels)</a>
 </li>
       <li><a href="api/generated/habit.kernels.build_adjacency_graph.html#habit.kernels.build_adjacency_graph">build_adjacency_graph() (in module habit.kernels)</a>
 </li>
@@ -3345,10 +3373,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.GeometryPolicy.html#habit.GeometryPolicy">GeometryPolicy (class in habit)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.GeometryReport.html#habit.GeometryReport">GeometryReport (class in habit)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore.get">get() (CheckpointStore method)</a>
 </li>
       <li><a href="api/generated/habit.execution.CheckpointStore.html#habit.execution.CheckpointStore.get_failure">get_failure() (CheckpointStore method)</a>
@@ -3374,6 +3402,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="api/generated/habit.domain.GradientBoostingClassifier.html#habit.domain.GradientBoostingClassifier">GradientBoostingClassifier (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.GradientBoostingClassifierParams.html#habit.domain.GradientBoostingClassifierParams">GradientBoostingClassifierParams (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation">GradientWeightedPerturbation (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.GradientWeightedPerturbationParams.html#habit.domain.GradientWeightedPerturbationParams">GradientWeightedPerturbationParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures">GraphHabitatFeatures (class in habit.domain)</a>
 </li>
@@ -3775,12 +3807,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.domain.RfecvSelectorParams.html#habit.domain.RfecvSelectorParams.min_features_to_select">min_features_to_select (RfecvSelectorParams attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.GraphHabitatFeaturesParams.html#habit.domain.GraphHabitatFeaturesParams.min_region_voxels">min_region_voxels (GraphHabitatFeaturesParams attribute)</a>
 </li>
       <li><a href="api/generated/habit.kernels.cluster_selection.MINIMIZE.html#habit.kernels.cluster_selection.MINIMIZE">MINIMIZE (in module habit.kernels.cluster_selection)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/generated/habit.domain.MinMaxPreprocessor.html#habit.domain.MinMaxPreprocessor">MinMaxPreprocessor (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.MinMaxPreprocessorParams.html#habit.domain.MinMaxPreprocessorParams">MinMaxPreprocessorParams (class in habit.domain)</a>
@@ -3832,6 +3864,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="api/generated/habit.recipes.ModelResult.html#habit.recipes.ModelResult">ModelResult (class in habit.recipes)</a>
+</li>
+      <li><a href="api/generated/habit.kernels.morphological_grow_shrink.html#habit.kernels.morphological_grow_shrink">morphological_grow_shrink() (in module habit.kernels)</a>
+</li>
+      <li><a href="api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation">MorphologicalPerturbation (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.MorphologicalPerturbationParams.html#habit.domain.MorphologicalPerturbationParams">MorphologicalPerturbationParams (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.MrmrSelector.html#habit.domain.MrmrSelector">MrmrSelector (class in habit.domain)</a>
 </li>
@@ -4417,6 +4455,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="api/generated/habit.viz.StyleSpec.html#habit.viz.StyleSpec.single_column_mm">single_column_mm (StyleSpec attribute)</a>
 </li>
+      <li><a href="api/generated/habit.kernels.slice_extent_perturbation.html#habit.kernels.slice_extent_perturbation">slice_extent_perturbation() (in module habit.kernels)</a>
+</li>
+      <li><a href="api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation">SliceExtentPerturbation (class in habit.domain)</a>
+</li>
+      <li><a href="api/generated/habit.domain.SliceExtentPerturbationParams.html#habit.domain.SliceExtentPerturbationParams">SliceExtentPerturbationParams (class in habit.domain)</a>
+</li>
       <li><a href="api/generated/habit.domain.SlicSupervoxelizer.html#habit.domain.SlicSupervoxelizer">SlicSupervoxelizer (class in habit.domain)</a>
 </li>
       <li><a href="api/generated/habit.domain.SlicSupervoxelizerParams.html#habit.domain.SlicSupervoxelizerParams">SlicSupervoxelizerParams (class in habit.domain)</a>
@@ -4484,6 +4528,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.GmmSupervoxelizer.html#habit.domain.GmmSupervoxelizer.spec">(GmmSupervoxelizer property)</a>
 </li>
+        <li><a href="api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.spec">(GradientWeightedPerturbation property)</a>
+</li>
         <li><a href="api/generated/habit.domain.GraphHabitatFeatures.html#habit.domain.GraphHabitatFeatures.spec">(GraphHabitatFeatures property)</a>
 </li>
         <li><a href="api/generated/habit.domain.HabitatAssigner.html#habit.domain.HabitatAssigner.spec">(HabitatAssigner property)</a>
@@ -4514,6 +4560,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="api/generated/habit.domain.MlpClassifier.html#habit.domain.MlpClassifier.spec">(MlpClassifier property)</a>
 </li>
+        <li><a href="api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation.spec">(MorphologicalPerturbation property)</a>
+</li>
         <li><a href="api/generated/habit.domain.MrmrSelector.html#habit.domain.MrmrSelector.spec">(MrmrSelector property)</a>
 </li>
         <li><a href="api/generated/habit.domain.MsiHabitatFeatures.html#habit.domain.MsiHabitatFeatures.spec">(MsiHabitatFeatures property)</a>
@@ -4531,6 +4579,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="api/generated/habit.domain.RigidPerturbation.html#habit.domain.RigidPerturbation.spec">(RigidPerturbation property)</a>
 </li>
         <li><a href="api/generated/habit.domain.RotationPerturbation.html#habit.domain.RotationPerturbation.spec">(RotationPerturbation property)</a>
+</li>
+        <li><a href="api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation.spec">(SliceExtentPerturbation property)</a>
 </li>
         <li><a href="api/generated/habit.domain.SlicSupervoxelizer.html#habit.domain.SlicSupervoxelizer.spec">(SlicSupervoxelizer property)</a>
 </li>

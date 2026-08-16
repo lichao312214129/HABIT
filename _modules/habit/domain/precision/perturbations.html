@@ -441,6 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tutorial/precise_screening.html#references">References</a></li>
@@ -723,6 +724,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1307,6 +1309,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1657,6 +1665,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -2169,9 +2181,12 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HABITAPIError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.image_perturbation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_gaussian_noise</span><span class="p">,</span>
+    <span class="n">boundary_weighted_perturbation</span><span class="p">,</span>
     <span class="n">estimate_noise_sigma</span><span class="p">,</span>
+    <span class="n">morphological_grow_shrink</span><span class="p">,</span>
     <span class="n">rigid_transform_image</span><span class="p">,</span>
     <span class="n">rotate_image</span><span class="p">,</span>
+    <span class="n">slice_extent_perturbation</span><span class="p">,</span>
     <span class="n">translate_image</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.spec.specs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
@@ -2187,6 +2202,12 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;RotationPerturbationParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RigidPerturbation&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RigidPerturbationParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MorphologicalPerturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MorphologicalPerturbationParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GradientWeightedPerturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GradientWeightedPerturbationParams&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SliceExtentPerturbation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SliceExtentPerturbationParams&quot;</span><span class="p">,</span>
     <span class="s2">&quot;prior2024_retest_perturbation&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -2840,10 +2861,404 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_perturb_masks</span><span class="p">(</span>
+    <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a mask-array kernel to every ROI of a subject, images untouched.</span>
+
+<span class="sd">    Contour-variability perturbations change where the boundary lies, not</span>
+<span class="sd">    the underlying intensities, so only the masks are transformed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subject: Source subject.</span>
+<span class="sd">        fn: Callable ``fn(mask_array, spacing_xyz) -&gt; new_mask_array``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The perturbed subject copy with masks replaced.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">masks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">masks</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">roi</span><span class="p">)</span>
+        <span class="n">mask_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">spacing</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mask</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">)</span>
+        <span class="n">masks</span><span class="p">[</span><span class="n">roi</span><span class="p">]</span> <span class="o">=</span> <span class="n">fn</span><span class="p">(</span><span class="n">mask_array</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">mask_array</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{},</span> <span class="n">masks</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MorphologicalPerturbationParams">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.MorphologicalPerturbationParams.html#habit.domain.MorphologicalPerturbationParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MorphologicalPerturbationParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`MorphologicalPerturbation`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">grow_mm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">max_grow_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MorphologicalPerturbation">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation">[docs]</a>
+<span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;morphological&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MorphologicalPerturbation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uniformly grow or shrink every ROI (MIRP ``perturbation_roi_adapt_size``).</span>
+
+<span class="sd">    This is the systematic component of inter-rater contour variability:</span>
+<span class="sd">    one observer consistently traces slightly larger or smaller than</span>
+<span class="sd">    another. It complements the Prior 2024 simulated-retest chain (which</span>
+<span class="sd">    perturbs the *image*, not the contour). Only masks change; image</span>
+<span class="sd">    intensities are untouched. Applied per foreground label so multi-label</span>
+<span class="sd">    ROIs grow each region instead of merging them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grow_mm: Fixed physical radius in millimetres; positive dilates,</span>
+<span class="sd">            negative erodes, zero is a no-op. ``None`` samples a signed</span>
+<span class="sd">            radius from ``Uniform(-max_grow_mm, +max_grow_mm)`` per call.</span>
+<span class="sd">        max_grow_mm: Sampling bound when ``grow_mm`` is unset.</span>
+<span class="sd">        roi: Restrict the perturbation to one mask key; ``None`` perturbs</span>
+<span class="sd">            all masks.</span>
+<span class="sd">        connectivity: Structuring-element connectivity in ``{1, 2, 3}``;</span>
+<span class="sd">            ``1`` (6-connected) is the MIRP-like default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MorphologicalPerturbation.__init__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grow_mm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_grow_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_grow_mm</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;morphological: max_grow_mm must be &gt;= 0; got </span><span class="si">{</span><span class="n">max_grow_mm</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">connectivity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;morphological: connectivity must be in </span><span class="se">{{</span><span class="s2">1,2,3</span><span class="se">}}</span><span class="s2">; got </span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grow_mm</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">grow_mm</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">grow_mm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_grow_mm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_grow_mm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">connectivity</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification used for provenance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;morphological&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;grow_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grow_mm</span><span class="p">,</span>
+                <span class="s2">&quot;max_grow_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_grow_mm</span><span class="p">,</span>
+                <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">,</span>
+                <span class="s2">&quot;connectivity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="MorphologicalPerturbation.__call__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.MorphologicalPerturbation.html#habit.domain.MorphologicalPerturbation.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of ``subject`` with each ROI grown or shrunk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing the masks.</span>
+<span class="sd">            rng: Random generator sampling the radius when ``grow_mm`` is</span>
+<span class="sd">                unset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The perturbed subject copy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grow_mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grow_mm</span>
+        <span class="k">if</span> <span class="n">grow_mm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">grow_mm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">max_grow_mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_grow_mm</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">grow_mm</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_fn</span><span class="p">(</span><span class="n">mask_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">morphological_grow_shrink</span><span class="p">(</span>
+                <span class="n">mask_array</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span>
+                <span class="n">connectivity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">masks</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">:</span> <span class="n">_fn</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                    <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{},</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_perturb_masks</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">_fn</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GradientWeightedPerturbationParams">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.GradientWeightedPerturbationParams.html#habit.domain.GradientWeightedPerturbationParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GradientWeightedPerturbationParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`GradientWeightedPerturbation`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">max_radius_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="GradientWeightedPerturbation">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation">[docs]</a>
+<span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;gradient_weighted&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GradientWeightedPerturbation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locally grow/shrink ROI boundaries where image gradient is low.</span>
+
+<span class="sd">    Inter-rater disagreement concentrates where contrast is poor: sharp</span>
+<span class="sd">    (high-gradient) edges are drawn consistently, fuzzy (low-gradient)</span>
+<span class="sd">    edges vary. This operator flips boundary voxels with a probability that</span>
+<span class="sd">    scales with ``1 - normalised_gradient`` of a reference image, so the</span>
+<span class="sd">    fuzzy parts of the contour move more than the sharp parts. Only masks</span>
+<span class="sd">    change.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        modality: Image modality supplying the gradient-magnitude map;</span>
+<span class="sd">            ``None`` uses the subject&#39;s first image. The map is normalised</span>
+<span class="sd">            to ``[0, 1]`` over the ROI bounding region.</span>
+<span class="sd">        roi: Restrict the perturbation to one mask key; ``None`` perturbs</span>
+<span class="sd">            all masks.</span>
+<span class="sd">        max_radius_voxels: Neighbourhood radius bounding each local flip.</span>
+<span class="sd">        probability: Base flip probability at zero gradient; effective</span>
+<span class="sd">            probability is ``probability * (1 - gradient)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GradientWeightedPerturbation.__init__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">modality</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_radius_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">probability</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_radius_voxels</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;gradient_weighted: max_radius_voxels must be &gt;= 1; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">max_radius_voxels</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;gradient_weighted: probability must be in [0, 1]; got </span><span class="si">{</span><span class="n">probability</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modality</span> <span class="o">=</span> <span class="n">modality</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="o">=</span> <span class="n">roi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_radius_voxels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_radius_voxels</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probability</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification used for provenance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gradient_weighted&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;modality&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">modality</span><span class="p">,</span>
+                <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">,</span>
+                <span class="s2">&quot;max_radius_voxels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_radius_voxels</span><span class="p">,</span>
+                <span class="s2">&quot;probability&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_gradient_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the normalised gradient magnitude of the reference image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing the reference image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ``float64`` map in ``[0, 1]``; high at sharp edges.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            HABITAPIError: When the subject has no images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">_ndi</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                <span class="s2">&quot;gradient_weighted: subject has no images to derive a &quot;</span>
+                <span class="s2">&quot;gradient map from.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">modality</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modality</span> <span class="ow">or</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">images</span><span class="p">))</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">modality</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="n">_ndi</span><span class="o">.</span><span class="n">gaussian_gradient_magnitude</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">peak</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">peak</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gradient</span> <span class="o">/</span> <span class="n">peak</span>
+
+<div class="viewcode-block" id="GradientWeightedPerturbation.__call__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.GradientWeightedPerturbation.html#habit.domain.GradientWeightedPerturbation.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of ``subject`` with ROI boundaries locally perturbed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing images (for the gradient) and masks.</span>
+<span class="sd">            rng: Random generator supplying the flip decisions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The perturbed subject copy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradient_weights</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_fn</span><span class="p">(</span><span class="n">mask_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">boundary_weighted_perturbation</span><span class="p">(</span>
+                <span class="n">mask_array</span><span class="p">,</span>
+                <span class="n">weights</span><span class="p">,</span>
+                <span class="n">rng</span><span class="p">,</span>
+                <span class="n">max_radius_voxels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_radius_voxels</span><span class="p">,</span>
+                <span class="n">probability</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">masks</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">:</span> <span class="n">_fn</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                    <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{},</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_perturb_masks</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">_fn</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SliceExtentPerturbationParams">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.SliceExtentPerturbationParams.html#habit.domain.SliceExtentPerturbationParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SliceExtentPerturbationParams</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor parameters for :class:`SliceExtentPerturbation`.&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">grow_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">shrink_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="SliceExtentPerturbation">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation">[docs]</a>
+<span class="nd">@ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;slice_extent&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SliceExtentPerturbation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add or remove whole axial slices at the superior/inferior ROI ends.</span>
+
+<span class="sd">    Models z-axis delineation variability: observers often agree in-plane</span>
+<span class="sd">    but differ on the first and last slice they call tumour. Only the ``z``</span>
+<span class="sd">    (first) axis is touched. Only masks change.</span>
+
+<span class="sd">    Provide fixed ``grow_slices`` / ``shrink_slices`` (applied to each end),</span>
+<span class="sd">    or set ``max_slices &gt; 0`` to draw a random per-end count in</span>
+<span class="sd">    ``[-max_slices, +max_slices]`` (positive grows, negative shrinks). When</span>
+<span class="sd">    ``max_slices`` is set the fixed counts are ignored.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grow_slices: Slices to append at each occupied end (copy of the</span>
+<span class="sd">            nearest occupied slice&#39;s labels).</span>
+<span class="sd">        shrink_slices: Occupied slices to remove at each end.</span>
+<span class="sd">        max_slices: Bound for random per-end counts; ``0`` uses the fixed</span>
+<span class="sd">            counts.</span>
+<span class="sd">        roi: Restrict the perturbation to one mask key; ``None`` perturbs</span>
+<span class="sd">            all masks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SliceExtentPerturbation.__init__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grow_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">shrink_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">roi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;grow_slices&quot;</span><span class="p">,</span> <span class="n">grow_slices</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;shrink_slices&quot;</span><span class="p">,</span> <span class="n">shrink_slices</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;max_slices&quot;</span><span class="p">,</span> <span class="n">max_slices</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HABITAPIError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;slice_extent: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be &gt;= 0; got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grow_slices</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">grow_slices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shrink_slices</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">shrink_slices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_slices</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_slices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="o">=</span> <span class="n">roi</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the algorithm specification used for provenance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Spec</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slice_extent&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;grow_slices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grow_slices</span><span class="p">,</span>
+                <span class="s2">&quot;shrink_slices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shrink_slices</span><span class="p">,</span>
+                <span class="s2">&quot;max_slices&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_slices</span><span class="p">,</span>
+                <span class="s2">&quot;roi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SliceExtentPerturbation.__call__">
+<a class="viewcode-back" href="../../../../api/generated/habit.domain.SliceExtentPerturbation.html#habit.domain.SliceExtentPerturbation.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">Subject</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subject</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of ``subject`` with ROI slice extents perturbed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subject: Subject providing the masks.</span>
+<span class="sd">            rng: Random generator for random mode (``max_slices &gt; 0``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The perturbed subject copy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">use_random</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_slices</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_fn</span><span class="p">(</span><span class="n">mask_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">use_random</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">slice_extent_perturbation</span><span class="p">(</span>
+                    <span class="n">mask_array</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="n">rng</span><span class="p">,</span> <span class="n">max_slices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_slices</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">slice_extent_perturbation</span><span class="p">(</span>
+                <span class="n">mask_array</span><span class="p">,</span>
+                <span class="n">grow_slices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grow_slices</span><span class="p">,</span>
+                <span class="n">shrink_slices</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">shrink_slices</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">roi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">masks</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">:</span> <span class="n">_fn</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                    <span class="nb">tuple</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roi</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">spacing</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">_replace_images</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="p">{},</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_perturb_masks</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">_fn</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="prior2024_retest_perturbation">
 <a class="viewcode-back" href="../../../../api/generated/habit.domain.prior2024_retest_perturbation.html#habit.domain.prior2024_retest_perturbation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prior2024_retest_perturbation</span><span class="p">(</span>
-    <span class="o">*</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">prior2024_retest_perturbation</span><span class="p">(</span>    <span class="o">*</span><span class="p">,</span>
     <span class="n">shift_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">angle_degrees</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">interpolator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bspline&quot;</span><span class="p">,</span>
@@ -3246,6 +3661,15 @@ window.runMermaid = runMermaid;</script>
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span><span class="s2">&quot;rigid&quot;</span><span class="p">,</span> <span class="n">RigidPerturbationParams</span><span class="p">)</span>
 <span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
     <span class="s2">&quot;bspline_deform&quot;</span><span class="p">,</span> <span class="n">BSplineDeformPerturbationParams</span>
+<span class="p">)</span>
+<span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;morphological&quot;</span><span class="p">,</span> <span class="n">MorphologicalPerturbationParams</span>
+<span class="p">)</span>
+<span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;gradient_weighted&quot;</span><span class="p">,</span> <span class="n">GradientWeightedPerturbationParams</span>
+<span class="p">)</span>
+<span class="n">ImagePerturbationRegistry</span><span class="o">.</span><span class="n">register_params_model</span><span class="p">(</span>
+    <span class="s2">&quot;slice_extent&quot;</span><span class="p">,</span> <span class="n">SliceExtentPerturbationParams</span>
 <span class="p">)</span>
 </pre></div>
 

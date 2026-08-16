@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/precise_screening.html#references">References</a></li>
@@ -370,6 +371,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -954,6 +956,12 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1304,6 +1312,10 @@
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1779,9 +1791,13 @@
 <span class="sig-name descname"><span class="pre">perturb_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="habit.MaskVolume.html#habit.MaskVolume" title="habit.api.image.MaskVolume"><span class="pre">MaskVolume</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="(in NumPy v2.5)"><span class="pre">Generator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="habit.ImageVolume.html#habit.ImageVolume" title="habit.api.image.ImageVolume"><span class="pre">ImageVolume</span></a></span></span><a class="reference internal" href="../../_modules/habit/domain/precision/atoms.html#perturb_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#habit.perturb_image" title="Link to this definition"></a></dt>
 <dd><p>Return a same-grid perturbed copy of one image.</p>
 <p>This is the atomic teaching / experiment call: one volume, one
-registered method, and that method’s parameters. Built-in names are
-<code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (the last needs the optional <code class="docutils literal notranslate"><span class="pre">monai</span></code> extra).
+registered method, and that method’s parameters. Intensity methods
+are <code class="docutils literal notranslate"><span class="pre">gaussian_noise</span></code>, <code class="docutils literal notranslate"><span class="pre">translation</span></code>, <code class="docutils literal notranslate"><span class="pre">rotation</span></code>, <code class="docutils literal notranslate"><span class="pre">rigid</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (the last needs the optional <code class="docutils literal notranslate"><span class="pre">monai</span></code> extra).
+Mask-only contour methods (<code class="docutils literal notranslate"><span class="pre">morphological</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code>) leave the image unchanged; call the registered
+component on a <a class="reference internal" href="habit.contracts.Subject.html#habit.contracts.Subject" title="habit.contracts.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">Subject</span></code></a> when you
+need the edited mask.
 Geometric methods resample back onto the original voxel grid so the
 result stays voxel-wise comparable to <code class="docutils literal notranslate"><span class="pre">image</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">mask</span></code> is optional. When given, methods that need an ROI (for

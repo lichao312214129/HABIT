@@ -417,6 +417,12 @@ resulting precise-feature artefact. See :doc:`../examples/precise_features`.
    habit.domain.RotationPerturbationParams
    habit.domain.RigidPerturbation
    habit.domain.RigidPerturbationParams
+   habit.domain.MorphologicalPerturbation
+   habit.domain.MorphologicalPerturbationParams
+   habit.domain.GradientWeightedPerturbation
+   habit.domain.GradientWeightedPerturbationParams
+   habit.domain.SliceExtentPerturbation
+   habit.domain.SliceExtentPerturbationParams
    habit.domain.perturb_image
    habit.domain.extract_voxel_texture
    habit.domain.PerturbationChain
@@ -767,6 +773,10 @@ Image perturbation and voxel reliability
    habit.kernels.translate_image
    habit.kernels.rotate_image
    habit.kernels.rigid_transform_image
+   habit.kernels.morphological_grow_shrink
+   habit.kernels.boundary_band_mask
+   habit.kernels.boundary_weighted_perturbation
+   habit.kernels.slice_extent_perturbation
    habit.kernels.ICCEstimate
    habit.kernels.icc3a_1
    habit.kernels.icc3c_1

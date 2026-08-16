@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
@@ -370,6 +371,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -954,6 +956,12 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1304,6 +1312,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -3565,6 +3577,90 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 </tbody>
 </table>
 </dd>
+<dt><strong>gradient_weighted</strong></dt><dd><p>Locally grow/shrink ROI boundaries where image gradient is low.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">modality,</span> <span class="pre">roi,</span> <span class="pre">max_radius_voxels,</span> <span class="pre">probability</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;gradient_weighted&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;gradient_weighted&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">modality</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>Image modality supplying the gradient-magnitude map; <code class="docutils literal notranslate"><span class="pre">None</span></code> uses the subject’s first image. The map is normalised to <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> over the ROI bounding region.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>Restrict the perturbation to one mask key; <code class="docutils literal notranslate"><span class="pre">None</span></code> perturbs all masks.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_radius_voxels</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<td><p>&gt;= 1</p></td>
+<td><p>Neighbourhood radius bounding each local flip.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">probability</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.5</span></code></p></td>
+<td><p>&gt;= 0.0; &lt;= 1.0</p></td>
+<td><p>Base flip probability at zero gradient; effective probability is <code class="docutils literal notranslate"><span class="pre">probability</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">gradient)</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>morphological</strong></dt><dd><p>Uniformly grow or shrink every ROI (MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>).
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">grow_mm,</span> <span class="pre">max_grow_mm,</span> <span class="pre">roi,</span> <span class="pre">connectivity</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;morphological&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;morphological&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grow_mm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>float | None</p></td>
+<td><p>Fixed physical radius in millimetres; positive dilates, negative erodes, zero is a no-op. <code class="docutils literal notranslate"><span class="pre">None</span></code> samples a signed radius from <code class="docutils literal notranslate"><span class="pre">Uniform(-max_grow_mm,</span> <span class="pre">+max_grow_mm)</span></code> per call.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_grow_mm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
+<td><p>&gt;= 0.0</p></td>
+<td><p>Sampling bound when <code class="docutils literal notranslate"><span class="pre">grow_mm</span></code> is unset.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>Restrict the perturbation to one mask key; <code class="docutils literal notranslate"><span class="pre">None</span></code> perturbs all masks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">connectivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p>&gt;= 1; &lt;= 3</p></td>
+<td><p>Structuring-element connectivity in <code class="docutils literal notranslate"><span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">3}</span></code>; <code class="docutils literal notranslate"><span class="pre">1</span></code> (6-connected) is the MIRP-like default.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
 <dt><strong>rigid</strong></dt><dd><p>Sub-voxel translation and small-angle rotation in ONE resample.
 Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">shift_voxels,</span> <span class="pre">shift_fraction,</span> <span class="pre">random_signs,</span> <span class="pre">angle_degrees,</span> <span class="pre">axis,</span> <span class="pre">interpolator,</span> <span class="pre">random_sign</span></code>.
 <code class="docutils literal notranslate"><span class="pre">Spec(&quot;rigid&quot;)</span></code>
@@ -3660,6 +3756,48 @@ Required: <code class="docutils literal notranslate"><span class="pre">(none)</s
 <td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
 <td><p>bool</p></td>
 <td><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the sign of <code class="docutils literal notranslate"><span class="pre">angle_degrees</span></code> is drawn as <code class="docutils literal notranslate"><span class="pre">±1</span></code> per call (some MIRP configs randomize the sense of the 0.5° in-plane rotation). The paper’s default is a fixed <code class="docutils literal notranslate"><span class="pre">+0.5</span></code> degrees, so this stays <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt><strong>slice_extent</strong></dt><dd><p>Add or remove whole axial slices at the superior/inferior ROI ends.
+Required: <code class="docutils literal notranslate"><span class="pre">(none)</span></code>. Optional: <code class="docutils literal notranslate"><span class="pre">grow_slices,</span> <span class="pre">shrink_slices,</span> <span class="pre">max_slices,</span> <span class="pre">roi</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Spec(&quot;slice_extent&quot;)</span></code>
+<code class="docutils literal notranslate"><span class="pre">Registry.create(&quot;slice_extent&quot;)</span></code></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 16.0%" />
+<col style="width: 24.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Param</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Allowed / type</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grow_slices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>&gt;= 0</p></td>
+<td><p>Slices to append at each occupied end (copy of the nearest occupied slice’s labels).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">shrink_slices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>&gt;= 0</p></td>
+<td><p>Occupied slices to remove at each end.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_slices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td><p>&gt;= 0</p></td>
+<td><p>Bound for random per-end counts; <code class="docutils literal notranslate"><span class="pre">0</span></code> uses the fixed counts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">roi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>str | None</p></td>
+<td><p>Restrict the perturbation to one mask key; <code class="docutils literal notranslate"><span class="pre">None</span></code> perturbs all masks.</p></td>
 </tr>
 </tbody>
 </table>

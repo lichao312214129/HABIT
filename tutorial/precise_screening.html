@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
@@ -371,6 +372,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -955,6 +957,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1305,6 +1313,10 @@
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1946,7 +1958,10 @@ features vs precise features only
 <h2>Optional ROI-edge follow-up<a class="headerlink" href="#optional-roi-edge-follow-up" title="Link to this heading"></a></h2>
 <p>The paper chain does not wrinkle the ROI. Subject-level
 <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> (MONAI <code class="docutils literal notranslate"><span class="pre">Rand3DElastic</span></code>) warps image and mask
-together. That is <strong>not</strong> Prior Appendix S2 and <strong>not</strong> MIRP
+together. This simulates a <strong>deformable re-acquisition</strong> (image and
+contour move together), not inter-rater contouring; for rater
+variability use the mask-only operators of the contour follow-up
+below. That is <strong>not</strong> Prior Appendix S2 and <strong>not</strong> MIRP
 <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>. Copy-ready code lives on
 <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a> (the <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">BEGIN</span> <span class="pre">roi_followup</span></code>
 block). Same crop and slice for the three map figures; the ICC panel
@@ -1995,6 +2010,54 @@ PreciseFeatureSet. Wide intervals at <code class="docutils literal notranslate">
 </figcaption>
 </figure>
 </section>
+<section id="optional-contour-follow-up">
+<h2>Optional contour follow-up<a class="headerlink" href="#optional-contour-follow-up" title="Link to this heading"></a></h2>
+<p>Mask-only operators simulate inter-rater contour variability without
+moving the image. They are <strong>not</strong> Prior Appendix S2. Copy-ready code:
+<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a> (<code class="docutils literal notranslate"><span class="pre">contour_perturbation_demo.py</span></code>).</p>
+<figure class="align-default" id="id9">
+<a class="reference internal image-reference" href="../_images/contour_morphological_grow.png"><img alt="Uniform morphological grow of an ROI" src="../_images/contour_morphological_grow.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">P1 grow (+4 mm): cyan solid original, vermillion solid grown, yellow XOR
+(<code class="docutils literal notranslate"><span class="pre">morphological</span></code> / <a class="reference internal" href="../api/generated/habit.kernels.morphological_grow_shrink.html#habit.kernels.morphological_grow_shrink" title="habit.kernels.morphological_grow_shrink"><code class="xref py py-func docutils literal notranslate"><span class="pre">morphological_grow_shrink()</span></code></a>).</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id10">
+<a class="reference internal image-reference" href="../_images/contour_morphological_shrink.png"><img alt="Uniform morphological shrink of an ROI" src="../_images/contour_morphological_shrink.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">P1 shrink (-4 mm). Same kernel, negative radius.</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id11">
+<a class="reference internal image-reference" href="../_images/contour_boundary_band.png"><img alt="Four millimetre boundary band around an ROI" src="../_images/contour_boundary_band.png" width="480" />
+</a>
+<figcaption>
+<p><span class="caption-text">Boundary band used to localise contour edits
+(<a class="reference internal" href="../api/generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask" title="habit.kernels.boundary_band_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary_band_mask()</span></code></a>).</span><a class="headerlink" href="#id11" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id12">
+<a class="reference internal image-reference" href="../_images/contour_gradient_weighted.png"><img alt="Gradient-weighted contour perturbation" src="../_images/contour_gradient_weighted.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">P3 teaching figure: anatomy, gradient (bright = sharp), cyan vs
+vermillion solid contours, plus sharp / fuzzy insets. Flip
+probability is <code class="docutils literal notranslate"><span class="pre">0.35</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">-</span> <span class="pre">w)</span></code> inside a 2-voxel band
+(<code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code> /
+<a class="reference internal" href="../api/generated/habit.kernels.boundary_weighted_perturbation.html#habit.kernels.boundary_weighted_perturbation" title="habit.kernels.boundary_weighted_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary_weighted_perturbation()</span></code></a>).</span><a class="headerlink" href="#id12" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id13">
+<a class="reference internal image-reference" href="../_images/contour_slice_extent.png"><img alt="First mid and last slices after z-extent grow" src="../_images/contour_slice_extent.png" width="720" />
+</a>
+<figcaption>
+<p><span class="caption-text">P4: first / mid / last occupied slices after <code class="docutils literal notranslate"><span class="pre">grow_slices=2</span></code>
+(<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code> / <a class="reference internal" href="../api/generated/habit.kernels.slice_extent_perturbation.html#habit.kernels.slice_extent_perturbation" title="habit.kernels.slice_extent_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">slice_extent_perturbation()</span></code></a>).</span><a class="headerlink" href="#id13" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 <section id="optional-one-call-recipe">
 <h2>Optional one-call recipe<a class="headerlink" href="#optional-one-call-recipe" title="Link to this heading"></a></h2>
 <p><a class="reference internal" href="../api/generated/habit.recipes.identify_precise_voxel_features.html#habit.recipes.identify_precise_voxel_features" title="habit.recipes.identify_precise_voxel_features"><code class="xref py py-func docutils literal notranslate"><span class="pre">identify_precise_voxel_features()</span></code></a> loops the same
@@ -2017,11 +2080,13 @@ table.</p>
 <li><p><strong>Not a biomarker.</strong> Passing the screen means the map is <em>repeatable /
 reproducible under the stated perturbations</em>, not that it encodes a
 cell type, a driver mutation, or a clinical outcome.</p></li>
-<li><p><strong>Not ROI grow/shrink.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
+<li><p><strong>Not the default Precise chain.</strong> MIRP <code class="docutils literal notranslate"><span class="pre">perturbation_roi_adapt_size</span></code>
 (morphological dilation/erosion of the mask) is <strong>not</strong> in Prior 2024
-Appendix S2 and is <strong>not</strong> implemented. The optional
-<code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> follow-up warps the contour with the image; it is
-not grow/shrink and is not part of the default Precise chain.</p></li>
+Appendix S2. HABIT implements it, plus gradient-weighted and
+slice-extent operators, as an optional contour follow-up
+(<a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>). <code class="docutils literal notranslate"><span class="pre">bspline_deform</span></code> warps the
+contour with the image; it is not grow/shrink and is not part of the
+default Precise chain.</p></li>
 <li><p><strong>Not leakage-proof.</strong> Screening on the same cohort that will be
 clustered, then testing a classifier on that cohort, is still a
 discovery analysis. An external test set is a different protocol.</p></li>

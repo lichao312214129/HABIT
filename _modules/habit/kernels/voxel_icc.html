@@ -441,6 +441,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../tutorial/precise_screening.html#references">References</a></li>
@@ -723,6 +724,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -1307,6 +1309,12 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1657,6 +1665,10 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -2141,16 +2153,23 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#</span>
 <span class="sd">&quot;&quot;&quot;L0 kernels: voxel-level ICC point estimates with confidence limits.</span>
 
-<span class="sd">Implements the two ICC flavours Prior et al. used to define &quot;precise&quot;</span>
-<span class="sd">voxel-wise radiomics features (Radiol Artif Intell 2024;6(2):e230118,</span>
-<span class="sd">Appendix E6, erratum-corrected):</span>
+<span class="sd">Implements the ICC flavours used to screen &quot;precise&quot; voxel-wise radiomics</span>
+<span class="sd">features and, for the delineation axis, cross-rater absolute agreement:</span>
 
 <span class="sd">* ``icc3a_1`` -- ICC(3A,1), two-way mixed, absolute agreement: repeatability</span>
-<span class="sd">  across replications of the SAME acquisition/processing condition.</span>
+<span class="sd">  across replications of the SAME acquisition/processing condition. Prior et</span>
+<span class="sd">  al. (Radiol Artif Intell 2024;6(2):e230118, Appendix E6, erratum-corrected).</span>
 <span class="sd">* ``icc3c_1`` -- ICC(3C,1), two-way mixed, consistency: reproducibility</span>
-<span class="sd">  across CHANGING conditions (e.g. kernel radii or bin widths).</span>
+<span class="sd">  across CHANGING conditions (e.g. kernel radii or bin widths). Same erratum.</span>
+<span class="sd">* ``icc2_1`` -- ICC(2,1), two-way RANDOM, absolute agreement: the delineation</span>
+<span class="sd">  axis, where raters (radiologists or AI segmentations) are treated as a</span>
+<span class="sd">  random sample from a population. Point estimate matches</span>
+<span class="sd">  :func:`habit.kernels.icc.icc2_1` and pingouin&#39;s ``ICC(A,1)`` row; the</span>
+<span class="sd">  confidence interval uses the Satterthwaite approximation (McGraw &amp; Wong</span>
+<span class="sd">  1996; the form pingouin uses for its ``ICC(A,1)`` row), unlike the simpler</span>
+<span class="sd">  F-distribution interval of the two model-3 flavours.</span>
 
-<span class="sd">Both share the two-way mean-square decomposition of</span>
+<span class="sd">All share the two-way mean-square decomposition of</span>
 <span class="sd">:func:`habit.kernels.icc.two_way_mean_squares`. The erratum divides the</span>
 <span class="sd">column mean square by ``n`` before it enters the absolute-agreement</span>
 <span class="sd">correction term, i.e. the variance of the column means is used instead of</span>
@@ -2169,7 +2188,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels.icc</span><span class="w"> </span><span class="kn">import</span> <span class="n">two_way_mean_squares</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ICCEstimate&quot;</span><span class="p">,</span> <span class="s2">&quot;icc3a_1&quot;</span><span class="p">,</span> <span class="s2">&quot;icc3c_1&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ICCEstimate&quot;</span><span class="p">,</span> <span class="s2">&quot;icc3a_1&quot;</span><span class="p">,</span> <span class="s2">&quot;icc3c_1&quot;</span><span class="p">,</span> <span class="s2">&quot;icc2_1_estimate&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ICCEstimate">
@@ -2297,6 +2316,107 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_icc3</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">consistency</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_icc2_confidence_limits</span><span class="p">(</span>
+    <span class="n">ms_rows</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ms_columns</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">ms_error</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">icc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Satterthwaite-approximation confidence limits for ICC(2,1).</span>
+
+<span class="sd">    Unlike the model-3 flavours, the absolute-agreement interval under a</span>
+<span class="sd">    random-rater model does not reduce to a single F ratio; the denominator</span>
+<span class="sd">    mean square mixes the column and error mean squares, so the degrees of</span>
+<span class="sd">    freedom are approximated (McGraw &amp; Wong 1996, Eq. A5/A8; the same form</span>
+<span class="sd">    pingouin uses for its ``ICC(A,1)`` row).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ms_rows: Between-targets mean square.</span>
+<span class="sd">        ms_columns: Between-raters mean square.</span>
+<span class="sd">        ms_error: Residual mean square; must be positive.</span>
+<span class="sd">        icc: Point estimate of ICC(2,1).</span>
+<span class="sd">        n: Number of targets (rows).</span>
+<span class="sd">        k: Number of raters (columns).</span>
+<span class="sd">        alpha: Two-sided significance level.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``(lcl, ucl)``, unclipped; the caller applies the ``[0, 1]``</span>
+<span class="sd">        convention.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_rows</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">df_error</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fj</span> <span class="o">=</span> <span class="n">ms_columns</span> <span class="o">/</span> <span class="n">ms_error</span>
+    <span class="n">vn</span> <span class="o">=</span> <span class="n">df_error</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">icc</span> <span class="o">*</span> <span class="n">fj</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">icc</span><span class="p">)</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">icc</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">vd</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_rows</span> <span class="o">*</span> <span class="n">k</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">icc</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">fj</span><span class="o">**</span><span class="mi">2</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">icc</span><span class="p">)</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">icc</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">vn</span> <span class="o">/</span> <span class="n">vd</span>
+    <span class="n">f_upper</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">df_rows</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">f_lower</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">alpha</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">df_rows</span><span class="p">)</span>
+    <span class="n">lcl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">ms_rows</span> <span class="o">-</span> <span class="n">f_upper</span> <span class="o">*</span> <span class="n">ms_error</span><span class="p">)</span>
+        <span class="o">/</span> <span class="p">(</span><span class="n">f_upper</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">ms_columns</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">-</span> <span class="n">k</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">ms_error</span><span class="p">)</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">ms_rows</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ucl</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">f_lower</span> <span class="o">*</span> <span class="n">ms_rows</span> <span class="o">-</span> <span class="n">ms_error</span><span class="p">)</span>
+        <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">ms_columns</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">n</span> <span class="o">-</span> <span class="n">k</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">ms_error</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">f_lower</span> <span class="o">*</span> <span class="n">ms_rows</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">lcl</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">ucl</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">icc2_1_estimate</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ICCEstimate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ICC(2,1): two-way RANDOM effects, absolute agreement, single measurement.</span>
+
+<span class="sd">    Use this for the delineation axis, where the k raters (radiologists or</span>
+<span class="sd">    AI segmentations) are a random sample from a rater population and we</span>
+<span class="sd">    want the reliability of any single rater, penalising systematic rater</span>
+<span class="sd">    bias. The point estimate equals :func:`habit.kernels.icc.icc2_1` and</span>
+<span class="sd">    pingouin&#39;s ``ICC(A,1)`` row; the confidence interval is the</span>
+<span class="sd">    Satterthwaite form of McGraw &amp; Wong (1996), not the simpler F interval</span>
+<span class="sd">    of the model-3 flavours.</span>
+
+<span class="sd">    The name carries ``_estimate`` to stay distinct from the point-estimate</span>
+<span class="sd">    kernel :func:`habit.kernels.icc.icc2_1` re-exported alongside it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data: ``(n, k)`` matrix, one row per target, one column per rater.</span>
+<span class="sd">            NaN handling is the caller&#39;s responsibility.</span>
+<span class="sd">        alpha: Two-sided significance level for the confidence limits.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The estimate with its ``(1 - alpha)`` confidence limits, truncated</span>
+<span class="sd">        to ``[0, 1]`` per the paper&#39;s convention.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``data`` is not a 2-D, NaN-free matrix with at least</span>
+<span class="sd">            2 rows and 2 columns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ms_rows</span><span class="p">,</span> <span class="n">ms_columns</span><span class="p">,</span> <span class="n">ms_error</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">two_way_mean_squares</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ms_error</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">perfect</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">ms_rows</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">ICCEstimate</span><span class="p">(</span><span class="n">perfect</span><span class="p">,</span> <span class="n">perfect</span><span class="p">,</span> <span class="n">perfect</span><span class="p">)</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ms_rows</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">ms_error</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">ms_columns</span> <span class="o">-</span> <span class="n">ms_error</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">denominator</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ICCEstimate</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">ms_rows</span> <span class="o">-</span> <span class="n">ms_error</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">lcl</span><span class="p">,</span> <span class="n">ucl</span> <span class="o">=</span> <span class="n">_icc2_confidence_limits</span><span class="p">(</span>
+        <span class="n">ms_rows</span><span class="p">,</span> <span class="n">ms_columns</span><span class="p">,</span> <span class="n">ms_error</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">alpha</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ICCEstimate</span><span class="p">(</span>
+        <span class="n">value</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lcl</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)),</span>
+        <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">ucl</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)),</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

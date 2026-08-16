@@ -88,6 +88,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#why-morphology-aware">Why “morphology-aware”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#how-to-apply">How to apply</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-contour-follow-up">Optional contour follow-up</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#optional-one-call-recipe">Optional one-call recipe</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#what-is-not-claimed">What is not claimed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorial/precise_screening.html#references">References</a></li>
@@ -370,6 +371,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#figures">Figures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-roi-edge-follow-up">Optional ROI-edge follow-up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#optional-one-call-recipe">Optional one-call recipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#contour-perturbation-p1-p3-p4">Contour perturbation (P1 / P3 / P4)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/precise_features.html#what-to-read-next">What to read next</a></li>
 </ul>
 </li>
@@ -954,6 +956,12 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RotationPerturbationParams.html">RotationPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbation.html">RigidPerturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.RigidPerturbationParams.html">RigidPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbation.html">MorphologicalPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.MorphologicalPerturbationParams.html">MorphologicalPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbation.html">GradientWeightedPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.GradientWeightedPerturbationParams.html">GradientWeightedPerturbationParams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbation.html">SliceExtentPerturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.SliceExtentPerturbationParams.html">SliceExtentPerturbationParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.perturb_image.html">perturb_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.extract_voxel_texture.html">extract_voxel_texture</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.domain.PerturbationChain.html">PerturbationChain</a></li>
@@ -1304,6 +1312,10 @@
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.translate_image.html">translate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rotate_image.html">rotate_image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.rigid_transform_image.html">rigid_transform_image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html">morphological_grow_shrink</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html">boundary_band_mask</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html">boundary_weighted_perturbation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html">slice_extent_perturbation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.ICCEstimate.html">ICCEstimate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3a_1.html">icc3a_1</a></li>
 <li class="toctree-l4"><a class="reference internal" href="generated/habit.kernels.icc3c_1.html">icc3c_1</a></li>
@@ -1872,9 +1884,13 @@ and a 0.5° in-plane rotation. <a class="reference internal" href="generated/hab
 composes translation+rotation into one affine (MIRP ≥ 2).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">habit.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_gaussian_noise</span><span class="p">,</span>
+    <span class="n">boundary_band_mask</span><span class="p">,</span>
+    <span class="n">boundary_weighted_perturbation</span><span class="p">,</span>
     <span class="n">estimate_noise_sigma</span><span class="p">,</span>
+    <span class="n">morphological_grow_shrink</span><span class="p">,</span>
     <span class="n">rigid_transform_image</span><span class="p">,</span>
     <span class="n">rotate_image</span><span class="p">,</span>
+    <span class="n">slice_extent_perturbation</span><span class="p">,</span>
     <span class="n">translate_image</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -1884,8 +1900,58 @@ composes translation+rotation into one affine (MIRP ≥ 2).</p>
 <span class="n">rotated</span> <span class="o">=</span> <span class="n">rotate_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
 <span class="c1"># MIRP ≥ 2: translation + rotation in one resample</span>
 <span class="n">rigid</span> <span class="o">=</span> <span class="n">rigid_transform_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">angle_degrees</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Mask-only contour kernels (image intensities are never touched).</span>
+<span class="n">grown</span> <span class="o">=</span> <span class="n">morphological_grow_shrink</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">grow_mm</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing</span><span class="p">)</span>
+<span class="n">band</span> <span class="o">=</span> <span class="n">boundary_band_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">band_mm</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">spacing_xyz</span><span class="o">=</span><span class="n">spacing</span><span class="p">)</span>
+<span class="n">local</span> <span class="o">=</span> <span class="n">boundary_weighted_perturbation</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">max_radius_voxels</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ends</span> <span class="o">=</span> <span class="n">slice_extent_perturbation</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">grow_slices</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Subject-level wrappers (<code class="docutils literal notranslate"><span class="pre">morphological</span></code>, <code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>,
+<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code>) live on <a class="reference internal" href="generated/habit.domain.ImagePerturbationRegistry.html#habit.domain.ImagePerturbationRegistry" title="habit.domain.ImagePerturbationRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagePerturbationRegistry</span></code></a>.
+Copy-ready demo and figures: <a class="reference internal" href="../examples/precise_features.html"><span class="doc">Precise features: atoms, then paper combinations</span></a>.</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/contour_morphological_grow.png"><img alt="Uniform morphological grow of an ROI contour" src="../_images/contour_morphological_grow.png" width="640" />
+</a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="generated/habit.kernels.morphological_grow_shrink.html#habit.kernels.morphological_grow_shrink" title="habit.kernels.morphological_grow_shrink"><code class="xref py py-func docutils literal notranslate"><span class="pre">morphological_grow_shrink()</span></code></a> via the
+<code class="docutils literal notranslate"><span class="pre">morphological</span></code> registry name (grow +4 mm). Same PNG as the
+gallery script <code class="docutils literal notranslate"><span class="pre">contour_perturbation_demo.py</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../_images/contour_morphological_shrink.png"><img alt="Uniform morphological shrink of an ROI contour" src="../_images/contour_morphological_shrink.png" width="640" />
+</a>
+<figcaption>
+<p><span class="caption-text">Same kernel, negative radius (shrink -4 mm).</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../_images/contour_boundary_band.png"><img alt="Boundary band around an ROI" src="../_images/contour_boundary_band.png" width="420" />
+</a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="generated/habit.kernels.boundary_band_mask.html#habit.kernels.boundary_band_mask" title="habit.kernels.boundary_band_mask"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary_band_mask()</span></code></a> (4 mm half-width).</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/contour_gradient_weighted.png"><img alt="Gradient-weighted boundary perturbation" src="../_images/contour_gradient_weighted.png" width="640" />
+</a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="generated/habit.kernels.boundary_weighted_perturbation.html#habit.kernels.boundary_weighted_perturbation" title="habit.kernels.boundary_weighted_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary_weighted_perturbation()</span></code></a> via
+<code class="docutils literal notranslate"><span class="pre">gradient_weighted</span></code>. Anatomy, gradient (bright = sharp), cyan vs
+vermillion solid contours, plus sharp / fuzzy insets. Flip
+probability scales with <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">normalised_gradient</span></code>.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/contour_slice_extent.png"><img alt="First mid and last slices after z-extent grow" src="../_images/contour_slice_extent.png" width="640" />
+</a>
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="generated/habit.kernels.slice_extent_perturbation.html#habit.kernels.slice_extent_perturbation" title="habit.kernels.slice_extent_perturbation"><code class="xref py py-func docutils literal notranslate"><span class="pre">slice_extent_perturbation()</span></code></a> via
+<code class="docutils literal notranslate"><span class="pre">slice_extent</span></code> (<code class="docutils literal notranslate"><span class="pre">grow_slices=2</span></code>).</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="classification-statistics">
 <h2>Classification statistics<a class="headerlink" href="#classification-statistics" title="Link to this heading"></a></h2>
