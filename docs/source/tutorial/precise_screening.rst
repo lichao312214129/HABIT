@@ -178,7 +178,10 @@ Optional ROI-edge follow-up
 
 The paper chain does not wrinkle the ROI. Subject-level
 ``bspline_deform`` (MONAI ``Rand3DElastic``) warps image and mask
-together. That is **not** Prior Appendix S2 and **not** MIRP
+together. This simulates a **deformable re-acquisition** (image and
+contour move together), not inter-rater contouring; for rater
+variability use the mask-only operators of the contour follow-up
+below. That is **not** Prior Appendix S2 and **not** MIRP
 ``perturbation_roi_adapt_size``. Copy-ready code lives on
 :doc:`../examples/precise_features` (the ``# BEGIN roi_followup``
 block). Same crop and slice for the three map figures; the ICC panel
@@ -223,6 +226,50 @@ uses three cropped subjects.
    Colour is ``LCL >= 0.5`` only — this is **not** the voxel-texture
    PreciseFeatureSet. Wide intervals at ``n=3`` are expected.
 
+Optional contour follow-up
+--------------------------
+
+Mask-only operators simulate inter-rater contour variability without
+moving the image. They are **not** Prior Appendix S2. Copy-ready code:
+:doc:`../examples/precise_features` (``contour_perturbation_demo.py``).
+
+.. figure:: ../_static/images/examples/contour_morphological_grow.png
+   :alt: Uniform morphological grow of an ROI
+   :width: 720
+
+   P1 grow (+4 mm): cyan solid original, vermillion solid grown, yellow XOR
+   (``morphological`` / :func:`~habit.kernels.morphological_grow_shrink`).
+
+.. figure:: ../_static/images/examples/contour_morphological_shrink.png
+   :alt: Uniform morphological shrink of an ROI
+   :width: 720
+
+   P1 shrink (-4 mm). Same kernel, negative radius.
+
+.. figure:: ../_static/images/examples/contour_boundary_band.png
+   :alt: Four millimetre boundary band around an ROI
+   :width: 480
+
+   Boundary band used to localise contour edits
+   (:func:`~habit.kernels.boundary_band_mask`).
+
+.. figure:: ../_static/images/examples/contour_gradient_weighted.png
+   :alt: Gradient-weighted contour perturbation
+   :width: 720
+
+   P3 teaching figure: anatomy, gradient (bright = sharp), cyan vs
+   vermillion solid contours, plus sharp / fuzzy insets. Flip
+   probability is ``0.35 * (1 - w)`` inside a 2-voxel band
+   (``gradient_weighted`` /
+   :func:`~habit.kernels.boundary_weighted_perturbation`).
+
+.. figure:: ../_static/images/examples/contour_slice_extent.png
+   :alt: First mid and last slices after z-extent grow
+   :width: 720
+
+   P4: first / mid / last occupied slices after ``grow_slices=2``
+   (``slice_extent`` / :func:`~habit.kernels.slice_extent_perturbation`).
+
 Optional one-call recipe
 ------------------------
 
@@ -247,11 +294,13 @@ What is not claimed
 * **Not a biomarker.** Passing the screen means the map is *repeatable /
   reproducible under the stated perturbations*, not that it encodes a
   cell type, a driver mutation, or a clinical outcome.
-* **Not ROI grow/shrink.** MIRP ``perturbation_roi_adapt_size``
+* **Not the default Precise chain.** MIRP ``perturbation_roi_adapt_size``
   (morphological dilation/erosion of the mask) is **not** in Prior 2024
-  Appendix S2 and is **not** implemented. The optional
-  ``bspline_deform`` follow-up warps the contour with the image; it is
-  not grow/shrink and is not part of the default Precise chain.
+  Appendix S2. HABIT implements it, plus gradient-weighted and
+  slice-extent operators, as an optional contour follow-up
+  (:doc:`../examples/precise_features`). ``bspline_deform`` warps the
+  contour with the image; it is not grow/shrink and is not part of the
+  default Precise chain.
 * **Not leakage-proof.** Screening on the same cohort that will be
   clustered, then testing a classifier on that cohort, is still a
   discovery analysis. An external test set is a different protocol.

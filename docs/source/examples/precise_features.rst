@@ -24,8 +24,11 @@ Neither call needs a :class:`~habit.contracts.subject.Cohort`, YAML, or
    that method's parameters. Optional ``mask`` is used by methods that
    consult or warp an ROI. The result stays on the original voxel grid.
 
-   Built-in methods: ``gaussian_noise``, ``translation``, ``rotation``,
-   ``rigid``, ``bspline_deform`` (MONAI; extra ``monai``).
+   Built-in intensity methods: ``gaussian_noise``, ``translation``,
+   ``rotation``, ``rigid``, ``bspline_deform`` (MONAI; extra ``monai``).
+   Mask-only contour methods (``morphological``, ``gradient_weighted``,
+   ``slice_extent``) need the Subject-level registry; see the follow-up
+   below.
 
 2. **Extract voxel texture** — :func:`~habit.extract_voxel_texture`: the
    same image and mask, with ``kernel_radius`` (the paper's ``R``),
@@ -165,8 +168,11 @@ change ROI *shape*. Subject-level
 :class:`~habit.domain.ImagePerturbationRegistry`
 ``bspline_deform`` (MONAI ``Rand3DElastic``) does: one displacement
 field warps every image and mask together so the contour stays paired
-with the anatomy. This is **not** Prior Appendix S2 and **not** MIRP
-``perturbation_roi_adapt_size`` (mask grow/shrink).
+with the anatomy. This simulates a **deformable re-acquisition** (image
+and contour move together), not inter-rater contouring; for rater
+variability use the mask-only operators below. This is **not** Prior
+Appendix S2 and **not** the ``morphological`` grow/shrink operator
+(that follow-up is below).
 
 The same block then extracts **habitat-table** features — volume
 fraction, ITH, and the graph family
@@ -261,8 +267,119 @@ GLCM set, or a custom :func:`~habit.perturb_image` chain via
 :class:`~habit.domain.precision.PerturbationChain`).
 :func:`~habit.domain.precision.prior2024_retest_perturbation` is the
 Appendix S2 default (Chang noise + 0.5-voxel translation + 0.5°
-rotation). MIRP ``perturbation_roi_adapt_size`` (mask grow/shrink) is
-not implemented.
+rotation). Contour operators (``morphological``, ``gradient_weighted``,
+``slice_extent``) are a separate follow-up below; they are **not** in
+that default chain.
+
+Contour perturbation (P1 / P3 / P4)
+-----------------------------------
+
+The paper chain and ``bspline_deform`` do not cover three common
+inter-rater patterns: a systematic "always larger / always smaller"
+bias, disagreement that concentrates on fuzzy edges, and first/last
+slice disagreement. Those are mask-only operators on a
+:class:`~habit.contracts.subject.Subject` — the image is unchanged.
+``perturb_image`` returns only the intensity volume, so use
+:class:`~habit.domain.ImagePerturbationRegistry` here.
+
+Swap ``DATA`` / ``MODALITIES`` / ``ROI``. Operators run on an ROI
+crop (speed); figures use the uncropped ``ImageVolume`` / mask so
+orientation and ``z`` match ITK-SNAP. Writes ``out/contour_*.png``.
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN example
+   :end-before: # END example
+
+Run from the repository root (one line)::
+
+   python docs/source/examples/scripts/contour_perturbation_demo.py
+
+**P1 grow** — uniform dilation (MIRP ``perturbation_roi_adapt_size``):
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN morphological_grow
+   :end-before: # END morphological_grow
+
+.. figure:: ../_static/images/examples/contour_morphological_grow.png
+   :alt: Original ROI contour beside a uniformly grown contour
+   :width: 720
+
+   Uniform grow of +4 mm. Cyan solid = original; vermillion solid =
+   grown; yellow = membership change (XOR). Radiological axial slice;
+   ``z`` is the file / ITK index (ITK-SNAP 1-based = ``z+1``).
+
+**P1 shrink** — uniform erosion:
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN morphological_shrink
+   :end-before: # END morphological_shrink
+
+.. figure:: ../_static/images/examples/contour_morphological_shrink.png
+   :alt: Original ROI contour beside a uniformly shrunk contour
+   :width: 720
+
+   Uniform shrink of -4 mm. Same colours and slice as the grow figure.
+
+**Boundary band** — L0 helper used to reason about the mouse-travel
+strip (:func:`~habit.kernels.boundary_band_mask`):
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN boundary_band
+   :end-before: # END boundary_band
+
+.. figure:: ../_static/images/examples/contour_boundary_band.png
+   :alt: Anatomy slice with the 4 mm boundary band filled
+   :width: 480
+
+   Voxels within 4 mm of the foreground boundary (outer dilation shell
+   XOR inner erosion shell).
+
+**P3 gradient-weighted** — flip probability
+``probability * (1 - normalised_gradient)`` so fuzzy edges move more:
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN gradient_weighted
+   :end-before: # END gradient_weighted
+
+.. figure:: ../_static/images/examples/contour_gradient_weighted.png
+   :alt: Gradient weight map beside original and perturbed ROI contours
+   :width: 720
+
+   Same ITK-SNAP-matching axial slice: anatomy, normalised Gaussian
+   gradient (sigma 1; bright = sharp), original (cyan solid) vs
+   perturbed (vermillion solid) contours, plus sharp / fuzzy insets.
+   Flip probability is ``0.35 * (1 - w)`` inside a 2-voxel band. The
+   orange contour hugs the cyan contour on sharp edges and leaves it
+   on fuzzy edges. A filled XOR ring is not shown: the flip band has
+   a fixed radius, so XOR width is not the scientific effect.
+
+**P4 slice-extent** — add or drop whole axial slices at the z ends:
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN slice_extent
+   :end-before: # END slice_extent
+
+.. figure:: ../_static/images/examples/contour_slice_extent.png
+   :alt: First mid and last occupied slices before and after z-extent grow
+   :width: 720
+
+   First / mid / last occupied axial slices (full-volume / ITK-SNAP
+   ``z``). Top row = original; bottom row = after ``grow_slices=2``
+   (nearest occupied slice copied outward). Mid-slice contour is
+   unchanged; the z range is not.
+
+Draw the figures (paste after the operator blocks):
+
+.. literalinclude:: scripts/contour_perturbation_demo.py
+   :language: python
+   :start-after: # BEGIN figures
+   :end-before: # END figures
 
 What to read next
 -----------------
